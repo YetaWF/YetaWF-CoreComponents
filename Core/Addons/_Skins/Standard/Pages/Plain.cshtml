@@ -1,0 +1,25 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@using global::YetaWF.Core.Pages
+@using global::YetaWF.Core.Modules
+@inherits global::YetaWF.Core.Pages.RazorPage
+@{Manager.SetSkinOptions();}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title></title>
+</head>
+<body class="@Manager.PageCss("pageSkinDefault")">
+    <noscript><div class="yDivWarning" style="height:100px;text-align:center;vertical-align:middle">This site requires Javascript</div></noscript>
+    <div class="pageOuterWrapper">
+        @(Html.RenderModule<global::YetaWF.Modules.TinyLogin.Modules.TinyLoginModule>())
+        @(Html.RenderModule<global::YetaWF.Modules.Menus.Modules.MainMenuModule>())
+
+        @RenderPane("", "MainPane AnyPane")
+
+        <div class="pageFooter">[[PageOrSite,CopyrightEvaluated]]</div>
+
+        @(Html.RenderPageControl<global::YetaWF.Modules.PageEdit.Modules.PageControlModule>())
+    </div>
+</body>
+</html>

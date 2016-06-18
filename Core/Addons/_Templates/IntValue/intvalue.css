@@ -1,0 +1,19 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+input[type="text"].yt_intvalue
+{
+    width:14ch;
+}
+
+input[type="text"].yt_intvalue2
+{
+    width: 4ch;
+}
+input[type="text"].yt_intvalue4
+{
+    width: 6ch;
+}
+input[type="text"].yt_intvalue6
+{
+    width: 8ch;
+}

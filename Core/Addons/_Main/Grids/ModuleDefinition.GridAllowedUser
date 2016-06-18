@@ -1,0 +1,12 @@
+﻿DeleteMe            icons 1
+DisplayUserId       20 sort
+View                center [Globals.ChBoolean] sort
+Edit                center [Globals.ChBoolean] sort
+Remove              center [Globals.ChBoolean] sort
+Extra1              center [Globals.ChBoolean] sort
+Extra2              center [Globals.ChBoolean] sort
+Extra3              center [Globals.ChBoolean] sort
+Extra4              center [Globals.ChBoolean] sort
+Extra5              center [Globals.ChBoolean] sort
+UserId              hidden
+DisplayUserName     hidden

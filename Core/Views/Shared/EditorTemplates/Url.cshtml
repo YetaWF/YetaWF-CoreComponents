@@ -1,0 +1,38 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.Url<System.String>
+@using YetaWF.Core.Views
+@{
+    UrlHelperEx.UrlTypeEnum type = Html.GetControlInfo<UrlHelperEx.UrlTypeEnum>("", "UrlType", UrlHelperEx.UrlTypeEnum.Remote);
+}
+<div id="@ControlId" class="yt_url t_edit" data-name="@Html.FieldName("")">
+    @Html.RenderHidden("", Model)
+    <select class="t_select"@(((type & UrlHelperEx.UrlTypeEnum.Local) == 0 || (type & UrlHelperEx.UrlTypeEnum.Remote) == 0) ? " disabled=\"disabled\"" : "")>
+        @if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+            <option value="1" title="@__ResStr("selLocalTT", "Select for local, designed pages")">@__ResStr("selLocal", "Designed Page")</option>
+        }
+        @if ((type & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+            <option value="2" title="@__ResStr("selRemoteTT", "Select to enter a Url (local or remote) - Can contain query string arguments - Local Urls start with /, remote Urls with http:// or https://")">@__ResStr("selRemote", "Local/Remote Url")</option>
+        }
+        @if ((type & UrlHelperEx.UrlTypeEnum.New) != 0) {
+            throw new YetaWF.Core.Support.InternalError("New url not supported by this template");
+        }
+    </select>
+    @if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+        <div class="t_local">
+            @Html.RenderUrlDD("_Local", Model)
+        </div>
+    }
+    @if ((type & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+        <div class="t_remote">
+            <input type="text" value="@Model" />
+        </div>
+    }
+    <div class="t_link">
+        @Html.RenderUrlLinkAndImage(Model)
+    </div>
+</div>
+<script>
+    @using (DocumentReady()) {
+        @: YetaWF_Url.init('@ControlId');
+    }
+</script>

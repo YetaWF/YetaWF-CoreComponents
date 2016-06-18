@@ -1,0 +1,493 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
+using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Models;
+using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Pages;
+using YetaWF.Core.Serializers;
+using YetaWF.Core.Skins;
+using YetaWF.Core.Views.Shared;
+
+namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization
+
+    [ModuleGuidAttribute("00000000-0000-0000-0000-000000000000")]
+    [Trim]
+    public partial class ModuleDefinition {
+
+        public const int MaxName = 80;
+        public const int MaxDescription = 200;
+        public const int MaxTitle = 100;
+        public const int MaxCssClass = 100;
+        public const int MaxHtmlId = 100;
+
+        public ModuleDefinition() {
+            Temporary = true;
+            if (IsModuleUnique)
+                ModuleGuid = PermanentGuid;
+            else
+                ModuleGuid = Guid.NewGuid();
+            SelectedPopupSkin = new SkinDefinition();
+
+            //Displayed = true;
+            //ActionLinkStyle = Actions.ActionLinkStyleEnum.SiteDefault;
+            //PageAuthorization = true;
+            //Secure = false;
+            Visible = true;
+            ModuleSecurity = PageDefinition.PageSecurityType.Any;
+            ShowTitle = true;
+            ShowHelp = false;
+            Name = __ResStr("name", "(unnamed)");
+            Title = __ResStr("title", "(untitled)");
+            Description = __ResStr("desc", "(not specified)");
+            SameAsPage = true;
+            WantFocus = true;
+            WantSearch = true;
+            DateCreated = DateUpdated = DateTime.UtcNow;
+            ShowFormButtons = true;
+            Print = true;
+            ReferencedModules = new SerializableList<ReferencedModule>();
+        }
+
+        //[Category("Variables"), Caption("Category Order"), Description("The order in which the property categories are shown")]
+        //[UIHint("ListOfStrings")]
+        public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
+
+        [Category("Variables"), Caption("Permanent Guid"), Description("Displays a unique identifier for this type of module. This is typically used for development purposes only and can be used to uniquely identify this module type. This id never changes")]
+        public Guid PermanentGuid {
+            get {
+                return GetPermanentGuid(GetType());
+            }
+        }
+        [Category("General"), Caption("Name"), Description("The module name, which is used to identify the module", Order = -101)]
+        [UIHint("Text40"), StringLength(ModuleDefinition.MaxName), Required, Trim]
+        public string Name { get; set; }
+
+        [Category("General"), Caption("Title"), Description("The module title, which appears at the top of the module as its title", Order = -100)]
+        [UIHint("MultiString80"), StringLength(ModuleDefinition.MaxTitle), Trim]
+        public MultiString Title { get; set; }
+
+        [Category("General"), Caption("Temporary") ,Description("Defines whether the module is a temporary (generated) module", Order = -99)]
+        [ReadOnly, DontSave]
+        public bool Temporary { get; set; }
+
+        [Category("General"), Caption("Visible"), Description("Defines whether the module is visible", Order = -98)]
+        [UIHint("Boolean")]
+        public bool Visible { get; set; }
+
+        [Category("General"), Caption("Security"), Description("Defines what page security is needed for the module to be shown", Order = -96)]
+        [UIHint("Enum")]
+        public PageDefinition.PageSecurityType ModuleSecurity { get; set; }
+
+        [Category("General"), Caption("Search Keywords"), Description("Defines whether this module's contents should be added to the site's search keywords", Order = -93)]
+        [UIHint("Boolean")]
+        public bool WantSearch { get; set; }
+
+        [Category("General"), Caption("Wants Input Focus"), Description("Defines whether input fields in this module should receive the input focus if it's first on the page", Order = -91)]
+        [UIHint("Boolean")]
+        public bool WantFocus { get; set; }
+
+        public static Guid GetPermanentGuid(Type moduleType) {
+            ModuleGuidAttribute attr = (ModuleGuidAttribute) Attribute.GetCustomAttribute(moduleType, typeof(ModuleGuidAttribute));
+            return attr.Value;
+        }
+        public static string GetModulePermanentUrl(Type type) {
+            return Globals.ModuleUrl + GetModuleGuidName(GetPermanentGuid(type));
+        }
+        public static string GetModulePermanentUrl(Guid permanentGuid) {
+            return Globals.ModuleUrl + GetModuleGuidName(permanentGuid);
+        }
+        public static string GetModuleUrl(Guid guid) {
+            return Globals.ModuleUrl + GetModuleGuidName(guid);
+        }
+        [Category("Variables"), Caption("Permanent Url"), Description("The Url used to uniquely and permanently identify this module")]
+        public string ModulePermanentUrl {
+            get {
+                return GetModulePermanentUrl(GetType());
+            }
+        }
+
+        [Category("About"), Caption("Summary"), Description("The module description", Order = -100)]
+        [UIHint("MultiString80"), StringLength(MaxDescription), ReadOnly]
+        public MultiString Description { get; set; }
+
+        [Category("Variables"), Caption("Module Guid"), Description("Displays a unique identifier for this instance of a module. This is typically used for development purposes only and can be used to uniquely identify this module. This id never changes, even if the module is later renamed", Order = -100)]
+        [ReadOnly, CopyAttribute]
+        [Data_PrimaryKey]
+        public Guid ModuleGuid { get; set; }
+
+        /// <summary>
+        /// Returns the module's unique id as a string.
+        /// </summary>
+        public string ModuleGuidName {
+            get {
+                return GetModuleGuidName(ModuleGuid);
+            }
+        }
+        protected static string GetModuleGuidName(Guid moduleGuid) {
+            return moduleGuid.ToString();
+        }
+
+        [Category("Variables"), Caption("Date Created"), Description("The date/time this module was created", Order = -96)]
+        [ReadOnly]
+        public DateTime DateCreated { get; set; }
+        [Category("Variables"), Caption("Date Updated"), Description("The date/time this module was last updated", Order = -95)]
+        [ReadOnly]
+        public DateTime DateUpdated { get; set; }
+
+        /// <summary>
+        /// Module Id used in Html
+        /// </summary>
+        /// <remarks>
+        /// The module Id can change between different requests and is only valid while
+        /// the module definition is instantiated.
+        /// </remarks>
+        //[Category("Variables"), Caption("Module Html Id"), Description("The id used by this module in HTML. The module id can change between page requests and is not usable across http requests", Order = -94)]
+        //[UIHint("String")
+        public virtual string ModuleHtmlId {
+            get {
+                if (string.IsNullOrEmpty(_moduleHtmlId))
+                    _moduleHtmlId = Manager.UniqueId("Mod");
+                return _moduleHtmlId;
+            }
+        }
+        private string _moduleHtmlId;
+
+        // SKIN
+        // SKIN
+        // SKIN
+
+        [Data_Binary]
+        [Category("Skin"), Caption("Module Skins"), Description("The skin used for this module - for each installed skin, a skin can be selected which will be used for the module, if the containing page uses that skin. This way the same module can be used on multiple pages, even if different page skins are used", Order = -100)]
+        [UIHint("ModuleSkins")]
+        public SerializableList<SkinDefinition> SkinDefinitions {
+            get {
+                if (_skinDefinitions == null)
+                    _skinDefinitions = new SerializableList<SkinDefinition>();
+                return _skinDefinitions;
+            }
+            set {
+                _skinDefinitions = value;
+            }
+        }
+        SerializableList<SkinDefinition> _skinDefinitions;
+
+        [Category("Skin"), Caption("Popup Skin"), Description("The skin used for the popup window when this module is shown in a popup", Order = -97)]
+        [UIHint("PopupSkin"), Trim]
+        public SkinDefinition SelectedPopupSkin { get; set; }
+
+        /// <summary>
+        /// The CSS class name use on the &lt;div&gt; tag for this module. The allowable CSS class name is a subset of the CSS specification. Only characters _, a-z, A-Z and 0-9 are allowed, Ansi and Unicode escapes are not allowed.
+        /// </summary>
+        [Category("Skin"), Caption("CSS Class"), Description("The optional CSS classes to be added to the module's <div> tag for further customization through stylesheets", Order = -94)]
+        [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
+        public string CssClass { get; set; }
+
+        [Category("Skin"), Caption("Show Title"), Description("Defines whether the module title is shown", Order = -92)]
+        [UIHint("Boolean")]
+        public bool ShowTitle { get; set; }
+
+        [Category("Skin"), Caption("Show Help"), Description("Defines whether the module help link is shown in Display Mode - The help link is always shown in Edit Mode", Order = -91)]
+        [UIHint("Boolean")]
+        public bool ShowHelp { get; set; }
+
+        [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed", Order = -90)]
+        [UIHint("Boolean")]
+        public bool Print { get; set; }
+
+        [Category("Skin"), Caption("Show Form Buttons"), Description("If the module has a form with buttons (Save, Close, Return, etc.) these are shown/hidden based on this setting", Order = -88)]
+        [UIHint("Boolean")]
+        public bool ShowFormButtons { get; set; }
+
+        [Category("Skin"), Caption("Anchor Id"), Description("The optional id used as anchor tag for this module - if an id is entered, an anchor tag is generated so the module can be directly located on the page", Order = -86)]
+        [UIHint("Text40"), StringLength(MaxHtmlId), AnchorValidationAttribute, Trim]
+        public virtual string AnchorId { get; set; }
+
+        // AUTHORIZATION
+        // AUTHORIZATION
+        // AUTHORIZATION
+
+        [Category("Authorization"), Caption("Same As Page"), Description("Defines whether the module inherits the containing page's authorization (View, Edit, Remove)", Order = -100)]
+        [UIHint("Boolean")]
+        public bool SameAsPage { get; set; }
+
+        [Data_Binary]
+        [Category("Authorization"), Caption("Permitted Roles"), Description("Roles that are permitted to use this module")]
+        [UIHint("YetaWF_ModuleEdit_AllowedRoles"), AdditionalMetadata("GridEntry", typeof(GridAllowedRole))]
+        public SerializableList<AllowedRole> AllowedRoles {
+            get {
+                if (_allowedRoles == null)
+                    _allowedRoles = DefaultAllowedRoles;
+                return _allowedRoles;
+            }
+            set {
+                _allowedRoles = value;
+            }
+        }
+        private SerializableList<AllowedRole> _allowedRoles;
+
+        [Data_Binary]
+        [Category("Authorization"), Caption("Permitted Users"), Description("Users that are permitted to use this module")]
+        [UIHint("YetaWF_ModuleEdit_AllowedUsers"), AdditionalMetadata("GridEntry", typeof(GridAllowedUser))]
+        public SerializableList<AllowedUser> AllowedUsers {
+            get {
+                if (_allowedUsers == null)
+                    _allowedUsers = new SerializableList<AllowedUser>();
+                return _allowedUsers;
+            }
+            set {
+                _allowedUsers = value;
+            }
+        }
+        private SerializableList<AllowedUser> _allowedUsers;
+
+        /// <summary>
+        /// Returns the module's default allowed roles
+        /// </summary>
+        public virtual SerializableList<AllowedRole>  DefaultAllowedRoles { get { return UserLevel_DefaultAllowedRoles; } }
+
+        /// <summary>
+        /// Returns the anonymous role and all others as allowed roles
+        /// </summary>
+        public SerializableList<AllowedRole> AnonymousLevel_DefaultAllowedRoles {
+            get {
+                return new SerializableList<AllowedRole>() {
+                    new AllowedRole(Resource.ResourceAccess.GetAnonymousRoleId(), AllowedEnum.Yes),
+                    new AllowedRole(Resource.ResourceAccess.GetUserRoleId(), AllowedEnum.Yes),
+                    new AllowedRole(Resource.ResourceAccess.GetEditorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes),
+                    new AllowedRole(Resource.ResourceAccess.GetAdministratorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes),
+                };
+            }
+        }
+
+        /// <summary>
+        /// Returns the default allowed roles - user, editor and admin
+        /// </summary>
+        public SerializableList<AllowedRole> UserLevel_DefaultAllowedRoles {
+            get {
+                return new SerializableList<AllowedRole>() {
+                    new AllowedRole(Resource.ResourceAccess.GetUserRoleId(), AllowedEnum.Yes),
+                    new AllowedRole(Resource.ResourceAccess.GetEditorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes),
+                    new AllowedRole(Resource.ResourceAccess.GetAdministratorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes),
+                };
+            }
+        }
+
+        /// <summary>
+        /// Returns the admin role as allowed role
+        /// </summary>
+        public SerializableList<AllowedRole> EditorLevel_DefaultAllowedRoles {
+            get {
+                return new SerializableList<AllowedRole>() {
+                    new AllowedRole(Resource.ResourceAccess.GetEditorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes),
+                    new AllowedRole(Resource.ResourceAccess.GetAdministratorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes),
+                };
+            }
+        }
+
+        /// <summary>
+        /// Returns the admin role as allowed role
+        /// </summary>
+        public SerializableList<AllowedRole> AdministratorLevel_DefaultAllowedRoles {
+            get {
+                return new SerializableList<AllowedRole>() {
+                    new AllowedRole(Resource.ResourceAccess.GetAdministratorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes),
+                };
+            }
+        }
+
+        /// <summary>
+        /// Returns the superuser role as allowed role
+        /// </summary>
+        public SerializableList<AllowedRole> SuperuserLevel_DefaultAllowedRoles {
+            get {
+                return new SerializableList<AllowedRole>() {};
+            }
+        }
+
+        public virtual List<RoleDefinition> ExtraRoles {
+            get {
+                return new List<RoleDefinition>();
+            }
+        }
+        public List<RoleDefinition> RolesDefinitions {
+            get {
+                if (_rolesDefinitions == null) {
+                    _rolesDefinitions = new List<RoleDefinition>() {
+                        new RoleDefinition(RoleDefinition.View, __ResStr("roleViewC", "View"), __ResStr("roleView", "The role has permission to view the module"), __ResStr("userViewC", "View"), __ResStr("userView", "The user has permission to view the module")),
+                        new RoleDefinition(RoleDefinition.Edit, __ResStr("roleEditC", "Edit"), __ResStr("roleEdit", "The role has permission to edit the module"), __ResStr("userEditC", "Edit"), __ResStr("userEdit", "The user has permission to edit the module")),
+                        new RoleDefinition(RoleDefinition.Remove,  __ResStr("roleRemoveC", "Remove"), __ResStr("roleRemove", "The role has permission to remove the module"), __ResStr("userRemoveC", "Remove"), __ResStr("userRemove", "The user has permission to remove the module")),
+                    };
+                    _rolesDefinitions.AddRange(ExtraRoles);
+                    int index = 0;
+                    foreach (RoleDefinition roleDef in _rolesDefinitions)
+                        roleDef.Index = index++;
+                }
+                return _rolesDefinitions;
+            }
+        }
+        private List<RoleDefinition> _rolesDefinitions;
+
+        // defines external permission levels so they can be translated to internal levels (extra1,2...)
+        public class RoleDefinition {
+            public static readonly string View = "View";
+            public static readonly string Edit = "Edit";
+            public static readonly string Remove = "Remove";
+
+            public class Resource {
+                public string Caption { get; set; }
+                public string Description { get; set; }
+            }
+            public RoleDefinition(string name, string roleCaption, string roleDescription, string userCaption, string userDescription) {
+                RoleResource = new RoleDefinition.Resource();
+                UserResource = new RoleDefinition.Resource();
+                Name = name;
+                RoleResource.Caption = roleCaption;
+                RoleResource.Description = roleDescription;
+                UserResource.Caption = userCaption;
+                UserResource.Description = userDescription;
+            }
+            public string Name { get; private set; }
+            public int Index { get; set; }
+            public Resource RoleResource { get; set; }
+            public Resource UserResource { get; set; }
+            public string InternalName {
+                get {
+                    if (Index == 0) return View;
+                    else if (Index == 1) return Edit;
+                    else if (Index == 2) return Remove;
+                    else return "Extra" + (Index - 2).ToString();
+                }
+            }
+        }
+
+        // one grid entry used to edit a role
+        public class GridAllowedRole {
+
+            [DontSave]
+            public bool __editable { get; set; }
+
+            [Caption("Role"), Description("Role Description", Order = -100)]
+            [UIHint("StringTT"), ReadOnly]
+            public StringTT RoleName { get; set; }
+
+            [Caption("View"), ResourceRedirect("RolesDefinitions", 0, "RoleResource"), Description("The role has permission to view the module", Order = -99)]
+            [UIHint("Enum")]
+            public AllowedEnum View { get; set; }
+
+            [Caption("Edit"), ResourceRedirect("RolesDefinitions", 1, "RoleResource"), Description("The role has permission to edit the module", Order = -98)]
+            [UIHint("Enum")]
+            public AllowedEnum Edit { get; set; }
+
+            [Caption("Remove"), ResourceRedirect("RolesDefinitions", 2, "RoleResource"), Description("The role has permission to remove the module", Order = -97)]
+            [UIHint("Enum")]
+            public AllowedEnum Remove { get; set; }
+
+            [ResourceRedirect("RolesDefinitions", 3, "RoleResource")]
+            public virtual AllowedEnum Extra1 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 4, "RoleResource")]
+            public virtual AllowedEnum Extra2 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 5, "RoleResource")]
+            public virtual AllowedEnum Extra3 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 6, "RoleResource")]
+            public virtual AllowedEnum Extra4 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 7, "RoleResource")]
+            public virtual AllowedEnum Extra5 { get; set; }
+
+            public int RoleId { get; set; }
+
+            public GridAllowedRole() { __editable = true;  }
+        }
+
+        public class GridAllowedUser {
+
+            [Caption("Delete"), Description("Click to delete a user", Order = -100)]
+            [UIHint("GridDeleteEntry")]
+            public int DeleteMe { get; set; }
+
+            [Caption("User"), Description("User Name", Order = -99)]
+            [UIHint("YetaWF_Identity_UserId"), ReadOnly]
+            public int DisplayUserId { get; set; }
+
+            [Caption("View"), ResourceRedirect("RolesDefinitions", 0, "UserResource"), Description("The user has permission to view the module", Order = -98)]
+            [UIHint("Enum")]
+            public AllowedEnum View { get; set; }
+
+            [Caption("Edit"), ResourceRedirect("RolesDefinitions", 1, "UserResource"), Description("The user has permission to edit the module", Order = -97)]
+            [UIHint("Enum")]
+            public AllowedEnum Edit { get; set; }
+
+            [Caption("Remove"), ResourceRedirect("RolesDefinitions", 2, "UserResource"), Description("The user has permission to remove the module", Order = -96)]
+            [UIHint("Enum")]
+            public AllowedEnum Remove { get; set; }
+
+            [ResourceRedirect("RolesDefinitions", 3, "UserResource")]
+            public virtual AllowedEnum Extra1 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 4, "UserResource")]
+            public virtual AllowedEnum Extra2 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 5, "UserResource")]
+            public virtual AllowedEnum Extra3 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 6, "UserResource")]
+            public virtual AllowedEnum Extra4 { get; set; }
+            [ResourceRedirect("RolesDefinitions", 7, "UserResource")]
+            public virtual AllowedEnum Extra5 { get; set; }
+
+            [UIHint("RawInt"), ReadOnly]
+            public int UserId { get; set; }
+            [UIHint("Raw"), ReadOnly]
+            public string DisplayUserName { get; set; }
+
+            public void SetUser(int userId) {
+                DisplayUserId = UserId = userId;
+                View = AllowedEnum.Yes;
+                DisplayUserName = Resource.ResourceAccess.GetUserName(userId);
+            }
+            public GridAllowedUser() { }
+        }
+
+        // SKINMODULE
+        // SKINMODULE
+        // SKINMODULE
+
+        [Category("Variables"), Caption("Invokable"), Description("Defines whether this module can be referenced by other modules or pages so it's injected into the page - Typically used for skin modules - Only unique modules support being invoked")]
+        [UIHint("Boolean"), ReadOnly]
+        [DontSave]
+        public bool Invokable { get; set; }
+
+        /// <summary>
+        /// Defines the class that causes this module to be injected at the end of the page.
+        /// </summary>
+        /// <remarks>Certain controls/templates use css that can be handled by skin modules. By defining InvokingCss, a module will automatically be
+        /// injected to implemented the control/template - typically this is a javascript/client side implementation</remarks>
+        [Category("Variables"), Caption("Invoking Css"), Description("Defines the Css that causes this module to be injected into the page, when the Css is used by a template - only supported for unique modules")]
+        [UIHint("String"), ReadOnly]
+        [DontSave]
+        public string InvokingCss { get; protected set; }
+
+        [Category("Variables"), Caption("Use In Popup"), Description("Defines whether this module can be injected in a popup")]
+        [DontSave, ReadOnly]
+        public bool InvokeInPopup { get; protected set; }
+
+        [Category("Variables"), Caption("Use In Ajax"), Description("Defines whether this module can be injected in an Ajax request/partial view")]
+        [DontSave, ReadOnly]
+        public bool InvokeInAjax { get; protected set; }
+
+        public class ReferencedModule {
+            public Guid ModuleGuid { get; set; }
+        }
+
+        /// <summary>
+        /// Templates supported by this module (needed for ajax requests so pages can include all required template support even if the actual template isn't used until an ajax request occurs)
+        /// </summary>
+        [DontSave]
+        public List<string> SupportedTemplates { get; set; }
+
+        [Category("References"), Caption("Other Modules"), Description("Defines other modules which must be injected into the page when this module is used")]
+        [UIHint("ReferencedModules")]
+        [Data_Binary]
+        public SerializableList<ReferencedModule> ReferencedModules { get; set; }
+    }
+}

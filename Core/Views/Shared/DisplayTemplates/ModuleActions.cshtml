@@ -1,0 +1,17 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Pages.RazorTemplate<List<YetaWF.Core.Modules.ModuleAction>>
+@using YetaWF.Core.Modules
+@using YetaWF.Core.Views
+@{
+    ModuleAction.RenderModeEnum render;
+    if (!Html.TryGetControlInfo<ModuleAction.RenderModeEnum>("", "RenderAs", out render)) { 
+        render = ModuleAction.RenderModeEnum.Button;
+    }
+    if (Model != null && Model.Count > 0) {
+        <div class="yt_moduleactions t_display">
+            @foreach (YetaWF.Core.Modules.ModuleAction a in Model) {
+                @a.Render(render)
+            }
+        </div>
+    }
+}

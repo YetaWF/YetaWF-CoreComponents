@@ -1,0 +1,11 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.Scroller<System.Collections.IEnumerable>
+<div class='yt_scroller t_display'>
+    <a class='t_left'></a>
+    <div class='t_scrollarea'>
+        <div class='t_items'>
+            @Html.RenderScrollerDisplay("", Model, HtmlAttributes: new { @class = "" })
+        </div>
+    </div>
+    <a class='t_right'></a>
+</div>

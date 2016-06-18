@@ -1,0 +1,10 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+.yt_moduleactions a.y_act_normlink img,
+.yt_moduleactions a.y_act_icon img
+{
+    padding-right: 1ch;
+}
+.yt_moduleactions a.y_act_normlink {
+    padding-right: 1.5ch;
+}

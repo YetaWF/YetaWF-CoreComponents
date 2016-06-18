@@ -1,0 +1,920 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Web.Mvc;
+using System.Web.Mvc.Html;
+using System.Web.Routing;
+using YetaWF.Core.Addons;
+using YetaWF.Core.DataProvider;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
+using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Packages;
+using YetaWF.Core.Pages;
+using YetaWF.Core.Skins;
+using YetaWF.Core.Support;
+
+namespace YetaWF.Core.Modules {
+
+    // Interface to derived module type dataprovider
+    public interface IModuleDefinitionIO {
+        void SaveModuleDefinition(ModuleDefinition mod);
+        ModuleDefinition LoadModuleDefinition(Guid key);
+    }
+
+    public partial class ModuleDefinition {
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); }
+
+        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        protected static bool HaveManager { get { return YetaWFManager.HaveManager; } }
+
+        /// MODULE INFO
+        /// MODULE INFO
+        /// MODULE INFO
+
+        [Category("About")]
+        [Description("The internal, permanent module name")]
+        [Caption("Permanent Module Name")]
+        public string PermanentModuleName {
+            get {
+                GetModuleInfo();
+                return string.Format(Globals.PermanentModuleNameFormat, Domain, ClassName);
+            }
+        }
+
+        [Category("About")]
+        [Description("The displayable module name")]
+        [Caption("Module Display Name")]
+        public string ModuleDisplayName {
+            get {
+                GetModuleInfo();
+                return string.Format(Globals.ModuleDisplayNameFormat, CompanyDisplayName, ModuleName);
+            }
+        }
+        [Category("About")]
+        [Description("The internal company name of the module's publisher")]
+        [Caption("Company Name")]
+        public string CompanyName {
+            get {
+                GetModuleInfo();
+                return _CompanyName;
+            }
+        }
+        [Category("About")]
+        [Description("The displayable company name of the module's publisher")]
+        [Caption("Company Display Name")]
+        public string CompanyDisplayName {
+            get {
+                GetModuleInfo();
+                return _CompanyDisplayName;
+            }
+        }
+        [Category("About")]
+        [Description("The domain name of the product or company publishing the module")]
+        [Caption("Domain")]
+        public string Domain {
+            get {
+                GetModuleInfo();
+                return _Domain;
+            }
+        }
+        [Category("About")]
+        [Description("The MVC area name of the module")]
+        [Caption("Area")]
+        public string Area {
+            get {
+                GetModuleInfo();
+                return _Area;
+            }
+        }
+        [Category("About")]
+        [Description("The module's product name")]
+        [Caption("Product")]
+        public string Product {
+            get {
+                GetModuleInfo();
+                return _Product;
+            }
+        }
+        [Category("About")]
+        [Description("The module version")]
+        [Caption("Version")]
+        public string Version {
+            get {
+                GetModuleInfo();
+                return _Version;
+            }
+        }
+
+        [Category("About")]
+        [Description("The module's class name")]
+        [Caption("Class Name")]
+        public string ClassName {
+            get {
+                if (string.IsNullOrEmpty(_ClassName)) {
+                    _ClassName = GetType().Name;
+                }
+                return _ClassName;
+            }
+        }
+        private string _ClassName { get; set; }
+
+        [Category("About")]
+        [Description("The module's full class name")]
+        [Caption("Class Name (Full)")]
+        public string FullClassName {
+            get {
+                return GetType().FullName;
+            }
+        }
+
+        [Category("About")]
+        [Description("The module name")]
+        [Caption("Module Name")]
+        public string ModuleName {
+            get {
+                GetModuleInfo();
+                return _ModuleName;
+            }
+        }
+
+
+        private const string MODULE_NAMESPACE = "(xcompanyx.Modules.xproductx.Modules)";
+
+        private void GetModuleInfo() {
+            if (string.IsNullOrEmpty(_ModuleName)) {
+
+                Type type = GetType();
+                Package package = Package.GetPackageFromAssembly(type.Assembly);
+                string ns = type.Namespace;
+
+                if (type == typeof(ModuleDefinition)) {
+                    // we're creating a ModuleDefinition - this is done while serializing
+                    _CompanyName = "YetaWF";
+                    _Product = "YetaWF";
+                    _ModuleName = "(n/a)";
+                    _Area = "(n/a)";
+                    _CompanyDisplayName = "YetaWF";
+                    _Domain = "YetaWF.com";
+                    _Version = "(n/a)";
+                } else {
+                    string[] s = ns.Split(new char[] { '.' }, 4);
+                    if (s.Length != 4)
+                        throw new InternalError("Module namespace '{0}' must have 4 components - {1}", ns, MODULE_NAMESPACE);
+                    _CompanyName = s[0];
+                    if (s[1] != "Modules")
+                        throw new InternalError("Module namespace '{0}' must have 'Modules' as second component", ns);
+                    if (s[2] != package.Product)
+                        throw new InternalError("Module namespace '{0}' must have the product name as third component", ns);
+                    _Product = s[2];
+                    if (s[3] != "Modules")
+                        throw new InternalError("Module namespace '{0}' must have 'Modules' as fourth component", ns);
+
+                    if (!ClassName.EndsWith("Module"))
+                        throw new InternalError("Module {0} class name doesn't end in ...Module");
+                    _ModuleName = ClassName.Substring(0, ClassName.Length - "Module".Length);
+
+                    _Area = package.AreaName;
+                    _CompanyDisplayName = package.CompanyDisplayName;
+                    _Domain = package.Domain;
+                    _Version = package.Version;
+                }
+            }
+        }
+        private string _Product { get; set; }
+        private string _Area { get; set; }
+        private string _CompanyName { get; set; }
+        private string _Domain { get; set; }
+        private string _ModuleName { get; set; }
+        private string _Version { get; set; }
+        private string _CompanyDisplayName { get; set; }
+
+        [Category("Variables")]
+        [Description("Displays whether the module is a unique module")]
+        [Caption("IsModuleUnique")]
+        public bool IsModuleUnique {
+            get {
+                UniqueModuleAttribute attr = (UniqueModuleAttribute) Attribute.GetCustomAttribute(GetType(), typeof(UniqueModuleAttribute));
+                if (attr == null) return false;
+                return attr.Value == UniqueModuleStyle.UniqueOnly;
+            }
+        }
+
+        // MODULE ACTION/CONTROLLER/AREA
+        // MODULE ACTION/CONTROLLER/AREA
+        // MODULE ACTION/CONTROLLER/AREA
+
+        //[Description("The MVC action invoking this module")]
+        //[Caption("Action")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations"), Category("Variables")]
+        public string Action {
+            get {
+                if (string.IsNullOrEmpty(_Action)) {
+                    string action = ClassName;
+                    if (!action.EndsWith(Globals.ModuleClassSuffix))
+                        throw new InternalError("Module {0} is using an invalid class name - should end in \"...{1}\".", action, Globals.ModuleClassSuffix);
+                    _Action = action.Substring(0, action.Length - Globals.ModuleClassSuffix.Length); // remove trailing Module
+                }
+                return _Action;
+            }
+        }
+        private string _Action { get; set; }
+
+        //[Category("Variables")]
+        //[Description("The MVC controller invoking this module")]
+        //[Caption("Controller")]
+        public string Controller {
+            get {
+                return GetType().Name;
+            }
+        }
+
+        //[Category("Variables")]
+        //[Description("The MVC area invoking this module")]
+        //[Caption("Area Name")]
+        public string AreaName {
+            get {
+                GetModuleInfo();
+                return _Area;
+            }
+        }
+
+        // FIND
+        // FIND
+        // FIND
+
+        /// <summary>
+        /// Find a designed module given a URL
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns>Module or null if not found</returns>
+        public static ModuleDefinition FindDesignedModule(string url) {
+            Guid guid = GetGuidFromUrl(url);
+            if (guid == Guid.Empty) return null;
+            try {
+                return ModuleDefinition.Load(guid, AllowNone: true);
+            } catch (Exception) {
+                return null;
+            }
+        }
+        private static Guid GetGuidFromUrl(string url) {
+            Guid moduleGuid = Guid.Empty;
+            url = url.Trim().ToLower();
+            if (url.StartsWith(Globals.ModuleUrl.ToLower())) {
+                url = url.Substring(Globals.ModuleUrl.Length);
+                if (!Guid.TryParse(url, out moduleGuid))
+                    return Guid.Empty;
+            }
+            return moduleGuid;
+        }
+
+        // LOAD/SAVE
+        // LOAD/SAVE
+        // LOAD/SAVE
+
+        [Category("Variables")]
+        [Caption("Has Settings")]
+        [Description("Defines whether the module has settings that can be edited and saved")]
+        [DontSave]
+        public virtual bool ModuleHasSettings { get { return true; } }
+
+        // this must be provided by a dataprovider during app startup (this loads module information (including derived types))
+        [DontSave]
+        public static Func<Guid, ModuleDefinition> LoadModuleDefinition { get; set; }
+        [DontSave]
+        public static Func<Guid, bool> RemoveModuleDefinition { get; set; }
+        [DontSave]
+        public static Action<ModuleBrowseInfo> GetModules { get; set; }
+        public class ModuleBrowseInfo {
+            public int Skip { get; set; }
+            public int Take { get; set; }
+            public List<DataProviderSortInfo> Sort { get; set; }
+            public List<DataProviderFilterInfo> Filters { get; set; }
+            // return info
+            public int Total { get; set; }
+            public List<ModuleDefinition> Modules { get; set; }
+        }
+
+        // this is provided by a specific derived module type - its dataprovider reads/writes specific module types
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+        protected IModuleDefinitionIO DataProvider {
+            get {
+                if (_dataProvider == null)
+                    _dataProvider = GetDataProvider();
+                if (_dataProvider == null)
+                    throw new InternalError("Module {0} doesn't have a data provider", GetType().FullName);
+                return _dataProvider;
+            }
+        }
+        private IModuleDefinitionIO _dataProvider;
+
+        public virtual IModuleDefinitionIO GetDataProvider() {
+            throw new InternalError("Module {0} doesn't have a data provider", GetType().FullName);
+        }
+
+        /// <summary>
+        /// Loads a module's definition.
+        /// This loads unique and non-unique, designed and installed modules, as long as the guid exists.
+        /// Modules can always be loaded even if they haven't been saved yet, as long as the guid exists.
+        /// If a perm guid is used for a non-unique module a new TEMPORARY module is created
+        /// </summary>
+        public static ModuleDefinition Load(Guid moduleGuid, bool AllowNone = false) {
+            // load it as an already saved module
+            ModuleDefinition mod = null;
+            try {
+                mod = LoadModuleDefinition(moduleGuid);
+            } catch (Exception) {
+                mod = null;
+                if (!AllowNone)
+                    throw;
+            }
+            if (mod == null) {
+                // if it hasn't been saved yet, check if this is a permanent module guid for a unique module
+                Type type = InstalledModules.TryFindModule(moduleGuid);
+                if (type == null) {
+                    if (AllowNone)
+                        return null;
+                    throw new InternalError("Designed module {0} not found", moduleGuid);
+                }
+                // this can be a unique or nonunique module
+                mod = ModuleDefinition.Create(type);
+                mod.ModuleGuid = moduleGuid;
+            }
+            mod.Temporary = false;
+            return mod;
+        }
+
+        /// <summary>
+        /// Find an installed module given a URL
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static ModuleDefinition LoadByUrl(string url) {
+            Guid guid = GetGuidFromUrl(url);
+            if (guid == Guid.Empty) return null;
+            return ModuleDefinition.Load(guid, AllowNone: true);
+        }
+
+        /// <summary>
+        /// Saves a module definition.
+        /// This saves unique and non-unique, designed and installed modules
+        /// </summary>
+        public void Save() {
+            if (Temporary) throw new InternalError("Temporary modules cannot be saved");
+            DataProvider.SaveModuleDefinition(this);
+        }
+        // Used to update properties before a module is saved
+        public virtual void ModuleSaving() { }
+        // Used to act before a module is removed
+        public virtual void ModuleRemoving() { }
+
+        /// <summary>
+        /// Creates a new designed module. Remember to set the ModuleGuid property after creating the module.
+        /// </summary>
+        public static ModuleDefinition CreateNewDesignedModule(Guid permanentGuid, string name, MultiString title) {
+            Type type = InstalledModules.TryFindModule(permanentGuid);
+            if (type == null)
+                throw new InternalError("Guid {0} is not an installed module", permanentGuid);
+            ModuleDefinition module = ModuleDefinition.Create(type);
+            if (!string.IsNullOrWhiteSpace(name))
+                module.Name = name;
+            if (!string.IsNullOrWhiteSpace(title))
+                module.Title = title;
+            // Caller must update ModuleGuid
+            return module;
+        }
+
+        /// <summary>
+        /// Create a unique module.
+        /// </summary>
+        /// <param name="modType"></param>
+        /// <returns></returns>
+        public static ModuleDefinition CreateUniqueModule(Type modType) {
+            ModuleDefinition mod = ModuleDefinition.Create(modType);
+            if (!mod.IsModuleUnique)
+                throw new InternalError("Non-unique module type {0} requested in CreateUniqueModule", modType.FullName);
+
+            ModuleDefinition existingMod = ModuleDefinition.Load(mod.PermanentGuid, AllowNone: true);
+            if (existingMod != null)
+                return existingMod;
+
+            mod.Temporary = false;
+            return mod;
+        }
+
+        /// <summary>
+        /// Removes a module definition.
+        /// </summary>
+        /// <param name="moduleGuid"></param>
+        public static bool TryRemove(Guid moduleGuid) {
+            return RemoveModuleDefinition(moduleGuid);
+        }
+
+        /// <summary>
+        /// Creates a new module definition.
+        /// This creates an instance of a module from a known assembly and module type.
+        /// Applications should not create members using this method. It is reserved for internal functions.
+        /// </summary>
+        public static ModuleDefinition Create(string assembly, string type) {
+            // load the assembly/type to create a new module
+            Type tp = null;
+            try {
+                Assembly asm = Assemblies.Load(assembly);
+                tp = asm.GetType(type);
+            } catch (Exception) {
+                throw new InternalError("Can't create module {0}, {1}", assembly, type);
+            }
+            return Create(tp);
+        }
+
+        private static ModuleDefinition Create(Type type, Guid? moduleGuid = null) {
+            object obj = Activator.CreateInstance(type);
+            if (obj == null)
+                throw new InternalError("Can't create module {0}", type.Name);
+            ModuleDefinition module = obj as ModuleDefinition;
+            if (module == null)
+                throw new InternalError("Type {0} is not a module", type.Name);
+            if (moduleGuid != null)
+                module.ModuleGuid = (Guid) moduleGuid;
+            return module;
+        }
+
+        public static string GetModuleDataFolder(Guid modGuid) {
+            return Path.Combine(Manager.SiteFolder, ModuleDefinition.BaseFolderName, modGuid.ToString()) + "_Data";
+        }
+        [Category("Variables")]
+        [Description("The module's data folder used to store additional data")]
+        [Caption("Data Folder")]
+        public string ModuleDataFolder {
+            get {
+                return ModuleDefinition.GetModuleDataFolder(ModuleGuid);
+            }
+        }
+        public static string BaseFolderName { get { return "YetaWF_Modules"; } }
+
+        [Category("Variables")]
+        [Description("The Url of the module's addon folder")]
+        [Caption("AddOn Folder")]
+        public string AddOnModuleUrl {
+            get {
+                return VersionManager.TryGetAddOnModuleUrl(Domain, Product);
+            }
+        }
+
+        // ACTIONS
+        // ACTIONS
+        // ACTIONS
+
+        public virtual List<ModuleAction> ModuleActions {
+            get {
+                if (_moduleActions == null)
+                    _moduleActions = GetAllModuleActions();
+                return (from a in _moduleActions select a).ToList();// return a copy
+            }
+        }
+        private List<ModuleAction> _moduleActions;
+
+        /// <summary>
+        /// Retrieve a known module action with parameters - typically used when the module type is not instantiated
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="parms"></param>
+        /// <returns></returns>
+        public ModuleAction GetModuleAction(string name, params object[] parms) {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new InternalError("Missing action name");
+            MethodInfo mi = GetType().GetMethod("GetAction_" + name);
+            if (mi == null)
+                throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
+            ModuleAction action = (ModuleAction) mi.Invoke(this, parms);
+            if (action == null)
+                return null;
+            if (string.IsNullOrWhiteSpace(action.Url))
+                action.Url = "/" + AreaName + "/" + Controller + "/" + name;
+            return action;
+        }
+
+        /// <summary>
+        /// Populates the module actions
+        /// </summary>
+        protected List<ModuleAction> GetAllModuleActions()
+        {
+            List<ModuleAction> moduleActions = new List<ModuleAction>();
+
+            MethodInfo[] mi = GetType().GetMethods(BindingFlags.Public|BindingFlags.Instance);
+            foreach (var m in mi) {
+                if (m.ReturnType != typeof(ModuleAction))
+                    continue;
+                string name = m.Name;
+                if (!name.StartsWith("GetAction_"))
+                    continue;
+                name = name.Substring(10);
+
+                ParameterInfo[] parms = m.GetParameters();
+                if (parms != null && parms.Length > 0)
+                    continue;
+
+                ModuleAction action;
+                action = (ModuleAction)m.Invoke(this, new object[] {});
+                if (action != null) {
+                    if (string.IsNullOrWhiteSpace(action.Url))
+                        action.Url = "/" + AreaName + "/" + Controller + "/" + name;
+                    moduleActions.Add(action);
+                }
+            }
+            return moduleActions;
+        }
+
+        // RENDERING
+        // RENDERING
+        // RENDERING
+
+        public MvcHtmlString RenderModule(HtmlHelper htmlHelper)
+        {
+            if (!Visible && !Manager.EditMode) return MvcHtmlString.Empty;
+
+            // determine char dimensions for current skin
+            SkinAccess skinAccess = new SkinAccess();
+            int charWidth, charHeight;
+            skinAccess.GetModuleCharacterSizes(this, out charWidth, out charHeight);
+            Manager.NewCharSize(charWidth, charHeight);
+
+            // execute action
+            ModuleDefinition oldMod = Manager.CurrentModule;
+            Manager.CurrentModule = this;
+            Manager.WantFocus = this.WantFocus;
+
+            RouteValueDictionary rvd = new RouteValueDictionary();
+            if (!string.IsNullOrEmpty(AreaName))
+                rvd.Add("Area", AreaName);
+            rvd.Add(Globals.RVD_ModuleDefinition, this);
+            string moduleHtml;
+            try {
+                moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+            } catch (Exception exc) {
+                HtmlBuilder hb = ProcessModuleError(exc, ModuleName);
+                moduleHtml = hb.ToString();
+            }
+
+            Manager.WantFocus = false;
+            Manager.CurrentModule = oldMod;
+            if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
+                return MvcHtmlString.Empty; // if the module contents are empty, we bail
+
+            Manager.AddOnManager.AddModule(this);
+
+            if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
+                return MvcHtmlString.Empty; // if the module contents are empty, we bail
+
+            bool showTitle = ShowTitle;
+            bool showMenu = true;
+            bool showAction = true;
+            if (Manager.IsInPopup) {
+                showMenu = false; // no menus in popups
+                if (Manager.CurrentPage.Temporary) {
+                    // a temporary page only has one module so we'll use the module title as the page title.
+                    showTitle = false;
+                } else if (Manager.CurrentPage.ModuleDefinitions.Count == 1) {
+                    // a permanent page can have one or more modules - if there is just one module, we'll use the module title as page title
+                    showTitle = false;
+                } else {
+                    ; // a page with multiple modules is expected to have a valid page title
+                }
+            }
+
+            string containerHtml = skinAccess.MakeModuleContainer(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction).ToString();
+
+            if (!Manager.RenderingUniqueModuleAddons) {
+                if (Manager.IsInPopup || string.IsNullOrWhiteSpace(Manager.PageTitle)) {
+                    // if a permanent page has no title, use the title of the first module in the Main pane
+                    PageDefinition.ModuleList mods = Manager.CurrentPage.ModuleDefinitions.GetModulesForPane(Globals.MainPane);
+                    if (mods.Count > 0)
+                        Manager.PageTitle = mods[0].Module.Title;
+                    // if the title is still not available, simply use the very first module
+                    if (string.IsNullOrWhiteSpace(Manager.PageTitle)) {
+                        if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == Manager.CurrentPage.ModuleDefinitions[0].Module)
+                            Manager.PageTitle = Title;
+                    }
+                }
+            }
+
+            //DEBUG:  containerHtml has entire module
+
+            Manager.PopCharSize();
+
+            Manager.AddOnManager.AddExplicitlyInvokedModules(ReferencedModules);
+
+            return MvcHtmlString.Create(containerHtml);
+        }
+
+        /// <summary>
+        /// Ajax invoked modules - used to render REFERENCED modules during ajax calls
+        /// </summary>
+        public MvcHtmlString RenderReferencedModule_Ajax(HtmlHelper htmlHelper) {
+
+            // execute action
+            ModuleDefinition oldMod = Manager.CurrentModule;
+            Manager.CurrentModule = this;
+
+            RouteValueDictionary rvd = new RouteValueDictionary();
+            if (!string.IsNullOrEmpty(AreaName))
+                rvd.Add("Area", AreaName);
+            rvd.Add(Globals.RVD_ModuleDefinition, this);
+            string moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+
+            Manager.CurrentModule = oldMod;
+            if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
+                return MvcHtmlString.Empty; // if the module contents are empty, we bail
+
+            Manager.AddOnManager.AddModule(this);
+
+            return MvcHtmlString.Create(moduleHtml);
+        }
+
+        public static HtmlBuilder ProcessModuleError(Exception exc, string name) {
+            HtmlBuilder hb = new HtmlBuilder();
+            hb.Append("<div class='{0}'>", Globals.CssDivAlert);
+#if DEBUG
+            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", name));
+#endif
+            // skip first exception (because it's not user friendly)
+            if (!string.IsNullOrWhiteSpace(exc.Message) && exc.InnerException != null) exc = exc.InnerException;
+            while (exc != null) {
+                if (!string.IsNullOrWhiteSpace(exc.Message))
+                    hb.Append(__ResStr("modErr2", "{0}<br/>", exc.Message));
+                exc = exc.InnerException;
+            }
+            hb.Append("</div>");
+            return hb;
+        }
+
+        public MvcHtmlString TitleHtml {
+            get {
+                if (string.IsNullOrWhiteSpace(Title))
+                    return MvcHtmlString.Empty;
+                TagBuilder tag = new TagBuilder("h1");
+                tag.SetInnerText(Title);
+                return MvcHtmlString.Create(tag.ToString());
+            }
+        }
+
+        //[Category("Variables"), Description("The module menu as Html"), Caption("Module Menu")]
+        //[UIHint("String")]
+        public string ModuleMenuHtml {
+            get {
+                if (ShowModuleMenu)
+                    return RenderModuleMenu().ToString();
+                else
+                    return "";
+            }
+        }
+
+        //[Category("Variables"),  Caption("Module Links"), Description("The module's action menu as Html")]
+        //[UIHint("String")]
+        public string ActionMenuHtml {
+            get {
+                if (ShowActionMenu)
+                    return RenderModuleLinks().ToString();
+                else
+                    return "";
+            }
+        }
+
+        [Category("Variables"), Caption("Show Module Menu"), Description("Displays whether the module menu is shown for this module")]
+        public virtual bool ShowModuleMenu { get { return true; } }
+
+        [Category("Variables")]
+        [Description("Displays whether the action menu is shown for this module")]
+        [Caption("Show Action Menu")]
+        public virtual bool ShowActionMenu { get { return true; } }
+
+        // CONFIGURATION (only used for Configuration modules)
+        // CONFIGURATION (only used for Configuration modules)
+        // CONFIGURATION (only used for Configuration modules)
+
+        public virtual DataProviderImpl GetConfigDataProvider() {
+            throw new InternalError("Module {0} is not a configuration module", GetType().FullName);
+        }
+
+        // Properties used to save initial settings from InitPages.txt
+        public void UpdateConfigProperty(string name, object value) {
+            DataProviderImpl dataProvider = GetConfigDataProvider();
+            Type typeDP = dataProvider.GetType();
+            // get the config data
+            MethodInfo mi = typeDP.GetMethod("GetConfig");
+            if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
+            object config = mi.Invoke(dataProvider, null);
+            // update the property
+            Type configType = config.GetType();
+            PropertyInfo pi = ObjectSupport.TryGetProperty(configType, name);
+            if (pi == null) throw new InternalError("Configuration {0} doesn't offer a {1} property", configType.FullName, name);
+            pi.SetValue(config, value);
+
+            mi = typeDP.GetMethod("UpdateConfig");
+            if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfig method for a configuration module", typeDP.FullName);
+            mi.Invoke(dataProvider, new object[] { config });
+        }
+
+        // AUTHORIZATION
+        // AUTHORIZATION
+        // AUTHORIZATION
+
+        public enum AllowedEnum {
+            [EnumDescription(" ", "Not specified")]
+            NotDefined = 0,
+            [EnumDescription("Yes", "Allowed")]
+            Yes = 1,
+            [EnumDescription("No", "Forbidden")]
+            No = 2,
+        };
+
+        public class AllowedRole {
+            public int RoleId { get; set; }
+            public AllowedEnum View { get; set; }
+            public AllowedEnum Edit { get; set; }
+            public AllowedEnum Remove { get; set; }
+            public AllowedEnum Extra1 { get; set; }
+            public AllowedEnum Extra2 { get; set; }
+            public AllowedEnum Extra3 { get; set; }
+            public AllowedEnum Extra4 { get; set; }
+            public AllowedEnum Extra5 { get; set; }
+            public bool IsEmpty() { return View == AllowedEnum.NotDefined && Edit == AllowedEnum.NotDefined && Remove == AllowedEnum.NotDefined && Extra1 == AllowedEnum.NotDefined && Extra2 == AllowedEnum.NotDefined && Extra3 == AllowedEnum.NotDefined && Extra4 == AllowedEnum.NotDefined && Extra5 == AllowedEnum.NotDefined; }
+            public AllowedRole() { }
+            public AllowedRole(int id, AllowedEnum view = AllowedEnum.Yes, AllowedEnum edit = AllowedEnum.NotDefined, AllowedEnum remove = AllowedEnum.NotDefined, AllowedEnum extra1 = AllowedEnum.NotDefined, AllowedEnum extra2 = AllowedEnum.NotDefined, AllowedEnum extra3 = AllowedEnum.NotDefined, AllowedEnum extra4 = AllowedEnum.NotDefined, AllowedEnum extra5 = AllowedEnum.NotDefined) {
+                RoleId = id; View = view; Edit = edit; Remove = remove; Extra1 = extra1; Extra2 = extra2; Extra3 = extra3; Extra4 = extra4; Extra5 = extra5;
+            }
+            public static AllowedRole Find(List<AllowedRole> list, int roleId) {
+                if (list == null) return null;
+                return (from l in list where roleId == l.RoleId select l).FirstOrDefault();
+            }
+        }
+        public class AllowedUser {
+            public int UserId { get; set; }
+            public AllowedEnum View { get; set; }
+            public AllowedEnum Edit { get; set; }
+            public AllowedEnum Remove { get; set; }
+            public AllowedEnum Extra1 { get; set; }
+            public AllowedEnum Extra2 { get; set; }
+            public AllowedEnum Extra3 { get; set; }
+            public AllowedEnum Extra4 { get; set; }
+            public AllowedEnum Extra5 { get; set; }
+            public bool IsEmpty() { return View == AllowedEnum.NotDefined && Edit == AllowedEnum.NotDefined && Remove == AllowedEnum.NotDefined && Extra1 == AllowedEnum.NotDefined && Extra2 == AllowedEnum.NotDefined && Extra3 == AllowedEnum.NotDefined && Extra4 == AllowedEnum.NotDefined && Extra5 == AllowedEnum.NotDefined; }
+            public AllowedUser() { }
+            public AllowedUser(int id, AllowedEnum view = AllowedEnum.Yes, AllowedEnum edit = AllowedEnum.NotDefined, AllowedEnum remove = AllowedEnum.NotDefined, AllowedEnum extra1 = AllowedEnum.NotDefined, AllowedEnum extra2 = AllowedEnum.NotDefined, AllowedEnum extra3 = AllowedEnum.NotDefined, AllowedEnum extra4 = AllowedEnum.NotDefined, AllowedEnum extra5 = AllowedEnum.NotDefined) {
+                UserId = id; View = view; Edit = edit; Remove = remove; Extra1 = extra1; Extra2 = extra2; Extra3 = extra3; Extra4 = extra4; Extra5 = extra5;
+            }
+            public static AllowedUser Find(List<AllowedUser> list, int userId) {
+                if (list == null) return null;
+                return (from l in list where userId == l.UserId select l).FirstOrDefault();
+            }
+        }
+
+        protected bool IsAuthorized(Func<AllowedRole, AllowedEnum> testRole, Func<AllowedUser, AllowedEnum> testUser) {
+
+            if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
+
+            if (Manager.HaveUser) {
+                // we have a logged on user
+                // check if it's a superuser
+                if (Manager.HasSuperUserRole)
+                    return true;
+                int superuserRole = Resource.ResourceAccess.GetSuperuserRoleId();
+                if (Manager.UserRoles != null && Manager.UserRoles.Contains(superuserRole))
+                    return true;
+                // see if the user has a role that is explicitly forbidden to access this module
+                int userRole = Resource.ResourceAccess.GetUserRoleId();
+                foreach (AllowedRole allowedRole in AllowedRoles) {
+                    if (Manager.UserRoles != null && Manager.UserRoles.Contains(allowedRole.RoleId)) {
+                        if (testRole(allowedRole) == AllowedEnum.No)
+                            return false;
+                    }
+                    if (allowedRole.RoleId == userRole) {// check if any logged on user is forbidden
+                        if (testRole(allowedRole) == AllowedEnum.No)
+                            return false;
+                    }
+                }
+                // check if the user is explicitly forbidden
+                AllowedUser allowedUser = AllowedUser.Find(AllowedUsers, Manager.UserId);
+                if (allowedUser != null)
+                    if (testUser(allowedUser) == AllowedEnum.No)
+                        return false;
+                // see if the user has a role that is explicitly permitted to access this module
+                foreach (AllowedRole allowedRole in AllowedRoles) {
+                    if (Manager.UserRoles != null && Manager.UserRoles.Contains(allowedRole.RoleId)) {
+                        if (testRole(allowedRole) == AllowedEnum.Yes)
+                            return true;
+                    }
+                    if (allowedRole.RoleId == userRole) {// check if any logged on user is permitted
+                        if (testRole(allowedRole) == AllowedEnum.Yes)
+                            return true;
+                    }
+                }
+                // check if the user listed is explicitly allowed
+                if (allowedUser != null)
+                    if (testUser(allowedUser) == AllowedEnum.Yes)
+                        return true;
+            } else {
+                // anonymous user
+                int anonymousRole = Resource.ResourceAccess.GetAnonymousRoleId();
+                AllowedRole allowedRole = AllowedRole.Find(AllowedRoles, anonymousRole);
+                if (allowedRole != null) {
+                    // check if the anonymous role is explicitly forbidden
+                    if (testRole(allowedRole) == AllowedEnum.No)
+                        return false;
+                    // check if the anonymous role is explicitly allowed
+                    if (testRole(allowedRole) == AllowedEnum.Yes)
+                        return true;
+                }
+            }
+            return false;
+        }
+        private bool IsAuthorized_Role(Func<AllowedRole, AllowedEnum> testRole, int role) {
+            AllowedRole allowedRole = AllowedRole.Find(AllowedRoles, role);
+            if (allowedRole != null) {
+                // check if the role is explicitly forbidden
+                if (testRole(allowedRole) == AllowedEnum.No)
+                    return false;
+                // check if the role is explicitly allowed
+                if (testRole(allowedRole) == AllowedEnum.Yes)
+                    return true;
+            }
+            return false;
+        }
+        public bool IsAuthorized(string level, bool SameAsPage = false) {
+            string internalName;
+            if (string.IsNullOrWhiteSpace(level))
+                internalName = level = Manager.EditMode ? RoleDefinition.Edit : RoleDefinition.View;
+            else
+                internalName = (from r in RolesDefinitions where r.Name == level select r.InternalName).FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(internalName))
+                throw new InternalError("Permission level {0} not found in Roles", level);
+
+            if (SameAsPage && this.SameAsPage && Manager.CurrentPage != null && !Manager.CurrentPage.Temporary &&
+                    (internalName == RoleDefinition.View || internalName == RoleDefinition.Edit || internalName == RoleDefinition.Remove)) {
+                // same authorization as page (for view/edit/remove)
+                if (internalName == RoleDefinition.View)
+                    return Manager.CurrentPage.IsAuthorized_View();
+                else if (internalName == RoleDefinition.Edit)
+                    return Manager.CurrentPage.IsAuthorized_Edit();
+                else if (internalName == RoleDefinition.Remove)
+                    return Manager.CurrentPage.IsAuthorized_Remove();
+                else
+                    return false;
+            }
+
+            // module specific authorization
+            return IsAuthorized((allowedRole) => {
+                PropertyInfo pi = ObjectSupport.TryGetProperty(allowedRole.GetType(), internalName);
+                if (pi == null) throw new InternalError("Authorization role level {0} not found", level);
+                return (AllowedEnum) pi.GetValue(allowedRole);
+            }, (allowedUser) => {
+                PropertyInfo pi = ObjectSupport.TryGetProperty(allowedUser.GetType(), internalName);
+                if (pi == null) throw new InternalError("Authorization user level {0} not found", level);
+                return (AllowedEnum) pi.GetValue(allowedUser);
+            });
+        }
+
+        public bool IsAuthorized_View_Anonymous(bool pageAllow) {
+            if (SameAsPage) return pageAllow;//RESEARCH: Check use of SameAsPage
+            return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetAnonymousRoleId());
+        }
+        public bool IsAuthorized_View_AnyUser(bool pageAllow) {
+            if (SameAsPage) return pageAllow;//RESEARCH: Check use of SameAsPage
+            return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetUserRoleId());
+        }
+
+        // MODULE USAGE
+        // MODULE USAGE
+        // MODULE USAGE
+
+        [Category("Pages"), Caption("Pages"), Description("The pages where this module is used")]
+        [UIHint("PageDefinitions"), ReadOnly]
+        public List<PageDefinition> Pages {
+            get {
+                if (_pages == null)
+                    _pages = PageDefinition.GetPagesFromModule(ModuleGuid);
+                return _pages;
+            }
+        }
+        private List<PageDefinition> _pages;
+
+
+        // SEARCH
+        // SEARCH
+        // SEARCH
+
+        public virtual void CustomSearch(PageDefinition page, Action<MultiString> addTerms) { }
+
+        // VALIDATION
+        // VALIDATION
+        // VALIDATION
+
+        public virtual void CustomValidation(ModelStateDictionary modelState, string modelPrefix) { }
+    }
+}

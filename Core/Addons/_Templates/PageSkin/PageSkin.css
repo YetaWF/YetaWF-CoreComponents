@@ -1,0 +1,11 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+.yt_pageskin.t_edit .t_collection label,
+.yt_pageskin.t_edit .t_skin label,
+.yt_moduleskins.t_edit .t_collection label,
+.yt_moduleskins.t_edit .t_skin label,
+.yt_popupskin.t_edit .t_collection label,
+.yt_popupskin.t_edit .t_skin label {
+    display:inline-block;
+    width: 25ch;
+}

@@ -1,0 +1,10 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Pages.RazorTemplate<YetaWF.Core.SendEmail.SMTPServer>
+<div id='@DivId' class='yt_smtpserver t_edit'>
+    @Html.RenderPropertyList("", Model)
+</div>
+<script>
+    @using (DocumentReady()) {
+        @: YetaWF_SMTPServer.init('@DivId');
+    }
+</script>

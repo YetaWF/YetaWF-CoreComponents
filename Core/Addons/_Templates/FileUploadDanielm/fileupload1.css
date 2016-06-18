@@ -1,0 +1,26 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+.yt_fileupload1 {
+    border: 1px dotted gray;
+    padding: 5px 0px 5px 5px;
+
+    cursor: default;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.yt_fileupload1 .t_upload {
+    margin-right:.5ch;
+}
+.yt_fileupload1 .t_drop {
+    display: inline;
+}
+.yt_fileupload1 .t_progressbar {
+    margin-top:.5em;
+    margin-right:1ch;
+}

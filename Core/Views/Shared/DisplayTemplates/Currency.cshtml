@@ -1,0 +1,7 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Pages.RazorTemplate<decimal?>
+@if (Model != null) {
+    <div class='yt_currency t_display y_inline'>
+        @YetaWF.Core.Localize.Formatting.FormatAmount((decimal)Model)
+    </div>
+}

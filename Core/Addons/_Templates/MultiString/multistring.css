@@ -1,0 +1,31 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+div.yt_multistring.t_edit {
+    display:inline-block;
+}
+
+div.yt_multistring input[type="text"].t_text10
+{
+    width: 14ch;
+}
+
+div.yt_multistring input[type="text"].t_text20
+{
+    width: 24ch;
+}
+div.yt_multistring input[type="text"].t_text,
+div.yt_multistring input[type="text"].t_text40
+{
+    width: 44ch;
+}
+div.yt_multistring input[type="text"].t_text80
+{
+    width: 84ch;
+}
+div.yt_multistring select
+{
+    width: auto;
+}
+.yt_multistring .yt_multistring_text {
+    margin-right: 1ch;
+}

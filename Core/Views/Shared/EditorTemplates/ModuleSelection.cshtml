@@ -1,0 +1,17 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.ModuleSelection<Guid?>
+<div id="@DivId" class="yt_moduleselection t_edit y_inline">
+    <div class="t_select">
+        @Html.RenderModuleSelectionDD("", Model)
+    </div>
+    <div class="t_link">
+        @Html.RenderModuleSelectionLink(Model)
+    </div>
+    <div class="t_description">
+    </div>
+</div>
+<script>
+    @using (DocumentReady()) {
+        @: YetaWF_ModuleSelection.init('@DivId')
+    }
+</script>

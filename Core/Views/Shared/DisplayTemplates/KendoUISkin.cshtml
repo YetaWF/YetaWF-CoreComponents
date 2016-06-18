@@ -1,0 +1,9 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.PageKendoUISkins<string>
+<div class='yt_kendouiskin t_display y_inline'>
+    @if (string.IsNullOrEmpty(Model)) {
+        @: &nbsp;
+    } else {
+        @: @Model
+    }
+</div>

@@ -1,0 +1,93 @@
+/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
+    clear:both;
+}
+
+.yPane {
+    position: relative;
+}
+
+/* Module */
+.yModule {
+    position: relative;
+    clear: both;
+}
+
+/* Header/Footer */
+.y_header {
+    padding-bottom: .8ch;
+}
+.y_footer {
+    padding-top: .8ch;
+    padding-bottom: .8ch;
+}
+
+/* Warnings */
+.yDivAlert {
+    background-color: red;
+    color: white;
+    padding: 1em;
+    border: 1px solid gray;
+    margin: 1em 0 1em 0;
+}
+.yDivSmallAlert {
+    background-color: red;
+    color: white;
+}
+
+.yDivWarning {
+    background-color: orange;
+    color: white;
+    padding:1em;
+    border: 1px solid gray;
+    margin: 1em 0 1em 0;
+}
+
+.yDivSmallWarning {
+    background-color: orange;
+    color: white;
+}
+.yDivAdmin {
+    background-color: gray;
+    color: black;
+    padding: 1em;
+    border: 1px solid gray;
+    margin: 1em 0 1em 0;
+}
+.yDivSmallAdmin {
+    background-color: gray;
+    color: black;
+}
+
+/* tooltip */
+body .ui-tooltip.ui-widget {
+    font-size:12px;
+}
+@media print {
+    .ui-tooltip {
+        display:none !important;
+    }
+}
+
+
+/* make sure module links don't float left/right */
+.yModuleLinksContainer {
+    clear:both;
+}
+
+/* Ui overlay leaves horizontal stripe without this fix*/
+body .ui-widget-overlay {
+    background: #333;
+}
+
+/* To keep ui dialogs on top of everything */
+body .ui-front {
+    z-index: 3000;
+}
+
+/* templates are inline unless they're large, like grids, propertylists etc. */
+
+.y_inline {
+    display:inline;
+}

@@ -1,0 +1,12 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Pages.RazorTemplate<FileUpload1>
+<div class="yt_fileupload1 yt_fileuploadkendo1 " id="@ControlId" data-saveurl="@Model.SaveURL" data-removeurl="@Model.RemoveURL"
+         data-selectbuttontext="@Model.SelectButtonText"
+         data-dropfilestext="@Model.DropFilesText">
+    <input type="file" name="__filename" class="t_filename" />
+</div>
+<script>
+    @using (DocumentReady()) {
+        @: YetaWF_FileUpload1.init('@ControlId', @JSEncode(Model.SerializeForm));
+    }
+</script>

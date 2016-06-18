@@ -1,0 +1,7 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.Decimal<decimal?>
+@{
+    Manager.ScriptManager.AddKendoUICoreJsFile("kendo.userevents.min.js");
+    Manager.ScriptManager.AddKendoUICoreJsFile("kendo.numerictextbox.min.js");
+}
+@Html.RenderDecimal("", Model, HtmlAttributes: new { @class = "yt_decimal t_edit" })

@@ -1,0 +1,7 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.IPAddress<System.String>
+@if (!string.IsNullOrWhiteSpace(Model)) {
+    <div class="yt_ipaddress t_display y_inline">
+        @Html.RenderIPAddressDisplay("", Model)
+    </div>
+}

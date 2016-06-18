@@ -1,0 +1,12 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+div.yt_pageselection {
+    display: inline;
+}
+div.yt_pageselection .t_select,
+div.yt_pageselection .t_link {
+    display: inline;
+}
+div.yt_pageselection .t_link a img {
+    margin-left:.5ch;
+}

@@ -1,0 +1,17 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.PageSelection<Guid?>
+<div id="@DivId" class="yt_pageselection t_edit y_inline">
+    <div class="t_select">
+        @Html.RenderPageSelectionDD("", Model)
+    </div>
+    <div class="t_link">
+        @Html.RenderPageSelectionLink(Model)
+    </div>
+    <div class="t_description">
+    </div>
+</div>
+<script>
+    @using (DocumentReady()) {
+        @: YetaWF_PageSelection.init('@DivId')
+    }
+</script>

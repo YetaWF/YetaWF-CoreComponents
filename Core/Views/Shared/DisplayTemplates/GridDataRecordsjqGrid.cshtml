@@ -1,0 +1,19 @@
+﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.GridjqGrid<List<object>>
+@using YetaWF.Core.Addons
+@using YetaWF.Core.Support
+@using YetaWF.Core.Models
+
+@{
+    GridDefinition gridDef = Manager.GetParentModel() as GridDefinition;
+    if (gridDef == null) { throw new InternalError("Need a GridDefinition object"); }
+    gridDef.RecordCount = 0;
+    
+    foreach (var record in Model) {
+        if (gridDef.RecordCount > 0) {
+            @: ,
+        }
+        @: { 'id': @gridDef.RecordCount.ToString(), @Html.DisplayFor(m => record, "GridDataOneRecord") }
+        gridDef.RecordCount = gridDef.RecordCount + 1;
+    }
+}
