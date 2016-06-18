@@ -97,8 +97,8 @@
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
-    <Compile Include="Packages\SiteTemplateData.cs" />
-    <Compile Include="Packages\UpdateAll.cs" />
+    <Compile Include="PackageSupport\SiteTemplateData.cs" />
+    <Compile Include="PackageSupport\UpdateAll.cs" />
     <Compile Include="Startup\AddOnManager.cs" />
     <Compile Include="Startup\AreaRegistration.cs" />
     <Compile Include="Startup\Basics.cs" />
@@ -134,9 +134,9 @@
     <Compile Include="Models\Attributes\ResourceRedirect.cs" />
     <Compile Include="Modules\Import.cs" />
     <Compile Include="Modules\ModuleActionHelper.cs" />
-    <Compile Include="Packages\Remove.cs" />
-    <Compile Include="Packages\Import.cs" />
-    <Compile Include="Packages\SiteBackup.cs" />
+    <Compile Include="PackageSupport\Remove.cs" />
+    <Compile Include="PackageSupport\Import.cs" />
+    <Compile Include="PackageSupport\SiteBackup.cs" />
     <Compile Include="Controllers\AreaRegistration.cs" />
     <Compile Include="Controllers\ControllerImpl.cs" />
     <Compile Include="Controllers\YetaWFController.cs" />
@@ -190,13 +190,13 @@
     <Compile Include="Modules\ModuleDefinitionImpl.cs" />
     <Compile Include="Modules\ModuleMenu.cs" />
     <Compile Include="Modules\ModuleImageSupport.cs" />
-    <Compile Include="Packages\ExportData.cs" />
-    <Compile Include="Packages\Export.cs" />
-    <Compile Include="Packages\ImportData.cs" />
-    <Compile Include="Packages\Install.cs" />
+    <Compile Include="PackageSupport\ExportData.cs" />
+    <Compile Include="PackageSupport\Export.cs" />
+    <Compile Include="PackageSupport\ImportData.cs" />
+    <Compile Include="PackageSupport\Install.cs" />
     <Compile Include="Support\Localize\Localize.cs" />
-    <Compile Include="Packages\Localize.cs" />
-    <Compile Include="Packages\SerializablePackage.cs" />
+    <Compile Include="PackageSupport\Localize.cs" />
+    <Compile Include="PackageSupport\SerializablePackage.cs" />
     <Compile Include="Pages\CssManager.cs" />
     <Compile Include="Pages\DynamicUrls.cs" />
     <Compile Include="Pages\FileBundles.cs" />
@@ -236,7 +236,7 @@
     <Compile Include="Extensions\ExtensionsTemp.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Support\Localize\ResourceAccess.cs" />
-    <Compile Include="Packages\Package.cs" />
+    <Compile Include="PackageSupport\Package.cs" />
     <Compile Include="Support\Rss\Rss.cs" />
     <Compile Include="Support\Site\SiteDefinitionImpl.cs" />
     <Compile Include="Support\Site\SiteDefinition.cs" />
@@ -591,7 +591,7 @@
     <Folder Include="Addons\_Main\Icons\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
