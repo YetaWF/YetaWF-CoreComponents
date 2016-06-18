@@ -1,0 +1,10 @@
+﻿Standard YetaWF skin (also used as fallback skin)
+::Pages::
+Main (Default)::Default.cshtml::Standard page with a header, footer and a main pane::12::16
+Plain::Plain.cshtml::** not used **::12::16
+::Popups::
+Popup (Default)::Popup.cshtml::Standard popup window (1000 x 700 pixels)::12::16
+Medium Popup::PopupMedium.cshtml::** not used **::12::16
+Small Popup::PopupSmall.cshtml::** not used **::12::16
+::Modules::
+Standard (Default)::modStandard::Standard module::12::16

@@ -1,0 +1,9 @@
+﻿\Scripts\SyntaxHighlighter\shCore.js
+\Scripts\SyntaxHighlighter\shBrushXml.js,bundle
+\Scripts\SyntaxHighlighter\shBrushCpp.js,bundle
+\Scripts\SyntaxHighlighter\shBrushCSharp.js,bundle
+\Scripts\SyntaxHighlighter\shBrushCss.js,bundle
+\Scripts\SyntaxHighlighter\shBrushJscript.js,bundle
+\Scripts\SyntaxHighlighter\shBrushSql.js,bundle
+\Scripts\SyntaxHighlighter\shBrushVb.js,bundle
+Init.js,bundle
