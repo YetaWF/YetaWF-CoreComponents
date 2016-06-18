@@ -1,0 +1,2 @@
+﻿\Scripts\free-jqGrid\i18n\grid.locale-en.js
+\Scripts\free-jqGrid\jquery.jqGrid.min.js
