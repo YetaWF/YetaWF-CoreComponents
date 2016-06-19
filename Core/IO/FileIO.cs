@@ -12,12 +12,20 @@ namespace YetaWF.Core.IO {
     /// </summary>
     public class FileIO<TObj> {
 
-        public FileIO() { }
+        public FileIO() {
+#if DEBUG
+            Format = GeneralFormatter.Style.Simple; // the preferred format - change for debugging if desired
+#else
+            Format = GeneralFormatter.Style.Simple;
+#endif
+        }
 
         public string BaseFolder { get; set; } // The full path of the folder where the file(s) is/are stored
         public string FileName { get; set; }
         public DateTime? Date { get; set; } // file save/load date
         public object Data { get; set; } // the data saved/loaded
+
+        public GeneralFormatter.Style Format { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected string FullPath {
@@ -63,7 +71,7 @@ namespace YetaWF.Core.IO {
                 byte[] btes = new byte[fs.Length];
                 fs.Read(btes, 0, (int) fs.Length);
                 fs.Close();
-                Data = new GeneralFormatter().Deserialize(btes);
+                Data = new GeneralFormatter(Format).Deserialize(btes);
             }
             return (TObj) (object) Data;
         }
@@ -86,7 +94,7 @@ namespace YetaWF.Core.IO {
                 System.IO.File.WriteAllText(FullPath, (string) Data);
             } else {
                 FileStream fs = new FileStream(FullPath, FileMode.Create);
-                new GeneralFormatter().Serialize(fs, Data);
+                new GeneralFormatter(Format).Serialize(fs, Data);
                 fs.Close();
             }
             if (Date != null)

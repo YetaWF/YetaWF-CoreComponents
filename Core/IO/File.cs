@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.IO {
 
@@ -104,11 +105,18 @@ namespace YetaWF.Core.IO {
     /// <typeparam name="TObj"></typeparam>
     public class FileData<TObj> : CachedObject {
 
-        public FileData() {  }
+        public FileData() {
+#if DEBUG
+            Format = GeneralFormatter.Style.Simple; // the preferred format - change for debugging if desired
+#else
+            Format = GeneralFormatter.Style.Simple;
+#endif
+        }
 
         public string BaseFolder { get; set; } // The full path of the folder where the file(s) is/are stored
         public string FileName { get; set; }
         public DateTime? Date { get; set; } // file save/load date
+        public GeneralFormatter.Style Format { get; set; }
         public string CacheKey { // Cache key used to cache the file
             get { return string.Format("file__{0}_{1}", BaseFolder, FileName); }
         }
@@ -127,6 +135,7 @@ namespace YetaWF.Core.IO {
                     BaseFolder = BaseFolder,
                     FileName = FileName,
                     Data = data,
+                    Format = Format,
                 };
                 StringLocks.DoAction(LockKey, () =>
                 {
@@ -150,6 +159,7 @@ namespace YetaWF.Core.IO {
                 FileName = FileName,
                 Data = data,
                 Date = Date ?? DateTime.UtcNow,
+                Format = Format,
             };
             UpdateStatusEnum status = UpdateStatusEnum.RecordDeleted;
             if (FileName != newKey) {
@@ -159,6 +169,7 @@ namespace YetaWF.Core.IO {
                     FileName = newKey,
                     Data = data,
                     Date = Date ?? DateTime.UtcNow,
+                    Format = Format,
                 };
                 StringLocks.DoAction(LockKey, () => {
                     if (ioNew.Exists()) {
@@ -201,6 +212,7 @@ namespace YetaWF.Core.IO {
                 FileName = FileName,
                 Data = data,
                 Date = Date ?? DateTime.UtcNow,
+                Format = Format,
             };
             bool success = true;
             StringLocks.DoAction(LockKey, () => {
@@ -216,7 +228,8 @@ namespace YetaWF.Core.IO {
         public void Remove() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
-                FileName = FileName
+                FileName = FileName,
+                Format = Format,
             };
             StringLocks.DoAction(LockKey, () => {
                 io.Remove();
@@ -229,7 +242,8 @@ namespace YetaWF.Core.IO {
         public bool TryRemove() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
-                FileName = FileName
+                FileName = FileName,
+                Format = Format,
             };
             bool success = false;
             StringLocks.DoAction(LockKey, () => {
@@ -246,7 +260,8 @@ namespace YetaWF.Core.IO {
         public bool Exists() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
-                FileName = FileName
+                FileName = FileName,
+                Format = Format,
             };
             bool success = false;
             StringLocks.DoAction(LockKey, () => {
