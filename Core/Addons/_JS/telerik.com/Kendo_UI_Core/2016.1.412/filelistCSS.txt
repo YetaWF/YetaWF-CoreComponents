@@ -1,3 +1,0 @@
-Folder \Content\Kendo\2016.1.412\
-kendo.common.min.css
-{0}
