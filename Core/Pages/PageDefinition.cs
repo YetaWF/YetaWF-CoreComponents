@@ -128,6 +128,7 @@ namespace YetaWF.Core.Pages {
         [StringLength(Globals.MaxUrl)]
         public string CanonicalUrl { get; set; }
 
+        //TODO: The purpose and use of this needs to be investigated compared to GetCanonicalUrl which evaluates variables
         public string CompleteUrl { get { return (string.IsNullOrWhiteSpace(CanonicalUrl)) ? Url : CanonicalUrl; } }
 
         [StringLength(MaxTitle)]
