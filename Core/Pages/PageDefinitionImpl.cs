@@ -679,7 +679,7 @@ namespace YetaWF.Core.Pages {
             // hreflang - google
 
             // <link rel="alternate" href="http://example.com/" hreflang = "x-default" />
-            string canonUrl = YetaWFManager.HtmlAttributeEncode(CompleteUrl);
+            string canonUrl = YetaWFManager.HtmlAttributeEncode(GetCanonicalUrl());
             hb.Append("<link rel='alternate' href='{0}' hreflang='x-default' />", canonUrl);
             if (string.IsNullOrWhiteSpace(LanguageId)) {
                 // page in multiple languages
