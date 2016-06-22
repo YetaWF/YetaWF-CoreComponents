@@ -561,7 +561,7 @@ namespace YetaWF.Core.Packages {
             get {
                 if (_version == null) {
                     Version v = PackageAssembly.GetName().Version;
-                    _version = string.Join(".", v.Major, v.Minor, v.Revision); // our version is 1.x.x only (3 segments)
+                    _version = string.Join(".", v.Major, v.Minor, v.Build); // our version is 1.x.x only (3 segments)
                 }
                 return _version;
             }
