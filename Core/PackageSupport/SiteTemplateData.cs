@@ -41,7 +41,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.TinyLanguage",
             "YetaWF.TinyLogin",
             "YetaWF.UserSettings",
-            //"YetaWF.Visitors", // data is not needed
+            "YetaWF.Visitors",
         };
 
         public void MakeSiteTemplateData() {
