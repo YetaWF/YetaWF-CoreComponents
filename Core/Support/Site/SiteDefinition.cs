@@ -401,11 +401,11 @@ namespace YetaWF.Core.Site {
 
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
-        [Category("CDN"), Caption("SiteFiles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /SiteFiles/[[Site,SiteDomain]]/ folder - You can use the variable {{Site,CDNUrl}} in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
+        [Category("CDN"), Caption("SiteFiles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /SiteFiles/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
         public bool CDNSiteFiles { get; set; }
 
-        [Category("CDN"), Caption("Vault"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Vault/[[Site,SiteDomain]]/ folder - You can use the variable {{Site,CDNUrl}} in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
+        [Category("CDN"), Caption("Vault"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Vault/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
         public bool CDNVault { get; set; }
 
