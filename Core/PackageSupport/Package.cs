@@ -556,7 +556,7 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// The product version.
         /// </summary>
-        /// <remarks>Versions have 3 components, major, minor, build: m.n.r - Build is not used by YetaWF versions.</remarks>
+        /// <remarks>Versions have 3 components, major, minor, build: m.n.r - Revision is not used by YetaWF versions.</remarks>
         public string Version {
             get {
                 if (_version == null) {
