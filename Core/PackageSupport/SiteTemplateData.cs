@@ -23,7 +23,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.KeepAlive",
             "YetaWF.Languages",
             "YetaWF.Lightbox",
-            //"YetaWF.Logging", // data is not needed
+            "YetaWF.Logging",
             "YetaWF.Menus",
             "YetaWF.ModuleEdit",
             "YetaWF.Modules",
