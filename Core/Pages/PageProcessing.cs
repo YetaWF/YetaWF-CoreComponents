@@ -26,11 +26,11 @@ namespace YetaWF.Core.Pages {
                 yetawfMsg = "/**** Powered by Yet Another Web Framework - http://YetaWF.com - (c) Copyright <<YEAR>> Softel vdm, Inc. */";
             } else {
                 yetawfMsg = "\n" +
-                    "/*---------------------------------------*/\n" +
+                    "/*****************************************/\n" +
                     "/* Powered by Yet Another Web Framework  */\n" +
                     "/* http://YetaWF.com                     */\n" +
                     "/* (c) Copyright <<YEAR>> - Softel vdm, Inc. */\n" +
-                    "/*---------------------------------------*/" +
+                    "/*****************************************/" +
                     "\n";
             }
             yetawfMsg = yetawfMsg.Replace("<<YEAR>>", DateTime.Now.Year.ToString());//local time
