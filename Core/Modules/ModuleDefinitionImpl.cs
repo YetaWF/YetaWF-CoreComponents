@@ -34,9 +34,9 @@ namespace YetaWF.Core.Modules {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected static bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
-        /// MODULE INFO
-        /// MODULE INFO
-        /// MODULE INFO
+        // MODULE INFO
+        // MODULE INFO
+        // MODULE INFO
 
         [Category("About")]
         [Description("The internal, permanent module name")]

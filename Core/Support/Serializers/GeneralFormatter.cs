@@ -12,7 +12,7 @@ namespace YetaWF.Core.Support.Serializers {
     /// <summary>
     /// General serializer/deserializer
     /// </summary>
-    /// <remarks>It determines the format when deserializing and call the appropriate deserializer (simple, text, binary).
+    /// <remarks>It determines the format when deserializing and calls the appropriate deserializer (simple, text, binary).
     /// When serializing it uses the globally defined format. For debugging it's best to use "text", and in production "simple". "binary" is not supported.
     /// This means there can be a mix of formats in production which will be unified when saving data and when data is restored.</remarks>
     public class GeneralFormatter {

@@ -6,7 +6,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons.Templates {
     public class ActionIcons : IAddOnSupport {
 
-        public const string CssActionIcons = "yActionIcons"; // grid action icons
+        public const string CssActionIcons = "yActionIcons"; // action icons
 
         public void AddSupport(YetaWFManager manager) {
             ScriptManager scripts = manager.ScriptManager;

@@ -320,7 +320,9 @@ namespace YetaWF.Core.Pages {
             _SavedScripts.Add(javascript);
         }
 
+        /// <summary>
         /// Add javascript code right now (inline)
+        /// </summary>
         public HtmlBuilder AddNow(string javascriptCode) {
             HtmlBuilder tag = new HtmlBuilder();
             if (string.IsNullOrEmpty(javascriptCode)) return tag;

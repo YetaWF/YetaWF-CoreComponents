@@ -350,7 +350,7 @@ namespace YetaWF.Core.Packages {
         /// Returns whether the package object is valid.
         /// </summary>
         /// <remarks>
-        /// If an package object is created using the constructor Package(assembly) and the assembly is not a YetaWF package, this returns false.
+        /// If a package object is created using the constructor Package(assembly) and the assembly is not a YetaWF package, this returns false.
         /// </remarks>
         public bool IsValid {
             get {

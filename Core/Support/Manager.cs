@@ -474,9 +474,9 @@ namespace YetaWF.Core.Support {
 
         private static bool? canUseCDN = null;
 
-        /// HTTPCONTEXT
-        /// HTTPCONTEXT
-        /// HTTPCONTEXT
+        // HTTPCONTEXT
+        // HTTPCONTEXT
+        // HTTPCONTEXT
 
         /// <summary>
         /// Current site's domain - E.g., softelvdm.com, localhost, etc. or empty string if default site
