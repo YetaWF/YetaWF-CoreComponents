@@ -12,9 +12,9 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class ActionHelper {
 
-        public static MvcHtmlString RenderActionIcons(this HtmlHelper<object> htmlHelper, string name, MenuList actions, int dummy = 0) {
+        public static MvcHtmlString RenderActionIcons(this HtmlHelper<object> htmlHelper, string name, MenuList actions) {
 
-            if (!string.IsNullOrEmpty(name)) 
+            if (!string.IsNullOrEmpty(name))
                 throw new InternalError("Field name not supported for ActionIcons");
             return actions.Render(null, ActionIcons.CssActionIcons);
         }
