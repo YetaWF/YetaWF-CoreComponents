@@ -17,26 +17,28 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Serializers {
     public static class XmlWriterExtender {
-        static int currPos = 0;
-        static int tabPos = 0;
+        //static int currPos = 0;// TODO: what was I thinking, statics, that's not going to work
+        //static int tabPos = 0;
         public static void Initialize(this XmlWriter xmlWrt) {
-            currPos = tabPos = 0;
+            //currPos = tabPos = 0;
         }
         public static void Inc(this XmlWriter xmlWrt) {
-            tabPos+=2;
+            //tabPos+=2;
         }
         public static void Dec(this XmlWriter xmlWrt) {
-            tabPos-=2;
+            //tabPos-=2;
         }
         public static void Tab(this XmlWriter xmlWrt) {
-            xmlWrt.Nl();
-            xmlWrt.WriteWhitespace(" ".PadRight(tabPos));
-            currPos = tabPos;
+            //xmlWrt.Nl();
+            //xmlWrt.WriteWhitespace(" ".PadRight(tabPos));
+            //currPos = tabPos;
+            xmlWrt.WriteWhitespace(" ");
         }
         public static void Nl(this XmlWriter xmlWrt, bool force = false) {
-            if (force || currPos != 0)
-                xmlWrt.WriteWhitespace("\r\n");
-            currPos = 0;
+            //if (force || currPos != 0)
+            //xmlWrt.WriteWhitespace("\r\n");
+            //currPos = 0;
+            xmlWrt.WriteWhitespace(" ");
         }
         public static void CondWriteEndElement(this XmlWriter xmlWrt) {
             if (xmlWrt.WriteState != WriteState.Element)
