@@ -669,7 +669,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public string AddonsFolder {
             get {
-                return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, Domain, Product, Version);
+                return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, Domain, Product);
             }
         }
 
@@ -765,12 +765,12 @@ namespace YetaWF.Core.Packages {
         /// <param name="vers2">Second version string.</param>
         /// <returns>0 for equality, -1 if the first version is less than the second, 1 if the first version is greater than the second.</returns>
         /// <remarks>
-        /// Version strings have the format n.n.n, normally 3 components, but this function supports any number of components, including versions string s with unequal number of components.
+        /// Version strings have the format n.n.n, normally 3 components, but this function supports any number of components, including versions strings with unequal number of components.
         /// </remarks>
         public static int CompareVersion(string vers1, string vers2) {
-            string[] svers1 = vers1.Split(new char[] { '.', ',' });
-            string[] svers2 = vers2.Split(new char[] { '.', ',' });
-            for (int i = 0 ; ; ++i) {
+            string[] svers1 = vers1.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
+            string[] svers2 = vers2.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0 ; i < 4; ++i) {
                 if (svers1.Length <= i) {
                     if (svers2.Length <= i)
                         return 0; // first and second are out of elements -> equal
@@ -784,6 +784,7 @@ namespace YetaWF.Core.Packages {
                 if (v1 > v2) return 1;
                 else if (v1 < v2) return -1;
             }
+            return 0;
         }
         /// <summary>
         /// Defines the package's purpose.

@@ -445,18 +445,18 @@ namespace YetaWF.Core.Addons {
             List<Package> packages = Package.GetAvailablePackages();
             foreach (Package package in packages) {
                 if (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage) {
-                    string addonsPath = Path.Combine(AddOnsFolder, package.Domain, package.Product);
-                    string addonsVersPath = Path.Combine(addonsPath, package.Version);
+                    string addonsPath = Path.Combine(AddOnsFolder, package.Domain);
+                    string addonsProductPath = Path.Combine(addonsPath, package.Product);
+                    if (!Directory.Exists(addonsPath))
+                        Directory.CreateDirectory(addonsPath);
                     if (package.HasSource) {
-                        // first check if ANY version of this package exists in the Addon folder
+                        // Make a symlink to the addons for this package
                         {
-                            if (!Directory.Exists(addonsPath))
-                                Directory.CreateDirectory(addonsPath);
-                            if (!Directory.Exists(addonsVersPath)) {
-                                // Make a symlink to the source code for the addons of this package
-                                string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
-                                if (!Package.CreatePackageSymLink(addonsVersPath, to))
-                                    throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsVersPath, to);
+                            // Make a symlink to the source code for the addons of this package
+                            string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
+                            if (!Directory.Exists(addonsProductPath)) {
+                                if (!Package.CreatePackageSymLink(addonsProductPath, to))
+                                    throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                             }
                         }
                         // Make a symlink to the views for this package
@@ -477,8 +477,8 @@ namespace YetaWF.Core.Addons {
                         // no source
                         bool f = package.HasSource;
                     }
-                    Logging.AddLog("Searching {0} for addon files", addonsVersPath);
-                    RegisterAllProducts(package, addonsVersPath);
+                    Logging.AddLog("Searching {0} for addon files", addonsProductPath);
+                    RegisterAllProducts(package, addonsProductPath);
                 }
             }
 

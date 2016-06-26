@@ -189,6 +189,7 @@ namespace YetaWF.Core.Packages {
             //RESEARCH:  SE_CREATE_SYMBOLIC_LINK_NAME
             // secpol.msc
             // Local Policies > User Rights Assignments - Create Symbolic Links
+            // IIS APPPOOL\application-pool
             return CreateSymbolicLink(from, to, (int)SymbolicLink.Directory) != 0;
         }
 
