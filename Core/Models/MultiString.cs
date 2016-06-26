@@ -31,7 +31,7 @@ namespace YetaWF.Core.Models {
                 return _defaultId;
             }
         }
-        public static string _defaultId;
+        private static string _defaultId;
 
         // active languages
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
