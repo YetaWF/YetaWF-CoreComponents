@@ -27,7 +27,7 @@
     int pageSize = Model.InitialPageSize;
     int initialPage = 1;
     if (Model.SettingsModuleGuid != Guid.Empty) {
-        gridSavedSettings = GridHelper.LoadModuleSettings(@Model.SettingsModuleGuid);
+        gridSavedSettings = GridHelper.LoadModuleSettings(@Model.SettingsModuleGuid, initialPage, pageSize);
         pageSize = gridSavedSettings.PageSize;
         initialPage = gridSavedSettings.CurrentPage;
     }

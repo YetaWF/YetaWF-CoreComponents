@@ -42,11 +42,15 @@ namespace YetaWF.Core.Views.Shared {
                 CurrentPage = 1;
             }
         }
-        public static GridSavedSettings LoadModuleSettings(Guid moduleGuid) {
+        public static GridSavedSettings LoadModuleSettings(Guid moduleGuid, int defaultInitialPage = 1, int defaultPageSize = 10) {
             SettingsDictionary modSettings = Manager.SessionSettings.GetModuleSettings(moduleGuid);
             GridSavedSettings gridSavedSettings = modSettings.GetValue<GridSavedSettings>("GridSavedSettings");
-            if (gridSavedSettings == null)
-                gridSavedSettings = new GridSavedSettings();
+            if (gridSavedSettings == null) {
+                gridSavedSettings = new GridSavedSettings() {
+                    CurrentPage = defaultInitialPage,
+                    PageSize = defaultPageSize,
+                };
+            }
             return gridSavedSettings;
         }
         public static void SaveModuleSettings(Guid moduleGuid, GridSavedSettings gridSavedSettings) {
