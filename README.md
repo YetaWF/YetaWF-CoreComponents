@@ -24,6 +24,6 @@ Links
 
 * [YetaWF.com](http://yetawf.com)
 * [Documentation](http://yetawf.com/Documentation/YetaWF)
-* [Installing YetaWF](http://yetawf.com/Documentation/YetaWF)
+* [Installing YetaWF](http://yetawf.com/Documentation/YetaWF?Topic=g_installing)
 * [Using YetaWF](http://yetawf.com/Documentation/YetaWF?Topic=g_doc_gettingstarted)
 * [Forum](http://yetawf.com/Documentation/YetaWF)
