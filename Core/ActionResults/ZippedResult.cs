@@ -45,12 +45,15 @@ namespace YetaWF.Core.Support {
     }
 
     /// <summary>
-    /// Used to return a ZIP file from a controller. Works in conjunction with javascript in basics.js returning a cookie indicating the file is available.
+    /// Used to return a ZIP file from a controller.
     /// </summary>
+    /// <remarks>
+    /// This action result works in conjunction with javascript in basics.js returning a cookie indicating the file is available.
+    /// </remarks>
     public class ZippedFileResult : ActionResult {
 
-        public YetaWFZipFile Zip { get; set; }
-        public long CookieToReturn { get; set; }
+        private YetaWFZipFile Zip { get; set; }
+        private long CookieToReturn { get; set; }
 
         public ZippedFileResult(YetaWFZipFile zip, long cookieToReturn) {
             this.Zip = zip;
