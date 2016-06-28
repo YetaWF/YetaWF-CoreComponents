@@ -24,5 +24,10 @@ namespace YetaWF.Core.Extensions {
             if (ix < 0) return text;
             return text.Truncate(ix);
         }
+        public static string ReplaceFirst(this string text, string search, string replace) {
+            int index = text.IndexOf(search);
+            if (index < 0) return text;
+            return text.Substring(0, index) + replace + text.Substring(index + search.Length);
+        }
     }
 }

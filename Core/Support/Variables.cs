@@ -4,8 +4,8 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.Mvc;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
@@ -65,7 +65,7 @@ namespace YetaWF.Core.Support {
         private Regex varReSingleEscape {
             get {
                 if (_varReSingleEscape == null)
-                    _varReSingleEscape = new Regex("\\[\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReSingleEscape = new Regex("\\[(?'neg'(\\-|))\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReSingleEscape;
             }
         }
@@ -74,7 +74,7 @@ namespace YetaWF.Core.Support {
         private Regex varReDoubleEscape {
             get {
                 if (_varReDoubleEscape == null)
-                    _varReDoubleEscape = new Regex("\\[\\[\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]\\]", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReDoubleEscape = new Regex("\\[\\[(?'neg'(\\-|))\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]\\]", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReDoubleEscape;
             }
         }
@@ -83,7 +83,7 @@ namespace YetaWF.Core.Support {
         private Regex varReModuleSingleEscape {
             get {
                 if (_varReModuleSingleEscape == null)
-                    _varReModuleSingleEscape = new Regex("\\[\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReModuleSingleEscape = new Regex("\\[(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReModuleSingleEscape;
             }
         }
@@ -92,7 +92,7 @@ namespace YetaWF.Core.Support {
         private Regex varReModuleDoubleEscape {
             get {
                 if (_varReModuleDoubleEscape == null)
-                    _varReModuleDoubleEscape = new Regex("\\[\\[\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]\\]", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReModuleDoubleEscape = new Regex("\\[\\[(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\]\\]", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReModuleDoubleEscape;
             }
         }
@@ -101,7 +101,7 @@ namespace YetaWF.Core.Support {
         private Regex varReSingleEscapeCB {
             get {
                 if (_varReSingleEscapeCB == null)
-                    _varReSingleEscapeCB = new Regex("\\{\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReSingleEscapeCB = new Regex("\\{(?'neg'(\\-|))\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReSingleEscapeCB;
             }
         }
@@ -110,7 +110,7 @@ namespace YetaWF.Core.Support {
         private Regex varReDoubleEscapeCB {
             get {
                 if (_varReDoubleEscapeCB == null)
-                    _varReDoubleEscapeCB = new Regex("\\{\\{\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReDoubleEscapeCB = new Regex("\\{\\{(?'neg'(\\-|))\\s*(?'module'[^\\,\\]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReDoubleEscapeCB;
             }
         }
@@ -119,7 +119,7 @@ namespace YetaWF.Core.Support {
         private Regex varReModuleSingleEscapeCB {
             get {
                 if (_varReModuleSingleEscapeCB == null)
-                    _varReModuleSingleEscapeCB = new Regex("\\{\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReModuleSingleEscapeCB = new Regex("\\{(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReModuleSingleEscapeCB;
             }
         }
@@ -128,7 +128,7 @@ namespace YetaWF.Core.Support {
         private Regex varReModuleDoubleEscapeCB {
             get {
                 if (_varReModuleDoubleEscapeCB == null)
-                    _varReModuleDoubleEscapeCB = new Regex("\\{\\{\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReModuleDoubleEscapeCB = new Regex("\\{\\{(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReModuleDoubleEscapeCB;
             }
         }
@@ -138,6 +138,8 @@ namespace YetaWF.Core.Support {
             bool encode = true;
             string retString = m.Value;
             try {
+                string neg = m.Groups["neg"].Value.Trim();
+                if (neg == "-") return retString.ReplaceFirst("-", "");
                 string loc = m.Groups["module"].Value.Trim();
                 string var = m.Groups["var"].Value.Trim();
                 string subvar = m.Groups["subvar"].Value.Trim();
