@@ -108,11 +108,11 @@ namespace YetaWF.Core.Packages {
                     int cmp = Package.CompareVersion(lastSeenVersion, package.Version);
                     if (cmp < 0) {
                         // upgraded package
-                        Logging.AddLog("Upgrading package {0} from {1} to {2}", package.Name, info.Version, package.Version);
+                        Logging.AddLog("Upgrading package {0} from {1} to {2}", package.Name, lastSeenVersion, package.Version);
                         InstallPackage(package);
                     } else if (cmp > 0) {
                         // Woah, you can't downgrade
-                        throw new InternalError("Found package {0},{1} which is a lower version than the previous version {2}", package.Name, package.Version, info.Version);
+                        throw new InternalError("Found package {0},{1} which is a lower version than the previous version {2}", package.Name, package.Version, lastSeenVersion);
                     } else { /* same version */
 
                     }

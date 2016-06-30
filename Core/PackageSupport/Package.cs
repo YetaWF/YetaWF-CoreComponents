@@ -775,10 +775,10 @@ namespace YetaWF.Core.Packages {
                     if (svers2.Length <= i)
                         return 0; // first and second are out of elements -> equal
                     else
-                        return 1; // second has more elements -> second is longer (greater)
+                        return -1; // second has more elements -> second is longer (greater)
                 }
                 if (svers2.Length <= i) // first has more elements (greater)
-                    return -1;
+                    return 1;
                 int v1 = Convert.ToInt32(svers1[i]);
                 int v2 = Convert.ToInt32(svers2[i]);
                 if (v1 > v2) return 1;
