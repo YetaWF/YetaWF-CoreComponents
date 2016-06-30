@@ -12,6 +12,7 @@ namespace YetaWF.Core.Log {
         void Flush();
         void WriteToLogFile(LevelEnum level, int relStack, string text);
         void RegisterCallback(Action<string> callback);
+        void UnregisterCallback(Action<string> callback);
         bool IsInstalled();
     }
 
@@ -46,6 +47,7 @@ namespace YetaWF.Core.Log {
                     Logging.AddLogMessage = log.WriteToLogFile;
                     Logging.ForceFlush = log.Flush;
                     Logging.RegisterCallback = log.RegisterCallback;
+                    Logging.UnregisterCallback = log.UnregisterCallback;
                     Logging.MinLevel = level;
                 }
             }
@@ -55,6 +57,7 @@ namespace YetaWF.Core.Log {
             Logging.AddLogMessage = null;
             Logging.ForceFlush = null;
             Logging.RegisterCallback = null;
+            Logging.UnregisterCallback = null;
             Logging.MinLevel = (int)LevelEnum.Info;
         }
     }

@@ -23,6 +23,7 @@ namespace YetaWF.Core.Log {
         public static Action<LevelEnum, int, string> AddLogMessage { get; set; }
         public static Action ForceFlush { get; set; }
         public static Action<Action<string>> RegisterCallback { get; set; }
+        public static Action<Action<string>> UnregisterCallback { get; set; }
         public static int /*LevelEnum*/ MinLevel { get; set; }
 
         public static string AddLog(string text) {
