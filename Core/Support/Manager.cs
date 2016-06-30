@@ -444,12 +444,30 @@ namespace YetaWF.Core.Support {
         // BUILD
         // BUILD
 
+        /// <summary>
+        /// Defines whether the currently running instance of YetaWF is a deployed instance or not.
+        /// </summary>
+        [Obsolete("Horribly misnamed property - Do not use because it's confusing")]
         public bool DebugBuild {
             get {
                 return !GetDeployed();
             }
         }
 
+        /// <summary>
+        /// Defines whether the currently running instance of YetaWF is a deployed instance or not.
+        /// </summary>
+        /// <remarks>
+        /// A "deployed" instance is not necessarily a Release build, but behaves as though it is.
+        ///
+        /// A deployed instance is considered to run as a public website with all development features disabled.
+        /// TODO: Need an actual list of development features here.
+        /// </remarks>
+        public bool Deployed {
+            get {
+                return GetDeployed();
+            }
+        }
         private static bool? deployed = null;
 
         protected static bool GetDeployed() {
