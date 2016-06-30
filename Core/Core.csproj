@@ -22,6 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -98,7 +100,7 @@
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
     <Compile Include="PackageSupport\SiteTemplateData.cs" />
-    <Compile Include="PackageSupport\UpdateAll.cs" />
+    <Compile Include="PackageSupport\Upgrade.cs" />
     <Compile Include="Startup\AddOnManager.cs" />
     <Compile Include="Startup\AreaRegistration.cs" />
     <Compile Include="Startup\Basics.cs" />

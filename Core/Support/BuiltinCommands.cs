@@ -30,13 +30,13 @@ namespace YetaWF.Core.Support {
             Commands.Add(url, new BuiltinCommandEntry { Command = url.ToLower(), Resource = resourceName, Callback = func });
         }
 
-        public static Action<NameValueCollection> Find(string url) {
+        public static Action<NameValueCollection> Find(string url, bool checkAuthorization = true) {
             BuiltinCommandEntry entry;
             // find the built-in command
             if (!Commands.TryGetValue(url.ToLower(), out entry)) return null;
             // verify authorization
-            if (!Resource.ResourceAccess.IsResourceAutorized(entry.Resource)) {
-                Logging.AddErrorLog("403 Not Authorized - GET not authorized for builtin command");
+            if (checkAuthorization && !Resource.ResourceAccess.IsResourceAutorized(entry.Resource)) {
+                Logging.AddErrorLog("403 Not Authorized - not authorized for builtin command");
                 return null;// pretend it doesn't exist
             }
             // return the action

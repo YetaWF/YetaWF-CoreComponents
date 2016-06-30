@@ -207,7 +207,7 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog("Request");
 
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
-            Action<NameValueCollection> action = BuiltinCommands.Find(uri.LocalPath);
+            Action<NameValueCollection> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
             if (action != null) {
                 if (Manager.IsHeadRequest)
                     return new EmptyResult();
