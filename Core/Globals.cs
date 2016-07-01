@@ -53,7 +53,7 @@ namespace YetaWF.Core {
         public const string SiteTemplatesData = SiteTemplates + "\\Data";
 
         public const string UpdateIndicatorFile = "UpdateIndicator.txt"; // filename of the file signaling a global package update/create
-        public const string UpdateLogFile = "UpdateLogFile.txt"; // log file created during YetaWF upgrade
+        public const string UpgradeLogFile = "UpgradeLogFile.txt"; // log file created during YetaWF upgrade
         public const string PackageMap = "PackageMap.txt";// currently installed packages
 
         public const string DefaultCurrencyFormat = "$ #,0.00";

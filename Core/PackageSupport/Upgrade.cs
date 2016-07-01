@@ -52,10 +52,10 @@ namespace YetaWF.Core.Packages {
         /// models for the the YetaWF.Text package are updated and the Site Template YetaWF_Text.1.0.2.txt is executed
         /// (dots (.) are replaced by underscores (_) in package names, followed by .{i}version{/i}.txt to determine the Site Template name).
         ///
-        /// A log file recording all upgrade activity is saved at .\Website\Data\UpdateLogFile.txt
+        /// A log file recording all upgrade activity is saved at .\Website\Data\UpgradeLogFile.txt
         /// </remarks>
         public static void UpgradeToNewPackages() {
-            File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpdateLogFile));
+            File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
             // Create an update log file
             Logging.RegisterCallback(WriteToUpdateLog);
 
@@ -77,7 +77,7 @@ namespace YetaWF.Core.Packages {
             }
         }
         private static void WriteToUpdateLog(string text) {
-            File.AppendAllText(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpdateLogFile), text + "\r\n");
+            File.AppendAllText(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
         }
         private static void UpgradePackages() {
 
