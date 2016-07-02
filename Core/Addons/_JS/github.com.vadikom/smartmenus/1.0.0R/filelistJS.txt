@@ -1,0 +1,2 @@
+jquery.smartmenus.js,bundle
+addons/bootstrap/jquery.smartmenus.bootstrap.js,bundle

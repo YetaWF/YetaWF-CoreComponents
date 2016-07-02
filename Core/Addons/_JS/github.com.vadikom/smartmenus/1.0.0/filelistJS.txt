@@ -1,2 +1,0 @@
-dist/jquery.smartmenus.js,bundle
-dist/addons/bootstrap/jquery.smartmenus.bootstrap.js,bundle
