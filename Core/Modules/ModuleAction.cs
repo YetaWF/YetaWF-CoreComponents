@@ -296,11 +296,11 @@ namespace YetaWF.Core.Modules {
         [Caption("Please Wait"), StringLength(MaxPleaseWaitText)]
         public MultiString PleaseWaitText { get; set; }
 
-        [Caption("Save Return Url"), Description("Defines whether this action will save the current Url to return to it")]
+        [Caption("Save Return Url"), Description("Defines whether this action will preserve the origin list (past Urls visited) and save the current Url - This is typically used for actions that display a form with a Cancel or Return button, which would return to the current Url if Save Return Url is selected")]
         [UIHint("Boolean")]
         public bool SaveReturnUrl { get; set; }
 
-        [Caption("Add to Origin List"), Description("Defines whether this action's Url will be added to the origin list so we can return to this action")]
+        [Caption("Add to Origin List"), Description("Defines whether the current Url will be added to the origin list so we can return to the current Url - This is used in conjunction with the Save Return Url property")]
         [UIHint("Boolean")]
         public bool AddToOriginList { get; set; }
 
