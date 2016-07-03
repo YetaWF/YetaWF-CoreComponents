@@ -156,21 +156,23 @@ namespace YetaWF.Core.Modules {
             }
             tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(extraClass));
 
-            string url = GetCompleteUrl(OnPage: true);
-            if (!string.IsNullOrWhiteSpace(url)) {
-                tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(url));
-                if (Manager.CurrentPage != null) {
-                    string currUrl = Manager.CurrentPage.CompleteUrl;
-                    if (!string.IsNullOrWhiteSpace(currUrl) && currUrl != "/") {// this doesn't work on home page because everything matches
-                        if (this.Url == currUrl)
-                            tag.AddCssClass("t_currenturl");
-                        if (currUrl.StartsWith(this.Url))
-                            tag.AddCssClass("t_currenturlpart");
+            if (SubModule == null) {
+                string url = GetCompleteUrl(OnPage: true);
+                if (!string.IsNullOrWhiteSpace(url)) {
+                    tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(url));
+                    if (Manager.CurrentPage != null) {
+                        string currUrl = Manager.CurrentPage.CompleteUrl;
+                        if (!string.IsNullOrWhiteSpace(currUrl) && currUrl != "/") {// this doesn't work on home page because everything matches
+                            if (this.Url == currUrl)
+                                tag.AddCssClass("t_currenturl");
+                            if (currUrl.StartsWith(this.Url))
+                                tag.AddCssClass("t_currenturlpart");
+                        }
                     }
-                }
+                } else
+                    tag.MergeAttribute("href", "javascript:void(0);");
             } else
                 tag.MergeAttribute("href", "javascript:void(0);");
-
 
             if (!string.IsNullOrWhiteSpace(ConfirmationText)) {
                 if (Category == ActionCategoryEnum.Delete) {
@@ -312,6 +314,15 @@ namespace YetaWF.Core.Modules {
                             return false;
                     }
                 }
+                // validate SubModule
+                if (SubModule != null) {
+                    ModuleDefinition mod  = ModuleDefinition.Load((Guid)SubModule, AllowNone: true);
+                    if (mod == null) return false;// can't find module, not authorized
+                    if (!mod.IsAuthorized(ModuleDefinition.RoleDefinition.View))
+                        return false;
+                    return true;
+                }
+
                 // validate by Url
                 if (!string.IsNullOrEmpty(Url)) {
                     string url = Url;

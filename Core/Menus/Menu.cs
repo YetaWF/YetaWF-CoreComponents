@@ -61,13 +61,14 @@ namespace YetaWF.Core.Menus {
 
         public ModuleAction.RenderModeEnum RenderMode { get; set; }
 
-        public MvcHtmlString Render(string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
+        public MvcHtmlString Render(HtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
 
             HtmlBuilder hb = new HtmlBuilder();
+            int level = 0;
 
             if (this.Count == 0)
                 return MvcHtmlString.Empty;
-            string menuContents = RenderLI(this, RenderMode, RenderEngine);
+            string menuContents = RenderLI(htmlHelper, this, null, RenderMode, RenderEngine, level);
             if (string.IsNullOrWhiteSpace(menuContents))
                 return MvcHtmlString.Empty;
 
@@ -75,6 +76,7 @@ namespace YetaWF.Core.Menus {
             TagBuilder ulTag = new TagBuilder("ul");
             if (!string.IsNullOrWhiteSpace(cssClass))
                 ulTag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
+            ulTag.AddCssClass(string.Format("t_lvl{0}", level));
             if (RenderEngine == ModuleAction.RenderEngineEnum.BootstrapSmartMenu) {
                 ulTag.AddCssClass("nav");
                 ulTag.AddCssClass("navbar-nav");
@@ -91,16 +93,21 @@ namespace YetaWF.Core.Menus {
 
             return MvcHtmlString.Create(hb.ToString());
         }
-        private static string Render(List<ModuleAction> subMenu, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine) {
+        private static string Render(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
             HtmlBuilder hb = new HtmlBuilder();
 
-            string menuContents = RenderLI(subMenu, renderMode, renderEngine);
+            string menuContents = RenderLI(htmlHelper, subMenu, subGuid, renderMode, renderEngine, level);
             if (string.IsNullOrWhiteSpace(menuContents)) return "";
 
             // <ul>
             TagBuilder ulTag = new TagBuilder("ul");
+            ulTag.AddCssClass(string.Format("t_lvl{0}", level));
             if (renderEngine == ModuleAction.RenderEngineEnum.BootstrapSmartMenu)
                 ulTag.AddCssClass("dropdown-menu");
+            if (subGuid != null) {
+                ulTag.AddCssClass("t_megamenu_content");
+                ulTag.AddCssClass("mega-menu"); // used by smartmenus
+            }
             if (!string.IsNullOrWhiteSpace(cssClass))
                 ulTag.AddCssClass(cssClass);
             hb.Append(ulTag.ToString(TagRenderMode.StartTag));
@@ -114,33 +121,52 @@ namespace YetaWF.Core.Menus {
             return hb.ToString();
         }
 
-        private static string RenderLI(List<ModuleAction> subMenu, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine) {
+        private static string RenderLI(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
             HtmlBuilder hb = new HtmlBuilder();
-            foreach (var menuEntry in subMenu) {
 
-                if (menuEntry.Enabled) {
-                    bool rendered = false;
-                    if (menuEntry.RendersSomething) {
+            ++level;
 
+            if (subGuid != null) {
+                // megamenu content
+                // <li>
+                TagBuilder tag = new TagBuilder("li");
+                tag.AddCssClass("t_megamenu_content");
+                hb.Append(tag.ToString(TagRenderMode.StartTag));
+
+                ModuleDefinition subMod = ModuleDefinition.Load((Guid)subGuid, AllowNone: true);
+                if (subMod != null)
+                    hb.Append(subMod.RenderModule(htmlHelper));
+
+                hb.Append("</li>\n");
+            } else {
+                foreach (var menuEntry in subMenu) {
+
+                    if (menuEntry.Enabled && menuEntry.RendersSomething) {
+
+                        bool rendered = false;
                         string subMenuContents = null;
-                        if (menuEntry.SubMenu != null && menuEntry.SubMenu.Count > 0) {
+                        if (menuEntry.SubModule != null || (menuEntry.SubMenu != null && menuEntry.SubMenu.Count > 0)) {
 
-                            subMenuContents = Render(menuEntry.SubMenu, menuEntry.CssClass, renderMode, renderEngine);
+                            Guid? subModGuid = null;
+                            if (!Manager.EditMode) // don't show submodule in edit mode
+                                subModGuid = menuEntry.SubModule;
+
+                            subMenuContents = Render(htmlHelper, menuEntry.SubMenu, subModGuid, menuEntry.CssClass, renderMode, renderEngine, level);
                             if (!string.IsNullOrWhiteSpace(subMenuContents)) {
                                 // <li>
                                 TagBuilder tag = new TagBuilder("li");
                                 if (renderEngine == ModuleAction.RenderEngineEnum.BootstrapSmartMenu)
                                     tag.AddCssClass("dropdown");
-
+                                if (subModGuid != null)
+                                    tag.AddCssClass("t_megamenu_hassub");
                                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-                                MvcHtmlString menuContents = menuEntry.Render(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
+                                MvcHtmlString menuContents =  menuEntry.Render(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
                                 hb.Append(menuContents);
 
-                                if (menuEntry.SubMenu != null && menuEntry.SubMenu.Count > 0) {
-                                    hb.Append("\n");
-                                    hb.Append(subMenuContents);
-                                }
+                                hb.Append("\n");
+                                hb.Append(subMenuContents);
+
                                 hb.Append("</li>\n");
                                 rendered = true;
                             }
@@ -161,6 +187,9 @@ namespace YetaWF.Core.Menus {
                     }
                 }
             }
+
+            --level;
+
             return hb.ToString();
         }
 
@@ -220,6 +249,7 @@ namespace YetaWF.Core.Menus {
                 // parent item without real action
                 action.Separator = false;
                 action.Url = null;
+                action.SubModule = null;
                 action.MenuText = newAction.MenuText;
                 action.LinkText = newAction.LinkText;
                 action.ImageUrlFinal = newAction.ImageUrlFinal;
@@ -241,6 +271,7 @@ namespace YetaWF.Core.Menus {
                 // separator without real action
                 action.Separator = newAction.Separator;
                 action.Url = null;
+                action.SubModule = null;
                 action.MenuText = new MultiString();
                 action.LinkText = new MultiString();
                 action.ImageUrlFinal = null;
@@ -260,6 +291,7 @@ namespace YetaWF.Core.Menus {
             } else {
                 action.Separator = false;
                 action.Url = newAction.Url;
+                action.SubModule = newAction.SubModule != Guid.Empty ? newAction.SubModule : null;
                 action.MenuText = newAction.MenuText;
                 action.LinkText = newAction.LinkText;
                 action.ImageUrlFinal = newAction.ImageUrlFinal;
@@ -337,6 +369,7 @@ namespace YetaWF.Core.Menus {
                 } else if (action.Separator) {
                     // separator without real action
                     action.Url = null;
+                    action.SubModule = null;
                     action.MenuText = new MultiString();
                     action.LinkText = new MultiString();
                     action.ImageUrlFinal = null;

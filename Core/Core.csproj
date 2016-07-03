@@ -98,6 +98,7 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
+    <Compile Include="Views\Shared\Support\MenuListHelper.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
     <Compile Include="PackageSupport\SiteTemplateData.cs" />
     <Compile Include="PackageSupport\Upgrade.cs" />

@@ -9,7 +9,7 @@ namespace YetaWF.Core.Identity {
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple=true)]
     public class ResourceAttribute : Attribute {
-        public ResourceAttribute(string name, string description) { 
+        public ResourceAttribute(string name, string description) {
             Name = name;
             Description = description;
             Anonymous = false;
@@ -53,7 +53,7 @@ namespace YetaWF.Core.Identity {
         void Logoff();
         void LoginAs(int userId);
 
-        bool IsResourceAutorized(string resourceName);
+        bool IsResourceAutorized(string resourceName);//$$$$ RENAME WTF!
 
         void AddRole(string roleName, string description);
         void RemoveRole(string roleName);

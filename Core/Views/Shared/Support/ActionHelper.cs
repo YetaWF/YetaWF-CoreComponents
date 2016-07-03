@@ -16,7 +16,7 @@ namespace YetaWF.Core.Views.Shared {
 
             if (!string.IsNullOrEmpty(name))
                 throw new InternalError("Field name not supported for ActionIcons");
-            return actions.Render(null, ActionIcons.CssActionIcons);
+            return actions.Render(htmlHelper, null, ActionIcons.CssActionIcons);
         }
     }
 }

@@ -103,7 +103,7 @@ namespace YetaWF.Core.Modules {
 
             MenuList moduleMenu = GetModuleMenuList(ModuleAction.RenderModeEnum.NormalMenu, ModuleAction.ActionLocationEnum.ModuleMenu);
 
-            string menuContents = moduleMenu.Render(null, Globals.CssModuleMenu).ToString();
+            string menuContents = moduleMenu.Render(null, null, Globals.CssModuleMenu).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
                 return MvcHtmlString.Empty;// we don't have a menu
 
@@ -148,7 +148,7 @@ namespace YetaWF.Core.Modules {
 
             MenuList moduleMenu = GetModuleMenuList(ModuleAction.RenderModeEnum.NormalLinks, ModuleAction.ActionLocationEnum.ModuleLinks);
 
-            string menuContents = moduleMenu.Render(null, Globals.CssModuleLinks).ToString();
+            string menuContents = moduleMenu.Render(null, null, Globals.CssModuleLinks).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
                 return MvcHtmlString.Empty;// we don't have a menu
 

@@ -157,6 +157,7 @@ namespace YetaWF.Core.Modules {
         public ModuleAction() {
             Separator = false;
             Url = null;
+            SubModule = null;
             MenuText = __ResStr("MenuText", "(New)");
             LinkText = __ResStr("LinkText", "(New)");
             ImageUrlFinal = null;
@@ -194,6 +195,15 @@ namespace YetaWF.Core.Modules {
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), RequiredIfAttribute("EntryType", (int) MenuEntryType.Entry), Trim]
         public string Url { get; set; } // The Url to cause this action
+
+        [Caption("SubModule"),
+            Description("The submodule is displayed as a complete submenu - " +
+            "If a submodule is defined it replaces the entire submenu and supersedes the Url. " +
+            "Submodules should not display forms as any popup message due to invalid input would close the submenu. " +
+            "This is best used to display formatted links or images, etc. with a Text module. " +
+            "Submodules are only supported with Bootstrap skins and are ignored on non-Bootstrap skins")]
+        [UIHint("ModuleSelection")]
+        public Guid? SubModule { get; set; }
 
         [Caption("Menu Text"), Description("The text shown for this menu entry when used as a menu entry")]
         [UIHint("MultiString20"), StringLength(MaxMenuText), RequiredIfNotAttribute("EntryType", (int) MenuEntryType.Separator)]
@@ -274,7 +284,7 @@ namespace YetaWF.Core.Modules {
         [UIHint("YetaWF_Identity_RoleId"), AdditionalMetadata("ShowDefault", true)]
         public int LimitToRole { get; set; } // the type of action taken
 
-        [Caption("Ignore Autorization"), Description("Defines whether the target page's authorization is ignored - Actions are only visible if the user has sufficient authorization to perform the action - This can be used to force display of actions even when there is insufficient authoriation - For anonymous users this forces the user to log in first - This setting is ignored for links to other sites")]
+        [Caption("Ignore Authorization"), Description("Defines whether the target page's authorization is ignored - Actions are only visible if the user has sufficient authorization to perform the action - This can be used to force display of actions even when there is insufficient authoriation - For anonymous users this forces the user to log in first - This setting is ignored for links to other sites")]
         [UIHint("Boolean")]
         public bool AuthorizationIgnore { get; set; }
 
