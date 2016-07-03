@@ -145,11 +145,15 @@ namespace YetaWF.Core.Menus {
 
                         bool rendered = false;
                         string subMenuContents = null;
-                        if (menuEntry.SubModule != null || (menuEntry.SubMenu != null && menuEntry.SubMenu.Count > 0)) {
 
-                            Guid? subModGuid = null;
-                            if (!Manager.EditMode) // don't show submodule in edit mode
+                        Guid? subModGuid = null;
+                        if (!Manager.EditMode) {
+                            // don't show submodule in edit mode
+                            if ((menuEntry.SubModule != null && menuEntry.SubModule != Guid.Empty))
                                 subModGuid = menuEntry.SubModule;
+                        }
+
+                        if (subModGuid != null || (menuEntry.SubMenu != null && menuEntry.SubMenu.Count > 0)) {
 
                             subMenuContents = Render(htmlHelper, menuEntry.SubMenu, subModGuid, menuEntry.CssClass, renderMode, renderEngine, level);
                             if (!string.IsNullOrWhiteSpace(subMenuContents)) {
@@ -351,8 +355,11 @@ namespace YetaWF.Core.Menus {
 
         private static void FixMenuEntries(List<ModuleAction> actions) {
             foreach (ModuleAction action in actions) {
+                if (action.SubModule == Guid.Empty)
+                    action.SubModule = null;
                 if (string.IsNullOrWhiteSpace(action.Url)) {
                     // parent item without real action
+                    action.SubModule = null;
                     action.Separator = false;
                     action.Style = ModuleAction.ActionStyleEnum.Normal;
                     action.Mode = ModuleAction.ActionModeEnum.Any;
@@ -390,6 +397,8 @@ namespace YetaWF.Core.Menus {
                     action.QueryArgs = null;
                     action.QueryArgsRvd = null;
                 }
+                if (action.SubMenu != null && action.SubMenu.Count > 0)
+                    FixMenuEntries(action.SubMenu);
             }
         }
 

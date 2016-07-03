@@ -156,7 +156,7 @@ namespace YetaWF.Core.Modules {
             }
             tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(extraClass));
 
-            if (SubModule == null) {
+            if (SubModule == null || SubModule == Guid.Empty) {
                 string url = GetCompleteUrl(OnPage: true);
                 if (!string.IsNullOrWhiteSpace(url)) {
                     tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(url));
@@ -315,7 +315,7 @@ namespace YetaWF.Core.Modules {
                     }
                 }
                 // validate SubModule
-                if (SubModule != null) {
+                if (SubModule != null && SubModule != Guid.Empty) {
                     ModuleDefinition mod  = ModuleDefinition.Load((Guid)SubModule, AllowNone: true);
                     if (mod == null) return false;// can't find module, not authorized
                     if (!mod.IsAuthorized(ModuleDefinition.RoleDefinition.View))
