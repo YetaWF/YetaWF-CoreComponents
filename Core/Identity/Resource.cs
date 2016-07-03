@@ -41,7 +41,7 @@ namespace YetaWF.Core.Identity {
         public string Name { get; set; }
 
         protected override bool AuthorizeCore(HttpContextBase httpContext) {
-            return Resource.ResourceAccess.IsResourceAutorized(Name);
+            return Resource.ResourceAccess.IsResourceAuthorized(Name);
         }
     }
 
@@ -53,7 +53,7 @@ namespace YetaWF.Core.Identity {
         void Logoff();
         void LoginAs(int userId);
 
-        bool IsResourceAutorized(string resourceName);//$$$$ RENAME WTF!
+        bool IsResourceAuthorized(string resourceName);
 
         void AddRole(string roleName, string description);
         void RemoveRole(string roleName);
