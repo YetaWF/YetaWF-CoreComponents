@@ -150,18 +150,15 @@ namespace YetaWF.Core.Support {
             string siteDomain = null;
             overridden = newSwitch = false;
 
-            bool noForce = queryString[Globals.Link_NoForceSite] != null;
-            if (!noForce) {
-                siteDomain = queryString[Globals.Link_ForceSite];
-                if (!string.IsNullOrWhiteSpace(siteDomain)) {
-                    overridden = newSwitch = true;
-                    YetaWFManager.SetRequestedDomain(siteDomain);
-                }
-                if (!overridden && HttpContext.Current.Session != null) {
-                    siteDomain = (string) HttpContext.Current.Session[Globals.Link_ForceSite];
-                    if (!string.IsNullOrWhiteSpace(siteDomain))
-                        overridden = true;
-                }
+            siteDomain = queryString[Globals.Link_ForceSite];
+            if (!string.IsNullOrWhiteSpace(siteDomain)) {
+                overridden = newSwitch = true;
+                YetaWFManager.SetRequestedDomain(siteDomain);
+            }
+            if (!overridden && HttpContext.Current.Session != null) {
+                siteDomain = (string) HttpContext.Current.Session[Globals.Link_ForceSite];
+                if (!string.IsNullOrWhiteSpace(siteDomain))
+                    overridden = true;
             }
             if (!overridden)
                 siteDomain = uri.Host;

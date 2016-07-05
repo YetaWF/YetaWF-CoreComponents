@@ -74,7 +74,6 @@ namespace YetaWF.Core {
         [JS] public const string Link_TempEditMode = "!Edit"; // temp. edit mode
         [JS] public const string Link_TempNoEditMode = "!Noedit"; // temp. no edit mode
         [JS] public const string Link_ForceSite = "!Domain"; // force a specific site
-        [JS] public const string Link_NoForceSite = "!NoDomain"; // force the default site
         [JS] public const string Link_ScrollLeft = "!Left";
         [JS] public const string Link_ScrollTop = "!Top";
         public const string Link_Language = "!Lang"; // site language

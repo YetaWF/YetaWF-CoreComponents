@@ -121,10 +121,11 @@ namespace  YetaWF.Core.Views.Shared {
                     url = string.Format(Addons.Templates.Image.FormatUrl, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
             }
             if (ExternalUrl) {
+                // This is a local url, make the final url an external url, i.e., http(s)://
                 if (url.StartsWith("/File.image") || url.StartsWith("/FileHndlr.image"))
                     url = Manager.GetCDNUrl(url);
                 if (url.StartsWith("/"))
-                    url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: SecurityType, DontForceSite: true);
+                    url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: SecurityType);
             }
             if (!string.IsNullOrWhiteSpace(CacheBuster)) {
                 url += url.Contains("?") ? "&" : "?";
