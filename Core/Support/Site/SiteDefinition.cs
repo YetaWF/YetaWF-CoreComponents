@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using YetaWF.Core.DataProvider.Attributes;
-using YetaWF.Core.Image;
 using YetaWF.Core.Language;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
