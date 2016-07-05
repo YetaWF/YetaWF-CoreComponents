@@ -20,7 +20,7 @@ YetaWF_PageSelection.init = function (id) {
             $('.t_link', $control).show();
             //$desc.show();
         }
-        $link.attr("href", YGlobals.PageUrl + page);
+        $link.attr("href", '/!Page/' + page);  // Globals.PageUrl
         //$desc.text(desc);
     }
 

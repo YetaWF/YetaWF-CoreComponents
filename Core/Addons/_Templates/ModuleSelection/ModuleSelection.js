@@ -22,7 +22,7 @@ YetaWF_ModuleSelection.init = function (id) {
             $('.t_link', $control).show();
             $desc.show();
         }
-        $link.attr("href", YGlobals.ModuleUrl + mod);
+        $link.attr("href", '/!Mod/' + mod); // Globals.ModuleUrl
         $desc.text(desc);
     }
 

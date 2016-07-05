@@ -59,9 +59,8 @@ namespace YetaWF.Core {
         public const string DefaultCurrencyFormat = "$ #,0.00";
 
         // Url parts
-        [JS] public const string CoreUrl = "/Core/";
-        [JS] public const string PageUrl = "/!Page/";
-        [JS] public const string ModuleUrl = "/!Mod/";
+             public const string PageUrl = "/!Page/";
+             public const string ModuleUrl = "/!Mod/";
         [JS] public const string Link_OriginList = "!OriginList"; // chain of urls
         [JS] public const string Link_InPopup = "!InPopup"; // we're in a popup
         [JS] public const string Link_ToEditMode = "!ToEditMode"; // force this mode
@@ -73,10 +72,10 @@ namespace YetaWF.Core {
         [JS] public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
         [JS] public const string Link_TempEditMode = "!Edit"; // temp. edit mode
         [JS] public const string Link_TempNoEditMode = "!Noedit"; // temp. no edit mode
-        [JS] public const string Link_ForceSite = "!Domain"; // force a specific site
+             public const string Link_ForceSite = "!Domain"; // force a specific site
         [JS] public const string Link_ScrollLeft = "!Left";
         [JS] public const string Link_ScrollTop = "!Top";
-        public const string Link_Language = "!Lang"; // site language
+             public const string Link_Language = "!Lang"; // site language
 
         public const string Session_Permanent = "##perm##_";
         public const string Session_Superuser = Session_Permanent + "superuser"; // this is a superuser (saved in session state)
