@@ -23,12 +23,12 @@ namespace YetaWF.Core.IO {
         bool UninstallModel(List<string> errorList);
 
         /// <summary>
-        /// Add site-sepcific data for this model
+        /// Add site-specific data for this model
         /// </summary>
         void AddSiteData();
 
         /// <summary>
-        /// Removes site-sepcific data for this model
+        /// Removes site-specific data for this model
         /// </summary>
         void RemoveSiteData();
 
