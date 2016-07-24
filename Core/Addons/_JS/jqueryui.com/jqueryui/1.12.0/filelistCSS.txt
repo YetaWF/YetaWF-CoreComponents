@@ -1,2 +1,2 @@
-﻿\Content\themes\base\all.css
+﻿jquery-ui.css
 {0}
