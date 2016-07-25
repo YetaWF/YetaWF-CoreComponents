@@ -1064,7 +1064,6 @@ namespace YetaWF.Core.Support {
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
                 ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", MinWidthForPopups);
                 AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
-                AddOnManager.AddAddOnGlobal("github.com.arschmitz", "jqueryui-bootstrap-adapter");
                 this.UsingBootstrapButtons = UsingBootstrapButtons;
             } else
                 ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", 0);
@@ -1079,7 +1078,6 @@ namespace YetaWF.Core.Support {
                 ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
                 AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
-                AddOnManager.AddAddOnGlobal("github.com.arschmitz", "jqueryui-bootstrap-adapter");
                 this.UsingBootstrapButtons = UsingBootstrapButtons;
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", 0);
