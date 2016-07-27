@@ -247,7 +247,7 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
                 if (failFunc)
                     failFunc();
                 return false;
-            }
+            },
         });
     } else {
         // find the first field in a tab control that has an input validation error and activate that tab

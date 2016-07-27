@@ -270,11 +270,11 @@ _YetaWF_Basics.Overlay = null;
 
 function Y_Loading(starting)
 {
-    if (starting != false)
-        $.prettyLoader.show()
-    else {
-        $.prettyLoader.hide()
-        Y_PleaseWaitClose()
+    if (starting != false) {
+        $.prettyLoader.show();
+    } else {
+        $.prettyLoader.hide();
+        Y_PleaseWaitClose();
     }
 }
 
@@ -371,7 +371,7 @@ YetaWF_Basics.showPaneSet = function (id, editMode, equalHeights) {
         }
     }
     if (shown && equalHeights) {
-        // make all panes the same heigth
+        // make all panes the same height
         // this should happen late in case the content is changed dynamically (use with caution)
         // if it does, the pane will still expand because we're only setting the minimum height
         $(document).ready(function () {
