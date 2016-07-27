@@ -26,3 +26,14 @@
 .yHighlightGridRow td {
     background-color: silver;
 }
+
+/* starting with jquery-ui 1.12, sort indicators are oddly positioned */
+.ui-jqgrid .ui-icon {
+    margin-top:0px;
+}
+.ui-jqgrid .s-ico > .ui-icon-asc.ui-icon.ui-sort-ltr {
+	margin-left: 0px;
+}
+.ui-jqgrid .s-ico > .ui-icon-desc.ui-icon.ui-sort-ltr {
+	margin-left: 0px;
+}
