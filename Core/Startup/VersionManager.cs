@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using YetaWF.Core.Log;
+using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
@@ -48,10 +49,15 @@ namespace YetaWF.Core.Addons {
     public class VersionManager {
 
         public enum AddOnType {
+            [EnumDescription("Module", "Module Addon")]
             Module = 0,
+            [EnumDescription("Template", "Template Addon")]
             Template = 1,
+            [EnumDescription("Skin", "Skin Addon")]
             Skin = 2,
+            [EnumDescription("Javascript", "Javascript Addon")]
             AddonJS = 3,
+            [EnumDescription("Javascript (Global)", "Javascript Global Addon")]
             AddonJSGlobal = 4,
         }
 
@@ -157,6 +163,15 @@ namespace YetaWF.Core.Addons {
 
         public static List<AddOnProduct> GetAvailableSkinCollections() {
             List<AddOnProduct> list = (from p in Products where p.Value.AddonKey.StartsWith(SkinPrefix) select p.Value).ToList();
+            return list;
+        }
+        /// <summary>
+        /// Returns information about all known addons.
+        /// </summary>
+        /// <returns>List of addons.</returns>
+        /// <remarks>This is used by YetaWF Core and Dashboard modules and is not intended for general use.</remarks>
+        public static List<AddOnProduct> GetAvailableAddOns() {
+            List<AddOnProduct> list = (from p in Products select p.Value).ToList();
             return list;
         }
 
@@ -540,6 +555,7 @@ namespace YetaWF.Core.Addons {
                             Type = AddOnType.AddonJSGlobal,
                             Domain = domain,
                             Product = product,
+                            Version = versionNumber,
                             Url = YetaWFManager.PhysicalToUrl(versionFolder),
                         };
                         AddFileLists(version, null, versionFolder);
@@ -579,6 +595,7 @@ namespace YetaWF.Core.Addons {
                 Domain = package.Domain,
                 Product = package.Product,
                 Name = name,
+                Version = null,
                 Url = YetaWFManager.PhysicalToUrl(folder),
             };
             AddFileLists(version, package, folder);
@@ -608,7 +625,7 @@ namespace YetaWF.Core.Addons {
 
             // build a type name based on domain name and product name - if it exists, add it
             // domainName.Modules.productName.Addons class Info
-            // load the assembly/type implementing logging
+            // load the assembly/type implementing addon support
             Type dynType = null;
             try {
                 Assembly asm = package.PackageAssembly;
