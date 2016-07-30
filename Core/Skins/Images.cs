@@ -12,8 +12,6 @@ namespace YetaWF.Core.Skins {
 
     public class SkinImages {
 
-        // RESEARCH: This code could use some image lookup caching help
-
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public const string SkinAddOnIconUrl_Format = "{0}Icons/{1}"; // skinaddon icon
@@ -31,6 +29,15 @@ namespace YetaWF.Core.Skins {
            { "#Preview", "Preview.png" },
            { "#Remove", "Remove.png" },
            { "#WarningIcon", "WarningIcon.png" },
+        };
+
+        // Cache url icons searched (hits and misses)
+        // Only Deployed builds use caching
+        private static Dictionary<string, string> Cache = new Dictionary<string, string>();
+        private enum CachedEnum {
+            Unknown,
+            NotFound,
+            Yes,
         };
 
         // locate an icon image in a package (for a package/module)
@@ -64,16 +71,35 @@ namespace YetaWF.Core.Skins {
                 string addonUrl = addOnVersion.GetAddOnUrl();
                 url = string.Format(SkinAddOnIconUrl_Format, addonUrl, imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
-#if DEBUG
-                Logging.AddLog("Searching {0}", urlCustom);
-                Logging.AddLog("Searching {0}", url);
+#if DEBUGME
+                Logging.AddLog("Searching addon specific icon {0} and {1}", url, urlCustom);
 #endif
-                file = YetaWFManager.UrlToPhysical(urlCustom);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(urlCustom);
-                file = YetaWFManager.UrlToPhysical(url);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(url);
+                switch (HasCache(urlCustom)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        if (File.Exists(file))
+                            return AddCache(urlCustom);
+                        else
+                            AddCacheNotFound(urlCustom);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(urlCustom);
+                }
+                switch (HasCache(url)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(url);
+                        if (File.Exists(file))
+                            return AddCache(url);
+                        else
+                            AddCacheNotFound(url);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(url);
+                }
             }
 
             // get skin specific icon
@@ -83,16 +109,35 @@ namespace YetaWF.Core.Skins {
                 string skinCollection = skin.Collection;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
-#if DEBUG
-                Logging.AddLog("Searching {0}", urlCustom);
-                Logging.AddLog("Searching {0}", url);
+#if DEBUGME
+                Logging.AddLog("Searching skin specific icon {0} and {1}", url, urlCustom);
 #endif
-                file = YetaWFManager.UrlToPhysical(urlCustom);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(urlCustom);
-                file = YetaWFManager.UrlToPhysical(url);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(url);
+                switch (HasCache(urlCustom)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        if (File.Exists(file))
+                            return AddCache(urlCustom);
+                        else
+                            AddCacheNotFound(urlCustom);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(urlCustom);
+                }
+                switch (HasCache(url)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(url);
+                        if (File.Exists(file))
+                            return AddCache(url);
+                        else
+                            AddCacheNotFound(url);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(url);
+                }
             }
 
             // get fallback skin icon
@@ -100,32 +145,101 @@ namespace YetaWF.Core.Skins {
                 string skinCollection = Manager.IsInPopup ? SkinDefinition.FallbackPopupSkin.Collection : SkinDefinition.FallbackSkin.Collection;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
-#if DEBUG
-                Logging.AddLog("Searching {0}", urlCustom);
-                Logging.AddLog("Searching {0}", url);
+#if DEBUGME
+                Logging.AddLog("Searching fallback icon {0} and {1}", url, urlCustom);
 #endif
-                file = YetaWFManager.UrlToPhysical(urlCustom);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(urlCustom);
-                file = YetaWFManager.UrlToPhysical(url);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(url);
+                switch (HasCache(urlCustom)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        if (File.Exists(file))
+                            return AddCache(urlCustom);
+                        else
+                            AddCacheNotFound(urlCustom);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(urlCustom);
+                }
+                switch (HasCache(url)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(url);
+                        if (File.Exists(file))
+                            return AddCache(url);
+                        else
+                            AddCacheNotFound(url);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(url);
+                }
 
-                // get generic icon
+                // nothing found whatsoever, so get the generic icon
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), GenericIcon);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
-#if DEBUG
-                Logging.AddLog("Searching {0}", urlCustom);
-                Logging.AddLog("Searching {0}", url);
+#if DEBUGME
+                Logging.AddLog("Searching generic icon {0} and {1}", url, urlCustom);
 #endif
-                file = YetaWFManager.UrlToPhysical(urlCustom);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(urlCustom);
-                file = YetaWFManager.UrlToPhysical(url);
-                if (File.Exists(file))
-                    return Manager.GetCDNUrl(url);
+                switch (HasCache(urlCustom)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        if (File.Exists(file))
+                            return AddCache(urlCustom);
+                        else
+                            AddCacheNotFound(urlCustom);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(urlCustom);
+                }
+                switch (HasCache(url)) {
+                    case CachedEnum.NotFound:
+                        break;
+                    case CachedEnum.Unknown:
+                        file = YetaWFManager.UrlToPhysical(url);
+                        if (File.Exists(file))
+                            return AddCache(url);
+                        else
+                            AddCacheNotFound(url);
+                        break;
+                    case CachedEnum.Yes:
+                        return GetCache(url);
+                }
             }
             throw new InternalError("Icon {0} not found", imageUrl);
+        }
+
+        private string GetCache(string urlCustom) {
+            string cdnUrl;
+            if (!Cache.TryGetValue(urlCustom, out cdnUrl))
+                return null;
+            return cdnUrl;
+        }
+        private string AddCache(string urlCustom) {
+            string cdnUrl = Manager.GetCDNUrl(urlCustom);
+            if (Manager.Deployed) {
+                try {// could fail if it was already added
+                    Cache.Add(urlCustom, cdnUrl);
+                } catch (Exception) { }
+            }
+            return cdnUrl;
+        }
+        private void AddCacheNotFound(string url) {
+            if (Manager.Deployed) {
+                try {// could fail if it was already added
+                    Cache.Add(url, null);// marks url that no icon was found
+                } catch (Exception) { }
+            }
+        }
+        private CachedEnum HasCache(string urlCustom) {
+            string cdnUrl;
+            if (!Cache.TryGetValue(urlCustom, out cdnUrl))
+                return CachedEnum.Unknown;
+            if (string.IsNullOrWhiteSpace(cdnUrl))
+                return CachedEnum.NotFound;
+            return CachedEnum.Yes;
         }
     }
 }
