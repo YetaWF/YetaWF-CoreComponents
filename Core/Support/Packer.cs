@@ -192,8 +192,8 @@ namespace YetaWF.Core.Support {
             return pix;
         }
 
-        private static readonly Regex varJSUseRegex = new Regex(@"^\s*'use\s+strict';\s*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex varJSDebugRegex = new Regex(@"^.*?/*debug*/\s*", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex varJSUseRegex = new Regex(@"^\s*'use\s+strict';\s*$", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex varJSDebugRegex = new Regex(@"^.*?/\*debug\*/\s*$", RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Remove debug code from javascript
