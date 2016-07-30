@@ -57,6 +57,8 @@ namespace YetaWF.Core.Pages {
 
             // endofpage-js + </body> replace </body>
             string endstuff = Manager.ScriptManager.RenderEndofPageScripts().ToString();
+            if (Manager.Deployed && !string.IsNullOrWhiteSpace(Manager.CurrentSite.GoogleAnalytics))
+                endstuff += Manager.CurrentSite.GoogleAnalytics;
             pageHtml = reEndBody.Replace(pageHtml, endstuff + "</body>", 1);
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
