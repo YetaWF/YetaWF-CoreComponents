@@ -58,7 +58,7 @@ using YetaWF.Core.Support;
 // Split Components Across Domains
 //   (*) Appears to be a maintenance issue, but could be considered for the future
 // Minimize the Number of iframes
-//   YetaWF make little use of iframes, except for popups
+//   YetaWF makes little use of iframes, except for popups
 // No 404s
 //   Duh
 // Reduce Cookie Size
@@ -70,9 +70,9 @@ using YetaWF.Core.Support;
 // Develop Smart Event Handlers
 //   Always considered when creating new templates, modules, etc.
 // Choose <link> over @import
-//   YetaWF make no use of @import
+//   YetaWF makes no use of @import
 // Avoid Filters
-//   YetaWF make no use of filters
+//   YetaWF makes no use of filters
 // Optimize Images
 //   Always considered for new images - YetaWF also dynamically re-renders images if requested at other than the natural size
 // Optimize CSS Sprites
