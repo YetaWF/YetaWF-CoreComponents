@@ -7,7 +7,7 @@ namespace YetaWF.Core.Addons.Templates {
     public class FileUploadDanielm : IAddOnSupport {
 
         public void AddSupport(YetaWFManager manager) {
-            
+
             ScriptManager scripts = manager.ScriptManager;
             string areaName = "FileUpload";
 
@@ -15,7 +15,7 @@ namespace YetaWF.Core.Addons.Templates {
             manager.ScriptManager.AddLocalization(areaName, "StatusUploadFailed", "Upload failed - {0}");
             manager.ScriptManager.AddLocalization(areaName, "FileTypeError", "The file type is invalid and can't be uploaded");
             manager.ScriptManager.AddLocalization(areaName, "FileSizeError", "The file is too large and can't be uploaded");
-            manager.ScriptManager.AddLocalization(areaName, "FallbackMode", "Your brower doesn't support file uploading");
+            manager.ScriptManager.AddLocalization(areaName, "FallbackMode", "Your browser doesn't support file uploading");
         }
     }
 }

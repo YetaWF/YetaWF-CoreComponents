@@ -26,7 +26,7 @@ namespace YetaWF.Core.Pages {
 #if DEBUG
             public string StartText { get; set; }
             // The generated text added to the start of the file
-            // There is a chanec this text differs between identical included js/css files, so this helps us debug that condition
+            // There is a chance this text differs between identical included js/css files, so this helps us debug that condition
 #endif
         }
 
