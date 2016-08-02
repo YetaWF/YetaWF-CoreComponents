@@ -25,6 +25,14 @@ namespace YetaWF.Core.Models.Attributes {
         public string Level { get; private set; }
     }
 
+    /// <summary>
+    /// Marks a controller action as unavailable in Demo mode.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class ExcludeDemoModeAttribute : Attribute {
+        public ExcludeDemoModeAttribute() { }
+    }
+
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CopyAttribute : Attribute { } // copied value (when saving edited properties, this value is copied from original)
 

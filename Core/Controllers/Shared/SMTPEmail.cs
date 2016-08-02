@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.SendEmail;
 using YetaWF.Core.Support;
 
@@ -13,6 +14,7 @@ namespace YetaWF.Core.Controllers.Shared
     {
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_SMTPServer_SendTestEmail)]
+        [ExcludeDemoMode]
         public ActionResult SendTestEmail(string server, int port, SMTPServer.AuthEnum authentication, string username, string password, bool ssl) {
             SendEmail.SendEmail sendEmail = new SendEmail.SendEmail();
             string subject = this.__ResStr("emailSubj", "Test Message");

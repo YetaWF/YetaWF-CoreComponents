@@ -230,7 +230,6 @@ namespace YetaWF.Core.Controllers {
                     if (moduleGuid == null)
                         throw new InternalError("Missing {0} hidden field for POST request Url {1}", Basics.ModuleGuid, url);
                 }
-
                 // find the unique Id prefix (saved as hidden field in Form)
                 string uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
                 if (string.IsNullOrEmpty(uniqueIdPrefix))
@@ -239,8 +238,8 @@ namespace YetaWF.Core.Controllers {
                     Manager.UniqueIdPrefix = uniqueIdPrefix;
             }
 
-            // check if the action is authorized by checking the module's authorization
             MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            // check if the action is authorized by checking the module's authorization
             string level = null;
             PermissionAttribute permAttr = (PermissionAttribute) Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
             if (permAttr != null)

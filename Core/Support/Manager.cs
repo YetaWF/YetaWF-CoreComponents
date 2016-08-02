@@ -487,8 +487,24 @@ namespace YetaWF.Core.Support {
                 return (bool)canUseCDN;
             }
         }
-
         private static bool? canUseCDN = null;
+
+        /// <summary>
+        /// Defines whether the current YetaWF instance runs in demo mode.
+        /// </summary>
+        /// <remarks>Demo mode allows anonymous users to use all features in Superuser mode, without being able to change any data.
+        ///
+        /// Demo mode is enabled/disabled using the Web.config setting P:YetaWF_Core:Demo.
+        /// </remarks>
+        public bool IsDemo {
+            get {
+                if (isDemo == null) {
+                    isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Demo");
+                }
+                return (bool)isDemo;
+            }
+        }
+        private static bool? isDemo = null;
 
         // HTTPCONTEXT
         // HTTPCONTEXT

@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Web.Mvc;
 using System.Web.Mvc.Filters;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
+using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 
@@ -56,6 +58,13 @@ namespace YetaWF.Core.Controllers {
             cr.ExecuteResult(filterContext);
         }
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
+            // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
+            MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            if (Manager.IsDemo) {
+                ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
+                if (exclDemoAttr != null)
+                    throw new Error("This action is not available in Demo mode.");
+            }
             SetupEnvironmentInfo();
             Logging.AddLog("Action Request");
             base.OnActionExecuting(filterContext);
