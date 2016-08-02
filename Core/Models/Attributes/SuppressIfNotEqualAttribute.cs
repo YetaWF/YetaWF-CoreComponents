@@ -16,7 +16,7 @@ namespace YetaWF.Core.Models {
         public string RequiredPropertyName { get; private set; }
 
         public SuppressIfNotEqualAttribute(string property, object value)
-            : base("SuppressIf", (object) value) {
+            : base("SuppressIf", value) {
             RequiredPropertyName = property;
         }
         public bool IsNotEqual(object model) {

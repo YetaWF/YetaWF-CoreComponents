@@ -1,11 +1,9 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web.Compilation;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
@@ -16,7 +14,7 @@ namespace YetaWF.Core.Support {
         void InitializeApplicationStartup();
     }
 
-    public class Startup {
+    public static class Startup {
 
         public static bool Started { get; set; }
 

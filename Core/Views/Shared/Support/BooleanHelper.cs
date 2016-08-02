@@ -11,7 +11,6 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderBoolean(this HtmlHelper<object> htmlHelper, string name, bool value, object HtmlAttributes = null) {
 
-            string fullName = htmlHelper.FieldName(name);
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
             tag.Attributes.Add("type", "checkbox");
@@ -30,7 +29,6 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderBooleanDisplay(this HtmlHelper<object> htmlHelper, string name, bool value, object HtmlAttributes = null) {
 
-            string fullName = htmlHelper.FieldName(name);
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
             tag.Attributes.Add("type", "checkbox");

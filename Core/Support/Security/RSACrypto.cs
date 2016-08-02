@@ -1,13 +1,12 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Security {
-    public class RSACrypto {
+    public static class RSACrypto {
 
         // http://codebetter.com/johnvpetersen/2012/04/02/making-your-asp-net-web-apis-secure/
         // http://blogs.msdn.com/b/alejacma/archive/2008/10/23/how-to-generate-key-pairs-encrypt-and-decrypt-data-with-net-c.aspx
@@ -39,7 +38,6 @@ namespace YetaWF.Core.Security {
                     byte[] plainBytes = Encoding.Unicode.GetBytes(plainText);
                     byte[] encryptedBytes = rsaProvider.Encrypt(plainBytes, false);
 
-                    int length = encryptedBytes.Count();
                     StringBuilder sb = new StringBuilder();
                     foreach (byte bte in encryptedBytes)
                         sb.Append(string.Format("{0:X2}", bte));

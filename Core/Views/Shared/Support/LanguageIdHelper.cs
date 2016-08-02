@@ -7,7 +7,6 @@ using System.Web.Mvc;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
-using YetaWF.Core.Skins;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -18,9 +17,6 @@ namespace YetaWF.Core.Views.Shared {
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(LanguageIdHelper), name, defaultValue, parms); }
 
         public static MvcHtmlString RenderLanguageId(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
-
-            // get all available languages
-            SkinAccess skinAccess = new SkinAccess();
 
             bool useDefault = ! htmlHelper.GetControlInfo<bool>("", "NoDefault");
             bool allLanguages = htmlHelper.GetControlInfo<bool>("", "AllLanguages");

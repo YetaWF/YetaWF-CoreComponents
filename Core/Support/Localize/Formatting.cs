@@ -6,9 +6,9 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Localize {
 
-    public class Formatting {
+    public static class Formatting {
 
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Formatting), name, defaultValue, parms); }
 

@@ -167,7 +167,6 @@ namespace YetaWF.Core.Views.Shared {
         }
         private static List<PropertyListEntry> GetHiddenGridProperties(object obj, Dictionary<string, GridColumnInfo> dict) {
             List<PropertyListEntry> list = new List<PropertyListEntry>();
-            List<PropertyData> props = ObjectSupport.GetPropertyData(obj.GetType());
             foreach (var d in dict) {
                 string propName = d.Key;
                 GridColumnInfo gridCol = d.Value;
@@ -192,7 +191,6 @@ namespace YetaWF.Core.Views.Shared {
         }
         private static List<PropertyListEntry> GetGridProperties(object obj, Dictionary<string, GridColumnInfo> dict) {
             List<PropertyListEntry> list = new List<PropertyListEntry>();
-            List<PropertyData> props = ObjectSupport.GetPropertyData(obj.GetType());
             foreach (var d in dict) {
                 string propName = d.Key;
                 PropertyData prop = ObjectSupport.GetPropertyData(obj.GetType(), propName);

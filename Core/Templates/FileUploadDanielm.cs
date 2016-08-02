@@ -11,11 +11,11 @@ namespace YetaWF.Core.Addons.Templates {
             ScriptManager scripts = manager.ScriptManager;
             string areaName = "FileUpload";
 
-            manager.ScriptManager.AddLocalization(areaName, "StatusUploadNoResp", "Upload failed - The file is too large or the server did not respond");
-            manager.ScriptManager.AddLocalization(areaName, "StatusUploadFailed", "Upload failed - {0}");
-            manager.ScriptManager.AddLocalization(areaName, "FileTypeError", "The file type is invalid and can't be uploaded");
-            manager.ScriptManager.AddLocalization(areaName, "FileSizeError", "The file is too large and can't be uploaded");
-            manager.ScriptManager.AddLocalization(areaName, "FallbackMode", "Your browser doesn't support file uploading");
+            scripts.AddLocalization(areaName, "StatusUploadNoResp", "Upload failed - The file is too large or the server did not respond");
+            scripts.AddLocalization(areaName, "StatusUploadFailed", "Upload failed - {0}");
+            scripts.AddLocalization(areaName, "FileTypeError", "The file type is invalid and can't be uploaded");
+            scripts.AddLocalization(areaName, "FileSizeError", "The file is too large and can't be uploaded");
+            scripts.AddLocalization(areaName, "FallbackMode", "Your browser doesn't support file uploading");
         }
     }
 }

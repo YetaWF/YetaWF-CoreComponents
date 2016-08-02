@@ -278,9 +278,9 @@ namespace YetaWF.Core.Views {
         }
     }
 
-    public class RazorView {
+    public static class RazorView {
 
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         internal static string PostProcessViewHtml(HtmlHelper htmlHelper, ModuleDefinition module, string viewHtml) {
 

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace YetaWF.Core.Support {
     
-    public class Assemblies {
+    public static class Assemblies {
 
         public static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
 

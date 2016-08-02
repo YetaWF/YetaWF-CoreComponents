@@ -10,6 +10,7 @@ using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models.Attributes {
 
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public class RequiredIfSupplied : RequiredAttribute, IClientValidatable {
 
         [CombinedResources]

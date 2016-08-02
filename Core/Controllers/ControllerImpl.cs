@@ -62,7 +62,7 @@ namespace YetaWF.Core.Controllers {
         }
         private TMod _module;
 
-        protected override ModuleDefinition GetModule() { return (ModuleDefinition)Module; }
+        protected override ModuleDefinition GetModule() { return Module; }
     }
 
     public abstract class ControllerImpl : YetaWFController {
@@ -232,9 +232,9 @@ namespace YetaWF.Core.Controllers {
                 }
 
                 // find the unique Id prefix (saved as hidden field in Form)
-                string uniqueIdPrefix = (string) HttpContext.Request.Form[Forms.UniqueIdPrefix];
+                string uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
                 if (string.IsNullOrEmpty(uniqueIdPrefix))
-                    uniqueIdPrefix = (string) HttpContext.Request.QueryString[Forms.UniqueIdPrefix];
+                    uniqueIdPrefix = HttpContext.Request.QueryString[Forms.UniqueIdPrefix];
                 if (!string.IsNullOrEmpty(uniqueIdPrefix))
                     Manager.UniqueIdPrefix = uniqueIdPrefix;
             }
@@ -717,7 +717,7 @@ namespace YetaWF.Core.Controllers {
             } else {
                 if (string.IsNullOrEmpty(PopupText))
                     throw new InternalError("We don't have a message to display - programmer error");
-                return View("ShowMessage", (object) PopupText, UseAreaViewName: false);
+                return View("ShowMessage", PopupText, UseAreaViewName: false);
             }
         }
         private ActionResult Reload_Page(object model, string popupText, string popupTitle) {
@@ -771,7 +771,7 @@ namespace YetaWF.Core.Controllers {
             if (Manager.IsAjaxRequest || Manager.IsPostRequest)
                 return new HttpUnauthorizedResult();
             else
-                return View("ShowMessage", (object)__ResStr("nothAuth", "You are not authorized to access this module - {0}", GetType().FullName), UseAreaViewName: false);
+                return View("ShowMessage", __ResStr("nothAuth", "You are not authorized to access this module - {0}", GetType().FullName), UseAreaViewName: false);
         }
 
         protected enum OnPopupCloseEnum {

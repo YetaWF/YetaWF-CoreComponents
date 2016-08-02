@@ -9,7 +9,7 @@ namespace YetaWF.Core.Localize {
         void SetProperty(string name, Type type, object value);
     }
 
-    public class UserSettings {
+    public static class UserSettings {
 
         public static IUserSettings UserSettingsAccess { get; set; }
 

@@ -7,7 +7,6 @@ using System.Web.Mvc.Html;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
@@ -92,7 +91,6 @@ namespace  YetaWF.Core.Views.Shared {
         }
 
         public static MvcHtmlString RenderImageAttributes(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0) {
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             if (model == null) return MvcHtmlString.Empty;
             System.Drawing.Size size = ImageSupport.GetImageSize(model);
             if (size.IsEmpty) return MvcHtmlString.Empty;

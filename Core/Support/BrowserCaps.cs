@@ -3,8 +3,8 @@
 using System.Web;
 
 namespace YetaWF.Core.Support {
-    
-    public class BrowserCaps {
+
+    public static class BrowserCaps {
 
         public static bool SupportedBrowser(HttpBrowserCapabilities caps) {
 

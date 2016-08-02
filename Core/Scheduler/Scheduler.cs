@@ -13,7 +13,7 @@ namespace YetaWF.Core.Scheduler {
         SchedulerItemBase[] GetItems();
     }
 
-    public class SchedulerSupport {
+    public static class SchedulerSupport {
 
         public static Action<Package> Install { get; set; }
         public static Action<Package> Uninstall { get; set; }

@@ -6,9 +6,7 @@ using System.Web.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Modules {
     public static class ModuleDefinitionExtensions {
@@ -29,7 +27,6 @@ namespace YetaWF.Core.Modules {
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                 ModuleDefinition mod = ModuleDefinition.Load(moduleGuid);
 
                 ModuleAction action = new ModuleAction(mod) {
@@ -72,7 +69,6 @@ namespace YetaWF.Core.Modules {
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                 ModuleDefinition mod = ModuleDefinition.Load(moduleGuid);
 
                 // <div class=CssEditControlDiv>
@@ -97,7 +93,7 @@ namespace YetaWF.Core.Modules {
         public static MvcHtmlString RenderModule<TYPE>(this HtmlHelper htmlHelper, Action<TYPE> initModule = null) {
             return htmlHelper.RenderUniqueModule(typeof(TYPE), (mod) => {
                 if (initModule != null)
-                    initModule((TYPE) (object) mod);
+                    initModule((TYPE) mod);
             });
         }
         public static MvcHtmlString RenderUniqueModule(this HtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
@@ -113,7 +109,7 @@ namespace YetaWF.Core.Modules {
                         mod.ModuleGuid = permGuid;
                         mod.Temporary = false;
                         if (initModule != null)
-                            initModule((object) mod);
+                            initModule(mod);
                         mod.Save();
                     } else {
                         if (!mod.IsModuleUnique)
@@ -140,7 +136,7 @@ namespace YetaWF.Core.Modules {
                         mod.ModuleGuid = permGuid;
                         mod.Temporary = false;
                         if (initModule != null)
-                            initModule((object)mod);
+                            initModule(mod);
                         mod.Save();
                     } else {
                         if (!mod.IsModuleUnique)

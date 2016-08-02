@@ -10,6 +10,7 @@ using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models.Attributes {
 
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class SameAsAttribute : ValidationAttribute, IClientValidatable {
 
         [CombinedResources]

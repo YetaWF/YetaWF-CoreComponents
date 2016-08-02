@@ -126,8 +126,8 @@ namespace YetaWF.Core.Packages {
             OrderType = type;
             Order = order;
         }
-        public Type OrderType { get; set; }
-        public int Order { get; set; }
+        public Type OrderType { get; private set; }
+        public int Order { get; private set; }
     }
 
     /// <summary>
@@ -745,10 +745,6 @@ namespace YetaWF.Core.Packages {
                 return false;
             if (!typeof(IInstallableModel).IsAssignableFrom(type))
                 return false;
-
-            object obj = Activator.CreateInstance(type);
-            IInstallableModel model = obj as IInstallableModel;
-
             _installableModels.Add(type);
             return true;
         }

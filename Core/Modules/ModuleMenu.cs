@@ -168,7 +168,6 @@ namespace YetaWF.Core.Modules {
 
         private MenuList GetMoveToOtherPanes(PageDefinition page, ModuleDefinition modServices) {
 
-            HtmlBuilder hb = new HtmlBuilder();
             MenuList menu = new MenuList();
             foreach (var pane in page.Panes) {
                 ModuleAction action = modServices.GetModuleAction("MoveToPane", page, this, Manager.PaneRendered, pane);
@@ -180,7 +179,6 @@ namespace YetaWF.Core.Modules {
 
         private MenuList GetMoveWithinPane(PageDefinition page, ModuleDefinition modServices) {
 
-            HtmlBuilder hb = new HtmlBuilder();
             MenuList menu = new MenuList();
 
             ModuleAction action;

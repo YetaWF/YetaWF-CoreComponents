@@ -908,9 +908,9 @@ namespace System.Linq.Dynamic {
                 if (!UInt64.TryParse(text, out value))
                     throw ParseError(Res.InvalidIntegerLiteral, text);
                 NextToken();
-                if (value <= (ulong)Int32.MaxValue) return CreateLiteral((int)value, text);
-                if (value <= (ulong)UInt32.MaxValue) return CreateLiteral((uint)value, text);
-                if (value <= (ulong)Int64.MaxValue) return CreateLiteral((long)value, text);
+                if (value <= Int32.MaxValue) return CreateLiteral((int)value, text);
+                if (value <= UInt32.MaxValue) return CreateLiteral((uint)value, text);
+                if (value <= Int64.MaxValue) return CreateLiteral((long)value, text);
                 return CreateLiteral(value, text);
             }
             else {

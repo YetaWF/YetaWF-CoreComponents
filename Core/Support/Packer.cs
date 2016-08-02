@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Web;
 using Yahoo.Yui.Compressor;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
@@ -220,7 +219,7 @@ namespace YetaWF.Core.Support {
         private string ProcessImportMatch(Match match, string folder) {
             string url = match.Groups["url"].Value;
             url = url.Trim('"').Trim('\'');
-            string rem = match.Groups["rem"].Value;
+            //string rem = match.Groups["rem"].Value;
             string textMatch = match.ToString();
             if (!url.EndsWith(".css")) return textMatch; // leave as-is if not .css
             if (url.StartsWith("http://") || url.StartsWith("https://")) return textMatch;

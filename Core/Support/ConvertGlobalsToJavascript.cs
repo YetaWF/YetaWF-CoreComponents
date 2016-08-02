@@ -8,7 +8,7 @@ using YetaWF.Core.Log;
 
 namespace YetaWF.Core.Support {
 
-    public class ConvertGlobalsToJavascript {
+    public static class ConvertGlobalsToJavascript {
         internal static void Convert(string outputFile, Object inputObject, string jsObjectName)
         {
             Logging.AddLog("Generating {0} for {1}", outputFile, inputObject.GetType().Name);

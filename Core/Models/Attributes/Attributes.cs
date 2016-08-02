@@ -22,7 +22,7 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class PermissionAttribute : Attribute {
         public PermissionAttribute(string level) { Level = level; }
-        public string Level { get; set; }
+        public string Level { get; private set; }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -30,12 +30,12 @@ namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class EnumDescriptionAttribute : Attribute {
-        public EnumDescriptionAttribute(string caption, string desc = null) {
+        public EnumDescriptionAttribute(string caption, string Description = null) {
             Caption = caption;
-            Description = desc;
+            this.Description = Description;
         }
-        public string Caption { get; set; }
-        public string Description { get; set; }
+        public string Caption { get; private set; }
+        public string Description { get; private set; }
 
         public static string GetStringValue(object value) {
             EnumData enumData = ObjectSupport.GetEnumData(value.GetType());
@@ -92,47 +92,47 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TrimAttribute : MoreMetadataAttribute {
         public enum EnumStyle { Both = 0, Left, Right, None }
-        public TrimAttribute(EnumStyle style = EnumStyle.Both) : base("Trim", (object) style) { }
+        public TrimAttribute(EnumStyle style = EnumStyle.Both) : base("Trim", style) { }
         public new EnumStyle Value { get { return (EnumStyle) base.Value; } }
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class CaseAttribute : MoreMetadataAttribute {
         public enum EnumStyle { Upper = 0, Lower }
-        public CaseAttribute(EnumStyle style = EnumStyle.Upper) : base("Case", (object)style) { }
+        public CaseAttribute(EnumStyle style = EnumStyle.Upper) : base("Case", style) { }
         public new EnumStyle Value { get { return (EnumStyle)base.Value; } }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class ReadOnlyAttribute : MoreMetadataAttribute {
-        public ReadOnlyAttribute() : base("ReadOnly", (object) true) { }
+        public ReadOnlyAttribute() : base("ReadOnly", true) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CategoryAttribute : MoreMetadataAttribute {
-        public CategoryAttribute(string category) : base("Category", (object) category) { }
+        public CategoryAttribute(string category) : base("Category", category) { }
         public new string Value { get { return (string) base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class DescriptionAttribute : MoreMetadataAttribute {
-        public DescriptionAttribute(string description, [CallerLineNumber]int order = 0) : base("Description", (object) description) { Order = order; }
+        public DescriptionAttribute(string description, [CallerLineNumber]int order = 0) : base("Description", description) { Order = order; }
         public new string Value { get { return (string) base.Value; } }
         public int Order { get; set; }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class HelpLinkAttribute : MoreMetadataAttribute {
-        public HelpLinkAttribute(string url) : base("HelpLink", (object) url) { }
+        public HelpLinkAttribute(string url) : base("HelpLink", url) { }
         public new string Value { get { return (string) base.Value; } }
         public int Order { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TextAboveAttribute : MoreMetadataAttribute {
-        public TextAboveAttribute(string description) : base("TextAbove", (object) description) { }
+        public TextAboveAttribute(string description) : base("TextAbove", description) { }
         public new string Value { get { return (string) base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TextBelowAttribute : MoreMetadataAttribute {
-        public TextBelowAttribute(string description) : base("TextBelow", (object) description) { }
+        public TextBelowAttribute(string description) : base("TextBelow", description) { }
         public new string Value { get { return (string) base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -152,22 +152,22 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CaptionAttribute : MoreMetadataAttribute {
-        public CaptionAttribute(string caption) : base("Caption", (object) caption) { }
+        public CaptionAttribute(string caption) : base("Caption", caption) { }
         public new string Value { get { return (string) base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class HeaderAttribute : MoreMetadataAttribute {
-        public HeaderAttribute(string text) : base("Header", (object) text) {  }
+        public HeaderAttribute(string text) : base("Header", text) {  }
         public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class FooterAttribute : MoreMetadataAttribute {
-        public FooterAttribute(string text) : base("Footer", (object) text) {  }
+        public FooterAttribute(string text) : base("Footer", text) {  }
         public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class LegendAttribute : MoreMetadataAttribute {
-        public LegendAttribute(string text) : base("Legend", (object) text) { }
+        public LegendAttribute(string text) : base("Legend", text) { }
         public new string Value { get { return (string) base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
@@ -180,6 +180,7 @@ namespace YetaWF.Core.Models.Attributes {
         Unspecified = -1, Left = 0, Center = 1, Right = 2
     }
 
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public class MoreMetadataAttribute : Attribute, IMetadataAware {
         private object _typeId = new object();
 

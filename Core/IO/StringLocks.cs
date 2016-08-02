@@ -11,7 +11,7 @@ namespace YetaWF.Core.IO {
     /// Used to lock resources by name - the name is arbitrary as long as they're consistent.
     /// This can only be used to lock a resource WITHIN one instance of YetaWF. To lock across processes, an operating system locking mechanism must be used.
     /// </summary>
-    public class StringLocks {
+    public static class StringLocks {
 
         class LockedObject {
             public string Name;

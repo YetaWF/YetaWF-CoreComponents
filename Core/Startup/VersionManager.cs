@@ -46,7 +46,7 @@ namespace YetaWF.Core.Addons {
         }
     }
 
-    public class VersionManager {
+    public static class VersionManager {
 
         public enum AddOnType {
             [EnumDescription("Module", "Module Addon")]
@@ -490,7 +490,6 @@ namespace YetaWF.Core.Addons {
                         }
                     } else {
                         // no source
-                        bool f = package.HasSource;
                     }
                     Logging.AddLog("Searching {0} for addon files", addonsProductPath);
                     RegisterAllProducts(package, addonsProductPath);

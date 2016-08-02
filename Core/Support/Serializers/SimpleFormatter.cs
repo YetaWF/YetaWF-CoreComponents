@@ -61,7 +61,7 @@ namespace YetaWF.Core.Serializers {
         StreamingContext context;
         ISurrogateSelector surrogateSelector;
 
-        public string _unread;
+        private string _unread;
 
         public SimpleFormatter() {
             context = new StreamingContext(StreamingContextStates.All);
@@ -345,7 +345,7 @@ namespace YetaWF.Core.Serializers {
                         } else if (pi.PropertyType == typeof(Guid) || pi.PropertyType == typeof(Guid?)) {
                             objVal = new Guid(strVal);
                         } else if (pi.PropertyType == typeof(TimeSpan) || pi.PropertyType == typeof(TimeSpan?)) {
-                            objVal = new TimeSpan((long)Convert.ToInt64(strVal));
+                            objVal = new TimeSpan(Convert.ToInt64(strVal));
                         } else if (pi.PropertyType == typeof(System.Drawing.Image) || pi.PropertyType == typeof(Bitmap)) {
                             using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(strVal))) {
                                 objVal = System.Drawing.Image.FromStream(ms);

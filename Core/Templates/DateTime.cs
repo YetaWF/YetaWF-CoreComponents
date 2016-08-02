@@ -10,7 +10,7 @@ namespace YetaWF.Core.Addons.Templates {
 
             ScriptManager scripts = manager.ScriptManager;
 
-            manager.ScriptManager.AddVolatileOption("DateTime", "DateTimeFormat", YetaWF.Core.Localize.Formatting.GetFormatDateTimeFormat());
+            scripts.AddVolatileOption("DateTime", "DateTimeFormat", YetaWF.Core.Localize.Formatting.GetFormatDateTimeFormat());
         }
     }
 }

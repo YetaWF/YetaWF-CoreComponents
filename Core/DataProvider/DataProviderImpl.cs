@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using YetaWF.Core.Models;
-using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
@@ -294,7 +293,7 @@ namespace YetaWF.Core.DataProvider {
         }
     }
 
-    public class DataProviderImpl<OBJTYPE> {
+    public static class DataProviderImpl<OBJTYPE> {
 
         public static List<OBJTYPE> GetRecords(List<OBJTYPE> objects, int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, out int total) {
             objects = Filter(objects, filters);
@@ -329,7 +328,7 @@ namespace YetaWF.Core.DataProvider {
 
     public abstract class DataProviderImpl : IDisposable {
 
-        public DataProviderImpl(int siteIdentity) { SiteIdentity = siteIdentity; }
+        protected DataProviderImpl(int siteIdentity) { SiteIdentity = siteIdentity; }
         public void Dispose() { Dispose(true); }
         protected virtual void Dispose(bool disposing) { }
         //~DataProviderImpl() { Dispose(false); }

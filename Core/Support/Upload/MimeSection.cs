@@ -42,7 +42,7 @@ namespace YetaWF.Core.Upload {
             contentType = contentType.ToLower();
             var v = (from MimeEntry entry in MimeTypes where entry.Type.ToLower() == contentType select entry).FirstOrDefault();
             if (v != null)
-                return (MimeEntry)v;
+                return v;
             return null;
         }
     }

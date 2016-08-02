@@ -26,8 +26,6 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderModuleSelectionDD(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
 
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-
             bool newMods = htmlHelper.GetControlInfo<bool>(name, "New", false);
 
             List<SelectionItem<Guid>> list;
@@ -53,7 +51,6 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<Guid>(name, modGuid ?? Guid.Empty, list);
         }
         public static MvcHtmlString RenderModuleSelectionLink(this HtmlHelper htmlHelper, Guid? modGuid) {
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -76,8 +73,6 @@ namespace YetaWF.Core.Views.Shared {
             return MvcHtmlString.Create(hb.ToString());
         }
         public static MvcHtmlString RenderModuleSelectionDisplay(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
-
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
 
             HtmlBuilder hb = new HtmlBuilder();
 

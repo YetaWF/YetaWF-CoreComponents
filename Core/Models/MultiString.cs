@@ -101,7 +101,7 @@ namespace YetaWF.Core.Models {
         public new void Add(string key, string value) {
             if (key != MultiString.DefaultLanguage) {
                 if (value == DefaultText) {
-                    Remove((string)key);
+                    Remove(key);
                     return;
                 }
             }

@@ -25,7 +25,7 @@ namespace YetaWF.Core.Localize {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class CombinedResourcesAttribute : Attribute { }
 
-    public class ResourceAccess {
+    public static class ResourceAccess {
 
         // RETRIEVAL
         // RETRIEVAL

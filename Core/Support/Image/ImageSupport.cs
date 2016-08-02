@@ -30,8 +30,8 @@ namespace YetaWF.Core.Image {
 
         public class ImageHandlerEntry {
             public string Type { get; set; }
-            public GetImageInBytes GetBytes;
-            public GetImageAsFile GetFilePath;
+            public GetImageInBytes GetBytes { get; set; }
+            public GetImageAsFile GetFilePath { get; set; }
         }
 
         public static void AddHandler(string type, GetImageInBytes GetBytes = null, GetImageAsFile GetAsFile = null) {
@@ -192,7 +192,6 @@ namespace YetaWF.Core.Image {
         /// <param name="folder"></param>
         /// <returns></returns>
         public static System.Drawing.Size GetImageSize(string name, string folder) {
-            FileUpload fileUpload = new FileUpload();
             string filePath = Path.Combine(Manager.SiteFolder, folder, name);
             using (System.Drawing.Image img = System.Drawing.Image.FromFile(filePath)) {
                 return img.Size;

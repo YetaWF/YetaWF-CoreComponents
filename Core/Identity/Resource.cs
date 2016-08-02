@@ -19,8 +19,8 @@ namespace YetaWF.Core.Identity {
             Superuser = false;
             All = false;
         }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
 
         public bool All { get { return _all; } set { Anonymous = User = Administrator = Editor = Superuser = value; } }
         private bool _all { get; set; }
@@ -38,7 +38,7 @@ namespace YetaWF.Core.Identity {
         public ResourceAuthorizeAttribute(string name) {
             Name = name;
         }
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         protected override bool AuthorizeCore(HttpContextBase httpContext) {
             return Resource.ResourceAccess.IsResourceAuthorized(Name);
@@ -76,7 +76,7 @@ namespace YetaWF.Core.Identity {
         int GetRoleId(string roleName);
     }
 
-    public class Resource {
+    public static class Resource {
 
         public static IResource ResourceAccess { get; set; }
 

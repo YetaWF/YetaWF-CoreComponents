@@ -87,8 +87,6 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderEnum(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 
-            string fullName = htmlHelper.FieldName(name);
-
             TagBuilder tag = new TagBuilder("select");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
 

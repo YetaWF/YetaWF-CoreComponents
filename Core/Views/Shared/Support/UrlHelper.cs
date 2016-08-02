@@ -79,8 +79,6 @@ namespace YetaWF.Core.Views.Shared {
         }
         public static MvcHtmlString RenderUrlDD(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
 
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-
             List<string> pages = PageDefinition.GetDesignedUrls();
 
             // get list of desired pages (ignore users that are invalid, they may have been deleted)

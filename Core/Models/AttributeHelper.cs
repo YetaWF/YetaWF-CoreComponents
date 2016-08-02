@@ -3,11 +3,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
-using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models {
-    public class AttributeHelper {
+    public static class AttributeHelper {
 
         public static string GetPropertyCaption(ValidationContext validationContext) {
             object instance = validationContext.ObjectInstance;
@@ -21,8 +20,6 @@ namespace YetaWF.Core.Models {
             Type type = metadata.ContainerType;
             string propertyName = metadata.PropertyName;
             PropertyData propData = ObjectSupport.GetPropertyData(type, propertyName);
-            string caption = propertyName;
-            CaptionAttribute captAttr = propData.TryGetAttribute<CaptionAttribute>();
             return propData.GetCaption(instance);
         }
         public static string GetPropertyCaption(object obj) {
@@ -50,7 +47,6 @@ namespace YetaWF.Core.Models {
         }
 
         public static TYPE GetAttributeValue<TYPE>(ValidationContext validationContext, string attrName, TYPE dflt) {
-            object instance = validationContext.ObjectInstance;
             Type type = validationContext.ObjectType;
             string propertyName = validationContext.DisplayName;
             PropertyData propData = ObjectSupport.GetPropertyData(type, propertyName);

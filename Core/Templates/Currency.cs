@@ -10,7 +10,7 @@ namespace YetaWF.Core.Addons.Templates {
 
             ScriptManager scripts = manager.ScriptManager;
 
-            manager.ScriptManager.AddVolatileOption("Currency", "CurrencyFormat", YetaWF.Core.Localize.Formatting.GetFormatCurrencyFormat());
+            scripts.AddVolatileOption("Currency", "CurrencyFormat", YetaWF.Core.Localize.Formatting.GetFormatCurrencyFormat());
         }
     }
 }

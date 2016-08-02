@@ -31,7 +31,6 @@ namespace YetaWF.Core.Skins {
         public string PhysicalPageUrl(SkinDefinition skin, bool popup) {
             skin = SkinDefinition.EvaluatedSkin(skin, popup);
             VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(ref skin, popup);
-            SkinCollectionInfo info = addon.SkinInfo;
             if (string.IsNullOrWhiteSpace(skin.Collection)) {
                 if (popup)
                     skin = Manager.CurrentSite.SelectedPopupSkin;

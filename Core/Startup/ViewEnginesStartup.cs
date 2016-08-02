@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -9,7 +8,7 @@ using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
 
-    public class ViewEnginesStartup {
+    public static class ViewEnginesStartup {
 
         /// <summary>
         /// Update view engines so we can find our views

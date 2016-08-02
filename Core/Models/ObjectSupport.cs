@@ -41,7 +41,7 @@ namespace YetaWF.Core.Models {
         }
         public TYPE TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
-            TYPE attr = (TYPE) (object) TryGetAttributeValue(name);
+            TYPE attr = (TYPE) TryGetAttributeValue(name);
             return attr;
         }
         private object TryGetAttributeValue(string name) {
@@ -137,12 +137,12 @@ namespace YetaWF.Core.Models {
         private Dictionary<string, object> AdditionalAttributes { get; set; }
 
         public TYPE GetPropertyValue<TYPE>(object parentObject) {
-            TYPE val = (TYPE)(object) PropInfo.GetValue(parentObject, null);
+            TYPE val = (TYPE) PropInfo.GetValue(parentObject, null);
             return val;
         }
         public TYPE TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
-            TYPE attr = (TYPE)(object) TryGetAttributeValue(name);
+            TYPE attr = (TYPE) TryGetAttributeValue(name);
             return attr;
         }
         private object TryGetAttributeValue(string name) {
@@ -260,7 +260,7 @@ namespace YetaWF.Core.Models {
         }
     }
 
-    public class ObjectSupport {
+    public static class ObjectSupport {
 
         private class ClassPropertyData {
             public Type ClassType { get; set; }

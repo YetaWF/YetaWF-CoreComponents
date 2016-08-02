@@ -200,6 +200,8 @@ namespace YetaWF.Core.SendEmail {
                 Logging.AddErrorLog("Server={0}, SSL={1}, Auth={2}", SmtpClient.Host, SmtpClient.EnableSsl.ToString(), SmtpClient.UseDefaultCredentials.ToString(), exc);
                 if (fThrowError)
                     throw;
+            } finally {
+                SmtpClient.Dispose();
             }
         }
     }

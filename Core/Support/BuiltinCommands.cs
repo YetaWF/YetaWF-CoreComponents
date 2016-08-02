@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Web;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
 
@@ -13,9 +12,9 @@ namespace YetaWF.Core.Support {
     /// Implements management of built-in commands (urls that don't match a page).
     /// Classes typically add built-in command during application startup.
     /// </summary>
-    public class BuiltinCommands {
+    public static class BuiltinCommands {
 
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         private class BuiltinCommandEntry {
             public string Command { get; set; }

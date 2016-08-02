@@ -43,7 +43,7 @@ namespace YetaWF.PackageAttributes
         public SkinAttribute(string domain) {
             Domain = domain;
         }
-        public string Domain { get; set; }
+        public string Domain { get; private set; }
     }
     [AttributeUsage(AttributeTargets.Assembly)]
     public class PackageInfoAttribute : Attribute {
@@ -55,10 +55,10 @@ namespace YetaWF.PackageAttributes
             ReleaseNoticeLink = releaseNoticeLink;
             LicenseLink = licenseLink;
         }
-        public string InfoLink { get; set; }
-        public string UpdateServerLink { get; set; }
-        public string SupportLink { get; set; }
-        public string ReleaseNoticeLink { get; set; }
-        public string LicenseLink { get; set; }
+        public string InfoLink { get; private set; }
+        public string UpdateServerLink { get; private set; }
+        public string SupportLink { get; private set; }
+        public string ReleaseNoticeLink { get; private set; }
+        public string LicenseLink { get; private set; }
     }
 }

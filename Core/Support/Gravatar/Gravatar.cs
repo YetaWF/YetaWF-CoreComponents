@@ -3,7 +3,7 @@
 using YetaWF.Core.Models.Attributes;
 
 namespace YetaWF.Core.Support {
-    public class Gravatar {
+    public static class Gravatar {
         public enum GravatarEnum {
             [EnumDescription("(none)", "No image is shown")]
             None = 0,

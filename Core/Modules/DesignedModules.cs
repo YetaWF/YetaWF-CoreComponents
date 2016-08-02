@@ -9,7 +9,7 @@ using YetaWF.Core.Models.Attributes;
 namespace YetaWF.Core.Modules {
 
     // Designed modules - LoadDesignedModules returns a site-specific list
-    
+
     public class DesignedModule {
         [Data_PrimaryKey]
         public Guid ModuleGuid { get; set; }
@@ -24,7 +24,7 @@ namespace YetaWF.Core.Modules {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not used for serialization")]
     public class DesignedModulesDictionary : Dictionary<Guid, DesignedModule> { }
 
-    public class DesignedModules {
+    public static class DesignedModules {
 
         // this must be provided by a dataprovider during app startup (this loads module information)
         [DontSave]

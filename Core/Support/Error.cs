@@ -24,7 +24,7 @@ namespace YetaWF.Core.Support {
             dict.AddError(key, string.Format(errorMessage, parms));
         }
     }
-    public class ErrorHandling {
+    public static class ErrorHandling {
 
         private static object _lockObject = new object();
 

@@ -130,12 +130,11 @@ namespace YetaWF.Core.Support {
         }
 
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
-            LocalDataStoreSlot slot = null;
 #if DEBUG
             if (Thread.GetNamedDataSlot(YetaWF_ManagerKey) == null) { // avoid exception spam
 #endif
                 try {
-                    slot = Thread.AllocateNamedDataSlot(YetaWF_ManagerKey);
+                    Thread.AllocateNamedDataSlot(YetaWF_ManagerKey);
                 } catch (Exception) { }
 #if DEBUG
             }

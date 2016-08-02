@@ -51,7 +51,6 @@ namespace YetaWF.Core.Views.Shared {
 
             TagBuilder tagLabel = new TagBuilder("label");
 
-            string fullName = htmlHelper.FieldName(htmlFieldName);
             if (string.IsNullOrWhiteSpace(label))
                 tagLabel.InnerHtml = "&nbsp;";
             else

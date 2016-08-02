@@ -93,7 +93,6 @@ namespace YetaWF.Core.Models.Attributes {
 
         // An empty string is valid (otherwise add RequiredAttribute)
         public override bool IsValid(Object value) {
-            string val = (string) value;
             if (string.IsNullOrWhiteSpace((string) value))
                 return true;
             return base.IsValid(value);
@@ -116,7 +115,6 @@ namespace YetaWF.Core.Models.Attributes {
 
         // An empty string is valid (otherwise add RequiredAttribute)
         public override bool IsValid(Object value) {
-            string val = (string) value;
             if (string.IsNullOrWhiteSpace((string) value))
                 return true;
             return base.IsValid(value);

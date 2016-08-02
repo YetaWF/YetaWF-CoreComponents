@@ -73,7 +73,7 @@ namespace YetaWF.Core.IO {
                 fs.Close();
                 Data = new GeneralFormatter(Format).Deserialize(btes);
             }
-            return (TObj) (object) Data;
+            return (TObj) Data;
         }
 
         /// <summary>

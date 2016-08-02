@@ -4,7 +4,8 @@ using System;
 using System.IO;
 
 namespace YetaWF.Core.IO {
-    public class DirectoryIO {
+    public static class DirectoryIO {
+
         public static void DeleteFolder(string targetFolder) {
             if (!Directory.Exists(targetFolder)) return;// avoid exception spam
 
@@ -19,7 +20,7 @@ namespace YetaWF.Core.IO {
                     if (retry <= 1)
                         throw;
                 }
-                System.Threading.Thread.Sleep(1000); // wait a bit 
+                System.Threading.Thread.Sleep(1000); // wait a bit
                 --retry;
             }
         }
@@ -36,7 +37,7 @@ namespace YetaWF.Core.IO {
                     if (retry <= 1)
                         throw;
                 }
-                System.Threading.Thread.Sleep(500); // wait a bit 
+                System.Threading.Thread.Sleep(500); // wait a bit
                 --retry;
             }
         }
