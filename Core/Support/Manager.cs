@@ -1070,29 +1070,56 @@ namespace YetaWF.Core.Support {
         // UTILITY
         // UTILITY
 
+        /// <summary>
+        /// Define options for the current page skin.
+        /// </summary>
+        /// <param name="JQuerySkin">The default jQuery-UI skin. Specify null for the default jQuery-UI skin.</param>
+        /// <param name="KendoSkin">The default Kendo skin. Specify null for the default Kendo skin.</param>
+        /// <param name="UsingBootstrap">Set to true if the current skin is a Bootstrap skin, otherwise false.</param>
+        /// <param name="UseDefaultBootstrap">Set to true to use the global Addon Bootstrap (without any customizations), false if the optionally customized bootstrap version is provided as part of the skin package.
+        /// This parameter is ignored if UsingBootstrap is false.</param>
+        /// <param name="UsingBootstrapButtons">Set to true if the current skin uses Bootstrap buttons, otherwise false for jQuery-UI buttons.
+        /// This parameter is ignored if UsingBootstrap is false.</param>
+        /// <param name="MinWidthForPopups">The minimum page width for which popups are allowed.
+        /// If the page is not wide enough, the page is opened as a full page instead of in a popup.
+        /// This parameter is ignored if UsingBootstrap is false.</param>
         public void SetSkinOptions(string JQuerySkin = null, string KendoSkin = null,
-                bool UsingBootstrap = false, bool UsingBootstrapButtons = false, int MinWidthForPopups = 0) {
+                bool UsingBootstrap = false, bool UseDefaultBootstrap = true, bool UsingBootstrapButtons = false, int MinWidthForPopups = 0) {
             if (IsInPopup) throw new InternalError("This form of the SetSkinOptions method can only be used in page skins (not popup skins)");
             this.UsingBootstrap = UsingBootstrap;
             if (UsingBootstrap) {
                 ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
                 ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", MinWidthForPopups);
-                AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
+                if (UseDefaultBootstrap)
+                    AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
                 this.UsingBootstrapButtons = UsingBootstrapButtons;
             } else
                 ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", 0);
             SetSkins(JQuerySkin, KendoSkin);
         }
-
+        /// <summary>
+        /// Define options for the current popup skin.
+        /// </summary>
+        /// <param name="popupWidth">The width of the popup window (in pixels).</param>
+        /// <param name="popupHeight">The height of the popup window (in pixels).</param>
+        /// <param name="popupMaximize">Set to true if the popup can be maximized, false otherwise.</param>
+        /// <param name="JQuerySkin">The default jQuery-UI skin. Specify null for the default jQuery-UI skin.</param>
+        /// <param name="KendoSkin">The default Kendo skin. Specify null for the default Kendo skin.</param>
+        /// <param name="UsingBootstrap">Set to true if the current skin is a Bootstrap skin, otherwise false.</param>
+        /// <param name="UseDefaultBootstrap">Set to true to use the global Addon Bootstrap (without any customizations), false if the optionally customized bootstrap version is provided as part of the skin package.
+        /// This parameter is ignored if UsingBootstrap is false.</param>
+        /// <param name="UsingBootstrapButtons">Set to true if the current skin uses Bootstrap buttons, otherwise false for jQuery-UI buttons.
+        /// This parameter is ignored if UsingBootstrap is false.</param>
         public void SetSkinOptions(int popupWidth, int popupHeight, bool popupMaximize = false, string JQuerySkin = null, string KendoSkin = null,
-                bool UsingBootstrap = false, bool UsingBootstrapButtons = false) {
+                bool UsingBootstrap = false, bool UseDefaultBootstrap = true, bool UsingBootstrapButtons = false) {
             if (!IsInPopup) throw new InternalError("This form of the SetSkinOptions method can only be used in popup skins (not page skins)");
             this.UsingBootstrap = UsingBootstrap;
             if (UsingBootstrap) {
                 ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
-                AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
+                if (UseDefaultBootstrap)
+                    AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
                 this.UsingBootstrapButtons = UsingBootstrapButtons;
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", 0);
