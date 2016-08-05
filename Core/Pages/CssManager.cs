@@ -47,6 +47,7 @@ namespace YetaWF.Core.Pages {
                         throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                     filePathURL = YetaWFManager.PhysicalToUrl(f);
                 } else {
+                    file = file.Replace("\\", "/");// convert to Url in case this is file spec
                     filePathURL = string.Format("{0}{1}", productUrl, file);
                     string fullPath = YetaWFManager.UrlToPhysical(filePathURL);
                     if (!File.Exists(fullPath))
