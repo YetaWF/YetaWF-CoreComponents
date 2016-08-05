@@ -157,6 +157,7 @@ namespace YetaWF.Core.Skins {
         //    [[CONTENTS]]
         //    [ThisModule,ActionMenu]
         // </div>
+        // Depending on the BootstrapContainer property <div class="container"> and <div class="row"> may be added.
         internal MvcHtmlString MakeModuleContainer(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
@@ -173,7 +174,8 @@ namespace YetaWF.Core.Skins {
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(modSkinCss));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
+            if (!string.IsNullOrWhiteSpace(mod.CssClass))
+                div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
             if (!mod.Print)
                 div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleNoPrint));
             div.Attributes.Add("id", mod.ModuleHtmlId);
@@ -182,13 +184,22 @@ namespace YetaWF.Core.Skins {
             div.Attributes.Add("data-charheight", Manager.CharHeight.ToString());
 
             string inner = "";
+            if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
+                inner += "<div class='container'><div class='row'>";
+            else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
+                inner += "<div class='container'>";
+
             if (ShowMenu)
-                inner = mod.ModuleMenuHtml;
+                inner += mod.ModuleMenuHtml;
             if (ShowTitle)
                 inner += mod.TitleHtml;
             inner += htmlContents;
             if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) // only show action menus in a pane
                 inner += mod.ActionMenuHtml;
+            if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
+                inner += "</div></div>";
+            else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
+                inner += "</div>";
 
             div.InnerHtml = inner;
             if (anchor != null)
