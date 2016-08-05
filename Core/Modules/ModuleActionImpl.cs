@@ -128,7 +128,7 @@ namespace YetaWF.Core.Modules {
             if (!string.IsNullOrWhiteSpace(Tooltip))
                 tag.MergeAttribute(Basics.CssTooltip, Tooltip);
             if (!string.IsNullOrWhiteSpace(Name))
-                tag.MergeAttribute("name", Name);
+                tag.MergeAttribute("data-name", Name);
             if (!Displayed)
                 tag.MergeAttribute("style", "display:none");
             if (hasSubmenu) {
