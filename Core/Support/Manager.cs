@@ -1145,6 +1145,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public MvcHtmlString PageCss(string css) {
             string s = CombineCss(css, ModeCss);
+            s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");
             s = CombineCss(s, IsInPopup ? "yPopup" : "yPage");
             return MvcHtmlString.Create(CombineCss(s, CurrentPage.CssClass));
         }
