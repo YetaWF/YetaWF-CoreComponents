@@ -654,6 +654,22 @@ namespace YetaWF.Core.Pages {
         // HREFLANG
         // HREFLANG
 
+        /// <summary>
+        /// Returns the page's language id. If none is defined, the default language is returned.
+        /// </summary>
+        /// <returns>Returns the page's language id.</returns>
+        public string GetPageLanguageId() {
+            string pageLanguage = Manager.UserLanguage;
+            if (string.IsNullOrWhiteSpace(pageLanguage))
+                pageLanguage = LanguageId;// page language
+            if (string.IsNullOrWhiteSpace(pageLanguage))
+                pageLanguage = MultiString.DefaultLanguage;
+            return pageLanguage;
+        }
+
+        /// <summary>
+        /// Returns all html needed to defined the page's language.
+        /// </summary>
         public string HrefLangHtml {
             get {
                 return GetHrefLangHtml();
@@ -694,7 +710,8 @@ namespace YetaWF.Core.Pages {
             }
 
             // meta - bing
-            hb.Append("<meta http-equiv='content-language' content='{0}' />", pageLanguage);
+            // not used as it's obsolete in html5
+            //hb.Append("<meta http-equiv='content-language' content='{0}' />", pageLanguage);
             return hb.ToString();
         }
 
