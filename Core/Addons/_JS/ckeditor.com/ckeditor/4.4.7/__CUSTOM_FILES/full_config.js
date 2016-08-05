@@ -10,4 +10,6 @@ CKEDITOR.editorConfig = function( config ) {
     config.removePlugins = 'save,forms,resize';
     config.enterMode = CKEDITOR.ENTER_BR; // inserts <br /> instead of <p></p>
     config.filebrowserWindowFeatures = 'location=no,menubar=no,toolbar=no,dependent=yes,minimizable=no,modal=yes,alwaysRaised=yes,resizable=yes,scrollbars=yes';
+    // allow <i></i> as used with font-awesome
+    config.protectedSource.push(/<i[^>]*><\/i>/g);
 };

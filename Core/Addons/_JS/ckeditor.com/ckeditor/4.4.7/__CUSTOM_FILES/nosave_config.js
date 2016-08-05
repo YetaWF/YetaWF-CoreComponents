@@ -9,4 +9,6 @@ CKEDITOR.editorConfig = function( config ) {
     // config.uiColor = '#AADC6E';
     config.removePlugins = 'save,forms,templates,elementspath,resize'; //TODO:? font
     config.enterMode = CKEDITOR.ENTER_BR; // inserts <br /> instead of <p></p>
+    // allow <i></i> as used with font-awesome
+    config.protectedSource.push(/<i[^>]*><\/i>/g);
 };

@@ -666,7 +666,7 @@ $(document).ready(function () {
     $('body').tooltip({
         // th.k-header span[{1}]  -  Telerik Grid
         // .ui-jqgrid span[{1}]  -  jqGrid
-        items: 'label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),img,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
+        items: 'label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,img,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
         content: function (a, b, c) {
             var $this = $(this);
             for ( ; ; ) {
@@ -679,9 +679,9 @@ $(document).ready(function () {
                 s = $this.attr('title');
                 if (s != undefined)
                     return Y_HtmlEscape(s);
-                if ($this[0].tagName != "IMG")
+                if ($this[0].tagName != "IMG" && $this[0].tagName != "I")
                     break;
-                // we're in an IMG tag, find enclosing A (if any) and try again
+                // we're in an IMG or I tag, find enclosing A (if any) and try again
                 $this = $this.closest('a:not("{0}")'.format(YVolatile.Basics.CssNoTooltips));
                 if ($this.length == 0) return null;
                 // if the a link is a menu, don't show a tooltip for the image because the tooltip would be in a bad location

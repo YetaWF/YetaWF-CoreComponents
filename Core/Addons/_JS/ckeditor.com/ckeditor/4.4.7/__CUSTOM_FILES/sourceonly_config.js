@@ -13,4 +13,6 @@ CKEDITOR.editorConfig = function (config) {
     config.enterMode = CKEDITOR.ENTER_BR; // inserts <br /> instead of <p></p>
     config.filebrowserImageBrowseLinkUrl = '/__CKEditor/ImageBrowseLinkUrl';
     config.filebrowserImageBrowseUrl = '/__CKEditor/ImageBrowseLinkUrl';
+    // allow <i></i> as used with font-awesome
+    config.protectedSource.push(/<i[^>]*><\/i>/g);
 }
