@@ -6,7 +6,7 @@
 }
 <div id="@ControlId" class="yt_url t_edit" data-name="@Html.FieldName("")">
     @Html.RenderHidden("", Model)
-    <select class="t_select"@(((type & UrlHelperEx.UrlTypeEnum.Local) == 0 || (type & UrlHelperEx.UrlTypeEnum.Remote) == 0) ? " disabled=\"disabled\"" : "")>
+    <select class="t_select"@Html.Raw(((type & UrlHelperEx.UrlTypeEnum.Local) == 0 || (type & UrlHelperEx.UrlTypeEnum.Remote) == 0) ? " disabled=\"disabled\"" : "")>
         @if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
             <option value="1" title="@__ResStr("selLocalTT", "Select for local, designed pages")">@__ResStr("selLocal", "Designed Page")</option>
         }
