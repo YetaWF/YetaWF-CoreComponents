@@ -1,2 +1,2 @@
 ﻿\Scripts\bootstrap.js
-fixup.js
+fixup.js,bundle

@@ -1,10 +1,13 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
-// This assumes that bootstrap.js is loaded before jquery-ui (if bootstrap is used at all)
+// This assumes that bootstrap's fixup.js ran already (if bootstrap is used at all)
+// and this fixup.js must run last
 
 +function ($) {
     'use strict';
     if (YVolatile.Skin.Bootstrap && YVolatile.Skin.BootstrapButtons) {
+        if (Y_YetaWFBootstrap_Fixup != true)
+            throw "Bootstrap fixup not used"
         // we're highjacking the button() function implemented by JQUERY so we can support button('enable'/'disable'); to be source compatible with
         // code assuming jquery-ui buttons even if Bootstrap buttons are used
         var jqbutton = $.fn.button

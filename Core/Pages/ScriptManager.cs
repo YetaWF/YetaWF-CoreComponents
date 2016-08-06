@@ -98,8 +98,9 @@ namespace YetaWF.Core.Pages {
         private readonly Dictionary<string, string> _SavedFirstNamedScripts = new Dictionary<string, string>(); // included named script snippets before all included files (if added multiple times, added only once
         private readonly Dictionary<string, string> _ScriptFiles = new Dictionary<string, string>(); // already processed script files (not necessarily added to page yet)
         private readonly List<string> _FinalScriptFiles = new List<string>(); // script files to include (already minified, etc.) using <script...> tags
-        private readonly List<string> _BundleScriptFiles = new List<string>(); // files in _FinalScriptFiles that must be bundled
-        private readonly List<string> _DontBundleScriptFiles = new List<string>(); // files in _FinalScriptFiles that cannot be bundled
+        private readonly List<string> _FinalLastScriptFiles = new List<string>(); // script files to include (already minified, etc.) using <script...> tags AFTER _FinalScriptFiles
+        private readonly List<string> _BundleScriptFiles = new List<string>(); // files in _FinalScriptFiles/_FinalLastScriptFiles that must be bundled
+        private readonly List<string> _DontBundleScriptFiles = new List<string>(); // files in _FinalScriptFiles/_FinalLastScriptFiles that cannot be bundled
         private readonly Dictionary<string, string> _SavedNamedScripts = new Dictionary<string, string>(); // included named script snippets (if added multiple times, added only once
         private readonly List<string> _SavedScripts = new List<string>(); // included unnamed script snippets
         private readonly Dictionary<string, string> _SavedNamedScriptsDocReady = new Dictionary<string, string>(); // included unnamed script snippets wrapped in $document.ready
@@ -131,7 +132,7 @@ namespace YetaWF.Core.Pages {
         public void AddSpecificJsFile(VersionManager.AddOnProduct version, string file) {
             string productJsUrl = version.GetAddOnJsUrl();
             string url = productJsUrl + file;
-            Add(url, true, true);
+            Add(url, true, true, false);
         }
         public void AddKendoUICoreJsFile(string file) {
             if (Manager.IsAjaxRequest) return;// can't add this while processing an ajax request
@@ -161,7 +162,8 @@ namespace YetaWF.Core.Pages {
                 //bool ajax = false;
                 bool nominify = false;
                 bool? bundle = null;
-                bool? editonly = null;
+                bool editonly = false;
+                bool last = false;
                 string[] parts = info.Split(new Char[] { ',' });
                 int count = parts.Length;
                 string file;
@@ -181,11 +183,12 @@ namespace YetaWF.Core.Pages {
                             //else
                             if (part == "nominify") nominify = true;
                             else if (part == "bundle") bundle = true;
+                            else if (part == "last") last = true;
                             else if (part == "editonly") editonly = true;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
-                    if (editonly == true && !Manager.EditMode)
+                    if (editonly && !Manager.EditMode)
                         continue;
                     // check if we want to send this file
                     //if (!ajax && Manager.IsAjaxRequest) // We don't want this file in ajax responses
@@ -205,7 +208,7 @@ namespace YetaWF.Core.Pages {
                         if (!File.Exists(YetaWFManager.UrlToPhysical(filePathURL)))
                             throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
-                    if (!Add(filePathURL, !nominify, bundle))
+                    if (!Add(filePathURL, !nominify, bundle, last))
                         version.JsFiles.Remove(info);// remove empty file
                 }
             }
@@ -216,11 +219,10 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true) {
             VersionManager.AddOnProduct addon = VersionManager.FindModuleVersion(domainName, productName);
-            Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle);
+            Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false);
         }
 
-        private bool Add(string fullUrl, bool minify, bool? bundle)
-        {
+        private bool Add(string fullUrl, bool minify, bool? bundle, bool last) {
             string key = fullUrl.ToLower();
 
             if (fullUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
@@ -242,7 +244,10 @@ namespace YetaWF.Core.Pages {
                 if (file == null)
                     return false; // empty file
                 _ScriptFiles.Add(key, fullUrl);
-                _FinalScriptFiles.Add(file);
+                if (last)
+                    _FinalLastScriptFiles.Add(file);
+                else
+                    _FinalScriptFiles.Add(file);
                 if (bundle == true)
                     _BundleScriptFiles.Add(file);
                 else if (bundle == false)
@@ -538,6 +543,7 @@ namespace YetaWF.Core.Pages {
         private HtmlBuilder RenderScriptsFiles() {
             HtmlBuilder hb = new HtmlBuilder();
             List<string> list = _FinalScriptFiles;
+            list.AddRange(_FinalLastScriptFiles);
 
             ScriptBuilder sbStart = new ScriptBuilder();
 
