@@ -172,7 +172,7 @@ namespace YetaWF.Core.Views.Shared {
                 GridColumnInfo gridCol = d.Value;
                 if (gridCol.Hidden) {
                     PropertyData prop = ObjectSupport.GetPropertyData(obj.GetType(), propName);
-                    list.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), "Hidden", false, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                    list.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), "Hidden", false, false, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
                 }
             }
             return list;
@@ -194,7 +194,7 @@ namespace YetaWF.Core.Views.Shared {
             foreach (var d in dict) {
                 string propName = d.Key;
                 PropertyData prop = ObjectSupport.GetPropertyData(obj.GetType(), propName);
-                list.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, !prop.ReadOnly, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                list.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, !prop.ReadOnly, false, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
             }
             return list;
         }

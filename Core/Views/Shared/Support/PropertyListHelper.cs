@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
@@ -19,8 +20,9 @@ namespace YetaWF.Core.Views.Shared {
 
     public class PropertyListEntry {
 
-        public PropertyListEntry(string name, object value, string uiHint, bool editable, string textAbove, string textBelow, bool suppressEmpty, SubmitFormOnChangeAttribute.SubmitTypeEnum submit) {
+        public PropertyListEntry(string name, object value, string uiHint, bool editable, bool restricted, string textAbove, string textBelow, bool suppressEmpty, SubmitFormOnChangeAttribute.SubmitTypeEnum submit) {
             Name = name; Value = value; Editable = editable;
+            Restricted = restricted;
             TextAbove = textAbove; TextBelow = textBelow;
             UIHint = uiHint;
             SuppressEmpty = suppressEmpty;
@@ -31,6 +33,7 @@ namespace YetaWF.Core.Views.Shared {
         public string TextAbove { get; private set; }
         public string TextBelow { get; private set; }
         public bool Editable { get; private set; }
+        public bool Restricted { get; private set; }
         public string UIHint { get; private set; }
         public bool SuppressEmpty { get; private set; }
         public SubmitFormOnChangeAttribute.SubmitTypeEnum SubmitType { get; private set; }
@@ -45,6 +48,7 @@ namespace YetaWF.Core.Views.Shared {
     public static class PropertyListSupport {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PropertyListSupport), name, defaultValue, parms); }
 
         public static MvcHtmlString RenderTabStripStart(this HtmlHelper htmlHelper, string controlId) {
             HtmlBuilder hb = new HtmlBuilder();
@@ -181,10 +185,16 @@ namespace YetaWF.Core.Views.Shared {
                 SubmitFormOnChangeAttribute submitFormOnChangeAttr = null;
                 submitFormOnChangeAttr = prop.TryGetAttribute<SubmitFormOnChangeAttribute>();
 
+                bool restricted = false;
+                if (Manager.IsDemo) {
+                    ExcludeDemoModeAttribute exclDemoAttr = prop.TryGetAttribute<ExcludeDemoModeAttribute>();
+                    if (exclDemoAttr != null)
+                        restricted = true;
+                }
                 if (GridUsage)
-                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, null, null, suppressEmptyAttr != null, submitFormOnChangeAttr != null? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, restricted, null, null, suppressEmptyAttr != null, submitFormOnChangeAttr != null? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
                 else
-                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, prop.TextAbove, prop.TextBelow, suppressEmptyAttr != null, submitFormOnChangeAttr != null ? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, restricted, prop.TextAbove, prop.TextBelow, suppressEmptyAttr != null, submitFormOnChangeAttr != null ? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
             }
             if (Sorted)
                 return (from p in properties orderby p.Name ascending select p).ToList<PropertyListEntry>();
@@ -216,7 +226,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (!prop.PropInfo.CanRead) continue;
                 if (prop.UIHint != "Hidden")
                     continue;
-                properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), "Hidden", false, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), "Hidden", false, false, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
             }
             return properties;
         }
@@ -275,7 +285,9 @@ namespace YetaWF.Core.Views.Shared {
             foreach (PropertyListEntry property in properties) {
                 bool labelDone = false;
                 MvcHtmlString shtmlDisp = null;
-                if (readOnly || !property.Editable) {
+                if (property.Restricted) {
+                    shtmlDisp = MvcHtmlString.Create(__ResStr("demo", "This property is not available in Demo Mode"));
+                } else if (readOnly || !property.Editable) {
                     shtmlDisp = htmlHelper.Display(property.Name);
                     string s = shtmlDisp.ToString().Trim();
                     if (string.IsNullOrWhiteSpace(s)) {
@@ -304,7 +316,7 @@ namespace YetaWF.Core.Views.Shared {
                     hb.Append(htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables));
                     hb.Append("</div>");
                 }
-                if (!readOnly && property.Editable) {
+                if (!readOnly && property.Editable && !property.Restricted) {
                     string cls = "t_vals" + (!focusSet ? " focusonme" : "");
                     switch (property.SubmitType) {
                         default:

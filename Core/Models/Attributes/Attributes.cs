@@ -28,7 +28,7 @@ namespace YetaWF.Core.Models.Attributes {
     /// <summary>
     /// Marks a controller action as unavailable in Demo mode.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class ExcludeDemoModeAttribute : Attribute {
         public ExcludeDemoModeAttribute() { }
     }
