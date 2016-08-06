@@ -36,8 +36,8 @@ namespace YetaWF.Core.Modules {
                     Location = ModuleAction.ActionLocationEnum.Any,
                     Mode = ModuleAction.ActionModeEnum.Any,
                     Style = ModuleAction.ActionStyleEnum.Nothing,
-                    LinkText = __ResStr("pageControlLink", ""),
-                    MenuText = __ResStr("pageControlMenu", ""),
+                    LinkText = __ResStr("pageControlLink", "Control Panel"),
+                    MenuText = __ResStr("pageControlMenu", "Control Panel"),
                     Tooltip = __ResStr("pageControlTT", "Control Panel - Add new or existing modules, add new pages, switch to edit mode and access page settings"),
                     Legend = __ResStr("pageControlLeg", "Control Panel - Adds new or existing modules, adds new pages, switches to edit mode and accesses page settings"),
                 };
@@ -50,7 +50,7 @@ namespace YetaWF.Core.Modules {
                 tag.Attributes.Add("id", Globals.CssPageControlDiv);
 
                 Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
-                tag.InnerHtml = action.RenderAsButton(Globals.CssPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString();
+                tag.InnerHtml = action.RenderAsButtonIcon(Globals.CssPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString();
                 Manager.ForceModuleActionLinks = false;
                 return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
             } else
@@ -79,10 +79,14 @@ namespace YetaWF.Core.Modules {
 
 
                 ModuleAction action = mod.GetModuleAction(Manager.EditMode ? "SwitchToView" : "SwitchToEdit");
-                action.LinkText = __ResStr("editControlLink", "");
-                action.MenuText = __ResStr("editControlLink", "");
-
-                tag.InnerHtml = action.RenderAsButton(Globals.CssEditControlButton).ToString() + mod.RenderModule(htmlHelper).ToString();// mainly just to get js/css, the module is normally empty
+                if (Manager.EditMode) {
+                    action.LinkText = __ResStr("editControlLinkToEdit", "Switch to Edit Mode");
+                    action.MenuText = __ResStr("editControlLinkToEdit", "Switch to Edit Mode");
+                } else {
+                    action.LinkText = __ResStr("editControlLinkToView", "Switch to View Mode");
+                    action.MenuText = __ResStr("editControlLinkToView", "Switch to View Mode");
+                }
+                tag.InnerHtml = action.RenderAsButtonIcon(Globals.CssEditControlButton).ToString() + mod.RenderModule(htmlHelper).ToString();// mainly just to get js/css, the module is normally empty
 
                 return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
             } else

@@ -21,6 +21,7 @@ namespace YetaWF.Core.Modules {
             IconsOnly = 2,
             LinksOnly = 3,
             Button = 4,
+            ButtonIcon = 5,
         }
         public enum RenderEngineEnum {
             JqueryMenu = 0,
@@ -30,6 +31,9 @@ namespace YetaWF.Core.Modules {
         // Render an action as button
         public MvcHtmlString RenderAsButton(string id = null) {
             return Render(RenderModeEnum.Button, Id: id);
+        }
+        public MvcHtmlString RenderAsButtonIcon(string id = null) {
+            return Render(RenderModeEnum.ButtonIcon, Id: id);
         }
         // Render an action as icon
         public MvcHtmlString RenderAsIcon(string id = null) {
@@ -149,6 +153,7 @@ namespace YetaWF.Core.Modules {
             switch (mode) {
                 default:
                 case RenderModeEnum.Button: extraClass = "y_act_button"; break;
+                case RenderModeEnum.ButtonIcon: extraClass = "y_act_buttonicon"; break;
                 case RenderModeEnum.IconsOnly: extraClass = "y_act_icon"; break;
                 case RenderModeEnum.LinksOnly: extraClass = "y_act_link"; break;
                 case RenderModeEnum.NormalLinks: extraClass = "y_act_normlink"; break;
@@ -214,7 +219,7 @@ namespace YetaWF.Core.Modules {
                 if (PopupEdit)
                     tag.Attributes.Add(Basics.CssAttrDataSpecialEdit, "");
             }
-            if (mode == RenderModeEnum.Button)
+            if (mode == RenderModeEnum.Button || mode == RenderModeEnum.ButtonIcon)
                 tag.Attributes.Add(Basics.CssAttrActionButton, "");
 
             bool hasText = false, hasImg = false;
@@ -224,7 +229,7 @@ namespace YetaWF.Core.Modules {
                 innerHtml += tagImg.ToString(TagRenderMode.StartTag);
                 hasImg = true;
             }
-            if (mode != RenderModeEnum.IconsOnly) {
+            if (mode != RenderModeEnum.IconsOnly && mode != RenderModeEnum.ButtonIcon) {
                 string text = mode == RenderModeEnum.NormalMenu ? MenuText : LinkText;
                 if (!string.IsNullOrWhiteSpace(text)) {
                     innerHtml += YetaWFManager.HtmlEncode(text);
