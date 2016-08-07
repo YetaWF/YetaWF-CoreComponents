@@ -27,7 +27,7 @@ namespace YetaWF.Core.Skins {
         private static JQueryTheme _jQueryThemeDefault;
 
         private List<JQueryTheme> LoadJQueryUIThemes() {
-            string url = AddOnManager.GetAddOnGlobalUrl("jqueryui.com", "jqueryui", AddOnManager.UrlType.Base);
+            string url = AddOnManager.GetAddOnGlobalUrl("jqueryui.com", "jqueryui-themes", AddOnManager.UrlType.Base);
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

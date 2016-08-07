@@ -35,6 +35,7 @@ using YetaWF.PackageAttributes;
 [assembly: RequiresAddOnGlobal("jquery.com", "jquery")]
 [assembly: RequiresAddOnGlobal("jquery.com", "jquery-color")]
 [assembly: RequiresAddOnGlobal("jqueryui.com", "jqueryui")]
+[assembly: RequiresAddOnGlobal("jqueryui.com", "jqueryui-themes")]
 [assembly: RequiresAddOnGlobal("jstree.com", "jsTree")]
 [assembly: RequiresAddOnGlobal("medialize.github.io", "uri.js")]
 [assembly: RequiresAddOnGlobal("microsoft.com", "jquery_unobtrusive_validation")]

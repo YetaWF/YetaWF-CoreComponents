@@ -190,6 +190,7 @@ namespace YetaWF.Core.Addons {
 
         public void AddStandardAddOns() {
             AddAddOnGlobal("jquery.com", "jquery");
+            AddAddOnGlobal("jqueryui.com", "jqueryui");
             AddAddOnGlobal("medialize.github.io", "URI.js");// for client-side Url manipulation
             AddAddOnGlobal("necolas.github.io", "normalize");
         }
@@ -201,7 +202,7 @@ namespace YetaWF.Core.Addons {
             if (string.IsNullOrWhiteSpace(skin))
                 skin = Manager.CurrentSite.jQueryUISkin;
             string themeFolder = skinAccess.FindJQueryUISkin(skin);
-            AddAddOnGlobal("jqueryui.com", "jqueryui", themeFolder);
+            AddAddOnGlobal("jqueryui.com", "jqueryui-themes", themeFolder);
             //if (Manager.UsingBootstrap)
             //    AddAddOnGlobal("github.com.arschmitz", "jqueryui-bootstrap-adapter");
 
