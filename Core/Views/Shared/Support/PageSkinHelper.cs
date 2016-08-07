@@ -159,10 +159,10 @@ namespace YetaWF.Core.Views.Shared {
             ModuleSkinList skinList = skinAccess.GetAllModuleSkins(collection);
             SkinDefinition skinDef = (from s in model where s.Collection == collection select s).FirstOrDefault();
             string selection = (skinDef != null) ? skinDef.FileName : null;
-            List<SelectionItem<string>> list = (from skin in skinList orderby skin.Description select new SelectionItem<string>() {
+            List<SelectionItem<string>> list = (from skin in skinList select new SelectionItem<string>() {
                 Text = skin.Name,
                 Tooltip = skin.Description,
-                Value = skin.FileName,
+                Value = skin.CssClass,
             }).ToList();
             // display the skins in a drop down
             return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);

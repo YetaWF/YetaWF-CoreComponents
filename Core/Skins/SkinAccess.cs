@@ -143,7 +143,7 @@ namespace YetaWF.Core.Skins {
                 if (string.IsNullOrWhiteSpace(modSkin))
                     modSkinEntry = info.ModuleSkins.First();
                 else
-                    modSkinEntry = (from s in info.ModuleSkins where s.FileName == modSkin select s).FirstOrDefault();
+                    modSkinEntry = (from s in info.ModuleSkins where s.CssClass == modSkin select s).FirstOrDefault();
                 if (modSkinEntry == null) throw new InternalError("No module skin {0} found", modSkin);
             }
             return modSkinEntry;
