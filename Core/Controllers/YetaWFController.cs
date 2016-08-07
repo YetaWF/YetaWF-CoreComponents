@@ -58,6 +58,7 @@ namespace YetaWF.Core.Controllers {
             cr.ExecuteResult(filterContext);
         }
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
+            Logging.AddLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {
                 MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
@@ -66,7 +67,6 @@ namespace YetaWF.Core.Controllers {
                     throw new Error("This action is not available in Demo mode.");
             }
             SetupEnvironmentInfo();
-            Logging.AddLog("Action Request");
             base.OnActionExecuting(filterContext);
         }
         protected override void OnAuthentication(AuthenticationContext filterContext) {
