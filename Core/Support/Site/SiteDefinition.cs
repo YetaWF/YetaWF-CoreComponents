@@ -69,6 +69,7 @@ namespace YetaWF.Core.Site {
         public const int MaxSiteDomain = 80;
         public const int MaxGoogleVerification = 1000;
         public const int MaxGoogleAnalytics = 1000;
+        public const int MaxMeta = 1000;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -146,7 +147,7 @@ namespace YetaWF.Core.Site {
         [Copy]
         public int Identity { get; set; }
 
-        public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "Urls", "References", "Encryption", "Skin", "Addons", "Variables" }; } }
+        public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "Urls", "References", "Encryption", "Skin", "Addons", "Meta", "Variables" }; } }
 
         [Data_PrimaryKey]
         [Category("Site"), Caption("Site Domain"), Description("The domain name of your site (e.g., yourcompany.com, yetawf.com)")]
@@ -608,13 +609,13 @@ namespace YetaWF.Core.Site {
         // ADDONS
         // ADDONS
 
-        [Category("Addons"), Caption("Google Analytics"), Description("The Universal Analytics tracking code used by Google Analytics - You can obtain the tracking code from Google Analytics - make sure to copy the ENTIRE tracking code (including all javascript and markup)")]
+        [Category("Addons"), Caption("Google Analytics"), Description("The Universal Analytics tracking code used by Google Analytics - You can obtain the tracking code from Google Analytics - Make sure to copy the ENTIRE tracking code (including all javascript and markup)")]
         [TextAbove("Google Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxGoogleAnalytics), Trim]
         [HelpLink("https://analytics.google.com/")]
         public string GoogleAnalytics { get; set; }
 
-        [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner. You can obtain a meta tag from Google Webmaster Central for site verification - make sure to copy the ENTIRE meta tag (including markup)")]
+        [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
         [HelpLink("http://www.google.com/webmasters/")]
         public string GoogleVerification { get; set; }
@@ -624,6 +625,18 @@ namespace YetaWF.Core.Site {
         [TextBelow(@"-<a href=""http://www.geoplugin.com/geolocation/"" target=""_blank"">IP Geolocation</a> by <a href=""http://www.geoplugin.com/"" target=""_blank"">geoPlugin</a> - By enabling geo location, you are accepting third parties&apos; terms and conditions")]
         [HelpLink("http://www.geoplugin.com/geolocation/")]
         public bool UseGeoLocation { get; set; }
+
+        // META
+        // META
+        // META
+
+        [Category("Meta"), Caption("Site Meta Tags"), Description("Defines <meta> tags that are added to ALL pages")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxMeta), Trim]
+        public string SiteMetaTags { get; set; }
+
+        [Category("Meta"), Caption("Page Meta Tags"), Description("Defines <meta> tags that are added to all pages by default but can be overridden by each page if the page defines meta tags using the PageMetaTags property")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxMeta), Trim]
+        public string PageMetaTags { get; set; }
 
         // MODULE CONTROL & EDITING
         // MODULE CONTROL & EDITING

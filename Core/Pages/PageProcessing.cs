@@ -55,10 +55,14 @@ namespace YetaWF.Core.Pages {
             // linkAlt+css+js+</head> replaces </head>
             pageHtml = reEndHead.Replace(pageHtml, linkAlt + css + js + "</head>", 1);
 
-            // endofpage-js + </body> replace </body>
+            // endofpage-js + </body> replaces </body>
             string endstuff = Manager.ScriptManager.RenderEndofPageScripts().ToString();
-            if (Manager.Deployed && !string.IsNullOrWhiteSpace(Manager.CurrentSite.GoogleAnalytics))
-                endstuff += Manager.CurrentSite.GoogleAnalytics;
+            if (Manager.Deployed) {
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.GoogleAnalytics))
+                    endstuff += Manager.CurrentPage.GoogleAnalytics;
+                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.GoogleAnalytics))
+                    endstuff += Manager.CurrentSite.GoogleAnalytics;
+            }
             pageHtml = reEndBody.Replace(pageHtml, endstuff + "</body>", 1);
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };

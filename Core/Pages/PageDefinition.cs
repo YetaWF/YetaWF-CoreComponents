@@ -9,6 +9,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
+using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 
 namespace YetaWF.Core.Pages {
@@ -151,6 +152,12 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(Globals.MaxUrl)]
         public string RedirectToPageUrl { get; set; }
+
+        [StringLength(SiteDefinition.MaxGoogleAnalytics)]
+        public string GoogleAnalytics { get; set; }
+
+        [StringLength(SiteDefinition.MaxMeta)]
+        public string PageMetaTags { get; set; }
 
         [Data_Binary]
         public SerializableList<AllowedRole> AllowedRoles { get; set; }

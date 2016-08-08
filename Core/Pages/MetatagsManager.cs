@@ -41,7 +41,14 @@ namespace YetaWF.Core.Pages {
             // add all meta tags
             foreach (var tag in _tags)
                 sb.Append(tag);
-            return sb.ToString();
+            string s = sb.ToString();
+            if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.SiteMetaTags))
+                s += Manager.CurrentSite.SiteMetaTags;
+            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.PageMetaTags))
+                s += Manager.CurrentPage.PageMetaTags;
+            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.PageMetaTags))
+                s += Manager.CurrentSite.PageMetaTags;
+            return s;
         }
     }
 }
