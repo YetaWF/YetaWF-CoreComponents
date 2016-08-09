@@ -24,7 +24,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
-        
+
         public RecaptchaAttribute(string message)
             : base(message) {
             ErrorMessage = message;
