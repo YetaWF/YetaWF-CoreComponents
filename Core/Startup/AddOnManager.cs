@@ -87,16 +87,34 @@ namespace YetaWF.Core.Addons {
             }
         }
         /// <summary>
-        /// Add a template - ignores non-existent templates
+        /// Add a template - ignores non-existent templates.
         /// </summary>
+        /// <remarks>
+        /// If the template name ends in a number, it could be a template with ending numeric variations (like Text20, Text40, Text80)
+        /// which are all the same template. However, if we find an installed addon template that ends in the exact name (including number) we use that first.
+        /// </remarks>
         public void AddTemplate(string domainName, string productName, string templateName) {
             if (Manager.IsAjaxRequest) return;
-            templateName = templateName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-            VersionManager.AddOnProduct version = VersionManager.TryFindTemplateVersion(domainName, productName, templateName);
-            if (version == null || _AddedProducts.Contains(version)) return;
-            _AddedProducts.Add(version);
-            Manager.ScriptManager.AddAddOn(version);
-            Manager.CssManager.AddAddOn(version);
+            string templateNameBasic = templateName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+            VersionManager.AddOnProduct version;
+            if (templateName != templateNameBasic) {
+                // try template name including number first
+                version = VersionManager.TryFindTemplateVersion(domainName, productName, templateName);
+                if (version != null) {
+                    if (_AddedProducts.Contains(version)) return;
+                    _AddedProducts.Add(version);
+                    Manager.ScriptManager.AddAddOn(version);
+                    Manager.CssManager.AddAddOn(version);
+                    return;
+                }
+            }
+            version = VersionManager.TryFindTemplateVersion(domainName, productName, templateNameBasic);
+            if (version != null) {
+                if (_AddedProducts.Contains(version)) return;
+                _AddedProducts.Add(version);
+                Manager.ScriptManager.AddAddOn(version);
+                Manager.CssManager.AddAddOn(version);
+            }
         }
 
         /// <summary>
