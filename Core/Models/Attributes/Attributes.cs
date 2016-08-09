@@ -101,7 +101,7 @@ namespace YetaWF.Core.Models.Attributes {
     public class TrimAttribute : MoreMetadataAttribute {
         public enum EnumStyle { Both = 0, Left, Right, None }
         public TrimAttribute(EnumStyle style = EnumStyle.Both) : base("Trim", style) { }
-        public new EnumStyle Value { get { return (EnumStyle) base.Value; } }
+        public new EnumStyle Value { get { return (EnumStyle)base.Value; } }
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
@@ -118,35 +118,35 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CategoryAttribute : MoreMetadataAttribute {
         public CategoryAttribute(string category) : base("Category", category) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class DescriptionAttribute : MoreMetadataAttribute {
         public DescriptionAttribute(string description, [CallerLineNumber]int order = 0) : base("Description", description) { Order = order; }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
         public int Order { get; set; }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class HelpLinkAttribute : MoreMetadataAttribute {
         public HelpLinkAttribute(string url) : base("HelpLink", url) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
         public int Order { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TextAboveAttribute : MoreMetadataAttribute {
         public TextAboveAttribute(string description) : base("TextAbove", description) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TextBelowAttribute : MoreMetadataAttribute {
         public TextBelowAttribute(string description) : base("TextBelow", description) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class SuppressEmptyAttribute : MoreMetadataAttribute {
         public SuppressEmptyAttribute(bool suppressed = true) : base("SuppressEmpty", suppressed) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class SubmitFormOnChangeAttribute : MoreMetadataAttribute {
@@ -156,32 +156,32 @@ namespace YetaWF.Core.Models.Attributes {
             Apply = 2,
         }
         public SubmitFormOnChangeAttribute(SubmitTypeEnum submit = SubmitTypeEnum.Submit) : base("SubmitFormOnChange", submit) { }
-        public new SubmitTypeEnum Value { get { return (SubmitTypeEnum) base.Value; } }
+        public new SubmitTypeEnum Value { get { return (SubmitTypeEnum)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CaptionAttribute : MoreMetadataAttribute {
         public CaptionAttribute(string caption) : base("Caption", caption) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class HeaderAttribute : MoreMetadataAttribute {
-        public HeaderAttribute(string text) : base("Header", text) {  }
+        public HeaderAttribute(string text) : base("Header", text) { }
         public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class FooterAttribute : MoreMetadataAttribute {
-        public FooterAttribute(string text) : base("Footer", text) {  }
+        public FooterAttribute(string text) : base("Footer", text) { }
         public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class LegendAttribute : MoreMetadataAttribute {
         public LegendAttribute(string text) : base("Legend", text) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TemplateActionAttribute : MoreMetadataAttribute {
         public TemplateActionAttribute(string name) : base("TemplateAction", name) { }
-        public new string Value { get { return (string) base.Value; } }
+        public new string Value { get { return (string)base.Value; } }
     }
 
     public enum GridHAlignmentEnum {
@@ -212,5 +212,4 @@ namespace YetaWF.Core.Models.Attributes {
             metadata.AdditionalValues[Name] = Value;
         }
     }
-
 }
