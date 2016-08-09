@@ -98,6 +98,8 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
+    <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
+    <Compile Include="Templates\RecaptchaV2.cs" />
     <Compile Include="Views\Shared\Support\MenuListHelper.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
     <Compile Include="PackageSupport\SiteTemplateData.cs" />
@@ -281,6 +283,7 @@
     <Compile Include="Views\Shared\Support\ImageHelper.cs" />
     <Compile Include="Views\Shared\Support\DateHelper.cs" />
     <Compile Include="Views\Shared\Support\PageSelectionHelper.cs" />
+    <Compile Include="Views\Shared\Support\RecaptchaV2Helper.cs" />
     <Compile Include="Views\Shared\Support\TimeZoneHelper.cs" />
     <Compile Include="Views\Shared\Support\PageDefinitions.cs" />
     <Compile Include="Views\Shared\Support\ReferencedModules.cs" />
@@ -439,6 +442,8 @@
     <Content Include="Addons\_Templates\PropertyListTabbed\propertylisttabbed.js" />
     <Content Include="Addons\_Templates\PropertyList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\PropertyList\propertylist.css" />
+    <Content Include="Addons\_Templates\RecaptchaV2\filelistJS.txt" />
+    <Content Include="Addons\_Templates\RecaptchaV2\recaptchav2.js" />
     <Content Include="Addons\_Templates\Recaptcha\filelistJS.txt" />
     <Content Include="Addons\_Templates\Scroller\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Scroller\filelistJS.txt" />
@@ -585,6 +590,7 @@
     <Content Include="Views\Shared\EditorTemplates\TimeZone.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\TimeZone.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\PageSelection.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\RecaptchaV2.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

@@ -336,7 +336,7 @@ namespace YetaWF.Core.Support {
             if (string.IsNullOrWhiteSpace(s)) return null;
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
-            string validChars = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
+            string validChars = "_./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
             for (int len = s.Length, ix = 0 ; ix < len ; ++ix) {
                 char c = s[ix];
                 if (c == '?') {

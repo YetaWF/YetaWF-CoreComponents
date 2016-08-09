@@ -41,27 +41,15 @@ namespace YetaWF.Core.Pages {
 
         private static List<Bundle> Bundles { get; set; }
 
-        public static List<string> MakeBundle(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null, List<string> ForceIncludeInBundle = null, List<string> ForceExcludeFromBundle = null) {
-            List<string> newList = new List<string>();
-            List<string> externalList = new List<string>();
-            string start = startText != null ? startText.ToString() : "";
-            int startLength = start.Length;
+        public static string MakeBundle(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
 
-            foreach (var file in fileList) {
-                if (file.StartsWith("http", StringComparison.OrdinalIgnoreCase) || file.StartsWith("//", StringComparison.OrdinalIgnoreCase))
-                    externalList.Add(file);
-                else if (ForceExcludeFromBundle != null && ForceExcludeFromBundle.Contains(file)) {
-                    externalList.Add(file);
-                } else if (file.Contains("/" + Globals.GlobalJavaScript + "/") || file.Contains(Globals.NugetScriptsUrl) || file.Contains(Globals.NugetContentsUrl)) {
-                    /* While possible to add these to the bundle, it's inefficient and can cause errors with scripts that load their own scripts/css */
-                    if (ForceIncludeInBundle == null || !ForceIncludeInBundle.Contains(file))
-                        externalList.Add(file);
-                    else
-                        newList.Add(file);
-                } else
-                    newList.Add(file);
-            }
-            if (newList.Count > 0) {
+            string url = null;
+
+            if (fileList.Count > 0) {
+
+                string start = startText != null ? startText.ToString() : "";
+                int startLength = start.Length;
+
                 string extension;
                 switch (bundleType) {
                     default:
@@ -72,7 +60,9 @@ namespace YetaWF.Core.Pages {
                         extension = ".css";
                         break;
                 }
-                string bundleName = MakeName(newList);
+
+                string bundleName = MakeName(fileList);
+
                 StringLocks.DoAction(bundleName, () => {
                     Bundle bundle = (from b in Bundles where b.BundleName == bundleName select b).FirstOrDefault();
                     if (bundle == null || startLength != bundle.StartLength) {
@@ -80,7 +70,7 @@ namespace YetaWF.Core.Pages {
                         StringBuilder sb = new StringBuilder();
                         if (!string.IsNullOrWhiteSpace(start))
                             sb.Append(start);
-                        foreach (var file in newList) {
+                        foreach (var file in fileList) {
                             string fileText = File.ReadAllText(YetaWFManager.UrlToPhysical(file));
                             if (!string.IsNullOrWhiteSpace(fileText)) {
 #if DEBUG
@@ -128,11 +118,10 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Investigate! Same length start text but different contents");
 #endif
                     }
-                    newList = new List<string>() { bundle.Url };
+                    url = bundle.Url;
                 });
             }
-            externalList.AddRange(newList);
-            return externalList;
+            return url;
         }
 
         private static string GetBundleUrlName(int index, int startLength, string extension)

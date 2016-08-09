@@ -36,6 +36,9 @@ namespace YetaWF.Core.Addons {
         public const string TemplateAction = "__TemplateAction";
         public const string TemplateExtraData = "__TemplateExtraData";
 
+        // recaptchav2
+        public const string RecaptchaV2Parm = "g-recaptcha-response";
+
         // defaults
         public const int DefaultPleaseWaitWidth = 400;
         public const int DefaultPleaseWaitHeight = 0;

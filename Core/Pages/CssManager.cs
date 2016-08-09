@@ -21,11 +21,16 @@ namespace YetaWF.Core.Pages {
         public CssManager(YetaWFManager manager) { Manager = manager; }
         protected YetaWFManager Manager { get; private set; }
 
+        public class CssEntry {
+            public string Url { get; set; }
+            public bool Bundle { get; set; }
+            public bool Last { get; set; } // after all addons
+        }
+
         private const bool _renderImmediately = true;  // delaying style steets causes significant FOUC (flash of unformatted content)
 
-        private readonly Dictionary<string, string> _CssFileUrls = new Dictionary<string, string>(); // already processed css files (not necessarily added to page yet)
-        private readonly List<string> _CssFiles = new List<string>(); // css files to include (already minified, etc.) using <link...> tags
-        private readonly List<string> _LastCssFiles = new List<string>(); // css files to include (already minified, etc.) using <link...> tags at the end of all css files
+        private readonly List<string> _CssFileKeys = new List<string>(); // already processed script files (not necessarily added to page yet)
+        private readonly List<CssEntry> _CssFiles = new List<CssEntry>(); // css files to include (already minified, etc.) using <link...> tags
 
         public void AddAddOn(VersionManager.AddOnProduct version, params object[] args) {
             if (Manager.IsAjaxRequest) return;// we never add css files for Ajax requests
@@ -61,6 +66,7 @@ namespace YetaWF.Core.Pages {
         public bool AddFile(bool skinRelated, string fullUrl) {
 
             string key = fullUrl;
+            bool bundle;
 
             if (fullUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) ||
@@ -81,15 +87,19 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("Css filename '{0}' is invalid.", fullUrl);
             }
 
-            if (!_CssFileUrls.ContainsKey(key)) {
+            if (fullUrl.StartsWith("http://") || fullUrl.StartsWith("https://") || fullUrl.StartsWith("//")) {
+                bundle = false;
+            } else if (fullUrl.Contains("/" + Globals.GlobalJavaScript + "/") || fullUrl.Contains(Globals.NugetScriptsUrl) || fullUrl.Contains(Globals.NugetContentsUrl)) {
+                bundle = false;
+            } else {
+                bundle = true;
+            }
+            if (!_CssFileKeys.Contains(key)) {
                 string file = CssCompress(fullUrl);
                 if (file == null)
                     return false; // empty file
-                _CssFileUrls.Add(key, fullUrl);
-                if (skinRelated)
-                    _LastCssFiles.Add(file);
-                else
-                    _CssFiles.Add(file);
+                _CssFileKeys.Add(key);
+                _CssFiles.Add(new Pages.CssManager.CssEntry { Url = file, Bundle = bundle, Last = skinRelated });
             }
             return true;
         }
@@ -170,15 +180,24 @@ namespace YetaWF.Core.Pages {
         public HtmlBuilder Render() {
             HtmlBuilder tag = new HtmlBuilder();
 
-            List<string> list = new List<string>();
-            list.AddRange(_CssFiles);
-            list.AddRange(_LastCssFiles);
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleCSSFiles)
-                list = FileBundles.MakeBundle(list, FileBundles.BundleTypeEnum.CSS);
+            List<CssEntry> externalList;
+            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
+                List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
+                externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
+                string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.CSS);
+                if (!string.IsNullOrWhiteSpace(bundleUrl))
+                    externalList.Add(new Pages.CssManager.CssEntry {
+                        Url = bundleUrl,
+                        Bundle = false,
+                        Last = true,
+                    });
+            } else {
+                externalList = (from s in _CssFiles orderby s.Last select s).ToList();
+            }
 
-            foreach (var src in list) {
-                string sep = src.Contains("?") ? "&amp;" : "?";
-                string url = src;
+            foreach (CssEntry entry in externalList) {
+                string url = entry.Url;
+                string sep = url.Contains("?") ? "&amp;" : "?";
                 if (Manager.CurrentSite.CanUseCDN)
                     url = Manager.GetCDNUrl(url);
                 if (!Manager.CurrentSite.UseHttpHandler || url.Contains("/" + Globals.GlobalJavaScript + "/") || url.Contains(Globals.NugetContentsUrl))

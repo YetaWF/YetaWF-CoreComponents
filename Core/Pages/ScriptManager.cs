@@ -95,12 +95,17 @@ namespace YetaWF.Core.Pages {
         public ScriptManager(YetaWFManager manager) { Manager = manager; }
         protected YetaWFManager Manager { get; private set; }
 
+        public class ScriptEntry {
+            public string Url { get; set; }
+            public bool Bundle { get; set; }
+            public bool Last { get; set; } // after all addons
+            public bool Async { get; set; }
+            public bool Defer { get; set; }
+        }
+        private readonly List<string> _ScriptFiles = new List<string>(); // already processed script files (not necessarily added to page yet)
+        private readonly List<ScriptEntry> _Scripts = new List<ScriptEntry>(); // all scripts to be added to page
+
         private readonly Dictionary<string, string> _SavedFirstNamedScripts = new Dictionary<string, string>(); // included named script snippets before all included files (if added multiple times, added only once
-        private readonly Dictionary<string, string> _ScriptFiles = new Dictionary<string, string>(); // already processed script files (not necessarily added to page yet)
-        private readonly List<string> _FinalScriptFiles = new List<string>(); // script files to include (already minified, etc.) using <script...> tags
-        private readonly List<string> _FinalLastScriptFiles = new List<string>(); // script files to include (already minified, etc.) using <script...> tags AFTER _FinalScriptFiles
-        private readonly List<string> _BundleScriptFiles = new List<string>(); // files in _FinalScriptFiles/_FinalLastScriptFiles that must be bundled
-        private readonly List<string> _DontBundleScriptFiles = new List<string>(); // files in _FinalScriptFiles/_FinalLastScriptFiles that cannot be bundled
         private readonly Dictionary<string, string> _SavedNamedScripts = new Dictionary<string, string>(); // included named script snippets (if added multiple times, added only once
         private readonly List<string> _SavedScripts = new List<string>(); // included unnamed script snippets
         private readonly Dictionary<string, string> _SavedNamedScriptsDocReady = new Dictionary<string, string>(); // included unnamed script snippets wrapped in $document.ready
@@ -132,7 +137,7 @@ namespace YetaWF.Core.Pages {
         public void AddSpecificJsFile(VersionManager.AddOnProduct version, string file) {
             string productJsUrl = version.GetAddOnJsUrl();
             string url = productJsUrl + file;
-            Add(url, true, true, false);
+            Add(url, true, true, false, false, false);
         }
         public void AddKendoUICoreJsFile(string file) {
             if (Manager.IsAjaxRequest) return;// can't add this while processing an ajax request
@@ -164,6 +169,7 @@ namespace YetaWF.Core.Pages {
                 bool? bundle = null;
                 bool editonly = false;
                 bool last = false;
+                bool async = false, defer = false;
                 string[] parts = info.Split(new Char[] { ',' });
                 int count = parts.Length;
                 string file;
@@ -183,8 +189,11 @@ namespace YetaWF.Core.Pages {
                             //else
                             if (part == "nominify") nominify = true;
                             else if (part == "bundle") bundle = true;
+                            else if (part == "nobundle") bundle = false;
                             else if (part == "last") last = true;
                             else if (part == "editonly") editonly = true;
+                            else if (part == "async") async = true;
+                            else if (part == "defer") defer = true;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
@@ -198,6 +207,9 @@ namespace YetaWF.Core.Pages {
                     string filePathURL;
                     if (file.StartsWith("http://") || file.StartsWith("https://") || file.StartsWith("//")) {
                         filePathURL = file;
+                        if (bundle == true)
+                            throw new InternalError("Can't use bundle with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        bundle = false;
                     } else if (file.StartsWith("\\")) {
                         string f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
                         if (!File.Exists(f))
@@ -208,7 +220,19 @@ namespace YetaWF.Core.Pages {
                         if (!File.Exists(YetaWFManager.UrlToPhysical(filePathURL)))
                             throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
-                    if (!Add(filePathURL, !nominify, bundle, last))
+                    if (bundle == true || last) {
+                        if (async || defer)
+                            throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
+                    }
+                    if (bundle == null) {
+                        if (filePathURL.Contains("/" + Globals.GlobalJavaScript + "/") || filePathURL.Contains(Globals.NugetScriptsUrl) || filePathURL.Contains(Globals.NugetContentsUrl)) {
+                            /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
+                            bundle = false;
+                        } else {
+                            bundle = true;
+                        }
+                    }
+                    if (!Add(filePathURL, !nominify, (bool)bundle, last, async, defer))
                         version.JsFiles.Remove(info);// remove empty file
                 }
             }
@@ -217,12 +241,12 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Add a javascript file explicitly. This is rarely used because javascript files are automatically added for modules, templates, etc.
         /// </summary>
-        public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true) {
+        public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = true, bool Defer = true) {
             VersionManager.AddOnProduct addon = VersionManager.FindModuleVersion(domainName, productName);
-            Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false);
+            Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
         }
 
-        private bool Add(string fullUrl, bool minify, bool? bundle, bool last) {
+        private bool Add(string fullUrl, bool minify, bool bundle, bool last, bool async, bool defer) {
             string key = fullUrl.ToLower();
 
             if (fullUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
@@ -239,19 +263,12 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("Script name '{0}' is invalid.", fullUrl);
             }
 
-            if (!_ScriptFiles.ContainsKey(key)) {
+            if (!_ScriptFiles.Contains(key)) {
                 string file = minify ? JsCompress(fullUrl) : fullUrl;
                 if (file == null)
                     return false; // empty file
-                _ScriptFiles.Add(key, fullUrl);
-                if (last)
-                    _FinalLastScriptFiles.Add(file);
-                else
-                    _FinalScriptFiles.Add(file);
-                if (bundle == true)
-                    _BundleScriptFiles.Add(file);
-                else if (bundle == false)
-                    _DontBundleScriptFiles.Add(file);
+                _ScriptFiles.Add(key);
+                _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = file, Bundle = bundle, Last = last, Async = async, Defer = defer });
             }
             return true;
         }
@@ -542,33 +559,42 @@ namespace YetaWF.Core.Pages {
 
         private HtmlBuilder RenderScriptsFiles() {
             HtmlBuilder hb = new HtmlBuilder();
-            List<string> list = _FinalScriptFiles;
-            list.AddRange(_FinalLastScriptFiles);
 
             ScriptBuilder sbStart = new ScriptBuilder();
 
+            List<ScriptEntry> externalList;
             if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
 #if DEBUG
                 sbStart.Append("/**** Non-Volatile ****/\n");
 #endif
                 GenerateNonVolatileJSVariables(sbStart);
-                list = FileBundles.MakeBundle(list, FileBundles.BundleTypeEnum.JS, sbStart, ForceIncludeInBundle: _BundleScriptFiles, ForceExcludeFromBundle: _DontBundleScriptFiles);
+                List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
+                externalList = (from s in _Scripts orderby s.Last where !s.Bundle select s).ToList();
+                string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
+                if (!string.IsNullOrWhiteSpace(bundleUrl))
+                    externalList.Add(new ScriptEntry {
+                        Url = bundleUrl,
+                        Bundle = false,
+                        Last = true,
+                    });
+            } else {
+                externalList = (from s in _Scripts orderby s.Last select s).ToList();
             }
 
-            bool canUseCDN = Manager.CurrentSite.CanUseCDN;
-            foreach (var src in list) {
-                string url = src;
-                if (canUseCDN)
-                    url = Manager.GetCDNUrl(url);
-                hb.Append(string.Format("<script type='text/javascript' src='{0}?__yVrs={1}'></script>", YetaWFManager.HtmlAttributeEncode(url), YetaWFManager.CacheBuster));
+            foreach (ScriptEntry entry in externalList) {
+                string url = entry.Url;
+                string opts = "";
+                opts += entry.Async ? " async" : "";
+                opts += entry.Defer ? " defer" : "";
+                string delim = url.Contains("&") ? "&" : "?";
+                hb.Append(string.Format("<script type='text/javascript' src='{0}{1}__yVrs={2}'{3}></script>",
+                    YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), delim, YetaWFManager.CacheBuster, opts));
             }
             return hb;
         }
 
         private ScriptBuilder RenderScriptsPartB() {
-
             ScriptBuilder sb = new ScriptBuilder();
-
             foreach (var script in _SavedScripts) {
                 sb.Append(TrimScript(Manager, script));
             }
