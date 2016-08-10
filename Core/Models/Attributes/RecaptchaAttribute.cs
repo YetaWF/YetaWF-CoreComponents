@@ -44,7 +44,7 @@ namespace YetaWF.Core.Models.Attributes {
 
             RecaptchaConfig config = RecaptchaConfig.LoadRecaptchaConfig();
             if (string.IsNullOrWhiteSpace(config.PrivateKey))
-                throw new Error(__ResStr("errPrivateKey", "The Recaptcha configuration settings are missing - no private key found"));
+                throw new Error(__ResStr("errPrivateKeyV2", "The Recaptcha configuration settings are missing - no private key found"));
             using (WebClient client = new WebClient()) {
                 byte[] responseBytes = client.UploadValues("http://www.google.com/recaptcha/api/verify", new NameValueCollection() {
                     { "privatekey", config.PrivateKey },
