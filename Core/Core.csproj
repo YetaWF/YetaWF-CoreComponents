@@ -99,6 +99,7 @@
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
+    <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Templates\RecaptchaV2.cs" />
     <Compile Include="Views\Shared\Support\MenuListHelper.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
@@ -351,6 +352,7 @@
     <Content Include="Addons\_Addons\Popups\popups.css" />
     <Content Include="Addons\_Addons\Popups\popups.js" />
     <Content Include="Addons\_Main\Emails\SMTPServer Test Message.txt" />
+    <Content Include="Addons\_Main\Emails\Text Message.txt" />
     <Content Include="Addons\_Skins\Standard\filelistCSS.txt" />
     <Content Include="Addons\_Skins\Standard\filelistJS.txt" />
     <Content Include="Addons\_Skins\Standard\Icons\Add.png" />

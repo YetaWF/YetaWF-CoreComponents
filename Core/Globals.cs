@@ -22,6 +22,7 @@ namespace YetaWF.Core {
         public const int MaxRSAToken = 20;
         public const int MaxFileName = 200;// longest file name WITHOUT path
         public const int MaxPath = 1000; // longest filename including path
+        public const int MaxPhoneNumber = 20;
 
         public const int ChDateTime = 20;
         public const int ChDate = 12;
