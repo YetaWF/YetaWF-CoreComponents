@@ -63,7 +63,8 @@ namespace YetaWF.Core.Models.Attributes {
                 RecaptchaV2Config config = RecaptchaV2Config.LoadRecaptchaV2Config();
                 if (string.IsNullOrWhiteSpace(config.PublicKey) || string.IsNullOrWhiteSpace(config.PrivateKey))
                     throw new InternalError("The public and/or private keys have not been configured for RecaptchaV2 handling");
-                string resp = client.DownloadString($"https://www.google.com/recaptcha/api/siteverify?secret={ config.PrivateKey }&response={ response }&remoteIp={ ipAddress }");
+                string resp = client.DownloadString(string.Format("https://www.google.com/recaptcha/api/siteverify?secret={0}&response={1}&remoteIp={2}",
+                    config.PrivateKey, response, ipAddress));
                 Logging.AddLog("Validating CaptchaV2 - received \"{0}\"", resp);
                 JavaScriptSerializer jser = YetaWFManager.Jser;
                 RecaptchaV2Response recaptchaResp = jser.Deserialize<RecaptchaV2Response>(resp);

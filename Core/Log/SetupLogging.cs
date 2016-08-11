@@ -3,14 +3,13 @@
 using System;
 using System.Reflection;
 using YetaWF.Core.Support;
-using static YetaWF.Core.Log.Logging;
 
 namespace YetaWF.Core.Log {
 
     public interface ILogging {
         void Clear();
         void Flush();
-        void WriteToLogFile(LevelEnum level, int relStack, string text);
+        void WriteToLogFile(Logging.LevelEnum level, int relStack, string text);
         void RegisterCallback(Action<string> callback);
         void UnregisterCallback(Action<string> callback);
         bool IsInstalled();
