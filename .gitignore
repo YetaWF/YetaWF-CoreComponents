@@ -8,6 +8,8 @@
 
 globals.js
 
+!Core/NSass.Wrapper/*.dll
+
 **/Addons/_Addons/**/*.min.js
 **/Addons/_Addons/**/*.min.css
 **/Addons/_Addons/**/*.min.scss
