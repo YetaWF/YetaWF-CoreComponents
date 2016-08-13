@@ -515,8 +515,19 @@ namespace YetaWF.Core.Addons {
                     RegisterSkins(package, folder);
                 } else if (string.Compare(directoryName, Globals.GlobalJavaScript, true) == 0) {
                     RegisterGlobalAddons(package, folder);
+                } else if (string.Compare(directoryName, "_SiteTemplates", true) == 0) {
+                    CopySiteTemplates(folder);
                 } else
                     throw new InternalError("Unexpected folder {0} in {1}", directoryName, folder);
+            }
+        }
+
+        private static void CopySiteTemplates(string folder) {
+            List<string> files = Directory.GetFiles(folder, "*.txt").ToList();
+            string templateFolder = Path.Combine(YetaWFManager.RootFolder, Globals.SiteTemplates);
+            foreach (string file in files) {
+                string newFile = Path.Combine(templateFolder, Path.GetFileName(file));
+                File.Copy(file, newFile, true);
             }
         }
 
