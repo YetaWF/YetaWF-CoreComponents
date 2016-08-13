@@ -591,16 +591,18 @@ namespace YetaWF.Core.Modules {
             string containerHtml = skinAccess.MakeModuleContainer(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction).ToString();
 
             if (!Manager.RenderingUniqueModuleAddons) {
-                if (Manager.IsInPopup || string.IsNullOrWhiteSpace(Manager.PageTitle)) {
-                    // if a permanent page has no title, use the title of the first module in the Main pane
+                string title = Manager.PageTitle;
+                if (string.IsNullOrWhiteSpace(title)) {
+                    // if a page has no title, use the title of the first module in the Main pane
                     PageDefinition.ModuleList mods = Manager.CurrentPage.ModuleDefinitions.GetModulesForPane(Globals.MainPane);
                     if (mods.Count > 0)
-                        Manager.PageTitle = mods[0].Module.Title;
-                    // if the title is still not available, simply use the very first module
-                    if (string.IsNullOrWhiteSpace(Manager.PageTitle)) {
+                        title = mods[0].Module.Title;
+                    // if the title is still not available, simply use the very first module (any pane)
+                    if (string.IsNullOrWhiteSpace(title)) {
                         if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == Manager.CurrentPage.ModuleDefinitions[0].Module)
-                            Manager.PageTitle = Title;
+                            title = Title;
                     }
+                    Manager.PageTitle = title;
                 }
             }
 
