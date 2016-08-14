@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
 
@@ -89,7 +90,7 @@ namespace YetaWF.Core.Pages {
 
             if (fullUrl.StartsWith("http://") || fullUrl.StartsWith("https://") || fullUrl.StartsWith("//")) {
                 bundle = false;
-            } else if (fullUrl.Contains("/" + Globals.GlobalJavaScript + "/") || fullUrl.Contains(Globals.NugetScriptsUrl) || fullUrl.Contains(Globals.NugetContentsUrl)) {
+            } else if (fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || fullUrl.ContainsIgnoreCase(Globals.NugetScriptsUrl) || fullUrl.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
                 bundle = false;
             } else {
                 bundle = true;
@@ -200,7 +201,7 @@ namespace YetaWF.Core.Pages {
                 string sep = url.Contains("?") ? "&amp;" : "?";
                 if (Manager.CurrentSite.CanUseCDN)
                     url = Manager.GetCDNUrl(url);
-                if (!Manager.CurrentSite.UseHttpHandler || url.Contains("/" + Globals.GlobalJavaScript + "/") || url.Contains(Globals.NugetContentsUrl))
+                if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || url.ContainsIgnoreCase(Globals.NugetContentsUrl))
                     tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
                 else
                     tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));

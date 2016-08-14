@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using Yahoo.Yui.Compressor;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Pages;
@@ -75,7 +76,7 @@ namespace YetaWF.Core.Support {
                         minPathUrl += extension + (MarkNameCompiled ? Globals.Compiled : "");
                         minPathUrlWithCharInfo += extension + (MarkNameCompiled ? Globals.Compiled : "");
                     }
-                    if (processCharSize && !fullPathUrl.Contains(Globals.NugetContentsUrl)) {
+                    if (processCharSize && !fullPathUrl.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
                         // add character size to css
                         process = true;
                         minPathUrlWithCharInfo += string.Format("._ci_{0}_{1}", Manager.CharWidthAvg, Manager.CharHeight);

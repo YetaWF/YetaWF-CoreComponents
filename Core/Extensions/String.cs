@@ -29,5 +29,8 @@ namespace YetaWF.Core.Extensions {
             if (index < 0) return text;
             return text.Substring(0, index) + replace + text.Substring(index + search.Length);
         }
+        public static bool ContainsIgnoreCase(this string text, string search) {
+            return text.ToLower().Contains(search.ToLower());
+        }
     }
 }

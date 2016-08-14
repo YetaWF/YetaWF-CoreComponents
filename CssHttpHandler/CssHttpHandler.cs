@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Web;
 using System.Web.SessionState;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
@@ -34,7 +35,7 @@ namespace YetaWF.Core.HttpHandler {
             // we only process scss files here in debug mode, otherwise they're compiled once in CssManager
             bool processLess = manager.CurrentSite.DEBUGMODE && file.EndsWith(".less", StringComparison.OrdinalIgnoreCase);
 
-            if (fullUrl.Contains("/" + Globals.GlobalJavaScript + "/") || file.Contains(Globals.NugetScriptsUrl)) processCharSize = false;
+            if (fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || file.ContainsIgnoreCase(Globals.NugetScriptsUrl)) processCharSize = false;
             DateTime lastMod = File.GetLastWriteTimeUtc(file);
 
             // Cache verification?

@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Support;
 
 // Why do we put js at the top of the page?
@@ -225,7 +226,7 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
                     if (bundle == null) {
-                        if (filePathURL.Contains("/" + Globals.GlobalJavaScript + "/") || filePathURL.Contains(Globals.NugetScriptsUrl) || filePathURL.Contains(Globals.NugetContentsUrl)) {
+                        if (filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || filePathURL.ContainsIgnoreCase(Globals.NugetScriptsUrl) || filePathURL.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {
