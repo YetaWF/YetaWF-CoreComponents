@@ -55,7 +55,9 @@ namespace YetaWF.Core.Packages {
         /// A log file recording all upgrade activity is saved at .\Website\Data\UpgradeLogFile.txt
         /// </remarks>
         public static void UpgradeToNewPackages() {
-            File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
+
+            //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
+
             // Create an update log file
             Logging.RegisterCallback(WriteToUpdateLog);
 
@@ -208,7 +210,7 @@ namespace YetaWF.Core.Packages {
         private static void InstallSiteTemplate(Package package, string lastSeenVersion) {
             string templateBase = package.Name.Replace(".", "_");
             string templateFolder = Path.Combine(YetaWFManager.RootFolder, Globals.SiteTemplates);
-            List<string> templates = Directory.GetFiles(templateFolder, templateBase + ".txt", SearchOption.TopDirectoryOnly).ToList();
+            List<string> templates = Directory.GetFiles(templateFolder, templateBase + "*.txt", SearchOption.TopDirectoryOnly).ToList();
             templates = (from t in templates select Path.GetFileNameWithoutExtension(t)).ToList();
             templates.Sort(new SiteTemplateNameComparer());
             // templates are now sorted by version, process in this order (oldest to newest)
