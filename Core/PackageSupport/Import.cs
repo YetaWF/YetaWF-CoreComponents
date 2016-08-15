@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 using YetaWF.Core.Upload;
@@ -146,14 +146,7 @@ namespace YetaWF.Core.Packages {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(sourcePath, ExtractExistingFileAction.OverwriteSilently);
                     }
-                    // Create symlink from web to project addons
-                    Directory.CreateDirectory(addonsPath);
-                    string from = Path.Combine(addonsPath, serPackage.PackageVersion);
-                    string to = Path.Combine(sourcePath, Globals.AddOnsFolder);
-                    if (!CreatePackageSymLink(from, to))
-                        errorList.Add(__ResStr("errSymlink", "Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link using:(+nl)mklink /D \"{0}\",\"{1}\"", from, to));
-                    errorList.Add(__ResStr("addProject", "(+nl)The project needs to be added to your Visual Studio solution and a reference to the project has to be added to the YetaWF site so it is built correctly. Without this reference the site will not use the new package when its rebuilt using Visual Studio."));
-                    errorList.Add(__ResStr("errSymlink2", "(+nl)Use the following to create the symbolic link manually if necessary:(+nl)mklink /D \"{0}\",\"{1}\"", from, to));
+                    errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a reference to the project to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when its rebuilt using Visual Studio."));
                 }
             } catch (Exception exc) {
                 errorList.Add(string.Format(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}"), serPackage.PackageName, serPackage.PackageVersion, exc.Message));
@@ -190,15 +183,19 @@ namespace YetaWF.Core.Packages {
             // secpol.msc
             // Local Policies > User Rights Assignments - Create Symbolic Links
             // IIS APPPOOL\application-pool
-            return CreateSymbolicLink(from, to, (int)SymbolicLink.Directory) != 0;
+            // Needs special UAC/elevation so it's not usable for our purposes
+            // return CreateSymbolicLink(from, to, (int)SymbolicLink.Directory) != 0;
+            // use junctions instead (no special privilege needed)
+            Junction.Create(from, to, true);
+            return true;
         }
 
-        enum SymbolicLink {
-            File = 0,
-            Directory = 1
-        }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
-        [DllImport("kernel32.dll", EntryPoint = "CreateSymbolicLinkW", CharSet = CharSet.Unicode)]
-        internal static extern int CreateSymbolicLink([In] string lpSymlinkFileName, [In] string lpTargetFileName, int dwFlags);
+        //enum SymbolicLink {
+        //    File = 0,
+        //    Directory = 1
+        //}
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
+        //[DllImport("kernel32.dll", EntryPoint = "CreateSymbolicLinkW", CharSet = CharSet.Unicode)]
+        //internal static extern int CreateSymbolicLink([In] string lpSymlinkFileName, [In] string lpTargetFileName, int dwFlags);
     }
 }

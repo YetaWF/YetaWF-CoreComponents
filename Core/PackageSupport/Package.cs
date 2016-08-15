@@ -33,6 +33,9 @@ namespace YetaWF.Core.Packages {
             PackageName = packageName;
             MinVersion = minVersion;
             MaxVersion = maxVersion;
+            if (packageName == "YetaWF.Core")
+                throw new InternalError("You can't specify the YetaWF.Core package version. When exporting a package, the YetaWF Core version is saved and the package can only be imported on a YetaWF instance with the same or newer version. This means that when you are developing packages for distribution, you have to do so using the oldest YetaWF version that you intend to support.");
+
             if (!string.IsNullOrWhiteSpace(minVersion) && !string.IsNullOrWhiteSpace(maxVersion)) {
                 if (Package.CompareVersion(minVersion, maxVersion) > 0) throw new InternalError("The specified minimum version {0} is larger than the minimum version {1}", minVersion, maxVersion);
             }
