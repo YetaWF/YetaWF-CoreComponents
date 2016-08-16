@@ -1,10 +1,13 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
+using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -188,6 +191,19 @@ namespace YetaWF.Core.Support {
                         if (Manager.SessionSettings.SiteSettings.ContainsKey(var)) {
                             ret = Manager.SessionSettings.SiteSettings.GetValue<string>(var);
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                        }
+                    }
+                } else if (loc.StartsWith("Unique-")) {
+                    // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
+                    string fullName = loc.Substring("Unique-".Length);
+                    Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
+                    if (modType != null) {
+                        ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModule(modType);
+                        if (dataMod != null) {
+                            if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
+                                if (!string.IsNullOrWhiteSpace(ret))
+                                    return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            }
                         }
                     }
                 }

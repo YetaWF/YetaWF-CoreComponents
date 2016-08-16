@@ -704,7 +704,23 @@ namespace YetaWF.Core.Modules {
             throw new InternalError("Module {0} is not a configuration module", GetType().FullName);
         }
 
-        // Properties used to save initial settings from InitPages.txt
+        /// <summary>
+        /// Returns configuration data if the module is a configuration module.
+        /// </summary>
+        /// <remarks>This is typically used for variable substitution.</remarks>
+        public object ConfigData {
+            get {
+                DataProviderImpl dataProvider = GetConfigDataProvider();
+                Type typeDP = dataProvider.GetType();
+                // get the config data
+                MethodInfo mi = typeDP.GetMethod("GetConfig");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
+                object config = mi.Invoke(dataProvider, null);
+                return config;
+           }
+        }
+
+        // Method used to save initial settings from site templates
         public void UpdateConfigProperty(string name, object value) {
             DataProviderImpl dataProvider = GetConfigDataProvider();
             Type typeDP = dataProvider.GetType();
@@ -721,6 +737,19 @@ namespace YetaWF.Core.Modules {
             mi = typeDP.GetMethod("UpdateConfig");
             if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfig method for a configuration module", typeDP.FullName);
             mi.Invoke(dataProvider, new object[] { config });
+        }
+
+        // REFERENCES
+        // REFERENCES
+        // REFERENCES
+
+        /// <summary>
+        /// Method used in site templates to add a module reference to the current page.
+        /// </summary>
+        /// <param name="modGuid">The Guid of the unique module to be added to the page's referenced modules.</param>
+        public void AddModuleReference(PageDefinition page, Guid modGuid) {
+            if ((from m in page.ReferencedModules where m.ModuleGuid == modGuid select m).FirstOrDefault() == null)
+                page.ReferencedModules.Add(new ReferencedModule { ModuleGuid = modGuid });
         }
 
         // AUTHORIZATION
