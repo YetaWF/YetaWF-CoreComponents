@@ -12,6 +12,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Views {
 
@@ -179,88 +180,6 @@ namespace YetaWF.Core.Views {
             viewHtml = RazorView.PostProcessViewHtml(Html, Module, viewHtml);
             return MvcHtmlString.Create(viewHtml);
         }
-        public enum ButtonTypeEnum {
-            Submit = 0,
-            Cancel = 1,
-            Button = 2,
-            Empty = 3,
-            Apply = 4,
-            ConditionalSubmit = 5, /* Like Submit but is removed when we don't have a return url (used together with an apply button) */
-            ConditionalCancel = 6, /* Like Cancel but doesn't consider whether we have a return url */
-        }
-        public class FormButton {
-            public string Text { get; set; }
-            public string Title { get; set; }
-            public string Name { get; set; }
-            public string Id { get; set; }
-            public bool Hidden { get; set; }
-            public ButtonTypeEnum ButtonType { get; set; }
-            public ModuleAction Action { get; private set; }
-            public ModuleAction.RenderModeEnum RenderAs { get; set; }
-
-            protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-
-            public FormButton() { }
-            public FormButton(ModuleAction action, ModuleAction.RenderModeEnum renderAs = ModuleAction.RenderModeEnum.Button) {
-                ButtonType = action != null ? ButtonTypeEnum.Button : ButtonTypeEnum.Empty;
-                Action = action;
-                RenderAs = renderAs;
-            }
-            public MvcHtmlString Render() {
-                if (ButtonType == ButtonTypeEnum.Empty)
-                    return MvcHtmlString.Empty;
-                if (Action != null) {
-                    if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
-                        return Action.RenderAsIcon();
-                    else
-                        return Action.RenderAsButton();
-                } else {
-                    TagBuilder tag = new TagBuilder("input");
-
-                    string text = Text;
-                    switch (ButtonType) {
-                        case ButtonTypeEnum.Submit:
-                        case ButtonTypeEnum.ConditionalSubmit:
-                            if (ButtonType == ButtonTypeEnum.ConditionalSubmit && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
-                                // if we don't have anyplace to return to and we're not in a popup we don't need a submit button
-                                return MvcHtmlString.Empty;
-                            }
-                            if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnSave", "Save");
-                            tag.Attributes.Add("type", "submit");
-                            break;
-                        case ButtonTypeEnum.Apply:
-                            if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnApply", "Apply");
-                            tag.Attributes.Add("type", "button");
-                            tag.Attributes.Add(Forms.CssDataApplyButton, "");
-                            break;
-                        default:
-                        case ButtonTypeEnum.Button:
-                            tag.Attributes.Add("type", "button");
-                            break;
-                        case ButtonTypeEnum.Cancel:
-                        case ButtonTypeEnum.ConditionalCancel:
-                            if (ButtonType == ButtonTypeEnum.ConditionalCancel && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
-                                // if we don't have anyplace to return to and we're not in a popup we don't need a cancel button
-                                return MvcHtmlString.Empty;
-                            }
-                            if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnCancel", "Cancel");
-                            tag.Attributes.Add("type", "button");
-                            tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Forms.CssFormCancel));
-                            break;
-                    }
-                    if (!string.IsNullOrWhiteSpace(Id))
-                        tag.Attributes.Add("id", Id);
-                    if (!string.IsNullOrWhiteSpace(Name))
-                        tag.Attributes.Add("name", Name);
-                    if (Hidden)
-                        tag.Attributes.Add("style", "display:none");
-                    if (!string.IsNullOrWhiteSpace(Title))
-                        tag.Attributes.Add("title", Title);
-                    tag.Attributes.Add("value", text);
-                    return MvcHtmlString.Create(tag.ToString(TagRenderMode.StartTag));
-                }
-            }
-        }
         public MvcHtmlString FormButtons(List<FormButton> buttons, int dummy = 0) {
             return FormButtons(buttons.ToArray());
         }
@@ -269,7 +188,7 @@ namespace YetaWF.Core.Views {
             HtmlBuilder hb = new HtmlBuilder();
             if (Module.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
-                foreach (var button in buttons) {
+                foreach (FormButton button in buttons) {
                     hb.Append(button.Render());
                 }
                 hb.Append("</div>");

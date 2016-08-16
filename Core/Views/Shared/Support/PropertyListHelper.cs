@@ -237,16 +237,8 @@ namespace YetaWF.Core.Views.Shared {
         public static MvcHtmlString RenderPropertyList(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
-
             ClassData classData = ObjectSupport.GetClassData(modelType);
-            if (!string.IsNullOrWhiteSpace(classData.Header)) {
-                hb.Append("<div class='y_header'>");
-                if (classData.Header.StartsWith("-"))
-                    hb.Append(classData.Header.Substring(1));
-                else
-                    hb.Append(YetaWFManager.HtmlEncode(classData.Header));
-                hb.Append("</div>");
-            }
+            RenderHeader(hb, classData);
 
             hb.Append(RenderHidden(htmlHelper, model));
             bool showVariables = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowVariables");
@@ -266,6 +258,21 @@ namespace YetaWF.Core.Views.Shared {
             } else {
                 hb.Append(hbProps);
             }
+            RenderFooter(hb, classData);
+            return hb.ToMvcHtmlString();
+        }
+
+        private static void RenderHeader(HtmlBuilder hb, ClassData classData) {
+            if (!string.IsNullOrWhiteSpace(classData.Header)) {
+                hb.Append("<div class='y_header'>");
+                if (classData.Header.StartsWith("-"))
+                    hb.Append(classData.Header.Substring(1));
+                else
+                    hb.Append(YetaWFManager.HtmlEncode(classData.Header));
+                hb.Append("</div>");
+            }
+        }
+        private static void RenderFooter(HtmlBuilder hb, ClassData classData) {
             if (!string.IsNullOrWhiteSpace(classData.Footer)) {
                 hb.Append("<div class='y_footer'>");
                 if (classData.Footer.StartsWith("-"))
@@ -274,9 +281,7 @@ namespace YetaWF.Core.Views.Shared {
                     hb.Append(YetaWFManager.HtmlEncode(classData.Footer));
                 hb.Append("</div>");
             }
-            return hb.ToMvcHtmlString();
         }
-
         private static MvcHtmlString RenderList(HtmlHelper<object> htmlHelper, object model, string category, bool showVariables, bool readOnly) {
             bool focusSet = Manager.WantFocus ? false : true;
             List<PropertyListEntry> properties = PropertyListSupport.GetPropertiesByCategory(model, category);
@@ -367,9 +372,13 @@ namespace YetaWF.Core.Views.Shared {
         }
         public static MvcHtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
             HtmlBuilder hb = new HtmlBuilder();
+            Type modelType = model.GetType();
 
             List<string> categories = PropertyListSupport.GetCategories(model);
             if (categories.Count == 0) { throw new InternalError("Unsupported model in PropertyListTabbed template - No categories defined"); }
+
+            ClassData classData = ObjectSupport.GetClassData(modelType);
+            RenderHeader(hb, classData);
 
             string divId = Manager.UniqueId();
             hb.Append("<div id='{0}' class='yt_propertylisttabbed t_edit'>", divId);
@@ -397,6 +406,9 @@ namespace YetaWF.Core.Views.Shared {
 
             hb.Append("</div>");
             hb.Append(htmlHelper.RenderTabInit(divId));
+
+            RenderFooter(hb, classData);
+
             return hb.ToMvcHtmlString();
         }
 

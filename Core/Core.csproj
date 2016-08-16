@@ -102,6 +102,7 @@
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Templates\RecaptchaV2.cs" />
+    <Compile Include="Views\Shared\FormButton.cs" />
     <Compile Include="Views\Shared\Support\MenuListHelper.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
     <Compile Include="PackageSupport\SiteTemplateData.cs" />
@@ -594,6 +595,7 @@
     <Content Include="Views\Shared\DisplayTemplates\TimeZone.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\PageSelection.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\RecaptchaV2.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\FormButton.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

@@ -106,10 +106,10 @@ namespace YetaWF.Core.Packages {
 
                 string addonsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                 try {
-                    Directory.Delete(Path.Combine(addonsPath, serPackage.PackageVersion), true);
+                    Directory.Delete(Path.Combine(addonsPath), true);
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantDeleteVers", "Site addons folder {0} for version {1} could not be deleted: {2}", addonsPath, serPackage.PackageVersion, exc.Message));
+                        errorList.Add(__ResStr("cantDeleteVers", "Site addons folder {0} could not be deleted: {1}", addonsPath, exc.Message));
                         return false;
                     }
                 }
@@ -146,7 +146,7 @@ namespace YetaWF.Core.Packages {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(sourcePath, ExtractExistingFileAction.OverwriteSilently);
                     }
-                    errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a reference to the project to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when its rebuilt using Visual Studio."));
+                    errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when its rebuilt using Visual Studio."));
                 }
             } catch (Exception exc) {
                 errorList.Add(string.Format(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}"), serPackage.PackageName, serPackage.PackageVersion, exc.Message));

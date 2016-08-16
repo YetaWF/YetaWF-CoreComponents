@@ -1,8 +1,8 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Web;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
@@ -14,6 +14,10 @@ namespace YetaWF.Core.Upload {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public const string TempId = "temp";
+
+        // UPLOAD
+        // UPLOAD
+        // UPLOAD
 
         /// <summary>
         /// Returns whether a file name (no path) is a temporary file (based on naming conventions).
@@ -88,6 +92,90 @@ namespace YetaWF.Core.Upload {
 
             return Path.GetFileName(name);
         }
+
+        // DOWNLOAD
+        // DOWNLOAD
+        // DOWNLOAD
+
+        /// <summary>
+        /// Saves a remote package file as a temporary file.
+        /// </summary>
+        /// <param name="remoteUrl">Package file being downloaded.</param>
+        /// <returns>A file name (no path) of the downloaded file in the site's temporary folder.</returns>
+        public string StoreTempPackageFile(string remoteUrl) {
+            string name = StoreTempFile(remoteUrl, me => me.PackageUse);
+            return GetTempFilePathFromName(name);
+        }
+        /// <summary>
+        /// Saves a remote file as a temporary file.
+        /// </summary>
+        /// <param name="remoteUrl">File being downloaded.</param>
+        /// <param name="canUse"></param>
+        /// <returns>A file name (with path) of the downloaded file in the site's temporary folder.</returns>
+        private string StoreTempFile(string remoteUrl, Func<MimeEntry, bool> canUse) {
+            return StoreFile(remoteUrl, Globals.TempFiles, canUse,
+                (uf => {
+                    string tempExt = Path.GetExtension(remoteUrl);
+                    string name = TempId + Guid.NewGuid().ToString();
+                    return Path.ChangeExtension(name, tempExt);
+                })
+            );
+        }
+        private string StoreFile(string remoteUrl, string folder, Func<MimeEntry, bool> canUse, Func<string, string> getFileName) {
+
+            MimeSection mimeSection = MimeSection.GetMimeSection();
+            if (mimeSection == null)
+                throw new Error(this.__ResStr("errDownloadWebconfig", "Download not allowed - Web.config doesn't have a valid MimeSection defining allowable files"));
+
+            const string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
+            HttpWebRequest req = null;
+            HttpWebResponse resp = null;
+
+            try {
+                req = (HttpWebRequest)WebRequest.Create(remoteUrl);
+                req.UserAgent = UserAgent;
+                resp = (HttpWebResponse)req.GetResponse();
+            } catch (Exception ex) {
+                throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ex.Message));
+            }
+            MimeEntry me = mimeSection.GetElementFromContentType(resp.ContentType);
+            if (me == null || !canUse(me)) {
+                string contentType = resp.ContentType;
+                resp.Close();
+                throw new Error(this.__ResStr("errDownloadPkgType", "Download not allowed - The file type '{0}' is not an allowable file type"), contentType);
+            }
+
+            string name = getFileName(remoteUrl);
+
+            folder = Path.Combine(Manager.SiteFolder, folder);
+            Directory.CreateDirectory(folder);
+            string filePath = Path.Combine(folder, name);
+
+            using (Stream strm = resp.GetResponseStream()) {
+                int totlen = (int)resp.ContentLength;
+                byte[] bts = new byte[totlen];
+                using (FileStream fs = System.IO.File.Create(filePath, totlen, FileOptions.SequentialScan)) {
+                    int remlen = totlen;
+                    for (int offset = 0 ; remlen > 0 ;) {
+                        int nRead = strm.Read(bts, offset, remlen);
+                        if (nRead == 0)
+                            break;// shouldn't happen
+                        fs.Write(bts, offset, nRead);
+                        offset += nRead;
+                        remlen -= nRead;
+                    }
+                    fs.Flush();
+                }
+            }
+            if (resp != null)
+                resp.Close();
+
+            return Path.GetFileName(name);
+        }
+
+        // HELPERS
+        // HELPERS
+        // HELPERS
 
         public void RemoveTempFile(string tempName) {
             string tempFilePath = GetTempFilePathFromName(tempName);
