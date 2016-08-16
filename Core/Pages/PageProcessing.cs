@@ -18,6 +18,10 @@ namespace YetaWF.Core.Pages {
         private static readonly Regex reEndBody = new Regex("</\\s*body\\s*>");
 
         public string PostProcessHtml(string pageHtml) {
+
+            Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
+            pageHtml = vars.ReplaceVariables(pageHtml);// variable substitution
+
             // complete page html in pageHtml
             pageHtml = ProcessImages(pageHtml);
 
@@ -64,9 +68,6 @@ namespace YetaWF.Core.Pages {
                     endstuff += Manager.CurrentSite.GoogleAnalytics;
             }
             pageHtml = reEndBody.Replace(pageHtml, endstuff + "</body>", 1);
-
-            Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
-            pageHtml = vars.ReplaceVariables(pageHtml);// variable substitution
 
             //DEBUG:  pageHtml has entire page
 
