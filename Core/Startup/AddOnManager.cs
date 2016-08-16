@@ -239,34 +239,37 @@ namespace YetaWF.Core.Addons {
         public List<Module> GetUniqueInvokedCssModules() {
             return UniqueInvokedCssModules;
         }
+
         public string CheckInvokedCssModule(string css) {
             if (string.IsNullOrWhiteSpace(css)) return css;
             string[] classes = css.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string cls in classes) {
                 Module mod = (from m in UniqueInvokedCssModules where m.InvokingCss == cls select m).FirstOrDefault();
-                if (mod != null) {
-                    if (!_AddedInvokedCssModules.Contains(mod))
-                        _AddedInvokedCssModules.Add(mod);
-                }
+                AddInvokedCssModule(mod);
             }
             return css;
         }
         public void CheckInvokedTemplate(string template) {
             if (string.IsNullOrWhiteSpace(template)) return;
             Module mod = (from m in UniqueInvokedCssModules where m.Templates.Contains(template) select m).FirstOrDefault();
-            if (mod != null) {
-                if (!_AddedInvokedCssModules.Contains(mod))
-                    _AddedInvokedCssModules.Add(mod);
-            }
+            AddInvokedCssModule(mod);
         }
         public void AddExplicitlyInvokedModules(SerializableList<ModuleDefinition.ReferencedModule> list) {
             if (list == null) return;
             foreach (ModuleDefinition.ReferencedModule l in list) {
                 Module mod = (from m in UniqueInvokedCssModules where m.ModuleGuid == l.ModuleGuid select m).FirstOrDefault();
-                if (mod != null) {
-                    if (!_AddedInvokedCssModules.Contains(mod))
-                        _AddedInvokedCssModules.Add(mod);
-                }
+                AddInvokedCssModule(mod);
+            }
+        }
+        internal void CheckInvokedModule(ModuleDefinition dataMod) {
+            Module mod = (from m in UniqueInvokedCssModules where m.ModuleGuid == dataMod.ModuleGuid select m).FirstOrDefault();
+            AddInvokedCssModule(mod);
+        }
+
+        internal void AddInvokedCssModule(Module mod) {
+            if (mod != null) {
+                if (!_AddedInvokedCssModules.Contains(mod))
+                    _AddedInvokedCssModules.Add(mod);
             }
         }
         internal List<Module> GetAddedUniqueInvokedCssModules() {
