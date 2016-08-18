@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Mvc;
+using YetaWF.Core.Modules;
 
 namespace YetaWF.Core.Identity {
 
@@ -64,7 +65,6 @@ namespace YetaWF.Core.Identity {
         string GetUserName(int userId);
         string GetUserEmail(int userId);
         int GetSuperuserId();
-
         List<RoleInfo> GetDefaultRoleList();
         List<User> GetDefaultUserList();
 
@@ -74,6 +74,15 @@ namespace YetaWF.Core.Identity {
         int GetAdministratorRoleId();
         int GetEditorRoleId();
         int GetRoleId(string roleName);
+
+        ModuleAction GetSelectTwoStepAction(int userId, string userName, string email);
+        List<string> GetEnabledTwoStepAuthentications(int userId);
+        void SetEnabledTwoStepAuthentications(int userId, List<string> auths);
+        void AddEnabledTwoStepAuthentication(int userId, string auth);
+        void RemoveEnabledTwoStepAuthentication(int userId, string auth);
+        bool HasEnabledTwoStepAuthentication(int userId, string auth);
+        void AddTwoStepLoginFailure();
+        bool GetTwoStepLoginFailuresExceeded();
     }
 
     public static class Resource {

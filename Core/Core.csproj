@@ -100,6 +100,7 @@
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
+    <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Templates\RecaptchaV2.cs" />
     <Compile Include="Views\Shared\FormButton.cs" />
