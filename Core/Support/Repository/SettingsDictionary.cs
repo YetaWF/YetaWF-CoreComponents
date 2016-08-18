@@ -70,6 +70,9 @@ namespace YetaWF.Core.Support.Repository {
             }
             setting.SetValue<TYPE>(value);
         }
+        public void ClearValue(string settingName) {
+            base.Remove(settingName);
+        }
         internal void ClearAllStartingWith(string prefix) {
             // clear all settings that start with that prefix
             List<string> keys = (from string k in this.Keys where k.StartsWith(prefix) select k).ToList();
