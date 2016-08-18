@@ -979,7 +979,7 @@ namespace YetaWF.Core.Controllers {
         // REDIRECT
         // REDIRECT
 
-        protected new ActionResult Redirect(string url) {
+        protected new ActionResult Redirect(string url, bool ForcePopup = false) {
 
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
@@ -990,9 +990,13 @@ namespace YetaWF.Core.Controllers {
 
                 if (string.IsNullOrWhiteSpace(url))
                     url = "/";
+
+                if (Manager.IsInPopup && ForcePopup)
+                    url += (url.Contains("?") ? "&" : "?") + Globals.Link_ToPopup + "=y";
+
                 url = YetaWFManager.Jser.Serialize(url);
                 sb.Append(Basics.AjaxJavascriptReturn);
-                if (Manager.IsInPopup)
+                if (Manager.IsInPopup && !ForcePopup)
                     sb.Append("window.parent.location.assign({0});", url);
                 else
                     sb.Append("window.location.assign({0});", url);
