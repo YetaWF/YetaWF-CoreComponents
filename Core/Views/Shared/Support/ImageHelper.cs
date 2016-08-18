@@ -10,7 +10,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
-namespace  YetaWF.Core.Views.Shared {
+namespace YetaWF.Core.Views.Shared {
 
     public class Image<TModel> : RazorTemplate<TModel> { }
 
@@ -58,27 +58,40 @@ namespace  YetaWF.Core.Views.Shared {
                 bool ForceHttpHandler = false) {
 
             string imageType = htmlHelper.GetControlInfo<string>(name, "ImageType");
-            if (string.IsNullOrWhiteSpace(imageType)) throw new InternalError("No ImageType specified");
-
             int width, height;
             htmlHelper.TryGetControlInfo<int>(name, "Width", out width);
             htmlHelper.TryGetControlInfo<int>(name, "Height", out height);
 
-            bool showMissing = htmlHelper.GetControlInfo<bool>(name, "ShowMissing", true);
-            if (string.IsNullOrWhiteSpace(model) && !showMissing) return MvcHtmlString.Empty;
+            if (model != null && (model.StartsWith("http://") || model.StartsWith("https://") || model.StartsWith("//"))) {
 
-            string imgTag = RenderImagePreview(imageType, width, height, model, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
+                if (!string.IsNullOrWhiteSpace(imageType)) throw new InternalError("Can't use ImageType with external Urls");
+                if (width != 0 || height != 0) throw new InternalError("Can't use Width or Height with external Urls");
 
-            bool linkToImage = htmlHelper.GetControlInfo<bool>(name, "LinkToImage", false);
-            if (linkToImage) {
-                TagBuilder link = new TagBuilder("a");
-                string imgUrl = FormatUrl(imageType, null, model, CacheBuster: CacheBuster, ForceHttpHandler: ForceHttpHandler);
-                link.MergeAttribute("href", Manager.GetCDNUrl(imgUrl));
-                link.MergeAttribute("target", "_blank");
-                link.InnerHtml = imgTag;
-                return MvcHtmlString.Create(link.ToString());
-            } else
-                return MvcHtmlString.Create(imgTag);
+                TagBuilder img = new TagBuilder("img");
+                img.Attributes.Add("src", model);
+                img.Attributes.Add("alt", __ResStr("altImage", "Image"));
+                return MvcHtmlString.Create(img.ToString());
+
+            } else {
+
+                if (string.IsNullOrWhiteSpace(imageType)) throw new InternalError("No ImageType specified");
+
+                bool showMissing = htmlHelper.GetControlInfo<bool>(name, "ShowMissing", true);
+                if (string.IsNullOrWhiteSpace(model) && !showMissing) return MvcHtmlString.Empty;
+
+                string imgTag = RenderImagePreview(imageType, width, height, model, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
+
+                bool linkToImage = htmlHelper.GetControlInfo<bool>(name, "LinkToImage", false);
+                if (linkToImage) {
+                    TagBuilder link = new TagBuilder("a");
+                    string imgUrl = FormatUrl(imageType, null, model, CacheBuster: CacheBuster, ForceHttpHandler: ForceHttpHandler);
+                    link.MergeAttribute("href", Manager.GetCDNUrl(imgUrl));
+                    link.MergeAttribute("target", "_blank");
+                    link.InnerHtml = imgTag;
+                    return MvcHtmlString.Create(link.ToString());
+                } else
+                    return MvcHtmlString.Create(imgTag);
+            }
         }
         public static string RenderImagePreview(string imageType, int width, int height, string model,
                 string CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, bool ForceHttpHandler = false) {
