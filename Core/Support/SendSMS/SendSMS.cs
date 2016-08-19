@@ -53,7 +53,7 @@ namespace YetaWF.Core.Support.SendSMS {
             if (procs.Count() > 1)
                 Logging.AddErrorLog("Multiple SMS processors are available - only the first one registered is used - {0}", procs.First().Name);
             else if (procs.Count() == 0)
-                throw new InternalError("No SMS processor is available");
+                throw new InternalError("No SMS processor available");
             return procs.First();
         }
         public static ISendSMS GetSMSProcessorCond(out int count) {
