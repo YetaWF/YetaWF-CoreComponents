@@ -24,31 +24,32 @@ namespace YetaWF.Core.Pages {
             // add built-in metatags
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Title))
                 AddMetatag("title", Manager.CurrentPage.Title);
-            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Keywords))
-                AddMetatag("keywords", Manager.CurrentPage.Keywords);
-            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Description))
-                AddMetatag("description", Manager.CurrentPage.Description);
-            string robots = "";
-            if (Manager.CurrentPage.RobotNoIndex) robots += ",noindex";
-            if (Manager.CurrentPage.RobotNoFollow) robots += ",nofollow";
-            if (Manager.CurrentPage.RobotNoArchive) robots += ",noarchive";
-            if (Manager.CurrentPage.RobotNoSnippet) robots += ",nosnippet";
-            if (!string.IsNullOrWhiteSpace(robots))
-                AddMetatag("robots", robots.Substring(1));
-            // for the home page, add the google verification
-            if (Manager.CurrentPage.Url == "/" && !string.IsNullOrWhiteSpace(Manager.CurrentSite.GoogleVerification))
-                sb.Append(Manager.CurrentSite.GoogleVerification);
-            // add all meta tags
+            if (!Manager.IsInPopup) {
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Keywords))
+                    AddMetatag("keywords", Manager.CurrentPage.Keywords);
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Description))
+                    AddMetatag("description", Manager.CurrentPage.Description);
+                string robots = "";
+                if (Manager.CurrentPage.RobotNoIndex) robots += ",noindex";
+                if (Manager.CurrentPage.RobotNoFollow) robots += ",nofollow";
+                if (Manager.CurrentPage.RobotNoArchive) robots += ",noarchive";
+                if (Manager.CurrentPage.RobotNoSnippet) robots += ",nosnippet";
+                if (!string.IsNullOrWhiteSpace(robots))
+                    AddMetatag("robots", robots.Substring(1));
+                // for the home page, add the google verification
+                if (Manager.CurrentPage.Url == "/" && !string.IsNullOrWhiteSpace(Manager.CurrentSite.GoogleVerification))
+                    sb.Append(Manager.CurrentSite.GoogleVerification);
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.SiteMetaTags))
+                    sb.Append(Manager.CurrentSite.SiteMetaTags);
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.PageMetaTags))
+                    sb.Append(Manager.CurrentPage.PageMetaTags);
+                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.PageMetaTags))
+                    sb.Append(Manager.CurrentSite.PageMetaTags);
+            }
+            // add all explicitly added meta tags
             foreach (var tag in _tags)
                 sb.Append(tag);
-            string s = sb.ToString();
-            if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.SiteMetaTags))
-                s += Manager.CurrentSite.SiteMetaTags;
-            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.PageMetaTags))
-                s += Manager.CurrentPage.PageMetaTags;
-            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.PageMetaTags))
-                s += Manager.CurrentSite.PageMetaTags;
-            return s;
+            return sb.ToString();
         }
     }
 }
