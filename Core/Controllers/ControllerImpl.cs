@@ -979,7 +979,12 @@ namespace YetaWF.Core.Controllers {
         // REDIRECT
         // REDIRECT
 
-        protected new ActionResult Redirect(string url, bool ForcePopup = false) {
+        protected ActionResult Redirect(ModuleAction action) {
+            Manager.Verify_AjaxRequest();
+            return Redirect(action.GetCompleteUrl(), ForcePopup: action.Style == ModuleAction.ActionStyleEnum.Popup || action.Style == ModuleAction.ActionStyleEnum.ForcePopup);
+        }
+
+        protected ActionResult Redirect(string url, bool ForcePopup = false) {
 
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
@@ -987,19 +992,45 @@ namespace YetaWF.Core.Controllers {
             if (Manager.IsAjaxRequest) {
                 // for ajax requests we return javascript to redirect
                 ScriptBuilder sb = new ScriptBuilder();
+                sb.Append(Basics.AjaxJavascriptReturn);
 
                 if (string.IsNullOrWhiteSpace(url))
                     url = "/";
-
                 if (Manager.IsInPopup && ForcePopup)
                     url += (url.Contains("?") ? "&" : "?") + Globals.Link_ToPopup + "=y";
 
-                url = YetaWFManager.Jser.Serialize(url);
-                sb.Append(Basics.AjaxJavascriptReturn);
-                if (Manager.IsInPopup && !ForcePopup)
-                    sb.Append("window.parent.location.assign({0});", url);
-                else
-                    sb.Append("window.location.assign({0});", url);
+                if (ForcePopup) {
+                    // We need to redirect to a popup (in a postback)
+                    // we're not be in a popup and want to become a popup on top of whatever page there is
+                    // send code to activate the new popup
+                    // the assumption is we're in a postback and we have to find out whether to use http or https for the popup
+                    // if we're on a page with https: the popup must also be https: otherwise the browser will have a fit
+                    if (Manager.CurrentRequest.IsSecureConnection) {
+                        if (url.StartsWith("//") || url.StartsWith("https://")) {
+                            // good
+                        } else if (url.StartsWith("http://")) {
+                            url = url.Substring("http:".Length);// remove http: and leave just //
+                        } else if (url.StartsWith("/")) {
+                            url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: Pages.PageDefinition.PageSecurityType.httpsOnly);
+                        } else {
+                            // who knows
+                        }
+                    }
+                    url = YetaWFManager.Jser.Serialize(url);
+                    if (Manager.IsInPopup) {
+                        // simply replace the current popup with the new popup
+                        sb.Append("window.location.assign({0});", url);
+                    } else {
+                        // create the popup client-side
+                        sb.Append("YetaWF_Popup.openPopup({0});", url);
+                    }
+                } else {
+                    url = YetaWFManager.Jser.Serialize(url);
+                    if (Manager.IsInPopup)
+                        sb.Append("window.parent.location.assign({0});", url);
+                    else
+                        sb.Append("window.location.assign({0});", url);
+                }
                 return new JsonResult { Data = sb.ToString() };
             } else {
                 return base.Redirect(url);

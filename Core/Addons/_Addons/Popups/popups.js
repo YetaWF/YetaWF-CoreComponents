@@ -1,5 +1,4 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
-'use strict';
 
 /* Popup */
 
@@ -8,6 +7,7 @@ var _YetaWF_Popup = {};
 
 // inline - as soon as we're loading, resize the popup window, if we're in a popup
 if (YVolatile.Basics.IsInPopup) {
+    'use strict';
 
     var popup = window.parent.document.YPopupWindowActive;
 
@@ -35,6 +35,7 @@ if (YVolatile.Basics.IsInPopup) {
 
 // close a popup (if there is one)
 YetaWF_Popup.closePopup = function (forceReload) {
+    'use strict';
     if (YVolatile.Basics.IsInPopup) {
         var forced = (forceReload === true);
         if (forced)
@@ -47,6 +48,7 @@ YetaWF_Popup.closePopup = function (forceReload) {
 
 // Use this in a popup to set link to a url in the outer parent (main) window
 YetaWF_Popup.handleOuterWindow = function ($this) {
+    'use strict';
     // check if this is a popup link
     if ($this.attr(YConfigs.Basics.CssOuterWindow)==undefined)
         return false;
@@ -58,6 +60,7 @@ YetaWF_Popup.handleOuterWindow = function ($this) {
 
 // Handles links that invoke a popup window
 YetaWF_Popup.handlePopupLink = function ($this) {
+    'use strict';
 
     var url = $this[0].href;
 
@@ -81,6 +84,15 @@ YetaWF_Popup.handlePopupLink = function ($this) {
             return false;
     }
 
+    return YetaWF_Popup.openPopup(url);
+};
+
+// opens a popup given a url
+YetaWF_Popup.openPopup = function(url) {
+    'use strict';
+
+    Y_Loading(true);
+
     // build a url that has a random portion so the page is not cached
     // this is so we can have the same page nested within itself
     if (url.indexOf('?') < 0)
@@ -89,8 +101,6 @@ YetaWF_Popup.handlePopupLink = function ($this) {
         url += "&";
     url += new Date().getUTCMilliseconds();
     url += "&" + YGlobals.Link_ToPopup + "=y";// we're now going into a popup
-
-    Y_Loading(true);
 
     // we're already in a popup
     if (Y_InPopup()) {
@@ -104,7 +114,7 @@ YetaWF_Popup.handlePopupLink = function ($this) {
     }
 
     // insert <div id="ypopup"></div> at top of page for the popup window
-    // this is automaticaly removed when destroy() is called
+    // this is automatically removed when destroy() is called
     $("body").prepend("<div id='ypopup'></div>");
     var $popupwin = $("#ypopup");
     var popup = null;
