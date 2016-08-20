@@ -17,6 +17,7 @@ using System.Web.Script.Serialization;
 using System.Web.SessionState;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
+using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
@@ -1147,6 +1148,19 @@ namespace YetaWF.Core.Support {
             string s = CombineCss(css, ModeCss);
             s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");
             s = CombineCss(s, IsInPopup ? "yPopup" : "yPage");
+            // add a class whether page can be seen by anonymous users and users
+            bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
+            if (showOwnership) {
+                PageDefinition page = Manager.CurrentPage;
+                bool anon = page.IsAuthorized_View_Anonymous();
+                bool user = page.IsAuthorized_View_AnyUser();
+                if (!anon && !user)
+                    s = CombineCss(s, "ypagerole_noUserAnon");
+                else if (!anon)
+                    s = CombineCss(s, "ypagerole_noAnon");
+                else if (!user)
+                    s = CombineCss(s, "ypagerole_noUser");
+            }
             return MvcHtmlString.Create(CombineCss(s, CurrentPage.CssClass));
         }
 

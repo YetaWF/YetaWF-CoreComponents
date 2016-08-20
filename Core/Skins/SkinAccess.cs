@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
@@ -189,6 +190,22 @@ namespace YetaWF.Core.Skins {
             else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
                 inner += "<div class='container'>";
 
+            // add an inner div with css classes to modules that can't be seen by anonymous users and users
+            bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") &&
+                                    Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
+            if (showOwnership) {
+                bool anon = mod.IsAuthorized_View_Anonymous();
+                bool user = mod.IsAuthorized_View_AnyUser();
+                if (!anon && !user)
+                    inner += "<div class='ymodrole_noUserAnon'>";
+                else if (!anon)
+                    inner += "<div class='ymodrole_noAnon'>";
+                else if (!user)
+                    inner += "<div class='ymodrole_noUser'>";
+                else
+                    showOwnership = false;
+            }
+
             if (ShowMenu)
                 inner += mod.ModuleMenuHtml;
             if (ShowTitle)
@@ -196,9 +213,13 @@ namespace YetaWF.Core.Skins {
             inner += htmlContents;
             if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) // only show action menus in a pane
                 inner += mod.ActionMenuHtml;
+
             if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
                 inner += "</div></div>";
             else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
+                inner += "</div>";
+
+            if (showOwnership)
                 inner += "</div>";
 
             div.InnerHtml = inner;

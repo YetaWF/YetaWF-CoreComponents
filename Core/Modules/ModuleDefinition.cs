@@ -55,7 +55,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             Name = __ResStr("name", "(unnamed)");
             Title = __ResStr("title", "(untitled)");
             Description = __ResStr("desc", "(not specified)");
-            SameAsPage = true;
             WantFocus = true;
             WantSearch = true;
             DateCreated = DateUpdated = DateTime.UtcNow;
@@ -229,10 +228,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         // AUTHORIZATION
         // AUTHORIZATION
         // AUTHORIZATION
-
-        [Category("Authorization"), Caption("Same As Page"), Description("Defines whether the module inherits the containing page's authorization (View, Edit, Remove)", Order = -100)]
-        [UIHint("Boolean")]
-        public bool SameAsPage { get; set; }
 
         [Data_Binary]
         [Category("Authorization"), Caption("Permitted Roles"), Description("Roles that are permitted to use this module")]

@@ -245,18 +245,15 @@ namespace YetaWF.Core.Controllers {
             if (permAttr != null)
                 level = permAttr.Level;
             ModuleDefinition mod = GetModule();
-            if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
-                if (!mod.IsAuthorized(level)) {
+            if (!mod.IsAuthorized(level)) {
+                if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
                     filterContext.Result = new HttpUnauthorizedResult();
-                    return;
-                }
-            } else {
-                if (!mod.IsAuthorized(level, SameAsPage: true)) {
+                } else {
                     // We get here if an action is attempted that the user is not authorized for
                     // we could attempt to capture and redirect to user login, whatevz
                     filterContext.Result = new EmptyResult();
-                    return;
                 }
+                return;
             }
 
             // action is about to start - if this is a postback or ajax request, we'll clean up parameters

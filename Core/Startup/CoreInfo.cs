@@ -10,6 +10,7 @@ namespace YetaWF.Core.Addons {
         public const string Resource_UploadImages = "YetaWF_Core-UploadImages";
         public const string Resource_RemoveImages = "YetaWF_Core-RemoveImages";
         public const string Resource_SkinLists = "YetaWF_Core-SkinLists";
+        public const string Resource_ViewOwnership = "YetaWF_Core-ViewOwnership";
 
         public const string Resource_SMTPServer_SendTestEmail = "YetaWF_Core-SMTPServer_SendTestEmail";
 

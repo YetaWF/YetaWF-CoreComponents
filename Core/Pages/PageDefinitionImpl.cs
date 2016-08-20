@@ -469,7 +469,7 @@ namespace YetaWF.Core.Pages {
                             }
                         }
                     }
-                    if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View, SameAsPage: true))
+                    if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
                         sb.Append(module.RenderModule(htmlHelper).ToString());
                 }
             }

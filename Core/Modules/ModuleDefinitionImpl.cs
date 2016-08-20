@@ -877,7 +877,7 @@ namespace YetaWF.Core.Modules {
             }
             return false;
         }
-        public bool IsAuthorized(string level, bool SameAsPage = false) {
+        public bool IsAuthorized(string level) {
             string internalName;
             if (string.IsNullOrWhiteSpace(level))
                 internalName = level = Manager.EditMode ? RoleDefinition.Edit : RoleDefinition.View;
@@ -885,19 +885,6 @@ namespace YetaWF.Core.Modules {
                 internalName = (from r in RolesDefinitions where r.Name == level select r.InternalName).FirstOrDefault();
             if (string.IsNullOrWhiteSpace(internalName))
                 throw new InternalError("Permission level {0} not found in Roles", level);
-
-            if (SameAsPage && this.SameAsPage && Manager.CurrentPage != null && !Manager.CurrentPage.Temporary &&
-                    (internalName == RoleDefinition.View || internalName == RoleDefinition.Edit || internalName == RoleDefinition.Remove)) {
-                // same authorization as page (for view/edit/remove)
-                if (internalName == RoleDefinition.View)
-                    return Manager.CurrentPage.IsAuthorized_View();
-                else if (internalName == RoleDefinition.Edit)
-                    return Manager.CurrentPage.IsAuthorized_Edit();
-                else if (internalName == RoleDefinition.Remove)
-                    return Manager.CurrentPage.IsAuthorized_Remove();
-                else
-                    return false;
-            }
 
             // module specific authorization
             return IsAuthorized((allowedRole) => {
@@ -911,12 +898,10 @@ namespace YetaWF.Core.Modules {
             });
         }
 
-        public bool IsAuthorized_View_Anonymous(bool pageAllow) {
-            if (SameAsPage) return pageAllow;//RESEARCH: Check use of SameAsPage
+        public bool IsAuthorized_View_Anonymous() {
             return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetAnonymousRoleId());
         }
-        public bool IsAuthorized_View_AnyUser(bool pageAllow) {
-            if (SameAsPage) return pageAllow;//RESEARCH: Check use of SameAsPage
+        public bool IsAuthorized_View_AnyUser() {
             return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetUserRoleId());
         }
 
