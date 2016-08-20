@@ -185,10 +185,12 @@ namespace YetaWF.Core.Support {
             string num = match.Groups["num"].Value;
             string delim = match.Groups["delim"].Value;
             string pix = match.ToString();
-            try {
-                double f = Convert.ToDouble(num);
-                pix = string.Format("{0}px{1}", Math.Round(f * avgCharWidth, 0), delim);
-            } catch (Exception) { }
+            if (num != ".") {
+                try {
+                    double f = Convert.ToDouble(num);
+                    pix = string.Format("{0}px{1}", Math.Round(f * avgCharWidth, 0), delim);
+                } catch (Exception) { }
+            }
             return pix;
         }
 
