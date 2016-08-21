@@ -1,11 +1,11 @@
 ﻿__editable          hidden onlysubmitwhenchecked
-RoleName            20 sort
-View                center [Globals.ChBoolean] sort
-Edit                center [Globals.ChBoolean] sort
-Remove              center [Globals.ChBoolean] sort
-Extra1              center [Globals.ChBoolean] sort
-Extra2              center [Globals.ChBoolean] sort
-Extra3              center [Globals.ChBoolean] sort
-Extra4              center [Globals.ChBoolean] sort
-Extra5              center [Globals.ChBoolean] sort
+RoleName            20
+View                center [Globals.ChBoolean]
+Edit                center [Globals.ChBoolean]
+Remove              center [Globals.ChBoolean]
+Extra1              center [Globals.ChBoolean]
+Extra2              center [Globals.ChBoolean]
+Extra3              center [Globals.ChBoolean]
+Extra4              center [Globals.ChBoolean]
+Extra5              center [Globals.ChBoolean]
 RoleId              hidden

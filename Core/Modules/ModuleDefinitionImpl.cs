@@ -784,6 +784,7 @@ namespace YetaWF.Core.Modules {
                 if (list == null) return null;
                 return (from l in list where roleId == l.RoleId select l).FirstOrDefault();
             }
+            public bool __editable { get { return RoleId != Resource.ResourceAccess.GetSuperuserRoleId(); } }
         }
         public class AllowedUser {
             public int UserId { get; set; }
