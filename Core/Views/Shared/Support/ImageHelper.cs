@@ -62,9 +62,8 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.TryGetControlInfo<int>(name, "Width", out width);
             htmlHelper.TryGetControlInfo<int>(name, "Height", out height);
 
-            if (model != null && (model.StartsWith("http://") || model.StartsWith("https://") || model.StartsWith("//"))) {
+            if (string.IsNullOrWhiteSpace(imageType) && model != null && (model.StartsWith("http://") || model.StartsWith("https://") || model.StartsWith("//"))) {
 
-                if (!string.IsNullOrWhiteSpace(imageType)) throw new InternalError("Can't use ImageType with external Urls");
                 if (width != 0 || height != 0) throw new InternalError("Can't use Width or Height with external Urls");
 
                 TagBuilder img = new TagBuilder("img");
