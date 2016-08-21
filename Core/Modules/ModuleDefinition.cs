@@ -272,7 +272,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 return new SerializableList<AllowedRole>() {
                     new AllowedRole(Resource.ResourceAccess.GetAnonymousRoleId(), AllowedEnum.Yes),
                     new AllowedRole(Resource.ResourceAccess.GetUserRoleId(), AllowedEnum.Yes),
-                    new AllowedRole(Resource.ResourceAccess.GetEditorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes),
                     new AllowedRole(Resource.ResourceAccess.GetAdministratorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes),
                 };
             }
@@ -285,7 +284,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             get {
                 return new SerializableList<AllowedRole>() {
                     new AllowedRole(Resource.ResourceAccess.GetUserRoleId(), AllowedEnum.Yes),
-                    new AllowedRole(Resource.ResourceAccess.GetEditorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes),
                     new AllowedRole(Resource.ResourceAccess.GetAdministratorRoleId(), AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes, AllowedEnum.Yes),
                 };
             }
