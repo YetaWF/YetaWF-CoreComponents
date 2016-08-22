@@ -109,7 +109,16 @@ namespace YetaWF.Core.Packages {
                     Directory.Delete(Path.Combine(addonsPath), true);
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantDeleteVers", "Site addons folder {0} could not be deleted: {1}", addonsPath, exc.Message));
+                        errorList.Add(__ResStr("cantDeleteAddons", "Site Addons folder {0} could not be deleted: {1}", addonsPath, exc.Message));
+                        return false;
+                    }
+                }
+                string viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+                try {
+                    Directory.Delete(Path.Combine(viewsPath), true);
+                } catch (Exception exc) {
+                    if (!(exc is DirectoryNotFoundException)) {
+                        errorList.Add(__ResStr("cantDeleteViews", "Site Views folder {0} could not be deleted: {1}", viewsPath, exc.Message));
                         return false;
                     }
                 }
@@ -146,7 +155,19 @@ namespace YetaWF.Core.Packages {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(sourcePath, ExtractExistingFileAction.OverwriteSilently);
                     }
-                    errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when its rebuilt using Visual Studio."));
+
+                    // Create symlink/junction from web to project addons
+                    string from = addonsPath;
+                    string to = Path.Combine(sourcePath, Globals.AddOnsFolder);
+                    if (!CreatePackageSymLink(from, to))
+                        errorList.Add(__ResStr("errSymlink", "Couldn't create symbolic link/junction from {0} to {1} - You will have to investigate the failure and manually create the link using:(+nl)mklink /D \"{0}\",\"{1}\"", from, to));
+                    // Create symlink/junction from web views to project package views
+                    from = viewsPath;
+                    to = Path.Combine(sourcePath, Globals.ViewsFolder);
+                    if (!CreatePackageSymLink(from, to))
+                        errorList.Add(__ResStr("errSymlink", "Couldn't create symbolic link/junction from {0} to {1} - You will have to investigate the failure and manually create the link using:(+nl)mklink /D \"{0}\",\"{1}\"", from, to));
+
+                    errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when it's rebuilt using Visual Studio."));
                 }
             } catch (Exception exc) {
                 errorList.Add(string.Format(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}"), serPackage.PackageName, serPackage.PackageVersion, exc.Message));
