@@ -110,7 +110,10 @@ namespace YetaWF.Core.Packages {
                     int cmp = Package.CompareVersion(lastSeenVersion, package.Version);
                     if (cmp < 0) {
                         // upgraded package
-                        Logging.AddLog("Upgrading package {0} from {1} to {2}", package.Name, lastSeenVersion, package.Version);
+                        if (string.IsNullOrWhiteSpace(lastSeenVersion))
+                            Logging.AddLog("Installing package {0} {1}", package.Name, package.Version);
+                        else
+                            Logging.AddLog("Upgrading package {0} from {1} to {2}", package.Name, lastSeenVersion, package.Version);
                         InstallPackage(package);
                     } else if (cmp > 0) {
                         // Woah, you can't downgrade
