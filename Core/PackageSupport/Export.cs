@@ -6,6 +6,7 @@ using System.IO;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.PackageAttributes;
 
 namespace YetaWF.Core.Packages {
 
@@ -45,16 +46,23 @@ namespace YetaWF.Core.Packages {
                 ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                 ze.FileName = file.FileName;
             }
-            // Addons
-            //if (!IsUtilityPackage && !IsTemplatePackage) {
-            //    if (PackageType == PackageTypeEnum.Core || PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
-            //        serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons));
-            //        foreach (var file in serPackage.AddOns) {
-            //            ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
-            //            ze.FileName = file.FileName;
-            //        }
-            //    }
-            //}
+            if (!SourceCode) {
+                // Addons
+                if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
+                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons));
+                    foreach (var file in serPackage.AddOns) {
+                        ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
+                        ze.FileName = file.FileName;
+                    }
+                }
+                // Views
+                string viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+                serPackage.Views.AddRange(ProcessAllFiles(viewsPath));
+                foreach (var file in serPackage.Views) {
+                    ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
+                    ze.FileName = file.FileName;
+                }
+            }
             // Source code
             if (SourceCode) {
                 string[] excludedFoldersSource = new string[] { "obj", "bin" };

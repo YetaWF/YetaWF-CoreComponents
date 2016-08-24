@@ -62,10 +62,10 @@ namespace YetaWF.Core.Packages {
                 bool hasSource = (serPackage.SourceFiles != null && serPackage.SourceFiles.Count > 0);
                 string sourcePath = null;
                 if (hasSource) {
-#if RELEASE
-                    errorList.Add(__ResStr("noSourcePackages", "Packages with source code can only be imported on development system using Debug builds"));
-                    return false;
-#else
+                    // Determine whether this is a YetaWF instance with source code by inspecting the Core package
+                    if (!YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.HasSource)
+                        throw new InternalError("Packages with source code can only be imported on development systems");
+                    // set target folder
                     string sourceFolder = null;
                     switch (serPackage.PackageType) {
                         case PackageTypeEnum.Module:
@@ -101,7 +101,6 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                     Directory.CreateDirectory(sourcePath);
-#endif
                 }
 
                 string addonsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, serPackage.PackageDomain, serPackage.PackageProduct);
@@ -144,13 +143,18 @@ namespace YetaWF.Core.Packages {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(YetaWFManager.RootFolder, ExtractExistingFileAction.OverwriteSilently);
                     }
+                    // Views
+                    foreach (var file in serPackage.Views) {
+                        ZipEntry e = zip[file.FileName];
+                        e.Extract(YetaWFManager.RootFolder, ExtractExistingFileAction.OverwriteSilently);
+                    }
                 } else {
                     // bin
                     foreach (var file in serPackage.BinFiles) {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(sourcePath, ExtractExistingFileAction.OverwriteSilently);
                     }
-                    // Source code (optional), includes addons
+                    // Source code (optional), includes addons & views
                     foreach (var file in serPackage.SourceFiles) {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(sourcePath, ExtractExistingFileAction.OverwriteSilently);
