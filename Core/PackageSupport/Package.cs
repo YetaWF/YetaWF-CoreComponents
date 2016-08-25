@@ -809,5 +809,10 @@ namespace YetaWF.Core.Packages {
         /// Used to cache a package's localized data. This is used by the LocalizationDataProvider.
         /// </summary>
         public object CachedLocalization { get; set; }
+
+        /// <summary>
+        /// Used to cache a package's license data. This is available to package implementers and is not used by YetaWF.
+        /// </summary>
+        public dynamic CachedLicenseData { get; set; }
     }
 }
