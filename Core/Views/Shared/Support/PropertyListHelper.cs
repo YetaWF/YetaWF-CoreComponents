@@ -371,11 +371,14 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderPropertyListTabbed(name, model, ReadOnly: true);
         }
         public static MvcHtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
-            HtmlBuilder hb = new HtmlBuilder();
-            Type modelType = model.GetType();
 
             List<string> categories = PropertyListSupport.GetCategories(model);
-            if (categories.Count == 0) { throw new InternalError("Unsupported model in PropertyListTabbed template - No categories defined"); }
+            if (categories.Count == 0) throw new InternalError("Unsupported model in PropertyListTabbed template - No categories defined");
+            if (categories.Count == 1) // if there is only one tab, show as regular property list
+                return RenderPropertyList(htmlHelper, name, model, ReadOnly: ReadOnly);
+
+            HtmlBuilder hb = new HtmlBuilder();
+            Type modelType = model.GetType();
 
             ClassData classData = ObjectSupport.GetClassData(modelType);
             RenderHeader(hb, classData);
