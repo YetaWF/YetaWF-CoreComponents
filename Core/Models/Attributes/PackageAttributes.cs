@@ -5,25 +5,53 @@ using System.Runtime.CompilerServices;
 
 namespace YetaWF.PackageAttributes
 {
+    /// <summary>
+    /// Used with the PackageAttribute assembly attribute to define a package's purpose.
+    /// </summary>
     public enum PackageTypeEnum {
+        /// <summary>
+        /// Used internally.
+        /// </summary>
         Unknown = 0,
+        /// <summary>
+        /// The package is a module package containing modules.
+        /// </summary>
         Module = 1,
+        /// <summary>
+        /// The package is a skin package containing one or more skin definitions.
+        /// </summary>
         Skin = 2,
+        /// <summary>
+        /// The package is a core package. Used by YetaWF.
+        /// </summary>
         Core = 3,
+        /// <summary>
+        /// The package is a core assembly package. Used by YetaWF.
+        /// </summary>
         CoreAssembly = 4,
+        /// <summary>
+        /// The package is a data provider package. Used by YetaWF.
+        /// </summary>
         DataProvider = 5,
+        /// <summary>
+        /// The package is a utility package. Used by YetaWF.
+        /// </summary>
         Utility = 6,
+        /// <summary>
+        /// The package is a Visual Studio template package. Used by YetaWF.
+        /// </summary>
         Template = 7,
     }
 
     [AttributeUsage(AttributeTargets.Assembly)]
     public class PackageAttribute : Attribute {
         /// <summary>
-        ///
+        /// Assembly attribute used to define the basic purpose of the package.
         /// </summary>
         /// <param name="domain">The domain name (without www, http, .com or page), eg. softelvdm</param>
-        /// <param name="type"></param>
-        /// <param name="sourceFile"></param>
+        /// <param name="type">The package type.</param>
+        /// <param name="sourceFile">This should not be used as it is used internally by YetaWF to determine whether a package is a source code or binary package.</param>
+        /// <remarks>Every YetaWF package must provide a PackageAttribute attribute to define its basic purpose.</remarks>
         public PackageAttribute(PackageTypeEnum type, string domain, [CallerFilePath] string sourceFile = null) {
             PackageType = type;
             Domain = domain;
@@ -34,17 +62,10 @@ namespace YetaWF.PackageAttributes
         public string SourceFile { get; private set; }
     }
 
-    [AttributeUsage(AttributeTargets.Assembly)]
-    public class SkinAttribute : Attribute {
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="domain">The domain name (without www, http, .com or page), eg. softelvdm</param>
-        public SkinAttribute(string domain) {
-            Domain = domain;
-        }
-        public string Domain { get; private set; }
-    }
+    /// <summary>
+    /// Assembly attribute used to provide various public Urls for a package.
+    /// </summary>
+    /// <remarks>Every YetaWF package should provide a PackageInfoAttribute attribute to define public Urls.</remarks>
     [AttributeUsage(AttributeTargets.Assembly)]
     public class PackageInfoAttribute : Attribute {
         public PackageInfoAttribute() { }
@@ -55,10 +76,28 @@ namespace YetaWF.PackageAttributes
             ReleaseNoticeLink = releaseNoticeLink;
             LicenseLink = licenseLink;
         }
+        /// <summary>
+        /// Package information Url.
+        /// </summary>
+        /// <remarks>This can be displayed as a help link by modules using ModuleDefinition.ShowHelp.</remarks>
         public string InfoLink { get; private set; }
+        /// <summary>
+        /// Not used. Will be removed or renamed.
+        /// </summary>
         public string UpdateServerLink { get; private set; }
+        /// <summary>
+        /// Support information Url.
+        /// </summary>
         public string SupportLink { get; private set; }
+        /// <summary>
+        /// Release notice Url.
+        /// </summary>
+        /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
         public string ReleaseNoticeLink { get; private set; }
+        /// <summary>
+        /// License information Url.
+        /// </summary>
+        /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
         public string LicenseLink { get; private set; }
     }
 }
