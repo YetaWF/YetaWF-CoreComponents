@@ -98,6 +98,8 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
+    <Compile Include="Models\Attributes\PackageDomainValidationAttribute.cs" />
+    <Compile Include="Models\Attributes\AreaValidationAttribute.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
