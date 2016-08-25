@@ -26,6 +26,8 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 
+            Manager.AddOnManager.AddAddOnGlobal("ckeditor.com", "ckeditor");
+
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: true, Validation: false);
 
