@@ -517,8 +517,11 @@ namespace YetaWF.Core.Addons {
                     RegisterGlobalAddons(package, folder);
                 } else if (string.Compare(directoryName, "_SiteTemplates", true) == 0) {
                     CopySiteTemplates(folder);
-                } else
+                } else if (directoryName.StartsWith("_")) {
+                    // reserved for future use and 3rd party
+                } else {
                     throw new InternalError("Unexpected folder {0} in {1}", directoryName, folder);
+                }
             }
         }
 

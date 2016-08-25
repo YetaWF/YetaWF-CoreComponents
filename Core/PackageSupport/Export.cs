@@ -18,6 +18,7 @@ namespace YetaWF.Core.Packages {
         public const string PackageIDDataFile = "PackageData.txt";
         public const string PackageContentsFile = "Contents.xml";
         public static string[] ExcludedFilesAddons = new string[] { };
+        public static string[] ExcludedFoldersAddons = new string[] { "_License" };
         public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", };
         public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb" };
 
@@ -49,7 +50,7 @@ namespace YetaWF.Core.Packages {
             if (!SourceCode) {
                 // Addons
                 if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
-                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons));
+                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersAddons));
                     foreach (var file in serPackage.AddOns) {
                         ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                         ze.FileName = file.FileName;
