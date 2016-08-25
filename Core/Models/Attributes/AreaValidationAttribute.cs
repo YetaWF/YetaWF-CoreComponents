@@ -12,7 +12,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public AreaValidationAttribute() : base(@"^\s*[a-z0-9]{1,50}_[a-z0-9]{1,50}\s*$") {
+        public AreaValidationAttribute() : base(@"^\s*[a-zA-Z0-9]{1,50}_[a-zA-Z0-9]{1,50}\s*$") {
             ErrorMessage = __ResStr("valArea", "The area specified is invalid - Please use only letters and numbers in the format domain_product");
         }
 

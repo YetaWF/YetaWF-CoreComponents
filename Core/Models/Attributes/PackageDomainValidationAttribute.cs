@@ -12,7 +12,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public PackageDomainValidationAttribute() : base(@"^\s*[a-z0-9]{1,50}\s*$") {
+        public PackageDomainValidationAttribute() : base(@"^\s*[a-zA-Z0-9]{1,50}\s*$") {
             ErrorMessage = __ResStr("valPkgDomain", "The domain specified is invalid - Please use only letters and numbers");
         }
 
