@@ -49,7 +49,7 @@ namespace YetaWF.Core.Packages {
         /// for new packages and packages whose version has been updated.
         ///
         /// For example, if package YetaWF.Text in the package map specifies version 1.0.1, but during the next YetaWF restart, version 1.0.2 is detected,
-        /// models for the the YetaWF.Text package are updated and the Site Template YetaWF_Text.1.0.2.txt is executed
+        /// models for the YetaWF.Text package are updated and the Site Template YetaWF_Text.1.0.2.txt is executed
         /// (dots (.) are replaced by underscores (_) in package names, followed by .{i}version{/i}.txt to determine the Site Template name).
         ///
         /// A log file recording all upgrade activity is saved at .\Website\Data\UpgradeLogFile.txt
