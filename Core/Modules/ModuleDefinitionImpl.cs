@@ -481,11 +481,11 @@ namespace YetaWF.Core.Modules {
         private List<ModuleAction> _moduleActions;
 
         /// <summary>
-        /// Retrieve a known module action with parameters - typically used when the module type is not instantiated
+        /// Retrieve a known module action with parameters.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="parms"></param>
-        /// <returns></returns>
+        /// <param name="name">The name of the action.</param>
+        /// <param name="parms">Parameters (action dependent).</param>
+        /// <returns>An action. May be null if not authorized.</returns>
         public ModuleAction GetModuleAction(string name, params object[] parms) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new InternalError("Missing action name");
@@ -498,6 +498,29 @@ namespace YetaWF.Core.Modules {
             if (string.IsNullOrWhiteSpace(action.Url))
                 action.Url = "/" + AreaName + "/" + Controller + "/" + name;
             return action;
+        }
+
+        /// <summary>
+        /// Retrieve a known module action with parameters.
+        /// </summary>
+        /// <param name="name">The name of the action.</param>
+        /// <param name="parms">Parameters (action dependent).</param>
+        /// <returns>A list of actions.</returns>
+        /// <returns>An action. May be null if not authorized.</returns>
+        public List<ModuleAction> GetModuleActions(string name, params object[] parms) {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new InternalError("Missing action name");
+            MethodInfo mi = GetType().GetMethod("GetAction_" + name);
+            if (mi == null)
+                throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
+            List<ModuleAction> actions = (List<ModuleAction>)mi.Invoke(this, parms);
+            if (actions == null)
+                return null;
+            foreach (ModuleAction action in actions) {
+                if (string.IsNullOrWhiteSpace(action.Url))
+                    action.Url = "/" + AreaName + "/" + Controller + "/" + name;
+            }
+            return actions;
         }
 
         /// <summary>
