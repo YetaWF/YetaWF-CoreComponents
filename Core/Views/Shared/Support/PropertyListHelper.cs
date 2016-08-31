@@ -340,7 +340,7 @@ namespace YetaWF.Core.Views.Shared {
                     hb.Append(htmlHelper.ValidationMessage(property.Name));
                     hb.Append("</div>");
                 } else {
-                    hb.Append("<div class='t_vals'>");
+                    hb.Append("<div class='t_vals t_val'>");
                     hb.Append(shtmlDisp);
                     hb.Append("</div>");
                 }
