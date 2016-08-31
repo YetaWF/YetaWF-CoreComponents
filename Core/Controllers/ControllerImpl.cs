@@ -921,8 +921,10 @@ namespace YetaWF.Core.Controllers {
                                 sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
                             break;
                         case OnCloseEnum.UpdateInPlace:
-                            if (!string.IsNullOrWhiteSpace(popupText))
+                            if (!isApply && !string.IsNullOrWhiteSpace(popupText)) {
                                 sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
+                                OnApply = OnApplyEnum.ReloadModule;
+                            }
                             isApply = true;
                             break;
                         case OnCloseEnum.Return:
