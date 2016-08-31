@@ -98,7 +98,7 @@ namespace YetaWF.Core.Models.Attributes {
             return base.IsValid(value);
         }
         public SiteDomainValidationAttribute()
-            : base(@"^\s*[A-Za-z0-9][A-Za-z0-9\.\-]*[A-Za-z0-9]\s*$") {
+            : base(@"^\s*[A-Za-z0-9][A-Za-z0-9\.\-]*\.[A-Za-z0-9]+\s*$") {
             ErrorMessage = __ResStr("errInvSite", "The site's domain name is invalid - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - .");
         }
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
