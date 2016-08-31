@@ -272,7 +272,7 @@ namespace YetaWF.Core.Modules {
                 }
 
                 RouteValueDictionary rvd = YetaWFManager.AnonymousObjectToRVD(QueryArgs);
-                if (NeedsModuleContext)
+                if (NeedsModuleContext) //TODO: Url may already contain Basics.ModuleGuid
                     rvd.Add(Basics.ModuleGuid, GetOwningModuleGuid());
                 foreach (var entry in rvd)
                     qs += string.Format("&{0}={1}", YetaWFManager.UrlEncodeArgs(entry.Key), entry.Value != null ? YetaWFManager.UrlEncodeArgs(entry.Value.ToString()) : "");
