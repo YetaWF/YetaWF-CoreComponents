@@ -164,13 +164,15 @@ namespace YetaWF.Core.PackageSupport {
             public byte[] PathBuffer;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool DeviceIoControl(IntPtr hDevice, uint dwIoControlCode,
             IntPtr InBuffer, int nInBufferSize,
             IntPtr OutBuffer, int nOutBufferSize,
             out int pBytesReturned, IntPtr lpOverlapped);
 
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern IntPtr CreateFile(
             string lpFileName,
             EFileAccess dwDesiredAccess,
@@ -234,14 +236,15 @@ namespace YetaWF.Core.PackageSupport {
             }
         }
         private static SafeFileHandle OpenReparsePoint(string reparsePoint, EFileAccess accessMode) {
-            SafeFileHandle reparsePointHandle = new SafeFileHandle(CreateFile(reparsePoint, accessMode,
+
+            IntPtr f = CreateFile(reparsePoint, accessMode,
                 EFileShare.Read | EFileShare.Write | EFileShare.Delete,
                 IntPtr.Zero, ECreationDisposition.OpenExisting,
-                EFileAttributes.BackupSemantics | EFileAttributes.OpenReparsePoint, IntPtr.Zero), true);
-
+                EFileAttributes.BackupSemantics | EFileAttributes.OpenReparsePoint, IntPtr.Zero);
             if (Marshal.GetLastWin32Error() != 0)
                 throw new InternalError("Unable to open reparse point - {0}", Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message);
-            return reparsePointHandle;
+
+            return new SafeFileHandle(f, true);
         }
     }
 }

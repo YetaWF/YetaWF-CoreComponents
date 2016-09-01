@@ -731,6 +731,7 @@ namespace YetaWF.Core.Modules {
         /// Returns configuration data if the module is a configuration module.
         /// </summary>
         /// <remarks>This is typically used for variable substitution.</remarks>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public object ConfigData {
             get {
                 DataProviderImpl dataProvider = GetConfigDataProvider();
