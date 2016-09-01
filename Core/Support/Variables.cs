@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -22,6 +21,7 @@ namespace YetaWF.Core.Support {
             Parameters = parms;
             DoubleEscape = false;
             CurlyBraces = true;
+            EncodeDefault = true;
         }
         protected YetaWFManager Manager { get; private set; }
         public object Parameters { get; private set; }
@@ -34,6 +34,10 @@ namespace YetaWF.Core.Support {
         /// Replace {{ }} or { } in addition to [[ ]] or [ ]
         /// </summary>
         public bool CurlyBraces { get; set; }
+        /// <summary>
+        /// Defines whether encoding is used by default.
+        /// </summary>
+        public bool EncodeDefault { get; set; }
 
         public string ReplaceVariables(string text) {
             if (string.IsNullOrWhiteSpace(text)) return "";
@@ -138,7 +142,7 @@ namespace YetaWF.Core.Support {
         private static Regex _varReModuleDoubleEscapeCB = null;
 
         private string VarSubst(Match m) {
-            bool encode = true;
+            bool encode = EncodeDefault;
             string retString = m.Value;
             try {
                 string neg = m.Groups["neg"].Value.Trim();
@@ -147,7 +151,10 @@ namespace YetaWF.Core.Support {
                 string var = m.Groups["var"].Value.Trim();
                 string subvar = m.Groups["subvar"].Value.Trim();
                 string ret;
-                if (var.StartsWith("-")) {
+                if (var.StartsWith("+")) {
+                    var = var.Substring(1).Trim();
+                    encode = true;
+                } else if (var.StartsWith("-")) {
                     var = var.Substring(1).Trim();
                     encode = false;
                 }
@@ -157,52 +164,54 @@ namespace YetaWF.Core.Support {
                         if (EvalObjectVariable(Parameters, var, subvar, out ret))
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
                     }
-                } else if (loc == "ThisPage") {
-                    if (Manager.CurrentPage != null) {
-                        if (EvalObjectVariable(Manager.CurrentPage, var, subvar, out ret))
+                } else if (Manager != null) {
+                    if (loc == "ThisPage") {
+                        if (Manager.CurrentPage != null) {
+                            if (EvalObjectVariable(Manager.CurrentPage, var, subvar, out ret))
+                                return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                        }
+                    } else if (loc == "Site") {
+                        if (EvalSiteVariable(var, subvar, out ret))
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                    }
-                } else if (loc == "Site") {
-                    if (EvalSiteVariable(var, subvar, out ret))
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                } else if (loc == "PageOrSite") {
-                    if (Manager.CurrentPage != null && EvalObjectVariable(Manager.CurrentPage, var, subvar, out ret)) {
-                        if (!string.IsNullOrWhiteSpace(ret))
+                    } else if (loc == "PageOrSite") {
+                        if (Manager.CurrentPage != null && EvalObjectVariable(Manager.CurrentPage, var, subvar, out ret)) {
+                            if (!string.IsNullOrWhiteSpace(ret))
+                                return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                        }
+                        if (EvalSiteVariable(var, subvar, out ret))
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                    }
-                    if (EvalSiteVariable(var, subvar, out ret))
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                } else if (loc == "Manager") {
-                    if (EvalManagerVariable(var, subvar, out ret))
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                } else if (loc == "Globals") {
-                    if (EvalGlobalsVariable(var, subvar, out ret))
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                } else if (loc == "HttpRequest") {
-                    if (EvalObjectVariable(Manager.CurrentRequest, var, subvar, out ret))
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                } else if (loc == "QueryString" || loc == "QS") {
-                    if (!string.IsNullOrWhiteSpace(var)) {
-                        ret = Manager.RequestParams[var];
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
-                    }
-                } else if (loc == "Session") {
-                    if (!string.IsNullOrWhiteSpace(var)) {
-                        if (Manager.SessionSettings.SiteSettings.ContainsKey(var)) {
-                            ret = Manager.SessionSettings.SiteSettings.GetValue<string>(var);
+                    } else if (loc == "Manager") {
+                        if (EvalManagerVariable(var, subvar, out ret))
+                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                    } else if (loc == "Globals") {
+                        if (EvalGlobalsVariable(var, subvar, out ret))
+                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                    } else if (loc == "HttpRequest") {
+                        if (EvalObjectVariable(Manager.CurrentRequest, var, subvar, out ret))
+                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                    } else if (loc == "QueryString" || loc == "QS") {
+                        if (!string.IsNullOrWhiteSpace(var)) {
+                            ret = Manager.RequestParams[var];
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
                         }
-                    }
-                } else if (loc.StartsWith("Unique-")) {
-                    // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
-                    string fullName = loc.Substring("Unique-".Length);
-                    Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
-                    if (modType != null) {
-                        ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModule(modType);
-                        if (dataMod != null) {
-                            if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
-                                if (!string.IsNullOrWhiteSpace(ret))
-                                    return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                    } else if (loc == "Session") {
+                        if (!string.IsNullOrWhiteSpace(var)) {
+                            if (Manager.SessionSettings.SiteSettings.ContainsKey(var)) {
+                                ret = Manager.SessionSettings.SiteSettings.GetValue<string>(var);
+                                return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            }
+                        }
+                    } else if (loc.StartsWith("Unique-")) {
+                        // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
+                        string fullName = loc.Substring("Unique-".Length);
+                        Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
+                        if (modType != null) {
+                            ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModule(modType);
+                            if (dataMod != null) {
+                                if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
+                                    if (!string.IsNullOrWhiteSpace(ret))
+                                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                                }
                             }
                         }
                     }
@@ -262,22 +271,45 @@ namespace YetaWF.Core.Support {
         }
         private bool GetVariableValue(object mod, string var, string subvar, out string retString) {
             retString = "";
+            if (mod == null) return false;
             Type tp = mod.GetType();
+            // try using reflection
             PropertyInfo pi = ObjectSupport.TryGetProperty(tp, var);
-            if (pi == null) return false;
-            object val = pi.GetValue(mod, null);
-            if (!string.IsNullOrWhiteSpace(subvar))
-                return GetVariableValue(val, subvar, null, out retString);
-            if (val == null)
+            if (pi != null) {
+                object val = pi.GetValue(mod, null);
+                if (!string.IsNullOrWhiteSpace(subvar))
+                    return GetVariableValue(val, subvar, null, out retString);
+                if (val == null)
+                    return true;
+                // convert to a string
+                try {
+                    TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
+                    retString = conv.ConvertToString(val);
+                } catch {
+                    retString = val.ToString();
+                }
                 return true;
-            // convert to a string
-            try {
-                TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
-                retString = conv.ConvertToString(val);
-            } catch {
-                retString = val.ToString();
             }
-            return true;
+            // try as IDictionary<string, object>
+            IDictionary<string, object> dict = mod as IDictionary<string, object>;
+            if (dict != null) {
+                object val;
+                if (dict.TryGetValue(var, out val)) {
+                    if (!string.IsNullOrWhiteSpace(subvar))
+                        return GetVariableValue(val, subvar, null, out retString);
+                    if (val == null)
+                        return true;
+                    // convert to a string
+                    try {
+                        TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
+                        retString = conv.ConvertToString(val);
+                    } catch {
+                        retString = val.ToString();
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
         private bool EvalGlobalsVariable(string var, string subvar, out string retString) {
             retString = "";
