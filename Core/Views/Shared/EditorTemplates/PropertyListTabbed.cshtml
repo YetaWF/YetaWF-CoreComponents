@@ -1,3 +1,14 @@
 ﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.PropertyListTabbed<object>
-@Html.RenderPropertyListTabbed("", Model)
+@{ Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript */ }
+@Html.RenderPropertyListTabbed("", Model, DivId)
+@{
+    string script = Html.GetControlSets(Model, DivId);
+}
+@if (!string.IsNullOrWhiteSpace(script)) {
+    <script>
+        @using (DocumentReady()) {
+            @: YetaWF_PropertyList.init('@DivId', @Html.Raw(script), @(Manager.InPartialView ? 1 : 0));
+        }
+    </script>
+}

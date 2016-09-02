@@ -20,11 +20,12 @@ namespace YetaWF.Core.Views.Shared {
 
     public class PropertyListEntry {
 
-        public PropertyListEntry(string name, object value, string uiHint, bool editable, bool restricted, string textAbove, string textBelow, bool suppressEmpty, SubmitFormOnChangeAttribute.SubmitTypeEnum submit) {
+        public PropertyListEntry(string name, object value, string uiHint, bool editable, bool restricted, string textAbove, string textBelow, bool suppressEmpty, ProcessIfAttribute procIfAttr, SubmitFormOnChangeAttribute.SubmitTypeEnum submit) {
             Name = name; Value = value; Editable = editable;
             Restricted = restricted;
             TextAbove = textAbove; TextBelow = textBelow;
             UIHint = uiHint;
+            ProcIfAttr = procIfAttr;
             SuppressEmpty = suppressEmpty;
             SubmitType = submit;
         }
@@ -37,6 +38,7 @@ namespace YetaWF.Core.Views.Shared {
         public string UIHint { get; private set; }
         public bool SuppressEmpty { get; private set; }
         public SubmitFormOnChangeAttribute.SubmitTypeEnum SubmitType { get; private set; }
+        public ProcessIfAttribute ProcIfAttr { get; set; }
     };
 
     public interface IPropertyListSupport {
@@ -185,6 +187,9 @@ namespace YetaWF.Core.Views.Shared {
                 SubmitFormOnChangeAttribute submitFormOnChangeAttr = null;
                 submitFormOnChangeAttr = prop.TryGetAttribute<SubmitFormOnChangeAttribute>();
 
+                ProcessIfAttribute procIfAttr = null;
+                procIfAttr = prop.TryGetAttribute<ProcessIfAttribute>();
+
                 bool restricted = false;
                 if (Manager.IsDemo) {
                     ExcludeDemoModeAttribute exclDemoAttr = prop.TryGetAttribute<ExcludeDemoModeAttribute>();
@@ -192,9 +197,9 @@ namespace YetaWF.Core.Views.Shared {
                         restricted = true;
                 }
                 if (GridUsage)
-                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, restricted, null, null, suppressEmptyAttr != null, submitFormOnChangeAttr != null? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, restricted, null, null, suppressEmptyAttr != null, null, submitFormOnChangeAttr != null? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
                 else
-                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, restricted, prop.TextAbove, prop.TextBelow, suppressEmptyAttr != null, submitFormOnChangeAttr != null ? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                    properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), prop.UIHint, editable, restricted, prop.TextAbove, prop.TextBelow, suppressEmptyAttr != null, procIfAttr, submitFormOnChangeAttr != null ? submitFormOnChangeAttr.Value : SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
             }
             if (Sorted)
                 return (from p in properties orderby p.Name ascending select p).ToList<PropertyListEntry>();
@@ -226,15 +231,15 @@ namespace YetaWF.Core.Views.Shared {
                 if (!prop.PropInfo.CanRead) continue;
                 if (prop.UIHint != "Hidden")
                     continue;
-                properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), "Hidden", false, false, null, null, false, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
+                properties.Add(new PropertyListEntry(prop.Name, prop.GetPropertyValue<object>(obj), "Hidden", false, false, null, null, false, null, SubmitFormOnChangeAttribute.SubmitTypeEnum.None));
             }
             return properties;
         }
 
         public static MvcHtmlString RenderPropertyListDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
-            return htmlHelper.RenderPropertyList(name, model, ReadOnly: true);
+            return htmlHelper.RenderPropertyList(name, model, null, ReadOnly: true);
         }
-        public static MvcHtmlString RenderPropertyList(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static MvcHtmlString RenderPropertyList(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
             ClassData classData = ObjectSupport.GetClassData(modelType);
@@ -245,7 +250,8 @@ namespace YetaWF.Core.Views.Shared {
 
             // property table
             HtmlBuilder hbProps = new HtmlBuilder();
-            hbProps.Append("<div class='yt_propertylist t_table t_edit'>");
+            string divId = string.IsNullOrWhiteSpace(id) ? Manager.UniqueId() : id;
+            hbProps.Append("<div id='{0}' class='yt_propertylist t_table t_edit'>", divId);
             hbProps.Append(RenderList(htmlHelper, model, null, showVariables, ReadOnly));
             hbProps.Append("</div>");
 
@@ -286,6 +292,7 @@ namespace YetaWF.Core.Views.Shared {
             bool focusSet = Manager.WantFocus ? false : true;
             List<PropertyListEntry> properties = PropertyListSupport.GetPropertiesByCategory(model, category);
             HtmlBuilder hb = new HtmlBuilder();
+            ScriptBuilder sb = new ScriptBuilder();
 
             foreach (PropertyListEntry property in properties) {
                 bool labelDone = false;
@@ -357,6 +364,48 @@ namespace YetaWF.Core.Views.Shared {
             }
             return hb.ToMvcHtmlString();
         }
+        /// <summary>
+        /// Generate the control sets based on a model's ProcessIf attributes.
+        /// </summary>
+        /// <param name="htmlHelper">HtmlHelper object.</param>
+        /// <param name="model">The model for which the control set is generated.</param>
+        /// <param name="id">The HTML id of the property list.</param>
+        /// <returns>The data used client-side to show/hide properties and to enable/disable validation.</returns>
+        public static string GetControlSets(this HtmlHelper<object> htmlHelper, object model, string id) {
+
+            List<PropertyListEntry> properties = PropertyListSupport.GetPropertiesByCategory(model, null);
+            ScriptBuilder sb = new ScriptBuilder();
+            List<string> selectionControls = new List<string>();
+
+            sb.Append("{");
+            sb.Append("'Id':{0},", YetaWFManager.Jser.Serialize(id));
+            sb.Append("'Dependents':[");
+            foreach (PropertyListEntry property in properties) {
+                if (property.ProcIfAttr != null) {
+                    if (!selectionControls.Contains(property.ProcIfAttr.Name))
+                        selectionControls.Add(property.ProcIfAttr.Name);
+                    sb.Append("{");
+                    sb.Append("'Prop':{0},'ControlProp':{1},'Disable':{2},'Values':[",
+                        YetaWFManager.Jser.Serialize(property.Name), YetaWFManager.Jser.Serialize(property.ProcIfAttr.Name), property.ProcIfAttr.Disable ? 1 : 0);
+                    foreach (object obj in property.ProcIfAttr.Objects) {
+                        int i = Convert.ToInt32(obj);
+                        sb.Append("{0},", i);
+                    }
+                    sb.Append("]},");
+                }
+            }
+            sb.Append("],");
+
+            if (selectionControls.Count == 0) return null;
+
+            sb.Append("'Controls':[");
+            foreach (string selectionControl in selectionControls) {
+                sb.Append("{0},", YetaWFManager.Jser.Serialize(selectionControl));
+            }
+            sb.Append("],");
+            sb.Append("}");
+            return sb.ToString();
+        }
 
         private static MvcHtmlString RenderHidden(HtmlHelper<object> htmlHelper, object model)
         {
@@ -368,14 +417,14 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToMvcHtmlString();
         }
         public static MvcHtmlString RenderPropertyListTabbedDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
-            return htmlHelper.RenderPropertyListTabbed(name, model, ReadOnly: true);
+            return htmlHelper.RenderPropertyListTabbed(name, model, null, ReadOnly: true);
         }
-        public static MvcHtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static MvcHtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 
             List<string> categories = PropertyListSupport.GetCategories(model);
             if (categories.Count == 0) throw new InternalError("Unsupported model in PropertyListTabbed template - No categories defined");
             if (categories.Count == 1) // if there is only one tab, show as regular property list
-                return RenderPropertyList(htmlHelper, name, model, ReadOnly: ReadOnly);
+                return RenderPropertyList(htmlHelper, name, model, id, ReadOnly: ReadOnly);
 
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
@@ -383,7 +432,7 @@ namespace YetaWF.Core.Views.Shared {
             ClassData classData = ObjectSupport.GetClassData(modelType);
             RenderHeader(hb, classData);
 
-            string divId = Manager.UniqueId();
+            string divId = string.IsNullOrWhiteSpace(id) ? Manager.UniqueId() : id;
             hb.Append("<div id='{0}' class='yt_propertylisttabbed t_edit'>", divId);
 
             hb.Append(RenderHidden(htmlHelper, model));
@@ -483,6 +532,16 @@ namespace YetaWF.Core.Views.Shared {
                             ModelState.Remove(prefix + prop.Name);
                             continue;
                         }
+                    }
+                }
+                {
+                    ProcessIfAttribute procIf = prop.TryGetAttribute<ProcessIfAttribute>();
+                    if (procIf != null) {
+                        if (procIf.Processing(model))
+                            continue; // we're processing this
+                        // we're not processing this
+                        ModelState.Remove(prefix + prop.Name);
+                        continue;
                     }
                 }
             }

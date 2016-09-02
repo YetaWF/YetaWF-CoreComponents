@@ -8,6 +8,7 @@
 // REQUIRED
 
 $.validator.addMethod('customrequired', function (value, element, parameters) {
+    if ($(element).parents('.yNoValidate').length > 0) return true;
     if (value == undefined || value == null || value.trim().length == 0) return false;
     return true;
 });
@@ -22,6 +23,7 @@ $.validator.unobtrusive.adapters.add('customrequired', [YConfigs.Forms.Condition
 // SELECTIONREQUIRED
 
 $.validator.addMethod('selectionrequired', function (value, element, parameters) {
+    if ($(element).parents('.yNoValidate').length > 0) return true;
     if (value == undefined || value == null || value.trim().length == 0 || value.trim() == "0") return false;
     return true;
 });
@@ -36,6 +38,8 @@ $.validator.unobtrusive.adapters.add('selectionrequired', [YConfigs.Forms.Condit
 // REQUIREDIF
 
 $.validator.addMethod('requiredif', function (value, element, parameters) {
+
+    if ($(element).parents('.yNoValidate').length > 0) return true;
 
     // get the target value (as a string)
     var conditionvalue = parameters['targetvalue'];
@@ -77,7 +81,7 @@ $.validator.addMethod('requiredif', function (value, element, parameters) {
         throw "Unsupported tag " + tag;/*DEBUG*/
     }
 
-    // if the condition is true, reuse the existing 
+    // if the condition is true, reuse the existing
     // required field validator functionality
     if (conditionvalue === actualvalue)
         return $.validator.methods.required.call(this, value, element, parameters);
@@ -98,7 +102,9 @@ $.validator.unobtrusive.adapters.add('requiredif', [YConfigs.Forms.ConditionProp
 
 $.validator.addMethod('requiredifnot', function (value, element, parameters) {
 
-    // get the target value (as a string, 
+    if ($(element).parents('.yNoValidate').length > 0) return true;
+
+    // get the target value (as a string,
     // as that's what the actual value will be)
     var conditionvalue = parameters['targetvalue'];
     conditionvalue = (conditionvalue == null ? '' : conditionvalue).toString();
@@ -133,7 +139,7 @@ $.validator.addMethod('requiredifnot', function (value, element, parameters) {
     } else {
         throw "Unsupported tag " + ctrl.tagName;/*DEBUG*/
     }
-    // if the condition is false, reuse the existing 
+    // if the condition is false, reuse the existing
     // required field validator functionality
     if (conditionvalue !== actualvalue)
         return $.validator.methods.required.call(this, value, element, parameters);
@@ -153,6 +159,8 @@ $.validator.unobtrusive.adapters.add('requiredifnot', [YConfigs.Forms.ConditionP
 // REQUIREDIFINRANGE
 
 $.validator.addMethod('requiredifinrange', function (value, element, parameters) {
+
+    if ($(element).parents('.yNoValidate').length > 0) return true;
 
     // get the target value (as a int as that's what the actual value will be)
     var conditionvaluelow = parseInt(parameters['targetvaluelow'], 10);
@@ -179,7 +187,7 @@ $.validator.addMethod('requiredifinrange', function (value, element, parameters)
     } else {
         throw "Unsupported tag " + ctrl.tagName;/*DEBUG*/
     }
-    // if the condition is false, reuse the existing 
+    // if the condition is false, reuse the existing
     // required field validator functionality
     if (actualvalue >= conditionvaluelow && actualvalue <= conditionvaluehigh)
         return $.validator.methods.required.call(this, value, element, parameters);
@@ -201,6 +209,8 @@ $.validator.unobtrusive.adapters.add('requiredifinrange', [YConfigs.Forms.Condit
 
 $.validator.addMethod('requiredifsupplied', function (value, element, parameters) {
 
+    if ($(element).parents('.yNoValidate').length > 0) return true;
+
     // Get value of the target control - we can't use its Id because it could be non-unique, not predictable
     // use the name attribute instead
     // first, find the enclosing form
@@ -221,7 +231,7 @@ $.validator.addMethod('requiredifsupplied', function (value, element, parameters
     } else {
         throw "Unsupported tag " + ctrl.tagName;/*DEBUG*/
     }
-    // if the dependent property is supplied, reuse the existing 
+    // if the dependent property is supplied, reuse the existing
     // required field validator functionality
     if (actualValue != undefined && actualValue != "")
         return $.validator.methods.required.call(this, value, element, parameters);
@@ -240,6 +250,8 @@ $.validator.unobtrusive.adapters.add('requiredifsupplied', [YConfigs.Forms.Condi
 // SAMEAS
 
 $.validator.addMethod('sameas', function (value, element, parameters) {
+
+    if ($(element).parents('.yNoValidate').length > 0) return true;
 
     // Get value of the target control - we can't use its Id because it could be non-unique, not predictable
     // use the name attribute instead
@@ -260,7 +272,7 @@ $.validator.addMethod('sameas', function (value, element, parameters) {
     } else {
         throw "Unsupported tag " + ctrl.tagName;/*DEBUG*/
     }
-    // if the condition is true, reuse the existing 
+    // if the condition is true, reuse the existing
     // required field validator functionality
     if (value === actualvalue)
         return $.validator.methods.required.call(this, value, element, parameters);

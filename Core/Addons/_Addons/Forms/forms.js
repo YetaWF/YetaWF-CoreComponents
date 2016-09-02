@@ -7,7 +7,7 @@
 
 // Make sure all hidden fields are NOT ignored
 $.validator.setDefaults({
-    ignore: '', // don't ignore hidden fields
+    ignore: '.yNoValidate', // don't ignore hidden fields - ignore fields with .yNoValidate class
 });
 
 var YetaWF_Forms = {};
@@ -181,11 +181,12 @@ YetaWF_Forms.serializeForm = function ($form) {
 YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, failFunc) {
 
     var form = $form.get(0);
-    if (useValidation)
-        $form.validate();
 
     var onSubmitExtraData = extraData == undefined ? "" : extraData;
     onSubmitExtraData = _YetaWF_Forms.callPreSubmitHandler($form, onSubmitExtraData);
+
+    if (useValidation)
+        $form.validate();
 
     if (!useValidation || $form.valid()) {
 
