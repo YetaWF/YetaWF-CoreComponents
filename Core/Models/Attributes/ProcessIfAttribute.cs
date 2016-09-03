@@ -9,7 +9,7 @@ namespace YetaWF.Core.Models.Attributes {
     /// </summary>
     /// <remarks>Used to show/hide properties in a property list, dependent on a property's enum value (typically a dropdown list).
     ///
-    /// This is used both client-side and server side to determine conditional property processing/validation.</remarks>
+    /// This is used both client-side and server-side to determine conditional property processing/validation.</remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class ProcessIfAttribute : Attribute {
 
@@ -37,9 +37,10 @@ namespace YetaWF.Core.Models.Attributes {
         /// If the other property doesn't have any of these values, this property is not processed/validated.</param>
         /// <remarks>This is typically used in with an enum as the other property, with the specified Name.
         /// Enums are rendered as dropdown lists. When the other property's value changes (i.e., the dropdown list is changed)
-        /// all properties decorated with a matching ProcessIf attribute will be shown/hidden (client side), depending on whether
-        /// the enum property (the "other" property) has a value that is defined in the ProcessIf parms argument.
-        /// Any hidden properties are not validated client and server side.
+        /// all properties decorated with a matching ProcessIf attribute will be shown/hidden (client-side), depending on whether
+        /// the enum property (the "other" property) has one of the values that are defined in the ProcessIf parms argument.
+        ///
+        /// Any hidden properties are not validated client-side and server-side.
         ///
         /// The ProcessIf attribute supports simple and complex properties.
         ///
@@ -47,18 +48,18 @@ namespace YetaWF.Core.Models.Attributes {
         /// </remarks>
         public ProcessIfAttribute(string name, params object[] parms) {
             Name = name;
-            Objects = parms;
+            Objects = parms ?? new object[] { null };
         }
         /// <summary>
         /// Returns whether processing/validation is required for the property decorated with this attribute.
         /// </summary>
         /// <param name="model">The model containing the property decorated with this attribute.</param>
-        /// <returns></returns>
+        /// <returns>true if processing/validation is required, false otherwise.</returns>
         public bool Processing(object model) {
             //TODO: This could be expanded to support other types, notably strings - don't have a use case yet
             int currVal = Convert.ToInt32(GetDependentPropertyValue(model));
             foreach (object obj in Objects) {
-                if (currVal == Convert.ToInt32(obj))
+                if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) as "other" property
                     return true; // we're processing this
             }
             return false;
