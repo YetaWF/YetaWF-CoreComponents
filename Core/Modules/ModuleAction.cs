@@ -245,7 +245,7 @@ namespace YetaWF.Core.Modules {
         public string ImageUrlFinal { get; set; }
 
         public string GetImageUrlFinal() {
-            if (ImageUrlFinal.StartsWith("#")) {
+            if (ImageUrlFinal != null && ImageUrlFinal.StartsWith("#")) {
                 SkinImages skinImages = new SkinImages();
                 return skinImages.FindIcon_Package(ImageUrlFinal, null);
             } else
