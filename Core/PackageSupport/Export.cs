@@ -18,8 +18,9 @@ namespace YetaWF.Core.Packages {
         public const string PackageIDDataFile = "PackageData.txt";
         public const string PackageContentsFile = "Contents.xml";
         public static string[] ExcludedFilesAddons = new string[] { };
-        public static string[] ExcludedFoldersAddons = new string[] { "_License" };
-        public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", };
+        public static string[] ExcludedFoldersNoSource = new string[] { "_License" };
+        public static string[] ExcludedFilesNoSource = new string[] { ".csproj.user", ".pdb", };
+        public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", "_License" };
         public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb" };
 
         public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.Xml;
@@ -50,7 +51,7 @@ namespace YetaWF.Core.Packages {
             if (!SourceCode) {
                 // Addons
                 if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
-                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersAddons));
+                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource));
                     foreach (var file in serPackage.AddOns) {
                         ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                         ze.FileName = file.FileName;
@@ -66,8 +67,7 @@ namespace YetaWF.Core.Packages {
             }
             // Source code
             if (SourceCode) {
-                string[] excludedFoldersSource = new string[] { "obj", "bin" };
-                serPackage.SourceFiles.AddRange(ProcessAllFiles(PackageSourceRoot, ExcludedFilesSource, excludedFoldersSource, ExternalRoot: PackageSourceRoot));
+                serPackage.SourceFiles.AddRange(ProcessAllFiles(PackageSourceRoot, ExcludedFilesNoSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
                 foreach (var file in serPackage.SourceFiles) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                     ze.FileName = file.FileName;
