@@ -38,14 +38,14 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
         });
     }
     // Handle change events
-    controlData.Controls.forEach(function(item, index) {
-        $('#{0} select[name="{1}"]'.format(divId, item)).on("change", function () {
+    controlData.Controls.forEach(function (item, index) {
+        $('.t_row.t_{0} select[name="{1}"]'.format(item.toLowerCase(), item), $div).on("change", function () {
             change($(this));
         });
     });
     // Initialize initial form
     controlData.Controls.forEach(function (item, index) {
-        change($('#{0} select[name="{1}"]'.format(divId, item)));
+        change($('.t_row.t_{0} select[name="{1}"]'.format(item.toLowerCase(), item)), $div);
     });
 
     // add a form presubmit handler so we can mark all hidden properties as not to be evaluated
