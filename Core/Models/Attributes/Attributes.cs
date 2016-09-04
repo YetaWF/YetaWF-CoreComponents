@@ -1,6 +1,8 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Web.Mvc;
 using YetaWF.Core.Addons;
@@ -115,10 +117,31 @@ namespace YetaWF.Core.Models.Attributes {
     public class ReadOnlyAttribute : MoreMetadataAttribute {
         public ReadOnlyAttribute() : base("ReadOnly", true) { }
     }
+    /// <summary>
+    /// Used with tabbed property lists to identify with which tab(s) the property is associated.
+    /// </summary>
+    /// <remarks>When specifying multiple categories, the property will appear on each tab listed.
+    /// Multiple categories should only be used with read/only properties, otherwise fields with identical names are generated multiple times.
+    /// This attribute does not test for duplicate categories or whether only read/only fields are used when specifying multiple categories.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class CategoryAttribute : MoreMetadataAttribute {
-        public CategoryAttribute(string category) : base("Category", category) { }
-        public new string Value { get { return (string)base.Value; } }
+    public class CategoryAttribute : Attribute {
+        public List<string> Categories { get; private set; }
+        public CategoryAttribute(params string[] categories) {
+            if (categories != null)
+                Categories = categories.ToList();
+            else
+                Categories = new List<string>();
+        }
+        /// <summary>
+        /// Tests whether a category is included in the list of specified categories.
+        /// </summary>
+        /// <param name="category">The category to test.</param>
+        /// <returns>true if the category is included in the list of specified categories, false otherwise.</returns>
+        public bool ContainsCategory(string category) {
+            if (string.IsNullOrWhiteSpace(category)) return false;
+            return Categories.Contains(category);
+        }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class DescriptionAttribute : MoreMetadataAttribute {

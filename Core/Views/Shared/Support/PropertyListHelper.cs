@@ -121,13 +121,16 @@ namespace YetaWF.Core.Views.Shared {
             // otherwise use default implementation to get the categories
 
             // get all properties that are shown
-            var props = GetProperties(obj.GetType());
+            List<PropertyData> props = GetProperties(obj.GetType()).ToList();
 
             // get the list of categories
-            List<string> categories = (from property in props
-                        let categoryAttribute = property.TryGetAttribute<CategoryAttribute>()
-                        where categoryAttribute != null
-                        select categoryAttribute.Value).Distinct().ToList();
+            List<string> categories = new List<string>();
+            foreach (PropertyData prop in props) {
+                CategoryAttribute categoryAttribute = prop.TryGetAttribute<CategoryAttribute>();
+                if (categoryAttribute != null)
+                    categories.AddRange(categoryAttribute.Categories);
+            }
+            categories = categories.Distinct().ToList();
 
             // order (if there is a CategoryOrder property)
             PropertyInfo piCat = ObjectSupport.TryGetProperty(obj.GetType(), "CategoryOrder");
@@ -161,11 +164,9 @@ namespace YetaWF.Core.Views.Shared {
             Type objType = obj.GetType();
             var props = GetProperties(objType, GridUsage: GridUsage);
             foreach (var prop in props) {
-                if (category != null) {
-                    CategoryAttribute cat = prop.TryGetAttribute<CategoryAttribute>();
-                    if (cat == null || cat.Value != category)
-                        continue;
-                }
+                CategoryAttribute cat = prop.TryGetAttribute<CategoryAttribute>();
+                if (cat != null && !cat.ContainsCategory(category))
+                    continue;
                 SuppressIfEqualAttribute supp = prop.TryGetAttribute<SuppressIfEqualAttribute>();
                 if (supp != null) { // possibly suppress this property
                     if (supp.IsEqual(obj))
