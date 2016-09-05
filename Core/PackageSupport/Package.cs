@@ -767,8 +767,8 @@ namespace YetaWF.Core.Packages {
         /// Version strings have the format n.n.n, normally 3 components, but this function supports any number of components, including versions strings with unequal number of components.
         /// </remarks>
         public static int CompareVersion(string vers1, string vers2) {
-            string[] svers1 = vers1.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
-            string[] svers2 = vers2.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
+            string[] svers1 = string.IsNullOrWhiteSpace(vers1) ? new string[] { } : vers1.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
+            string[] svers2 = string.IsNullOrWhiteSpace(vers2) ? new string[] { } : vers2.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0 ; i < 4; ++i) {
                 if (svers1.Length <= i) {
                     if (svers2.Length <= i)
