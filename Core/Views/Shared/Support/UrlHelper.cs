@@ -27,13 +27,13 @@ namespace YetaWF.Core.Views.Shared {
             New = 4, // Local by definition
         }
 
-        public static MvcHtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static MvcHtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 
             HtmlBuilder hb = new HtmlBuilder();
 
             string hrefUrl;
             if (!htmlHelper.TryGetParentModelSupportProperty<string>(name, "Url", out hrefUrl))
-                hrefUrl = url;
+                hrefUrl = model;
 
             if (string.IsNullOrWhiteSpace(hrefUrl)) {
                 // no link
@@ -47,7 +47,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (!string.IsNullOrWhiteSpace(Tooltip))
                     tag.MergeAttribute(Basics.CssTooltip, Tooltip);
 
-                tag.SetInnerText(url);
+                tag.SetInnerText(model);
                 return MvcHtmlString.Create(tag.ToString());
 
             } else {
@@ -63,7 +63,10 @@ namespace YetaWF.Core.Views.Shared {
                 tag.MergeAttribute("target", "_blank");
                 if (!string.IsNullOrWhiteSpace(Tooltip))
                     tag.MergeAttribute(Basics.CssTooltip, Tooltip);
-                tag.SetInnerText(url);
+                string text;
+                if (!htmlHelper.TryGetParentModelSupportProperty<string>(name, "Text", out text))
+                    text = model;
+                tag.SetInnerText(text);
 
                 // image
                 Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
