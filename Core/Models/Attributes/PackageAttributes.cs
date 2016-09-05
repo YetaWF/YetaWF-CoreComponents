@@ -69,12 +69,13 @@ namespace YetaWF.PackageAttributes
     [AttributeUsage(AttributeTargets.Assembly)]
     public class PackageInfoAttribute : Attribute {
         public PackageInfoAttribute() { }
-        public PackageInfoAttribute(string updateServerLink, string infoLink, string supportLink, string releaseNoticeLink, string licenseLink) {
+        public PackageInfoAttribute(string updateServerLink, string infoLink, string supportLink, string releaseNoticeLink, string licenseLink, string storeLink = null) {
             InfoLink = infoLink;
             UpdateServerLink = updateServerLink;
             SupportLink = supportLink;
             ReleaseNoticeLink = releaseNoticeLink;
             LicenseLink = licenseLink;
+            StoreLink = storeLink;
         }
         /// <summary>
         /// Package information Url.
@@ -99,5 +100,10 @@ namespace YetaWF.PackageAttributes
         /// </summary>
         /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
         public string LicenseLink { get; private set; }
+        /// <summary>
+        /// Store Url for purchasable packages.
+        /// </summary>
+        /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
+        public string StoreLink { get; private set; }
     }
 }

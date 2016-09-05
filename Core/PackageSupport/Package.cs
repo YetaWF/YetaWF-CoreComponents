@@ -658,6 +658,25 @@ namespace YetaWF.Core.Packages {
         private string _licenseLink;
 
         /// <summary>
+        /// Store Url for purchasable packages.
+        /// </summary>
+        /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
+        public string StoreLink {
+            get {
+                if (_storeLink == null) {
+                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    if (attr != null)
+                        _storeLink = attr.StoreLink;
+                    else
+                        _storeLink = "";
+                }
+                return _storeLink;
+            }
+        }
+        private string _storeLink;
+
+
+        /// <summary>
         /// The resources owned by this package.
         /// </summary>
         public List<ResourceAttribute> Resources {
