@@ -21,7 +21,8 @@ namespace YetaWF.Core.Packages {
         public static string[] ExcludedFoldersNoSource = new string[] { "_License" };
         public static string[] ExcludedFilesNoSource = new string[] { ".csproj.user", ".pdb", };
         public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", "_License" };
-        public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb" };
+        public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb", ".lastcodeanalysissucceeded", ".CodeAnalysisLog.xml" };
+        public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };
 
         public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.Xml;
 
@@ -59,7 +60,7 @@ namespace YetaWF.Core.Packages {
                 }
                 // Views
                 string viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-                serPackage.Views.AddRange(ProcessAllFiles(viewsPath));
+                serPackage.Views.AddRange(ProcessAllFiles(viewsPath, ExcludedFilesViewsNoSource));
                 foreach (var file in serPackage.Views) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                     ze.FileName = file.FileName;
