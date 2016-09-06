@@ -193,7 +193,7 @@ namespace YetaWF.Core.Packages {
                 FileVersionInfo versTarget = FileVersionInfo.GetVersionInfo(targetFile);
                 FileVersionInfo versSource = FileVersionInfo.GetVersionInfo(sourceFile);
                 if (!string.IsNullOrWhiteSpace(versTarget.FileVersion) && !string.IsNullOrWhiteSpace(versSource.FileVersion)) {
-                    if (Package.CompareVersion(versTarget.FileVersion, versSource.FileVersion) >= 0)
+                    if (Package.CompareVersion(versTarget.FileVersion, versSource.FileVersion) > 0)
                         return; // no need to copy, target version > source version
                 }
             }
