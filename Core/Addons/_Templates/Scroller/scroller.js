@@ -1,7 +1,7 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
-'use strict';
 
 $(document).ready(function () {
+    'use strict';
 
     function getControl(elem) {
         var $elem = $(elem);
@@ -22,8 +22,8 @@ $(document).ready(function () {
         var itemwidth = $('.t_item', $control).eq(0).outerWidth();
         var itemCount = $('.t_item', $control).length;
         var skip = Math.floor(width / itemwidth);
-        $('.t_right', $control).css('background-position', index + skip < itemCount - 1 ? '-48px -48px' : '-48px 0px');
-        if (index + skip >= itemCount - 1)
+        $('.t_right', $control).css('background-position', index + skip < itemCount ? '-48px -48px' : '-48px 0px');
+        if (index + skip >= itemCount)
             $('.t_right', $control).attr('disabled', 'disabled');
         else
             $('.t_right', $control).removeAttr('disabled');
