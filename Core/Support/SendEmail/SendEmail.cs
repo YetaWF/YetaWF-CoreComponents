@@ -33,7 +33,7 @@ namespace YetaWF.Core.SendEmail {
             string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
 
             // locate site specific custom email
-            string file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}/{3}", customModuleAddOnUrl, EmailsFolder, Manager.CurrentSite.SiteDomain, filename));
+            string file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
             if (System.IO.File.Exists(file))
                 return file;
             // locate (not site specific) custom email

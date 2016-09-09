@@ -389,7 +389,7 @@ namespace YetaWF.Core.Addons {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.AddOnsUrl.Length);
             }
             if (url.StartsWith(Globals.NugetContentsUrl)) {
-                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.NugetContentsUrl.Length);
+                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
             }
             throw new InternalError("Url {0} doesn't start with {1} or {2}", url, Globals.AddOnsUrl, Globals.NugetContentsUrl);
         }
