@@ -243,7 +243,7 @@ namespace YetaWF.Core.Controllers {
 
             // display 404 error page if one is defined
             if (!string.IsNullOrWhiteSpace(site.NotFoundUrl)) {
-                PageDefinition page = PageDefinition.LoadPageDefinitionByUrl(site.NotFoundUrl);
+                PageDefinition page = PageDefinition.LoadFromUrl(site.NotFoundUrl);
                 if (page != null) {
                     Manager.CurrentPage = page;// Found It!!
                     if (Manager.IsHeadRequest)
@@ -263,12 +263,12 @@ namespace YetaWF.Core.Controllers {
 
         private ProcessingStatus CanProcessAsDesignedPage(string url, string queryString) {
             // request for a designed page
-            PageDefinition page = PageDefinition.LoadPageDefinitionByUrl(url);
+            PageDefinition page = PageDefinition.LoadFromUrl(url);
             if (page != null) {
                 if (!Manager.EditMode) { // only redirect if we're not editing
                     if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                         if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                            PageDefinition redirectPage = PageDefinition.LoadPageDefinitionByUrl(page.RedirectToPageUrl);
+                            PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
                             if (redirectPage != null) {
                                 if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                                     string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
@@ -292,7 +292,7 @@ namespace YetaWF.Core.Controllers {
                     // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                     if (!Manager.EditMode) { // only redirect if we're not editing
                         if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                            PageDefinition mobilePage = PageDefinition.LoadPageDefinitionByUrl(page.MobilePageUrl);
+                            PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
                             if (mobilePage != null) {
                                 if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                                     string redirUrl = page.MobilePageUrl;
