@@ -3,6 +3,7 @@
 using Ionic.Zip;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -69,6 +70,7 @@ namespace YetaWF.Core.Packages {
             // Source code
             if (SourceCode) {
                 serPackage.SourceFiles.AddRange(ProcessAllFiles(PackageSourceRoot, ExcludedFilesNoSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
+                ProcessSourceFiles(zipFile, serPackage.SourceFiles);
                 foreach (var file in serPackage.SourceFiles) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                     ze.FileName = file.FileName;
@@ -108,7 +110,7 @@ namespace YetaWF.Core.Packages {
             AddFiles(list, folder, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
             return list;
         }
-        public static void AddFiles(SerializableList<SerializableFile> list, string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
+        private static void AddFiles(SerializableList<SerializableFile> list, string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
             if (!Directory.Exists(folder))
                 return;
             foreach (var file in Directory.GetFiles(folder)) {
@@ -138,6 +140,43 @@ namespace YetaWF.Core.Packages {
                 if (copy)
                     AddFiles(list, dir, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
             }
+        }
+        /// <summary>
+        /// Read all *.cs files and remove #if LICENSED ... #endif.
+        /// Read all *.csproj files and remove <DefineConstants> ... LICENSED ... </DefineConstants> and <ProjectReference></ProjectReference>
+        /// </summary>
+        /// <param name="zipFile">The ZIP file.</param>
+        /// <param name="sourceFiles">The full file name to process.</param>
+        /// <remarks>Used to remove license validation code when distributing source code packages.</remarks>
+        private void ProcessSourceFiles(YetaWFZipFile zipFile, SerializableList<SerializableFile> sourceFiles) {
+            foreach (var sourceFile in sourceFiles) {
+                string text = File.ReadAllText(sourceFile.AbsFileName);
+                string newText = ProcessCs(sourceFile, text);
+                newText = ProcessCsProj(sourceFile, newText);
+                // if there were changes, replace the real file with a temp file/new contents
+                if (text != newText) {
+                    string tempFile = Path.GetTempFileName();
+                    File.Delete(tempFile);
+                    File.WriteAllText(tempFile, newText);
+                    sourceFile.ReplaceAbsFileName(tempFile);
+                    zipFile.TempFiles.Add(tempFile);
+                }
+            }
+        }
+        private Regex reIfLicensed = new Regex(@"(\n|\r)\s*#\s*if\s+LICENSED.*?(\n|\r).*?\s*#\s*endif.*?(\n|\r)", RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private string ProcessCs(SerializableFile sourceFile, string text) {
+            return reIfLicensed.Replace(text, "$1$2");
+        }
+
+        private Regex reCsProjDefCon1 = new Regex(@"\<DefineConstants\>(.*?);LICENSED\<\/DefineConstants\>", RegexOptions.Singleline | RegexOptions.Compiled);
+        private Regex reCsProjDefCon2 = new Regex(@"\<DefineConstants\>(.*?)LICENSED;(.*?)\<\/DefineConstants\>", RegexOptions.Singleline | RegexOptions.Compiled);
+        private Regex reCsProjRef = new Regex(@"\<ProjectReference\s+[^\>]*\>\s*\<Project\>[^\<]*\</Project\>\s*\<Name\>PackageVerificationAssembly\<\/Name\>\s*\<\/ProjectReference\>", RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private string ProcessCsProj(SerializableFile sourceFile, string text) {
+            text = reCsProjDefCon1.Replace(text, "<DefineConstants>$1</DefineConstants>");
+            text = reCsProjDefCon2.Replace(text, "<DefineConstants>$1$2</DefineConstants>");
+            return reCsProjRef.Replace(text, "");
         }
     }
 }

@@ -88,5 +88,9 @@ namespace YetaWF.Core.Packages {
         public bool SiteSpecific { get; private set; }
         [DontSave]
         public string AbsFileName { get; private set; }
+
+        public void ReplaceAbsFileName(string fileName) {
+            AbsFileName = fileName;
+        }
     }
 }
