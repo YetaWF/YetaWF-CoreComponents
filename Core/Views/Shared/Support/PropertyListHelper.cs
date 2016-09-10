@@ -165,7 +165,7 @@ namespace YetaWF.Core.Views.Shared {
             var props = GetProperties(objType, GridUsage: GridUsage);
             foreach (var prop in props) {
                 CategoryAttribute cat = prop.TryGetAttribute<CategoryAttribute>();
-                if (cat != null && !cat.ContainsCategory(category))
+                if (!string.IsNullOrWhiteSpace(category) && cat != null && !cat.ContainsCategory(category))
                     continue;
                 SuppressIfEqualAttribute supp = prop.TryGetAttribute<SuppressIfEqualAttribute>();
                 if (supp != null) { // possibly suppress this property
