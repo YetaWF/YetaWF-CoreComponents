@@ -54,7 +54,7 @@ namespace YetaWF.Core.Serializers {
 
         public void Serialize(System.IO.Stream serializationStream, object graph) {
 
-            XmlWriter xmlOut = XmlWriter.Create(serializationStream, new XmlWriterSettings { Indent = true, IndentChars = "  " });
+            XmlWriter xmlOut = XmlWriter.Create(serializationStream, new XmlWriterSettings { Indent = true, IndentChars = "  ", });
             xmlOut.Initialize();
             xmlOut.WriteComment(string.Format("{0}", graph.GetType()));
 
@@ -251,11 +251,6 @@ namespace YetaWF.Core.Serializers {
             }
             xmlIn.MustRead(); // skip over Object entry
 
-            if (xmlIn.IsEmptyElement) {
-                obj = null;
-                return obj;
-            }
-
             try {
                 if (t == typeof(byte[]))
                     obj = new byte[] { };
@@ -272,8 +267,9 @@ namespace YetaWF.Core.Serializers {
                 }
                 if (xmlIn.NodeType != XmlNodeType.Element)
                     throw new InternalError("Unexpected node {0} {1} at line {2}.", xmlIn.Name, xmlIn.NodeType, xmlIn.LineNumber);
-
-                if (xmlIn.Name == "Properties") {
+                if (xmlIn.IsEmptyElement) {
+                    xmlIn.MustRead(); // skip over property
+                } else if (xmlIn.Name == "Properties") {
                     DeserializeProperties(xmlIn, obj);
                 } else if (xmlIn.Name == "List") {
                     DeserializeList(xmlIn, obj);
@@ -413,6 +409,7 @@ skip: ;
 
                 if (xmlIn.NodeType != XmlNodeType.EndElement)
                     throw new InternalError("Ending element not found for property {0}.", propName);
+
                 xmlIn.MustRead();
             }
             return objVal;
