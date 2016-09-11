@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Support.Serializers {
@@ -53,7 +52,7 @@ namespace YetaWF.Core.Support.Serializers {
                 try {
                     data = fmt.Deserialize(ms);
                 } catch (Exception exc) {
-                    throw new Error(this.__ResStr("errFormatChange", "{0} - A common cause for this error is a change in the internal format of the object."), exc.Message);
+                    throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object.", exc.Message);
                 }
                 return data;
             }
@@ -76,7 +75,7 @@ namespace YetaWF.Core.Support.Serializers {
             try {
                 data = fmt.Deserialize(fs);
             } catch (Exception exc) {
-                throw new Error(this.__ResStr("errFormatChange", "{0} - A common cause for this error is a change in the internal format of the object."), exc.Message);
+                throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object.", exc.Message);
             }
             return data;
         }
@@ -108,7 +107,7 @@ namespace YetaWF.Core.Support.Serializers {
                 byte[] btes = ms.ToArray();
                 if (simple) {
                     if (!(btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b'))
-                        throw new InternalError("SimpleFormatter preamble unexptected");
+                        throw new InternalError("SimpleFormatter preamble unexpected");
                 }
                 return btes;
             }
