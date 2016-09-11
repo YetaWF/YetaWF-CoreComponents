@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Language;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
@@ -197,6 +198,18 @@ namespace YetaWF.Core.Models {
         }
         public override int GetHashCode() {
             return base.GetHashCode();
+        }
+        /// <summary>
+        /// Returns the primary language given a language id.
+        /// </summary>
+        /// <param name="language">The language id.</param>
+        /// <returns>The primary language.</returns>
+        /// <remarks>Language ids can consist of a major and minor portion (for example, "en-US", "en-GB").
+        /// Use GetPrimaryLanguage to retrieve the just major portion, i.e., "en".</remarks>
+        public static string GetPrimaryLanguage(string language) {
+            int i = language.IndexOf("-");
+            if (i < 0) return language;
+            return language.Truncate(i);
         }
 
         // TRIM
