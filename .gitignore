@@ -22,7 +22,6 @@ globals.js
 **/Addons/_Skins/**/*.min.js
 **/Addons/_Skins/**/*.min.css
 **/Addons/_Skins/**/*.min.scss
-**/Addons/_Main/Localization/*
 **/Addons/YetaWF/**/*.min.js
 **/Addons/YetaWF/**/*.min.css
 **/Addons/YetaWF/**/*.min.scss
