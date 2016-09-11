@@ -19,17 +19,6 @@ namespace YetaWF.Core.Serializers {
     public static class XmlWriterExtender {
 
         public static void Initialize(this XmlWriter xmlWrt) { }
-        public static void Tab(this XmlWriter xmlWrt) {
-            xmlWrt.WriteWhitespace(" ");
-        }
-        public static void Nl(this XmlWriter xmlWrt, bool force = false) {
-            xmlWrt.WriteWhitespace(" ");
-        }
-        public static void CondWriteEndElement(this XmlWriter xmlWrt) {
-            if (xmlWrt.WriteState != WriteState.Element)
-                xmlWrt.Tab();
-            xmlWrt.WriteEndElement(); xmlWrt.Nl();
-        }
         public static string Attr(this XmlTextReader xmlRd, string name) {
             string strAttr = xmlRd[name];
             if (string.IsNullOrEmpty(strAttr))
@@ -65,9 +54,9 @@ namespace YetaWF.Core.Serializers {
 
         public void Serialize(System.IO.Stream serializationStream, object graph) {
 
-            XmlWriter xmlOut = XmlWriter.Create(serializationStream);
-            xmlOut.Initialize(); xmlOut.Nl(true);
-            xmlOut.WriteComment(string.Format("{0}", graph.GetType())); xmlOut.Nl(true);
+            XmlWriter xmlOut = XmlWriter.Create(serializationStream, new XmlWriterSettings { Indent = true, IndentChars = "  " });
+            xmlOut.Initialize();
+            xmlOut.WriteComment(string.Format("{0}", graph.GetType()));
 
             SerializeObjectProperties(xmlOut, graph);
 
@@ -77,13 +66,12 @@ namespace YetaWF.Core.Serializers {
 
         private void SerializeObjectProperties(XmlWriter xmlOut, object obj) {
 
-            xmlOut.Tab(); xmlOut.WriteStartElement("Object");
+            xmlOut.WriteStartElement("Object");
             xmlOut.WriteAttributeString("Type", obj.GetType().FullName);
             xmlOut.WriteAttributeString("Assembly", obj.GetType().Assembly.GetName().Name);
             xmlOut.WriteAttributeString("AssemblyFull", obj.GetType().Assembly.FullName);
-            xmlOut.Nl(true);
 
-            xmlOut.Tab(); xmlOut.WriteStartElement("Properties"); xmlOut.Nl(true);
+            xmlOut.WriteStartElement("Properties");
 
             // we only want properties
             List<PropertyInfo> pi = ObjectSupport.GetProperties(obj.GetType());
@@ -95,15 +83,15 @@ namespace YetaWF.Core.Serializers {
                 if (Attribute.GetCustomAttribute(p, typeof(DontSaveAttribute)) != null || Attribute.GetCustomAttribute(p, typeof(Data_CalculatedProperty)) != null)
                     continue;
 
-                xmlOut.Tab(); xmlOut.WriteStartElement(p.Name);
+                xmlOut.WriteStartElement(p.Name);
 
                 object o = p.GetValue(obj, null);
                 SerializeOneProperty(xmlOut, o);
 
-                xmlOut.CondWriteEndElement();
+                xmlOut.WriteEndElement();
             }
 
-            xmlOut.Tab(); xmlOut.WriteEndElement(); xmlOut.Nl();
+            xmlOut.WriteEndElement();
 
             if (obj is Byte[])
 #pragma warning disable 642 // Possible mistaken empty statement
@@ -114,7 +102,6 @@ namespace YetaWF.Core.Serializers {
                 IDictionaryEnumerator denum = idict.GetEnumerator();
                 denum.Reset();
 
-                xmlOut.Tab();
                 xmlOut.WriteStartElement("Dictionary");
 
                 for ( ; ; ) {
@@ -123,25 +110,20 @@ namespace YetaWF.Core.Serializers {
                     object key = denum.Key;
                     object val = denum.Value;
 
-                    xmlOut.Tab();
                     xmlOut.WriteStartElement("Key");
                     SerializeOneProperty(xmlOut, key);
-                    xmlOut.CondWriteEndElement();
+                    xmlOut.WriteEndElement();
 
-                    xmlOut.Tab();
                     xmlOut.WriteStartElement("Value");
                     SerializeOneProperty(xmlOut, val);
-                    xmlOut.CondWriteEndElement();
+                    xmlOut.WriteEndElement();
                 }
-
-                xmlOut.Tab();
-                xmlOut.WriteEndElement(); xmlOut.Nl();
+                xmlOut.WriteEndElement();
             } else if (obj is IList) {
                 IList ilist = (IList)obj;
                 IEnumerator lenum = ilist.GetEnumerator();
                 lenum.Reset();
 
-                xmlOut.Tab();
                 xmlOut.WriteStartElement("List");
 
                 for ( ; ; ) {
@@ -149,16 +131,14 @@ namespace YetaWF.Core.Serializers {
                         break;
                     object val = lenum.Current;
 
-                    xmlOut.Tab();
                     xmlOut.WriteStartElement("Value");
                     SerializeOneProperty(xmlOut, val);
-                    xmlOut.CondWriteEndElement();
+                    xmlOut.WriteEndElement();
                 }
 
-                xmlOut.Tab(); xmlOut.WriteEndElement(); xmlOut.Nl();
+                xmlOut.WriteEndElement();
             }
-
-            xmlOut.Tab(); xmlOut.WriteEndElement(); xmlOut.Nl();
+            xmlOut.WriteEndElement();
         }
 
         private void SerializeOneProperty(XmlWriter xmlOut, object o) {
