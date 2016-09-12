@@ -99,6 +99,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
                           <Properties>
+                            <Name Value="Analytics" />
+                            <Caption Value="Analytics" />
+                            <Description Value="Add analytics code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here - Pages can override this setting" />
+                            <HelpLink />
+                            <TextAbove Value="Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed)." />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+                          <Properties>
                             <Name Value="BundleCSSFiles" />
                             <Caption Value="Bundle CSS Files" />
                             <Description Value="Defines whether styleheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
@@ -452,18 +464,6 @@
                             <Description Value="Defines which UI provides the file upload control implementation" />
                             <HelpLink />
                             <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
-                          <Properties>
-                            <Name Value="GoogleAnalytics" />
-                            <Caption Value="Google Analytics" />
-                            <Description Value="The Universal Analytics tracking code used by Google Analytics - You can obtain the tracking code from Google Analytics - Make sure to copy the ENTIRE tracking code (including all javascript and markup)" />
-                            <HelpLink Value="https://analytics.google.com/" />
-                            <TextAbove Value="Google Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed)." />
                             <TextBelow />
                           </Properties>
                         </Object>
