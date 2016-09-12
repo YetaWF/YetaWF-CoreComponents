@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Linq;
 using System.Web.Mvc;
 using YetaWF.Core.Menus;
 using YetaWF.Core.Packages;
@@ -40,13 +41,21 @@ namespace YetaWF.Core.Modules {
                     if ((location & ModuleAction.ActionLocationEnum.AnyMenu) != 0) {
                         // move to other panes
                         MenuList subMenu = GetMoveToOtherPanes(page, modServices);
-                        if (subMenu.Count > 0)
-                            moduleMenu.New(new ModuleAction(null) { MenuText = __ResStr("mmMoveTo", "Move To"), SubMenu = subMenu }, location);
+                        if (subMenu.Count > 0) {
+                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMoveTo", "Move To"), SubMenu = subMenu };
+                            bool allDisabled = (from s in subMenu where s.Enabled == false select s).Count() == subMenu.Count;
+                            if (!allDisabled)
+                                moduleMenu.New(action, location);
+                        }
 
                         // move within pane
                         subMenu = GetMoveWithinPane(page, modServices);
-                        if (subMenu.Count > 0)
-                            moduleMenu.New(new ModuleAction(null) { MenuText = __ResStr("mmMove", "Move"), SubMenu = subMenu }, location);
+                        if (subMenu.Count > 0) {
+                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMove", "Move"), SubMenu = subMenu };
+                            bool allDisabled = (from s in subMenu where s.Enabled == false select s).Count() == subMenu.Count;
+                            if (!allDisabled)
+                                moduleMenu.New(action, location);
+                        }
                     }
                 }
                 if (!this.Temporary) {
