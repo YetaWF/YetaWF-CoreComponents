@@ -73,10 +73,15 @@ namespace YetaWF.Core.IO {
         // Retrieves a list of all file names in the basefolder
         public List<string> GetNames() {
             List<string> files = new List<string>();
-            try {
-                files = Directory.GetFiles(BaseFolder).ToList<string>();
-            } catch { }
-
+#if DEBUG
+            if (Directory.Exists(BaseFolder)) {// avoid debug spam
+#endif
+                try {
+                    files = Directory.GetFiles(BaseFolder).ToList<string>();
+                } catch { }
+#if DEBUG
+            }
+#endif
             List<string> names = new List<string>();
             foreach (var file in files) {
                 string name = ExtractNameFromFileName(Path.GetFileName(file));
