@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Packages {
@@ -64,7 +65,7 @@ namespace YetaWF.Core.Packages {
             LocalizationData.EnumData enm = new LocalizationData.EnumData();
             enm.Name = type.FullName;
 
-            EnumData enumData = ObjectSupport.GetEnumData(type);
+            EnumData enumData = ObjectSupport.GetEnumData(type, Cache: false);
             if (enumData != null) {
                 foreach (EnumDataEntry entry in enumData.Entries) {
                     if (entry.EnumDescriptionProvided)
@@ -91,7 +92,7 @@ namespace YetaWF.Core.Packages {
         private bool ProcessType(LocalizationData data, Type type, List<string> errorList, ref bool hasData) {
 
             ClassData classData = ObjectSupport.GetClassData(type, Cache: false);
-            List<PropertyData> propData = ObjectSupport.GetPropertyData(type, Cache: false, WithInherited: false);
+            List<PropertyData> propData = ObjectSupport.GetPropertyData(type, Cache: false);
 
             LocalizationData.ClassData cls = new LocalizationData.ClassData();
             cls.Name = type.FullName;
@@ -126,6 +127,7 @@ namespace YetaWF.Core.Packages {
                         TextBelow = FixNL(prop.TextBelow),
                     });
                 }
+                cls.Categories = AddCategories(cls.Categories, prop.Categories);
             }
 
             if (hasData) {
@@ -139,6 +141,13 @@ namespace YetaWF.Core.Packages {
                 data.Classes.Add(cls);
             }
             return true;
+        }
+        private SerializableDictionary<string, string> AddCategories(SerializableDictionary<string,string> cats, List<string> categories) {
+            foreach (string cat in categories) {
+                if (!cats.ContainsKey(cat))
+                    cats.Add(cat, cat);
+            }
+            return cats;
         }
 
         private bool IsSamePackage(Type type, Type baseType) {

@@ -15,6 +15,7 @@ namespace YetaWF.Core.Localize {
     public class LocalizationData {
 
         public const int MaxString = 10000;
+        public const int MaxComment = 1000;
 
         public class ClassData {
             [StringLength(MaxString)]
@@ -33,13 +34,16 @@ namespace YetaWF.Core.Localize {
             public string Legend { get; set; }
 
             [Data_Binary]
+            public SerializableDictionary<string, string> Categories { get; set; }
+
+            [Data_Binary]
             public SerializableList<PropertyData> Properties { get; set; }
 
             public ClassData() {
                 Properties = new SerializableList<PropertyData>();
+                Categories = new Serializers.SerializableDictionary<string, string>();
             }
         }
-
         public class PropertyData {
             [StringLength(MaxString)]
             public string Name { get; set; }
@@ -91,7 +95,8 @@ namespace YetaWF.Core.Localize {
             public string Text { get; set; }
         }
 
-        public bool MergeWithDefault { get; set; }
+        [StringLength(MaxComment)]
+        public string Comment { get; set; }
         [Data_Binary]
         public SerializableList<ClassData> Classes { get; set; }
         [Data_Binary]
@@ -103,7 +108,6 @@ namespace YetaWF.Core.Localize {
             Classes = new SerializableList<ClassData>();
             Enums = new SerializableList<EnumData>();
             Strings = new SerializableList<StringData>();
-            MergeWithDefault = false;
         }
         public string FindString(string name) {
             StringData sd = FindStringEntry(name);
@@ -128,7 +132,7 @@ namespace YetaWF.Core.Localize {
             PropertyData propData = (from p in classData.Properties where p.Name == propName select p).FirstOrDefault();
             if (propData != null) return propData;
             // if we didn't find the property, search the base type
-            if (string.IsNullOrWhiteSpace(classData.BaseTypeName)) 
+            if (string.IsNullOrWhiteSpace(classData.BaseTypeName))
                 return null;
             return FindProperty(classData.BaseTypeName, propName);
         }

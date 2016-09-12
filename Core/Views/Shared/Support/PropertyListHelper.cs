@@ -125,11 +125,8 @@ namespace YetaWF.Core.Views.Shared {
 
             // get the list of categories
             List<string> categories = new List<string>();
-            foreach (PropertyData prop in props) {
-                CategoryAttribute categoryAttribute = prop.TryGetAttribute<CategoryAttribute>();
-                if (categoryAttribute != null)
-                    categories.AddRange(categoryAttribute.Categories);
-            }
+            foreach (PropertyData prop in props)
+                categories.AddRange(prop.Categories);
             categories = categories.Distinct().ToList();
 
             // order (if there is a CategoryOrder property)
@@ -164,8 +161,7 @@ namespace YetaWF.Core.Views.Shared {
             Type objType = obj.GetType();
             var props = GetProperties(objType, GridUsage: GridUsage);
             foreach (var prop in props) {
-                CategoryAttribute cat = prop.TryGetAttribute<CategoryAttribute>();
-                if (!string.IsNullOrWhiteSpace(category) && cat != null && !cat.ContainsCategory(category))
+                if (!string.IsNullOrWhiteSpace(category) && !prop.Categories.Contains(category))
                     continue;
                 SuppressIfEqualAttribute supp = prop.TryGetAttribute<SuppressIfEqualAttribute>();
                 if (supp != null) { // possibly suppress this property
@@ -443,7 +439,10 @@ namespace YetaWF.Core.Views.Shared {
             hb.Append(htmlHelper.RenderTabStripStart(divId));
             int tabEntry = 0;
             foreach (string category in categories) {
-                hb.Append(htmlHelper.RenderTabEntry(divId, category, "", tabEntry));
+                string cat = category;
+                if (classData.Categories.ContainsKey(cat))
+                    cat = classData.Categories[cat];
+                hb.Append(htmlHelper.RenderTabEntry(divId, cat, "", tabEntry));
                 ++tabEntry;
             }
             hb.Append(htmlHelper.RenderTabStripEnd(divId));

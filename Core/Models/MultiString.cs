@@ -191,7 +191,7 @@ namespace YetaWF.Core.Models {
 
         public static string ActiveLanguage {
             get {
-                if (!string.IsNullOrWhiteSpace(YetaWFManager.Manager.UserLanguage))
+                if (YetaWFManager.HaveManager && !string.IsNullOrWhiteSpace(YetaWFManager.Manager.UserLanguage))
                     return YetaWFManager.Manager.UserLanguage;
                 return MultiString.DefaultLanguage;
             }

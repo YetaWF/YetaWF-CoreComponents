@@ -133,15 +133,6 @@ namespace YetaWF.Core.Models.Attributes {
             else
                 Categories = new List<string>();
         }
-        /// <summary>
-        /// Tests whether a category is included in the list of specified categories.
-        /// </summary>
-        /// <param name="category">The category to test.</param>
-        /// <returns>true if the category is included in the list of specified categories, false otherwise.</returns>
-        public bool ContainsCategory(string category) {
-            if (string.IsNullOrWhiteSpace(category)) return false;
-            return Categories.Contains(category);
-        }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class DescriptionAttribute : MoreMetadataAttribute {

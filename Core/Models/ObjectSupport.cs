@@ -8,29 +8,53 @@ using System.Reflection;
 using System.Web.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models {
 
+    /// <summary>
+    /// Describes a class including all localization attributes.
+    /// </summary>
     public class ClassData {
 
+        /// <summary>
+        /// The class type.
+        /// </summary>
         public Type ClassType { get; set; }
-        private Dictionary<string, object> CustomAttributes { get; set; }
+        /// <summary>
+        /// The localized text derived from the HeaderAttribute.
+        /// </summary>
         public string Header { get; private set; }
+        /// <summary>
+        /// The localized text derived from the FooterAttribute.
+        /// </summary>
         public string Footer { get; private set; }
+        /// <summary>
+        /// The localized text derived from the LegendAttribute.
+        /// </summary>
         public string Legend { get; private set; }
+        /// <summary>
+        /// All categories derived from the CategoryAttribute of all defined properties in this class.
+        /// </summary>
+        /// <remarks>A dictionary of all categories. The key is the non-localized category name. The value is the localized category name.</remarks>
+        public SerializableDictionary<string, string> Categories { get; private set; }
 
-        public ClassData(Type classType, string header, string footer, string legend) {
+        private Dictionary<string, object> CustomAttributes { get; set; }
+
+        internal ClassData(Type classType, string header, string footer, string legend, SerializableDictionary<string, string> categories) {
             ClassType = classType;
             Header = header;
             Footer = footer;
             Legend = legend;
+            Categories = categories;
         }
-        public ClassData(Type classType) {
+        internal ClassData(Type classType) {
             ClassType = classType;
             HeaderAttribute headerAttr = TryGetAttribute<HeaderAttribute>();
             Header = headerAttr != null ? headerAttr.Value : null;
@@ -38,7 +62,13 @@ namespace YetaWF.Core.Models {
             Footer = footerAttr != null ? footerAttr.Value : null;
             LegendAttribute legendAttr = TryGetAttribute<LegendAttribute>();
             Legend = legendAttr != null ? legendAttr.Value : null;
+            Categories = new Serializers.SerializableDictionary<string, string>();
         }
+        /// <summary>
+        /// Retrieves a class Attribute.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the attribute.</typeparam>
+        /// <returns>The attribute or null if not found.</returns>
         public TYPE TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
             TYPE attr = (TYPE) TryGetAttributeValue(name);
@@ -59,37 +89,100 @@ namespace YetaWF.Core.Models {
         }
     }
 
+    /// <summary>
+    /// Describes a property including all localization attributes.
+    /// </summary>
     public class PropertyData {
 
+        /// <summary>
+        ///  The property name
+        /// </summary>
         public string Name { get; private set; }
+        /// <summary>
+        /// The PropertyInfo used for reflection for this property.
+        /// </summary>
         public PropertyInfo PropInfo { get; private set; }
+        /// <summary>
+        /// The UIHint derived from the property's UIHint attribute.
+        /// </summary>
         public string UIHint { get; private set; }
-        public bool ReadOnly { get; set; }
+        /// <summary>
+        /// Defines whether the property is read only, derived from the ReadOnlyAttribute.
+        /// </summary>
+        public bool ReadOnly { get; private set; }
+        /// <summary>
+        /// The Type of the class where this property is located.
+        /// </summary>
         public Type ContainerType { get; private set; }
 
+        /// <summary>
+        /// The localized caption derived from the CaptionAttribute.
+        /// </summary>
         public string Caption { get; private set; }
+        /// <summary>
+        /// The localized description derived from the DescriptionAttribute.
+        /// </summary>
         public string Description { get; private set; }
+        /// <summary>
+        /// The help link derived from the HelpLinkAttribute.
+        /// </summary>
         public string HelpLink { get; private set; }
+        /// <summary>
+        /// The localized text shown above the property derived from the TextAboveAttribute.
+        /// </summary>
         public string TextAbove { get; private set; }
+        /// <summary>
+        /// The localized text shown below the property derived from the TextBelowAttribute.
+        /// </summary>
         public string TextBelow { get; private set; }
-        public bool CalculatedProperty { get; set; }
+        /// <summary>
+        /// The non-localized categories derived from the CategoryAttribute.
+        /// </summary>
+        /// <remarks>The localized categories can be found in YetaWF.Core.Models.ClassData.Categories.</remarks>
+        public List<string> Categories { get; private set; }
+        /// <summary>
+        /// Defines whether the Data_CalculatedProperty attribute is defined for this property.
+        /// </summary>
+        public bool CalculatedProperty { get; private set; }
+        /// <summary>
+        /// Defines the order of the property within the class, derived from the OrderAttribute.
+        /// </summary>
         public int Order { get; private set; }
-        public ResourceRedirectAttribute Redirect { get; private set; }
 
+        private ResourceRedirectAttribute Redirect { get; set; }
+
+        /// <summary>
+        /// Retrieves the property caption.
+        /// </summary>
+        /// <param name="parentObject">The parent model containing this property.</param>
+        /// <returns>The caption.</returns>
+        /// <remarks>If the RedirectAttribute is used, GetCaption returns the redirected caption, otherwise the localized caption derived from the CaptionAttribute is returned.</remarks>
         public string GetCaption(object parentObject) {
             if (parentObject == null || Redirect == null) return Caption;
             return Redirect.GetCaption(parentObject);
         }
+        /// <summary>
+        /// Retrieves the property description.
+        /// </summary>
+        /// <param name="parentObject">The parent model containing this property.</param>
+        /// <returns>The description.</returns>
+        /// <remarks>If the RedirectAttribute is used, GetDescription returns the redirected description, otherwise the localized description derived from the DescriptionAttribute is returned.</remarks>
         public string GetDescription(object parentObject) {
             if (parentObject == null || Redirect == null) return Description;
             return Redirect.GetDescription(parentObject);
         }
+        /// <summary>
+        /// Retrieves the property help link.
+        /// </summary>
+        /// <param name="parentObject">The parent model containing this property.</param>
+        /// <returns>The help link.</returns>
+        /// <remarks>If the RedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
         public string GetHelpLink(object parentObject) {
             if (parentObject == null || Redirect == null) return HelpLink;
             return Redirect.GetHelpLink(parentObject);
         }
 
-        public PropertyData(string name, Type containerType, PropertyInfo propInfo,
+        internal PropertyData(string name, Type containerType, PropertyInfo propInfo,
             string caption = null, string description = null, string helpLink = null, string textAbove = null, string textBelow = null) {
             Name = name;
             ContainerType = containerType;
@@ -104,12 +197,17 @@ namespace YetaWF.Core.Models {
             HelpLink = HelpLink;
             TextAbove = textAbove;
             TextBelow = textBelow;
+            CategoryAttribute cats = TryGetAttribute<CategoryAttribute>();
+            if (cats != null)
+                Categories = cats.Categories;
+            else
+                Categories = new List<string>();
             DescriptionAttribute descAttr = TryGetAttribute<DescriptionAttribute>();
             Order = descAttr != null ? descAttr.Order : 0;
             Redirect = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
         }
-        public PropertyData(string name, Type containerType, PropertyInfo propInfo) {
+        internal PropertyData(string name, Type containerType, PropertyInfo propInfo) {
             Name = name;
             ContainerType = containerType;
             PropInfo = propInfo;
@@ -129,6 +227,11 @@ namespace YetaWF.Core.Models {
             TextAbove = aboveAttr != null ? aboveAttr.Value : null;
             TextBelowAttribute belowAttr = TryGetAttribute<TextBelowAttribute>();
             TextBelow = belowAttr != null ? belowAttr.Value : null;
+            CategoryAttribute cats = TryGetAttribute<CategoryAttribute>();
+            if (cats != null)
+                Categories = cats.Categories;
+            else
+                Categories = new List<string>();
             Redirect = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
         }
@@ -136,19 +239,45 @@ namespace YetaWF.Core.Models {
         private Dictionary<string, object> CustomAttributes { get; set; }
         private Dictionary<string, object> AdditionalAttributes { get; set; }
 
+        /// <summary>
+        /// Retrieves the property value.
+        /// </summary>
+        /// <typeparam name="TYPE">The return Type of the property.</typeparam>
+        /// <param name="parentObject">The parent model containing this property.</param>
+        /// <returns>The property value.</returns>
         public TYPE GetPropertyValue<TYPE>(object parentObject) {
             TYPE val = (TYPE) PropInfo.GetValue(parentObject, null);
             return val;
         }
+        /// <summary>
+        /// Retrieves a property Attribute.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the attribute.</typeparam>
+        /// <returns>The attribute or null if not found.</returns>
         public TYPE TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
             TYPE attr = (TYPE) TryGetAttributeValue(name);
             return attr;
         }
+        /// <summary>
+        /// Returns whether the specified attribute exists.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
+        /// <returns>True if the attribute exists, false otherwise.</returns>
+        public bool HasAttribute(string name) {
+            return TryGetAttributeValue(name) != null;
+        }
         private object TryGetAttributeValue(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
             return (from a in GetAttributes() where a.Key == name select a.Value).FirstOrDefault();
         }
+        /// <summary>
+        /// Retrieves the value specified on an AdditionalMetadataAttribute.
+        /// </summary>
+        /// <typeparam name="TYPE">The Type of the value.</typeparam>
+        /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
+        /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
+        /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
         public TYPE GetAdditionalAttributeValue<TYPE>(string name, TYPE dflt = default(TYPE)) {
             TYPE val = dflt;
             AdditionalMetadataAttribute attr = (AdditionalMetadataAttribute) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
@@ -156,9 +285,6 @@ namespace YetaWF.Core.Models {
                 return val;
             val = (TYPE) attr.Value;
             return val;
-        }
-        public bool HasAttribute(string name) {
-            return TryGetAttributeValue(name) != null;
         }
         private Dictionary<string, object> GetAttributes() {
             if (CustomAttributes == null) {
@@ -180,221 +306,340 @@ namespace YetaWF.Core.Models {
             return CustomAttributes;
         }
     }
+    /// <summary>
+    /// Defines one entry value in an enumerated type.
+    /// </summary>
     public class EnumDataEntry {
-        public string Name { get; set; }
-        public object Value { get; set; }
-        public FieldInfo FieldInfo { get; set; }
+        /// <summary>
+        /// The name of the enumerated type entry.
+        /// </summary>
+        public string Name { get; private set; }
+        /// <summary>
+        /// The value of the enumerated type entry.
+        /// </summary>
+        public object Value { get; private set; }
+        /// <summary>
+        /// The FieldInfo for the enumerated type entry, used for reflection.
+        /// </summary>
+        public FieldInfo FieldInfo { get; private set; }
+        /// <summary>
+        /// The localized caption for the enumerated type entry, derived from the EnumDescriptionAttribute.
+        /// </summary>
         public string Caption {
             get {
                 if (_caption == null) return Name;
                 return _caption;
             }
-            set {
+            private set {
                 _caption = value;
             }
         }
         private string _caption = null;
-        public string Description { get; set; }
 
+        /// <summary>
+        /// The localized description for the enumerated type entry, derived from the EnumDescriptionAttribute.
+        /// </summary>
+        public string Description { get; private set; }
+
+        /// <summary>
+        /// Returns whether a caption or description is available;
+        /// </summary>
         public bool EnumDescriptionProvided { get { return _caption != null || Description != null; } }
 
-        public EnumDataEntry(string name, object value, FieldInfo fieldInfo, string caption = null, string description = null) {
+        internal EnumDataEntry(string name, object value, FieldInfo fieldInfo, string caption = null, string description = null) {
             Name = name;
             Value = value;
             FieldInfo = fieldInfo;
             Caption = caption;
             Description = description;
-            EnumDescriptionAttribute enumAttr = (EnumDescriptionAttribute) Attribute.GetCustomAttribute(FieldInfo, typeof(EnumDescriptionAttribute));
-            if (enumAttr != null) {
-                Caption = enumAttr.Caption;
-                Description = enumAttr.Description;
+            if (caption == null && description == null) {
+                EnumDescriptionAttribute enumAttr = (EnumDescriptionAttribute)Attribute.GetCustomAttribute(FieldInfo, typeof(EnumDescriptionAttribute));
+                if (enumAttr != null) {
+                    Caption = enumAttr.Caption;
+                    Description = enumAttr.Description;
+                }
             }
         }
     }
 
+    /// <summary>
+    /// Describes an enumerated type.
+    /// </summary>
     public class EnumData {
-        public string Name { get; set; }
-        public List<EnumDataEntry> Entries { get; set; }
-        public Type ContainerType { get; set; }
-
+        /// <summary>
+        /// The name of the enumerated type.
+        /// </summary>
+        public string Name { get; private set; }
+        /// <summary>
+        /// All entries for the enumerated type.
+        /// </summary>
+        public List<EnumDataEntry> Entries { get; private set; }
+        /// <summary>
+        /// Find a enum value.
+        /// </summary>
+        /// <param name="value">The value searched.</param>
+        /// <returns>The entry matching the value.</returns>
         public EnumDataEntry FindValue(object value) {
             return (from e in Entries where e.Value.Equals(value) select e).FirstOrDefault();
         }
-    }
-
-    public class GridColumnInfo {
-        public int ChWidth { get; set; }
-        public int PixWidth { get; set; }
-        public bool Sortable { get; set; }
-        public bool Locked { get; set; }
-        public bool Hidden { get; set; }
-        public bool OnlySubmitWhenChecked { get; set; }
-        public GridHAlignmentEnum Alignment { get; set; }
-        public int Icons { get; set; }
-        public List<FilterOptionEnum> FilterOptions { get; set; }
-        public enum FilterOptionEnum {
-            Equal = 1,
-            NotEqual,
-            LessThan,
-            LessEqual,
-            GreaterThan,
-            GreaterEqual,
-            StartsWith,
-            NotStartsWith,
-            Contains,
-            NotContains,
-            Endswith,
-            NotEndswith,
-            All = 0xffff,
-        }
-
-        public GridColumnInfo() {
-            PixWidth = ChWidth = 0;
-            Sortable = false;
-            Locked = false;
-            Hidden = false;
-            OnlySubmitWhenChecked = false;
-            Alignment = GridHAlignmentEnum.Unspecified;
-            Icons = 0;
-            FilterOptions = new List<FilterOptionEnum>();
+        internal EnumData(string name) {
+            Name = name;
+            Entries = new List<Models.EnumDataEntry>();
         }
     }
 
+    /// <summary>
+    /// Implements Reflection for YetaWF.
+    /// </summary>
+    /// <remarks>
+    /// Merges language specific data collected from various attributes (Description, Caption, etc.), merges language localization resources
+    /// and caches all data.
+    ///
+    /// This is the only mechanism that should be used for type reflection.
+    /// There is some legacy code and pre-startup code that uses .NET reflection, but this should be minimal.
+    /// </remarks>
     public static class ObjectSupport {
 
-        private class ClassPropertyData {
-            public Type ClassType { get; set; }
-            public List<PropertyData> PropertyData { get; set; }
+        private class LanguageObjectData {
+            public string Language { get; set; }
+            public Dictionary<Type, ObjectClassData> ObjectClassDatas { get; set; }
+            public Dictionary<Type, ObjectEnumData> ObjectEnumDatas { get; set; }
+            public LanguageObjectData() {
+                ObjectClassDatas = new Dictionary<Type, ObjectClassData>();
+                ObjectEnumDatas = new Dictionary<Type, ObjectEnumData>();
+            }
         }
-
-        private class ClassEnumData {
+        private class ObjectClassData {
+            public Type ClassType { get; set; }
+            public ClassData ClassData { get; set; }
+            public List<PropertyData> PropertyData { get; set; }
+            public ObjectClassData() {
+                PropertyData = new List<PropertyData>();
+            }
+        }
+        private class ObjectEnumData {
             public Type ClassType { get; set; }
             public EnumData EnumData { get; set; }
         }
 
         // SITE SPECIFIC in PermanentManager:
-        // Dictionary<string, ClassData> ClassAttrs
-        // Dictionary<string, ClassPropertyData> ClassProperties
-        // Dictionary<string, ClassEnumData> ClassEnums
+        // Dictionary<string, LanguageObjectData> LanguageObject
 
+        /// <summary>
+        /// Removes all cached data.
+        /// </summary>
         public static void InvalidateAll() {
-            PermanentManager.RemoveObject<Dictionary<string, ClassData>>();
-            PermanentManager.RemoveObject<Dictionary<string, ClassPropertyData>>();
-            PermanentManager.RemoveObject<Dictionary<string, ClassEnumData>>();
+            PermanentManager.RemoveObject<Dictionary<string, LanguageObjectData>>();
         }
-        public static ClassData GetClassData(Type type, bool Cache = true) {
-            ClassData classData = null;
-            Cache = Cache && YetaWFManager.HaveManager /* why did we use this? && YetaWFManager.Manager.LocalizationSupportEnabled */;
-            Dictionary<string, ClassData> classAttrs = null;
-            if (Cache && !PermanentManager.TryGetObject<Dictionary<string, ClassData>>(out classAttrs)) {
-                classAttrs = new Dictionary<string, ClassData>();
-                PermanentManager.AddObject<Dictionary<string, ClassData>>(classAttrs);
-            }
-            if (!Cache || classAttrs == null || !classAttrs.TryGetValue(type.FullName, out classData)) {
-                LocalizationData locData = null;
-                // check if we have this in resource files
-                if (Cache && !type.IsGenericType) {
-                    Package package = Package.TryGetPackageFromType(type);
-                    if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
-                        locData = LocalizationSupport.Load(package, type.FullName, LocalizationSupport.Location.Merge);
-                }
-                if (locData != null) {
-                    LocalizationData.ClassData cls = locData.FindClass(type.FullName);
-                    if (cls != null)
-                        classData = new ClassData(type, cls.Header, cls.Footer, cls.Legend);
-                    else
-                        classData = new ClassData(type);
-                } else {
-                    classData = new ClassData(type);
-                }
-                if (Cache) {
-                    try {
-                        classAttrs.Add(type.FullName, classData);
-                    } catch (Exception) { } // add may fail because there was a concurrent evaluation - just ignore
-                }
-            }
-            return classData;
-        }
-        public static List<PropertyData> GetPropertyData(Type type, bool Cache = true, bool WithInherited = true) {
+        private static ObjectClassData GetObjectClassData(Type type, bool Cache = true) {
 
-            Cache = Cache && YetaWFManager.HaveManager /* why did we use this? && YetaWFManager.Manager.LocalizationSupportEnabled */;
-            if (Cache && !WithInherited) throw new InternalError("Can't use caching when requesting declared properties");
+            ObjectClassData objClassData = null;
 
-            // use reflection to get info
-            Dictionary<string, ClassPropertyData> classProperties = null;
-            if (Cache && !PermanentManager.TryGetObject<Dictionary<string, ClassPropertyData>>(out classProperties)) {
-                classProperties = new Dictionary<string, ClassPropertyData>();
-                PermanentManager.AddObject<Dictionary<string, ClassPropertyData>>(classProperties);
-            }
-            ClassPropertyData classData = null;
-            if (classProperties != null && !classProperties.TryGetValue(type.FullName, out classData)) {
-                classData = new ClassPropertyData() {
-                    ClassType = type
-                };
-                try {
-                    classProperties.Add(type.FullName, classData);
-                } catch (Exception) { } // add may fail because there was a concurrent evaluation - just ignore
-            }
-            List<PropertyData> propertyData = null;
-            if (Cache)
-                propertyData = classData.PropertyData;
-            if (propertyData == null) {
-                propertyData = new List<PropertyData>();
-                LocalizationData locData = null;
-                // check if we have this in resource files
-                if (Cache && !type.IsGenericType) {
-                    Package package = Package.TryGetPackageFromType(type);
-                    if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
-                        locData = LocalizationSupport.Load(package, type.FullName, LocalizationSupport.Location.Merge);
-                }
-                // get information through reflection
-                foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | (WithInherited ? BindingFlags.Default : BindingFlags.DeclaredOnly)).ToList()) {
+            StringLocks.DoAction(type.FullName, () => {
+
+                string lang = MultiString.ActiveLanguage;
+                LanguageObjectData langObjData = GetLanguageObjectData(lang);
+
+                // Get class info from language info & localization resource files
+                if (!langObjData.ObjectClassDatas.TryGetValue(type, out objClassData)) {
+                    objClassData = new ObjectClassData() {
+                        ClassType = type,
+                    };
+                    if (Cache) // only cache if we include inherited properties
+                        langObjData.ObjectClassDatas.Add(type, objClassData);
+
+                    // check if we have this in resource files
+                    LocalizationData locData = null;
+                    if (Cache && !type.IsGenericType) {
+                        Package package = Package.TryGetPackageFromType(type);
+                        if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
+                            locData = LocalizationSupport.Load(package, type.FullName, LocalizationSupport.Location.Merge);
+                    }
+                    // get class data
                     if (locData != null) {
-                        LocalizationData.PropertyData locPropData = locData.FindProperty(type.FullName, pi.Name);
-                        if (locPropData != null) {
-                            propertyData.Add(new PropertyData(pi.Name, type, pi, locPropData.Caption, locPropData.Description, locPropData.HelpLink, locPropData.TextAbove, locPropData.TextBelow));
-                        } else
-                            propertyData.Add(new PropertyData(pi.Name, type, pi));
+                        LocalizationData.ClassData cls = locData.FindClass(type.FullName);
+                        if (cls != null)
+                            objClassData.ClassData = new ClassData(type, cls.Header, cls.Footer, cls.Legend, cls.Categories);
+                        else
+                            objClassData.ClassData = new ClassData(type);
                     } else {
-                        propertyData.Add(new PropertyData(pi.Name, type, pi));
+                        objClassData.ClassData = new ClassData(type);
+                    }
+                    // get property data through reflection
+                    foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | (Cache ? BindingFlags.Default : BindingFlags.DeclaredOnly)).ToList()) {
+                        LocalizationData.PropertyData locPropData = null;
+                        if (locData != null) {
+                            locPropData = locData.FindProperty(type.FullName, pi.Name);
+                            if (locPropData == null) {
+                                // check if we have this in a base class
+                                if (pi.DeclaringType != null && pi.DeclaringType != type) {
+                                    Package package = Package.TryGetPackageFromType(pi.DeclaringType);
+                                    if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage)) {
+                                        LocalizationData baseLocData = LocalizationSupport.Load(package, pi.DeclaringType.FullName, LocalizationSupport.Location.Merge);
+                                        locPropData = baseLocData.FindProperty(pi.DeclaringType.FullName, pi.Name);
+                                    }
+                                }
+                            }
+                        }
+                        if (locPropData != null)
+                            objClassData.PropertyData.Add(new PropertyData(pi.Name, type, pi, locPropData.Caption, locPropData.Description, locPropData.HelpLink, locPropData.TextAbove, locPropData.TextBelow));
+                        else
+                            objClassData.PropertyData.Add(new PropertyData(pi.Name, type, pi));
                     }
                 }
-            }
-            if (Cache)
-                classData.PropertyData = propertyData;
-            return propertyData;
+            });
+            return objClassData;
         }
+        /// <summary>
+        /// Retrieve class information for a given Type.
+        /// </summary>
+        /// <param name="type">The Type.</param>
+        /// <param name="Cache">True if all data should be cached, false otherwise.</param>
+        /// If false is specified, only the class without inherited/base class information is returned.</param>
+        /// <returns>Class information.</returns>
+        public static ClassData GetClassData(Type type, bool Cache = true) {
+            ObjectClassData objClassData = GetObjectClassData(type, Cache: Cache);
+            return objClassData.ClassData;
+        }
+        /// <summary>
+        /// Retrieve property information for a given Type.
+        /// </summary>
+        /// <param name="type">The Type.</param>
+        /// <param name="Cache">True if all data should be cached, false otherwise.</param>
+        /// If false is specified, only the class without inherited/base class information is returned.</param>
+        /// <returns>List of all properties.</returns>
+        public static List<PropertyData> GetPropertyData(Type type, bool Cache = true) {
+            ObjectClassData objClassData = GetObjectClassData(type, Cache: Cache);
+            return objClassData.PropertyData;
+        }
+        /// <summary>
+        /// Retrieve enumeration information for a given Type.
+        /// </summary>
+        /// <param name="type">The Type.</param>
+        /// <param name="Cache">True if all data should be cached, false otherwise.</param>
+        /// If false is specified, only the class without inherited/base class information is returned.</param>
+        /// <returns>Enumeration information.</returns>
+        public static EnumData GetEnumData(Type type, bool Cache = true) {
+
+            ObjectEnumData objEnumData = null;
+
+            StringLocks.DoAction(type.FullName, () => {
+                string lang = MultiString.ActiveLanguage;
+                LanguageObjectData langObjData = GetLanguageObjectData(lang);
+
+                // Get enum data from language info & localization resource files
+                if (!langObjData.ObjectEnumDatas.TryGetValue(type, out objEnumData)) {
+                    objEnumData = new ObjectEnumData() {
+                        ClassType = type,
+                    };
+                    if (Cache) // only cache if we include inherited properties
+                        langObjData.ObjectEnumDatas.Add(type, objEnumData);
+
+                    // check if we have this in resource files
+                    LocalizationData locData = null;
+                    if (Cache && !type.IsGenericType) {
+                        Package package = Package.TryGetPackageFromType(type);
+                        if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
+                            locData = LocalizationSupport.Load(package, type.FullName, LocalizationSupport.Location.Merge);
+                    }
+                    LocalizationData.EnumData locEnumData = null;
+                    if (locData != null)
+                        locEnumData = locData.FindEnum(type.FullName);
+                    // get information through reflection
+                    List<FieldInfo> fis = type.GetFields().ToList();
+                    objEnumData.EnumData = new EnumData(type.Name);
+                    object enumObj = Activator.CreateInstance(type);
+                    foreach (FieldInfo fi in fis) {
+                        if (fi.IsSpecialName) continue;
+                        if (locEnumData != null) {
+                            LocalizationData.EnumDataEntry entry = locEnumData.FindEntry(fi.Name);
+                            if (entry != null)
+                                objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi, entry.Caption, entry.Description));
+                            else
+                                if (LocalizationSupport.AbortOnFailure)
+                                throw new InternalError("Enumerated type {0} is missing an entry for {1} in the resource file", type.FullName, fi.Name);
+                        } else
+                            objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi));
+                    }
+                }
+            });
+
+            return objEnumData.EnumData;
+        }
+        /// <summary>
+        /// Retrieve information for one property.
+        /// </summary>
+        /// <param name="type">The Type of the parent model containing the property.</param>
+        /// <param name="propName">The name of the property.</param>
+        /// <returns>Property information.</returns>
         public static PropertyData GetPropertyData(Type type, string propName) {
             PropertyData propData = (from p in GetPropertyData(type) where p.Name == propName select p).FirstOrDefault();
             if (propData == null) throw new InternalError("No property {0} in {1}", propName, type.FullName);
             return propData;
         }
+        /// <summary>
+        /// Retrieve information for one property.
+        /// </summary>
+        /// <param name="type">The Type of the parent model containing the property.</param>
+        /// <param name="propName">The name of the property.</param>
+        /// <returns>Property information. null is returned if the property does not exist.</returns>
         public static PropertyData TryGetPropertyData(Type type, string propName) {
             PropertyData propData = (from p in GetPropertyData(type) where p.Name == propName select p).FirstOrDefault();
             return propData;
         }
-
-        public static PropertyInfo GetProperty(Type type, string name)
-        {
+        /// <summary>
+        /// Retrieve PropertyInfo used for reflection for one property.
+        /// </summary>
+        /// <param name="type">The Type of the parent model containing the property.</param>
+        /// <param name="propName">The name of the property.</param>
+        /// <returns>PropertyInfo.</returns>
+        public static PropertyInfo GetProperty(Type type, string name) {
             PropertyInfo prop = TryGetProperty(type, name);
             if (prop == null)
                 throw new InternalError("No property named {0} in {1}", name, type.FullName);
             return prop;
         }
+        /// <summary>
+        /// Retrieve PropertyInfo used for reflection for one property.
+        /// </summary>
+        /// <param name="type">The Type of the parent model containing the property.</param>
+        /// <param name="propName">The name of the property.</param>
+        /// <returns>PropertyInfo. null is returned if the property does not exist.</returns>
         public static PropertyInfo TryGetProperty(Type type, string name) {
             List<PropertyInfo> props = GetProperties(type);
             return (from p in props where p.Name == name select p).FirstOrDefault();
         }
+        /// <summary>
+        /// Retrieve PropertyInfo for all properties.
+        /// </summary>
+        /// <param name="type">The Type of the parent model for which all properties are retrieved.</param>
+        /// <returns>PorpertyInfo for all properties.</returns>
         public static List<PropertyInfo> GetProperties(Type type) {
             List<PropertyData> propData = GetPropertyData(type);
             return (from p in propData select p.PropInfo).ToList();
         }
-        public static TYPE GetPropertyValue<TYPE>(object parentObject, string name, TYPE dflt = default(TYPE)) {
+        /// <summary>
+        /// Retrieve a property value.
+        /// </summary>
+        /// <typeparam name="TYPE">The Type of the return value.</typeparam>
+        /// <param name="parentObject">The parent model containing the property.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="dflt">The default value returned if the property does not exist.</param>
+        /// <returns>The property value.</returns>
+        public static TYPE GetPropertyValue<TYPE>(object parentObject, string name) {
             TYPE val;
-            if (!TryGetPropertyValue<TYPE>(parentObject, name, out val, dflt))
+            if (!TryGetPropertyValue<TYPE>(parentObject, name, out val))
                 throw new InternalError("No such property - {0}", name);
             return (TYPE) (object) val;
         }
+        /// <summary>
+        /// Retrieve a property value.
+        /// </summary>
+        /// <typeparam name="TYPE">The Type of the return value.</typeparam>
+        /// <param name="parentObject">The parent model containing the property.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="dflt">The default value returned if the property does not exist.</param>
+        /// <returns>The property value. The default value is returned if the property does not exist.</returns>
         public static bool TryGetPropertyValue<TYPE>(object parentObject, string name, out TYPE val, TYPE dflt = default(TYPE)) {
             val = dflt;
             PropertyInfo prop = TryGetProperty(parentObject.GetType(), name);
@@ -403,52 +648,27 @@ namespace YetaWF.Core.Models {
             return true;
         }
 
-        public static EnumData GetEnumData(Type type) {
+        private static object _lockObject = new object();
 
-            Dictionary<string, ClassEnumData> classEnums;
-            if (!PermanentManager.TryGetObject<Dictionary<string, ClassEnumData>>(out classEnums)) {
-                classEnums = new Dictionary<string, ClassEnumData>();
-                PermanentManager.AddObject<Dictionary<string, ClassEnumData>>(classEnums);
-            }
-            ClassEnumData classEnumData;
-            if (!classEnums.TryGetValue(type.FullName, out classEnumData)) {
-                classEnumData = new ClassEnumData() {
-                    ClassType = type
-                };
-                try {
-                    classEnums.Add(type.FullName, classEnumData);
-                } catch (Exception) { } // add may fail because there was a concurrent evaluation - just ignore
-            }
-            if (classEnumData.EnumData == null) {
-                List<FieldInfo> fis = type.GetFields().ToList();
-                classEnumData.EnumData = new EnumData {
-                     Name = type.Name,
-                     Entries = new List<EnumDataEntry>(),
-                     ContainerType = type,
-                };
-                // check if we have this in resource files
-                LocalizationData.EnumData enumData = null;
-                LocalizationData data = LocalizationSupport.Load(Package.GetPackageFromType(type), type.FullName, LocalizationSupport.Location.Merge);
-                if (data != null)
-                    enumData = data.FindEnum(type.FullName);
-                else if (LocalizationSupport.AbortOnFailure)
-                        throw new InternalError("Enumerated type {0} has no resource file", type.FullName);
-                // get information through reflection
-                object enumObj = Activator.CreateInstance(type);
-                foreach (FieldInfo fi in fis) {
-                    if (fi.IsSpecialName) continue;
-                    if (enumData != null) {
-                        LocalizationData.EnumDataEntry entry = enumData.FindEntry(fi.Name);
-                        if (entry != null)
-                            classEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi, entry.Caption, entry.Description));
-                        else
-                            if (LocalizationSupport.AbortOnFailure)
-                                throw new InternalError("Enumerated type {0} is missing an entry for {1} in the resource file", type.FullName, fi.Name);
-                    } else
-                        classEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi));
+        private static LanguageObjectData GetLanguageObjectData(string lang) {
+
+            lock (_lockObject) {
+                // get language dictionary
+                Dictionary<string, LanguageObjectData> langObjDatas;
+                if (!PermanentManager.TryGetObject<Dictionary<string, LanguageObjectData>>(out langObjDatas)) {
+                    langObjDatas = new Dictionary<string, LanguageObjectData>();
+                    PermanentManager.AddObject<Dictionary<string, LanguageObjectData>>(langObjDatas);
                 }
+                // get language info from language dictionary
+                LanguageObjectData langObjData = null;
+                if (!langObjDatas.TryGetValue(lang, out langObjData)) {
+                    langObjData = new LanguageObjectData {
+                        Language = lang,
+                    };
+                    langObjDatas.Add(lang, langObjData);
+                }
+                return langObjData;
             }
-            return classEnumData.EnumData;
         }
 
         // GRID

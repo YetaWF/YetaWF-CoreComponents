@@ -11,6 +11,44 @@ using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Models {
 
+    public class GridColumnInfo {
+        public int ChWidth { get; set; }
+        public int PixWidth { get; set; }
+        public bool Sortable { get; set; }
+        public bool Locked { get; set; }
+        public bool Hidden { get; set; }
+        public bool OnlySubmitWhenChecked { get; set; }
+        public GridHAlignmentEnum Alignment { get; set; }
+        public int Icons { get; set; }
+        public List<FilterOptionEnum> FilterOptions { get; set; }
+        public enum FilterOptionEnum {
+            Equal = 1,
+            NotEqual,
+            LessThan,
+            LessEqual,
+            GreaterThan,
+            GreaterEqual,
+            StartsWith,
+            NotStartsWith,
+            Contains,
+            NotContains,
+            Endswith,
+            NotEndswith,
+            All = 0xffff,
+        }
+
+        public GridColumnInfo() {
+            PixWidth = ChWidth = 0;
+            Sortable = false;
+            Locked = false;
+            Hidden = false;
+            OnlySubmitWhenChecked = false;
+            Alignment = GridHAlignmentEnum.Unspecified;
+            Icons = 0;
+            FilterOptions = new List<FilterOptionEnum>();
+        }
+    }
+
     public class GridDefinition {
 
         public class GridEntryDefinition {
