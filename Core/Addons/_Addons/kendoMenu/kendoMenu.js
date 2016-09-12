@@ -8,7 +8,7 @@ $(document).ready(function () {
         orientation: "vertical"
     })
     .css({
-        width: "200px"
+        width: 'auto'
     });
 });
 
