@@ -153,8 +153,8 @@ namespace YetaWF.Core.Pages {
         [StringLength(Globals.MaxUrl)]
         public string RedirectToPageUrl { get; set; }
 
-        [StringLength(SiteDefinition.MaxGoogleAnalytics)]
-        public string GoogleAnalytics { get; set; }
+        [StringLength(SiteDefinition.MaxAnalytics)]
+        public string Analytics { get; set; }
 
         [StringLength(SiteDefinition.MaxMeta)]
         public string PageMetaTags { get; set; }

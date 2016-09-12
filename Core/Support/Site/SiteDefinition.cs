@@ -68,7 +68,7 @@ namespace YetaWF.Core.Site {
         public const int MaxSiteName = 40;
         public const int MaxSiteDomain = 80;
         public const int MaxGoogleVerification = 1000;
-        public const int MaxGoogleAnalytics = 1000;
+        public const int MaxAnalytics = 1000;
         public const int MaxMeta = 1000;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -609,11 +609,10 @@ namespace YetaWF.Core.Site {
         // ADDONS
         // ADDONS
 
-        [Category("Addons"), Caption("Google Analytics"), Description("The Universal Analytics tracking code used by Google Analytics - You can obtain the tracking code from Google Analytics - Make sure to copy the ENTIRE tracking code (including all javascript and markup)")]
-        [TextAbove("Google Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxGoogleAnalytics), Trim]
-        [HelpLink("https://analytics.google.com/")]
-        public string GoogleAnalytics { get; set; }
+        [Category("Addons"), Caption("Analytics"), Description("Add analytics code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here - Pages can override this setting")]
+        [TextAbove("Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxAnalytics), Trim]
+        public string Analytics { get; set; }
 
         [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]

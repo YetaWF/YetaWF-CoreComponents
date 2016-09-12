@@ -62,10 +62,10 @@ namespace YetaWF.Core.Pages {
             // endofpage-js + </body> replaces </body>
             string endstuff = Manager.ScriptManager.RenderEndofPageScripts().ToString();
             if (Manager.Deployed) {
-                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.GoogleAnalytics))
-                    endstuff += Manager.CurrentPage.GoogleAnalytics;
-                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.GoogleAnalytics))
-                    endstuff += Manager.CurrentSite.GoogleAnalytics;
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
+                    endstuff += Manager.CurrentPage.Analytics;
+                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Analytics))
+                    endstuff += Manager.CurrentSite.Analytics;
             }
             pageHtml = reEndBody.Replace(pageHtml, endstuff + "</body>", 1);
 
