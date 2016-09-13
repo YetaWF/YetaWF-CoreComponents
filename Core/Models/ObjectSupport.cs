@@ -494,7 +494,7 @@ namespace YetaWF.Core.Models {
         /// Retrieve class information for a given Type.
         /// </summary>
         /// <param name="type">The Type.</param>
-        /// <param name="Cache">True if all data should be cached, false otherwise.</param>
+        /// <param name="Cache">True if all data should be cached, false otherwise.
         /// If false is specified, only the class without inherited/base class information is returned.</param>
         /// <returns>Class information.</returns>
         public static ClassData GetClassData(Type type, bool Cache = true) {
@@ -505,7 +505,7 @@ namespace YetaWF.Core.Models {
         /// Retrieve property information for a given Type.
         /// </summary>
         /// <param name="type">The Type.</param>
-        /// <param name="Cache">True if all data should be cached, false otherwise.</param>
+        /// <param name="Cache">True if all data should be cached, false otherwise.
         /// If false is specified, only the class without inherited/base class information is returned.</param>
         /// <returns>List of all properties.</returns>
         public static List<PropertyData> GetPropertyData(Type type, bool Cache = true) {
@@ -516,7 +516,7 @@ namespace YetaWF.Core.Models {
         /// Retrieve enumeration information for a given Type.
         /// </summary>
         /// <param name="type">The Type.</param>
-        /// <param name="Cache">True if all data should be cached, false otherwise.</param>
+        /// <param name="Cache">True if all data should be cached, false otherwise.
         /// If false is specified, only the class without inherited/base class information is returned.</param>
         /// <returns>Enumeration information.</returns>
         public static EnumData GetEnumData(Type type, bool Cache = true) {
