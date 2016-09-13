@@ -22,6 +22,7 @@ namespace YetaWF.Core.Support {
             DoubleEscape = false;
             CurlyBraces = true;
             EncodeDefault = true;
+            PreserveAsis = false;
         }
         protected YetaWFManager Manager { get; private set; }
         public object Parameters { get; private set; }
@@ -38,6 +39,13 @@ namespace YetaWF.Core.Support {
         /// Defines whether encoding is used by default.
         /// </summary>
         public bool EncodeDefault { get; set; }
+        /// <summary>
+        /// Defines whether variables marked with "-" are preserved.
+        /// </summary>
+        /// <remarks>A variable defined with a "-" in front of the variable type is preserved without removing the leading "-".
+        ///
+        /// If true, [-Var,SomeName] is rendered as [-Var,SomeName]. If false, it is rendered as [Var,SomeName] by removing the leading "-".</remarks>
+        public bool PreserveAsis { get; set; }
 
         public string ReplaceVariables(string text) {
             if (string.IsNullOrWhiteSpace(text)) return "";
@@ -146,7 +154,12 @@ namespace YetaWF.Core.Support {
             string retString = m.Value;
             try {
                 string neg = m.Groups["neg"].Value.Trim();
-                if (neg == "-") return retString.ReplaceFirst("-", "");
+                if (neg == "-") {
+                    if (PreserveAsis)
+                        return retString;
+                    else
+                        return retString.ReplaceFirst("-", "");
+                }
                 string loc = m.Groups["module"].Value.Trim();
                 string var = m.Groups["var"].Value.Trim();
                 string subvar = m.Groups["subvar"].Value.Trim();
