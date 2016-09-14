@@ -128,6 +128,7 @@ namespace YetaWF.Core.Packages {
                     });
                 }
                 cls.Categories = AddCategories(cls.Categories, prop.Categories);
+                cls.Categories = new SerializableDictionary<string, string>(cls.Categories.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value));
             }
 
             if (hasData) {

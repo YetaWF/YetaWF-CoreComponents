@@ -19,28 +19,28 @@
                   <Object Type="YetaWF.Core.Serializers.SerializableDictionary`2[[System.String, mscorlib, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" Assembly="YetaWF.Core">
                     <Properties />
                     <Dictionary>
-                      <Key Value="Variables" />
-                      <Value Value="Variables" />
-                      <Key Value="Site" />
-                      <Value Value="Site" />
-                      <Key Value="Pages" />
-                      <Value Value="Pages" />
+                      <Key Value="Addons" />
+                      <Value Value="Addons" />
                       <Key Value="CDN" />
                       <Value Value="CDN" />
                       <Key Value="Email" />
                       <Value Value="Email" />
-                      <Key Value="Urls" />
-                      <Value Value="Urls" />
-                      <Key Value="References" />
-                      <Value Value="References" />
-                      <Key Value="Skin" />
-                      <Value Value="Skin" />
                       <Key Value="Encryption" />
                       <Value Value="Encryption" />
-                      <Key Value="Addons" />
-                      <Value Value="Addons" />
                       <Key Value="Meta" />
                       <Value Value="Meta" />
+                      <Key Value="Pages" />
+                      <Value Value="Pages" />
+                      <Key Value="References" />
+                      <Value Value="References" />
+                      <Key Value="Site" />
+                      <Value Value="Site" />
+                      <Key Value="Skin" />
+                      <Value Value="Skin" />
+                      <Key Value="Urls" />
+                      <Value Value="Urls" />
+                      <Key Value="Variables" />
+                      <Value Value="Variables" />
                     </Dictionary>
                   </Object>
                 </Categories>
