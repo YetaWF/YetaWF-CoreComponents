@@ -663,11 +663,10 @@ $(document).ready(function () {
     //    position: { my: "left top", at: "right bottom", collision: "flipfit" }
     //});
 
-    var $ttitems = $('label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,img,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan));
     $('body').tooltip({
         // th.k-header span[{1}]  -  Telerik Grid
         // .ui-jqgrid span[{1}]  -  jqGrid
-        items: $ttitems,
+        items: 'img,label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
         content: function (a, b, c) {
             var $this = $(this);
             for ( ; ; ) {
