@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 
 namespace YetaWF.Core.Support {
-    
+
     public static class Assemblies {
 
-        public static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
+        private static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
 
         public static Assembly Load(string asmName) {
             Assembly assembly;
