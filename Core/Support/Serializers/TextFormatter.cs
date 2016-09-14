@@ -9,6 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
@@ -64,12 +65,23 @@ namespace YetaWF.Core.Serializers {
             xmlOut.Close();
         }
 
+        private Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
+
         private void SerializeObjectProperties(XmlWriter xmlOut, object obj) {
 
             xmlOut.WriteStartElement("Object");
-            xmlOut.WriteAttributeString("Type", obj.GetType().FullName);
-            xmlOut.WriteAttributeString("Assembly", obj.GetType().Assembly.GetName().Name);
-            xmlOut.WriteAttributeString("AssemblyFull", obj.GetType().Assembly.FullName);
+
+            // "YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null]]"
+            // remove version as it's not needed and just clutters up the xml files
+            string typeName = obj.GetType().FullName;
+            typeName = reVers.Replace(typeName, ",");
+            xmlOut.WriteAttributeString("Type", typeName);
+
+            string asmName = obj.GetType().Assembly.GetName().Name;
+
+            xmlOut.WriteAttributeString("Assembly", asmName);
+            if (asmName != YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Name)// we only save the full name if it's not YetaWF.Core
+                xmlOut.WriteAttributeString("AssemblyFull", obj.GetType().Assembly.FullName);
 
             xmlOut.WriteStartElement("Properties");
 
@@ -232,7 +244,6 @@ namespace YetaWF.Core.Serializers {
 
             string strType = xmlIn.Attr("Type");
             string strAsm = xmlIn.Attr("Assembly");
-            string strAsmFull = xmlIn.Attr("AssemblyFull");
 
             Type t = null;
             try {
@@ -243,10 +254,11 @@ namespace YetaWF.Core.Serializers {
             }
             if (t == null) {
                 try {
+                    string strAsmFull = xmlIn.Attr("AssemblyFull");
                     Assembly asm = Assemblies.Load(strAsmFull);
                     t = asm.GetType(strType, true);
                 } catch (Exception exc) {
-                    throw new InternalError("{0} element at line {1} has an invalid Type attribute {2} - {3}.", xmlIn.Name, xmlIn.LineNumber, strType, exc.Message);
+                    throw new InternalError("{0} element at line {1} has an invalid Type attribute {2} - {3} - AssemblyFull missing or invalid.", xmlIn.Name, xmlIn.LineNumber, strType, exc.Message);
                 }
             }
             xmlIn.MustRead(); // skip over Object entry

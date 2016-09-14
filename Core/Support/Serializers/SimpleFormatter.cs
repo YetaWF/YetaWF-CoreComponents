@@ -9,6 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
@@ -98,9 +99,21 @@ namespace YetaWF.Core.Serializers {
             SerializeObjectProperties(serializationStream, graph);
         }
 
+        private Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
+
         private void SerializeObjectProperties(Stream stream, object obj) {
 
-            stream.Write("Object:{0}:{1}:{2}", obj.GetType().FullName, obj.GetType().Assembly.GetName().Name, obj.GetType().Assembly.FullName);
+            string asmName = obj.GetType().Assembly.GetName().Name;
+            string asmFullName = "";// we only save the full name if it's not YetaWF.Core
+            if (asmName != YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Name)
+                asmFullName = obj.GetType().Assembly.FullName;
+
+            // "YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null]]"
+            // remove version as it's not needed and just clutters up the save files
+            string typeName = obj.GetType().FullName;
+            typeName = reVers.Replace(typeName, ",");
+
+            stream.Write("Object:{0}:{1}:{2}", typeName, asmName, asmFullName);
             stream.Write("P");
 
             // we only want properties
@@ -255,7 +268,7 @@ namespace YetaWF.Core.Serializers {
                     Assembly asm = Assemblies.Load(strAsmFull);
                     t = asm.GetType(strType, true);
                 } catch (Exception exc) {
-                    throw new InternalError("Invalid object type {0} - {1}", input, exc.Message);
+                    throw new InternalError("Invalid object type {0} - {1} - AssemblyFull missing or invalid", input, exc.Message);
                 }
             }
             input = Read(stream);
