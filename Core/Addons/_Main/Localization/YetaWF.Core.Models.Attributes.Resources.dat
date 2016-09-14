@@ -1,26 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--YetaWF.Core.Localize.LocalizationData-->
-<Object Type="YetaWF.Core.Localize.LocalizationData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+<Object Type="YetaWF.Core.Localize.LocalizationData" Assembly="YetaWF.Core">
   <Properties>
     <Comment />
     <Classes>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
         <Properties />
         <List />
       </Object>
     </Classes>
     <Enums>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
         <Properties />
         <List />
       </Object>
     </Enums>
     <Strings>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
         <Properties />
         <List>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="badStringLengthMax" />
                 <Text Value="The length for '{0}' can't exceed {1} characters" />
@@ -28,7 +28,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="badStringLengthMinMax" />
                 <Text Value="The length for '{0}' must be between {1} and {2} characters" />
@@ -36,7 +36,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="errInvMeta" />
                 <Text Value="The meta tag is invalid - It should be in the format &lt;meta name=&quot;google-site-verification&quot; content=&quot;....your-code....&quot; /&gt;" />
@@ -44,7 +44,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="errInvSite" />
                 <Text Value="The site's domain name is invalid - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - ." />
@@ -52,7 +52,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="errPrivateKey" />
                 <Text Value="The RecaptchaV2 configuration settings are missing - no public/private key found" />
@@ -60,7 +60,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="errPrivateKeyV2" />
                 <Text Value="The Recaptcha configuration settings are missing - no private key found" />
@@ -68,7 +68,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="range" />
                 <Text Value="The '{0}' value must be between {1} and {2}" />
@@ -76,7 +76,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="required" />
                 <Text Value="The '{0}' field is required" />
@@ -84,7 +84,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="requiredIf" />
                 <Text Value="The {0} field is required" />
@@ -92,7 +92,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="requiredIfInRange" />
                 <Text Value="The {0} field is required" />
@@ -100,7 +100,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="requiredIfNot" />
                 <Text Value="The {0} field is required" />
@@ -108,7 +108,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="requiredIfSupplied" />
                 <Text Value="The {0} field is required" />
@@ -116,7 +116,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="SameAs" />
                 <Text Value="The {0} field doesn't match." />
@@ -124,7 +124,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="selectionRequired" />
                 <Text Value="The '{0}' field is required - Please select one of the available options" />
@@ -132,7 +132,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valAnchor" />
                 <Text Value="The id is invalid - use only the letters a-z, A-Z, _, - and 0-9 for ids" />
@@ -140,7 +140,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valCCNum" />
                 <Text Value="The credit card number is invalid" />
@@ -148,7 +148,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valCCV" />
                 <Text Value="The card ID is invalid - The Card ID is printed on the back of your credit card. Usually the last 4 digits of your card number, followed by the card ID (3-4 digits) are shown. If your credit card has such a security code, please enter it here (if you do not enter it, your order may be delayed or rejected). If your card has no such code, simply leave this field empty." />
@@ -156,7 +156,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valCssClass" />
                 <Text Value="The class listed are invalid - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit" />
@@ -164,7 +164,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valCssClasses" />
                 <Text Value="The classes listed are invalid - Please separate classes using spaces (not commas) and use only the letters a-z, A-Z, _ and 0-9 for class names - Class names can't start with a digit" />
@@ -172,7 +172,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valDateMax" />
                 <Text Value="The date is invalid - it's after the allowed end date of {0}" />
@@ -180,7 +180,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valDateMin" />
                 <Text Value="The date is invalid - it's before the allowed start date of {0}" />
@@ -188,7 +188,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valEmail" />
                 <Text Value="The email address is invalid - it should be in the format 'user@domain.com'" />
@@ -196,7 +196,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valEmail2" />
                 <Text Value="The email address for {0} is invalid - it should be in the format 'user@domain.com'" />
@@ -204,7 +204,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valGuid" />
                 <Text Value="The guid is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'" />
@@ -212,7 +212,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valGuid2" />
                 <Text Value="The guid ({0}) is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'" />
@@ -220,7 +220,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl1" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format '/someLocalPage', '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'" />
@@ -228,7 +228,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl2" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format '/someLocalPage' or 'http://somedomain.com/page' - https is not allowed" />
@@ -236,7 +236,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl3" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed" />
@@ -244,7 +244,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl4" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'" />
@@ -252,7 +252,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl5" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format 'http://somedomain.com/page' - https is not allowed" />
@@ -260,7 +260,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl6" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed" />
@@ -268,7 +268,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl7" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format '/someLocalPage' defining a local Url on the current site" />
@@ -276,7 +276,7 @@
             </Object>
           </Value>
           <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core" AssemblyFull="YetaWF.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null">
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valUrl8" />
                 <Text Value="The Url for '{0}' is invalid - it should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? &amp; etc." />

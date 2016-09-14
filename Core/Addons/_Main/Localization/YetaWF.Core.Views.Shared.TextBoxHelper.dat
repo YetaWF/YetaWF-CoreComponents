@@ -22,8 +22,16 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="errPrivateKey" />
-                <Text Value="The Recaptcha configuration settings are missing - no public key found" />
+                <Name Value="altCopy" />
+                <Text Value="Copy to Clipboard" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="ttCopy" />
+                <Text Value="Copy to Clipboard" />
               </Properties>
             </Object>
           </Value>
