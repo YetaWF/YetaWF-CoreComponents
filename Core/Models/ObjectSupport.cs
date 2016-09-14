@@ -476,7 +476,8 @@ namespace YetaWF.Core.Models {
                                     Package package = Package.TryGetPackageFromType(pi.DeclaringType);
                                     if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage)) {
                                         LocalizationData baseLocData = LocalizationSupport.Load(package, pi.DeclaringType.FullName, LocalizationSupport.Location.Merge);
-                                        locPropData = baseLocData.FindProperty(pi.DeclaringType.FullName, pi.Name);
+                                        if (baseLocData != null)
+                                            locPropData = baseLocData.FindProperty(pi.DeclaringType.FullName, pi.Name);
                                     }
                                 }
                             }
