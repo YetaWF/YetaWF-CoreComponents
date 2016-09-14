@@ -41,12 +41,6 @@ namespace YetaWF.Core.Views.Shared {
         public ProcessIfAttribute ProcIfAttr { get; set; }
     };
 
-    public interface IPropertyListSupport {
-        List<string> GetCategories();
-        List<PropertyListEntry> GetProperties(string category = null);
-        List<PropertyListEntry> GetHiddenProperties();
-    }
-
     public static class PropertyListSupport {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -114,12 +108,6 @@ namespace YetaWF.Core.Views.Shared {
         // Returns all categories implemented by this object - these are decorated with the [CategoryAttribute]
         public static List<string> GetCategories(object obj) {
 
-            // use interface if object offers it
-            IPropertyListSupport interf = obj as IPropertyListSupport;
-            if (interf != null) return interf.GetCategories();
-
-            // otherwise use default implementation to get the categories
-
             // get all properties that are shown
             List<PropertyData> props = GetProperties(obj.GetType()).ToList();
 
@@ -152,11 +140,6 @@ namespace YetaWF.Core.Views.Shared {
         }
         public static List<PropertyListEntry> GetPropertiesByCategory(object obj, string category = null, int dummy = 0, bool Sorted = false, bool GridUsage = false) {
 
-            // use interface if object offers it
-            IPropertyListSupport interf = obj as IPropertyListSupport;
-            if (interf != null) return interf.GetProperties(category);
-
-            // otherwise use default implementation
             List<PropertyListEntry> properties = new List<PropertyListEntry>();
             Type objType = obj.GetType();
             var props = GetProperties(objType, GridUsage: GridUsage);
@@ -217,11 +200,6 @@ namespace YetaWF.Core.Views.Shared {
 
         public static List<PropertyListEntry> GetHiddenProperties(object obj) {
 
-            // use interface if object offers it
-            IPropertyListSupport interf = obj as IPropertyListSupport;
-            if (interf != null) return interf.GetHiddenProperties();
-
-            // otherwise use default implementation
             List<PropertyListEntry> properties = new List<PropertyListEntry>();
             List<PropertyData> props = ObjectSupport.GetPropertyData(obj.GetType());
             foreach (var prop in props) {
