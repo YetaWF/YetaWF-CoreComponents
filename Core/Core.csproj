@@ -106,6 +106,7 @@
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Templates\RecaptchaV2.cs" />
+    <Compile Include="Templates\Text.cs" />
     <Compile Include="Views\Shared\FormButton.cs" />
     <Compile Include="Views\Shared\Support\MenuListHelper.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />

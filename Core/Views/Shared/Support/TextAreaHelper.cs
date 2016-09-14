@@ -26,13 +26,13 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 
-            Manager.AddOnManager.AddAddOnGlobal("ckeditor.com", "ckeditor");
-
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: true, Validation: false);
 
-            bool sourceOnly = htmlHelper.GetControlInfo<bool>("", "SourceOnly", false);
-            if (sourceOnly) {
+            tag.Attributes.Add("readonly", "readonly");
+
+            bool encode = htmlHelper.GetControlInfo<bool>("", "Encode", true);
+            if (encode) {
                 if (string.IsNullOrWhiteSpace(text))
                     text = "&nbsp;"; //so the div is not empty
                 else {
@@ -41,6 +41,9 @@ namespace YetaWF.Core.Views.Shared {
                     text = text.Replace("\r\n", "<br/>");
                     text = text.Replace("\n", "<br/>");
                 }
+            } else {
+                if (string.IsNullOrWhiteSpace(text))
+                    text = "&nbsp;"; //so the div is not empty
             }
             tag.InnerHtml = text;
 
