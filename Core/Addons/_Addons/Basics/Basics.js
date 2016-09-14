@@ -663,13 +663,16 @@ $(document).ready(function () {
     //    position: { my: "left top", at: "right bottom", collision: "flipfit" }
     //});
 
+    var $ttitems = $('label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,img,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan));
     $('body').tooltip({
         // th.k-header span[{1}]  -  Telerik Grid
         // .ui-jqgrid span[{1}]  -  jqGrid
-        items: 'label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,img,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
+        items: $ttitems,
         content: function (a, b, c) {
             var $this = $(this);
             for ( ; ; ) {
+                if (!$this.is(':hover') && $this.is(':focus'))
+                    return null;
                 var s = $this.attr(YConfigs.Basics.CssTooltip);
                 if (s != undefined)
                     return Y_HtmlEscape(s);
