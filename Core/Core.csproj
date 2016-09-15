@@ -407,6 +407,8 @@
     <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
+    <Content Include="Addons\_Templates\IntValue\IntValue.js" />
+    <Content Include="Addons\_Templates\IntValue\filelistJS.txt" />
     <Content Include="Addons\_Templates\ModuleAction\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ModuleAction\ModuleAction.css" />
     <Content Include="Addons\_Templates\ModuleActions\ModuleActions.css" />

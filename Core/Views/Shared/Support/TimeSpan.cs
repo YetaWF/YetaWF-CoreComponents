@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Web.Mvc;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 
@@ -13,7 +14,7 @@ namespace YetaWF.Core.Views.Shared {
         private TimeSpan Span = new TimeSpan();
 
         [Caption("Days"), Description("Number of days")]
-        [UIHint("IntValue4"), Required, Range(0,999999)]
+        [UIHint("IntValue6"), Required, Range(0,999999)]
         public int Days { get { return Span.Days; } set { } }
         [Caption("Hours"), Description("Number of hours")]
         [UIHint("IntValue2"), Required, Range(0, 23)]
