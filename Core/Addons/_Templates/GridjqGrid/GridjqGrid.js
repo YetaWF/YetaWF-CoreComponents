@@ -495,7 +495,7 @@ $(document).ready(function () {
 
     // CanAddOrDelete
     // intercept return in text box (used for add/delete) and click add button
-    $("body").on("keydown", ".yt_grid_addordelete input[name='txtNewValue']", function (e) {
+    $("body").on("keydown", ".yt_grid_addordelete input[name$='.NewValue']", function (e) {
         var $attrVal = $(this);
         var $ctrl = $attrVal.closest('.yt_grid_addordelete');
         if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
@@ -517,7 +517,7 @@ $(document).ready(function () {
         var $ctrl = $btnAdd.closest('.yt_grid_addordelete');
         if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
 
-        var $attrVal = $('input[name="txtNewValue"]', $ctrl);
+        var $attrVal = $('input[name$=".NewValue"]', $ctrl);
         if ($attrVal.length != 1) throw "Can't find new value control";/*DEBUG*/
         var attrVal = $attrVal.val();
         attrVal = attrVal.trim();

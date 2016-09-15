@@ -1,7 +1,26 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+var YetaWF_TemplateText = {};
+YetaWF_TemplateText.init = function ($partialForm) {
+    'use strict';
+    $('input.yt_text,input.yt_text10,input.yt_text20,input.yt_text40,input.yt_text80,input.yt_text_base', $partialForm).each(function (index) {
+        var $this = $(this);
+        var autocomplate = $this.attr('autocomplete');// preserve autocomplete
+        $this.kendoMaskedTextBox({ });
+        $this.attr('autocomplete', autocomplate);
+    });
+};
+
 $(document).ready(function () {
     'use strict';
+
+    YetaWF_TemplateText.init($('body'));
+    if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
+        YetaWF_Forms.partialFormActionsAll.push({
+            callback: YetaWF_TemplateText.init
+        });
+    }
+
     function initClip() {
         if ($('.yt_text_copy').length > 0) {
             var clipBoard = new Clipboard('.yt_text_copy', {

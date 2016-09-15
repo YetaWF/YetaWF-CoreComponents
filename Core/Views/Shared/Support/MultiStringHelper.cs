@@ -57,7 +57,7 @@ namespace YetaWF.Core.Views.Shared {
                 selectLang = MultiString.DefaultLanguage;
 
             // generate a textbox for the currently selected language
-            hb.Append(htmlHelper.RenderTextBox("", ms[selectLang], HtmlAttributes: new { @class = cls + " yt_multistring_text " + Forms.CssFormNoSubmit }));
+            hb.Append(htmlHelper.RenderTextBox("", ms[selectLang], HtmlAttributes: new { @class = cls + " yt_multistring_text yt_text_base " + Forms.CssFormNoSubmit }));
 
             // generate a dropdownlist for the available languages
             List<SelectionItem<string>> selectLangList = new List<SelectionItem<string>>();

@@ -54,13 +54,11 @@ namespace YetaWF.Core.SendEmail {
         }
         public void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null)
         {
-            if (string.IsNullOrWhiteSpace(toEmail))
-                throw new InternalError("No To Email address defined");
-            Logging.AddLog("Sending email {0} to {1}", emailFile, toEmail);
-
             string file = emailFile;
             if (!file.EndsWith(EmailTxtExtension, StringComparison.CurrentCultureIgnoreCase))
                 throw new Error(this.__ResStr("errEmailTextInv", "The base email file {0} must be a text file (ending in .txt)"), file);
+
+            Logging.AddLog("Sending email {0} to {1}", emailFile, toEmail);
 
             // read simple txt
             string linesText;

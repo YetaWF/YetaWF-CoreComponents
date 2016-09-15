@@ -93,7 +93,7 @@ YetaWF_GridKendo.GetReadParameterMap = function ($grid, moduleguid, data, operat
 YetaWF_GridKendo.SaveSettingsColumnWidths = function (grid, url, settingsGuid) {
     if (!url || !settingsGuid) return;
 
-    // save all relevant settings via ajax call 
+    // save all relevant settings via ajax call
     var data = {};
     data["SettingsModuleGuid"] = settingsGuid;
     for (var i = 0; i < grid.columns.length; i++) {
@@ -176,7 +176,7 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
 
     var grid = $grid.data("kendoGrid");
-    
+
     // collect all data from grid's datasource
     var ds = grid.dataSource;
     var total = ds.total();
@@ -230,7 +230,7 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
     $form.append(div);
 };
 
-// Add all input fields from grid to form as a hidden div 
+// Add all input fields from grid to form as a hidden div
 YetaWF_GridKendo.HandleSubmitFields = function ($grid, $form) {
     var DATACLASS = "yetawf_gridkendo_submitdata";
     //remove any existing hidden div
@@ -358,7 +358,7 @@ $(document).ready(function () {
 
     // CanAddOrDelete
     // intercept return in text box (used for add/delete) and click add button
-    $("body").on("keydown", ".yt_grid_addordelete input[name='txtNewValue']", function (e) {
+    $("body").on("keydown", ".yt_grid_addordelete input[name$='.NewValue']", function (e) {
         var $attrVal = $(this);
         var $ctrl = $attrVal.closest('.yt_grid_addordelete');
         if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
@@ -380,12 +380,12 @@ $(document).ready(function () {
         var $ctrl = $btnAdd.closest('.yt_grid_addordelete');
         if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
 
-        var $attrVal = $('input[name="txtNewValue"]', $ctrl);
+        var $attrVal = $('input[name$=".NewValue"]', $ctrl);
         if ($attrVal.length != 1) throw "Can't find new value control";/*DEBUG*/
         var attrVal = $attrVal.val();
         attrVal = attrVal.trim();
         if (attrVal == "") return;
-        
+
         var $grid = $('.k-grid.k-widget', $ctrl);
         if ($grid.length != 1) throw "Can't find grid control for new value";/*DEBUG*/
         var propertyName = $grid.attr('data-deleteproperty');

@@ -24,7 +24,7 @@
     }
     @if ((type & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
         <div class="t_remote">
-            <input type="text" value="@Model" />
+            @Html.RenderTextBox("_Remote", Model, HtmlAttributes: new { @class = "yt_text_base t_edit" })
         </div>
     }
     <div class="t_link">

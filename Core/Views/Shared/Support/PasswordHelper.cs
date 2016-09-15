@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -12,7 +13,12 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class PasswordHelper {
 
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
         public static MvcHtmlString RenderPassword(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+
+            Manager.AddOnManager.AddTemplate("Text");
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
 
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);
@@ -31,6 +37,7 @@ namespace YetaWF.Core.Views.Shared {
             // text
             tag.MergeAttribute("type", "password");
             tag.MergeAttribute("value", text);
+            tag.MergeAttribute("autocomplete", "off");
 
             return MvcHtmlString.Create(tag.ToString(TagRenderMode.SelfClosing));
         }

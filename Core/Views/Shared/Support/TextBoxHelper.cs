@@ -21,6 +21,9 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 
+            Manager.AddOnManager.AddTemplate("Text");
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
+
             HtmlBuilder hb = new HtmlBuilder();
 
             bool copy = htmlHelper.GetControlInfo<bool>("", "Copy", false);
@@ -39,6 +42,7 @@ namespace YetaWF.Core.Views.Shared {
             // text
             tag.MergeAttribute("type", "text");
             tag.MergeAttribute("value", text);
+            tag.MergeAttribute("autocomplete", "on");
 
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
@@ -53,6 +57,9 @@ namespace YetaWF.Core.Views.Shared {
             return MvcHtmlString.Create(hb.ToString());
         }
         public static MvcHtmlString RenderTextBoxDisplay(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+
+            Manager.AddOnManager.AddTemplate("Text");
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
 
             HtmlBuilder hb = new HtmlBuilder();
 
