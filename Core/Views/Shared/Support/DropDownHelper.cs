@@ -160,7 +160,7 @@ namespace YetaWF.Core.Views.Shared {
             bool showValues = UserSettings.GetProperty<bool>("ShowEnumValue");
 
             bool showSelect = htmlHelper.GetControlInfo<bool>("", "ShowSelect", false);
-            if (showSelect) {//$$$ make sure this looks right everywhere
+            if (showSelect) {
                 items.Add(new SelectionItem<int> {
                     Text = __ResStr("enumSelect", "(select)"),
                     Value = 0,
