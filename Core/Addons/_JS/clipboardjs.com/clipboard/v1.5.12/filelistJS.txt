@@ -1,1 +1,1 @@
-clipboard.js
+clipboard.min.js,nobundle
