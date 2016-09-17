@@ -17,7 +17,7 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class UrlHelperEx {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelperEx), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelper), name, defaultValue, parms); }
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         [Flags]
@@ -26,8 +26,14 @@ namespace YetaWF.Core.Views.Shared {
             Remote = 2,
             New = 4, // Local by definition
         }
+    }
 
-        public static MvcHtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+    public static class UrlHelper {
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelper), name, defaultValue, parms); }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
+            public static MvcHtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 
             HtmlBuilder hb = new HtmlBuilder();
 

@@ -22,6 +22,22 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
+                <Name Value="altText" />
+                <Text Value="Remote Url" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="select" />
+                <Text Value="(select)" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
                 <Name Value="selLocal" />
                 <Text Value="Designed Page" />
               </Properties>
@@ -32,6 +48,14 @@
               <Properties>
                 <Name Value="selLocalTT" />
                 <Text Value="Select for local, designed pages" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="selPage" />
+                <Text Value="Select page {0}" />
               </Properties>
             </Object>
           </Value>

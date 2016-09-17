@@ -855,18 +855,6 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="TreeStyle" />
-                            <Caption Value="Tree Style" />
-                            <Description Value="Defines which UI provides the tree control implementation" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
                             <Name Value="UnsupportedBrowserUrl" />
                             <Caption Value="Unsupported Browsers Url" />
                             <Description Value="If an unsupported browsers accesses this site, the user is redirected to this Url - If no Url is defined, browser versions are not checked" />
