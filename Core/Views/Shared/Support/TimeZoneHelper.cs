@@ -16,7 +16,7 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(TimeZoneHelper), name, defaultValue, parms); }
 
-        public static MvcHtmlString RenderTimeZoneDD(this HtmlHelper htmlHelper, string name, string model) {
+        public static MvcHtmlString RenderTimeZoneDD(this HtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
 
             List<TimeZoneInfo> tzis = TimeZoneInfo.GetSystemTimeZones().ToList();
             DateTime dt = DateTime.Now;// Need local time
@@ -38,7 +38,7 @@ namespace YetaWF.Core.Views.Shared {
                     model = TimeZoneInfo.Local.Id;
             } else
                 list.Insert(0, new SelectionItem<string> { Text = __ResStr("select", "(select)"), Value = "" });
-            return htmlHelper.RenderDropDownSelectionList<string>(name, model, list);
+            return htmlHelper.RenderDropDownSelectionList<string>(name, model, list, HtmlAttributes: HtmlAttributes);
         }
         public static MvcHtmlString RenderTimeZoneDisplay(this HtmlHelper htmlHelper, string name, string model) {
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(model);

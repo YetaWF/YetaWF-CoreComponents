@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using YetaWF.Core.Support;
@@ -27,6 +27,20 @@ namespace YetaWF.Core.Views {
             const string prefix1 = "GridProductEntries.GridDataRecords.record.";
             if (fieldName.StartsWith(prefix1)) fieldName = fieldName.Substring(prefix1.Length);
             return fieldName;
+        }
+        /// <summary>
+        /// Creates a new id on the specified tag or returns the existing id.
+        /// </summary>
+        /// <param name="htmlHelper">HTML helper.</param>
+        /// <param name="tag">The tag.</param>
+        /// <returns>An existing id or the id that was added to the tag.</returns>
+        public static string MakeId(this HtmlHelper htmlHelper, TagBuilder tag) {
+            string id = (from a in tag.Attributes where string.Compare(a.Key, "id", true) == 0 select a.Value).FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(id)) {
+                id = Manager.UniqueId();
+                tag.Attributes.Add("id", id);
+            }
+            return id;
         }
 
         public static string FieldSetup(this HtmlHelper htmlHelper, TagBuilder tag, string name, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true, bool Anonymous = false) {

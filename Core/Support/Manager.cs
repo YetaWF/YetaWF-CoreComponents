@@ -951,6 +951,19 @@ namespace YetaWF.Core.Support {
         public string PaneRendered { get; set; }
 
         public bool IsRenderingPane { get { return PaneRendered != null; } }
+        /// <summary>
+        /// Defines whether grid data is being rendered.
+        /// </summary>
+        /// <remarks>Some templates adjust when they are used in a grid.
+        ///
+        /// This is mainly used to prevent use of complex templates in grids, where javascript cannot be
+        /// executed for templates. For example, the dropdownlist template needs javascript for initialization,
+        /// so we fall back to the default browser dropdownlist in grids.</remarks>
+        public bool IsRenderingGrid { get { return RenderingGridCount > 0; } }
+        /// <summary>
+        /// Count of grids being rendered (grids within grids).
+        /// </summary>
+        public int RenderingGridCount { get; set; }
 
         public bool ForceModuleActionLinks { get; set; } // force module action links outside of a pane
 

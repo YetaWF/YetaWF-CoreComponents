@@ -24,7 +24,7 @@ namespace YetaWF.Core.Views.Shared {
             return DesignedModules.LoadDesignedModules().Count > 0;
         }
 
-        public static MvcHtmlString RenderModuleSelectionDD(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
+        public static MvcHtmlString RenderModuleSelectionDD(this HtmlHelper htmlHelper, string name, Guid? modGuid, object HtmlAttributes = null) {
 
             bool newMods = htmlHelper.GetControlInfo<bool>(name, "New", false);
 
@@ -48,7 +48,7 @@ namespace YetaWF.Core.Views.Shared {
             }
             list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("select", "(select)"), Value = Guid.Empty });
 
-            return htmlHelper.RenderDropDownSelectionList<Guid>(name, modGuid ?? Guid.Empty, list);
+            return htmlHelper.RenderDropDownSelectionList<Guid>(name, modGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
         public static MvcHtmlString RenderModuleSelectionLink(this HtmlHelper htmlHelper, Guid? modGuid) {
 

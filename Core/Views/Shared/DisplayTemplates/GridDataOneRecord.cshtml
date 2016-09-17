@@ -45,7 +45,7 @@
 
 
     int propCount = 0;
-
+    Manager.RenderingGridCount = Manager.RenderingGridCount + 1;
     foreach (PropertyListEntry prop in props) {
 
         // Swap out the ViewData so we get the names/ids that we want for these objects
@@ -95,5 +95,5 @@
         // restore original viewdata
         Html.ViewContext.ViewData = Html.ViewDataContainer.ViewData = oldVdd;
     }
-
+    Manager.RenderingGridCount = Manager.RenderingGridCount - 1;
 }

@@ -26,7 +26,7 @@ YetaWF_MultiString.Update = function($ms, data)
         if (index == 0)
             _YetaWF_MultiString.getText($ms).val(s);
     }
-    _YetaWF_MultiString.getDropDown($ms).get(0).selectedIndex = 0;
+    YetaWF_TemplateDropDownList.Clear(_YetaWF_MultiString.getDropDown($ms));
 }
 
 // Get data from multistring
@@ -86,10 +86,10 @@ YetaWF_MultiString.Enable = function($ms, enabled)
     if (enabled) {
         _YetaWF_MultiString.getText($ms).removeAttr('disabled');
         if (YConfigs.MultiString.Localization)
-            _YetaWF_MultiString.getDropDown($ms).removeAttr('disabled');
+            YetaWF_TemplateDropDownList.Enable(_YetaWF_MultiString.getDropDown($ms), true);
     } else {
         _YetaWF_MultiString.getText($ms).attr('disabled', 'disabled');
-        _YetaWF_MultiString.getDropDown($ms).attr('disabled', 'disabled');
+        YetaWF_TemplateDropDownList.Enable(_YetaWF_MultiString.getDropDown($ms), false);
     }
 }
 
@@ -98,7 +98,7 @@ YetaWF_MultiString.Enable = function($ms, enabled)
 YetaWF_MultiString.Clear = function($ms)
 {
     var name = _YetaWF_MultiString.getName($ms);
-    _YetaWF_MultiString.getDropDown($ms).get(0).selectedIndex = 0;
+    YetaWF_TemplateDropDownList.Clear(_YetaWF_MultiString.getDropDown($ms));
     $("input[type='hidden'][name$='.value']", $ms).val('');
     $("input[name='" + name + "']", $ms).attr('');
     _YetaWF_MultiString.getText($ms).val('');

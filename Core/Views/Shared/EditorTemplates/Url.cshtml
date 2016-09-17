@@ -5,18 +5,8 @@
     UrlHelperEx.UrlTypeEnum type = Html.GetControlInfo<UrlHelperEx.UrlTypeEnum>("", "UrlType", UrlHelperEx.UrlTypeEnum.Remote);
 }
 <div id="@ControlId" class="yt_url t_edit" data-name="@Html.FieldName("")">
-    @Html.RenderHidden("", Model)
-    <select class="t_select"@Html.Raw(((type & UrlHelperEx.UrlTypeEnum.Local) == 0 || (type & UrlHelperEx.UrlTypeEnum.Remote) == 0) ? " disabled=\"disabled\"" : "")>
-        @if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
-            <option value="1" title="@__ResStr("selLocalTT", "Select for local, designed pages")">@__ResStr("selLocal", "Designed Page")</option>
-        }
-        @if ((type & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
-            <option value="2" title="@__ResStr("selRemoteTT", "Select to enter a Url (local or remote) - Can contain query string arguments - Local Urls start with /, remote Urls with http:// or https://")">@__ResStr("selRemote", "Local/Remote Url")</option>
-        }
-        @if ((type & UrlHelperEx.UrlTypeEnum.New) != 0) {
-            throw new YetaWF.Core.Support.InternalError("New url not supported by this template");
-        }
-    </select>
+    @Html.RenderHidden("", Model, HtmlAttributes: new { data_val="true", }, Validation: true)
+    @Html.RenderUrlSel("_Select", type, HtmlAttributes: new { @class = "t_select" })
     @if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
         <div class="t_local">
             @Html.RenderUrlDD("_Local", Model)

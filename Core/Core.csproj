@@ -378,6 +378,8 @@
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
     <Content Include="Addons\_Templates\ActionIcons\ActionIcons.css" />
     <Content Include="Addons\_Templates\ActionIcons\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
+    <Content Include="Addons\_Templates\DropDownList\DropDownList.js" />
     <Content Include="Addons\_Templates\FileUploadDanielm\filelistCSS.txt" />
     <Content Include="Addons\_Templates\FileUploadDanielm\filelistJS.txt" />
     <Content Include="Addons\_Templates\FileUploadDanielm\fileupload1.css" />

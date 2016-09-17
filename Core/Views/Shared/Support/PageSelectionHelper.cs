@@ -20,7 +20,7 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageSelectionHelper), name, defaultValue, parms); }
 
-        public static MvcHtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid) {
+        public static MvcHtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 
             List<SelectionItem<Guid>> list;
             list = (
@@ -31,7 +31,7 @@ namespace YetaWF.Core.Views.Shared {
                     }).ToList<SelectionItem<Guid>>();
             list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("select", "(select)"), Value = Guid.Empty });
 
-            return htmlHelper.RenderDropDownSelectionList<Guid>(name, pageGuid ?? Guid.Empty, list);
+            return htmlHelper.RenderDropDownSelectionList<Guid>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
         public static MvcHtmlString RenderPageSelectionLink(this HtmlHelper htmlHelper, Guid? pageGuid) {
 

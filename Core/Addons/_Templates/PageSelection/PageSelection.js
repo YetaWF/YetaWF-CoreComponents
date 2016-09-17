@@ -27,7 +27,10 @@ YetaWF_PageSelection.init = function (id) {
     $('.t_select select', $control).on('change', function () {
         var $this = $(this);
         var val = $this.val();
-        var desc = $('.t_select select option', $control).filter(":selected").attr('title');
+        var desc = "";
+        // var ix = $('.t_select select option:selected', $control).index();
+        // var desc = YetaWF_TemplateDropDownList.getTitle($('.t_select select', $control), ix);
+
         YetaWF_Forms.hideError(YetaWF_Forms.getForm($this), $this.attr("name")); // TODO: This could be removed when RequiredAttribute supports Guid  client-side
         updateLink(val, desc);
     });

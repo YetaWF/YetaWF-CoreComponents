@@ -69,7 +69,16 @@ namespace YetaWF.Core.Views.Shared {
                 "Language",
                 selectLang,
                 selectLangList,
-                HtmlAttributes: Manager.CurrentSite.Localization ? (object) new { Id = idDD, @class = Forms.CssFormNoSubmit } : (object) new { disabled = "disabled", Id = idDD, @class = Forms.CssFormNoSubmit }
+                HtmlAttributes:
+                    Manager.CurrentSite.Localization ?
+                        (object) new {
+                            Id = idDD,
+                            @class = Forms.CssFormNoSubmit
+                        } :
+                        (object) new {
+                            disabled = "disabled", Id = idDD,
+                            @class = Forms.CssFormNoSubmit
+                        }
             ));
             tagDiv.InnerHtml = hb.ToString();
             return MvcHtmlString.Create(tagDiv.ToString());

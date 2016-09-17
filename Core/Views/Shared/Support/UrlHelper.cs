@@ -80,6 +80,28 @@ namespace YetaWF.Core.Views.Shared {
                 return MvcHtmlString.Create(hb.ToString());
             }
         }
+        public static MvcHtmlString RenderUrlSel(this HtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
+
+            List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
+            if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+                items.Add(new SelectionItem<int> {
+                    Text = __ResStr("selLocal", "Designed Page"),
+                    Value = 1,
+                    Tooltip = __ResStr("selLocalTT", "Select for local, designed pages"),
+                });
+            }
+            if ((type & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+                items.Add(new SelectionItem<int> {
+                    Text = __ResStr("selRemote", "Local/Remote Url"),
+                    Value = 2,
+                    Tooltip = __ResStr("selRemoteTT", "Select to enter a Url (local or remote) - Can contain query string arguments - Local Urls start with /, remote Urls with http:// or https://"),
+                });
+            }
+            if((type & UrlHelperEx.UrlTypeEnum.New) != 0)
+                throw new InternalError("New url not supported by this template");
+
+            return htmlHelper.RenderDropDownSelectionList(name, 0, items, HtmlAttributes: HtmlAttributes);
+        }
         public static MvcHtmlString RenderUrlDD(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
 
             List<string> pages = PageDefinition.GetDesignedUrls();

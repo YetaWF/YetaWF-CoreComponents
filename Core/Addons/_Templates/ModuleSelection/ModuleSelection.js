@@ -41,8 +41,8 @@ YetaWF_ModuleSelection.Enable = function ($control, enabled) {
     var $select = _YetaWF_ModuleSelection.getSelect($control);
     var $link = _YetaWF_ModuleSelection.getLink($control);
     var $desc = _YetaWF_ModuleSelection.getDescription($control);
+    YetaWF_TemplateDropDownList.Enable($select, enabled);
     if (enabled) {
-        $select.removeAttr('disabled');
         if (_YetaWF_ModuleSelection.hasValue($control)) {
             $link.show();
             $desc.show();
@@ -51,7 +51,6 @@ YetaWF_ModuleSelection.Enable = function ($control, enabled) {
             $desc.hide();
         }
     } else {
-        $select.attr('disabled', 'disabled');
         $link.hide();
         $desc.hide();
     }
@@ -62,20 +61,6 @@ YetaWF_ModuleSelection.Clear = function ($control) {
     _YetaWF_ModuleSelection.getText($ms).val(null);
 }
 
-YetaWF_ModuleSelection.init = function (id) {
-    'use strict';
-    var $control = $('#' + id);
-    if ($control.length != 1) throw "Can't find control";/*DEBUG*/
-    var $select = _YetaWF_ModuleSelection.getSelect($control);
-
-    $select.on('change', function () {
-        var $this = $(this);
-        var val = $this.val();
-        YetaWF_Forms.hideError(YetaWF_Forms.getForm($this), $this.attr("name")); // TODO: This could be removed when RequiredAttribute supports Guid client-side
-        YetaWF_ModuleSelection.Update($control, val);
-    });
-    $select.trigger('change');
-};
 
 var _YetaWF_ModuleSelection = {};
 
@@ -107,6 +92,22 @@ _YetaWF_ModuleSelection.getValue = function ($control) {
     return $select.val();
 };
 _YetaWF_ModuleSelection.getDescriptionText = function ($control) {
-    var desc = $('.t_select select option', $control).filter(":selected").attr('title');
-    return desc;
+    var ix = $('.t_select select option:selected', $control).index();
+    return YetaWF_TemplateDropDownList.getTitle($('.t_select select', $control), ix);
+};
+
+
+YetaWF_ModuleSelection.init = function (id) {
+    'use strict';
+    var $control = $('#' + id);
+    if ($control.length != 1) throw "Can't find control";/*DEBUG*/
+    var $select = _YetaWF_ModuleSelection.getSelect($control);
+
+    $select.on('change', function () {
+        var $this = $(this);
+        var val = $this.val();
+        YetaWF_Forms.hideError(YetaWF_Forms.getForm($this), $this.attr("name")); // TODO: This could be removed when RequiredAttribute supports Guid client-side
+        YetaWF_ModuleSelection.Update($control, val);
+    });
+    $select.trigger('change');
 };

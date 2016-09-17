@@ -176,6 +176,9 @@ YetaWF_GridjqGrid.SaveSettingsColumnWidths = function ($grid, url, settingsGuid,
     });
 };
 
+// We can't support complex controls in jqGrid - With local data sources we can't
+// insure that any javascript is executed, particularly while paging through a local datasource.
+// For ajax data we are able to run scripts, but it hardly seems worth it at this point.
 YetaWF_GridjqGrid.HandleInputUpdates = function ($grid, saveInDataSource) {
     'use strict';
     // handle input in grids on forms (save any new data in data source)
@@ -209,8 +212,8 @@ YetaWF_GridjqGrid.HandleInputUpdates = function ($grid, saveInDataSource) {
         // save new html in datasource
         if (saveInDataSource) {
             // get the grid item data
-            var id = $row.attr("id");// record id
-            // get the name from the input field name attibute
+            var id = $row.attr("id");// record id (0..n)
+            // get the name from the input field name attribute
             var name = $ctrl.attr('name');
             if (name.length == 0) throw "Invalid name attribute";/*DEBUG*/
             var parts = name.split(".");
@@ -219,6 +222,10 @@ YetaWF_GridjqGrid.HandleInputUpdates = function ($grid, saveInDataSource) {
             //var data = $grid.jqGrid('getCell', id, name);
             //if (data == null) return;
             $grid.jqGrid('setCell', id, name, $cell.html());
+            // copy cell contents to data source
+            //var cellText = $cell.html();
+            //var ds = $grid.jqGrid('getGridParam', 'data');
+            //ds[id][name] = cellText;
         }
     });
 };

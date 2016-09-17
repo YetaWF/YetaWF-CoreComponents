@@ -615,60 +615,28 @@ $(document).ready(function () {
     // TOOLTIPS
     // TOOLTIPS
 
-    //// Tooltips for <a> links, labels and images
-    //$("body").kendoTooltip({
-    //    filter: "label[" + YConfigs.Basics.CssTooltip + "],a[" + YConfigs.Basics.CssTooltip + "],img[" + YConfigs.Basics.CssTooltip + "]",
-    //    //width: YConfigs.Basics.DefaultTooltipWidth,
-    //    position: YConfigs.Basics.DefaultTooltipPosition,
-    //    content: function (e) {
-    //        var $target = $(e.target);
-    //        return $target.attr(YConfigs.Basics.CssTooltip);
-    //    }
-    //}).data("kendoTooltip");
-
-    //// Tooltips for kendo grid column headers
-    //$("body").kendoTooltip({
-    //    filter: "th.k-header span[" + YConfigs.Basics.CssTooltip + "]",
-    //    //width: YConfigs.Basics.DefaultTooltipWidth,
-    //    position: YConfigs.Basics.DefaultTooltipPosition,
-    //    content: function (e) {
-    //        var $target = $(e.target);
-    //        return $($target).attr(YConfigs.Basics.CssTooltip);
-    //    }
-    //}).data("kendoTooltip");
-
-    //// Tooltips for span
-    //$("body").kendoTooltip({
-    //    filter: "span[" + YConfigs.Basics.CssTooltipSpan + "]",
-    //    //width: YConfigs.Basics.DefaultTooltipWidth,
-    //    position: YConfigs.Basics.DefaultTooltipPosition,
-    //    content: function (e) {
-    //        var $target = $(e.target);
-    //        return $target.attr(YConfigs.Basics.CssTooltipSpan);
-    //    }
-    //}).data("kendoTooltip");
-
-    //$('body').tooltip({
-    //    items: 'label[' + YConfigs.Basics.CssTooltip + '],a[' + YConfigs.Basics.CssTooltip + '],img[' + YConfigs.Basics.CssTooltip + '],th.k-header span[' + YConfigs.Basics.CssTooltip + '],span[' + YConfigs.Basics.CssTooltipSpan + ']',
-    //    content: function () {
-    //        if (UGLY_HACK_IgnoreTooltip > 0) {
-    //            --UGLY_HACK_IgnoreTooltip;
-    //            return undefined;
-    //        }
-    //        var s = $(this).attr(YConfigs.Basics.CssTooltip);
-    //        if (s == undefined)
-    //            s = $(this).attr(YConfigs.Basics.CssTooltipSpan);
-    //        return s;
-    //    },
-    //    position: { my: "left top", at: "right bottom", collision: "flipfit" }
-    //});
-
+    var selectors = 'img,label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],span[{2}],li[{1}],div[{1}]';
+    var ddsel = '.k-list-container.k-popup li[data-offset-index]';
     $('body').tooltip({
-        // th.k-header span[{1}]  -  Telerik Grid
-        // .ui-jqgrid span[{1}]  -  jqGrid
-        items: 'img,label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],th.k-header span[{1}],span[{2}],li[{1}],div[{1}]'.format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
+        items: (selectors+','+ddsel).format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
         content: function (a, b, c) {
             var $this = $(this);
+            if ($this.is(ddsel)) {
+                // dropdown list - find who owns this and get the matching tooltip
+                // this is a bit hairy - we save all the tooltips for a dropdown list in a variable
+                // named ..id.._tooltips. The popup/dropdown is named ..id..-list so we deduce the
+                // variable name from the popup/dropdown. This is going to break at some point...
+                var ttindex = $this.attr("data-offset-index");
+                if (ttindex === undefined) return null;
+                var $container = $this.closest('.k-list-container.k-popup');
+                if ($container.length != 1) return null;
+                var id = $container.attr("id");
+                if (id === undefined) return null;
+                var tts = eval(id.replace("-list", "_tooltips"));
+                if (tts === undefined) return null;
+                if (ttindex < 0 || ttindex >= tts.length) return null;
+                return Y_HtmlEscape(tts[ttindex]);
+            }
             for ( ; ; ) {
                 if (!$this.is(':hover') && $this.is(':focus'))
                     return null;

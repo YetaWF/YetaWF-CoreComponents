@@ -11,6 +11,16 @@ YetaWF_TemplateText.init = function ($partialForm) {
     });
 };
 
+// Enable a text object
+// $control refers to the <div class="yt_text t_edit">
+YetaWF_TemplateText.Enable = function ($control, enabled) {
+    'use strict';
+    if (enabled)
+        $control.removeAttr("disabled");
+    else
+        $control.attr("disabled", "disabled");
+};
+
 $(document).ready(function () {
     'use strict';
 

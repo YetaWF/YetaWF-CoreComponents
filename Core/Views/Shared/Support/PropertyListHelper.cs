@@ -87,7 +87,7 @@ namespace YetaWF.Core.Views.Shared {
             // visible. Divs on the first tab are already visible.  DO NOT use this event for initialization purposes.
             if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.JQuery) {
                 sb.Append("$('#{0}').tabs({{\n", controlId);
-                sb.Append("activate: function(ev,ui) {{ if (ui.newPanel!=undefined) $('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', ui.newPanel); }}\n", controlId);
+                sb.Append("activate: function(ev,ui) {{ if (ui.newPanel!=undefined) {{ $('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', ui.newPanel); }} }}\n", controlId);
                 sb.Append("});\n");
                 // switch to the first tab
                 // TODO: ? tabStrip.activateTab($("#@ControlId li").eq(0));
@@ -96,7 +96,7 @@ namespace YetaWF.Core.Views.Shared {
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.tabstrip.min.js");
                 sb.Append("var tabStrip = $('#{0}').kendoTabStrip({{\n", controlId);
                 sb.Append("animation: false,\n");
-                sb.Append("activate: function(ev) {{ if (ev.contentElement!=undefined) $('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement)); }}\n", controlId);
+                sb.Append("activate: function(ev) {{ if (ev.contentElement!=undefined) {{ $('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement)); }} }}\n", controlId);
                 sb.Append("}).data('kendoTabStrip');\n");
                 sb.Append("// switch to the first tab\n");
                 sb.Append("tabStrip.activateTab($('#{0} li').eq(0));\n", controlId);
