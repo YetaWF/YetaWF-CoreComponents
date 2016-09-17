@@ -29,12 +29,6 @@ namespace YetaWF.Core.Site {
         [EnumDescription("Kendo", "Kendo UI PRO (Requires Telerik License (Kendo UI Pro) with installed addon files)")]
         Kendo = 1,
     }
-    public enum TreeStyleEnum {
-        [EnumDescription("jsTree", "jsTree Tree Controls")]
-        jsTree = 0,
-        [EnumDescription("Kendo", "Kendo UI PRO (Requires Telerik License (Kendo UI Pro) with installed addon files)")]
-        Kendo = 1,
-    }
     public enum FileUploadStyleEnum {
         [EnumDescription("DanielM", "DanielM's JQuery File Uploader")]
         DanielM = 0,
@@ -126,7 +120,6 @@ namespace YetaWF.Core.Site {
             SyntaxHighlighterSkin = null;
             TabStyle = TabStyleEnum.JQuery;
 
-            OriginalTreeStyle = TreeStyle = TreeStyleEnum.jsTree;
             OriginalFileUploadStyle = FileUploadStyle = FileUploadStyleEnum.DanielM;
 
             OriginalUseCDN = UseCDN = false;
@@ -576,14 +569,6 @@ namespace YetaWF.Core.Site {
         [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]
         [UIHint("Enum"), Required]
         public TabStyleEnum TabStyle { get; set; }
-
-        [Category("Skin"), Caption("Tree Style"), Description("Defines which UI provides the tree control implementation")]
-        [UIHint("Enum"), Required]
-        public TreeStyleEnum TreeStyle { get; set; }
-
-        [UIHint("Hidden")]
-        [DontSave]
-        public TreeStyleEnum OriginalTreeStyle { get; set; }
 
         [Category("Skin"), Caption("File Upload Style"), Description("Defines which UI provides the file upload control implementation")]
         [UIHint("Enum"), Required]
