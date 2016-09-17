@@ -142,22 +142,24 @@ namespace YetaWF.Core.Support {
                 case PackMode.CSS:
                     if (minify || processCharSize || fullPath.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase) || fullPath.EndsWith(".less", StringComparison.InvariantCultureIgnoreCase)) {
                         text = File.ReadAllText(fullPath);
-                        if (fullPath.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase))
-                            text = CssManager.CompileNSass(fullPath, text);
-                        else if (fullPath.EndsWith(".less", StringComparison.InvariantCultureIgnoreCase))
-                            text = CssManager.CompileLess(fullPath, text);
-                        if (processCharSize) {
-                            string newText = ProcessCss(text, Manager.CharWidthAvg, Manager.CharHeight);
-                            if (newText != text) {
-                                text = newText;
-                                minPath = minPathWithCharInfo;
+                        if (!string.IsNullOrWhiteSpace(text)) {
+                            if (fullPath.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase))
+                                text = CssManager.CompileNSass(fullPath, text);
+                            else if (fullPath.EndsWith(".less", StringComparison.InvariantCultureIgnoreCase))
+                                text = CssManager.CompileLess(fullPath, text);
+                            if (processCharSize) {
+                                string newText = ProcessCss(text, Manager.CharWidthAvg, Manager.CharHeight);
+                                if (newText != text) {
+                                    text = newText;
+                                    minPath = minPathWithCharInfo;
+                                }
                             }
-                        }
-                        if (minify) {
-                            string folder = Path.GetDirectoryName(fullPath);
-                            text = ProcessCssImport(text, folder);
-                            CssCompressor cssCompressor = new CssCompressor();
-                            text = cssCompressor.Compress(text);
+                            if (minify) {
+                                string folder = Path.GetDirectoryName(fullPath);
+                                text = ProcessCssImport(text, folder);
+                                CssCompressor cssCompressor = new CssCompressor();
+                                text = cssCompressor.Compress(text);
+                            }
                         }
                     }
                     break;
