@@ -8,7 +8,7 @@
     if (!Html.TryGetControlInfo<ModuleAction.RenderModeEnum>("", "RenderAs", out render)) {
         render = ModuleAction.RenderModeEnum.Button;
     }
-    <div class="yt_moduleaction t_display y_inline">
+    <div class="yt_moduleaction t_display">
         @Model.Render(render)
     </div>
 }

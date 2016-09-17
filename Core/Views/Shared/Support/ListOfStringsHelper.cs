@@ -12,7 +12,7 @@ namespace YetaWF.Core.Views.Shared {
             HtmlBuilder hb = new HtmlBuilder();
             if (model == null || model.Count == 0 || (model.Count == 1 && string.IsNullOrWhiteSpace(model[0]))) return MvcHtmlString.Empty;
 
-            hb.Append("<div class='yt_listofstrings t_display y_inline'>");
+            hb.Append("<div class='yt_listofstrings t_display'>");
 
             string delim = htmlHelper.GetControlInfo<string>("", "Delimiter", ", ");
 
