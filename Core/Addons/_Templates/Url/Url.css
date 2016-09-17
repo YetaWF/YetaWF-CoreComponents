@@ -3,15 +3,17 @@
 div.yt_url.t_edit {
     display: inline-block;
 }
-div.yt_url.t_edit .t_select,
+div.yt_url.t_edit .t_select {
+    margin-right:1ch;
+}
+div.yt_url.t_edit .t_link {
+    margin-left:.5ch;
+}
 div.yt_url.t_edit .t_local,
 div.yt_url.t_edit .t_remote,
-div.yt_url.t_edit .t_link
-{
+div.yt_url.t_edit .t_link {
     display: inline-block;
-    margin-right:.5ch;
 }
-
 div.yt_url.t_edit input[type="text"] {
     width: 50ch;
 }
