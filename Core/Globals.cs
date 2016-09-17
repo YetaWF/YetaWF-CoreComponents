@@ -151,5 +151,9 @@ namespace YetaWF.Core {
         // A div seen by admin/superusers only
         public const string CssDivAdmin = "yDivAdmin";
         public const string CssDivSmallAdmin = "yDivSmallAdmin";
+
+        // HTML comments (WhitespaceFilter directive)
+        public const string LazyHTMLOptimization = "<!--LazyWSF-->";
+        public const string LazyHTMLOptimizationEnd = "<!--LazyWSFEnd-->";
     }
 }

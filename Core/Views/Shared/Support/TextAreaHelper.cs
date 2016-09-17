@@ -26,6 +26,9 @@ namespace YetaWF.Core.Views.Shared {
 
         public static MvcHtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 
+            HtmlBuilder hb = new HtmlBuilder();
+            hb.Append(Globals.LazyHTMLOptimization);
+
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: true, Validation: false);
 
@@ -47,7 +50,10 @@ namespace YetaWF.Core.Views.Shared {
             }
             tag.InnerHtml = text;
 
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            hb.Append(tag.ToString(TagRenderMode.Normal));
+            hb.Append(Globals.LazyHTMLOptimizationEnd);
+
+            return MvcHtmlString.Create(hb.ToString());
         }
 
     }
