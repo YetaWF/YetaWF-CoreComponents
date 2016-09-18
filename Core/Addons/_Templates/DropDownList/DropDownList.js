@@ -15,20 +15,35 @@ YetaWF_TemplateDropDownList.initOne = function ($this) {
 // Enable a dropdownlist object
 // $control refers to the <div class="yt_dropdownlist...">
 YetaWF_TemplateDropDownList.Enable = function ($control, enabled) {
-    var dropdownlist = $control.data("kendoDropDownList");
-    dropdownlist.enable(enabled);
+    if ($control.attr("data-needinit") !== undefined) {
+        if (enabled)
+            $control.removeAttr("disabled");
+        else
+            $control.attr("disabled","disabled");
+    } else {
+        var dropdownlist = $control.data("kendoDropDownList");
+        dropdownlist.enable(enabled);
+    }
 }
 // Update a dropdownlist object
 // $control refers to the <div class="yt_dropdownlist...">
 YetaWF_TemplateDropDownList.Update = function ($control, value) {
-    var dropdownlist = $control.data("kendoDropDownList");
-    dropdownlist.value(value);
+    if ($control.attr("data-needinit") !== undefined)
+        $control.val(value);
+    else {
+        var dropdownlist = $control.data("kendoDropDownList");
+        dropdownlist.value(value);
+    }
 }
 // Clear a dropdownlist object (select the first item)
 // $control refers to the <div class="yt_dropdownlist...">
 YetaWF_TemplateDropDownList.Clear = function ($control) {
-    var dropdownlist = $control.data("kendoDropDownList");
-    dropdownlist.select(0);
+    if ($control.attr("data-needinit") !== undefined)
+        $control.prop('selectedIndex', 0);
+    else {
+        var dropdownlist = $control.data("kendoDropDownList");
+        dropdownlist.select(0);
+    }
 }
 
 // retrieve the tooltip for the nth item (index) in the dropdown list $this
