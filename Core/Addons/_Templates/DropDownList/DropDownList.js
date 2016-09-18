@@ -8,7 +8,6 @@ YetaWF_TemplateDropDownList.initOne = function ($this) {
     if (w != 0 && $this.attr("data-needinit") !== undefined) {
         $this.removeAttr("data-needinit");
         $this.kendoDropDownList({});
-        //TODO: This may need to be investigated for mobile devices
         $this.closest('.k-widget.yt_dropdownlist,.k-widget.yt_dropdownlist_base,.k-widget.yt_enum').width(w + 3 * YVolatile.Basics.CharWidthAvg);
     }
 }

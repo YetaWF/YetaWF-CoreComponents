@@ -1,1 +1,1 @@
-﻿propertylist.css
+﻿propertylist.scss

@@ -406,7 +406,7 @@
     <Content Include="Addons\_Templates\Date\filelistJS.txt" />
     <Content Include="Addons\_Templates\Date\Date.js" />
     <Content Include="Addons\_Templates\Date\Date.css" />
-    <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
+    <None Include="Addons\_Templates\DropDownList\dropdownlist.scss" />
     <Content Include="Addons\_Templates\DropDownList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
     <Content Include="Addons\_Templates\IntValue\IntValue.js" />
@@ -451,14 +451,10 @@
     <Content Include="Addons\_Templates\PageSkin\PageSkin.js" />
     <Content Include="Addons\_Templates\Password\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Password\password.css" />
-    <Content Include="Addons\_Templates\PropertyListTabbed\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\PropertyListTabbed\filelistJS.txt" />
-    <Content Include="Addons\_Templates\PropertyListTabbed\propertylisttabbed.css" />
-    <Content Include="Addons\_Templates\PropertyListTabbed\propertylisttabbed.js" />
     <Content Include="Addons\_Templates\PropertyList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\PropertyList\filelistJS.txt" />
     <Content Include="Addons\_Templates\PropertyList\propertylist.js" />
-    <Content Include="Addons\_Templates\PropertyList\propertylist.css" />
+    <None Include="Addons\_Templates\PropertyList\propertylist.scss" />
     <Content Include="Addons\_Templates\RecaptchaV2\filelistJS.txt" />
     <Content Include="Addons\_Templates\RecaptchaV2\recaptchav2.js" />
     <Content Include="Addons\_Templates\Recaptcha\filelistJS.txt" />
@@ -495,7 +491,7 @@
     <Content Include="Addons\_Templates\Url\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Url\filelistJS.txt" />
     <Content Include="Addons\_Templates\Url\Icons\UrlRemote.png" />
-    <Content Include="Addons\_Templates\Url\Url.css" />
+    <None Include="Addons\_Templates\Url\Url.scss" />
     <Content Include="Addons\_Templates\Url\Url.js" />
     <Content Include="Addons\_Templates\USState\USStates.txt" />
     <Content Include="NSass.Wrapper\NSass.Wrapper.x64.dll">
@@ -619,6 +615,7 @@
   <ItemGroup>
     <Folder Include="Addons\_JS\" />
     <Folder Include="Addons\_Main\Icons\" />
+    <Folder Include="Addons\_Templates\PropertyListTabbed\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
