@@ -9,7 +9,7 @@ YetaWF_ModuleSelection.Update = function ($control, data) {
     var $select = _YetaWF_ModuleSelection.getSelect($control);
     var $link = _YetaWF_ModuleSelection.getLink($control);
     var $desc = _YetaWF_ModuleSelection.getDescription($control);
-    $select.val(data);
+    YetaWF_TemplateDropDownList.Update($select, data);
     if (_YetaWF_ModuleSelection.hasValue($control)) {
         $('a', $link).attr("href", '/!Mod/' + data); // Globals.ModuleUrl
         $link.show();

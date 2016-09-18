@@ -85,7 +85,7 @@ YetaWF_Url.Update = function ($control, urlString, initial) {
                 if ($remoteCtl)
                     sel = 2;
             } else if (initial) {
-                $localCtl.val(urlString);
+                YetaWF_TemplateDropDownList.Update($localCtl, urlString);
                 var actualSel = $localCtl.val();
                 if (urlString != actualSel) {
                     sel = 2; // have to use remote even though it's a local page (but with args)
@@ -106,7 +106,7 @@ YetaWF_Url.Update = function ($control, urlString, initial) {
         YetaWF_TemplateDropDownList.Update($typeCtl, sel);
     if (sel == 1) {
         if ($localCtl) {
-            $localCtl.val(urlString);
+            YetaWF_TemplateDropDownList.Update($localCtl, urlString);
             _YetaWF_Url.getLocalDiv($control).show();
         }
         if ($remoteCtl)
