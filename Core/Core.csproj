@@ -378,6 +378,7 @@
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
     <Content Include="Addons\_Templates\ActionIcons\ActionIcons.css" />
     <Content Include="Addons\_Templates\ActionIcons\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
     <Content Include="Addons\_Templates\DropDownList\DropDownList.js" />
     <Content Include="Addons\_Templates\FileUploadDanielm\filelistCSS.txt" />
@@ -406,7 +407,6 @@
     <Content Include="Addons\_Templates\Date\filelistJS.txt" />
     <Content Include="Addons\_Templates\Date\Date.js" />
     <Content Include="Addons\_Templates\Date\Date.css" />
-    <None Include="Addons\_Templates\DropDownList\dropdownlist.scss" />
     <Content Include="Addons\_Templates\DropDownList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
     <Content Include="Addons\_Templates\IntValue\IntValue.js" />
@@ -472,11 +472,11 @@
     <Content Include="Addons\_Templates\TextArea\Images\toolbarImg.png" />
     <Content Include="Addons\_Templates\TextArea\textarea.css" />
     <Content Include="Addons\_Templates\TextArea\textarea.js" />
+    <Content Include="Addons\_Templates\Text\text.css" />
     <Content Include="Addons\_Templates\Text\text.js" />
     <Content Include="Addons\_Templates\Text\filelistJS.txt" />
     <Content Include="Addons\_Templates\Text\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Text\Icons\Copy.png" />
-    <Content Include="Addons\_Templates\Text\text.css" />
     <Content Include="Addons\_Templates\TimeSpan\filelistCSS.txt" />
     <Content Include="Addons\_Templates\TimeSpan\filelistJS.txt" />
     <Content Include="Addons\_Templates\TimeSpan\timespan.css" />
