@@ -60,9 +60,11 @@ $screen-md : 992px;
             input[type='text'].yt_text80 {
                 width:100%;
             }
-            .yt_multistring {
+            .yt_multistring.t_edit {
+                display:block;
                 width:100%;
                 .yt_multistring_text {
+                    width:100%;
                     margin-right:0;
                 }
                 input[type="text"].t_text80 {

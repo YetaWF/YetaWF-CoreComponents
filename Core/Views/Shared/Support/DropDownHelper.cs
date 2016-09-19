@@ -61,9 +61,10 @@ namespace YetaWF.Core.Views.Shared {
         /// <remarks>
         /// The parent model containing the property has to offer a property "_List" with a List<SelectionItem<TYPE>> of possible values.
         /// </remarks>
-        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
+        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
+                object HtmlAttributes = null, bool BrowserControls = false) {
             List<SelectionItem<TYPE>> list = htmlHelper.GetParentModelSupportProperty<List<SelectionItem<TYPE>>>(name, "List");
-            return htmlHelper.RenderDropDownSelectionList<TYPE>(name, selection, list, FuncToString, HtmlAttributes);
+            return htmlHelper.RenderDropDownSelectionList<TYPE>(name, selection, list, FuncToString, HtmlAttributes: HtmlAttributes, BrowserControls: BrowserControls);
         }
         /// <summary>
         /// Renders a dropdownlist (with tooltips) for selection.
@@ -76,10 +77,11 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="FuncToString">A method that converts TYPE to a string.</param>
         /// <param name="HtmlAttributes">Optional attributes.</param>
         /// <returns></returns>
-        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
+        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
+            Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false) {
 
             Manager.AddOnManager.AddTemplate("DropDownList");
-            if (!Manager.IsRenderingGrid) {
+            if (!BrowserControls && !Manager.IsRenderingGrid) {
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js");
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.list.min.js");
@@ -95,7 +97,7 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
             tag.AddCssClass("yt_dropdownlist_base");
             string id = htmlHelper.MakeId(tag);
-            if (!Manager.IsRenderingGrid)
+            if (!BrowserControls && !Manager.IsRenderingGrid)
                 tag.Attributes.Add("data-needinit", "");
 
             HtmlBuilder tagHtml = new HtmlBuilder();
@@ -111,7 +113,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (Equals(item.Value, selection))
                     tagOpt.Attributes["selected"] = "selected";
                 string desc = (item.Tooltip != null) ? item.Tooltip.ToString() : null;
-                if (Manager.IsRenderingGrid) {
+                if (BrowserControls || Manager.IsRenderingGrid) {
                     if (!string.IsNullOrWhiteSpace(desc))
                         tagOpt.Attributes["title"] = "selected";
                 } else {
@@ -124,7 +126,7 @@ namespace YetaWF.Core.Views.Shared {
                 tagHtml.Append(tagOpt.ToString(TagRenderMode.Normal));
             }
 
-            if (!Manager.IsRenderingGrid) {
+            if (!BrowserControls && !Manager.IsRenderingGrid) {
                 if (!haveDesc) // if we don't have any descriptions, clear the tooltip array
                     sb = new ScriptBuilder();
                 ScriptBuilder newSb = new ScriptBuilder();
