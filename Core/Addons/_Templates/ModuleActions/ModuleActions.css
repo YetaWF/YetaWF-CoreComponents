@@ -3,8 +3,8 @@
 .yt_moduleactions a.y_act_normlink img,
 .yt_moduleactions a.y_act_icon img
 {
-    padding-right: 1ch;
+    margin-right: 1ch;
 }
 .yt_moduleactions a.y_act_normlink {
-    padding-right: 1.5ch;
+    margin-right: 1.5ch;
 }
