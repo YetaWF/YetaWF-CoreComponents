@@ -639,6 +639,8 @@ $(document).ready(function () {
             for ( ; ; ) {
                 if (!$this.is(':hover') && $this.is(':focus'))
                     return null;
+                if ($this.attr("disabled") !== undefined)
+                    return null;
                 var s = $this.attr(YConfigs.Basics.CssTooltip);
                 if (s != undefined)
                     return Y_HtmlEscape(s);
