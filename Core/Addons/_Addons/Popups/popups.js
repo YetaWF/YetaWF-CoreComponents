@@ -141,9 +141,9 @@ YetaWF_Popup.openPopup = function(url) {
             document.YPopupWindowActive = null;
             popup = null;
         },
-        //animation: {
-        //    open: false
-        //},
+        animation: {
+            open: false
+        },
         refresh: function () { // page complete
             var iframeDomElement = $popupwin.children("iframe")[0];
             var iframeDocumentObject = iframeDomElement.contentDocument;
