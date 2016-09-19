@@ -449,6 +449,8 @@
     <Content Include="Addons\_Templates\MultiString\filelistJS.txt" />
     <Content Include="Addons\_Templates\MultiString\multistring.css" />
     <Content Include="Addons\_Templates\MultiString\multistring.js" />
+    <Content Include="Addons\_Templates\ModuleSkins\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\ModuleSkins\ModuleSkins.css" />
     <Content Include="Addons\_Templates\PageSkin\filelistCSS.txt" />
     <Content Include="Addons\_Templates\PageSkin\filelistJS.txt" />
     <Content Include="Addons\_Templates\PageSkin\PageSkin.css" />
