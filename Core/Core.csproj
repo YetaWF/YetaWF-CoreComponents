@@ -409,6 +409,10 @@
     <Content Include="Addons\_Templates\Date\Date.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
+    <Content Include="Addons\_Templates\KendoUISkin\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\KendoUISkin\KendoUISkin.css" />
+    <Content Include="Addons\_Templates\JQueryUISkin\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\JQueryUISkin\JQueryUISkin.css" />
     <Content Include="Addons\_Templates\IntValue\IntValue.js" />
     <Content Include="Addons\_Templates\IntValue\filelistJS.txt" />
     <Content Include="Addons\_Templates\ModuleAction\filelistCSS.txt" />

@@ -10,6 +10,15 @@
     width: 25ch;
 }
 
+.yt_pageskin.t_edit .t_collection .yt_dropdownlist_base,
+.yt_pageskin.t_edit .t_skin .yt_dropdownlist_base {
+    max-width:100%;
+}
+.yt_popupskin.t_edit .t_collection .yt_dropdownlist_base,
+.yt_popupskin.t_edit .t_skin .yt_dropdownlist_base {
+    max-width:100%;
+}
+
 /* these are updated via ajax so we set an explicit width */
 .yt_pageskin.t_edit .t_skin .yt_dropdownlist_base,
 .yt_popupskin.t_edit .t_skin .yt_dropdownlist_base {
