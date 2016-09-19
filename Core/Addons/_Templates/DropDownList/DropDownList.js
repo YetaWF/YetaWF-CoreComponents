@@ -32,6 +32,8 @@ YetaWF_TemplateDropDownList.Update = function ($control, value) {
     else {
         var dropdownlist = $control.data("kendoDropDownList");
         dropdownlist.value(value);
+        if (dropdownlist.select() < 0)
+            dropdownlist.select(0);
     }
 }
 // Clear a dropdownlist object (select the first item)
