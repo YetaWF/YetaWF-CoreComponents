@@ -32,35 +32,7 @@ $(document).ready(function () {
 
         var data = { 'skinCollection': $(this).val() };
         // get a new list of skins
-        $.ajax({
-            url: ajaxurl,
-            type: 'post',
-            data: data,
-            success: function (result, textStatus, jqXHR) {
-                Y_Loading(false);
-                if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-                    eval(script);
-                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-                    eval(script);
-                } else {
-                    var name = $filename.val();
-                    $filename.html(result);
-                    $filename.val(name);
-                    if ($filename.val() == null) {
-                        if (popup)
-                            $filename.val(_YetaWF_Template_PageSkin.FallbackPopupFileName);
-                        else
-                            $filename.val(_YetaWF_Template_PageSkin.FallbackPageFileName);
-                    }
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                Y_Loading(false);
-                Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
-            }
-        });
+        YetaWF_TemplateDropDownList.AjaxUpdate($filename, data, ajaxurl);
     });
 });
 

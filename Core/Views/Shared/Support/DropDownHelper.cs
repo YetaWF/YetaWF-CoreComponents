@@ -128,7 +128,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (!haveDesc) // if we don't have any descriptions, clear the tooltip array
                     sb = new ScriptBuilder();
                 ScriptBuilder newSb = new ScriptBuilder();
-                newSb.Append("window['{0}_tooltips'] = [{1}];", id, sb.ToString());
+                newSb.Append("$('#{0}').data('tooltips', [{1}]);", id, sb.ToString());
                 newSb.Append("YetaWF_TemplateDropDownList.initOne($('#{0}'));", id);
                 sb = newSb;
             }
@@ -139,6 +139,32 @@ namespace YetaWF.Core.Views.Shared {
             hb.Append(tag.ToString(TagRenderMode.Normal));
             hb.Append(Manager.ScriptManager.AddNow(sb.ToString()));
             return hb.ToMvcHtmlString();
+        }
+
+        /// <summary>
+        /// Render a JSON object with data and tooltips for a dropdownlist.
+        /// </summary>
+        /// <typeparam name="TYPE">The Type of the property.</typeparam>
+        /// <param name="list">A list of all items part of the dropdownlist.</param>
+        /// <param name="FuncToString">A method that converts TYPE to a string.</param>
+        /// <returns>A JSON object containing data and tooltips to update the contents of a dropdownlist.</returns>
+        public static MvcHtmlString RenderDataSource<TYPE>(List<SelectionItem<TYPE>> list, Func<TYPE, string> FuncToString = null) {
+            ScriptBuilder sb = new ScriptBuilder();
+            sb.Append(Basics.AjaxJavascriptReturn);
+            sb.Append(@"{""data"":[");
+            foreach (SelectionItem<TYPE> item in list) {
+                sb.Append(@"{{""t"":{0},""v"":{1}}},", YetaWFManager.Jser.Serialize(item.Text.ToString()), YetaWFManager.Jser.Serialize(FuncToString != null ? FuncToString(item.Value) : item.Value.ToString()));
+            }
+            if (list.Count > 0)
+                sb.RemoveLast();
+            sb.Append(@"],""tooltips"":[");
+            foreach (SelectionItem<TYPE> item in list) {
+                sb.Append("{0},", YetaWFManager.Jser.Serialize(item.Tooltip.ToString()));
+            }
+            if (list.Count > 0)
+                sb.RemoveLast();
+            sb.Append("]}");
+            return MvcHtmlString.Create(sb.ToString());
         }
 
         /// <summary>

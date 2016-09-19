@@ -9,3 +9,9 @@
     display:inline-block;
     width: 25ch;
 }
+
+/* these are updated via ajax so we set an explicit width */
+.yt_pageskin.t_edit .t_skin .yt_dropdownlist_base,
+.yt_popupskin.t_edit .t_skin .yt_dropdownlist_base {
+    width:30ch;
+}

@@ -1,16 +1,20 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 input[type="text"].yt_text10 {
+    max-width:100%;
     width: 14ch;
 }
 input[type="text"].yt_text20 {
+    max-width:100%;
     width: 24ch;
 }
 input[type="text"].yt_text,
 input[type="text"].yt_text40 {
+    max-width:100%;
     width: 44ch;
 }
 input[type="text"].yt_text80 {
+    max-width:100%;
     width: 64ch;
 }
 .yt_text_copy {

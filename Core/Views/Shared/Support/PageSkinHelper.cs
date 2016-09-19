@@ -138,19 +138,8 @@ namespace YetaWF.Core.Views.Shared {
                     Tooltip = skin.Description,
                     Value = skin.FileName,
                 }).ToList();
-            // render the new option statements
-            HtmlBuilder tagHtml = new HtmlBuilder();
-            foreach (var item in list) {
-                TagBuilder tag = new TagBuilder("option") {
-                    InnerHtml = YetaWFManager.HtmlEncode(item.Text)
-                };
-                if (item.Value != null)
-                    tag.Attributes["value"] = item.Value.ToString();
-                if (item.Tooltip != null)
-                    tag.Attributes["title"] = item.Tooltip;
-                tagHtml.Append(tag.ToString());
-            }
-            return tagHtml.ToMvcHtmlString();
+            // render a new dropdown list
+            return DropDownHelper.RenderDataSource(list);
         }
 
         public static MvcHtmlString RenderModuleSkinsForCollection(this HtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {

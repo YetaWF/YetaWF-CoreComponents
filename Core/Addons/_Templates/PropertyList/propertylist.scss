@@ -27,7 +27,33 @@
     .t_vals.t_textbelow {
         padding-top: 0.5em;
     }
+
+    /* These items should actually be in template-specific css files but because they're core templates we'll put them here for convenience */
+    .yt_url.t_edit {
+        .yt_dropdownlist_base.t_select {
+            max-width:100%;
+        }
+    }
+    .yt_dropdownlist_base.yt_enum.t_edit,
+    .yt_dropdownlist_base.yt_usstate.t_edit,
+    .yt_moduleselection.t_edit .yt_dropdownlist_base,
+    .yt_pageselection.t_edit .yt_dropdownlist_base {
+        max-width:100%;
+    }
+    .yt_pageskin.t_edit .t_collection .yt_dropdownlist_base,
+    .yt_pageskin.t_edit .t_skin .yt_dropdownlist_base {
+        max-width:100%;
+    }
+    .yt_popupskin.t_edit .t_collection .yt_dropdownlist_base,
+    .yt_popupskin.t_edit .t_skin .yt_dropdownlist_base {
+        max-width:100%;
+    }
+    .yt_email.t_edit {
+        max-width:100%;
+    }
 }
+
+
 
 $screen-md : 992px;
 @media (max-width: $screen-md) {

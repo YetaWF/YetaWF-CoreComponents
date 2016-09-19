@@ -631,11 +631,10 @@ $(document).ready(function () {
                 var $container = $this.closest('.k-list-container.k-popup');
                 if ($container.length != 1) return null;
                 var id = $container.attr("id");
-                if (id === undefined) return null;
-                var tts = eval(id.replace("-list", "_tooltips"));
-                if (tts === undefined) return null;
-                if (ttindex < 0 || ttindex >= tts.length) return null;
-                return Y_HtmlEscape(tts[ttindex]);
+                id = id.replace("-list", "");
+                var tip = YetaWF_TemplateDropDownList.getTitleFromId(id, ttindex);
+                if (tip == null) return null;
+                return Y_HtmlEscape(tip);
             }
             for ( ; ; ) {
                 if (!$this.is(':hover') && $this.is(':focus'))
