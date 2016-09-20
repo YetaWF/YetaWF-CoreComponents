@@ -1,1 +1,5 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+.yt_timezone.t_edit.yt_dropdownlist_base {
+    max-width:100%;
+}
