@@ -23,8 +23,7 @@ namespace YetaWF.Core.Controllers {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Head)]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
-        public ActionResult Show(string path)
-        {
+        public ActionResult Show(string path) {
             // We come here for ANY page request (GET only)
 
             if (!YetaWFManager.HaveManager)
@@ -37,19 +36,23 @@ namespace YetaWF.Core.Controllers {
             HttpBrowserCapabilities caps = Manager.CurrentRequest.Browser;
             Uri uri = Manager.CurrentRequest.Url;
             if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Undecided) {
-                if (caps.IsMobileDevice && !string.IsNullOrEmpty(site.MobileSiteUrl)) {
-                    if (uri.IsAbsoluteUri) {
-                        if (string.Compare(uri.Host, "localhost", true) != 0 && string.Compare(uri.AbsoluteUri, site.MobileSiteUrl, true) != 0) {
-                            Manager.ActiveDevice = YetaWFManager.DeviceSelected.Mobile;
-                            UriBuilder newUrl = new UriBuilder(site.MobileSiteUrl);
-                            Manager.CurrentResponse.Status = Logging.AddLog("301 Moved Permanently - {0}", newUrl.ToString()).Truncate(100);
-                            Manager.CurrentResponse.AddHeader("Location", newUrl.ToString());
-                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-                            return new EmptyResult();
+                if (caps.IsMobileDevice) {
+                    Manager.ActiveDevice = YetaWFManager.DeviceSelected.Mobile;
+                    if (!string.IsNullOrEmpty(site.MobileSiteUrl)) {
+                        if (uri.IsAbsoluteUri) {
+                            if (string.Compare(uri.Host, "localhost", true) != 0 && string.Compare(uri.AbsoluteUri, site.MobileSiteUrl, true) != 0) {
+                                UriBuilder newUrl = new UriBuilder(site.MobileSiteUrl);
+                                Manager.CurrentResponse.Status = Logging.AddLog("301 Moved Permanently - {0}", newUrl.ToString()).Truncate(100);
+                                Manager.CurrentResponse.AddHeader("Location", newUrl.ToString());
+                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+                                return new EmptyResult();
+                            }
                         }
                     }
                 }
                 Manager.ActiveDevice = YetaWFManager.DeviceSelected.Desktop;
+            } else {
+                Manager.ActiveDevice = caps.IsMobileDevice ? YetaWFManager.DeviceSelected.Mobile : YetaWFManager.DeviceSelected.Desktop;
             }
 
             // Check for browser capabilities
@@ -276,8 +279,7 @@ namespace YetaWF.Core.Controllers {
                                     Manager.CurrentResponse.AddHeader("Location", redirUrl);
                                     Manager.CurrentContext.ApplicationInstance.CompleteRequest();
                                     return ProcessingStatus.Complete;
-                                }
-                                else
+                                } else
                                     throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.MobilePageUrl);
                             }
                         } else {
@@ -478,7 +480,7 @@ namespace YetaWF.Core.Controllers {
             if (Manager.IsInPopup)
                 Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Popups");
 
-            RazorPage razorPage = (RazorPage) RazorPage.CreateInstanceFromVirtualPath(virtPath);
+            RazorPage razorPage = (RazorPage)RazorPage.CreateInstanceFromVirtualPath(virtPath);
 
             //razorPage.RazorPageFile = realFile;
             razorPage.ViewContext = viewContext;
