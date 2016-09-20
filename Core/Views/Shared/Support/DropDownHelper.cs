@@ -80,8 +80,10 @@ namespace YetaWF.Core.Views.Shared {
         public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
             Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false) {
 
+            bool useKendo = !BrowserControls && !Manager.IsRenderingGrid && Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop;
+
             Manager.AddOnManager.AddTemplate("DropDownList");
-            if (!BrowserControls && !Manager.IsRenderingGrid) {
+            if (useKendo) {
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js");
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.list.min.js");
@@ -97,7 +99,7 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
             tag.AddCssClass("yt_dropdownlist_base");
             string id = htmlHelper.MakeId(tag);
-            if (!BrowserControls && !Manager.IsRenderingGrid)
+            if (useKendo)
                 tag.Attributes.Add("data-needinit", "");
 
             HtmlBuilder tagHtml = new HtmlBuilder();
@@ -113,7 +115,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (Equals(item.Value, selection))
                     tagOpt.Attributes["selected"] = "selected";
                 string desc = (item.Tooltip != null) ? item.Tooltip.ToString() : null;
-                if (BrowserControls || Manager.IsRenderingGrid) {
+                if (!useKendo) {
                     if (!string.IsNullOrWhiteSpace(desc))
                         tagOpt.Attributes["title"] = "selected";
                 } else {
@@ -126,7 +128,7 @@ namespace YetaWF.Core.Views.Shared {
                 tagHtml.Append(tagOpt.ToString(TagRenderMode.Normal));
             }
 
-            if (!BrowserControls && !Manager.IsRenderingGrid) {
+            if (useKendo) {
                 if (!haveDesc) // if we don't have any descriptions, clear the tooltip array
                     sb = new ScriptBuilder();
                 ScriptBuilder newSb = new ScriptBuilder();
