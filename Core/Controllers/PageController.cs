@@ -63,7 +63,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.CurrentContext.ApplicationInstance.CompleteRequest();
                 return new EmptyResult();
             }
-            if (site.IsLocked && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
+            if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
                     Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
                     uri.AbsolutePath != site.LockedUrl) {
                 Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
