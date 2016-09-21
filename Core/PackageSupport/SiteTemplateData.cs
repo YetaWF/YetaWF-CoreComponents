@@ -19,6 +19,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Feed",
             "YetaWF.Feedback",
             "YetaWF.Identity",
+            "YetaWF.IFrame",
             "YetaWF.ImageRepository",
             "YetaWF.KeepAlive",
             "YetaWF.Languages",
