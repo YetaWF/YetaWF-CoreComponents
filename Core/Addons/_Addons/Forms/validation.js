@@ -53,8 +53,7 @@ $.validator.addMethod('requiredif', function (value, element, parameters) {
     var name = parameters['dependentproperty'];
 
     var $ctrl = $('input[name="{0}"],select[name="{0}"]'.format(name), $form);
-    if ($ctrl.length < 1)
-        throw "No control found for name " + name;/*DEBUG*/
+    if ($ctrl.length < 1) throw "No control found for name " + name;/*DEBUG*/
     var ctrl = $ctrl[0];
     var tag = ctrl.tagName;
     var controltype = $ctrl.attr('type');
