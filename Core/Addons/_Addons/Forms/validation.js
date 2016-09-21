@@ -52,8 +52,9 @@ $.validator.addMethod('requiredif', function (value, element, parameters) {
 
     var name = parameters['dependentproperty'];
 
-    var $ctrl = $(':input[name="' + name + '"]', $form);
-    if ($ctrl.length < 1) throw "No control found for name " + name;/*DEBUG*/
+    var $ctrl = $('input[name="{0}"],select[name="{0}"]'.format(name), $form);
+    if ($ctrl.length < 1)
+        throw "No control found for name " + name;/*DEBUG*/
     var ctrl = $ctrl[0];
     var tag = ctrl.tagName;
     var controltype = $ctrl.attr('type');
@@ -116,7 +117,7 @@ $.validator.addMethod('requiredifnot', function (value, element, parameters) {
 
     var name = parameters['dependentproperty'];
 
-    var $ctrl = $(':input[name="' + name + '"]', $form);
+    var $ctrl = $('input[name="{0}"],select[name="{0}"]'.format(name), $form);
     if ($ctrl.length > 1) throw "Multiple controls found for name " + name;/*DEBUG*/
     if ($ctrl.length < 1) throw "No control found for name " + name;/*DEBUG*/
     var ctrl = $ctrl[0];
@@ -173,7 +174,7 @@ $.validator.addMethod('requiredifinrange', function (value, element, parameters)
 
     var name = parameters['dependentproperty'];
 
-    var $ctrl = $(':input[name="' + name + '"]', $form);
+    var $ctrl = $('input[name="{0}"],select[name="{0}"]'.format(name), $form);
     if ($ctrl.length > 1) throw "Multiple controls found for name " + name;/*DEBUG*/
     if ($ctrl.length < 1) throw "No control found for name " + name;/*DEBUG*/
     var ctrl = $ctrl[0];
@@ -218,7 +219,7 @@ $.validator.addMethod('requiredifsupplied', function (value, element, parameters
 
     var name = parameters['dependentproperty'];
 
-    var $ctrl = $(':input[name="' + name + '"]', $form);
+    var $ctrl = $('input[name="{0}"],select[name="{0}"]'.format(name), $form);
     if ($ctrl.length > 1) throw "Multiple controls found for name " + name;/*DEBUG*/
     if ($ctrl.length < 1) throw "No control found for name " + name;/*DEBUG*/
     var ctrl = $ctrl[0];
@@ -260,7 +261,7 @@ $.validator.addMethod('sameas', function (value, element, parameters) {
 
     var name = parameters['dependentproperty'];
 
-    var $ctrl = $(':input[name="' + name + '"]', $form);
+    var $ctrl = $('input[name="{0}"],select[name="{0}"]'.format(name), $form);
     if ($ctrl.length > 1) throw "Multiple controls found for name " + name;/*DEBUG*/
     if ($ctrl.length < 1) throw "No control found for name " + name;/*DEBUG*/
     var ctrl = $ctrl[0];
