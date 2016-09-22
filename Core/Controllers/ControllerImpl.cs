@@ -979,6 +979,8 @@ namespace YetaWF.Core.Controllers {
         // REDIRECT
 
         protected ActionResult Redirect(ModuleAction action) {
+            if (action == null)
+                return Redirect("");
             Manager.Verify_AjaxRequest();
             return Redirect(action.GetCompleteUrl(), ForcePopup: action.Style == ModuleAction.ActionStyleEnum.Popup || action.Style == ModuleAction.ActionStyleEnum.ForcePopup);
         }
