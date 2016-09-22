@@ -1,8 +1,14 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+.yt_scroller {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding-top:10px;
+    padding-bottom:10px;
+}
 .yt_scroller .t_scrollarea {
     width:100%;
-    height:300px;
+    height:320px;
     position:relative;
     overflow:hidden;
 }
