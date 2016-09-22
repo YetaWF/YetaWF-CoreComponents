@@ -80,7 +80,7 @@ namespace YetaWF.Core.Views.Shared {
         public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
             Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false) {
 
-            bool useKendo = !BrowserControls && !Manager.IsRenderingGrid && Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop;
+            bool useKendo = !BrowserControls && !Manager.IsRenderingGrid;
 
             Manager.AddOnManager.AddTemplate("DropDownList");
             if (useKendo) {
