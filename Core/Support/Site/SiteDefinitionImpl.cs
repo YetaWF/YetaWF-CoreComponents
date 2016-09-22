@@ -45,7 +45,7 @@ namespace YetaWF.Core.Site {
         // URLS
 
         /// <summary>
-        /// Turns a local Url into a fully qualified Url.
+        /// Turns a local Url to be used on the current page into a fully qualified Url.
         /// </summary>
         /// <param name="pathAndQs">Local or remote Url. If nothing is specified, "/" is the default.</param>
         /// <param name="PagePageSecurity">Desired page security. This is used as a suggestion as site and page definition will determine the final page security.</param>
@@ -63,38 +63,26 @@ namespace YetaWF.Core.Site {
         /// </remarks>
         public string MakeUrl(string pathAndQs = null, PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any,
                 string RealDomain = null, string ForceDomain = null) {
-            if (!string.IsNullOrWhiteSpace(ForceDomain) && !string.IsNullOrWhiteSpace(RealDomain))
-                throw new InternalError("Can't use ForceDomain and RealDomain at the same time");
-            if (string.IsNullOrWhiteSpace(pathAndQs))
-                pathAndQs = "/";
-            if (pathAndQs.StartsWith("http://") || pathAndQs.StartsWith("https://")) {
-                if (ForceDomain != null || RealDomain != null || PagePageSecurity != PageDefinition.PageSecurityType.Any)
-                    throw new InternalError("Can't use ForceDomain, RealDomain or secure page with full URL");
-                return pathAndQs;
-            }
-            if (!pathAndQs.StartsWith("/"))
-                throw new InternalError("All pages must start with /");
-            pathAndQs = pathAndQs.Substring(1);
 
             PageDefinition.PageSecurityType securityType = PagePageSecurity;// assume the page decides the security type
             switch (PageSecurity) {
                 case PageSecurityType.AsProvided:
-                    securityType = PageDefinition.PageSecurityType.Any;
+                    if (securityType != PageDefinition.PageSecurityType.httpsOnly)
+                        securityType = PageDefinition.PageSecurityType.Any;
                     break;
                 case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
                     if (Manager.HaveUser) {
-                        if (PagePageSecurity == PageDefinition.PageSecurityType.Any)
+                        if (securityType == PageDefinition.PageSecurityType.Any)
                             securityType = PageDefinition.PageSecurityType.httpsOnly;
                     }
                     break;
                 case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
                     if (!Manager.HaveUser) {
-                        if (PagePageSecurity == PageDefinition.PageSecurityType.Any)
+                        if (securityType == PageDefinition.PageSecurityType.Any)
                             securityType = PageDefinition.PageSecurityType.httpOnly;
                     }
                     break;
                 case PageSecurityType.UsePageModuleSettings:
-                    securityType = PagePageSecurity;
                     break;
                 case PageSecurityType.NoSSLOnly:
                     securityType = PageDefinition.PageSecurityType.httpOnly;
@@ -109,15 +97,51 @@ namespace YetaWF.Core.Site {
                     securityType = PageDefinition.PageSecurityType.httpsOnly;
                     break;
             }
+            return MakeFullUrl(pathAndQs, securityType, RealDomain: RealDomain, ForceDomain: ForceDomain);
+        }
+        /// <summary>
+        /// Turns a local Url into a fully qualified Url.
+        /// </summary>
+        /// <param name="pathAndQs">Local or remote Url. If nothing is specified, "/" is the default.</param>
+        /// <param name="Security">Desired page security.</param>
+        /// <param name="RealDomain">Optional. Defines the domain name to be used to build the fully qualified Url. This can only be used if pathAndQs defines a local Url (starting with /).
+        /// This can be used to build a Url for another domain name than the current domain name.</param>
+        /// <param name="ForceDomain">Optional. Defines the domain name to be used as querystring argument (!Domain=) to force access to the specified Url.
+        /// This is used while creating a new site and the site can not yet be accessed because it hasn't been defined in IIS or the hosts file.</param>
+        /// <returns>A fully qualified Url.</returns>
+        /// <remarks>
+        /// This method is used to format a fully qualified Url, including http(s)://, domain, port if necessary, and also takes into consideration whether the site is
+        /// using IIS Express, in which case Localhost could be used.
+        ///
+        /// RealDomain and ForceDomain are rarely used and usually only in YetaWF Core code as they are used to redirect to another site hosted by the same YetaWF instance.
+        /// ForceDomain is used while creating a new site only and should not otherwise be used.
+        /// </remarks>
+        public string MakeFullUrl(string pathAndQs = null, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, string RealDomain = null, string ForceDomain = null) {
+            if (!string.IsNullOrWhiteSpace(ForceDomain) && !string.IsNullOrWhiteSpace(RealDomain))
+                throw new InternalError("Can't use ForceDomain and RealDomain at the same time");
+            if (string.IsNullOrWhiteSpace(pathAndQs))
+                pathAndQs = "/";
+            if (pathAndQs.StartsWith("http://") || pathAndQs.StartsWith("https://")) {
+                if (ForceDomain != null || RealDomain != null || SecurityType != PageDefinition.PageSecurityType.Any)
+                    throw new InternalError("Can't use ForceDomain, RealDomain or secure page with full URL");
+                return pathAndQs;
+            }
+            if (!pathAndQs.StartsWith("/"))
+                throw new InternalError("All pages must start with /");
+            pathAndQs = pathAndQs.Substring(1);
+
+            if (SecurityType == PageDefinition.PageSecurityType.Any)
+                SecurityType = PageDefinition.PageSecurityType.httpOnly;
+
             UriBuilder uri;
             if (!string.IsNullOrWhiteSpace(RealDomain) && Manager.HostUsed != "localhost") {
                 // if we're not using localhost, we can simply access the other domain
-                uri = new UriBuilder(securityType == PageDefinition.PageSecurityType.httpsOnly ? "https" : "http", RealDomain);
+                uri = new UriBuilder(SecurityType == PageDefinition.PageSecurityType.httpsOnly ? "https" : "http", RealDomain);
             } else {
                 string host = Manager.CurrentSite.SiteDomain;
                 int port = -1;
                 string scheme = "http";
-                if (securityType == PageDefinition.PageSecurityType.httpsOnly) {
+                if (SecurityType == PageDefinition.PageSecurityType.httpsOnly) {
                     scheme = "https";
                     if (Manager.IsLocalHost) {
                         host = Manager.HostUsed;
