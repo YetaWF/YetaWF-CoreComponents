@@ -121,7 +121,7 @@ namespace YetaWF.Core.Site {
                 throw new InternalError("Can't use ForceDomain and RealDomain at the same time");
             if (string.IsNullOrWhiteSpace(pathAndQs))
                 pathAndQs = "/";
-            if (pathAndQs.StartsWith("http://") || pathAndQs.StartsWith("https://")) {
+            if (pathAndQs.StartsWith("http://") || pathAndQs.StartsWith("https://") || pathAndQs.StartsWith("//")) {
                 if (ForceDomain != null || RealDomain != null || SecurityType != PageDefinition.PageSecurityType.Any)
                     throw new InternalError("Can't use ForceDomain, RealDomain or secure page with full URL");
                 return pathAndQs;
