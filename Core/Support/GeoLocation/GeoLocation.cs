@@ -103,18 +103,22 @@ namespace YetaWF.Core.Support {
             if (ipAddress == "127.0.0.1")
                 return null;
             UriBuilder uri = new UriBuilder(string.Format("http://www.geoplugin.net/json.gp?ip={0}", ipAddress));
-
-            var http = (HttpWebRequest)WebRequest.Create(uri.ToString());
-            http.Accept = "application/json";
-            http.Method = "GET";
-
-            System.Net.WebResponse resp;
-            resp = http.GetResponse();
-            System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
-            string response = sr.ReadToEnd().Trim();
-            GeoData geoData = YetaWFManager.Jser.Deserialize<GeoData>(response);
+            GeoData geoData = null;
+            try {
+                var http = (HttpWebRequest)WebRequest.Create(uri.ToString());
+                http.Accept = "application/json";
+                http.Method = "GET";
+                System.Net.WebResponse resp;
+                resp = http.GetResponse();
+                System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
+                string response = sr.ReadToEnd().Trim();
+                geoData = YetaWFManager.Jser.Deserialize<GeoData>(response);
+            } catch (Exception exc) {
+                Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", exc.Message, ipAddress);
+                return null;
+            }
             if (geoData.geoplugin_status != 200) {
-                Logging.AddLog("geoplugin_status {0} for ip address {1}", geoData.geoplugin_status, ipAddress);
+                Logging.AddErrorLog("geoplugin_status {0} for ip address {1}", geoData.geoplugin_status, ipAddress);
                 return null;
             }
             return geoData;
