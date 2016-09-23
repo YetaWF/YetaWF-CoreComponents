@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
@@ -31,7 +32,7 @@ namespace YetaWF.Core.Views.Shared {
                 tImg.MergeAttribute("title", title);
             if (!string.IsNullOrWhiteSpace(id))
                 tImg.Attributes.Add("id", id);
-            if (!url.StartsWith("http://") && !url.StartsWith("https://") && !url.StartsWith("//")) {
+            if (!url.IsAbsoluteUrl()) {
                 string file = YetaWFManager.UrlToPhysical(url);
                 try {
                     System.Drawing.Image img = System.Drawing.Image.FromFile(file);
@@ -62,7 +63,7 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.TryGetControlInfo<int>(name, "Width", out width);
             htmlHelper.TryGetControlInfo<int>(name, "Height", out height);
 
-            if (string.IsNullOrWhiteSpace(imageType) && model != null && (model.StartsWith("http://") || model.StartsWith("https://") || model.StartsWith("//"))) {
+            if (string.IsNullOrWhiteSpace(imageType) && model != null && model.IsAbsoluteUrl()) {
 
                 if (width != 0 || height != 0) throw new InternalError("Can't use Width or Height with external Urls");
 

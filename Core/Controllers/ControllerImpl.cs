@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models;
@@ -1007,9 +1008,9 @@ namespace YetaWF.Core.Controllers {
                     // the assumption is we're in a postback and we have to find out whether to use http or https for the popup
                     // if we're on a page with https: the popup must also be https: otherwise the browser will have a fit
                     if (Manager.CurrentRequest.IsSecureConnection) {
-                        if (url.StartsWith("//") || url.StartsWith("https://")) {
+                        if (url.StartsWith("//") || url.IsHttps()) {
                             // good
-                        } else if (url.StartsWith("http://")) {
+                        } else if (url.IsHttp()) {
                             url = url.Substring("http:".Length);// remove http: and leave just //
                         } else if (url.StartsWith("/")) {
                             url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: Pages.PageDefinition.PageSecurityType.httpsOnly);

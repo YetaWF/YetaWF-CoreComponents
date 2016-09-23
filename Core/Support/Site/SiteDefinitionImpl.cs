@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
@@ -121,7 +122,7 @@ namespace YetaWF.Core.Site {
                 throw new InternalError("Can't use ForceDomain and RealDomain at the same time");
             if (string.IsNullOrWhiteSpace(pathAndQs))
                 pathAndQs = "/";
-            if (pathAndQs.StartsWith("http://") || pathAndQs.StartsWith("https://") || pathAndQs.StartsWith("//")) {
+            if (pathAndQs.IsAbsoluteUrl()) {
                 if (ForceDomain != null || RealDomain != null || SecurityType != PageDefinition.PageSecurityType.Any)
                     throw new InternalError("Can't use ForceDomain, RealDomain or secure page with full URL");
                 return pathAndQs;

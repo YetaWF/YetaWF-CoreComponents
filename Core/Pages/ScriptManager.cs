@@ -206,7 +206,7 @@ namespace YetaWF.Core.Pages {
                     //if (!page && !Manager.IsAjaxRequest) // We don't want this file in a main page request
                     //    continue;
                     string filePathURL;
-                    if (file.StartsWith("http://") || file.StartsWith("https://") || file.StartsWith("//")) {
+                    if (file.IsAbsoluteUrl()) {
                         filePathURL = file;
                         if (bundle == true)
                             throw new InternalError("Can't use bundle with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
@@ -250,9 +250,7 @@ namespace YetaWF.Core.Pages {
         private bool Add(string fullUrl, bool minify, bool bundle, bool last, bool async, bool defer) {
             string key = fullUrl.ToLower();
 
-            if (fullUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith("//", StringComparison.InvariantCultureIgnoreCase) ||
+            if (fullUrl.IsAbsoluteUrl() ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.NugetScriptsUrl, StringComparison.InvariantCultureIgnoreCase)) {
 

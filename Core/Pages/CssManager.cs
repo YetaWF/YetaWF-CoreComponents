@@ -45,7 +45,7 @@ namespace YetaWF.Core.Pages {
             foreach (var info in list) {
                 string file = string.Format(info, args);
                 string filePathURL;
-                if (file.StartsWith("http://") || file.StartsWith("https://") || file.StartsWith("//")) {
+                if (file.IsAbsoluteUrl()) {
                     filePathURL = file;
                 } else if (file.StartsWith("\\")) {
                     string f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
@@ -69,9 +69,7 @@ namespace YetaWF.Core.Pages {
             string key = fullUrl;
             bool bundle;
 
-            if (fullUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith("//", StringComparison.InvariantCultureIgnoreCase) ||
+            if (fullUrl.IsAbsoluteUrl() ||
                 fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
@@ -88,7 +86,7 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("Css filename '{0}' is invalid.", fullUrl);
             }
 
-            if (fullUrl.StartsWith("http://") || fullUrl.StartsWith("https://") || fullUrl.StartsWith("//")) {
+            if (fullUrl.IsAbsoluteUrl()) {
                 bundle = false;
             } else if (fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || fullUrl.ContainsIgnoreCase(Globals.NugetScriptsUrl) || fullUrl.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
                 bundle = false;

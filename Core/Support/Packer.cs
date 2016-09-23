@@ -28,9 +28,7 @@ namespace YetaWF.Core.Support {
         /// <param name="mode">The file mode.</param>
         /// <returns></returns>
         public bool CanCompress(string fullPathUrl, PackMode mode) {
-            if (fullPathUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
-                    fullPathUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) ||
-                    fullPathUrl.StartsWith("//"))
+            if (fullPathUrl.IsAbsoluteUrl())
                 return false;
             return true;
         }
@@ -227,7 +225,7 @@ namespace YetaWF.Core.Support {
             //string rem = match.Groups["rem"].Value;
             string textMatch = match.ToString();
             if (!url.EndsWith(".css")) return textMatch; // leave as-is if not .css
-            if (url.StartsWith("http://") || url.StartsWith("https://")) return textMatch;
+            if (url.IsAbsoluteUrl()) return textMatch;
             if (url.StartsWith("/")) return textMatch;
             string file = Path.Combine(folder, url);
             string importText = File.ReadAllText(file);

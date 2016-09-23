@@ -32,5 +32,14 @@ namespace YetaWF.Core.Extensions {
         public static bool ContainsIgnoreCase(this string text, string search) {
             return text.ToLower().Contains(search.ToLower());
         }
+        public static bool IsHttp(this string text) {
+            return text.StartsWith("http://");
+        }
+        public static bool IsHttps(this string text) {
+            return text.StartsWith("https://");
+        }
+        public static bool IsAbsoluteUrl(this string text) {
+            return text.StartsWith("http://") || text.StartsWith("https://") || text.StartsWith("//");
+        }
     }
 }
