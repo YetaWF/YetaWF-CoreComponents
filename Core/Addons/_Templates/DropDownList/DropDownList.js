@@ -70,13 +70,14 @@ YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl) {
             if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
                 var data = JSON.parse(script);
-                var ctl = $control.data("kendoDropDownList");
                 $control.kendoDropDownList({
                     dataTextField: "t",
                     dataValueField: "v",
                     dataSource: data.data,
                 });
                 $control.data("tooltips", data.tooltips);
+                $control.select(0);
+                $control.trigger('change');
             } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
                 eval(script);
