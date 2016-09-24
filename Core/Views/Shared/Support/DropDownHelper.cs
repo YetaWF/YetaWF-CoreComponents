@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
@@ -162,11 +163,13 @@ namespace YetaWF.Core.Views.Shared {
             if (list.Count > 0)
                 sb.RemoveLast();
             sb.Append(@"],""tooltips"":[");
-            foreach (SelectionItem<TYPE> item in list) {
-                sb.Append("{0},", YetaWFManager.Jser.Serialize(item.Tooltip.ToString()));
+            if ((from i in list where i.Tooltip != null && !string.IsNullOrWhiteSpace(i.Tooltip.ToString()) select i).FirstOrDefault() != null) {
+                foreach (SelectionItem<TYPE> item in list) {
+                    sb.Append("{0},", YetaWFManager.Jser.Serialize(item.Tooltip.ToString()));
+                }
+                if (list.Count > 0)
+                    sb.RemoveLast();
             }
-            if (list.Count > 0)
-                sb.RemoveLast();
             sb.Append("]}");
             return MvcHtmlString.Create(sb.ToString());
         }
