@@ -1,17 +1,13 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Web.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
 
-namespace YetaWF.Core.Controllers.Shared
-{
+namespace YetaWF.Core.Controllers.Shared {
     public class SkinHelperController : YetaWFController
     {
         // returns html <option> to replace a select statement with new page skins
