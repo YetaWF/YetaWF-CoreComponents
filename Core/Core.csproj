@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
+    <Compile Include="Controllers\Shared\ModuleSelectionHelper.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Models\Attributes\PackageDomainValidationAttribute.cs" />
     <Compile Include="Models\Attributes\AreaValidationAttribute.cs" />
@@ -490,7 +491,7 @@
     <Content Include="Addons\_Templates\ModuleSelection\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ModuleSelection\filelistJS.txt" />
     <Content Include="Addons\_Templates\ModuleSelection\Icons\ModulePreview.png" />
-    <Content Include="Addons\_Templates\ModuleSelection\ModuleSelection.css" />
+    <None Include="Addons\_Templates\ModuleSelection\ModuleSelection.scss" />
     <Content Include="Addons\_Templates\ModuleSelection\ModuleSelection.js" />
     <Content Include="Addons\_Templates\TimeZone\filelistCSS.txt" />
     <Content Include="Addons\_Templates\TimeZone\TimeZone.css" />

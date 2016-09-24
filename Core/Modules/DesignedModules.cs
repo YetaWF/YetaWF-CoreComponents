@@ -2,33 +2,54 @@
 
 using System;
 using System.Collections.Generic;
-using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
-using YetaWF.Core.Models.Attributes;
 
 namespace YetaWF.Core.Modules {
 
-    // Designed modules - LoadDesignedModules returns a site-specific list
-
+    /// <summary>
+    /// Describes a designed module.
+    /// </summary>
     public class DesignedModule {
-        [Data_PrimaryKey]
+        /// <summary>
+        /// The module Guid.
+        /// </summary>
         public Guid ModuleGuid { get; set; }
+        /// <summary>
+        /// The module name as provided by user who created the module.
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The module description, provided by module implementer.
+        /// </summary>
         public MultiString Description { get; set; }
+        /// <summary>
+        /// The area name implementing the module.
+        /// </summary>
+        public string AreaName { get; set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public DesignedModule() {
             Description = new MultiString();
         }
     }
 
+    /// <summary>
+    /// Cached designed modules.
+    /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not used for serialization")]
     public class DesignedModulesDictionary : Dictionary<Guid, DesignedModule> { }
 
+    /// <summary>
+    /// Designed modules management.
+    /// </summary>
     public static class DesignedModules {
 
-        // this must be provided by a dataprovider during app startup (this loads module information)
-        [DontSave]
+        /// <summary>
+        /// Loads and caches all designed modules.
+        /// </summary>
+        /// <remarks>This method is implemented by a data provider, set at application startup.</remarks>
         public static Func<List<DesignedModule>> LoadDesignedModules { get; set; }
-
     }
 }

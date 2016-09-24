@@ -54,7 +54,7 @@ namespace YetaWF.Core.Modules {
         public string ModuleDisplayName {
             get {
                 GetModuleInfo();
-                return string.Format(Globals.ModuleDisplayNameFormat, CompanyDisplayName, ModuleName);
+                return ModuleName;
             }
         }
         [Category("About")]

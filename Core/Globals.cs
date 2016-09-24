@@ -122,7 +122,6 @@ namespace YetaWF.Core {
 
         // Module format strings
         public const string PermanentModuleNameFormat = "{0}.{1}";
-        public const string ModuleDisplayNameFormat = "{0} - {1}";
         public const string RVD_ModuleDefinition = "ModuleDefinition";
 
         // CSS classes

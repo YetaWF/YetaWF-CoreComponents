@@ -111,3 +111,25 @@ YetaWF_ModuleSelection.init = function (id) {
     });
     $select.trigger('change');
 };
+
+
+$(document).ready(function () {
+
+    $("body").on('change', '.yt_moduleselection.t_edit .t_packages select', function (event) {
+        'use strict';
+
+        var $this = $(this);
+
+        var $control = $this.closest('.yt_moduleselection');
+        if ($control.length != 1) throw "Couldn't find module selection control";/*DEBUG*/
+        var $select = _YetaWF_ModuleSelection.getSelect($control);
+
+        var ajaxurl = $('input[name$=".AjaxUrl"]', $control).val();
+        if (ajaxurl == "") throw "Couldn't find ajax url";/*DEBUG*/
+
+        var data = { 'AreaName': $(this).val() };
+        // get a new list of modules
+        YetaWF_TemplateDropDownList.AjaxUpdate($select, data, ajaxurl);
+    });
+});
+

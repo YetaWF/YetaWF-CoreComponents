@@ -1,0 +1,39 @@
+﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+
+div.yt_moduleselection.t_edit {
+    display: inline;
+    .t_packages,
+    .t_select {
+        label {
+            width:12ch;
+        }
+    }
+    .t_packages .k-widget.yt_dropdownlist_base,
+    .t_select .k-widget.yt_dropdownlist_base { /* set min-width because we replace via ajax, so no autosize */
+        min-width:30ch;
+    }
+    .t_select,
+    .t_link {
+        display: inline;
+    }
+    .t_link a img {
+        margin-left:.5ch;
+    }
+    .t_description {
+        padding-top:.5em;
+        padding-bottom:.5em;
+    }
+}
+div.yt_moduleselection.t_display {
+    .t_select,
+    .t_link {
+        display: inline;
+        a img {
+            margin-left:.5ch;
+        }
+    }
+    .t_description {
+        padding-top:.5em;
+        padding-bottom:.5em;
+    }
+}
