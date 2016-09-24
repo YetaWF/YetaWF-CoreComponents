@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -12,7 +13,12 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class DecimalHelper {
 
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
         public static MvcHtmlString RenderDecimal(this HtmlHelper<object> htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.userevents.min.js");
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.numerictextbox.min.js");
 
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);

@@ -1,6 +1,5 @@
 ﻿@*Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.PropertyListTabbed<object>
-@{ Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript */ }
 @Html.RenderPropertyListTabbed("", Model, DivId)
 @{
     string script = Html.GetControlSets(Model, DivId);

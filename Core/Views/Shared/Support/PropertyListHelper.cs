@@ -396,6 +396,8 @@ namespace YetaWF.Core.Views.Shared {
         }
         public static MvcHtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 
+            Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript as the regular propertylist template */
+
             List<string> categories = PropertyListSupport.GetCategories(model);
             if (categories.Count == 0) throw new InternalError("Unsupported model in PropertyListTabbed template - No categories defined");
             if (categories.Count == 1) // if there is only one tab, show as regular property list
