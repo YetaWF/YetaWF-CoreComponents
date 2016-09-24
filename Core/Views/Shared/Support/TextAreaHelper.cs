@@ -32,8 +32,6 @@ namespace YetaWF.Core.Views.Shared {
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: true, Validation: false);
 
-            tag.Attributes.Add("readonly", "readonly");
-
             bool encode = htmlHelper.GetControlInfo<bool>("", "Encode", true);
             if (encode) {
                 if (string.IsNullOrWhiteSpace(text))
