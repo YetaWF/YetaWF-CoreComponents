@@ -11,6 +11,7 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
     [Trim]
@@ -126,11 +127,34 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(Globals.MaxUrl)]
         public string Url { get; set; }
+        /// <summary>
+        /// User-defined canonical Url.
+        /// </summary>
+        /// <remarks>The user-defined canonical Url may contain variables used for variable substitution.
+        ///
+        /// Modules that override the canonical Url should use EvaluatedCanonicalUrl instead.</remarks>
         [StringLength(Globals.MaxUrl)]
         public string CanonicalUrl { get; set; }
 
-        //TODO: The purpose and use of this needs to be investigated compared to GetCanonicalUrl which evaluates variables
-        public string CompleteUrl { get { return (string.IsNullOrWhiteSpace(CanonicalUrl)) ? Url : CanonicalUrl; } }
+        /// <summary>
+        /// Actual canonical Url.
+        /// </summary>
+        /// <remarks>Unlike CanonicalUrl, the EvaluatedCanonicalUrl substitutes all variables.</remarks>
+        public string EvaluatedCanonicalUrl {
+            get {
+                if (string.IsNullOrWhiteSpace(_canonicalUrl)) {
+                    string url = string.IsNullOrWhiteSpace(CanonicalUrl) ? Url : CanonicalUrl;
+                    Variables vars = new Variables(Manager);
+                    url = vars.ReplaceVariables(url);
+                    _canonicalUrl = Manager.CurrentSite.MakeUrl(YetaWFManager.UrlEncodePath(url), PagePageSecurity: PageSecurity);
+                }
+                return _canonicalUrl;
+            }
+            set {
+                _canonicalUrl = value;
+            }
+        }
+        private string _canonicalUrl;
 
         [StringLength(MaxTitle)]
         public MultiString Title { get; set; }

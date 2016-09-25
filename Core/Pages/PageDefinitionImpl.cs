@@ -217,28 +217,9 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        public string GetCanonicalUrl() {
-            if (string.IsNullOrWhiteSpace(_canonicalUrl)) {
-                string url = CanonicalUrl;
-                if (!string.IsNullOrWhiteSpace(url)) {
-                    Variables vars = new Variables(Manager);
-                    url = vars.ReplaceVariables(url);
-                    _canonicalUrl = Manager.CurrentSite.MakeUrl(YetaWFManager.UrlEncodePath(url), PagePageSecurity: PageSecurity);
-                }
-                if (string.IsNullOrWhiteSpace(_canonicalUrl))
-                    _canonicalUrl = Manager.CurrentSite.MakeUrl(YetaWFManager.UrlEncodePath(Url), PagePageSecurity: PageSecurity);
-            }
-            return _canonicalUrl;
-        }
-        public void SetCanonicalUrl(string url) {
-            _canonicalUrl = url;
-        }
-        private string _canonicalUrl;
-
         public string CanonicalUrlLink {
             get {
-                string url = GetCanonicalUrl();
-                if (string.IsNullOrWhiteSpace(url)) return "";
+                string url = EvaluatedCanonicalUrl;
                 return string.Format("<link rel=\"canonical\" href=\"{0}\">", url);
             }
         }
@@ -694,7 +675,7 @@ namespace YetaWF.Core.Pages {
             // hreflang - google
 
             // <link rel="alternate" href="http://example.com/" hreflang = "x-default" />
-            string canonUrl = YetaWFManager.HtmlAttributeEncode(GetCanonicalUrl());
+            string canonUrl = YetaWFManager.HtmlAttributeEncode(EvaluatedCanonicalUrl);
             hb.Append("<link rel='alternate' href='{0}' hreflang='x-default' />", canonUrl);
             if (string.IsNullOrWhiteSpace(LanguageId)) {
                 // page in multiple languages

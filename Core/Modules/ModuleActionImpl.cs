@@ -166,7 +166,7 @@ namespace YetaWF.Core.Modules {
                 if (!string.IsNullOrWhiteSpace(url)) {
                     tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(url));
                     if (Manager.CurrentPage != null) {
-                        string currUrl = Manager.CurrentPage.CompleteUrl;
+                        string currUrl = Manager.CurrentPage.EvaluatedCanonicalUrl;
                         if (!string.IsNullOrWhiteSpace(currUrl) && currUrl != "/") {// this doesn't work on home page because everything matches
                             if (this.Url == currUrl)
                                 tag.AddCssClass("t_currenturl");

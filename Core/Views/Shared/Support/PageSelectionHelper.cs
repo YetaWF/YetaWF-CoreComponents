@@ -44,7 +44,7 @@ namespace YetaWF.Core.Views.Shared {
             if (pageGuid != null)
                 page = PageDefinition.Load((Guid)pageGuid);
 
-            tag.MergeAttribute("href", (page != null ? page.CompleteUrl : ""));
+            tag.MergeAttribute("href", (page != null ? page.EvaluatedCanonicalUrl : ""));
             tag.MergeAttribute("target", "_blank");
             tag.Attributes.Add(Basics.CssTooltip, __ResStr("linkTT", "Click to preview the page in a new window - not all pages can be displayed correctly and may require additional parameters"));
 
