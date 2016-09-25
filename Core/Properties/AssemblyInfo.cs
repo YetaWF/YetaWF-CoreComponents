@@ -29,9 +29,11 @@ using YetaWF.PackageAttributes;
 
 //TODO: Check for completeness before each release
 [assembly: RequiresAddOnGlobal("bassistance.de", "jquery-validation")]
+[assembly: RequiresAddOnGlobal("clipboardjs.com", "clipboard")]
 [assembly: RequiresAddOnGlobal("gist.github.com_remi_957732", "jquery_validate_hooks")]
 [assembly: RequiresAddOnGlobal("github.com.danielm", "uploader")]
 [assembly: RequiresAddOnGlobal("github.com.free-jqgrid", "jqgrid")]
+[assembly: RequiresAddOnGlobal("google.com.swfobject", "swfobject")]
 [assembly: RequiresAddOnGlobal("jquery.com", "jquery")]
 [assembly: RequiresAddOnGlobal("jquery.com", "jquery-color")]
 [assembly: RequiresAddOnGlobal("jqueryui.com", "jqueryui")]
