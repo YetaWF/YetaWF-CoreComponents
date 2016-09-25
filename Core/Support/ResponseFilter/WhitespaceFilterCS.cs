@@ -95,7 +95,7 @@ namespace YetaWF.Core.ResponseFilter
         }
 
         private static readonly Regex textModRe = new Regex(
-            string.Format("^(?'start'.*?){0}(?'wsf'.*?){1}(?'end'.*)$", Regex.Escape(Globals.LazyHTMLOptimization), Regex.Escape(Globals.LazyHTMLOptimizationEnd)),
+            string.Format("^(?'start'.*?)(?:{0})(?'wsf'.*?)(?:{1})(?'end'.*)$", Regex.Escape(Globals.LazyHTMLOptimization), Regex.Escape(Globals.LazyHTMLOptimizationEnd)),
             RegexOptions.Compiled | RegexOptions.Singleline);
 
         private string ProcessTextModuleInput(string inputBuffer) {
@@ -108,9 +108,9 @@ namespace YetaWF.Core.ResponseFilter
                 if (!m.Success)
                     break;
                 output.Append(ProcessTextAreaInput(m.Groups["start"].Value));
-                Aggressive = true;
-                output.Append(ProcessTextAreaInput(m.Groups["wsf"].Value));
                 Aggressive = false;
+                output.Append(ProcessTextAreaInput(m.Groups["wsf"].Value));
+                Aggressive = true;
                 contentInBuffer = m.Groups["end"].Value;
             }
             output.Append(ProcessTextAreaInput(contentInBuffer));
