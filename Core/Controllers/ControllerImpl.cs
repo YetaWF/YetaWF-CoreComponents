@@ -670,12 +670,12 @@ namespace YetaWF.Core.Controllers {
         // GRID PARTIALVIEW
 
         protected PartialViewResult GridPartialView(DataSourceResult dataSrc) {
-            string partialView = "GridDatajqGrid";
+            string partialView = "GridData";
             return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false);
         }
 
         protected PartialViewResult GridPartialView(GridDefinition.GridEntryDefinition entryDef) {
-            string partialView = "GridEntryjqGrid";
+            string partialView = "GridEntry";
             return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
         }
 

@@ -6,12 +6,12 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Addons.Templates {
-    public class GridjqGrid : IAddOnSupport {
+    public class Grid : IAddOnSupport {
 
         public void AddSupport(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
-            string areaName = "GridjqGrid";
+            string areaName = "Grid";
 
             scripts.AddConfigOption(areaName, "allRecords", GridDefinition.MaxPages);
 

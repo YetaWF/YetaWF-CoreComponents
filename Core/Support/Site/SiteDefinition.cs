@@ -23,19 +23,6 @@ namespace YetaWF.Core.Site {
         [EnumDescription("Kendo", "Kendo UI Core Tab Controls")]
         Kendo = 1,
     }
-    public enum GridStyleEnum {
-        [EnumDescription("jqGrid", "jqGrid Grid Controls")]
-        jqGrid = 0,
-        [EnumDescription("Kendo", "Kendo UI PRO (Requires Telerik License (Kendo UI Pro) with installed addon files)")]
-        Kendo = 1,
-    }
-    public enum FileUploadStyleEnum {
-        [EnumDescription("DanielM", "DanielM's JQuery File Uploader")]
-        DanielM = 0,
-        [EnumDescription("Kendo", "Kendo UI PRO (Requires Telerik License (Kendo UI Pro) with installed addon files)")]
-        Kendo = 1,
-    }
-
     public enum PageSecurityType {
         [EnumDescription("As Provided in Url", "As Provided in Url - This can be overridden by pages using an explicit mode")]
         AsProvided = 0,
@@ -119,8 +106,6 @@ namespace YetaWF.Core.Site {
             KendoUISkin = null;
             SyntaxHighlighterSkin = null;
             TabStyle = TabStyleEnum.JQuery;
-
-            OriginalFileUploadStyle = FileUploadStyle = FileUploadStyleEnum.DanielM;
 
             OriginalUseCDN = UseCDN = false;
             OriginalCDNUrl = CDNUrl = null;
@@ -577,14 +562,6 @@ namespace YetaWF.Core.Site {
         [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]
         [UIHint("Enum"), Required]
         public TabStyleEnum TabStyle { get; set; }
-
-        [Category("Skin"), Caption("File Upload Style"), Description("Defines which UI provides the file upload control implementation")]
-        [UIHint("Enum"), Required]
-        public FileUploadStyleEnum FileUploadStyle { get; set; }
-
-        [UIHint("Hidden")]
-        [DontSave]
-        public FileUploadStyleEnum OriginalFileUploadStyle { get; set; }
 
         // ENCRYPTION
         // ENCRYPTION

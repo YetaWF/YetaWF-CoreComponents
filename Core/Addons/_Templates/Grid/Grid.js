@@ -1,106 +1,163 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
-'use strict';
 
-var YetaWF_GridKendo = {};
+var YetaWF_Grid = {};
 
-YetaWF_GridKendo._dataBoundEnabled = 1;
+YetaWF_Grid._dataBoundEnabled = 1;
 
-// Localization message for pager
-// http://docs.telerik.com/kendo-ui/getting-started/web/grid/localization
-YetaWF_GridKendo.getMessages_Pageable = function () {
-    var msg = {
-        display: YLocs.GridKendo.display,
-        empty: YLocs.GridKendo.empty,
-        page: YLocs.GridKendo.page,
-        of: YLocs.GridKendo.of,
-        itemsPerPage: YLocs.GridKendo.itemsPerPage,
-        first: YLocs.GridKendo.first,
-        previous: YLocs.GridKendo.previous,
-        next: YLocs.GridKendo.next,
-        last: YLocs.GridKendo.last,
-        refresh: YLocs.GridKendo.refresh,
-        morePages: YLocs.GridKendo.morePages
-    };
-    return msg;
-}
+jQuery.extend(jQuery.jgrid.defaults, {
+    autowidth: true,
+    hoverrows: false,
+    sortable: false, // no column reordering
+    height: '100%',
+    // Localization message for pager
+    // http://www.trirand.com/jqgridwiki/doku.php?id=wiki:pager
+    recordtext: YLocs.Grid.recordtext,
+    emptyrecords: YLocs.Grid.emptyrecords,
+    loadtext: YLocs.Grid.loadtext,
+    pgtext: YLocs.Grid.pgtext,
+    pgfirst: YLocs.Grid.pgfirst,
+    pglast: YLocs.Grid.pglast,
+    pgnext: YLocs.Grid.pgnext,
+    pgprev: YLocs.Grid.pgprev,
+    pgrecs: YLocs.Grid.pgrecs,
+    //showhide: "Toggle Expand Collapse Grid", // not used
+    //savetext: "Saving...", // not used
+});
+jQuery.extend(jQuery.jgrid.search, {
+    // caption: "Search...",// not used
+    // Find: "Find",// not used
+    // Reset: "Reset",// not used
+    odata: [
+        { oper: "eq", text: YLocs.Grid.eq },
+        { oper: "ne", text: YLocs.Grid.ne },
+        { oper: "lt", text: YLocs.Grid.lt },
+        { oper: "le", text: YLocs.Grid.le },
+        { oper: "gt", text: YLocs.Grid.gt },
+        { oper: "ge", text: YLocs.Grid.ge },
+        { oper: "bw", text: YLocs.Grid.bw },
+        { oper: "bn", text: YLocs.Grid.bn },
+        { oper: "in", text: YLocs.Grid.inx },
+        { oper: "ni", text: YLocs.Grid.ni },
+        { oper: "ew", text: YLocs.Grid.ew },
+        { oper: "en", text: YLocs.Grid.en },
+        { oper: "cn", text: YLocs.Grid.cn },
+        { oper: "nc", text: YLocs.Grid.nc },
+        { oper: "nu", text: YLocs.Grid.nu },
+        { oper: "nn", text: YLocs.Grid.nn }
+    ],
+    //groupOps: [ // not used
+    //    { op: "AND", text: "all" },
+    //    { op: "OR", text: "any" }
+    //],
+    //addGroupTitle: "Add subgroup",// not used
+    //deleteGroupTitle: "Delete group",// not used
+    //addRuleTitle: "Add rule",// not used
+    //deleteRuleTitle: "Delete rule",// not used
+    operandTitle: "Select search operation",
+    resetTitle: "Reset search value"
+});
+jQuery.extend(jQuery.jgrid.nav, {
+    edit: false,
+    add: false,
+    del: false,
+    view: false,
+    search: false,
+    refreshstate: 'current',
+    refresh: false,
+});
+// modify url post data to retrieve data
+YetaWF_Grid.modifySend = function ($grid, settingsModuleGuid, options, xhr, settings) {
+    'use strict';
 
-YetaWF_GridKendo.GetReadParameterMap = function ($grid, moduleguid, data, operation, settingsModuleGuid) {
-    var result = {};
-    result["page"] = data.page;
-    result["pageSize"] = data.pageSize;
-    result["skip"] = data.skip;
-    result["take"] = data.take;
-    if (data.sort) {
-        result.sort = {};
-        for (var i = 0; i < data.sort.length; i++) {
-            var srt = data.sort[i];
-            for (var mem in srt) {
-                if (mem == "field") {
-                    result["sort[" + i + "].Field"] = srt[mem];
-                } else if (mem == "dir") {
-                    result["sort[" + i + "].Order"] = (srt[mem] == "asc" ? 0 : 1);
-                }
-                else throw "unknown member " + mem;/*DEBUG*/
+    var uri = new URI("?" + settings.data);
+    var data = uri.search(true);
+    var newData = { SettingsModuleGuid: settingsModuleGuid }
+    var rows = parseInt(data.rows);
+    options['requestedRecords'] = rows; // save this so we can calculate the # of pages when receiving data
+    options['startingRecord'] = (parseInt(data.page) - 1) * rows; // save this so we can calculate the starting page
+    newData['skip'] = options.startingRecord;
+    newData['take'] = rows;
+    if (data.sidx != null && data.sidx != "") {
+        newData['sort[0].Field'] = data.sidx;
+        newData['sort[0].Order'] = (data.sord == "asc" ? 0 : 1);
+    }
+    if (data._search == "true") {
+        var filters;
+        eval("filters = " + data.filters + ";");
+        if (filters.groupOp != "AND") throw "Unexpected filters option"/*DEBUG*/
+        var rules = filters.rules;
+        for (var i = 0 ; i < rules.length; i++) {
+            var rule = rules[i]
+            newData['filters[{0}].Field'.format(i)] = rule.field
+            newData['filters[{0}].Value'.format(i)] = rule.data;
+            var newOp;
+            switch (rule.op) {
+                case 'eq': newOp = "=="; break
+                case 'ne': newOp = "!="; break
+                case 'lt': newOp = "<"; break
+                case 'le': newOp = "<="; break
+                case 'gt': newOp = ">"; break
+                case 'ge': newOp = ">="; break
+                case 'bw': newOp = "startswith"; break
+                case 'bn': newOp = "notstartswith"; break
+                //not support case 'in': newOp = "is in"; break
+                //Not supported  case 'ni': newOp = "is not in"; break
+                case 'ew': newOp = "endswith"; break
+                case 'en': newOp = "notendswith"; break
+                case 'cn': newOp = "contains"; break
+                case 'nc': newOp = "notcontains"; break
+                default:
+                    throw "Unexpected operator {0}".format(rule.op)
             }
+            newData['filters[{0}].Operator'.format(i)] = newOp
         }
     }
 
-    function addFilters(dataFilter, counter, prefix)
-    {
-        if (dataFilter == undefined) return;
-        if (dataFilter.hasOwnProperty('filters')) {
-            if (!dataFilter.hasOwnProperty('logic')) throw "unknown member logic";/*DEBUG*/
-            result[prefix + "[" + counter + "].Logic"] = dataFilter['logic'];
-            addFilters(dataFilter['filters'], 0, prefix + "[" + counter + "].Filters");
-            ++counter;
-        } else {
-            for (var i = 0 ; i < dataFilter.length; i++) {
-                var flt = dataFilter[i];
-                if (flt.hasOwnProperty('filters')) {
-                    if (!flt.hasOwnProperty('logic')) throw "unknown member logic";/*DEBUG*/
-                    result[prefix + "[" + counter + "].Logic"] = flt['logic'];
-                    addFilters(flt['filters'], 0, prefix + "[" + counter + "].Filters");
-                } else {
-                    if (!flt.hasOwnProperty('field')) throw "unknown member field";/*DEBUG*/
-                    if (!flt.hasOwnProperty('operator')) throw "unknown member operator";/*DEBUG*/
-                    if (!flt.hasOwnProperty('value')) throw "unknown member value";/*DEBUG*/
-                    result[prefix + "[" + counter + "].Field"] = flt['field'];
-                    result[prefix + "[" + counter + "].Operator"] = flt['operator'];
-                    result[prefix + "[" + counter + "].ValueAsString"] = flt['value'];
-                }
-                ++counter;
-            }
-        }
-    }
-
-    result.filter = {};
-    addFilters(data.filter, 0, "filter");
-    result["SettingsModuleGuid"] = settingsModuleGuid
     var info = YetaWF_Forms.getFormInfo($grid);
-    result[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;// the module handling this data
-    result[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;// antiforgery token from form
-    result[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;// uniqueidprefix from form
+    newData[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
+    newData[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
+    newData[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
 
     // add any extra data if available
     var extradata = $grid.attr('data-extraproperty');
     if (extradata != undefined) {
         eval("extradata = " + extradata + ";");
-        $.extend(result, extradata);
+        $.extend(newData, extradata);
     }
-    return result;
+
+    uri.search(newData);
+    settings.data = uri.query();
+    return true;
 };
 
-YetaWF_GridKendo.SaveSettingsColumnWidths = function (grid, url, settingsGuid) {
-    if (!url || !settingsGuid) return;
+// modify received data to add page information
+YetaWF_Grid.modifyReceive = function ($grid, options, data, status, xhr) {
+    'use strict';
+    var totalRecs = data.records;
+    var startingRec = options.startingRecord;
+    if (startingRec >= totalRecs) startingRec = totalRecs - 1;
+    if (startingRec < 0) startingRec = 0;
+    data['total'] = Math.ceil(totalRecs / options.requestedRecords);// total pages
+    data['page'] = Math.floor(startingRec / options.requestedRecords) + 1;
+};
+// some error occurred during ajax
+YetaWF_Grid.loadError = function ($grid, xhr, status, error) {
+    YetaWF_Basics.processAjaxReturn(xhr.responseText, status, xhr);
+}
 
+// save column widths after user resizes
+YetaWF_Grid.SaveSettingsColumnWidths = function ($grid, url, settingsGuid, options, newwidth, index) {
+    'use strict';
+    if (!url || !settingsGuid) return;
+    // save new width in options
+    options.colModel[index].width = newwidth;
     // save all relevant settings via ajax call
     var data = {};
     data["SettingsModuleGuid"] = settingsGuid;
-    for (var i = 0; i < grid.columns.length; i++) {
-        var field = grid.columns[i].field;
-        data["Columns[" + field + "]"] = grid.columns[i].width;
+    for (var i = 0; i < options.colModel.length; i++) {
+        var field = options.colModel[i].index;
+        data["Columns[" + field + "]"] = options.colModel[i].width;
     }
-
     // transmit all column info - save it if we can - we don't really care if this fails
     $.ajax({
         url: url,
@@ -113,14 +170,17 @@ YetaWF_GridKendo.SaveSettingsColumnWidths = function (grid, url, settingsGuid) {
         },
         error: function (jqXHR, textStatus, errorThrown) {
             //Y_Error(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
-            debugger;
+            debugger;/*DEBUG*/
             return false;
         }
     });
 };
 
-YetaWF_GridKendo.HandleInputUpdates = function ($grid, saveInDataSource) {
-    var grid = $grid.data("kendoGrid");
+// We can't support complex controls in jqGrid - With local data sources we can't
+// insure that any javascript is executed, particularly while paging through a local datasource.
+// For ajax data we are able to run scripts, but it hardly seems worth it at this point.
+YetaWF_Grid.HandleInputUpdates = function ($grid, saveInDataSource) {
+    'use strict';
     // handle input in grids on forms (save any new data in data source)
     // find the input field (name) and save the cell's html contents in the data source
     // we're using that html later to post to the data to the form
@@ -129,14 +189,6 @@ YetaWF_GridKendo.HandleInputUpdates = function ($grid, saveInDataSource) {
         // get the grid row
         var $row = $ctrl.closest("tr");
         if ($row == null) return;
-        // get the grid item data
-        var item = grid.dataItem($row);
-        if (item == null) return;
-        // get the name from the input field name attibute
-        var name = $ctrl.attr('name');
-        if (name.length == 0) throw "Invalid name attribute";/*DEBUG*/
-        var parts = name.split(".");
-        if (parts.length < 2) throw "Invalid name attribute - expected .";/*DEBUG*/
         // HACK - fix html() which doesn't reflect the new input value
         if ($ctrl[0].tagName == "INPUT" && $ctrl.attr('type') == "checkbox") {
             val = $ctrl.is(':checked');
@@ -159,13 +211,28 @@ YetaWF_GridKendo.HandleInputUpdates = function ($grid, saveInDataSource) {
         if ($cell == null) throw "No cell found";/*DEBUG*/
         // save new html in datasource
         if (saveInDataSource) {
-            item.set(parts[parts.length - 1], $cell.html());
+            // get the grid item data
+            var id = $row.attr("id");// record id (0..n)
+            // get the name from the input field name attribute
+            var name = $ctrl.attr('name');
+            if (name.length == 0) throw "Invalid name attribute";/*DEBUG*/
+            var parts = name.split(".");
+            if (parts.length < 2) throw "Invalid name attribute - expected";/*DEBUG*/
+            name = parts[parts.length - 1];
+            //var data = $grid.jqGrid('getCell', id, name);
+            //if (data == null) return;
+            $grid.jqGrid('setCell', id, name, $cell.html());
+            // copy cell contents to data source
+            //var cellText = $cell.html();
+            //var ds = $grid.jqGrid('getGridParam', 'data');
+            //ds[id][name] = cellText;
         }
     });
 };
 
 // Add input fields from grid datasource to form as a hidden div (in order to return all local data)
-YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
+YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
+    'use strict';
     var DATACLASS = "yetawf_grid_submitdata";
     //remove any existing hidden div
     $form.remove("div." + DATACLASS);
@@ -175,12 +242,10 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
     var prefix = $grid.attr('data-fieldprefix');
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
 
-    var grid = $grid.data("kendoGrid");
-
     // collect all data from grid's datasource
-    var ds = grid.dataSource;
-    var total = ds.total();
-    var colDefs = grid.columns;
+    var ds = $grid.jqGrid('getGridParam', 'data');
+    var total = ds.length;
+    var colDefs = $grid.jqGrid('getGridParam', 'colModel');
     var colCount = colDefs.length;
 
     // prepare to replace variable[x] with variable[n] so data binding works for list<>
@@ -191,8 +256,7 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
 
     var rowIndex = 0;
     for (var itemIndex = 0 ; itemIndex < total ; ++itemIndex) {
-        var item = ds.at(itemIndex);
-        if (item == undefined) continue; // happens when records are deleted
+        var item = ds[itemIndex];
         var haveData = false;
         var itemDiv = "";
         for (var colIndex = 0 ; colIndex < colCount ; ++colIndex) {
@@ -203,7 +267,7 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
                     // that's why the mvc checkbox also uses a hidden field (set to false) which is always sent
                     // so we have to figure out what the checkbox value is
                     haveData = false;
-                    var search = /checked=('|")checked('|")/.exec(item[col.field]);
+                    var search = /checked=('|")checked('|")/.exec(item[col.name]);
                     if (search == null)
                         break;//probably not checked
                     if (search.length != 3) throw "search failed";/*DEBUG*/
@@ -211,7 +275,7 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
                         break;// not checked
                 }
                 var newtext = prefix + '[' + rowIndex + '].';
-                var text = item[col.field];
+                var text = item[col.name];
                 text = text.replace(re1, "'" + newtext);
                 text = text.replace(re2, "\"" + newtext);
                 text = text.replace(re3, "."+newtext);
@@ -231,8 +295,9 @@ YetaWF_GridKendo.HandleSubmitLocalData = function ($grid, $form) {
 };
 
 // Add all input fields from grid to form as a hidden div
-YetaWF_GridKendo.HandleSubmitFields = function ($grid, $form) {
-    var DATACLASS = "yetawf_gridkendo_submitdata";
+YetaWF_Grid.HandleSubmitFields = function ($grid, $form) {
+    'use strict';
+    var DATACLASS = "yetawf_grid_submitdata";
     //remove any existing hidden div
     $form.remove("div." + DATACLASS);
     // build a new div with all the input fields
@@ -240,8 +305,6 @@ YetaWF_GridKendo.HandleSubmitFields = function ($grid, $form) {
 
     var prefix = $grid.attr('data-fieldprefix');
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
-
-    var grid = $grid.data("kendoGrid");
 
     // collect input fields from grid
     var $table = $('table', $grid);
@@ -251,7 +314,7 @@ YetaWF_GridKendo.HandleSubmitFields = function ($grid, $form) {
     var re1 = new RegExp("'" + prefix + "\[[0-9]+\]\\.", "gim");
     var re2 = new RegExp("\"" + prefix + "\[[0-9]+\]\\.", "gim");
     var re3 = new RegExp("\\." + prefix + "\[[0-9]+\]\\.", "gim");
-    var colDefs = grid.columns;
+    var colDefs = $grid.jqGrid('getGridParam', 'colModel');
     var colCount = colDefs.length;
     $rows.each(function (index) {
         var $row = $(this);
@@ -275,44 +338,66 @@ YetaWF_GridKendo.HandleSubmitFields = function ($grid, $form) {
     $form.append(div);
 };
 
-// execute javascript in grid
-YetaWF_GridKendo.OnDataBound = function ($grid) {
+YetaWF_Grid.gridComplete = function ($grid, gridId) {
+    'use strict';
     Y_KillTooltips();
-    if (YetaWF_GridKendo._dataBoundEnabled) {
+    // execute javascript in grid
+    if (YetaWF_Grid._dataBoundEnabled) {
         var $scripts = $("script", $grid);
         $scripts.each(function (index) {
             eval($scripts[index].innerHTML);
         });
         _YetaWF_Basics.initButtons($grid);
     }
+    // highlight data rows with the __highlight property set to true
+    var ds = $grid.jqGrid('getGridParam', 'data');
+    var total = ds.length;
+    for (var i = 0 ; i < total ; ++i) {
+        var rec = ds[i];
+        if (rec['__highlight'])
+            $('tr#' + rec.id, $grid).addClass('yHighlightGridRow');
+    }
+    // Change pagelist dropdown to show All instead of MaxPages 999999999
+    // inspired by http://www.trirand.com/blog/?page_id=393/feature-request/rowlist-all-results
+    var $gbox = $('#gbox_{0}'.format(gridId));
+    if ($gbox.length != 1) throw "Can't find main grid";/*DEBUG*/
+    $("option[value={0}]".format(YConfigs.Grid.allRecords), $gbox).text(YLocs.Grid.allRecords);
 };
 
 // update the grid in case there are no records shown
-YetaWF_GridKendo.OnDataBound_NoRecords = function (e, $grid, idEmpty) {
-    var gridVisible = e.sender.dataSource.view().length > 0;
-    $('#' + idEmpty).toggle(!gridVisible);
-    $grid.toggle(gridVisible);
+YetaWF_Grid.gridComplete_NoRecords = function ($grid, idEmpty, emptyDiv) {
+    // http://www.ok-soft-gmbh.com/jqGrid/EmptyMsgInBody.htm
+    'use strict';
+    var records = $grid.jqGrid('getGridParam', 'records');
+    $('#' + idEmpty).remove();
+    if (records === 0) {
+        $grid.hide();
+        $(emptyDiv).insertAfter($grid.parent());
+    } else {
+        $grid.show();
+    }
 };
 
 // display/hide pager depending on how many records are shown (LOCAL data only)
-YetaWF_GridKendo.ShowPager = function ($grid) {
-    var grid = $grid.data("kendoGrid");
-    var ds = grid.dataSource;
-    var total = ds.total();
-    if (grid.pager == undefined) return;// not ready yet
-    var show = (total > grid.pager.pageSize());
-    $('.k-pager-wrap.k-grid-pager', $grid).toggle(show);
+YetaWF_Grid.ShowPager = function ($grid) {
+    'use strict';
+    var records = $grid.jqGrid('getGridParam', 'records');// total # of records
+    var rowNum = $grid.jqGrid('getGridParam', 'rowNum');// # of records to view
+    var id = $grid.attr('id');
+    var pagerId = id + '_Pager';
+    $('#' + pagerId).toggle(rowNum < records);
 };
 
 // user clicked on delete action, remove from list
-YetaWF_GridKendo.deleteAction = function(actionCtrl) {
+YetaWF_Grid.deleteAction = function(actionCtrl) {
+    'use strict';
 
     var $actionCtrl = $(actionCtrl);
 
     var $ctrl = $actionCtrl.closest('.yt_grid_addordelete');
     if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
 
-    var $grid = $('.yt_gridkendo.k-grid.k-widget', $ctrl);
+    var $grid = $('.yt_grid', $ctrl);
     if ($grid.length != 1) throw "Can't find grid control";/*DEBUG*/
 
     var propertyName = $grid.attr('data-deleteproperty');
@@ -328,32 +413,91 @@ YetaWF_GridKendo.deleteAction = function(actionCtrl) {
     var value = $value.val();
     if (value == undefined) throw "Can't find value to remove in {0}".format(propertyName);/*DEBUG*/
 
-    var grid = $grid.data("kendoGrid");
-    var ds = grid.dataSource;
-    var total = ds.total();
+    var ds = $grid.jqGrid('getGridParam', 'data');
+    var total = ds.length;
 
     // find the value in the datasource
     for (var i = 0 ; i < total ; ++i) {
-        var rec = ds.at(i);
+        var rec = ds[i];
         if (rec[propertyName] == value) {
-            ds.remove(rec);
+            $grid.jqGrid('delRowData', rec.id);
             if (rec[displayName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
             var fmt = $ctrl.attr('data-remmsg');
             if (fmt.length > 0)
                 Y_Confirm(fmt.format(rec[displayName]));
-            YetaWF_GridKendo.ShowPager($grid);
+            $grid.trigger('reloadGrid', [{page:1}]);
+            YetaWF_Grid.ShowPager($grid);
             return;
         }
     }
     Y_Error($ctrl.attr('data-notfoundmsg').format(value));
 };
 
+// propagate all column css classes to grid headers (so we can manipulate headers in css)
+YetaWF_Grid.fixHeaders = function ($grid) {
+    'use strict';
+    var $realGrid = $grid.closest('.ui-jqgrid');
+    if ($realGrid.length == 0) throw "Grid not found";/*DEBUG*/
+
+    // http://stackoverflow.com/questions/19975125/jqgrid-how-to-apply-extra-classes-to-header-columns
+    var trHead = $("thead:first tr", $realGrid);
+    var colModel = $grid.jqGrid('getGridParam', 'colModel');
+
+    for (var iCol = 0; iCol < colModel.length; iCol++) {
+        var columnInfo = colModel[iCol];
+        if (columnInfo.classes) {
+            var headDiv = $("th:eq(" + iCol + ")", trHead);
+            headDiv.addClass(columnInfo.classes.replace('t_cell ', 't_header '));
+        }
+    }
+};
+
+YetaWF_Grid.toggleSearchToolbar = function ($grid, show) {
+    'use strict';
+    var $realGrid = $grid.closest('.ui-jqgrid');
+    if ($realGrid.length == 0) throw "Grid not found";/*DEBUG*/
+    $('.ui-search-toolbar', $realGrid).toggle(show);
+};
+
+YetaWF_Grid.clearSearchFilters = function (gridId) {
+    // clear ken date(time)pickers because they're nto auomatically cleared by jqgrid
+    $('#gbox_{0} .ui-search-toolbar input[name="dtpicker"]'.format(gridId)).val('');
+};
+
 $(document).ready(function () {
+    'use strict';
+
+    // when a tab page is switched, resize all the grids in the newly visible panel (custom event)
+    // when we're in a float div (property list or tabbed property list) the parent width isn't available until after the
+    // page has completely loaded, so we need to set it again. By then, jqgrid has added extra layers so we can't just
+    // take $grid.parent()'s width.
+    // For other cases (outside float div) this does no harm and resized to the current size.
+    $("body").on('YetaWF_PropertyList_PanelSwitched', function(event, $panel) {
+        var $grids = $('.yt_grid', $panel);
+        $grids.each(function () {
+            var $grid = $(this);
+            var $realGrid = $grid.closest('.ui-jqgrid');
+            var width = $realGrid.parent().width();
+            $grid.jqGrid('setGridWidth', width, true);
+            $grid.trigger('reloadGrid');
+        });
+    });
+    // If the browser window changes, it's possible that the grid's parent element is resized, so we're updating the grid width to match
+    $(window).on('resize', function () {
+        var $grids = $('.yt_grid');
+        $grids.each(function () {
+            var $grid = $(this);
+            var $realGrid = $grid.closest('.ui-jqgrid');
+            var width = $realGrid.parent().width();
+            $grid.jqGrid('setGridWidth', width, false);
+        });
+    });
+
 
     // CanAddOrDelete
     // handle all delete actions in grids
-    $("body").on('click', '.yt_gridkendo img[name="DeleteAction"]', function () {
-        YetaWF_GridKendo.deleteAction(this);
+    $("body").on('click', '.yt_grid_addordelete .ui-jqgrid img[name="DeleteAction"]', function () {
+        YetaWF_Grid.deleteAction(this);
     });
 
     // CanAddOrDelete
@@ -386,7 +530,7 @@ $(document).ready(function () {
         attrVal = attrVal.trim();
         if (attrVal == "") return;
 
-        var $grid = $('.k-grid.k-widget', $ctrl);
+        var $grid = $('.yt_grid', $ctrl);
         if ($grid.length != 1) throw "Can't find grid control for new value";/*DEBUG*/
         var propertyName = $grid.attr('data-deleteproperty');
         if (propertyName == undefined) throw "Can't get property name";/*DEBUG*/
@@ -397,9 +541,8 @@ $(document).ready(function () {
         var $form = YetaWF_Forms.getForm($btnAdd);
         var editGuid = $('input[name="ModuleGuid"]', $form).val();
 
-        var grid = $grid.data("kendoGrid");
-        var ds = grid.dataSource;
-        var total = ds.total();
+        var ds = $grid.jqGrid('getGridParam', 'data');
+        var total = ds.length;
 
         var prefix = $grid.attr('data-fieldprefix');
         if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
@@ -409,7 +552,7 @@ $(document).ready(function () {
 
         // go to server to validate attribute value
         var postData = "NewValue=" + encodeURIComponent(attrVal)
-                       + "&NewRecNumber=" + encodeURIComponent(ds.total())
+                       + "&NewRecNumber=" + encodeURIComponent(total)
                        + "&Prefix=" + encodeURIComponent(prefix)
                        + "&EditGuid=" + encodeURIComponent(editGuid)
                        + YetaWF_Forms.getFormInfo($btnAdd).QS;
@@ -431,7 +574,7 @@ $(document).ready(function () {
                 var newAttrVal = JSON.parse(result);
                 // validate it's not a duplicate
                 for (var i = 0 ; i < total ; ++i) {
-                    var rec = ds.at(i);
+                    var rec = ds[i];
                     if (rec[propertyName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
                     if (newAttrVal[propertyName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
                     if (rec[propertyName] == newAttrVal[propertyName]) {
@@ -440,9 +583,10 @@ $(document).ready(function () {
                         return;
                     }
                 }
-                ds.add(newAttrVal);// add new user to grid datasource
+                $grid.addRowData(total + 1, newAttrVal, 'last')// add new user to grid datasource
                 $attrVal.val('');// clear value name text box
-                YetaWF_GridKendo.ShowPager($grid);
+                $grid.trigger('reloadGrid');
+                YetaWF_Grid.ShowPager($grid);
                 Y_Confirm($ctrl.attr('data-addedmsg').format(attrVal));
             },
             error: function (jqXHR, textStatus, errorThrown) {

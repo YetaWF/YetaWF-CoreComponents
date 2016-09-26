@@ -66,18 +66,7 @@ namespace YetaWF.Core.Models.Attributes {
         protected static bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
         public static string TranslateHint(string uiHint) {
-            if (!HaveManager) return uiHint;
-            if (uiHint == "Grid") {
-                return "GridjqGrid";
-            } else if (uiHint == "GridDataRecords") {
-                return "GridDataRecordsjqGrid";
-            } else if (uiHint == "FileUpload1") {
-                if (Manager.CurrentSite.FileUploadStyle == Site.FileUploadStyleEnum.Kendo) {
-                    if (VersionManager.KendoAddonType == VersionManager.KendoAddonTypeEnum.Pro)
-                        return "FileUploadKendo1";
-                }
-                return "FileUploadDanielm1";
-            }
+            //if (!HaveManager) return uiHint;
             return uiHint;
         }
     }
