@@ -7,6 +7,9 @@
 }
 <div id="@DivId" class="yt_moduleselection t_edit" data-name="@Html.FieldName("")">
     @Html.RenderHidden("AjaxUrl", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.ModuleSelectionHelperController), newMods ? "GetPackageModulesNew" : "GetPackageModulesDesigned"))
+    @if (!newMods) {
+        @Html.RenderHidden("AjaxUrlComplete", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.ModuleSelectionHelperController), "GetPackageModulesDesignedFromGuid"))
+    }
     <div class="t_packages">
         @Html.RenderExtLabel(__ResStr("lblPackages", "Packages"), ToolTip: __ResStr("lblPackagesTT", "Select one of the installed packages to list all available modules for the package"))
         @Html.RenderModuleSelectionPackages("Packages", newMods, Model)

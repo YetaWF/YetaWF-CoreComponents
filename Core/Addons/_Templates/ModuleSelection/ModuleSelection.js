@@ -4,6 +4,7 @@ var YetaWF_ModuleSelection = {};
 
 // Load a moduleselection UI object with data
 // $control refers to the div class="yt_moduleselection t_edit"
+// this assumes the package dropdownlist already has the correct package selected
 YetaWF_ModuleSelection.Update = function ($control, data) {
     'use strict';
     var $select = _YetaWF_ModuleSelection.getSelect($control);
@@ -23,6 +24,48 @@ YetaWF_ModuleSelection.Update = function ($control, data) {
     }
 };
 
+// Load a moduleselection UI object with data
+// $control refers to the div class="yt_moduleselection t_edit"
+// this will select the correct package in the dropdownlist and select the module (the package is detected using ajax)
+YetaWF_ModuleSelection.UpdateComplete = function ($control, modGuid) {
+    'use strict';
+
+    var $select = _YetaWF_ModuleSelection.getSelect($control);
+    if (modGuid == null || modGuid == "00000000-0000-0000-0000-000000000000") {
+        YetaWF_ModuleSelection.Clear($control);
+        return;
+    }
+
+    var ajaxurl = $('input[name$=".AjaxUrlComplete"]', $control).val();
+    if (ajaxurl == "") throw "Couldn't find ajax url";/*DEBUG*/
+
+    var data = { 'modGuid': modGuid };
+    // get a new list of modules
+    YetaWF_TemplateDropDownList.AjaxUpdate($select, data, ajaxurl,
+        function (data) { // success
+            var $packages = _YetaWF_ModuleSelection.getPackages($control);
+            YetaWF_TemplateDropDownList.Update($packages, data.extra);
+            var $link = _YetaWF_ModuleSelection.getLink($control);
+            var $desc = _YetaWF_ModuleSelection.getDescription($control);
+            YetaWF_TemplateDropDownList.Update($select, modGuid);
+            if (_YetaWF_ModuleSelection.hasValue($control)) {
+                $('a', $link).attr("href", '/!Mod/' + modGuid); // Globals.ModuleUrl
+                $link.show();
+                var desc = _YetaWF_ModuleSelection.getDescriptionText($control);
+                $desc.text(desc);
+                $desc.show();
+            } else {
+                $link.hide();
+                $desc.hide();
+                $desc.text('');
+            }
+        },
+        function (data) { // failure
+            YetaWF_ModuleSelection.Clear($control);
+        }
+    );
+};
+
 // Get data from moduleselection
 // $control refers to the div class="yt_moduleselection t_edit"
 YetaWF_ModuleSelection.Retrieve = function ($control) {
@@ -38,10 +81,12 @@ YetaWF_ModuleSelection.HasChanged = function ($control, data) {
 // $control refers to the <div class="yt_moduleselection t_edit">
 YetaWF_ModuleSelection.Enable = function ($control, enabled) {
     'use strict';
+    var $packages = _YetaWF_ModuleSelection.getPackages($control);
+    YetaWF_TemplateDropDownList.Enable($packages, enabled);
     var $select = _YetaWF_ModuleSelection.getSelect($control);
+    YetaWF_TemplateDropDownList.Enable($select, enabled);
     var $link = _YetaWF_ModuleSelection.getLink($control);
     var $desc = _YetaWF_ModuleSelection.getDescription($control);
-    YetaWF_TemplateDropDownList.Enable($select, enabled);
     if (enabled) {
         if (_YetaWF_ModuleSelection.hasValue($control)) {
             $link.show();
@@ -58,12 +103,26 @@ YetaWF_ModuleSelection.Enable = function ($control, enabled) {
 // Clear a moduleselection object
 // $control refers to the <div class="yt_moduleselection t_edit">
 YetaWF_ModuleSelection.Clear = function ($control) {
-    _YetaWF_ModuleSelection.getText($ms).val(null);
+    var $packages = _YetaWF_ModuleSelection.getPackages($control);
+    YetaWF_TemplateDropDownList.Clear($packages);
+    var $select = _YetaWF_ModuleSelection.getSelect($control);
+    YetaWF_TemplateDropDownList.Clear($select);
+    var $link = _YetaWF_ModuleSelection.getLink($control);
+    var $desc = _YetaWF_ModuleSelection.getDescription($control);
+    $link.hide();
+    $desc.hide();
+    $desc.text('');
 }
 
 
 var _YetaWF_ModuleSelection = {};
 
+_YetaWF_ModuleSelection.getPackages = function ($control) {
+    'use strict';
+    var $packages = $('.t_packages select', $control);
+    if ($packages.length != 1) throw "Can't find packages selection dropdown";/*DEBUG*/
+    return $packages;
+};
 _YetaWF_ModuleSelection.getSelect = function ($control) {
     'use strict';
     var $select = $('.t_select select', $control);

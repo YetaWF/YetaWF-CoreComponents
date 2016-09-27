@@ -139,7 +139,7 @@ namespace YetaWF.Core.Views.Shared {
                     Value = skin.FileName,
                 }).ToList();
             // render a new dropdown list
-            return DropDownHelper.RenderDataSource(list);
+            return DropDownHelper.RenderDataSource(null, list);
         }
 
         public static MvcHtmlString RenderModuleSkinsForCollection(this HtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {

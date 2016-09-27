@@ -59,7 +59,7 @@ YetaWF_TemplateDropDownList.getTitleFromId = function (id, index) {
 }
 
 // Send data to server using ajaxurl and update the dropdownlist with the returned data object (text,value & tooltips)
-YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl) {
+YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl, onSuccess, onFailure) {
     'use strict';
     $.ajax({
         url: ajaxurl,
@@ -76,17 +76,28 @@ YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl) {
                     dataSource: data.data,
                 });
                 $control.data("tooltips", data.tooltips);
-                $control.select(0);
-                $control.trigger('change');
+                if (onSuccess !== undefined) {
+                    onSuccess(data);
+                } else {
+                    $control.select(0);
+                    $control.trigger('change');
+                }
             } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
                 eval(script);
-            } else
+                if (onFailure !== undefined)
+                    onFailure(data);
+            } else {
+                if (onFailure !== undefined)
+                    onFailure(data);
                 throw "Unexpected data returned";
+            }
         },
         error: function (jqXHR, textStatus, errorThrown) {
             Y_Loading(false);
             Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
+            if (onFailure !== undefined)
+                onFailure(data);
         }
     });
 }
