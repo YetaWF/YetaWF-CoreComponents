@@ -150,10 +150,11 @@ namespace YetaWF.Core.Views.Shared {
         /// Render a JSON object with data and tooltips for a dropdownlist.
         /// </summary>
         /// <typeparam name="TYPE">The Type of the property.</typeparam>
+        /// <param name="extraData">Optional data to be returned in JSON object as 'extra:' data.</param>
         /// <param name="list">A list of all items part of the dropdownlist.</param>
         /// <param name="FuncToString">A method that converts TYPE to a string.</param>
         /// <returns>A JSON object containing data and tooltips to update the contents of a dropdownlist.</returns>
-        public static MvcHtmlString RenderDataSource<TYPE>(List<SelectionItem<TYPE>> list, Func<TYPE, string> FuncToString = null) {
+        public static MvcHtmlString RenderDataSource<TYPE>(string extraData, List<SelectionItem<TYPE>> list, Func<TYPE, string> FuncToString = null) {
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(Basics.AjaxJavascriptReturn);
             sb.Append(@"{""data"":[");
@@ -165,10 +166,14 @@ namespace YetaWF.Core.Views.Shared {
             sb.Append(@"],""tooltips"":[");
             if ((from i in list where i.Tooltip != null && !string.IsNullOrWhiteSpace(i.Tooltip.ToString()) select i).FirstOrDefault() != null) {
                 foreach (SelectionItem<TYPE> item in list) {
-                    sb.Append("{0},", YetaWFManager.Jser.Serialize(item.Tooltip.ToString()));
+                    sb.Append("{0},", YetaWFManager.Jser.Serialize(item.Tooltip == null ? "" : item.Tooltip.ToString()));
                 }
                 if (list.Count > 0)
                     sb.RemoveLast();
+            }
+            if (!string.IsNullOrWhiteSpace(extraData)) {
+                sb.Append(@"],""extra"":[");
+                sb.Append("{0}", YetaWFManager.Jser.Serialize(extraData));
             }
             sb.Append("]}");
             return MvcHtmlString.Create(sb.ToString());
