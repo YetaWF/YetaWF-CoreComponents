@@ -44,6 +44,8 @@ namespace YetaWF.Core.Views.Shared {
             [UIHint("String"), ReadOnly]
             public string PermanentName { get; set; }
 
+            [Caption("Guid"), Description("Module Guid")]
+            [UIHint("Guid"), ReadOnly]
             public Guid ModuleGuid { get; set; } // this name must match the name used in the class ReferencedModule
         }
 

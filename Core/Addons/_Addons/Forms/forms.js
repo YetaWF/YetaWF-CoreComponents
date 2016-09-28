@@ -178,7 +178,11 @@ YetaWF_Forms.serializeForm = function ($form) {
     return formData;
 }
 
+YetaWF_Forms.DATACLASS = 'yetawf_forms_data'; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers
+
 YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, failFunc) {
+
+    $('div.' + YetaWF_Forms.DATACLASS).remove();
 
     var form = $form.get(0);
 
@@ -240,14 +244,12 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
                 _YetaWF_Forms.YPostSubmitHandler1 = [];
                 if (successFunc) // executed on successful ajax submit
                     successFunc(_YetaWF_Forms.hasErrors($form));
-                return false;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 Y_Loading(false);
                 Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
                 if (failFunc)
                     failFunc();
-                return false;
             },
         });
     } else {
@@ -280,6 +282,7 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
         if (successFunc)
             successFunc(_YetaWF_Forms.hasErrors($form));
     }
+    $('div.' + YetaWF_Forms.DATACLASS).remove();
     return false;
 };
 

@@ -233,11 +233,8 @@ YetaWF_Grid.HandleInputUpdates = function ($grid, saveInDataSource) {
 // Add input fields from grid datasource to form as a hidden div (in order to return all local data)
 YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
     'use strict';
-    var DATACLASS = "yetawf_grid_submitdata";
-    //remove any existing hidden div
-    $form.remove("div." + DATACLASS);
-    // build a new div with all the input fields
-    var div = "<div class='" + DATACLASS + "' style='display:none'>";
+    // build a data div with all the input fields
+    var div = "<div class='" + YetaWF_Forms.DATACLASS + "' style='display:none'>";
 
     var prefix = $grid.attr('data-fieldprefix');
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
@@ -297,11 +294,8 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
 // Add all input fields from grid to form as a hidden div
 YetaWF_Grid.HandleSubmitFields = function ($grid, $form) {
     'use strict';
-    var DATACLASS = "yetawf_grid_submitdata";
-    //remove any existing hidden div
-    $form.remove("div." + DATACLASS);
-    // build a new div with all the input fields
-    var div = "<div class='" + DATACLASS + "' style='display:none'>";
+    // build a data div with all the input fields
+    var div = "<div class='" + YetaWF_Forms.DATACLASS + "' style='display:none'>";
 
     var prefix = $grid.attr('data-fieldprefix');
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
