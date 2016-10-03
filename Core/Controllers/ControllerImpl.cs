@@ -451,7 +451,14 @@ namespace YetaWF.Core.Controllers {
                                 return true;
                             }
                         }
-                        SearchTemplateArgument(templateName, actionValStr, actionExtraStr, prop.GetPropertyValue<object>(parm));  // handle nested types
+                        object o;
+                        try {
+                            o = prop.GetPropertyValue<object>(parm);
+                        } catch (Exception) {
+                            o = null;
+                        }
+                        if (o != null)
+                            SearchTemplateArgument(templateName, actionValStr, actionExtraStr, o);  // handle nested types
                     }
                 }
             }
