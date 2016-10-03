@@ -618,8 +618,11 @@ namespace YetaWF.Core.Modules {
                 if (string.IsNullOrWhiteSpace(title)) {
                     // if a page has no title, use the title of the first module in the Main pane
                     PageDefinition.ModuleList mods = Manager.CurrentPage.ModuleDefinitions.GetModulesForPane(Globals.MainPane);
-                    if (mods.Count > 0)
-                        title = mods[0].Module.Title;
+                    if (mods.Count > 0) {
+                        try { // the module could be damaged
+                            title = mods[0].Module.Title;
+                        } catch (Exception) { }
+                    }
                     // if the title is still not available, simply use the very first module (any pane)
                     if (string.IsNullOrWhiteSpace(title)) {
                         if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == Manager.CurrentPage.ModuleDefinitions[0].Module)
