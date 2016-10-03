@@ -800,17 +800,17 @@ namespace YetaWF.Core.Controllers {
         }
 
         /// <summary>
-        /// The page/form was successfully saved. This handles returning to a parent page or displaying a popup if a return page is not available.
+        /// The page/form was successfully processed. This handles returning to a parent page or displaying a popup if a return page is not available.
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="popupText"></param>
-        /// <param name="popupTitle"></param>
-        /// <param name="OnClose"></param>
-        /// <param name="OnPopupClose"></param>
-        /// <param name="OnApply"></param>
-        /// <param name="NextPage"></param>
-        /// <param name="ExtraJavaScript"></param>
-        /// <returns></returns>
+        /// <param name="model">The model to display.</param>
+        /// <param name="popupText">A message displayed in a popup. Specify null to suppress the popup.</param>
+        /// <param name="popupTitle">The title for the popup if a message (popupText) is specified. If null is specified, a default title indicating success is supplied.</param>
+        /// <param name="OnClose">The action to take when the page is closed. This is only used if a page is closed (as opposed to a popup or when the Apply button was processed).</param>
+        /// <param name="OnPopupClose">The action to take when a popup is closed. This is only used if a popup is closed (as opposed to a page or when the Apply button was processed).</param>
+        /// <param name="OnApply">The action to take when the Apply button was processed.</param>
+        /// <param name="NextPage">The Url where the page is redirected (OnClose or OnPopupClose must request a matching action, otherwise this is ignored).</param>
+        /// <param name="ExtraJavaScript">Optional additional Javascript code that is returned as part of the ActionResult.</param>
+        /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null, OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule, string NextPage = null, string ExtraJavaScript = null) {
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -986,6 +986,14 @@ namespace YetaWF.Core.Controllers {
         // REDIRECT
         // REDIRECT
 
+        /// <summary>
+        /// Redirect to the specified target defined by the supplied action.
+        /// </summary>
+        /// <param name="action">The ModuleAction defining the target where the page is redirected.</param>
+        /// <returns>An ActionResult to be returned by the controller.
+        ///
+        /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
+        /// This works on cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.</returns>
         protected ActionResult Redirect(ModuleAction action) {
             if (action == null)
                 return Redirect("");
@@ -993,6 +1001,14 @@ namespace YetaWF.Core.Controllers {
             return Redirect(action.GetCompleteUrl(), ForcePopup: action.Style == ModuleAction.ActionStyleEnum.Popup || action.Style == ModuleAction.ActionStyleEnum.ForcePopup);
         }
 
+        /// <summary>
+        /// Redirect to the specified target Url.
+        /// </summary>
+        /// <param name="url">The Urk defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
+        /// <returns>An ActionResult to be returned by the controller.
+        ///
+        /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
+        /// This works on cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.</returns>
         protected ActionResult Redirect(string url, bool ForcePopup = false) {
 
             if (string.IsNullOrWhiteSpace(url))
@@ -1046,7 +1062,10 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        // success - no data to return
+        /// <summary>
+        /// Return a JSON object indicating success.
+        /// </summary>
+        /// <returns>This is used with client-side code when a JSON object is expected.</returns>
         protected ActionResult ReturnSuccess() {
             Manager.Verify_AjaxRequest();
 
@@ -1059,6 +1078,12 @@ namespace YetaWF.Core.Controllers {
         // DATA BINDING
         // DATA BINDING
 
+        /// <summary>
+        /// Used by ModuleEdit controller only - ModuleEdit edits a generic ModuleDefinition so we need to bind it to the correct type from the controller.
+        /// </summary>
+        /// <param name="objType">The module type (the derived type).</param>
+        /// <param name="modelName">The model name (always "Module").</param>
+        /// <returns>The bound object of the specified type.</returns>
         protected object GetObjectFromModel(Type objType, string modelName) {
             Type parameterType = objType;
             IModelBinder binder = Binders.GetBinder(parameterType);
@@ -1079,6 +1104,22 @@ namespace YetaWF.Core.Controllers {
                 FixArgumentParmTrim(o);
                 FixArgumentParmCase(o);
                 FixDates(o);
+
+                PropertyListSupport.CorrectModelState(o, ViewData.ModelState, modelName + ".");
+
+                // translate any xxx.JSON properties to native objects (There is no use case for this)
+                //if (ViewData.ModelState.IsValid)
+                //    ReplaceJSONParms(filterContext.ActionParameters);
+
+                // if we have a template action, search parameters for templates with actions and execute it
+                if (ViewData.ModelState.IsValid) {
+                    string templateName = HttpContext.Request.Form[Basics.TemplateName];
+                    if (!string.IsNullOrWhiteSpace(templateName)) {
+                        string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                        string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                        SearchTemplateArgument(templateName, actionValStr, actionExtraStr, o);
+                    }
+                }
             }
             return o;
         }
