@@ -108,7 +108,7 @@ namespace YetaWF.Core.Addons {
                 string[] s = manager.CurrentSite.CssNoTooltips.Split(new char[] { ' ' });
                 string css = "";
                 if (s.Length > 0)
-                    css = "." + string.Join(",.", s);
+                    css = ".yNoToolTip,." + string.Join(",.", s);
                 scripts.AddVolatileOption("Basics", "CssNoTooltips", css);
             }
 
