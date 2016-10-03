@@ -79,27 +79,50 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToMvcHtmlString();
         }
 
-        public static MvcHtmlString RenderTabInit(this HtmlHelper htmlHelper, string controlId) {
+        public static MvcHtmlString RenderTabInit(this HtmlHelper htmlHelper, string controlId, object model = null) {
             ScriptBuilder sb = new ScriptBuilder();
             // About tab switching and YetaWF_PropertyList_PanelSwitched
             // This event occurs even for the first tab, but event handlers may not yet be attached.
             // This event is only intended to notify you that an OTHER tab is now active, which may have updated div dimensions because they're now
             // visible. Divs on the first tab are already visible.  DO NOT use this event for initialization purposes.
+
+            int activeTab = 0;
+            string activeTabId = null;
+            if (model != null) {
+                // check if the model has an _ActiveTab property in which case we'll activate the tab and keep track of the active tab so it can be returned on submit
+                if (ObjectSupport.TryGetPropertyValue<int>(model, "_ActiveTab", out activeTab, 0)) {
+                    // add a hidden field for _ActiveTab property
+                    string name = htmlHelper.FieldName("");
+                    activeTabId = Manager.UniqueId();
+                    sb.Append(@"$('#{0}').append(""<input name='{1}._ActiveTab' type='hidden' value='{2}' id='{3}'/>"");", controlId, name, activeTab, activeTabId);
+                }
+            }
             if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.JQuery) {
                 sb.Append("$('#{0}').tabs({{\n", controlId);
-                sb.Append("activate: function(ev,ui) {{ if (ui.newPanel!=undefined) {{ $('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', ui.newPanel); }} }}\n", controlId);
-                sb.Append("});\n");
-                // switch to the first tab
-                // TODO: ? tabStrip.activateTab($("#@ControlId li").eq(0));
+                sb.Append("active: {0},", activeTab);
+                sb.Append("activate: function(ev,ui) { if (ui.newPanel!=undefined) {");
+                sb.Append("$('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', ui.newPanel);\n", controlId);
+                if (!string.IsNullOrWhiteSpace(activeTabId))
+                    sb.Append("$('#{0}').val((ui.newTab.length > 0) ? ui.newTab.attr('data-tab') : -1);", activeTabId);
+                sb.Append("}}\n");
+                sb.Append("})");
+                sb.Append(";\n");
             } else if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.Kendo) {
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.tabstrip.min.js");
-                sb.Append("var tabStrip = $('#{0}').kendoTabStrip({{\n", controlId);
+                // mark the active tab with .k-state-active before initializing the tabstrip
+                sb.Append("var $tabs = $('#{0}>ul>li');", controlId);
+                sb.Append("$tabs.removeClass('k-state-active');");
+                sb.Append("$tabs.eq({0}).addClass('k-state-active');", activeTab);
+                // init tab control
+                sb.Append("var $ts = $('#{0}');", controlId);
+                sb.Append("var tabStrip = $ts.kendoTabStrip({{\n", controlId);
                 sb.Append("animation: false,\n");
-                sb.Append("activate: function(ev) {{ if (ev.contentElement!=undefined) {{ $('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement)); }} }}\n", controlId);
+                sb.Append("activate: function(ev) { if (ev.contentElement!=undefined) {");
+                sb.Append("$('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement));", controlId);
+                sb.Append("$('#{0}').val($(ev.item).attr('data-tab'));", activeTabId);
+                sb.Append("}}\n");
                 sb.Append("}).data('kendoTabStrip');\n");
-                sb.Append("// switch to the first tab\n");
-                sb.Append("tabStrip.activateTab($('#{0} li').eq(0));\n", controlId);
             } else
                 throw new InternalError("Unknown tab control style");
             return Manager.ScriptManager.AddNow(sb.ToString()).ToMvcHtmlString();
