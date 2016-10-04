@@ -51,14 +51,14 @@ namespace YetaWF.Core.Modules {
             get {
                 // check if we're in the right mode
                 if (!DontCheckAuthorization && !_AuthorizationEvaluated) {
-                    if (this.Mode == ActionModeEnum.Edit) {
-                        if (!Manager.EditMode)
-                            return false;
-                    } else if (this.Mode == ActionModeEnum.View) {
-                        if (Manager.EditMode)
-                            return false;
-                    }
                     if (!IsAuthorized)
+                        return false;
+                }
+                if (this.Mode == ActionModeEnum.Edit) {
+                    if (!Manager.EditMode)
+                        return false;
+                } else if (this.Mode == ActionModeEnum.View) {
+                    if (Manager.EditMode)
                         return false;
                 }
                 return true;
