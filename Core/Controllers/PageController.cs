@@ -56,7 +56,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Check for browser capabilities
-            if (caps != null && !caps.Crawler && !string.IsNullOrWhiteSpace(site.UnsupportedBrowserUrl) && !BrowserCaps.SupportedBrowser(caps) && uri.AbsolutePath != site.UnsupportedBrowserUrl) {
+            if (caps != null && !caps.Crawler && !string.IsNullOrWhiteSpace(site.UnsupportedBrowserUrl) && !BrowserCaps.SupportedBrowser(caps) && string.Compare(uri.AbsolutePath, site.UnsupportedBrowserUrl, true) != 0) {
                 Logging.AddLog("Unsupported browser {0}, version {1}.", caps.Browser, caps.Version);
                 Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", site.UnsupportedBrowserUrl).Truncate(100);
                 Manager.CurrentResponse.AddHeader("Location", site.UnsupportedBrowserUrl);
@@ -65,7 +65,7 @@ namespace YetaWF.Core.Controllers {
             }
             if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
                     Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
-                    uri.AbsolutePath != site.LockedUrl) {
+                    string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
                 Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
                 Manager.CurrentResponse.AddHeader("Location", site.LockedUrl);
                 Manager.CurrentContext.ApplicationInstance.CompleteRequest();
@@ -81,7 +81,7 @@ namespace YetaWF.Core.Controllers {
                     newUrl = Manager.CurrentSite.MakeUrl(initPageUrl + initPageQs, RealDomain: Manager.HostUsed);
                 else
                     newUrl = Manager.CurrentSite.MakeUrl(initPageUrl + initPageQs);
-                if (Manager.CurrentRequest.Url.LocalPath != initPageUrl) {
+                if (string.Compare(Manager.CurrentRequest.Url.LocalPath, initPageUrl, true) != 0) {
                     Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUrl).Truncate(100);
                     Manager.CurrentResponse.AddHeader("Location", newUrl);
                     Manager.CurrentContext.ApplicationInstance.CompleteRequest();
@@ -290,7 +290,7 @@ namespace YetaWF.Core.Controllers {
                         }
                     }
                 }
-                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || url == Manager.CurrentSite.LoginUrl) && page.IsAuthorized_View()) {
+                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(url, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
                     // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                     if (!Manager.EditMode) { // only redirect if we're not editing
                         if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
@@ -494,5 +494,4 @@ namespace YetaWF.Core.Controllers {
             Manager.PopCharSize();
         }
     }
-
 }
