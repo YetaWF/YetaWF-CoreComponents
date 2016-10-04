@@ -45,7 +45,7 @@ namespace YetaWF.Core.Views.Shared {
             return tImg;
         }
 
-        public static MvcHtmlString RenderImage(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static MvcHtmlString RenderImageEdit(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
             // the upload control
             FileUpload1 info = new FileUpload1() {
                 SaveURL = YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.ImageHelperController), "SaveImage", new { __ModuleGuid = Manager.CurrentModule.ModuleGuid }),
@@ -53,8 +53,9 @@ namespace YetaWF.Core.Views.Shared {
             };
             return htmlHelper.EditorFor(x => info, UIHintAttribute.TranslateHint("FileUpload1"));
         }
-        public static MvcHtmlString RenderImagePreview(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0,
+        public static MvcHtmlString RenderImage(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0,
                 string CacheBuster = null,
+                string Alt = null,
                 bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
                 bool ForceHttpHandler = false) {
 
@@ -69,7 +70,7 @@ namespace YetaWF.Core.Views.Shared {
 
                 TagBuilder img = new TagBuilder("img");
                 img.Attributes.Add("src", model);
-                img.Attributes.Add("alt", __ResStr("altImage", "Image"));
+                img.Attributes.Add("alt", __ResStr("altImage", Alt??"Image"));
                 return MvcHtmlString.Create(img.ToString());
 
             } else {
@@ -79,7 +80,7 @@ namespace YetaWF.Core.Views.Shared {
                 bool showMissing = htmlHelper.GetControlInfo<bool>(name, "ShowMissing", true);
                 if (string.IsNullOrWhiteSpace(model) && !showMissing) return MvcHtmlString.Empty;
 
-                string imgTag = RenderImagePreview(imageType, width, height, model, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
+                string imgTag = RenderImage(imageType, width, height, model, CacheBuster: CacheBuster, Alt:Alt, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
 
                 bool linkToImage = htmlHelper.GetControlInfo<bool>(name, "LinkToImage", false);
                 if (linkToImage) {
@@ -93,13 +94,13 @@ namespace YetaWF.Core.Views.Shared {
                     return MvcHtmlString.Create(imgTag);
             }
         }
-        public static string RenderImagePreview(string imageType, int width, int height, string model,
-                string CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, bool ForceHttpHandler = false) {
+        public static string RenderImage(string imageType, int width, int height, string model,
+                string CacheBuster = null, string Alt = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, bool ForceHttpHandler = false) {
             string url = FormatUrl(imageType, null, model, width, height, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
             TagBuilder img = new TagBuilder("img");
             img.AddCssClass("t_preview");
             img.Attributes.Add("src", Manager.GetCDNUrl(url));
-            img.Attributes.Add("alt", __ResStr("altPreview", "Preview Image"));
+            img.Attributes.Add("alt", Alt??"Image");
             return img.ToString(TagRenderMode.StartTag);
         }
 
@@ -110,8 +111,8 @@ namespace YetaWF.Core.Views.Shared {
 
             return MvcHtmlString.Create(__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));
         }
-        public static MvcHtmlString RenderImagePreviewDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, bool ForceHttpHandler = false) {
-            return htmlHelper.RenderImagePreview(name, model, CacheBuster: CacheBuster, ForceHttpHandler: ForceHttpHandler);
+        public static MvcHtmlString RenderImageDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
+            return htmlHelper.RenderImage(name, model, CacheBuster: CacheBuster, Alt: Alt, ForceHttpHandler: ForceHttpHandler);
         }
         public static string FormatUrl(string imageType, string location, string name, int width = 0, int height = 0,
                 string CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
