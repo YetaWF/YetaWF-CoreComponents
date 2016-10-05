@@ -15,7 +15,7 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public static MvcHtmlString RenderIntValue(this HtmlHelper<object> htmlHelper, string name, int value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static MvcHtmlString RenderIntValue(this HtmlHelper<object> htmlHelper, string name, int? value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.userevents.min.js");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.numerictextbox.min.js");
@@ -38,7 +38,8 @@ namespace YetaWF.Core.Views.Shared {
             int step = htmlHelper.GetControlInfo<int>("", "Step", 1);
             tag.MergeAttribute("data-step", step.ToString());
 
-            tag.MergeAttribute("value", value.ToString());
+            if (value != null)
+                tag.MergeAttribute("value", ((int)value).ToString());
 
             return MvcHtmlString.Create(tag.ToString(TagRenderMode.SelfClosing));
         }
