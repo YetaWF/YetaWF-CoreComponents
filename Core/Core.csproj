@@ -595,7 +595,7 @@
     <Content Include="Views\Shared\DisplayTemplates\GridDataRecords.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\RawBool.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\FileUpload1.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\floatValue.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\FloatValue.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\TextAreaSimple.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\IntValue2.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\IntValue6.cshtml" />
