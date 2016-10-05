@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Web.Mvc;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
