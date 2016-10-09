@@ -669,7 +669,10 @@ namespace YetaWF.Core.Support {
                 return false;
             }
             if (typeof(TYPE) == typeof(int) || typeof(TYPE) == typeof(int?)) {
-                val = (TYPE) (object) Convert.ToInt32(v);
+                val = (TYPE)(object)Convert.ToInt32(v);
+                return true;
+            } else if (typeof(TYPE) == typeof(bool) || typeof(TYPE) == typeof(bool?)) {
+                val = (TYPE)(object)((v == "1" || v.ToLower() == "on" || v.ToLower() == "true" || v.ToLower() == "yes") ? true : false);
                 return true;
             } else if (typeof(TYPE) == typeof(string)) {
                 val = (TYPE) (object) v;
