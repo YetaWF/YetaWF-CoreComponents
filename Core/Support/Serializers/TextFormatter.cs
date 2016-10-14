@@ -92,7 +92,7 @@ namespace YetaWF.Core.Serializers {
                 if (!p.CanWrite) continue;
                 ParameterInfo[] parms = p.GetIndexParameters();
                 if (parms.Length > 0) continue;// indexed parms can't be saved
-                if (Attribute.GetCustomAttribute(p, typeof(DontSaveAttribute)) != null || Attribute.GetCustomAttribute(p, typeof(Data_CalculatedProperty)) != null)
+                if (Attribute.GetCustomAttribute(p, typeof(DontSaveAttribute)) != null || Attribute.GetCustomAttribute(p, typeof(Data_CalculatedProperty)) != null || Attribute.GetCustomAttribute(p, typeof(Data_DontSave)) != null)
                     continue;
 
                 xmlOut.WriteStartElement(p.Name);
