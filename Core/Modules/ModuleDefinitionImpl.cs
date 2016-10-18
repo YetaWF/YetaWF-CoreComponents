@@ -288,6 +288,8 @@ namespace YetaWF.Core.Modules {
         [DontSave]
         public static Func<Guid, ModuleDefinition> LoadModuleDefinition { get; set; }
         [DontSave]
+        public static Action<ModuleDefinition> SaveModuleDefinition { get; set; }
+        [DontSave]
         public static Func<Guid, bool> RemoveModuleDefinition { get; set; }
         [DontSave]
         public static Action<ModuleBrowseInfo> GetModules { get; set; }
@@ -367,7 +369,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         public void Save() {
             if (Temporary) throw new InternalError("Temporary modules cannot be saved");
-            DataProvider.SaveModuleDefinition(this);
+            SaveModuleDefinition(this);
         }
         // Used to update properties before a module is saved
         public virtual void ModuleSaving() { }
