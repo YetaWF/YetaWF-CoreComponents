@@ -33,7 +33,6 @@ namespace YetaWF.Core.Support {
                     "~/Areas/{2}/Views/{0}.cshtml",
                 },
                 AreaViewLocationFormats = new string[] {
-                    "~/Areas/{2}/Views/Shared/{0}.cshtml",
                     "~/Areas/{2}/Views/{0}.cshtml",
                 },
                 PartialViewLocationFormats = new string[] { },
