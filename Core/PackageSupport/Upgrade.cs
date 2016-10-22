@@ -56,6 +56,8 @@ namespace YetaWF.Core.Packages {
         /// </remarks>
         public static void UpgradeToNewPackages() {
 
+            FixDataFolders();
+
             //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
 
             // Create an update log file
@@ -78,6 +80,15 @@ namespace YetaWF.Core.Packages {
                 YetaWFManager.Manager.CurrentSite = origSite;
             }
         }
+
+        // Fix data folders that are incorrectly using the default site name (fixed in 1.0.9)
+        private static void FixDataFolders() {
+            if (Directory.Exists(YetaWFManager.DataFolderOld))
+                Directory.Move(YetaWFManager.DataFolderOld, YetaWFManager.DataFolder);
+            if (Directory.Exists(YetaWFManager.RootSitesFolderOld))
+                Directory.Move(YetaWFManager.RootSitesFolderOld, YetaWFManager.RootSitesFolder);
+        }
+
         private static void WriteToUpdateLog(string text) {
             File.AppendAllText(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
         }

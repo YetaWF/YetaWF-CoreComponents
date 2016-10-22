@@ -196,6 +196,14 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public static string RootSitesFolder {
             get {
+                return Path.Combine(RootFolder, Globals.SitesFolder, "DataFolder");
+            }
+        }
+        /// <summary>
+        /// Returns the folder containing all sites' file data - No longer used.
+        /// </summary>
+        public static string RootSitesFolderOld {
+            get {
                 return Path.Combine(RootFolder, Globals.SitesFolder, DefaultSiteName);
             }
         }
@@ -212,17 +220,21 @@ namespace YetaWF.Core.Support {
         private static string defaultSiteName;
 
         /// <summary>
-        /// Data folder (not site specific)
+        /// Data folder (not site specific).
         /// </summary>
         public static string DataFolder {
             get {
-                if (string.IsNullOrEmpty(_dataFolder)) {
-                    _dataFolder = Path.Combine(RootFolder, Globals.DataFolder, DefaultSiteName);
-                }
-                return _dataFolder;
+                return Path.Combine(RootFolder, Globals.DataFolder, "DataFolder");
             }
         }
-        private static string _dataFolder;
+        /// <summary>
+        /// Data folder (default site specific) - No longer used.
+        /// </summary>
+        public static string DataFolderOld {
+            get {
+                return Path.Combine(RootFolder, Globals.DataFolder, DefaultSiteName);
+            }
+        }
 
         public static string UrlToPhysical(string url) {
             return HostingEnvironment.MapPath(url);
@@ -529,11 +541,8 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public string SiteFolder {
             get {
-                return GetSiteFolder(CurrentSite.Identity);
+                return Path.Combine(RootSitesFolder, CurrentSite.Identity.ToString());
             }
-        }
-        public static string GetSiteFolder(int identity) {
-            return Path.Combine(RootFolder, Globals.SitesFolder, DefaultSiteName, identity.ToString());
         }
 
         /// <summary>
