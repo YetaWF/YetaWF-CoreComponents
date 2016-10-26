@@ -412,9 +412,9 @@ namespace YetaWF.Core.Models {
         private class ObjectClassData {
             public Type ClassType { get; set; }
             public ClassData ClassData { get; set; }
-            public List<PropertyData> PropertyData { get; set; }
+            public Dictionary<string, PropertyData> PropertyData { get; set; }
             public ObjectClassData() {
-                PropertyData = new List<PropertyData>();
+                PropertyData = new Dictionary<string, PropertyData>();
             }
         }
         private class ObjectEnumData {
@@ -482,10 +482,11 @@ namespace YetaWF.Core.Models {
                                 }
                             }
                         }
+                        objClassData.PropertyData.Remove(pi.Name);
                         if (locPropData != null)
-                            objClassData.PropertyData.Add(new PropertyData(pi.Name, type, pi, locPropData.Caption, locPropData.Description, locPropData.HelpLink, locPropData.TextAbove, locPropData.TextBelow));
+                            objClassData.PropertyData.Add(pi.Name, new PropertyData(pi.Name, type, pi, locPropData.Caption, locPropData.Description, locPropData.HelpLink, locPropData.TextAbove, locPropData.TextBelow));
                         else
-                            objClassData.PropertyData.Add(new PropertyData(pi.Name, type, pi));
+                            objClassData.PropertyData.Add(pi.Name, new PropertyData(pi.Name, type, pi));
                     }
                 }
             });
@@ -511,7 +512,7 @@ namespace YetaWF.Core.Models {
         /// <returns>List of all properties.</returns>
         public static List<PropertyData> GetPropertyData(Type type, bool Cache = true) {
             ObjectClassData objClassData = GetObjectClassData(type, Cache: Cache);
-            return objClassData.PropertyData;
+            return objClassData.PropertyData.Values.ToList();
         }
         /// <summary>
         /// Retrieve enumeration information for a given Type.
@@ -574,8 +575,9 @@ namespace YetaWF.Core.Models {
         /// <param name="propName">The name of the property.</param>
         /// <returns>Property information.</returns>
         public static PropertyData GetPropertyData(Type type, string propName) {
-            PropertyData propData = (from p in GetPropertyData(type) where p.Name == propName select p).FirstOrDefault();
-            if (propData == null) throw new InternalError("No property {0} in {1}", propName, type.FullName);
+            PropertyData propData = TryGetPropertyData(type, propName);
+            if (propData == null)
+                throw new InternalError("No property {0} in {1}", propName, type.FullName);
             return propData;
         }
         /// <summary>
@@ -585,7 +587,10 @@ namespace YetaWF.Core.Models {
         /// <param name="propName">The name of the property.</param>
         /// <returns>Property information. null is returned if the property does not exist.</returns>
         public static PropertyData TryGetPropertyData(Type type, string propName) {
-            PropertyData propData = (from p in GetPropertyData(type) where p.Name == propName select p).FirstOrDefault();
+            ObjectClassData objClassData = GetObjectClassData(type);
+            PropertyData propData;
+            if (!objClassData.PropertyData.TryGetValue(propName, out propData))
+                return null;
             return propData;
         }
         /// <summary>
@@ -607,8 +612,9 @@ namespace YetaWF.Core.Models {
         /// <param name="propName">The name of the property.</param>
         /// <returns>PropertyInfo. null is returned if the property does not exist.</returns>
         public static PropertyInfo TryGetProperty(Type type, string name) {
-            List<PropertyInfo> props = GetProperties(type);
-            return (from p in props where p.Name == name select p).FirstOrDefault();
+            PropertyData propData = TryGetPropertyData(type, name);
+            if (propData == null) return null;
+            return propData.PropInfo;
         }
         /// <summary>
         /// Retrieve PropertyInfo for all properties.
