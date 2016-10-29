@@ -26,6 +26,7 @@ namespace YetaWF.Core.Views.Shared {
         public string Title { get; set; }
         public string Name { get; set; }
         public string Id { get; set; }
+        public string CssClass { get; set; }
         public bool Hidden { get; set; }
         public ButtonTypeEnum ButtonType { get; set; }
         public ModuleAction Action { get; private set; }
@@ -88,6 +89,8 @@ namespace YetaWF.Core.Views.Shared {
                 if (!string.IsNullOrWhiteSpace(Title))
                     tag.Attributes.Add("title", Title);
                 tag.Attributes.Add("value", text);
+                if (!string.IsNullOrWhiteSpace(CssClass))
+                    tag.AddCssClass(CssClass);
                 return MvcHtmlString.Create(tag.ToString(TagRenderMode.StartTag));
             }
         }
