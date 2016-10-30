@@ -1,0 +1,6 @@
+Folder \Scripts\kendo\2016.3.1028\
+kendo.core.min.js
+# Basics (Window)
+kendo.userevents.min.js,bundle
+kendo.draganddrop.min.js,bundle
+kendo.window.min.js,bundle
