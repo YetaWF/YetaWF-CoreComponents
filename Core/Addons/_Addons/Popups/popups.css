@@ -9,3 +9,9 @@
     font-weight:bolder;
 }
 
+@media print {
+    .k-widget.k-window { /* Don't show popups for print/print preview */
+        display: none;
+    }
+}
+
