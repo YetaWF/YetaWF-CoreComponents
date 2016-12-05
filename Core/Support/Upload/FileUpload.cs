@@ -234,14 +234,16 @@ namespace YetaWF.Core.Upload {
             }
         }
         private void RemoveExpiredTempFiles(string tempFolder, TimeSpan timeSpan) {
-            string[] tempFiles = Directory.GetFiles(tempFolder);
-            DateTime oldest = DateTime.UtcNow.Subtract(timeSpan);
-            foreach (var tempFile in tempFiles) {
-                if (Path.GetFileName(tempFile).StartsWith(TempId)) {
-                    DateTime created = File.GetCreationTimeUtc(tempFile);
-                    if (created < oldest) {
-                        Logging.AddLog("Removing temp file {0}", tempFile);
-                        File.Delete(tempFile);
+            if (File.Exists(tempFolder)) {
+                string[] tempFiles = Directory.GetFiles(tempFolder);
+                DateTime oldest = DateTime.UtcNow.Subtract(timeSpan);
+                foreach (var tempFile in tempFiles) {
+                    if (Path.GetFileName(tempFile).StartsWith(TempId)) {
+                        DateTime created = File.GetCreationTimeUtc(tempFile);
+                        if (created < oldest) {
+                            Logging.AddLog("Removing temp file {0}", tempFile);
+                            File.Delete(tempFile);
+                        }
                     }
                 }
             }
