@@ -28,6 +28,14 @@ namespace YetaWF.Core.SendEmail {
         protected MailMessage MailMessage { get; set; }
         protected SmtpClient SmtpClient { get; set; }
 
+        public void PrepareEmailMessageFromStrings(string toEmail, string subject, string emailText, string emailHTML, string fomEmail = null, object parameters = null) {
+            Manager.CurrentSite.SMTP.Validate();
+            SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
+            emailHTML = "<!DOCTYPE html><html><head>" +
+                "<title>" + subject + "</title>" +
+                "</head><body>" + emailHTML + "</body></html>";
+            PrepareEmailMessage(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
+        }
         public string GetEmailFile(Package package, string filename) {
             string moduleAddOnUrl = VersionManager.GetAddOnModuleUrl(package.Domain, package.Product);
             string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
@@ -46,14 +54,12 @@ namespace YetaWF.Core.SendEmail {
                 return file;
             throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);
         }
-        public void PrepareEmailMessage(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null)
-        {
+        public void PrepareEmailMessage(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null) {
             Manager.CurrentSite.SMTP.Validate();
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
             PrepareEmailMessage(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, parameters);
         }
-        public void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null)
-        {
+        public void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null) {
             string file = emailFile;
             if (!file.EndsWith(EmailTxtExtension, StringComparison.CurrentCultureIgnoreCase))
                 throw new Error(this.__ResStr("errEmailTextInv", "The base email file {0} must be a text file (ending in .txt)"), file);
@@ -82,8 +88,7 @@ namespace YetaWF.Core.SendEmail {
             }
             PrepareEmailMessage(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, parameters);
         }
-        protected void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null)
-        {
+        protected void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
             try {
                 if (string.IsNullOrEmpty(server))
                     throw new Error(this.__ResStr("errMailServer", "No mail server specified."));
@@ -160,12 +165,14 @@ namespace YetaWF.Core.SendEmail {
         }
 
         // find   ="file:///....." in text and replace with ="cid:C{1}"
-        private static string MakeInlineItems(string strLinesHtml,string htmlFolder, Regex regex, ref List<string> files) {
+        private static string MakeInlineItems(string linesHtml, string htmlFolder, Regex regex, ref List<string> files) {
+
+            if (string.IsNullOrWhiteSpace(htmlFolder)) return linesHtml;
 
             Match m;
             int pos = 0;
-            for ( ; ; ) {
-                m = regex.Match(strLinesHtml, pos);
+            for (;;) {
+                m = regex.Match(linesHtml, pos);
                 if (!m.Success)
                     break;
 
@@ -177,13 +184,13 @@ namespace YetaWF.Core.SendEmail {
                 }
                 if (File.Exists(src)) {
                     string newStr = string.Format(@"=""cid:C{0}""", 1000 + files.Count);
-                    strLinesHtml = strLinesHtml.Substring(0, m.Index) + newStr + strLinesHtml.Substring(m.Index + m.Length);
+                    linesHtml = linesHtml.Substring(0, m.Index) + newStr + linesHtml.Substring(m.Index + m.Length);
                     files.Add(src);
                     pos = m.Index + newStr.Length;
                 } else
                     pos = m.Index + m.Length;
             }
-            return strLinesHtml;
+            return linesHtml;
         }
 
         public void AddBcc(string ccEmail) {
