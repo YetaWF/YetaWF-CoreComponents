@@ -33,7 +33,7 @@ namespace YetaWF.Core.SendEmail {
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
             emailHTML = "<!DOCTYPE html><html><head>" +
                 "<title>" + subject + "</title>" +
-                "</head><body>" + emailHTML + "</body></html>";
+                "</head><body style='margin:0'>" + emailHTML + "</body></html>";
             PrepareEmailMessage(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
         }
         public string GetEmailFile(Package package, string filename) {
@@ -167,8 +167,6 @@ namespace YetaWF.Core.SendEmail {
         // find   ="file:///....." in text and replace with ="cid:C{1}"
         private static string MakeInlineItems(string linesHtml, string htmlFolder, Regex regex, ref List<string> files) {
 
-            if (string.IsNullOrWhiteSpace(htmlFolder)) return linesHtml;
-
             Match m;
             int pos = 0;
             for (;;) {
@@ -179,7 +177,7 @@ namespace YetaWF.Core.SendEmail {
                 string src = m.Groups[1].ToString();
                 //src = InlineBaseFolder + src.Substring(InlineBaseSite.Length);
                 src = src.Replace("/", @"\").Replace("|", @":");
-                if (src.StartsWith(".\\")) {
+                if (src.StartsWith(".\\") && !string.IsNullOrWhiteSpace(htmlFolder)) {
                     src = Path.Combine(htmlFolder, src.Substring(2));
                 }
                 if (File.Exists(src)) {
