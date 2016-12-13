@@ -291,6 +291,26 @@ namespace YetaWF.Core.DataProvider {
                 }
             }
         }
+        /// <summary>
+        /// Return a copy of the filter graph by copying each entry.
+        /// </summary>
+        /// <param name="filters">Filters to copy.</param>
+        /// <returns>Returns a new filter graph that can be modified without affecting the original graph.</returns>
+        public static List<DataProviderFilterInfo> Copy(List<DataProviderFilterInfo> filters) {
+            List<DataProviderFilterInfo> newFilters = null;
+            if (filters == null) return newFilters;
+            newFilters = new List<DataProviderFilterInfo>();
+            foreach (DataProviderFilterInfo f in filters) {
+                newFilters.Add(new DataProvider.DataProviderFilterInfo {
+                    Field = f.Field,
+                    Logic = f.Logic,
+                    Operator = f.Operator,
+                    Value = f.Value,
+                    Filters = Copy(f.Filters),
+                });
+            }
+            return newFilters;
+        }
     }
 
     public static class DataProviderImpl<OBJTYPE> {
