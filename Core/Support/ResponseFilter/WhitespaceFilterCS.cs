@@ -6,20 +6,24 @@ using System.Text.RegularExpressions;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
-namespace YetaWF.Core.ResponseFilter
-{
+namespace YetaWF.Core.ResponseFilter {
     /// <summary>
     /// The class responsible for output (HTML) compression.
     /// </summary>
-    public class WhiteSpaceResponseFilter : MemoryStream
-    {
+    /// <remarks>
+    /// Enabling compression doesn't really help much. YetaWF generates fairly compact html so savings are typically just 1-10%.
+    /// This code does javascript compression and eliminates excessive spacing (line " ", \r,\n), while preserving
+    /// formatting in &lt;textarea&gt;, &lt;pre&gt; and &lt;script&gt; tags.
+    /// </remarks>
+    public class WhiteSpaceResponseFilter : MemoryStream {
+
+        protected YetaWFManager Manager { get; private set; }
         private readonly Stream _outputStream = null;
 
         public WhiteSpaceResponseFilter(YetaWFManager manager, Stream output) {
             _outputStream = output;
             Manager = manager;
         }
-        protected YetaWFManager Manager { get; private set; }
 
         public override void Flush() {
             base.Flush();
@@ -36,9 +40,16 @@ namespace YetaWF.Core.ResponseFilter
 
         private string _buffer = "";
 
+        /// <summary>
+        /// Defines whether aggressive optimization is used.
+        /// </summary>
+        /// <remarks>
+        /// Currently aggressive optimization removes whitespace between tags.
+        /// </remarks>
         private bool Aggressive { get; set; }
 
-        private WhiteSpaceResponseFilter() {
+        private WhiteSpaceResponseFilter(YetaWFManager manager) {
+            Manager = manager;
             Aggressive = true;
         }
 
@@ -51,142 +62,160 @@ namespace YetaWF.Core.ResponseFilter
         /// </summary>
         /// <param name="manager">The Manager instance.</param>
         /// <param name="inputBuffer">The input buffer containing HTML to be optimized.</param>
-        /// <returns>Removes excessive whitespace, optimizes javascript while preserving Texarea and Pre tag contents.
+        /// <summary>Removes excessive whitespace, optimizes javascript while preserving texarea and pre tag contents.
         ///
         /// Optimizing is very aggressive and removes all whitespace between tags. This can cause unexpected side-effect. For example,
         /// when using spaces to add distance between objects (usually in templates, these will be lost. Such spacing must be accomplished using
         /// Css, not space character litter.
         ///
-        /// Inside areas marked <!--LazyWSF--> and <!--LazyWSFEnd--> (Text Modules (display only)), whitespace between tags is preserved.
+        /// Inside areas marked &lt;!--LazyWSF--&gt; and &lt;!--LazyWSFEnd--&gt; (Text Modules (display only)), whitespace between tags is preserved.
         /// Inside pre and textarea tags no optimization is performed.
-        /// </returns>
+        /// </summary>
+        /// <returns>Compressed output.</returns>
         public static string Compress(YetaWFManager manager, string inputBuffer) {
-            WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter();
-            string output = wsf.ProcessScriptInput(manager, inputBuffer);
+            WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter(manager);
+            string output = wsf.ProcessAllInputCheckLazy(inputBuffer).ToString();
 #if DEBUG
             output += string.Format("<!-- WhitespaceFilter optimized from {0} bytes to {1} -->", inputBuffer.Length, output.Length);
 #endif
             return output;
         }
 
-        private static readonly Regex scriptRe = new Regex("^(?'start'.*?)(?'scripttag'<script[^>]*?>)(?'script'.*?)</script\\s*>\\s*(?'end'.*)$", RegexOptions.Compiled | RegexOptions.Singleline);
-
-        private string ProcessScriptInput(YetaWFManager manager, string inputBuffer) {
-            // We're in html (optimize scripts)
+        /// <summary>
+        /// Compress the HTML input buffer, looking for &lt;!--LazyWSF--&gt; or &lt;!--LazyWSFEnd--&gt;.
+        /// </summary>
+        /// <param name="inputBuffer">The input buffer containing HTML.</param>
+        /// <returns>Compressed output.</returns>
+        /// <summary>Find areas marked &lt;!--LazyWSF--&gt; or &lt;!--LazyWSFEnd--&lt; and set aggressive optimization.</summary>
+        private StringBuilder ProcessAllInputCheckLazy(string inputBuffer) {
+            // We're in html
+            // find all areas mark for lazy optimization. We don't want to optimize these aggressively.
             string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
-            for ( ; ; ) {
-                Match m = scriptRe.Match(contentInBuffer);
-                if (!m.Success)
+            for (;;) {
+                int ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimization);
+                if (ix >= 0) {
+                    output.Append(ProcessScriptInput(contentInBuffer.Substring(0, ix)));
+                    contentInBuffer = contentInBuffer.Substring(ix + Globals.LazyHTMLOptimization.Length);
+                }
+                ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimizationEnd);
+                if (ix >= 0) {
+                    Aggressive = false;
+                    output.Append(ProcessScriptInput(contentInBuffer.Substring(0, ix)));
+                    Aggressive = true;
+                    contentInBuffer = contentInBuffer.Substring(ix + Globals.LazyHTMLOptimizationEnd.Length);
+                } else
                     break;
-                output.Append(ProcessTextModuleInput(m.Groups["start"].Value));
-                output.Append(ProcessTextModuleInput(m.Groups["scripttag"].Value));
-                string script = ScriptManager.TrimScript(manager, m.Groups["script"].Value);
+            }
+            output.Append(ProcessScriptInput(contentInBuffer));
+            return output;
+        }
+
+        /// <summary>
+        /// Compress the HTML input buffer, looking for &lt;script&gt;...&lt;/script&gt;.
+        /// </summary>
+        /// <param name="inputBuffer">The input buffer containing HTML.</param>
+        /// <returns>Compressed output.</returns>
+        /// <summary>Find &lt;script&gt;>...&lt;/script&gt; and compress tags and javascript.</summary>
+        private StringBuilder ProcessScriptInput(string inputBuffer) {
+            // We're in html (optimize scripts)
+            StringBuilder output = new StringBuilder();
+            int currStart = 0;
+            Match m = scriptRe.Match(inputBuffer);
+            for (; m.Success ;) {
+                int start = m.Captures[0].Index;
+                int end = m.Captures[0].Index + m.Captures[0].Length;
+                if (currStart < start)
+                    output.Append(ProcessTextAreaInput(inputBuffer.Substring(currStart, start - currStart)));
+                output.Append(ProcessTextAreaInput(m.Groups["scripttag"].Value));
+                string script = ScriptManager.TrimScript(Manager, m.Groups["script"].Value);
                 if (!string.IsNullOrEmpty(script)) {
                     //output.Append("\n//<![CDATA[\n");
                     output.Append(script);
                     //output.Append("\n//]]>\n");
                 }
                 output.Append("</script>");
-                contentInBuffer = m.Groups["end"].Value;
+                currStart = end;
+                m = m.NextMatch();
             }
-            output.Append(ProcessTextModuleInput(contentInBuffer));
-            return output.ToString();
+            output.Append(ProcessTextAreaInput(inputBuffer.Substring(currStart)));
+            return output;
         }
 
-        private static readonly Regex textModRe = new Regex(
-            string.Format("^(?'start'.*?)(?:{0})(?'wsf'.*?)(?:{1})(?'end'.*)$", Regex.Escape(Globals.LazyHTMLOptimization), Regex.Escape(Globals.LazyHTMLOptimizationEnd)),
-            RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex scriptRe = new Regex("(?'scripttag'<script[^>]*?>)(?'script'.*?)</script\\s*>", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        private string ProcessTextModuleInput(string inputBuffer) {
-            // We're in html (no scripts)
-            // find all text modules (really yt_textarea t_display) output. We don't want to optimize these aggressively.
-            string contentInBuffer = inputBuffer;
-            StringBuilder output = new StringBuilder();
-            for ( ; ; ) {
-                Match m = textModRe.Match(contentInBuffer);
-                if (!m.Success)
-                    break;
-                output.Append(ProcessTextAreaInput(m.Groups["start"].Value));
-                Aggressive = false;
-                output.Append(ProcessTextAreaInput(m.Groups["wsf"].Value));
-                Aggressive = true;
-                contentInBuffer = m.Groups["end"].Value;
-            }
-            output.Append(ProcessTextAreaInput(contentInBuffer));
-            return output.ToString();
-        }
-        private static readonly Regex textareaRe = new Regex("^(?'start'.*?)\\s*(?'textareatag'<textarea[^>]*?>)(?'textarea'.*?)</textarea\\s*>\\s*(?'end'.*)$", RegexOptions.Compiled | RegexOptions.Singleline);
-
-        private string ProcessTextAreaInput(string inputBuffer)
-        {
+        /// <summary>
+        /// Compress the HTML input buffer, looking for &lt;textarea&gt;...&lt;/textarea&gt;.
+        /// </summary>
+        /// <param name="inputBuffer">The input buffer containing HTML.</param>
+        /// <returns>Compressed output.</returns>
+        /// <summary>Find &lt;textarea&gt;>...&lt;/textarea&gt; and compress tags. Textarea contents are not compressed so formatting is preserved.</summary>
+        private StringBuilder ProcessTextAreaInput(string inputBuffer) {
             // We're in html (no scripts)
             // skip <textarea> (we can't optimize these as otherwise source editing doesn't reflect what user entered)
-            string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
-            for ( ; ; ) {
-                Match m = textareaRe.Match(contentInBuffer);
-                if (!m.Success)
-                    break;
-                output.Append(ProcessPreInput(m.Groups["start"].Value));
+            int currStart = 0;
+            Match m = textareaRe.Match(inputBuffer);
+            for (; m.Success ;) {
+                int start = m.Captures[0].Index;
+                int end = m.Captures[0].Index + m.Captures[0].Length;
+                if (currStart < start)
+                    output.Append(ProcessPreInput(inputBuffer.Substring(currStart, start - currStart)));
                 output.Append(ProcessPreInput(m.Groups["textareatag"].Value));
                 output.Append(m.Groups["textarea"].Value); // unmodified
                 output.Append("</textarea>");
-                contentInBuffer = m.Groups["end"].Value;
+                currStart = end;
+                m = m.NextMatch();
             }
-            output.Append(ProcessPreInput(contentInBuffer));
-            return output.ToString();
+            output.Append(ProcessPreInput(inputBuffer.Substring(currStart)));
+            return output;
         }
 
-        private static readonly Regex preRe = new Regex("^(?'start'.*?)\\s*(?'pretag'<pre[^>]*?>)(?'pre'.*?)</pre\\s*>\\s*(?'end'.*)$", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex textareaRe = new Regex("(?'textareatag'<textarea[^>]*?>)(?'textarea'.*?)</textarea\\s*>", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        private string ProcessPreInput(string inputBuffer)
-        {
-            // We're in html (no scripts)
+        /// <summary>
+        /// Compress the HTML input buffer, looking for &lt;pre&gt;...&lt;/pre&gt;.
+        /// </summary>
+        /// <param name="inputBuffer">The input buffer containing HTML.</param>
+        /// <returns>Compressed output.</returns>
+        /// <summary>Find &lt;pre&gt;>...&lt;/pre&gt; and compress tags. Pre contents are not compressed so formatting is preserved.</summary>
+        private StringBuilder ProcessPreInput(string inputBuffer) {
+            // We're in html (no scripts, no textarea)
             // skip <pre> (we can't optimize these as otherwise formatted output doesn't reflect what user entered)
-            string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
-            for (;;) {
-                Match m = preRe.Match(contentInBuffer);
-                if (!m.Success)
-                    break;
-                output.Append(ProcessRemainingInput(m.Groups["start"].Value));
+            int currStart = 0;
+            Match m = preRe.Match(inputBuffer);
+            for (; m.Success ;) {
+                int start = m.Captures[0].Index;
+                int end = m.Captures[0].Index + m.Captures[0].Length;
+                if (currStart < start)
+                    output.Append(ProcessRemainingInput(inputBuffer.Substring(currStart, start - currStart)));
                 output.Append(ProcessRemainingInput(m.Groups["pretag"].Value));
                 output.Append(m.Groups["pre"].Value); // unmodified
                 output.Append("</pre>");
-                contentInBuffer = m.Groups["end"].Value;
+                currStart = end;
+                m = m.NextMatch();
             }
-            output.Append(ProcessRemainingInput(contentInBuffer));
-            return output.ToString();
+            output.Append(ProcessRemainingInput(inputBuffer.Substring(currStart)));
+            return output;
         }
 
-        private static readonly Regex _tabsRe = new Regex("\\t", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _carriageReturnSafeRe = new Regex(">\\s*\\r\\n\\s*<", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _carriageReturn1SafeRe = new Regex("\\s*\\r\\n\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _carriageReturn2SafeRe = new Regex("\\s*\\r\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _carriageReturn3SafeRe = new Regex("\\s*\\n\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _spaceBetweenTagsSafeRe = new Regex(">\\s+<", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _LeadWSSafeRe = new Regex("$\\s+", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _TrailWSSafeRe = new Regex("\\s+^", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex preRe = new Regex("(?'pretag'<pre[^>]*?>)(?'pre'.*?)</pre\\s*>", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        private static readonly Regex _spaceBetweenDivsUnsafeRe = new Regex(">\\s+<", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex _multipleSpaces = new Regex("  ", RegexOptions.Compiled | RegexOptions.Multiline);
-
+        /// <summary>
+        /// White space compression.
+        /// </summary>
+        /// <param name="inputBuffer">The input buffer containing HTML.</param>
+        /// <returns>Compressed output.</returns>
         private string ProcessRemainingInput(string inputBuffer) {
             if (inputBuffer == "") return "";
-            inputBuffer = _tabsRe.Replace(inputBuffer, " ");
-            inputBuffer = _carriageReturnSafeRe.Replace(inputBuffer, "> <");
-            inputBuffer = _carriageReturn1SafeRe.Replace(inputBuffer, " ");
-            inputBuffer = _carriageReturn2SafeRe.Replace(inputBuffer, " ");
-            inputBuffer = _carriageReturn3SafeRe.Replace(inputBuffer, " ");
-            inputBuffer = _spaceBetweenTagsSafeRe.Replace(inputBuffer, "> <");
-            inputBuffer = _LeadWSSafeRe.Replace(inputBuffer, " ");
-            inputBuffer = _TrailWSSafeRe.Replace(inputBuffer, " ");
-            if (Aggressive) {
-                while (_multipleSpaces.IsMatch(inputBuffer))
-                    inputBuffer = _multipleSpaces.Replace(inputBuffer, " ");
-                inputBuffer = _spaceBetweenDivsUnsafeRe.Replace(inputBuffer, "><");
-            }
+            inputBuffer = inputBuffer.Replace('\t', ' ');
+            inputBuffer = inputBuffer.Replace('\r', ' ');
+            inputBuffer = inputBuffer.Replace('\n', ' ');
+            while (inputBuffer.Contains("  ")) // multiple spaces -> 1 space
+                inputBuffer = inputBuffer.Replace("  ", " ");
+            if (Aggressive)
+                inputBuffer = inputBuffer.Replace("> <", "><");
             return inputBuffer;
         }
     }
