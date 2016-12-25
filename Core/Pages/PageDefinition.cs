@@ -152,6 +152,12 @@ namespace YetaWF.Core.Pages {
                 return _canonicalUrl;
             }
             set {
+                if (value != null) {
+                    if (value.StartsWith("/")) {
+                        _canonicalUrl = Manager.CurrentSite.MakeUrl(value);
+                        return;
+                    }
+                }
                 _canonicalUrl = value;
             }
         }
