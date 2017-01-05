@@ -199,7 +199,7 @@
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="valEmail2" />
-                <Text Value="The email address for {0} is invalid - it should be in the format 'user@domain.com'" />
+                <Text Value="The email address for the field labeled {0} is invalid - it should be in the format 'user@domain.com'" />
               </Properties>
             </Object>
           </Value>
