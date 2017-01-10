@@ -349,8 +349,16 @@ namespace YetaWF.Core.DataProvider {
     public abstract class DataProviderImpl : IDisposable {
 
         protected DataProviderImpl(int siteIdentity) { SiteIdentity = siteIdentity; }
-        public void Dispose() { Dispose(true); }
-        protected virtual void Dispose(bool disposing) { }
+        public void Dispose() {
+            Dispose(true);
+        }
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                if (DataProviderObject != null)
+                    DataProviderObject.Dispose();
+                DataProviderObject = null;
+            }
+        }
         //~DataProviderImpl() { Dispose(false); }
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -369,7 +377,7 @@ namespace YetaWF.Core.DataProvider {
         protected string SQLDbo { get; private set; }
 
         protected void SetDataProvider(dynamic dp) { DataProviderObject = dp; }
-        protected dynamic DataProviderObject { get; set; }
+        public dynamic DataProviderObject { get; protected set; }
         public string GetTableName() {
             if (DataProviderObject == null) throw new InternalError("DataProvider must be defined in constructor using SetDataProvider() - Only supported for SQL I/O");
             return DataProviderObject.GetTableName();
