@@ -92,9 +92,11 @@ namespace YetaWF.Core.Pages {
             public JSDocumentReady(HtmlHelper<object> Html) {
                 this.Html = Html;
                 IsAjax = YetaWFManager.Manager.IsAjaxRequest;
+                DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
+                if (disposing) DisposableTracker.RemoveObject(this);
                 if (IsAjax) {
                     Html.ViewContext.Writer.Write("}");
                     Html.ViewContext.Writer.Write("});");

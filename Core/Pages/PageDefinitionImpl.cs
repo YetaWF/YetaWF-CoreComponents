@@ -489,9 +489,11 @@ namespace YetaWF.Core.Pages {
                 DivTag.Attributes.Add("id", Id);
                 Conditional = conditional;
                 SameHeight = sameHeight;
+                DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
+                if (disposing) DisposableTracker.RemoveObject(this);
                 HtmlBuilder hb = new HtmlBuilder();
                 hb.Append("<div class='y_cleardiv'></div>");
                 hb.Append(DivTag.ToString(TagRenderMode.EndTag));

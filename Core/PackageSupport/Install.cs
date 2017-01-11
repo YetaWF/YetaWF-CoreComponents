@@ -44,12 +44,15 @@ namespace YetaWF.Core.Packages {
 
         private static bool InstallOneType(List<string> errorList, Type type) {
             bool success = true;
-            IInstallableModel model = (IInstallableModel) Activator.CreateInstance(type);
-            List<string> list = new List<string>();
-            if (!model.InstallModel(list))
-                success = false;
-            errorList.AddRange(list);
-            return success;
+            object instMod = Activator.CreateInstance(type);
+            using ((IDisposable)instMod) {
+                IInstallableModel model = (IInstallableModel)instMod;
+                List<string> list = new List<string>();
+                if (!model.InstallModel(list))
+                    success = false;
+                errorList.AddRange(list);
+                return success;
+            }
         }
 
         public bool UninstallModels(List<string> errorList) {
@@ -59,13 +62,15 @@ namespace YetaWF.Core.Packages {
             // Uninstall all dataproviders
             List<Type> models = InstallableModels;
             foreach (Type type in models) {
-                IInstallableModel model = (IInstallableModel) Activator.CreateInstance(type);
-                List<string> list = new List<string>();
-                if (!model.UninstallModel(list))
-                    success = false;
-                errorList.AddRange(list);
+                object instMod = Activator.CreateInstance(type);
+                using ((IDisposable)instMod) {
+                    IInstallableModel model = (IInstallableModel)instMod;
+                    List<string> list = new List<string>();
+                    if (!model.UninstallModel(list))
+                        success = false;
+                    errorList.AddRange(list);
+                }
             }
-
             // Uninstall all scheduler items
             try {
                 SchedulerSupport.Uninstall(this);
@@ -81,8 +86,11 @@ namespace YetaWF.Core.Packages {
             foreach (Package package in packages) {
                 List<Type> models = package.InstallableModels;
                 foreach (Type type in models) {
-                    IInstallableModel model = (IInstallableModel) Activator.CreateInstance(type);
-                    model.AddSiteData();
+                    object instMod = Activator.CreateInstance(type);
+                    using ((IDisposable)instMod) {
+                        IInstallableModel model = (IInstallableModel)instMod;
+                        model.AddSiteData();
+                    }
                 }
             }
         }
@@ -92,8 +100,11 @@ namespace YetaWF.Core.Packages {
             foreach (Package package in packages) {
                 List<Type> models = package.InstallableModels;
                 foreach (Type type in models) {
-                    IInstallableModel model = (IInstallableModel) Activator.CreateInstance(type);
-                    model.RemoveSiteData();
+                    object instMod = Activator.CreateInstance(type);
+                    using ((IDisposable)instMod) {
+                        IInstallableModel model = (IInstallableModel)instMod;
+                        model.RemoveSiteData();
+                    }
                 }
             }
             // remove the site's data folder

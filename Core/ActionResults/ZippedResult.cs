@@ -20,10 +20,12 @@ namespace YetaWF.Core.Support {
         public YetaWFZipFile() {
             TempFiles = new List<string>();
             TempFolders = new List<string>();
+            DisposableTracker.AddObject(this);
         }
 
         public void Dispose() { Dispose(true); }
         protected virtual void Dispose(bool disposing) {
+            if (disposing) { DisposableTracker.RemoveObject(this); }
             if (TempFiles != null) {
                 foreach (var tempFile in TempFiles) {
                     try {
@@ -41,7 +43,6 @@ namespace YetaWF.Core.Support {
                 TempFolders = null;
             }
         }
-        ~YetaWFZipFile() { Dispose(false); }
     }
 
     /// <summary>

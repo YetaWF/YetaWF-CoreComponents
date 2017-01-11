@@ -22,7 +22,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Modules {
 
     // Interface to derived module type dataprovider
-    public interface IModuleDefinitionIO {
+    public interface IModuleDefinitionIO : IDisposable /*$$$$*/ {
         void SaveModuleDefinition(ModuleDefinition mod);
         ModuleDefinition LoadModuleDefinition(Guid key);
     }
@@ -304,6 +304,7 @@ namespace YetaWF.Core.Modules {
         }
 
         // this is provided by a specific derived module type - its dataprovider reads/writes specific module types
+        // Must be disposed after use
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected IModuleDefinitionIO DataProvider {
             get {
@@ -316,6 +317,7 @@ namespace YetaWF.Core.Modules {
         }
         private IModuleDefinitionIO _dataProvider;
 
+        // Must be disposed after use
         public virtual IModuleDefinitionIO GetDataProvider() {
             throw new InternalError("Module {0} doesn't have a data provider", GetType().FullName);
         }

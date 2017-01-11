@@ -348,12 +348,16 @@ namespace YetaWF.Core.DataProvider {
 
     public abstract class DataProviderImpl : IDisposable {
 
-        protected DataProviderImpl(int siteIdentity) { SiteIdentity = siteIdentity; }
+        protected DataProviderImpl(int siteIdentity) {
+            SiteIdentity = siteIdentity;
+            DisposableTracker.AddObject(this);
+        }
         public void Dispose() {
             Dispose(true);
         }
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
+                DisposableTracker.RemoveObject(this);
                 if (DataProviderObject != null)
                     DataProviderObject.Dispose();
                 DataProviderObject = null;

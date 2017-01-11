@@ -108,9 +108,11 @@ namespace YetaWF.Core.Views {
         protected class JSDocumentReady : IDisposable {
             public JSDocumentReady(HtmlHelper<TModel> Html) {
                 this.Html = Html;
+                DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
+                if (disposing) DisposableTracker.RemoveObject(this);
                 Html.ViewContext.Writer.Write("});");
             }
             //~JSDocumentReady() { Dispose(false); }

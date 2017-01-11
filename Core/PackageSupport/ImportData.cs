@@ -65,54 +65,56 @@ namespace YetaWF.Core.Packages {
             // unzip all files/data
             foreach (var modelType in this.InstallableModels) {
                 try {
-                    IInstallableModel model = (IInstallableModel) Activator.CreateInstance(modelType);
-                    model.RemoveSiteData();// remove site specific data so we can import the new data
+                    object instMod = Activator.CreateInstance(modelType);
+                    using ((IDisposable)instMod) {
+                        IInstallableModel model = (IInstallableModel)instMod;
+                        model.RemoveSiteData();// remove site specific data so we can import the new data
 
-                    // find the model data
-                    SerializableModelData serModel = (from sd in serData.Data where sd.Class == modelType.Name select sd).FirstOrDefault();
-                    if (serModel == null) // this model no longer exists
-                        continue;
+                        // find the model data
+                        SerializableModelData serModel = (from sd in serData.Data where sd.Class == modelType.Name select sd).FirstOrDefault();
+                        if (serModel == null) // this model no longer exists
+                            continue;
 
-                    // unzip files - date provider doesn't have to do anything for files
-                    foreach (var file in serModel.Files) {
-                        ZipEntry e = zip[file.FileName];
-                        if (YetaWFManager.HaveManager && file.SiteSpecific)
-                            e.Extract(YetaWFManager.Manager.SiteFolder, ExtractExistingFileAction.OverwriteSilently);
-                        else
-                            e.Extract(YetaWFManager.RootFolder, ExtractExistingFileAction.OverwriteSilently);
-                    }
+                        // unzip files - date provider doesn't have to do anything for files
+                        foreach (var file in serModel.Files) {
+                            ZipEntry e = zip[file.FileName];
+                            if (YetaWFManager.HaveManager && file.SiteSpecific)
+                                e.Extract(YetaWFManager.Manager.SiteFolder, ExtractExistingFileAction.OverwriteSilently);
+                            else
+                                e.Extract(YetaWFManager.RootFolder, ExtractExistingFileAction.OverwriteSilently);
+                        }
 
-                    for (int chunk = 0 ; chunk < serModel.Chunks ; ++chunk) {
+                        for (int chunk = 0 ; chunk < serModel.Chunks ; ++chunk) {
 
-                        // unzip data
-                        {
-                            string zipFileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
-                            ZipEntry e = zip[zipFileName];
-                            if (e == null) {
-                                errorList.Add(__ResStr("errDataCorrupt", "Zip file {1} corrupted - file {0} not found.", zipFileName, displayFileName));
-                                return false;
-                            }
+                            // unzip data
+                            {
+                                string zipFileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
+                                ZipEntry e = zip[zipFileName];
+                                if (e == null) {
+                                    errorList.Add(__ResStr("errDataCorrupt", "Zip file {1} corrupted - file {0} not found.", zipFileName, displayFileName));
+                                    return false;
+                                }
 
-                            string xmlFile = Path.GetTempFileName();
-                            FileStream fs = new FileStream(xmlFile, FileMode.Create, FileAccess.ReadWrite);
-                            e.Extract(fs);
-                            fs.Close();
-                            fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                            object obj = null;
-                            try {
-                                obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
-                            } catch (Exception exc) {
-                                errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.FileName, exc));
-                                return false;
-                            } finally {
+                                string xmlFile = Path.GetTempFileName();
+                                FileStream fs = new FileStream(xmlFile, FileMode.Create, FileAccess.ReadWrite);
+                                e.Extract(fs);
                                 fs.Close();
-                                File.Delete(xmlFile);
-                            }
+                                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
+                                object obj = null;
+                                try {
+                                    obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
+                                } catch (Exception exc) {
+                                    errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.FileName, exc));
+                                    return false;
+                                } finally {
+                                    fs.Close();
+                                    File.Delete(xmlFile);
+                                }
 
-                            model.ImportChunk(chunk, null, obj);
+                                model.ImportChunk(chunk, null, obj);
+                            }
                         }
                     }
-
                 } catch (Exception exc) {
                     errorList.Add(__ResStr("errDataCantImport", "Model type {0} cannot be imported - {1}", modelType.FullName, exc.Message));
                     return false;

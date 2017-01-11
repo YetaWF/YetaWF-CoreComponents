@@ -32,42 +32,45 @@ namespace YetaWF.Core.Packages {
             // Export all models with data this package implements
             foreach (var modelType in this.InstallableModels) {
                 try {
-                    IInstallableModel model = (IInstallableModel) Activator.CreateInstance(modelType);
-                    if (!takingBackup || model.IsInstalled()) {
-                        SerializableModelData serModel = new SerializableModelData();
+                    object instMod = Activator.CreateInstance(modelType);
+                    using ((IDisposable)instMod) {
+                        IInstallableModel model = (IInstallableModel) instMod;
+                        if (!takingBackup || model.IsInstalled()) {
+                            SerializableModelData serModel = new SerializableModelData();
 
-                        bool more = true;
-                        int chunk = 0;
-                        for (; more ; ++chunk) {
-                            SerializableList<SerializableFile> fileList = new SerializableList<SerializableFile>();
-                            object obj = null;
-                            more = model.ExportChunk(chunk, fileList, out obj);
+                            bool more = true;
+                            int chunk = 0;
+                            for (; more ; ++chunk) {
+                                SerializableList<SerializableFile> fileList = new SerializableList<SerializableFile>();
+                                object obj = null;
+                                more = model.ExportChunk(chunk, fileList, out obj);
 
-                            if (fileList != null && fileList.Count > 0) {
-                                serModel.Files.AddRange(fileList);
-                                foreach (var file in fileList) {
-                                    ze = zipFile.Zip.AddFile(file.AbsFileName);
-                                    ze.FileName = file.FileName;
+                                if (fileList != null && fileList.Count > 0) {
+                                    serModel.Files.AddRange(fileList);
+                                    foreach (var file in fileList) {
+                                        ze = zipFile.Zip.AddFile(file.AbsFileName);
+                                        ze.FileName = file.FileName;
+                                    }
                                 }
+                                if (!more && obj == null)
+                                    break;
+
+                                fileName = Path.GetTempFileName();
+                                zipFile.TempFiles.Add(fileName);
+
+                                fs = new FileStream(fileName, FileMode.Create);
+                                new GeneralFormatter(Package.ExportFormat).Serialize(fs, obj);
+                                fs.Close();
+
+                                ze = zipFile.Zip.AddFile(fileName);
+                                ze.FileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
                             }
-                            if (!more && obj == null)
-                                break;
 
-                            fileName = Path.GetTempFileName();
-                            zipFile.TempFiles.Add(fileName);
+                            serModel.Class = modelType.Name;
+                            serModel.Chunks = chunk;
 
-                            fs = new FileStream(fileName, FileMode.Create);
-                            new GeneralFormatter(Package.ExportFormat).Serialize(fs, obj);
-                            fs.Close();
-
-                            ze = zipFile.Zip.AddFile(fileName);
-                            ze.FileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
+                            serData.Data.Add(serModel);
                         }
-
-                        serModel.Class = modelType.Name;
-                        serModel.Chunks = chunk;
-
-                        serData.Data.Add(serModel);
                     }
                 } catch (Exception exc) {
                     throw new Error(__ResStr("errModCantExport", "Model type {0} cannot be exported - {1}"), modelType.FullName, exc.Message);

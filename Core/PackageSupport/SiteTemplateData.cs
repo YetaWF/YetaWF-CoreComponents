@@ -56,9 +56,10 @@ namespace YetaWF.Core.Packages {
             // export the data for each listed package and save the zip file in the site template data folder
             foreach (string packageName in PackageNames) {
                 Package package = Package.GetPackageFromPackageName(packageName);
-                YetaWFZipFile zipFile = package.ExportData(takingBackup:true);
-                string file = Path.Combine(path, zipFile.Zip.Name);
-                zipFile.Zip.Save(file);
+                using (YetaWFZipFile zipFile = package.ExportData(takingBackup: true)) {
+                    string file = Path.Combine(path, zipFile.Zip.Name);
+                    zipFile.Zip.Save(file);
+                }
             }
         }
     }

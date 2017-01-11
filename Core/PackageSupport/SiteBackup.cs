@@ -57,26 +57,29 @@ namespace YetaWF.Core.Packages {
                     YetaWFZipFile zipFile;
                     string file;
                     if (package.IsModulePackage || package.IsCorePackage) {
-                        zipFile = package.ExportData(takingBackup:true);
-                        file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                        zipFile.Zip.Save(file);
-                        serBackup.PackageDataFiles.Add(zipFile.Zip.Name);
+                        using (zipFile = package.ExportData(takingBackup: true)) {
+                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
+                            zipFile.Zip.Save(file);
+                            serBackup.PackageDataFiles.Add(zipFile.Zip.Name);
+                        }
                     }
                     if (ForDistribution && package.HasSource && !DataOnly) {
-                        zipFile = package.ExportPackage(SourceCode: true);
-                        file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                        zipFile.Zip.Save(file);
-                        serBackup.PackageFiles.Add(zipFile.Zip.Name);
-
-                        zipFile = package.ExportPackage(SourceCode: false);
-                        file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                        zipFile.Zip.Save(file);
-                        serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                        using (zipFile = package.ExportPackage(SourceCode: true)) {
+                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
+                            zipFile.Zip.Save(file);
+                            serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                        }
+                        using (zipFile = package.ExportPackage(SourceCode: false)) {
+                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
+                            zipFile.Zip.Save(file);
+                            serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                        }
                     } else {
-                        zipFile = package.ExportPackage(SourceCode: package.HasSource);
-                        file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                        zipFile.Zip.Save(file);
-                        serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                        using (zipFile = package.ExportPackage(SourceCode: package.HasSource)) {
+                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
+                            zipFile.Zip.Save(file);
+                            serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                        }
                     }
                 }
 

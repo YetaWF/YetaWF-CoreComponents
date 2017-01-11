@@ -92,9 +92,13 @@ namespace YetaWF.Core.Views {
             public ControlInfoOverride(Dictionary<string, object> additionalValues) {
                 SavedValues = Manager.ControlInfoOverrides;
                 Manager.ControlInfoOverrides = additionalValues;
+                DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
-            protected virtual void Dispose(bool disposing) { Manager.ControlInfoOverrides = SavedValues; }
+            protected virtual void Dispose(bool disposing) {
+                if (disposing) DisposableTracker.RemoveObject(this);
+                Manager.ControlInfoOverrides = SavedValues;
+            }
             //~ControlInfoOverride() { Dispose(false); }
         }
     }

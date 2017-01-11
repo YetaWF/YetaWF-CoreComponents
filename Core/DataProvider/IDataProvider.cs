@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.DataProvider {
 
@@ -16,11 +17,13 @@ namespace YetaWF.Core.DataProvider {
         public DataProviderTransaction(Action commitTransaction, Action abortTransaction) {
             this.abortTransaction = abortTransaction;
             this.commitTransaction = commitTransaction;
+            DisposableTracker.AddObject(this);
         }
         public void Commit() {
             commitTransaction();
         }
         public void Dispose() {
+            DisposableTracker.RemoveObject(this);
             abortTransaction();
         }
     }

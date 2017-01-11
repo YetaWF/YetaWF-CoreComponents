@@ -15,7 +15,28 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.Image {
-    public class ImageSupport : IInitializeApplicationStartup, IScheduling, IInstallableModel {
+
+    public class ImageSupportInit : IInitializeApplicationStartup {
+
+        // IInitializeApplicationStartup
+        // IInitializeApplicationStartup
+        // IInitializeApplicationStartup
+
+        public void InitializeApplicationStartup() {
+            MimeSection mimeSection = MimeSection.GetMimeSection();
+            if (mimeSection == null)
+                throw new InternalError("Web.config doesn't have a valid MimeSection defining allowable files");
+
+            // Delete all temp images
+            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder);
+            YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
+            // Create folder for temp images
+            YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
+        }
+
+    }
+
+    public class ImageSupport : IScheduling, IInstallableModel, IDisposable {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -34,27 +55,18 @@ namespace YetaWF.Core.Image {
             public GetImageAsFile GetFilePath { get; set; }
         }
 
+        public ImageSupport() {
+            DisposableTracker.AddObject(this);
+        }
+
         public static void AddHandler(string type, GetImageInBytes GetBytes = null, GetImageAsFile GetAsFile = null) {
             HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetBytes = GetBytes, GetFilePath = GetAsFile });
         }
 
         public static List<ImageHandlerEntry> HandlerEntries = new List<ImageHandlerEntry>();
 
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-
-        public void InitializeApplicationStartup() {
-            MimeSection mimeSection = MimeSection.GetMimeSection();
-            if (mimeSection == null)
-                throw new InternalError("Web.config doesn't have a valid MimeSection defining allowable files");
-
-            // Delete all temp images
-            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder);
-            YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
-            // Create folder for temp images
-            YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
-        }
+        protected virtual void Dispose(bool disposing) { if (disposing) DisposableTracker.RemoveObject(this); }
+        public void Dispose() { Dispose(true); }
 
         // IScheduling
         // IScheduling
