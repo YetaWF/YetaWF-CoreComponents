@@ -305,6 +305,11 @@ namespace YetaWF.Core.Site {
             }
         }
 
+        [Category("Pages"), Caption("Allow Static Pages"), Description("Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't changed can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using their StaticPage property")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool StaticPages { get; set; }
+
         [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through web.config - typically used for debugging (can only be set using web.config)")]
         [UIHint("Boolean")]
         public bool DEBUGMODE {
@@ -630,7 +635,6 @@ namespace YetaWF.Core.Site {
         public Guid PageEditingServices { get { return PageEditingServicesFallback; } }
 
         public Guid PageEditingServicesFallback { get { return new Guid("{FBB3C6D3-FBD2-4ab1-BF0E-8716F3D1B052}"); } }// PageEdit module
-
     }
 }
 

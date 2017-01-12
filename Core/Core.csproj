@@ -103,8 +103,10 @@
     <Compile Include="Models\Attributes\AreaValidationAttribute.cs" />
     <Compile Include="Models\Attributes\ProcessIfAttribute.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
+    <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
+    <Compile Include="Support\StaticPages\StaticPageManager.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Templates\RecaptchaV2.cs" />

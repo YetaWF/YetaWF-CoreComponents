@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Web.Mvc;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {

@@ -25,6 +25,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support.Repository;
+using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Support {
@@ -771,6 +772,21 @@ namespace YetaWF.Core.Support {
         }
         private AddOnManager _addOnManager = null;
 
+        /// <summary>
+        /// Static page manager.
+        /// </summary>
+        /// <remarks>
+        /// User to manager a site's static pages. Only allocated if static pages are used.
+        /// </remarks>
+        public StaticPageManager StaticPageManager {
+            get {
+                if (_staticPageManager == null)
+                    _staticPageManager = new StaticPageManager(this);
+                return _staticPageManager;
+            }
+        }
+        private StaticPageManager _staticPageManager = null;
+
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
@@ -946,6 +962,11 @@ namespace YetaWF.Core.Support {
                 return string.Format("<title>{0}</title>", HtmlEncode(title ?? ""));
             }
         }
+        /// <summary>
+        /// Indicates whether the current page being rendered is actually rendered as a static page.
+        /// </summary>
+        /// <remarks>A page may be marked as a static page, but will only be rendered as a static page if there is no logged on user and if site settings permit static pages.</remarks>
+        public bool RenderStaticPage { get; set; }
 
         // MODULES
         // MODULES

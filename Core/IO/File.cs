@@ -26,7 +26,7 @@ namespace YetaWF.Core.IO {
         }
 
         private static string ValidChars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$^&()_-+={}[],.";
-        private static string FileExtension = ".dat";
+        public const string FileExtension = ".dat";
 
         public static string MakeValidFileName(string name) {
             return MakeValidFileSystemFileName(name) + FileExtension;

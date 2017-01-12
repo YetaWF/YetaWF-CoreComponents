@@ -35,6 +35,14 @@ namespace YetaWF.Core.Pages {
             [EnumDescription("Show With http:// Only")]
             httpOnly = 2,
         }
+        public enum StaticPageEnum {
+            [EnumDescription("No", "The page is always rendered with current data")]
+            No = 0,
+            [EnumDescription("Yes", "The page is a static page (internally saved as a file)")]
+            Yes = 1,
+            [EnumDescription("Yes, In Memory", "The page is a static page (internally saved in memory)")]
+            YesMemory = 2,
+        }
 
         public PageDefinition() {
             Temporary = true;
@@ -177,6 +185,9 @@ namespace YetaWF.Core.Pages {
         public DateTime Updated { get; set; }
 
         public PageSecurityType PageSecurity { get; set; }
+
+        [Data_NewValue("(0)")]
+        public StaticPageEnum StaticPage { get; set; }
 
         [StringLength(Globals.MaxUrl)]
         public string MobilePageUrl { get; set; }

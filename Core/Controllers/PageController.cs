@@ -13,6 +13,7 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Controllers {
@@ -221,6 +222,10 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Process the page
+            string pageData = null;
+            if (CanProcessAsStaticPage(uri.LocalPath, out pageData)) {
+                return Content(pageData, "text/html");
+            }
             switch (CanProcessAsDesignedPage(uri.LocalPath, uri.Query)) {
                 case ProcessingStatus.Complete:
                     return new EmptyResult();
@@ -263,7 +268,14 @@ namespace YetaWF.Core.Controllers {
             Page = 1, // Page has been set up
             Complete = 2,// no more processing is needed
         }
-
+        private bool CanProcessAsStaticPage(string localUrl, out string pageData) {
+            pageData = null;
+            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser) {
+                pageData = Manager.StaticPageManager.GetPage(localUrl);
+                return !string.IsNullOrWhiteSpace(pageData);
+            }
+            return false;
+        }
         private ProcessingStatus CanProcessAsDesignedPage(string url, string queryString) {
             // request for a designed page
             PageDefinition page = PageDefinition.LoadFromUrl(url);
@@ -424,6 +436,9 @@ namespace YetaWF.Core.Controllers {
             if (context == null)
                 throw new ArgumentNullException("context");
 
+            bool staticPage = Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
+            Manager.RenderStaticPage = staticPage;
+
             Manager.PageTitle = Manager.CurrentPage.Title;
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
@@ -440,6 +455,10 @@ namespace YetaWF.Core.Controllers {
             pageHtml = pageProc.PostProcessHtml(pageHtml);
             if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
                 pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
+
+            if (staticPage)
+                Manager.StaticPageManager.AddPage(Manager.CurrentPage.Url, Manager.CurrentPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml);
+
             context.HttpContext.Response.Output.Write(pageHtml);
         }
 
