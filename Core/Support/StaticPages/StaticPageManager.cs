@@ -55,8 +55,13 @@ namespace YetaWF.Core.Support.StaticPages {
             lock (LockObject) {
                 if (Sites == null) {
                     Sites = new Dictionary<int, SiteEntry>();
-                    // when initializing, make sure the folder exists and create a don't deploy marker
                     string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
+                    if (!YetaWFManager.Manager.Deployed) {
+                        // For debug,development mode (i.e., not deployed) we'll always delete all saved static pages
+                        // when restarting the site to avoid issues when switching between debug/release and javascript/css bundling
+                        Directory.Delete(folder, true);
+                    }
+                    // when initializing, make sure the folder exists and create a don't deploy marker
                     Directory.CreateDirectory(folder);
                     File.WriteAllText(Path.Combine(folder, "dontdeploy.txt"), "");
                 }
