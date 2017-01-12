@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
@@ -36,7 +37,13 @@ namespace YetaWF.Core.Support.StaticPages {
             public string LocalUrl { get; set; }
             public PageEntryEnum StorageType { get; set; }
             public string Content { get; set; }
+            public string ContentPopup { get; set; }
+            public string ContentHttps { get; set; }
+            public string ContentPopupHttps { get; set; }
             public string FileName { get; set; }
+            public string FileNamePopup { get; set; }
+            public string FileNameHttps { get; set; }
+            public string FileNamePopupHttps { get; set; }
         }
         public StaticPageManager(YetaWFManager manager) {
             Manager = manager;
@@ -66,56 +73,114 @@ namespace YetaWF.Core.Support.StaticPages {
         private void RetrieveStaticPages(SiteEntry site) {
             string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
             if (Directory.Exists(folder)) {
-                string[] files = Directory.GetFiles(folder, "*" + FileData.FileExtension);
-                foreach (string file in files) {
-                    string localName = Path.GetFileNameWithoutExtension(file);
-                    string localUrl = FileData.ExtractNameFromFileName(localName);
-                    site.StaticPages.Add(localUrl, new StaticPages.StaticPageManager.PageEntry {
-                        LocalUrl = localUrl,
-                        StorageType = PageEntryEnum.Unknown,
-                        FileName = file,
-                    });
-                }
+                string[] files = Directory.GetFiles(folder, "http#*" + FileData.FileExtension);
+                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileName = fileName; }); }
+                files = Directory.GetFiles(folder, "https#*" + FileData.FileExtension);
+                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileNameHttps = fileName; }); }
+                files = Directory.GetFiles(folder, "http_popup#*" + FileData.FileExtension);
+                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileNamePopup = fileName; }); }
+                files = Directory.GetFiles(folder, "https_popup#*" + FileData.FileExtension);
+                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileNamePopupHttps = fileName; }); }
             }
         }
 
+        private void SaveFile(SiteEntry site, string file, Action<PageEntry, string> setFileName) {
+            string localName = file.RemoveEndingAtIncluding('#');
+            localName = Path.GetFileNameWithoutExtension(localName);
+            string localUrl = FileData.ExtractNameFromFileName(localName);
+            string localUrlLower = localUrl.ToLower();
+            PageEntry entry;
+            if (!site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                entry = new StaticPages.StaticPageManager.PageEntry {
+                    LocalUrl = localUrl,
+                    StorageType = PageEntryEnum.Unknown,
+                };
+                site.StaticPages.Add(localUrlLower, entry);
+            }
+            setFileName(entry, file);
+        }
         public List<PageEntry> GetSiteStaticPages() {
             InitSite();
             List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
             return list;
         }
-
         public void AddPage(string localUrl, bool cache, string pageHtml) {
             InitSite();
             string localUrlLower = localUrl.ToLower();
             string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-            string tempFile = Path.Combine(folder, FileData.MakeValidFileName(localUrl));
-            lock (Site.StaticPages) {
-                Site.StaticPages.Remove(localUrlLower);
-                if (cache) {
-                    Site.StaticPages.Add(localUrlLower, new PageEntry {
-                        LocalUrl = localUrl,
-                        Content = pageHtml,
-                        FileName = tempFile,
-                        StorageType = PageEntryEnum.Memory,
-                    });
+
+            string tempFile;
+            if (Manager.CurrentRequest.Url.Scheme == "https") {
+                if (Manager.IsInPopup) {
+                    tempFile = "https_popup#";
                 } else {
-                    Site.StaticPages.Add(localUrlLower, new PageEntry {
-                        LocalUrl = localUrl,
-                        Content = null,
-                        FileName = tempFile,
-                        StorageType = PageEntryEnum.File,
-                    });
+                    tempFile = "https#";
                 }
+            } else {
+                if (Manager.IsInPopup) {
+                    tempFile = "http_popup#";
+                } else {
+                    tempFile = "http#";
+                }
+            }
+            tempFile = Path.Combine(folder, tempFile + FileData.MakeValidFileName(localUrl));
+            lock (Site.StaticPages) {
+                PageEntry entry;
+                if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                    entry = new StaticPages.StaticPageManager.PageEntry {
+                        LocalUrl = localUrl,
+                    };
+                    Site.StaticPages.Add(localUrlLower, entry);
+                }
+                if (cache) {
+                    entry.StorageType = PageEntryEnum.Memory;
+                    SetContents(entry, pageHtml);
+                } else {
+                    entry.StorageType = PageEntryEnum.File;
+                    SetContents(entry, null);
+                }
+                SetFileName(entry, tempFile);
             }
             // save the file image
             File.WriteAllText(tempFile, pageHtml);
         }
+
+        private void SetFileName(PageEntry entry, string tempFile) {
+            if (Manager.CurrentRequest.Url.Scheme == "https") {
+                if (Manager.IsInPopup) {
+                    entry.FileNamePopupHttps = tempFile;
+                } else {
+                    entry.FileNameHttps = tempFile;
+                }
+            } else {
+                if (Manager.IsInPopup) {
+                    entry.FileNamePopup = tempFile;
+                } else {
+                    entry.FileName = tempFile;
+                }
+            }
+        }
+
+        private void SetContents(PageEntry entry, string pageHtml) {
+            if (Manager.CurrentRequest.Url.Scheme == "https") {
+                if (Manager.IsInPopup) {
+                    entry.ContentPopupHttps = pageHtml;
+                } else {
+                    entry.ContentHttps = pageHtml;
+                }
+            } else {
+                if (Manager.IsInPopup) {
+                    entry.ContentPopup = pageHtml;
+                } else {
+                    entry.Content = pageHtml;
+                }
+            }
+        }
         public string GetPage(string localUrl) {
             InitSite();
-            localUrl = localUrl.ToLower();
+            string localUrlLower = localUrl.ToLower();
             PageEntry entry = null;
-            if (Site.StaticPages.TryGetValue(localUrl, out entry)) {
+            if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
                 if (entry.StorageType == PageEntryEnum.Unknown) {
                     // Found an entry where a file exists but we don't know the storage type
                     // not technically thread safe, but ok even if two perform this at the same time, last one wins
@@ -124,20 +189,44 @@ namespace YetaWF.Core.Support.StaticPages {
                         entry.StorageType = PageEntryEnum.File;
                         if (page.StaticPage == PageDefinition.StaticPageEnum.YesMemory) {
                             try {
-                                entry.Content = File.ReadAllText(entry.FileName);
+                                SetContents(entry, File.ReadAllText(entry.FileName));
                                 entry.StorageType = PageEntryEnum.Memory;
-                                return entry.Content;
                             } catch (System.Exception) { }
                         }
                     } else {
-                        Site.StaticPages.Remove(localUrl);
+                        Site.StaticPages.Remove(localUrlLower);
                         return null;
                     }
                 }
                 if (entry.StorageType == PageEntryEnum.Memory) {
-                    return entry.Content;
+                    if (Manager.CurrentRequest.Url.Scheme == "https") {
+                        if (Manager.IsInPopup) {
+                            return entry.ContentPopupHttps;
+                        } else {
+                            return entry.ContentHttps;
+                        }
+                    } else {
+                        if (Manager.IsInPopup) {
+                            return entry.ContentPopup;
+                        } else {
+                            return entry.Content;
+                        }
+                    }
                 } else /*if (entry.StorageType == PageEntryEnum.File)*/ {
-                    string tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, FileData.MakeValidFileName(localUrl));
+                    string tempFile = null;
+                    if (Manager.CurrentRequest.Url.Scheme == "https") {
+                        if (Manager.IsInPopup) {
+                            tempFile = entry.FileNamePopupHttps;
+                        } else {
+                            tempFile = entry.FileNameHttps;
+                        }
+                    } else {
+                        if (Manager.IsInPopup) {
+                            tempFile = entry.FileNamePopup;
+                        } else {
+                            tempFile = entry.FileName;
+                        }
+                    }
                     try {
                         return File.ReadAllText(tempFile);
                     } catch (System.Exception) {
@@ -149,12 +238,17 @@ namespace YetaWF.Core.Support.StaticPages {
         }
         public void RemovePage(string localUrl) {
             InitSite();
-            localUrl = localUrl.ToLower();
+            string localUrlLower = localUrl.ToLower();
             lock (Site.StaticPages) {
-                Site.StaticPages.Remove(localUrl);
-                string tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, FileData.MakeValidFileName(localUrl));
-                if (File.Exists(tempFile))
-                    File.Delete(tempFile);
+                Site.StaticPages.Remove(localUrlLower);
+                string tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http#" + FileData.MakeValidFileName(localUrl));
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+                tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https#" + FileData.MakeValidFileName(localUrl));
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+                tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http_popup#" + FileData.MakeValidFileName(localUrl));
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+                tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https_popup#" + FileData.MakeValidFileName(localUrl));
+                if (File.Exists(tempFile)) File.Delete(tempFile);
             }
         }
         public void RemoveAllPages() {

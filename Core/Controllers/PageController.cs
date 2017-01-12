@@ -270,7 +270,11 @@ namespace YetaWF.Core.Controllers {
         }
         private bool CanProcessAsStaticPage(string localUrl, out string pageData) {
             pageData = null;
-            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser) {
+            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers) {
+                if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
+                    // we're going into a popup for this
+                    Manager.IsInPopup = true;
+                }
                 pageData = Manager.StaticPageManager.GetPage(localUrl);
                 return !string.IsNullOrWhiteSpace(pageData);
             }
