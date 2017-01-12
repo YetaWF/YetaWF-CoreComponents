@@ -59,7 +59,8 @@ namespace YetaWF.Core.Support.StaticPages {
                     if (!YetaWFManager.Manager.Deployed) {
                         // For debug,development mode (i.e., not deployed) we'll always delete all saved static pages
                         // when restarting the site to avoid issues when switching between debug/release and javascript/css bundling
-                        Directory.Delete(folder, true);
+                        if (Directory.Exists(folder))
+                            Directory.Delete(folder, true);
                     }
                     // when initializing, make sure the folder exists and create a don't deploy marker
                     Directory.CreateDirectory(folder);
