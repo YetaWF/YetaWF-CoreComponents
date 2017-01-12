@@ -40,9 +40,9 @@ namespace YetaWF.Core.Models.Attributes {
             if (filterContext == null) {
                 throw new ArgumentNullException("filterContext");
             }
-            if (!Manager.HaveUser && Manager.CurrentSite.StaticPages)
+            if (!Manager.HaveUser && Manager.CurrentSite.StaticPages) {
                 ; // don't validate AntiForgeryToken when we use static pages and have an anonymous user
-            else
+            } else
                 ValidateAction();
         }
     }
