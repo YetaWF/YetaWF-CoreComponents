@@ -24,6 +24,17 @@ namespace YetaWF.Core.Extensions {
             if (ix < 0) return text;
             return text.Truncate(ix);
         }
+        public static string RemoveEndingAt(this string text, char c) {
+            int ix = text.IndexOf(c);
+            if (ix < 0) return text;
+            return text.Substring(ix);
+        }
+        public static string RemoveEndingAtIncluding(this string text, char c) {
+            int ix = text.IndexOf(c);
+            if (ix < 0) return text;
+            if (ix >= text.Length) return "";
+            return text.Substring(ix + 1);
+        }
         public static string ReplaceFirst(this string text, string search, string replace) {
             int index = text.IndexOf(search);
             if (index < 0) return text;
