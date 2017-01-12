@@ -101,6 +101,50 @@
               </Properties>
             </Object>
           </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="YetaWF.Core.Pages.PageDefinition+StaticPageEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="No" />
+                            <Value Value="No" />
+                            <Caption Value="No" />
+                            <Description Value="The page is always rendered with current data" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Yes" />
+                            <Value Value="Yes" />
+                            <Caption Value="Yes" />
+                            <Description Value="The page is a static page (internally saved as a file)" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="YesMemory" />
+                            <Value Value="YesMemory" />
+                            <Caption Value="Yes, In Memory" />
+                            <Description Value="The page is a static page (internally saved in memory)" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
         </List>
       </Object>
     </Enums>

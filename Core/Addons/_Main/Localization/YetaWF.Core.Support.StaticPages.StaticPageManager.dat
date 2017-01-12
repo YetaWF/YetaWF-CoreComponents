@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--YetaWF.Core.Localize.LocalizationData-->
+<Object Type="YetaWF.Core.Localize.LocalizationData" Assembly="YetaWF.Core">
+  <Properties>
+    <Comment />
+    <Classes>
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+        <Properties />
+        <List />
+      </Object>
+    </Classes>
+    <Enums>
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+        <Properties />
+        <List>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="YetaWF.Core.Support.StaticPages.StaticPageManager+PageEntryEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="File" />
+                            <Value Value="File" />
+                            <Caption Value="File" />
+                            <Description Value="Static pages cached using a local file" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Memory" />
+                            <Value Value="Memory" />
+                            <Caption Value="Memory" />
+                            <Description Value="Static pages cached in memory" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Unknown" />
+                            <Value Value="Unknown" />
+                            <Caption Value="Undetermined" />
+                            <Description Value="Cached static page found in a local file, but may be cached in memory once loaded" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
+        </List>
+      </Object>
+    </Enums>
+    <Strings>
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+        <Properties />
+        <List />
+      </Object>
+    </Strings>
+  </Properties>
+</Object>

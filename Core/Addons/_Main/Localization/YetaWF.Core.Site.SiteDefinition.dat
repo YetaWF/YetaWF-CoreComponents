@@ -819,6 +819,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="StaticPages" />
+                            <Caption Value="Allow Static Pages" />
+                            <Description Value="Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't changed can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property)" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="SyntaxHighlighterSkin" />
                             <Caption Value="Default Syntax Highlighter Skin" />
                             <Description Value="The default skin for syntax highlighting (in text areas) - individual pages can override the default skin" />
