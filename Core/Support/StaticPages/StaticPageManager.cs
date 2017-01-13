@@ -54,8 +54,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     Sites = new Dictionary<int, SiteEntry>();
                     string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
                     // when restarting the site, remove all saved static pages
-                    if (Directory.Exists(folder))
-                        Directory.Delete(folder, true);
+                    RemoveAllPages();
                     Directory.CreateDirectory(folder);
                     // create a don't deploy marker
                     File.WriteAllText(Path.Combine(folder, "dontdeploy.txt"), "");
