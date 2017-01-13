@@ -41,16 +41,6 @@
                           </Properties>
                         </Object>
                       </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="Unknown" />
-                            <Value Value="Unknown" />
-                            <Caption Value="Undetermined" />
-                            <Description Value="Cached static page found in a local file, but may be cached in memory once loaded" />
-                          </Properties>
-                        </Object>
-                      </Value>
                     </List>
                   </Object>
                 </Entries>
