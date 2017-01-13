@@ -372,6 +372,8 @@ namespace YetaWF.Core.Modules {
         public void Save() {
             if (Temporary) throw new InternalError("Temporary modules cannot be saved");
             SaveModuleDefinition(this, DataProvider);
+            List<PageDefinition> pages = PageDefinition.GetPagesFromModule(ModuleGuid);
+            YetaWFManager.Manager.StaticPageManager.RemovePages(pages);
         }
         // Used to update properties before a module is saved
         public virtual void ModuleSaving() { }

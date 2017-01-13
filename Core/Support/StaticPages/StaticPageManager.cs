@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using YetaWF.Core.IO;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Pages;
 
 namespace YetaWF.Core.Support.StaticPages {
 
@@ -202,6 +203,11 @@ namespace YetaWF.Core.Support.StaticPages {
                 tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https_popup#" + FileData.MakeValidFileName(localUrl));
                 if (File.Exists(tempFile)) File.Delete(tempFile);
             }
+        }
+        public void RemovePages(List<PageDefinition> pages) {
+            if (pages == null) return;
+            foreach (PageDefinition page in pages)
+                RemovePage(page.Url);
         }
         public void RemoveAllPages() {
             InitSite();
