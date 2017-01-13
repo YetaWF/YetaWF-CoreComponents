@@ -13,7 +13,6 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Controllers {
