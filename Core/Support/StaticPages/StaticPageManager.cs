@@ -57,7 +57,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     RemoveAllPages();
                     Directory.CreateDirectory(folder);
                     // create a don't deploy marker
-                    File.WriteAllText(Path.Combine(folder, "dontdeploy.txt"), "");
+                    File.WriteAllText(Path.Combine(folder, Globals.DontDeployMarker), "");
                 }
                 SiteEntry site;
                 if (!Sites.TryGetValue(Manager.CurrentSite.Identity, out site)) {

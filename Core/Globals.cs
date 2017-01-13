@@ -57,6 +57,8 @@ namespace YetaWF.Core {
         public const string UpgradeLogFile = "UpgradeLogFile.txt"; // log file created during YetaWF upgrade
         public const string PackageMap = "PackageMap.txt";// currently installed packages
 
+        public const string DontDeployMarker = "dontdeploy.txt"; // if seen in a folder, its files will not be deployed by CopySite
+
         public const string DefaultCurrencyFormat = "$ #,0.00";
 
         // Url parts

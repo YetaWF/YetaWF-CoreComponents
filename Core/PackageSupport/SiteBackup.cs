@@ -45,6 +45,8 @@ namespace YetaWF.Core.Packages {
                 // create backup file in backup folder
                 string backupFolder = Path.Combine(Manager.SiteFolder, BackupFolder);
                 Directory.CreateDirectory(backupFolder);
+                // create a don't deploy marker
+                File.WriteAllText(Path.Combine(backupFolder, Globals.DontDeployMarker), "");
 
                 string tempFolder = Path.Combine(backupFolder, Path.GetRandomFileName());
                 Directory.CreateDirectory(tempFolder);
