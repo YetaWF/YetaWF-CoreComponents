@@ -3,10 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Pages;
 
 namespace YetaWF.Core.Support.StaticPages {
 
@@ -26,8 +24,6 @@ namespace YetaWF.Core.Support.StaticPages {
             File = 0,
             [EnumDescription("Memory", "Static pages cached in memory")]
             Memory = 1,
-            [EnumDescription("Undetermined", "Cached static page found in a local file, but may be cached in memory once loaded")]
-            Unknown = 99, // Unknown storage type, update once a page is retrieved
         }
         public class SiteEntry {
             public int SiteIdentity { get; set; }
@@ -56,55 +52,22 @@ namespace YetaWF.Core.Support.StaticPages {
                 if (Sites == null) {
                     Sites = new Dictionary<int, SiteEntry>();
                     string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-                    if (!YetaWFManager.Manager.Deployed) {
-                        // For debug,development mode (i.e., not deployed) we'll always delete all saved static pages
-                        // when restarting the site to avoid issues when switching between debug/release and javascript/css bundling
-                        if (Directory.Exists(folder))
-                            Directory.Delete(folder, true);
-                    }
-                    // when initializing, make sure the folder exists and create a don't deploy marker
+                    // when restarting the site, remove all saved static pages
+                    if (Directory.Exists(folder))
+                        Directory.Delete(folder, true);
                     Directory.CreateDirectory(folder);
+                    // create a don't deploy marker
                     File.WriteAllText(Path.Combine(folder, "dontdeploy.txt"), "");
                 }
                 SiteEntry site;
                 if (!Sites.TryGetValue(Manager.CurrentSite.Identity, out site)) {
                     site = new SiteEntry { SiteIdentity = Manager.CurrentSite.Identity, StaticPages = new Dictionary<string, StaticPages.StaticPageManager.PageEntry>() };
                     Sites.Add(Manager.CurrentSite.Identity, site);
-                    RetrieveStaticPages(site);
                 }
                 Site = site;
             }
         }
 
-        private void RetrieveStaticPages(SiteEntry site) {
-            string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-            if (Directory.Exists(folder)) {
-                string[] files = Directory.GetFiles(folder, "http#*" + FileData.FileExtension);
-                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileName = fileName; }); }
-                files = Directory.GetFiles(folder, "https#*" + FileData.FileExtension);
-                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileNameHttps = fileName; }); }
-                files = Directory.GetFiles(folder, "http_popup#*" + FileData.FileExtension);
-                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileNamePopup = fileName; }); }
-                files = Directory.GetFiles(folder, "https_popup#*" + FileData.FileExtension);
-                foreach (string file in files) { SaveFile(site, file, (entry, fileName) => { entry.FileNamePopupHttps = fileName; }); }
-            }
-        }
-
-        private void SaveFile(SiteEntry site, string file, Action<PageEntry, string> setFileName) {
-            string localName = file.RemoveEndingAtIncluding('#');
-            localName = Path.GetFileNameWithoutExtension(localName);
-            string localUrl = FileData.ExtractNameFromFileName(localName);
-            string localUrlLower = localUrl.ToLower();
-            PageEntry entry;
-            if (!site.StaticPages.TryGetValue(localUrlLower, out entry)) {
-                entry = new StaticPages.StaticPageManager.PageEntry {
-                    LocalUrl = localUrl,
-                    StorageType = PageEntryEnum.Unknown,
-                };
-                site.StaticPages.Add(localUrlLower, entry);
-            }
-            setFileName(entry, file);
-        }
         public List<PageEntry> GetSiteStaticPages() {
             InitSite();
             List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
@@ -187,23 +150,6 @@ namespace YetaWF.Core.Support.StaticPages {
             string localUrlLower = localUrl.ToLower();
             PageEntry entry = null;
             if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
-                if (entry.StorageType == PageEntryEnum.Unknown) {
-                    // Found an entry where a file exists but we don't know the storage type
-                    // not technically thread safe, but ok even if two perform this at the same time, last one wins
-                    PageDefinition page = PageDefinition.LoadPageDefinitionByUrl(localUrl);
-                    if (page != null) {
-                        entry.StorageType = PageEntryEnum.File;
-                        if (page.StaticPage == PageDefinition.StaticPageEnum.YesMemory) {
-                            try {
-                                SetContents(entry, File.ReadAllText(entry.FileName));
-                                entry.StorageType = PageEntryEnum.Memory;
-                            } catch (System.Exception) { }
-                        }
-                    } else {
-                        Site.StaticPages.Remove(localUrlLower);
-                        return null;
-                    }
-                }
                 if (entry.StorageType == PageEntryEnum.Memory) {
                     if (Manager.CurrentRequest.Url.Scheme == "https") {
                         if (Manager.IsInPopup) {
