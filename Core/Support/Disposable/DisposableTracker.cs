@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -53,7 +54,11 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        public static Dictionary<object, TrackedEntry> GetDisposableObjects() { return DisposableObjects; }
+        public static List<TrackedEntry> GetDisposableObjects() {
+            lock (_lock) {
+                return (from d in DisposableObjects.Values select d).ToList();// return a copy
+            }
+        }
 
         private static string GetCallStack() {
             StringBuilder sb = new StringBuilder();
