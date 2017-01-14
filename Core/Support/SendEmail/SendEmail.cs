@@ -93,7 +93,7 @@ namespace YetaWF.Core.SendEmail {
                 if (string.IsNullOrEmpty(server))
                     throw new Error(this.__ResStr("errMailServer", "No mail server specified."));
 
-                if (string.IsNullOrEmpty(toEmail) || Manager.CurrentSite.EmailDebug) // force email address)
+                if (string.IsNullOrEmpty(toEmail) || Manager.CurrentSite.EmailDebug || !Manager.Deployed) // force email address)
                     toEmail = Manager.CurrentSite.AdminEmail;
                 if (string.IsNullOrEmpty(toEmail))
                     throw new Error(this.__ResStr("errNoRecv", "No receiving email address specified - The site administrator's email address is used as receiving email address - The site administrator's email address can be defined using the Site Properties"));
