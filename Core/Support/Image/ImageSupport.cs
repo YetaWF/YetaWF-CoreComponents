@@ -35,38 +35,7 @@ namespace YetaWF.Core.Image {
         }
 
     }
-
-    public class ImageSupport : IScheduling, IInstallableModel, IDisposable {
-
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-
-        public const char ImageSeparator = '#'; // anything after this is ignored (and usually used to defeat client side caching)
-        // note that is separator is used in the Url's name= argument and is encoded so it's NOT mistaken as the # anchor
-        // so don't use # for Url cache busting as that will clearly not work - use __yVrs={YetaWFManager.CacheBuster} in a Url
-        // # was mistakenly used for a while in urls which caused a rewrite for css,js,etc. - stupid
-        // # is only used to encode a cache buster WITHIN the image name (not used by YetaWF itself)
-
-        public delegate bool GetImageInBytes(string name, string location, out byte[] content);
-        public delegate bool GetImageAsFile(string name, string location, out string file);
-
-        public class ImageHandlerEntry {
-            public string Type { get; set; }
-            public GetImageInBytes GetBytes { get; set; }
-            public GetImageAsFile GetFilePath { get; set; }
-        }
-
-        public ImageSupport() {
-            DisposableTracker.AddObject(this);
-        }
-
-        public static void AddHandler(string type, GetImageInBytes GetBytes = null, GetImageAsFile GetAsFile = null) {
-            HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetBytes = GetBytes, GetFilePath = GetAsFile });
-        }
-
-        public static List<ImageHandlerEntry> HandlerEntries = new List<ImageHandlerEntry>();
-
-        protected virtual void Dispose(bool disposing) { if (disposing) DisposableTracker.RemoveObject(this); }
-        public void Dispose() { Dispose(true); }
+    public class ImageSupportScheduling : IScheduling {
 
         // IScheduling
         // IScheduling
@@ -96,6 +65,39 @@ namespace YetaWF.Core.Image {
             FileUpload fileUpload = new FileUpload();
             fileUpload.RemoveAllExpiredTempFiles(evnt.Frequency.GetTimeSpan());
         }
+    }
+
+    public class ImageSupport : IInstallableModel, IDisposable {
+
+        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
+        public const char ImageSeparator = '#'; // anything after this is ignored (and usually used to defeat client side caching)
+        // note that the separator is used in the Url's name= argument and is encoded so it's NOT mistaken as the # anchor
+        // so don't use # for Url cache busting as that will clearly not work - use __yVrs={YetaWFManager.CacheBuster} in a Url
+        // # was mistakenly used for a while in urls which caused a rewrite for css,js,etc. - stupid
+        // # is only used to encode a cache buster WITHIN the image name (not used by YetaWF itself)
+
+        public delegate bool GetImageInBytes(string name, string location, out byte[] content);
+        public delegate bool GetImageAsFile(string name, string location, out string file);
+
+        public class ImageHandlerEntry {
+            public string Type { get; set; }
+            public GetImageInBytes GetBytes { get; set; }
+            public GetImageAsFile GetFilePath { get; set; }
+        }
+
+        public ImageSupport() {
+            DisposableTracker.AddObject(this);
+        }
+
+        public static void AddHandler(string type, GetImageInBytes GetBytes = null, GetImageAsFile GetAsFile = null) {
+            HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetBytes = GetBytes, GetFilePath = GetAsFile });
+        }
+
+        public static List<ImageHandlerEntry> HandlerEntries = new List<ImageHandlerEntry>();
+
+        protected virtual void Dispose(bool disposing) { if (disposing) DisposableTracker.RemoveObject(this); }
+        public void Dispose() { Dispose(true); }
 
         // IINSTALLABLEMODEL (used so we can install the scheduler events)
         // IINSTALLABLEMODEL
