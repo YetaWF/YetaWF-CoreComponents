@@ -32,12 +32,12 @@ namespace YetaWF.Core.Support {
             // ipAddress = "123.125.71.33";
 #endif
             UserInfo info = Manager.SessionSettings.SiteSettings.GetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo");
-            if (info == null)
+            if (info == null) {
                 info = GetUserInfo(ipAddress);
-
-            // save what we got in session storage so we don't need to retrieve it again
-            Manager.SessionSettings.SiteSettings.SetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo", info);
-            Manager.SessionSettings.SiteSettings.Save();
+                // save what we got in session storage so we don't need to retrieve it again
+                Manager.SessionSettings.SiteSettings.SetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo", info);
+                Manager.SessionSettings.SiteSettings.Save();
+            }
             return info;
         }
 

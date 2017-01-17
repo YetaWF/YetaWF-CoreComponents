@@ -35,9 +35,10 @@ namespace YetaWF.Core.Views.Shared {
             if (!url.IsAbsoluteUrl()) {
                 string file = YetaWFManager.UrlToPhysical(url);
                 try {
-                    System.Drawing.Image img = System.Drawing.Image.FromFile(file);
-                    tImg.MergeAttribute("width", img.Width.ToString());
-                    tImg.MergeAttribute("height", img.Height.ToString());
+                    //PERFORMANCE: This is a significant hit on performance
+                    //System.Drawing.Image img = System.Drawing.Image.FromFile(file);
+                    //tImg.MergeAttribute("width", img.Width.ToString());
+                    //tImg.MergeAttribute("height", img.Height.ToString());
                     url += "?__yVrs=" + (File.GetLastWriteTime(file).Ticks / TimeSpan.TicksPerSecond).ToString();
                 } catch { }
             }

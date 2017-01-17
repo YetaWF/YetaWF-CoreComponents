@@ -8,6 +8,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Support.Serializers {
+
+    //PERFORMANCE: serializing/deserializing is a significant hit on performance. RESEARCH: Alternatives
+
     /// <summary>
     /// General serializer/deserializer
     /// </summary>
