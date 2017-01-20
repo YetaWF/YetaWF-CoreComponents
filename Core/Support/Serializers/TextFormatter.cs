@@ -449,7 +449,7 @@ skip: ;
 
                 MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
                 if (mi == null)
-                    throw new InternalError("Dictionary type {0} doesn't implementend the required void Add(object,object) method.", tpObj.Name);
+                    throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method.", tpObj.Name);
                 try {
                     mi.Invoke(obj, new object[] { objKey, objVal });
                 } catch (Exception exc) {
@@ -478,7 +478,7 @@ skip: ;
 
                 MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
                 if (mi == null)
-                    throw new InternalError("List type {0} doesn't implementend the required void Add(object,object) method.", tpObj.Name);
+                    throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method.", tpObj.Name);
                 try {
                     mi.Invoke(obj, new object[] { objVal });
                 } catch (Exception exc) {
