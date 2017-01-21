@@ -157,15 +157,17 @@ namespace YetaWF.Core.Serializers {
 
             if (o == null) return;
             Type tp = o.GetType();
+#if DEBUG
             if (tp.IsAbstract)
                 throw new InternalError("Abstract property??? {0} is not serializable.", tp.FullName);
+            if (tp.IsInterface)
+                throw new InternalError("Interface {0} is not serializable.", tp.FullName);
+#endif
             if (tp == typeof(Byte[])) {
                 if (o != null)
                     xmlOut.WriteAttributeString("Value", Convert.ToBase64String((byte[])o));
             } else if (tp.IsArray) {
                 SerializeObjectProperties(xmlOut, o);
-            } else if (tp.IsInterface) {
-                throw new InternalError("Interface {0} is not serializable.", tp.FullName);
             } else if (tp.IsEnum) {
                 string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
                 if (val != null)
