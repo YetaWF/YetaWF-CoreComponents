@@ -19,6 +19,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Menus;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -1242,10 +1243,13 @@ namespace YetaWF.Core.Support {
             }
         }
         public void SetSuperUserRole(bool isSuperUser) {
-            if (CurrentSession != null) {
+            bool hasRole = HasSuperUserRole;
+            if (hasRole != isSuperUser) {
+                if (!HaveCurrentSession) return;
                 CurrentSession[Globals.Session_Superuser] = null;
                 if (isSuperUser)
                     CurrentSession[Globals.Session_Superuser] = "I am/was a superuser";// this is set once we see a superuser. Even if logged off, the session value remains
+                MenuList.ClearCachedMenus();
             }
         }
 
