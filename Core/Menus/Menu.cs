@@ -36,12 +36,15 @@ namespace YetaWF.Core.Menus {
         public static void ClearCachedMenus() {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             string prefix = string.Format("{0}_MenuCache_{1}_", package.AreaName, Manager.CurrentSite.Identity);
+            List<string> keys = new List<string>();
             foreach (string name in Manager.CurrentSession.Keys) {
-                if (name.StartsWith(prefix)) {
-                    try {
-                        Manager.CurrentSession.Remove(name);
-                    } catch (Exception) { }
-                }
+                if (name.StartsWith(prefix))
+                    keys.Add(name);
+            }
+            foreach (string name in keys) {
+                try {
+                    Manager.CurrentSession.Remove(name);
+                } catch (Exception) { }
             }
         }
 
