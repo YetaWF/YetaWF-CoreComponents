@@ -239,8 +239,10 @@ namespace YetaWF.Core.Localize {
             if (detailed) {
                 return string.Format(__ResStr("strFmtKBdet", "{0:##,0} Bytes"), value);
             } else {
+                if (value < 0)
+                    return __ResStr("unknownKB", "(unknown)");
                 if (value > 0 && value < 1024)
-                    return "< 1K";
+                    return __ResStr("less1KB", "< 1K");
                 if (value > 1024*1024*10) // 10 MB
                     return LongMBDisplay(value, detailed);
                 return string.Format(__ResStr("strFmtKB", "{0} KB"), (long)((value + 512)/1024));
