@@ -28,17 +28,21 @@ namespace YetaWF.Core.Menus {
             return string.Format("{0}_MenuCache_{1}_{2}", package.AreaName, Manager.CurrentSite.Identity, moduleGuid);
         }
         public static void SetCache(Guid moduleGuid, SavedCacheInfo cacheInfo) {
-            Manager.SessionSettings.SiteSettings.SetValue<MenuList.SavedCacheInfo>(GetCacheName(moduleGuid), cacheInfo);
-            Manager.SessionSettings.SiteSettings.Save();
+            Manager.CurrentSession[GetCacheName(moduleGuid)] = cacheInfo;
         }
         public static SavedCacheInfo GetCache(Guid moduleGuid) {
-            return Manager.SessionSettings.SiteSettings.GetValue<MenuList.SavedCacheInfo>(GetCacheName(moduleGuid));
+            return (SavedCacheInfo)Manager.CurrentSession[GetCacheName(moduleGuid)];
         }
         public static void ClearCachedMenus() {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             string prefix = string.Format("{0}_MenuCache_{1}_", package.AreaName, Manager.CurrentSite.Identity);
-            Manager.SessionSettings.SiteSettings.ClearAllStartingWith(prefix);
-            Manager.SessionSettings.SiteSettings.Save();
+            foreach (string name in Manager.CurrentSession.Keys) {
+                if (name.StartsWith(prefix)) {
+                    try {
+                        Manager.CurrentSession.Remove(name);
+                    } catch (Exception) { }
+                }
+            }
         }
 
         // MENU
