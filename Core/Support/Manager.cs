@@ -1326,7 +1326,7 @@ namespace YetaWF.Core.Support {
                                     url = CurrentSite.CDNUrl + url;
                                     url = url.TruncateStart("http:");
                                 } else {
-                                    if (!string.IsNullOrWhiteSpace(CurrentSite.CDNUrlSecure))
+                                    if (CurrentSite.HaveCDNUrlSecure)
                                         // we err on the side of using https when page security is Any
                                         url = CurrentSite.CDNUrlSecure + url;
                                     else
@@ -1334,7 +1334,7 @@ namespace YetaWF.Core.Support {
                                 }
                                 break;
                             case PageDefinition.PageSecurityType.httpsOnly:
-                                if (!string.IsNullOrWhiteSpace(CurrentSite.CDNUrlSecure)) {
+                                if (CurrentSite.HaveCDNUrlSecure) {
                                     url = CurrentSite.CDNUrlSecure + url;
                                     url = url.TruncateStart("https:");
                                 } else {
@@ -1344,7 +1344,10 @@ namespace YetaWF.Core.Support {
                                 break;
                         }
                     } else {
-                        url = CurrentSite.CDNUrl + url;
+                        if (CurrentSite.HaveCDNUrlSecure) // if we don't have a page, assume https
+                            url = CurrentSite.CDNUrlSecure + url;
+                        else
+                            url = CurrentSite.CDNUrl + url;
                     }
                 }
             }
