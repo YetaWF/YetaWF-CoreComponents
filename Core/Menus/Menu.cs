@@ -12,6 +12,11 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Menus {
 
+    public interface IModuleMenu {
+        MenuList GetMenu();
+        void SaveMenu(MenuList newMenu);
+    }
+
     [Serializable]
     public class MenuList : SerializableList<ModuleAction> {
 
@@ -22,6 +27,7 @@ namespace YetaWF.Core.Menus {
             public MenuList Menu { get; set; }
             public bool EditMode { get; set; }
             public int UserId { get; set; }
+            public long MenuVersion { get; set; }
         }
         private static string GetCacheName(Guid moduleGuid) {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
@@ -53,9 +59,6 @@ namespace YetaWF.Core.Menus {
         public MenuList() { }
         public MenuList(SerializableList<ModuleAction> val) : base(val) { }
         public MenuList(List<ModuleAction> val) : base(val) { }
-
-        public Guid Version { get; set; }
-        public void NewVersion() { Version = Guid.NewGuid(); }
 
         public void New(ModuleAction action, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
             if (action != null) {
@@ -421,7 +424,6 @@ namespace YetaWF.Core.Menus {
             }
             menu = new MenuList(DropEmptySubmenus(menu));
             menu.UpdateIds();
-            menu.Version = this.Version;
             return menu;
         }
         private static SerializableList<ModuleAction> DropEmptySubmenus(SerializableList<ModuleAction> menu) {
