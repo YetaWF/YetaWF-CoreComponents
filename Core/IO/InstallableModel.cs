@@ -49,4 +49,10 @@ namespace YetaWF.Core.IO {
         /// <param name="obj"></param>
         void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj);
     }
+    public interface IInstallableModel2 {
+        /// <summary>
+        /// Upgrades all required files/folders/SQL data from lastSeenVersion to current package version.
+        /// </summary>
+        bool UpgradeModel(List<string> errorList, string lastSeenVersion);
+    }
 }

@@ -13,7 +13,7 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        public bool InstallModels(List<string> errorList) {
+        public bool InstallModels(List<string> errorList, string lastSeenVersion = null) {
 
             bool success = true;
 
@@ -33,6 +33,15 @@ namespace YetaWF.Core.Packages {
                     success = false;
             }
 
+            // perform data upgrade
+            if (!string.IsNullOrWhiteSpace(lastSeenVersion)) {
+                models = InstallableModels;
+                foreach (Type type in models) {
+                    if (!UpgradeOneType(errorList, type, lastSeenVersion))
+                        success = false;
+                }
+            }
+
             // Install all scheduler items
             try {
                 SchedulerSupport.Install(this);
@@ -40,6 +49,21 @@ namespace YetaWF.Core.Packages {
                 errorList.Add(exc.Message);
             }
             return success;
+        }
+
+        private static bool UpgradeOneType(List<string> errorList, Type type, string lastSeenVersion) {
+            bool success = true;
+            object instMod = Activator.CreateInstance(type);
+            using ((IDisposable)instMod) {
+                if (instMod as IInstallableModel2 != null) {
+                    IInstallableModel2 model = (IInstallableModel2)instMod;
+                    List<string> list = new List<string>();
+                    if (!model.UpgradeModel(list, lastSeenVersion))
+                        success = false;
+                    errorList.AddRange(list);
+                }
+                return success;
+            }
         }
 
         private static bool InstallOneType(List<string> errorList, Type type) {

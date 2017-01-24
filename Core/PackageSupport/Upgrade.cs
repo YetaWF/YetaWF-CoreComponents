@@ -121,11 +121,13 @@ namespace YetaWF.Core.Packages {
                     int cmp = Package.CompareVersion(lastSeenVersion, package.Version);
                     if (cmp < 0) {
                         // upgraded package
-                        if (string.IsNullOrWhiteSpace(lastSeenVersion))
+                        if (string.IsNullOrWhiteSpace(lastSeenVersion)) {
                             Logging.AddLog("Installing package {0} {1}", package.Name, package.Version);
-                        else
+                            InstallPackage(package);
+                        } else {
                             Logging.AddLog("Upgrading package {0} from {1} to {2}", package.Name, lastSeenVersion, package.Version);
-                        InstallPackage(package);
+                            InstallPackage(package, lastSeenVersion);
+                        }
                     } else if (cmp > 0) {
                         // Woah, you can't downgrade
                         throw new InternalError("Found package {0},{1} which is a lower version than the previous version {2}", package.Name, package.Version, lastSeenVersion);
@@ -199,10 +201,10 @@ namespace YetaWF.Core.Packages {
         /// Creates/updates models for one package
         /// </summary>
         /// <param name="package"></param>
-        private static void InstallPackage(Package package) {
+        private static void InstallPackage(Package package, string lastSeenVersion = null) {
             Logging.AddLog("Creating/updating {0}", package.Name);
             List<string> errorList = new List<string>();
-            if (!package.InstallModels(errorList)) {
+            if (!package.InstallModels(errorList, lastSeenVersion)) {
                 ScriptBuilder sb = new ScriptBuilder();
                 sb.Append(__ResStr("cantInstallModels", "Can't install models for package {0}:(+nl)"), package.Name);
                 sb.Append(errorList, LeadingNL: true);
