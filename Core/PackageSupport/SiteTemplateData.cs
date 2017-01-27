@@ -44,6 +44,8 @@ namespace YetaWF.Core.Packages {
             "YetaWF.TinyLogin",
             "YetaWF.UserSettings",
             "YetaWF.Visitors",
+
+            "YetaWF.BusinessCasualSkin"
         };
 
         public void MakeSiteTemplateData() {
