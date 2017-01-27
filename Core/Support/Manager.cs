@@ -816,7 +816,8 @@ namespace YetaWF.Core.Support {
 
         public string UserHostAddress {
             get {
-                return CurrentRequest.UserHostAddress;
+                if (!HaveCurrentRequest) return "";
+                return CurrentRequest.UserHostAddress ?? "";
             }
         }
         public NameValueCollection RequestQueryString {
