@@ -216,7 +216,7 @@ namespace YetaWF.Core.Views {
             }
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-            hb.Append(htmlHelper.AntiForgeryToken().ToString());
+            hb.Append(htmlHelper.AntiForgeryToken());
             hb.Append(htmlHelper.Hidden(Basics.ModuleGuid, module.ModuleGuid));
             hb.Append(htmlHelper.Hidden(Forms.UniqueIdPrefix, Manager.UniqueIdPrefix));
 
