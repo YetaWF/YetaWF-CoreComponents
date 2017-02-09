@@ -338,11 +338,11 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         public bool Compression { get; set; }
 
-        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether styleheets (CSS files) are automatically compressed and saved the first time they are used (Yes). Otherwise, stylesheets are not compressed and remain unchanged (No)")]
+        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether stylesheets (CSS files) are automatically compressed and saved the first time they are used (Yes). Otherwise, stylesheets are not compressed and remain unchanged (No)")]
         [UIHint("Boolean")]
         public bool CompressCSSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether styleheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
+        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
         [UIHint("Boolean")]
         public bool BundleCSSFiles { get; set; }
 
