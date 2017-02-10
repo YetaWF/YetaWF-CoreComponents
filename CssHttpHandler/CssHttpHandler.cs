@@ -106,8 +106,6 @@ namespace YetaWF.Core.HttpHandler {
             string wh = manager.RequestForm[Globals.Link_CharInfo];
             if (wh == null)
                 wh = manager.RequestQueryString[Globals.Link_CharInfo];
-            if (wh == null)
-                wh = manager.RequestParams[Globals.Link_CharInfo];
             if (!string.IsNullOrWhiteSpace(wh)) {
                 string[] parts = wh.Split(new char[] { ',' });
                 width = Convert.ToInt32(parts[0]);

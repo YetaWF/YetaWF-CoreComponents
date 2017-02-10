@@ -62,7 +62,7 @@ namespace YetaWF.Core.Views {
             }
             return fullName;
         }
-        public static RouteValueDictionary AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+        public static IDictionary<string,object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary) htmlAttributes;
             return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
         }

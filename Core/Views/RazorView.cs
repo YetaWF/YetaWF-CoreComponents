@@ -139,7 +139,7 @@ namespace YetaWF.Core.Views {
             _viewName = actionName;
             _model = Model;
 
-            RouteValueDictionary rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
+            IDictionary<string,object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
             if (SaveReturnUrl)
                 rvd.Add(Basics.CssSaveReturnUrl, "");
             rvd.Add("class", Forms.CssFormAjax);

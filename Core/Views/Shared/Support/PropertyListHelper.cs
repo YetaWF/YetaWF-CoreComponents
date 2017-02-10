@@ -470,7 +470,7 @@ namespace YetaWF.Core.Views.Shared {
         public static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
             if (model == null) return;
             Type modelType = model.GetType();
-            if (ModelState.Keys.Count == 0) return;
+            if (ModelState.Keys.Count() == 0) return;
             List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
             foreach (var prop in props) {
                 if (!ModelState.Keys.Contains(prefix + prop.Name)) {

@@ -826,9 +826,6 @@ namespace YetaWF.Core.Support {
         public NameValueCollection RequestForm {
             get { return CurrentRequest.Form; }
         }
-        public NameValueCollection RequestParams {
-            get { return CurrentRequest.Params; }
-        }
         public bool HaveCurrentContext { get { return HttpContext.Current != null; } }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpContext CurrentContext {

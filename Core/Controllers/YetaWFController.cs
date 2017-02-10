@@ -99,8 +99,6 @@ namespace YetaWF.Core.Controllers {
                 toPopup = Manager.RequestForm[Globals.Link_ToPopup];
                 if (toPopup == null)
                     toPopup = Manager.RequestQueryString[Globals.Link_ToPopup];
-                if (toPopup == null)
-                    toPopup = Manager.RequestParams[Globals.Link_ToPopup];
             } catch (Exception) { }
             return toPopup != null;
         }
@@ -110,8 +108,6 @@ namespace YetaWF.Core.Controllers {
                 inPopup = Manager.RequestForm[Globals.Link_InPopup];
                 if (inPopup == null)
                     inPopup = Manager.RequestQueryString[Globals.Link_InPopup];
-                if (inPopup == null)
-                    inPopup = Manager.RequestParams[Globals.Link_InPopup];
             } catch (Exception) { }
             return inPopup != null;
         }
@@ -121,8 +117,6 @@ namespace YetaWF.Core.Controllers {
                 pageControlShown = Manager.RequestForm[Globals.Link_ShowPageControlKey];
                 if (pageControlShown == null)
                     pageControlShown = Manager.RequestQueryString[Globals.Link_ShowPageControlKey];
-                if (pageControlShown == null)
-                    pageControlShown = Manager.RequestParams[Globals.Link_ShowPageControlKey];
             } catch (Exception) { }
             return pageControlShown != null;
         }
@@ -132,8 +126,6 @@ namespace YetaWF.Core.Controllers {
                 wh = Manager.RequestForm[Globals.Link_CharInfo];
                 if (wh == null)
                     wh = Manager.RequestQueryString[Globals.Link_CharInfo];
-                if (wh == null)
-                    wh = Manager.RequestParams[Globals.Link_CharInfo];
             } catch (Exception) { }
             int width = 0, height = 0;
             if (!string.IsNullOrWhiteSpace(wh)) {
@@ -169,8 +161,6 @@ namespace YetaWF.Core.Controllers {
                 originList = Manager.RequestForm[Globals.Link_OriginList];
                 if (originList == null)
                     originList = Manager.RequestQueryString[Globals.Link_OriginList];
-                if (originList == null)
-                    originList = Manager.RequestParams[Globals.Link_OriginList];
             } catch (Exception) { }
             if (!string.IsNullOrWhiteSpace(originList))
                 return YetaWFManager.Jser.Deserialize<List<Origin>>(originList);

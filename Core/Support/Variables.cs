@@ -204,7 +204,7 @@ namespace YetaWF.Core.Support {
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
                     } else if (loc == "QueryString" || loc == "QS") {
                         if (!string.IsNullOrWhiteSpace(var)) {
-                            ret = Manager.RequestParams[var];
+                            ret = Manager.RequestQueryString[var];
                             return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
                         }
                     } else if (loc == "Session") {
