@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Mvc;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Identity {
 
@@ -42,7 +44,11 @@ namespace YetaWF.Core.Identity {
         public string Name { get; private set; }
 
         protected override bool AuthorizeCore(HttpContextBase httpContext) {
-            return Resource.ResourceAccess.IsResourceAuthorized(Name);
+            if (!Resource.ResourceAccess.IsResourceAuthorized(Name)) {
+                // Don't challenge a resource as there is no alternative
+                throw new Error(this.__ResStr("notAuth", "Not Authorized"));
+            }
+            return true;
         }
     }
 

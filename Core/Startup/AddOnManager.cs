@@ -276,19 +276,5 @@ namespace YetaWF.Core.Addons {
             // make a copy in case the invoked modules try to register additional modules (which are then ignored)
             return (from a in _AddedInvokedCssModules select a).ToList();
         }
-
-        /// <summary>
-        /// Read a file
-        /// </summary>
-        public System.Web.Mvc.MvcHtmlString GetFile(string path, object replacements = null) {
-            string file = "";
-            try {
-                file = File.ReadAllText(YetaWFManager.UrlToPhysical(path));
-            } catch (System.Exception) {  }
-            RouteValueDictionary replacementList = YetaWFManager.AnonymousObjectToRVD(replacements);
-            foreach (var entry in replacementList)
-                file = file.Replace("$"+entry.Key+"$", entry.Value.ToString());
-            return System.Web.Mvc.MvcHtmlString.Create(file);
-        }
     }
 }
