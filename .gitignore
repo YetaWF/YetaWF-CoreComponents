@@ -7,6 +7,7 @@
 *.xml
 
 globals.js
+**/project.lock.json
 
 !Core/NSass.Wrapper/*.dll
 
