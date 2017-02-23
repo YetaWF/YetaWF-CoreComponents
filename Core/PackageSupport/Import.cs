@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Support;
@@ -46,6 +47,11 @@ namespace YetaWF.Core.Packages {
 
                 File.Delete(xmlFile);
 
+                if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
+                    errorList.Add(string.Format(__ResStr("invCore", "This package was built for {0}, but this site is running {1}",
+                        YetaWFManager.GetAspNetMvcName(serPackage.AspNetMvcVersion), YetaWFManager.GetAspNetMvcName(YetaWFManager.AspNetMvc))));
+                    return false;
+                }
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serPackage.CoreVersion) < 0) {
                     errorList.Add(string.Format(__ResStr("invCore", "This package requires YetaWF version {0} - Current version found is {1}"), serPackage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return false;
@@ -91,7 +97,7 @@ namespace YetaWF.Core.Packages {
                             errorList.Add(__ResStr("errPackageType", "Unsupported package type {0}", serPackage.PackageType));
                             return true;
                     }
-                    sourcePath = Path.Combine(YetaWFManager.RootFolder, "..", sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
+                    sourcePath = Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                     try {
                         Directory.Delete(sourcePath, true);
                     } catch (Exception exc) {
@@ -112,7 +118,12 @@ namespace YetaWF.Core.Packages {
                         return false;
                     }
                 }
-                string viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+                string viewsPath;
+#if MVC6
+                viewsPath = Path.Combine(YetaWFManager.RootFolderSolution, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+#else
+                viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+#endif
                 try {
                     Directory.Delete(Path.Combine(viewsPath), true);
                 } catch (Exception exc) {
@@ -122,18 +133,50 @@ namespace YetaWF.Core.Packages {
                     }
                 }
 
-                // bin files
+                // copy bin files to website
                 {
-                    string tempBin = Path.Combine(YetaWFManager.RootFolder, "bin", "temp", serPackage.PackageDomain, serPackage.PackageProduct);
+                    // copy bin files to a temporary location
+                    string tempBin = Path.Combine(YetaWFManager.RootFolderSolution, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct);
                     foreach (var file in serPackage.BinFiles) {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(tempBin, ExtractExistingFileAction.OverwriteSilently);
                     }
-                    CopyVersionedFiles(tempBin, YetaWFManager.RootFolder);
-                    try {// try to delete all dirs up to bin/temp if empty (ignore any errors)
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolder, "bin", "temp", serPackage.PackageDomain, serPackage.PackageProduct), true);
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolder, "bin", "temp", serPackage.PackageDomain));
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolder, "bin", "temp"));
+                    // copy bin files to required location
+#if MVC6
+                    // find out if this is a source system or bin system (determined by location of YetaWF.Core.dll)
+                    if (File.Exists(Path.Combine(YetaWFManager.RootFolderSolution, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
+                        // Published (w/o source by definition)
+                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net462");
+                        CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderSolution));
+                        CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderSolution, "refs"));
+                    } else {
+                        // Dev (with or without source code)
+                        bool copied = false;
+                        string binPath;
+                        binPath = Path.Combine(YetaWFManager.RootFolderSolution, "bin", "Debug", "net462", "win7-x64");
+                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net462");
+                        if (Directory.Exists(binPath)) {
+                            CopyVersionedFiles(sourceBin, binPath);
+                            copied = true;
+                        }
+                        binPath = Path.Combine(YetaWFManager.RootFolderSolution, "bin", "Release", "net462", "win7-x64");
+                        if (Directory.Exists(binPath)) {
+                            CopyVersionedFiles(sourceBin, binPath);
+                            copied = true;
+                        }
+                        if (!copied) {
+                            if (!hasSource)
+                                throw new Error("Package import ({0}) failed because the target location {1} doesn't exist. Packages", serPackage.PackageName, binPath);
+                        }
+                    }
+#else
+                    string sourceBin = Path.Combine(tempBin, "bin");
+                    CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolder, "Bin"));
+#endif
+                    try {// try to delete all dirs up to and including tempbin if empty (ignore any errors)
+                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderSolution, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct), true);
+                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderSolution, "tempbin", serPackage.PackageDomain));
+                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderSolution, "tempbin"));
                     } catch (Exception) { }
                 }
 
@@ -160,6 +203,7 @@ namespace YetaWF.Core.Packages {
                         e.Extract(sourcePath, ExtractExistingFileAction.OverwriteSilently);
                     }
 
+#if NOTNEEDED // this is automatically created when the site restarts
                     // Create symlink/junction from web to project addons
                     string from = addonsPath;
                     string to = Path.Combine(sourcePath, Globals.AddOnsFolder);
@@ -170,7 +214,7 @@ namespace YetaWF.Core.Packages {
                     to = Path.Combine(sourcePath, Globals.ViewsFolder);
                     if (!CreatePackageSymLink(from, to))
                         errorList.Add(__ResStr("errSymlink", "Couldn't create symbolic link/junction from {0} to {1} - You will have to investigate the failure and manually create the link using:(+nl)mklink /D \"{0}\",\"{1}\"", from, to));
-
+#endif
                     errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when it's rebuilt using Visual Studio."));
                 }
             } catch (Exception exc) {
@@ -203,6 +247,7 @@ namespace YetaWF.Core.Packages {
                 return; // no need to copy, target modified date/time > source modified
             File.Copy(sourceFile, targetFile, true);
         }
+
         public static bool CreatePackageSymLink(string from, string to) {
             //RESEARCH:  SE_CREATE_SYMBOLIC_LINK_NAME
             // secpol.msc

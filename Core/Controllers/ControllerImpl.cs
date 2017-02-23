@@ -2,18 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
-using System.Web.Routing;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -21,9 +15,26 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Threading.Tasks;
+using YetaWF.Core.Pages;
+#else
+using System.IO;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Mvc.Html;
+using System.Web.Routing;
+using YetaWF.Core.Log;
+#endif
 
 namespace YetaWF.Core.Controllers {
-
     public class ControllerImpl<TMod> : ControllerImpl where TMod : ModuleDefinition {
 
         // MODULE PROPERTIES
@@ -184,18 +195,19 @@ namespace YetaWF.Core.Controllers {
 
         public string GetActionUrl(string actionName, object args = null) {
             string url = "/" + Area + "/" + ControllerName + "/" + actionName;
-            if (args != null) {
-                string qs = YetaWFManager.GetQueryStringFromAnonymousObject(args);
-                if (qs != null)
-                    url = url + "?" + qs.ToString();
-            }
-            return url;
+            QueryHelper query = QueryHelper.FromAnonymousObject(args);
+            return query.ToUrl(url);
         }
 
         // CONTROLLER
         // CONTROLLER
         // CONTROLLER
 
+#if MVC6
+        //TODO: verify
+        //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/response
+        //https://damienbod.com/2015/09/15/asp-net-5-action-filters/
+#else
         protected override void OnResultExecuting(ResultExecutingContext filterContext) {
             // THIS SUPPRESSES CACHING
             // RESEARCH: Use OutputCache for actions that can be cached
@@ -208,38 +220,75 @@ namespace YetaWF.Core.Controllers {
 
             base.OnResultExecuting(filterContext);
         }
+#endif
 
+#if MVC6
+        // There doesn't appear to be any equivalent functionality in MVC6
+        // We'll just say the page doesn't exist - this is only useful in development, otherwise who cares which action doesn't exist
+#else
         protected override void HandleUnknownAction(string actionName) {
             //base.HandleUnknownAction(actionName);
             string error = __ResStr("errUnknownAction", "Unknown action {0} attempted in Controller {1}.", actionName, GetType().FullName);
             Logging.AddErrorLog(error);
             throw new HttpException(404, error);
         }
-
+#endif
+#if MVC6
+        public override void OnActionExecuting(ActionExecutingContext filterContext) {
+#else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
+#endif
             base.OnActionExecuting(filterContext);
 
-            string url = HttpContext.Request.Url.ToString();
             if (Manager.IsPostRequest) {
                 // Request for a module
                 // Make sure we have all necessary information
                 // otherwise, we'll try to invoke a controller directly
                 // find the module handling this request (saved as hidden field in Form)
-                object moduleGuid = HttpContext.Request.Form[Basics.ModuleGuid];
+                object moduleGuid = null;
+#if MVC6
+                if (HttpContext.Request.HasFormContentType)
+                    moduleGuid = HttpContext.Request.Form[Basics.ModuleGuid];
+#else
+                moduleGuid = HttpContext.Request.Form[Basics.ModuleGuid];
+#endif
                 if (moduleGuid == null) {
+#if MVC6
+                    moduleGuid = HttpContext.Request.Query[Basics.ModuleGuid];
+#else
                     moduleGuid = HttpContext.Request.QueryString[Basics.ModuleGuid];
+#endif
                     if (moduleGuid == null)
-                        throw new InternalError("Missing {0} hidden field for POST request Url {1}", Basics.ModuleGuid, url);
+                        throw new InternalError("Missing {0} hidden field for POST request Url {1}", Basics.ModuleGuid, Manager.CurrentRequestUrl);
                 }
                 // find the unique Id prefix (saved as hidden field in Form)
-                string uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
-                if (string.IsNullOrEmpty(uniqueIdPrefix))
+                string uniqueIdPrefix = null;
+#if MVC6
+                if (HttpContext.Request.HasFormContentType)
+                    uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
+#else
+                uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
+#endif
+                if (string.IsNullOrEmpty(uniqueIdPrefix)) {
+#if MVC6
+                    uniqueIdPrefix = HttpContext.Request.Query[Forms.UniqueIdPrefix];
+#else
                     uniqueIdPrefix = HttpContext.Request.QueryString[Forms.UniqueIdPrefix];
+#endif
+                }
                 if (!string.IsNullOrEmpty(uniqueIdPrefix))
                     Manager.UniqueIdPrefix = uniqueIdPrefix;
             }
-
-            MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            Type ctrlType;
+            string actionName;
+#if MVC6
+            ctrlType = filterContext.Controller.GetType();
+            actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+#else
+            ctrlType = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
+            actionName = filterContext.ActionDescriptor.ActionName;
+#endif
+            MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
             // check if the action is authorized by checking the module's authorization
             string level = null;
             PermissionAttribute permAttr = (PermissionAttribute) Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
@@ -248,7 +297,11 @@ namespace YetaWF.Core.Controllers {
             ModuleDefinition mod = GetModule();
             if (!mod.IsAuthorized(level)) {
                 if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
+#if MVC6
+                    filterContext.Result = new UnauthorizedResult();
+#else
                     filterContext.Result = new HttpUnauthorizedResult();
+#endif
                 } else {
                     // We get here if an action is attempted that the user is not authorized for
                     // we could attempt to capture and redirect to user login, whatevz
@@ -259,12 +312,22 @@ namespace YetaWF.Core.Controllers {
 
             // action is about to start - if this is a postback or ajax request, we'll clean up parameters
             if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
-                if (filterContext.ActionParameters != null) {
+#if MVC6
+                IDictionary<string,object> parms = filterContext.ActionArguments;
+#else
+                IDictionary<string,object> parms = filterContext.ActionParameters;
+#endif
+                if (parms != null) {
                     // remove leading/trailing spaces based on TrimAttribute for properties
                     // and update ModelState for RequiredIfxxx attributes
+#if MVC6
+                    Controller controller = (Controller)filterContext.Controller;
+                    ViewDataDictionary viewData = controller.ViewData;
+#else
                     ViewDataDictionary viewData = filterContext.Controller.ViewData;
+#endif
                     ModelStateDictionary modelState = viewData.ModelState;
-                    foreach (var parm in filterContext.ActionParameters) {
+                    foreach (var parm in parms) {
                         FixArgumentParmTrim(parm.Value);
                         FixArgumentParmCase(parm.Value);
                         FixDates(parm.Value);
@@ -273,19 +336,27 @@ namespace YetaWF.Core.Controllers {
 
                     // translate any xxx.JSON properties to native objects
                     if (modelState.IsValid)
-                        ReplaceJSONParms(filterContext.ActionParameters);
+                        ReplaceJSONParms(parms);
 
                     // if we have a template action, search parameters for templates with actions and execute it
                     if (modelState.IsValid) {
-                        string templateName = HttpContext.Request.Form[Basics.TemplateName];
-                        if (!string.IsNullOrWhiteSpace(templateName)) {
-                            string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
-                            string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
-                            foreach (var parm in filterContext.ActionParameters) {
-                                if (SearchTemplate(templateName, actionValStr, actionExtraStr, parm))
-                                    break;
+#if MVC6
+                        if (HttpContext.Request.HasFormContentType) {
+#else
+#endif
+                            string templateName = HttpContext.Request.Form[Basics.TemplateName];
+                            if (!string.IsNullOrWhiteSpace(templateName)) {
+                                string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                                string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                                foreach (var parm in parms) {
+                                    if (SearchTemplate(templateName, actionValStr, actionExtraStr, parm))
+                                        break;
+                                }
                             }
+#if MVC6
                         }
+#else
+#endif
                     }
                 }
             }
@@ -467,6 +538,17 @@ namespace YetaWF.Core.Controllers {
 
         // Replace JSON parms
         private void ReplaceJSONParms(IDictionary<string, object> actionParms) {
+#if MVC6
+            if (HttpContext.Request.HasFormContentType) {
+                foreach (var entry in HttpContext.Request.Form.Keys) {
+                    if (entry != null && entry.EndsWith("-JSON")) {
+                        string data = HttpContext.Request.Form[entry];
+                        string parmName = entry.Substring(0, entry.Length - 5);
+                        AddJSONParmData(actionParms, parmName, data);
+                    }
+                }
+            }
+#else
             foreach (var entry in HttpContext.Request.Form.AllKeys) {
                 if (entry != null && entry.EndsWith("-JSON")) {
                     string data = HttpContext.Request.Form[entry];
@@ -474,6 +556,7 @@ namespace YetaWF.Core.Controllers {
                     AddJSONParmData(actionParms, parmName, data);
                 }
             }
+#endif
         }
 
         private void AddJSONParmData(IDictionary<string, object> actionParms, string parmName, string jsonData) {
@@ -502,11 +585,16 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        // VIEW
+        // VIEW`
 
         // Invoke a view from a module controller
+        [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View() { throw new NotSupportedException(); }
+#if MVC6
+#else
+        [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View(IView view) { throw new NotSupportedException(); }
+#endif
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
         protected new ViewResult View(string viewName) {
             return View(viewName, UseAreaViewName: true);
@@ -515,22 +603,35 @@ namespace YetaWF.Core.Controllers {
         protected new ViewResult View(object model) {
             return View(model, UseAreaViewName: true);
         }
+#if MVC6
+#else
+        [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View(IView view, object model) { throw new NotSupportedException(); }
+#endif
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
         protected new ViewResult View(string viewName, object model) {
             return View(viewName, model, UseAreaViewName: true);
         }
+#if MVC6
+#else
+        [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
+        [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new virtual ViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
-
-
+#endif
         protected ViewResult View(string viewName, bool UseAreaViewName) {
             if (UseAreaViewName)
                 viewName = YetaWFController.MakeFullViewName(viewName, Area);
             return base.View(viewName);
         }
         protected ViewResult View(object model, bool UseAreaViewName) {
+#if MVC6
+            string viewName = (string)RouteData.Values["action"];
+            if (string.IsNullOrWhiteSpace(viewName))
+                throw new InternalError("Invalid action");
+#else
             string viewName = ControllerContext.RouteData.GetRequiredString("action");
+#endif
             if (UseAreaViewName)
                 viewName = YetaWFController.MakeFullViewName(viewName, Area);
             return base.View(viewName, model);
@@ -567,7 +668,10 @@ namespace YetaWF.Core.Controllers {
                 ViewName = viewName,
                 ViewData = ViewData,
                 TempData = TempData,
+#if MVC6
+#else
                 ViewEngineCollection = ViewEngineCollection,
+#endif
                 Module = GetModule(),
                 Script = Script,
                 ContentType = ContentType,
@@ -575,36 +679,74 @@ namespace YetaWF.Core.Controllers {
                 AreaViewName = AreaViewName,
             };
         }
+#if MVC6
+        public class PartialViewResult : Microsoft.AspNetCore.Mvc.PartialViewResult {
+#else
         public class PartialViewResult : System.Web.Mvc.PartialViewResult {
+#endif
 
             protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
             private const string DefaultContentType = "text/html";
-
+#if MVC6
             public PartialViewResult() { }
-
+#else
+            public PartialViewResult() { }
+#endif
             public ModuleDefinition Module { get; set; }
             public ScriptBuilder Script { get; set; }
+#if MVC6
+#else
             public string ContentType { get; set; }
+#endif
             public bool PureContent { get; set; }
             public bool AreaViewName { get; set; }
 
             private static readonly Regex reEndDiv = new Regex(@"</\s*div\s*>\s*$"); // very last div
 
+#if MVC6
+            public override async Task ExecuteResultAsync(ActionContext context) {
+#else
             public override void ExecuteResult(ControllerContext context) {
-
+#endif
                 Manager.Verify_AjaxRequest();
 
                 if (context == null)
                     throw new ArgumentNullException("context");
-                if (String.IsNullOrEmpty(ViewName))
+                if (String.IsNullOrEmpty(ViewName)) {
+#if MVC6
+                    ViewName = (string)context.RouteData.Values["action"];
+                    if (string.IsNullOrWhiteSpace(ViewName))
+                        throw new InternalError("Invalid action");
+#else
                     ViewName = context.RouteData.GetRequiredString("action");
-
+#endif
+                }
                 if (AreaViewName)
                     ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
 
+#if MVC6
+                HttpResponse response = context.HttpContext.Response;
+#else
+                HttpResponseBase response = context.HttpContext.Response;
+#endif
+                if (!string.IsNullOrEmpty(ContentType))
+                    response.ContentType = ContentType;
+
+                string viewHtml;
+#if MVC6
+                bool inPartialView = Manager.InPartialView;
+                Manager.InPartialView = true;
+                try {
+                    IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
+                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, Model, PostRender);
+                } catch (Exception) {
+                    throw;
+                } finally {
+                    Manager.InPartialView = inPartialView;
+                }
+#else
                 ViewEngineResult viewEngine = null;
-                string viewHtml = "";
 
                 if (View == null) {
                     viewEngine = FindView(context);
@@ -616,32 +758,63 @@ namespace YetaWF.Core.Controllers {
                 StringWriter sw = new StringWriter(sb);
                 ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
                 IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
-                HtmlHelper helper = new HtmlHelper(vc, vdc);
-
-                var response = context.HttpContext.Response;
-                if (!string.IsNullOrEmpty(ContentType))
-                    response.ContentType = ContentType;
+                HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
 
                 bool inPartialView = Manager.InPartialView;
                 Manager.InPartialView = true;
                 try {
-                    viewHtml = helper.Partial(base.ViewName, Model).ToString();
+                    viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
                 } catch (Exception) {
-                    Manager.InPartialView = inPartialView;
                     throw;
+                } finally {
+                    Manager.InPartialView = inPartialView;
                 }
-                Manager.InPartialView = inPartialView;
 
+                viewHtml = PostRender(htmlHelper, context, viewHtml);
+#endif
+#if MVC6
+                byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
+                await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
+#else
+                response.Output.Write(viewHtml);
+
+                if (viewEngine != null)
+                    viewEngine.ViewEngine.ReleaseView(context, View);
+#endif
+            }
+
+#if MVC6
+#else
+            private class ViewDataContainer : IViewDataContainer {
+                public ViewDataDictionary ViewData { get; set; }
+            }
+#endif
+
+#if MVC6
+            private string PostRender(IHtmlHelper htmlHelper, ActionContext context, string viewHtml)
+#else
+            private string PostRender(HtmlHelper htmlHelper, ControllerContext context, string viewHtml)
+#endif
+            {
+#if MVC6
+                HttpResponse response = context.HttpContext.Response;
+#else
+                HttpResponseBase response = context.HttpContext.Response;
+#endif
                 // if the controller specified a content type, only return the exact response
                 // if the controller didn't specify a content type and the content type is text/html, add all the other goodies
-                if (!PureContent && string.IsNullOrEmpty(ContentType) && response.ContentType == DefaultContentType) {
+#if MVC6
+                if (!PureContent && string.IsNullOrEmpty(ContentType) && (response.ContentType == null || response.ContentType == DefaultContentType))
+#else
+                if (!PureContent && string.IsNullOrEmpty(ContentType) && response.ContentType == DefaultContentType)
+#endif
+                {
 
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
-                    if (Manager.CurrentPage!= null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
+                    if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Module.ReferencedModules);
-                    viewHtml = viewHtml + helper.RenderReferencedModule_Ajax().ToString();
-
-                    viewHtml = YetaWF.Core.Views.RazorView.PostProcessViewHtml(helper, Module, viewHtml);
+                    viewHtml = viewHtml + htmlHelper.RenderReferencedModule_Ajax().ToString();
+                    viewHtml = YetaWF.Core.Views.RazorViewExtensions.PostProcessViewHtml(htmlHelper, Module, viewHtml);
 
                     Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
                     viewHtml = vars.ReplaceVariables(viewHtml);// variable substitution
@@ -661,14 +834,7 @@ namespace YetaWF.Core.Controllers {
                     if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
                         viewHtml = WhiteSpaceResponseFilter.Compress(Manager, viewHtml);
                 }
-                response.Output.Write(viewHtml);
-
-                if (viewEngine != null)
-                    viewEngine.ViewEngine.ReleaseView(context, View);
-            }
-
-            private class ViewDataContainer : IViewDataContainer {
-                public ViewDataDictionary ViewData { get; set; }
+                return viewHtml;
             }
         }
 
@@ -729,13 +895,13 @@ namespace YetaWF.Core.Controllers {
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
                 sb.Append(Basics.AjaxJavascriptReloadPage);
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             } else {
                 popupText = YetaWFManager.Jser.Serialize(popupText);
                 popupTitle = YetaWFManager.Jser.Serialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
                 sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }});", popupText, popupTitle);
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             }
         }
         private ActionResult Reload_Module(object model, string popupText, string popupTitle) {
@@ -743,13 +909,13 @@ namespace YetaWF.Core.Controllers {
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
                 sb.Append(Basics.AjaxJavascriptReloadModule);
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             } else {
                 popupText = YetaWFManager.Jser.Serialize(popupText);
                 popupTitle = YetaWFManager.Jser.Serialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
                 sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadModule(); }});", popupText, popupTitle);
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             }
         }
         private ActionResult Reload_ModuleParts(object model, string popupText, string popupTitle) {
@@ -757,13 +923,13 @@ namespace YetaWF.Core.Controllers {
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
                 sb.Append(Basics.AjaxJavascriptReloadModuleParts);
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             } else {
                 popupText = YetaWFManager.Jser.Serialize(popupText);
                 popupTitle = YetaWFManager.Jser.Serialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReloadModuleParts);
                 sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             }
         }
 
@@ -772,9 +938,13 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <returns></returns>
         protected ActionResult NotAuthorized() {
-            if (Manager.IsAjaxRequest || Manager.IsPostRequest)
+            if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
+#if MVC6
+                return new UnauthorizedResult();
+#else
                 return new HttpUnauthorizedResult();
-            else
+#endif
+            } else
                 return View("ShowMessage", __ResStr("nothAuth", "You are not authorized to access this module - {0}", GetType().FullName), UseAreaViewName: false);
         }
 
@@ -979,7 +1149,7 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
             }
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
 
         // REDIRECT
@@ -1030,7 +1200,11 @@ namespace YetaWF.Core.Controllers {
                     // send code to activate the new popup
                     // the assumption is we're in a postback and we have to find out whether to use http or https for the popup
                     // if we're on a page with https: the popup must also be https: otherwise the browser will have a fit
+#if MVC6
+                    if (Manager.CurrentRequest.IsHttps) {
+#else
                     if (Manager.CurrentRequest.IsSecureConnection) {
+#endif
                         if (url.StartsWith("//") || url.IsHttps()) {
                             // good
                         } else if (url.IsHttp()) {
@@ -1056,7 +1230,7 @@ namespace YetaWF.Core.Controllers {
                     else
                         sb.Append("window.location.assign({0});", url);
                 }
-                return new JsonResult { Data = sb.ToString() };
+                return new YJsonResult { Data = sb.ToString() };
             } else {
                 return base.Redirect(url);
             }
@@ -1071,7 +1245,7 @@ namespace YetaWF.Core.Controllers {
 
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(Basics.AjaxJavascriptReturn);
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
 
         // DATA BINDING
@@ -1085,6 +1259,13 @@ namespace YetaWF.Core.Controllers {
         /// <param name="modelName">The model name (always "Module").</param>
         /// <returns>The bound object of the specified type.</returns>
         protected object GetObjectFromModel(Type objType, string modelName) {
+#if MVC6
+            object obj = Activator.CreateInstance(objType);
+            if (obj == null)
+                throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
+            bool result = TryUpdateModelAsync(obj, objType, modelName).Result;
+#else
+            //$$$MVC5 TEST Above with mvc5
             Type parameterType = objType;
             IModelBinder binder = Binders.GetBinder(parameterType);
             IValueProvider valueProvider = ValueProvider;
@@ -1098,14 +1279,14 @@ namespace YetaWF.Core.Controllers {
                 PropertyFilter = propertyFilter,
                 ValueProvider = valueProvider
             };
+            object obj = binder.BindModel(ControllerContext, bindingContext);
+#endif
+            if (obj != null) {
+                FixArgumentParmTrim(obj);
+                FixArgumentParmCase(obj);
+                FixDates(obj);
 
-            object o = binder.BindModel(ControllerContext, bindingContext);
-            if (o != null) {
-                FixArgumentParmTrim(o);
-                FixArgumentParmCase(o);
-                FixDates(o);
-
-                PropertyListSupport.CorrectModelState(o, ViewData.ModelState, modelName + ".");
+                PropertyListSupport.CorrectModelState(obj, ViewData.ModelState, modelName + ".");
 
                 // translate any xxx.JSON properties to native objects (There is no use case for this)
                 //if (ViewData.ModelState.IsValid)
@@ -1117,11 +1298,11 @@ namespace YetaWF.Core.Controllers {
                     if (!string.IsNullOrWhiteSpace(templateName)) {
                         string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
                         string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
-                        SearchTemplateArgument(templateName, actionValStr, actionExtraStr, o);
+                        SearchTemplateArgument(templateName, actionValStr, actionExtraStr, obj);
                     }
                 }
             }
-            return o;
+            return obj;
         }
     }
 }

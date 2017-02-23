@@ -19,17 +19,17 @@ namespace YetaWF.Core.Support {
         private class BuiltinCommandEntry {
             public string Command { get; set; }
             public string Resource { get; set; }
-            public Action<NameValueCollection> Callback { get; set; }
+            public Action<QueryHelper> Callback { get; set; }
         }
         private class BuiltinCommandDictionary : Dictionary<string, BuiltinCommandEntry> { }
 
         private static BuiltinCommandDictionary Commands = new BuiltinCommandDictionary { };
 
-        public static void Add(string url, string resourceName, Action<NameValueCollection> func) {
+        public static void Add(string url, string resourceName, Action<QueryHelper> func) {
             Commands.Add(url, new BuiltinCommandEntry { Command = url.ToLower(), Resource = resourceName, Callback = func });
         }
 
-        public static Action<NameValueCollection> Find(string url, bool checkAuthorization = true) {
+        public static Action<QueryHelper> Find(string url, bool checkAuthorization = true) {
             BuiltinCommandEntry entry;
             // find the built-in command
             if (!Commands.TryGetValue(url.ToLower(), out entry)) return null;

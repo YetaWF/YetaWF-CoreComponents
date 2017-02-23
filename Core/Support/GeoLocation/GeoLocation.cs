@@ -31,6 +31,7 @@ namespace YetaWF.Core.Support {
 #if DEBUG //REMOVE
             // ipAddress = "123.125.71.33";
 #endif
+
             UserInfo info = Manager.SessionSettings.SiteSettings.GetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo");
             if (info == null) {
                 info = GetUserInfo(ipAddress);

@@ -3,12 +3,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web;
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Menus {
 
@@ -33,11 +39,11 @@ namespace YetaWF.Core.Menus {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             return string.Format("{0}_MenuCache_{1}_{2}", package.AreaName, Manager.CurrentSite.Identity, moduleGuid);
         }
-        public static void SetCache(Guid moduleGuid, SavedCacheInfo cacheInfo) {
-            Manager.CurrentSession[GetCacheName(moduleGuid)] = cacheInfo;
-        }
         public static SavedCacheInfo GetCache(Guid moduleGuid) {
-            return (SavedCacheInfo)Manager.CurrentSession[GetCacheName(moduleGuid)];
+            return Manager.CurrentSession.GetObject<SavedCacheInfo>(GetCacheName(moduleGuid));
+        }
+        public static void SetCache(Guid moduleGuid, SavedCacheInfo cacheInfo) {
+            Manager.CurrentSession.SetObject<SavedCacheInfo>(GetCacheName(moduleGuid), cacheInfo);
         }
         public static void ClearCachedMenus() {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
@@ -70,8 +76,11 @@ namespace YetaWF.Core.Menus {
         }
 
         public ModuleAction.RenderModeEnum RenderMode { get; set; }
-
-        public MvcHtmlString Render(HtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
+#if MVC6
+        public HtmlString Render(IHtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
+#else
+        public HtmlString Render(HtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
+#endif
 
             HtmlBuilder hb = new HtmlBuilder();
             int level = 0;
@@ -101,9 +110,13 @@ namespace YetaWF.Core.Menus {
             // </ul>
             hb.Append(ulTag.ToString(TagRenderMode.EndTag));
 
-            return MvcHtmlString.Create(hb.ToString());
+            return new HtmlString(hb.ToString());
         }
+#if MVC6
+        private static string Render(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+#else
         private static string Render(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+#endif
             HtmlBuilder hb = new HtmlBuilder();
 
             string menuContents = RenderLI(htmlHelper, subMenu, subGuid, renderMode, renderEngine, level);
@@ -130,8 +143,11 @@ namespace YetaWF.Core.Menus {
 
             return hb.ToString();
         }
-
+#if MVC6
+        private static string RenderLI(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+#else
         private static string RenderLI(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+#endif
             HtmlBuilder hb = new HtmlBuilder();
 
             ++level;
@@ -328,7 +344,7 @@ namespace YetaWF.Core.Menus {
             action.Location = ModuleAction.ActionLocationEnum.AnyMenu;
             //action.SubMenu = keep as-is
             action.QueryArgs = null;
-            action.QueryArgsRvd = null;
+            action.QueryArgsDict = null;
             //action.Id = will be updated during save
             action._AuthorizationEvaluated = false;
 
@@ -382,7 +398,7 @@ namespace YetaWF.Core.Menus {
                     action.CookieAsDoneSignal = false;
                     action.Location = ModuleAction.ActionLocationEnum.AnyMenu;
                     action.QueryArgs = null;
-                    action.QueryArgsRvd = null;
+                    action.QueryArgsDict = null;
                 } else if (action.Separator) {
                     // separator without real action
                     action.Url = null;
@@ -405,7 +421,7 @@ namespace YetaWF.Core.Menus {
                     action.CookieAsDoneSignal = false;
                     action.Location = ModuleAction.ActionLocationEnum.AnyMenu;
                     action.QueryArgs = null;
-                    action.QueryArgsRvd = null;
+                    action.QueryArgsDict = null;
                 }
                 if (action.SubMenu != null && action.SubMenu.Count > 0)
                     FixMenuEntries(action.SubMenu);

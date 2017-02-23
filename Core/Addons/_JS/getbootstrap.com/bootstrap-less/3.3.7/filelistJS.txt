@@ -1,2 +1,3 @@
-﻿\Scripts\bootstrap.js
+﻿MVC6 \lib\bootstrap\dist\bootstrap.js
+MVC5 \Scripts\bootstrap.js
 fixup.js,bundle

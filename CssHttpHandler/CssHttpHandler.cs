@@ -3,26 +3,60 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Web;
-using System.Web.SessionState;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Http.Headers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using System.Threading.Tasks;
+#else
+using System.Web;
+using System.Web.SessionState;
+#endif
 
 namespace YetaWF.Core.HttpHandler {
-    public class CssHttpHandler : IHttpHandler, IReadOnlySessionState {
+
+#if MVC6
+    public class CssMiddleware {
+
+        private readonly RequestDelegate _next;
+        private CssHttpHandler Handler;
+
+        public CssMiddleware(RequestDelegate next) {
+            _next = next;
+            Handler = new CssHttpHandler();
+        }
+
+        public async Task Invoke(HttpContext context) {
+
+            await Handler.ProcessRequest(context);
+            //await _next.Invoke(context);
+        }
+    }
+
+    public class CssHttpHandler
+#else
+    public class CssHttpHandler : IHttpHandler, IReadOnlySessionState
+#endif
+    {
 
         // IHttpHandler
         // IHttpHandler
         // IHttpHandler
 
+#if MVC6
+        public async Task ProcessRequest(HttpContext context)
+#else
         public bool IsReusable {
             get { return true; }
         }
 
-        public void ProcessRequest(HttpContext context) {
-
+        public void ProcessRequest(HttpContext context)
+#endif
+        {
             YetaWFManager manager = YetaWFManager.Manager;
 
             int charWidth, charHeight;
@@ -42,11 +76,24 @@ namespace YetaWF.Core.HttpHandler {
             if (context.Request.Headers["If-None-Match"] == GetETag()) {
                 context.Response.ContentType = "text/css";
                 context.Response.StatusCode = 304;
+#if MVC6
+#else
                 context.Response.StatusDescription = "OK";
+#endif
                 context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
+#if MVC6
+                ResponseHeaders rs = context.Response.GetTypedHeaders();
+                rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
+                    Public = true,
+                };
+#else
                 context.Response.Cache.SetCacheability(HttpCacheability.Public);
+#endif
                 context.Response.Headers.Add("ETag", GetETag());
+#if MVC6
+#else
                 context.ApplicationInstance.CompleteRequest();
+#endif
                 return;
             }
 
@@ -56,8 +103,13 @@ namespace YetaWF.Core.HttpHandler {
             if (processCharSize && !manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
                 try {
                     cacheKey = "CssHttpHandler_" + file + "_" + charWidth.ToString() + "_" + charHeight.ToString();
+#if MVC6
+                    IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
+                    bytes = cache.Get<byte[]>(cacheKey);
+#else
                     if (context.Cache[cacheKey] != null)
                         bytes = (byte[])context.Cache[cacheKey];
+#endif
                 } catch (Exception) { processCharSize = false; } // this can fail for *.css requests without !CI=
             }
             if (bytes == null) {
@@ -66,8 +118,12 @@ namespace YetaWF.Core.HttpHandler {
                     text = File.ReadAllText(file);
                 } catch (Exception) {
                     context.Response.StatusCode = 404;
-                    context.Response.StatusDescription = Logging.AddErrorLog("Not Found");
+                    Logging.AddErrorLog("Not Found");
+#if MVC6
+#else
+                    context.Response.StatusDescription = "Not Found";
                     context.ApplicationInstance.CompleteRequest();
+#endif
                     return;
                 }
                 if (processCharSize) {
@@ -81,8 +137,14 @@ namespace YetaWF.Core.HttpHandler {
                     if (processLess)
                         text = CssManager.CompileLess(file, text);
                     bytes = Encoding.ASCII.GetBytes(text);
-                    if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse)
+                    if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
+#if MVC6
+                        IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
+                        cache.Set<byte[]>(cacheKey, bytes);
+#else
                         manager.CurrentContext.Cache[cacheKey] = bytes;
+#endif
+                    }
                 } else {
                     if (processNsass)
                         text = CssManager.CompileNSass(file, text);
@@ -91,14 +153,30 @@ namespace YetaWF.Core.HttpHandler {
                     bytes = Encoding.ASCII.GetBytes(text);
                 }
             }
-            context.Response.OutputStream.Write(bytes, 0, bytes.Length);
             context.Response.ContentType = "text/css";
             context.Response.StatusCode = 200;
+#if MVC6
+#else
             context.Response.StatusDescription = "OK";
+#endif
             context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
+#if MVC6
+            {
+                ResponseHeaders rs = context.Response.GetTypedHeaders();
+                rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
+                    Public = true,
+                };
+            }
+#else
             context.Response.Cache.SetCacheability(HttpCacheability.Public);
+#endif
             context.Response.Headers.Add("ETag", GetETag());
+#if MVC6
+            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+#else
+            context.Response.OutputStream.Write(bytes, 0, bytes.Length);
             context.ApplicationInstance.CompleteRequest();
+#endif
         }
         private void GetCharSize(YetaWFManager manager, out int width, out int height) {
             width = 0;

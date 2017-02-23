@@ -331,7 +331,7 @@ namespace YetaWF.Core.DataProvider {
             return list;
         }
         public static List<OBJTYPE> Filter(List<OBJTYPE> list, List<DataProviderFilterInfo> filters) {
-            if (filters != null) {
+            if (filters != null && filters.Count > 0) {
                 GridHelper.NormalizeFilters(typeof(OBJTYPE), filters);
                 // get a flat list of all filters
                 List<DataProviderFilterInfo> flatFilters = DataProviderFilterInfo.CollectAllFilters(filters);
@@ -476,7 +476,6 @@ namespace YetaWF.Core.DataProvider {
             if (DataProviderObject == null) throw new InternalError("DataProvider must be defined in constructor using SetDataProvider() - Only supported for SQL I/O");
             DataProviderObject.AbortTransaction();
         }
-
         public static void SaveImages(Guid moduleGuid, object obj) {
             Type objType = obj.GetType();
             List<PropertyData> propData = ObjectSupport.GetPropertyData(objType);

@@ -49,7 +49,13 @@ namespace YetaWF.Core.Packages {
         };
 
         public void MakeSiteTemplateData() {
-            string path = Path.Combine(YetaWFManager.RootFolder, Globals.SiteTemplatesData);
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string path = Path.Combine(rootFolder, Globals.SiteTemplatesData);
             // delete all existing zip files
             string[] files = Directory.GetFiles(path, "*.zip");
             foreach (string file in files) {

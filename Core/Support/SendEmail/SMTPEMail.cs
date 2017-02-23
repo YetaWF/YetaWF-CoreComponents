@@ -63,7 +63,7 @@ namespace YetaWF.Core.SendEmail {
         public ModuleAction SendTestEmail {
             get {
                 YetaWFManager manager = YetaWFManager.Manager;
-                manager.NeedUser();
+                if (!manager.HaveUser) return null;
                 string userName = manager.UserEmail;
                 return new ModuleAction {
                     Url = YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.SMTPEmailController), "SendTestEmail"),

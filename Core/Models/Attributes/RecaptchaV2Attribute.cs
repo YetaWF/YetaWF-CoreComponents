@@ -3,9 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Web;
 using System.Web.Script.Serialization;
+using System.Net;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+#else
+using System.Web;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;

@@ -1,0 +1,2 @@
+﻿MVC6 \lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js
+MVC5 \Scripts\jquery.validate.unobtrusive.js

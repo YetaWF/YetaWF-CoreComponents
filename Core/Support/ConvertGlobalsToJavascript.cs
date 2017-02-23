@@ -4,6 +4,11 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Web.Script.Serialization;
+#if MVC6
+
+#else
+
+#endif
 using YetaWF.Core.Log;
 
 namespace YetaWF.Core.Support {

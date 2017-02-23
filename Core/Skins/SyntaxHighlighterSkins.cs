@@ -10,7 +10,8 @@ namespace YetaWF.Core.Skins {
 
     public partial class SkinAccess {
 
-        private const string SyntaxHighlighterThemeFile = "Themelist.txt";
+        private const string SyntaxHighlighterThemeFileMVC5 = "ThemelistMVC5.txt";
+        private const string SyntaxHighlighterThemeFileMVC6 = "ThemelistMVC6.txt";
 
         public class SyntaxHighlighterTheme {
             public string Name { get; set; }
@@ -33,9 +34,14 @@ namespace YetaWF.Core.Skins {
             string customPath = YetaWFManager.UrlToPhysical(customUrl);
 
             // use custom or default theme list
-            string filename = Path.Combine(customPath, SyntaxHighlighterThemeFile);
+            string themeFile;
+            if (YetaWFManager.AspNetMvc == YetaWFManager.AspNetMvcVersion.MVC5)
+                themeFile = SyntaxHighlighterThemeFileMVC5;
+            else
+                themeFile = SyntaxHighlighterThemeFileMVC6;
+            string filename = Path.Combine(customPath, themeFile);
             if (!File.Exists(filename))
-                filename = Path.Combine(path, SyntaxHighlighterThemeFile);
+                filename = Path.Combine(path, themeFile);
 
             string[] lines = File.ReadAllLines(filename);
             List<SyntaxHighlighterTheme> syntaxHighlighterList = new List<SyntaxHighlighterTheme>();

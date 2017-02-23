@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Identity;
@@ -18,6 +25,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.Controllers.Shared;
 
 namespace YetaWF.Core.Modules {
 
@@ -217,8 +225,11 @@ namespace YetaWF.Core.Modules {
             get {
                 if (string.IsNullOrEmpty(_Action)) {
                     string action = ClassName;
-                    if (!action.EndsWith(Globals.ModuleClassSuffix))
+                    if (!action.EndsWith(Globals.ModuleClassSuffix)) {
+                        if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class
+                            return null;
                         throw new InternalError("Module {0} is using an invalid class name - should end in \"...{1}\".", action, Globals.ModuleClassSuffix);
+                    }
                     _Action = action.Substring(0, action.Length - Globals.ModuleClassSuffix.Length); // remove trailing Module
                 }
                 return _Action;
@@ -232,16 +243,6 @@ namespace YetaWF.Core.Modules {
         public string Controller {
             get {
                 return GetType().Name;
-            }
-        }
-
-        //[Category("Variables")]
-        //[Description("The MVC area invoking this module")]
-        //[Caption("Area Name")]
-        public string AreaName {
-            get {
-                GetModuleInfo();
-                return _Area;
             }
         }
 
@@ -502,7 +503,7 @@ namespace YetaWF.Core.Modules {
             if (action == null)
                 return null;
             if (string.IsNullOrWhiteSpace(action.Url))
-                action.Url = "/" + AreaName + "/" + Controller + "/" + name;
+                action.Url = "/" + Area + "/" + Controller + "/" + name;
             return action;
         }
 
@@ -524,7 +525,7 @@ namespace YetaWF.Core.Modules {
                 return null;
             foreach (ModuleAction action in actions) {
                 if (string.IsNullOrWhiteSpace(action.Url))
-                    action.Url = "/" + AreaName + "/" + Controller + "/" + name;
+                    action.Url = "/" + Area + "/" + Controller + "/" + name;
             }
             return actions;
         }
@@ -553,7 +554,7 @@ namespace YetaWF.Core.Modules {
                 action = (ModuleAction)m.Invoke(this, new object[] {});
                 if (action != null) {
                     if (string.IsNullOrWhiteSpace(action.Url))
-                        action.Url = "/" + AreaName + "/" + Controller + "/" + name;
+                        action.Url = "/" + Area + "/" + Controller + "/" + name;
                     moduleActions.Add(action);
                 }
             }
@@ -564,7 +565,12 @@ namespace YetaWF.Core.Modules {
         // RENDERING
         // RENDERING
 
+
+#if MVC6
+        public MvcHtmlString RenderModule(IHtmlHelper htmlHelper)
+#else
         public MvcHtmlString RenderModule(HtmlHelper htmlHelper)
+#endif
         {
             if (!Visible && !Manager.EditMode) return MvcHtmlString.Empty;
 
@@ -580,13 +586,22 @@ namespace YetaWF.Core.Modules {
             Manager.WantFocus = this.WantFocus;
 
             RouteValueDictionary rvd = new RouteValueDictionary();
-            if (!string.IsNullOrEmpty(AreaName))
-                rvd.Add("Area", AreaName);
             rvd.Add(Globals.RVD_ModuleDefinition, this);
+
             string moduleHtml;
             try {
+#if MVC6
+                if (!string.IsNullOrEmpty(Area))
+                    moduleHtml = htmlHelper.Action(this, Action, Controller, Area, rvd).ToString();
+                else
+                    moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
+#else
+                if (!string.IsNullOrEmpty(Area))
+                    rvd.Add("Area", Area);
                 moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+#endif
             } catch (Exception exc) {
+                // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
                 HtmlBuilder hb = ProcessModuleError(exc, ModuleName);
                 moduleHtml = hb.ToString();
             }
@@ -650,18 +665,31 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Ajax invoked modules - used to render REFERENCED modules during ajax calls
         /// </summary>
-        public MvcHtmlString RenderReferencedModule_Ajax(HtmlHelper htmlHelper) {
 
+#if MVC6
+        public MvcHtmlString RenderReferencedModule_Ajax(IHtmlHelper htmlHelper)
+#else
+        public MvcHtmlString RenderReferencedModule_Ajax(HtmlHelper htmlHelper)
+#endif
+        {
             // execute action
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
 
             RouteValueDictionary rvd = new RouteValueDictionary();
-            if (!string.IsNullOrEmpty(AreaName))
-                rvd.Add("Area", AreaName);
             rvd.Add(Globals.RVD_ModuleDefinition, this);
-            string moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
 
+            string moduleHtml;
+#if MVC6
+            if (!string.IsNullOrEmpty(Area))
+                moduleHtml = htmlHelper.Action(this, Action, Controller, Area, rvd).ToString();
+            else
+                moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
+#else
+            if (!string.IsNullOrEmpty(Area))
+                rvd.Add("Area", Area);
+            moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+#endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
                 return MvcHtmlString.Empty; // if the module contents are empty, we bail
@@ -694,7 +722,7 @@ namespace YetaWF.Core.Modules {
                     return MvcHtmlString.Empty;
                 TagBuilder tag = new TagBuilder("h1");
                 tag.SetInnerText(Title);
-                return MvcHtmlString.Create(tag.ToString());
+                return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
             }
         }
 
@@ -735,15 +763,23 @@ namespace YetaWF.Core.Modules {
         public virtual DataProviderImpl GetConfigDataProvider() {
             throw new InternalError("Module {0} is not a configuration module", GetType().FullName);
         }
+        public DataProviderImpl TryGetConfigDataProvider() {
+            try {
+                return GetConfigDataProvider();
+            } catch (Exception) {
+                return null;
+            }
+        }
 
         /// <summary>
         /// Returns configuration data if the module is a configuration module.
         /// </summary>
-        /// <remarks>This is typically used for variable substitution.</remarks>
+        /// <remarks>This is only used for variable substitution in site templates (hence no optimization).</remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public object ConfigData {
             get {
-                DataProviderImpl dataProvider = GetConfigDataProvider();
+                DataProviderImpl dataProvider = TryGetConfigDataProvider();
+                if (dataProvider == null) return new { };
                 Type typeDP = dataProvider.GetType();
                 // get the config data
                 MethodInfo mi = typeDP.GetMethod("GetConfig");

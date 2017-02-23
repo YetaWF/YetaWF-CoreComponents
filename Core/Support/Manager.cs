@@ -9,12 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Web;
-using System.Web.Hosting;
-using System.Web.Mvc;
-using System.Web.Routing;
 using System.Web.Script.Serialization;
-using System.Web.SessionState;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
@@ -28,12 +23,44 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
+#else
+using System.Web;
+using System.Web.Hosting;
+using System.Web.Mvc;
+using System.Web.Routing;
+using System.Web.SessionState;
+#endif
 
 namespace YetaWF.Core.Support {
     public class YetaWFManager {
 
         private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
         public const string BATCHMODE = "Batch";
+
+
+#if MVC6
+        public static void Init(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment,
+                IMemoryCache memoryCache) {
+            ServiceProvider = serviceProvider;
+            HttpContextAccessor = httpContextAccessor;
+            HostingEnvironment = hostingEnvironment;
+            MemoryCache = memoryCache;
+        }
+        public static IServiceProvider ServiceProvider = null;
+        public static IHttpContextAccessor HttpContextAccessor = null;
+        public static IHostingEnvironment HostingEnvironment = null;
+        public static IMemoryCache MemoryCache = null;
+#else
+#endif
 
         private YetaWFManager(string host) {
             SiteDomain = host; // save the host name that owns this Manager
@@ -43,6 +70,22 @@ namespace YetaWF.Core.Support {
         public static YetaWFManager Manager
         {
             get {
+#if MVC6
+                YetaWFManager manager = null;
+                HttpContext context = HttpContextAccessor.HttpContext;
+
+                if (context != null) {
+                    manager = context.Items[YetaWF_ManagerKey] as YetaWFManager;
+                } else {
+                    // not a webrequest - most likely a scheduled task
+                    // check if we have thread data
+                    LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
+                    manager = (YetaWFManager)Thread.GetData(slot);
+                }
+                if (manager == null)
+                    throw new Error("We don't have a YetaWFManager object.");
+                return manager;
+#else
                 YetaWFManager manager = null;
                 if (HttpContext.Current != null) {
                     manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
@@ -55,13 +98,19 @@ namespace YetaWF.Core.Support {
                 if (manager == null)
                     throw new Error("We don't have a YetaWFManager object.");
                 return manager;
+#endif
             }
         }
 
         public static bool HaveManager {
             get {
+#if MVC6
+                if (HttpContextAccessor.HttpContext != null) {
+                    if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] == null) return false;
+#else
                 if (HttpContext.Current != null) {
                     if (HttpContext.Current.Items[YetaWF_ManagerKey] == null) return false;
+#endif
                 } else {
                     LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
                     if (slot == null) return false;
@@ -75,15 +124,31 @@ namespace YetaWF.Core.Support {
         /// Creates an instance of the YetaWFManager for a site.
         /// Only done in Global.asax as soon as the site URL has been determined.
         /// </summary>
+#if MVC6
+        public static YetaWFManager MakeInstance(HttpContext httpContext, string siteHost) {
+            if (siteHost == null)
+                throw new Error("Site host required to create a YetaWFManager object.");
+#if DEBUG
+            if (httpContext.Items[YetaWF_ManagerKey] != null)
+                throw new Error("We already have a YetaWFManager object.");
+#endif
+            YetaWFManager manager = new YetaWFManager(siteHost);
+            httpContext.Items[YetaWF_ManagerKey] = manager;
+            return manager;
+        }
+#else
         public static YetaWFManager MakeInstance(string siteHost) {
             if (siteHost == null)
                 throw new Error("Site host required to create a YetaWFManager object.");
+#if DEBUG
             if (HttpContext.Current.Items[YetaWF_ManagerKey] != null)
                 throw new Error("We already have a YetaWFManager object.");
+#endif
             YetaWFManager manager = new YetaWFManager(siteHost);
             HttpContext.Current.Items[YetaWF_ManagerKey] = manager;
             return manager;
         }
+#endif
 
         /// <summary>
         /// Creates an instance of the YetaWFManager - used for non-site specific threads (e.g., scheduler).
@@ -110,7 +175,6 @@ namespace YetaWF.Core.Support {
             }
             LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
             Thread.SetData(slot, manager);
-
             manager.LocalizationSupportEnabled = false;
 
             manager.UserName = null;// current user (anonymous)
@@ -144,21 +208,61 @@ namespace YetaWF.Core.Support {
 #endif
             return MakeThreadInstance(site);
         }
+        public static void RemoveThreadInstance() {
+            Thread.FreeNamedDataSlot(YetaWF_ManagerKey);
+        }
+
+        public enum AspNetMvcVersion {
+            MVC5 = 0, // ASP.NET MVC 5
+            MVC6 = 6, // ASP.NET Core MVC
+        }
+        public static AspNetMvcVersion AspNetMvc {
+            get {
+#if MVC6
+                return AspNetMvcVersion.MVC6;
+#else
+                return AspNetMvcVersion.MVC5;
+#endif
+            }
+        }
+        public static string GetAspNetMvcName(AspNetMvcVersion version) {
+            switch (version) {
+                case AspNetMvcVersion.MVC5:
+                    return "MVC5";
+                case AspNetMvcVersion.MVC6:
+                    return "ASP.NET Core MVC";
+                default:
+                    return "(unknown)";
+            }
+        }
 
         public static void SetRequestedDomain(string siteDomain) {
+#if MVC6
+            if (siteDomain == null)
+                HttpContextAccessor.HttpContext.Session.Remove(Globals.Link_ForceSite);
+            else
+                HttpContextAccessor.HttpContext.Session.SetString(Globals.Link_ForceSite, siteDomain);
+#else
             HttpContext.Current.Session[Globals.Link_ForceSite] = siteDomain;
+#endif
+
         }
-        public static string GetRequestedDomain(Uri uri, NameValueCollection queryString, out bool overridden, out bool newSwitch) {
+        public static string GetRequestedDomain(Uri uri, QueryHelper query, out bool overridden, out bool newSwitch) {
             string siteDomain = null;
             overridden = newSwitch = false;
 
-            siteDomain = queryString[Globals.Link_ForceSite];
+            siteDomain = query[Globals.Link_ForceSite];
             if (!string.IsNullOrWhiteSpace(siteDomain)) {
                 overridden = newSwitch = true;
                 YetaWFManager.SetRequestedDomain(siteDomain);
             }
+#if MVC6
+            if (!overridden && HttpContextAccessor.HttpContext.Session != null) {
+                siteDomain = (string)HttpContextAccessor.HttpContext.Session.GetString(Globals.Link_ForceSite);
+#else
             if (!overridden && HttpContext.Current.Session != null) {
-                siteDomain = (string) HttpContext.Current.Session[Globals.Link_ForceSite];
+                siteDomain = (string)HttpContext.Current.Session[Globals.Link_ForceSite];
+#endif
                 if (!string.IsNullOrWhiteSpace(siteDomain))
                     overridden = true;
             }
@@ -189,33 +293,51 @@ namespace YetaWF.Core.Support {
         private static string _cacheBuster;
 
         /// <summary>
-        /// Root folder (physical)
+        /// Web site root folder (physical)
         /// </summary>
+#if MVC6
+        public static string RootFolder {
+            get { return HostingEnvironment.WebRootPath; }
+        }
+#else
         public static string RootFolder { get; set; }
+#endif
+
+        /// <summary>
+        /// Solution root folder (physical)
+        /// </summary>
+        /// <remarks>
+        /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the solution.</remarks>
+#if MVC6
+        public static string RootFolderSolution {
+            get { return HostingEnvironment.ContentRootPath; }
+        }
+#else
+        public static string RootFolderSolution { get; set; }
+#endif
 
         /// <summary>
         /// Returns the folder containing all sites' file data.
         /// </summary>
         public static string RootSitesFolder {
             get {
-                return Path.Combine(RootFolder, Globals.SitesFolder, "DataFolder");
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                return Path.Combine(rootFolder, Globals.SitesFolder, "DataFolder");
             }
         }
-        /// <summary>
-        /// Returns the folder containing all sites' file data - No longer used.
-        /// </summary>
-        public static string RootSitesFolderOld {
-            get {
-                return Path.Combine(RootFolder, Globals.SitesFolder, DefaultSiteName);
-            }
-        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification= "This is a catastrophic error")]
         public static string DefaultSiteName {
             get {
                 if (defaultSiteName == null)
                     defaultSiteName = WebConfigHelper.GetValue<string>("YetaWF_Core"/*==YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName*/, "DEFAULTSITE");
                 if (defaultSiteName == null)
-                    throw new InternalError("Default site must be defined in web.config");
+                    throw new InternalError("Default site must be defined in web.config/appsettings.json");
                 return defaultSiteName;
             }
         }
@@ -226,22 +348,25 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public static string DataFolder {
             get {
-                return Path.Combine(RootFolder, Globals.DataFolder, "DataFolder");
-            }
-        }
-        /// <summary>
-        /// Data folder (default site specific) - No longer used.
-        /// </summary>
-        public static string DataFolderOld {
-            get {
-                return Path.Combine(RootFolder, Globals.DataFolder, DefaultSiteName);
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                return Path.Combine(rootFolder, Globals.DataFolder, "DataFolder");
             }
         }
 
         public static string UrlToPhysical(string url) {
+#if MVC6
+            if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
+            return RootFolder + url.Replace('/', '\\');
+#else
             return HostingEnvironment.MapPath(url);
-        }
+#endif
 
+        }
         public static string PhysicalToUrl(string path) {
             return ReplaceString(path, RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase).Replace('\\', '/');
         }
@@ -272,25 +397,11 @@ namespace YetaWF.Core.Support {
         private static JavaScriptSerializer _Jser;
 
         public static string JserEncode(string s) {
+#if MVC6
+            return System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(s);
+#else
             return HttpUtility.JavaScriptStringEncode(s);
-        }
-
-        public static string GetQueryStringFromAnonymousObject(object args) {
-            if (args == null) return null;
-            string qs = "";
-            RouteValueDictionary rvd = AnonymousObjectToRVD(args);
-            foreach (var entry in rvd)
-                qs += string.Format("&{0}={1}", entry.Key, entry.Value != null ? YetaWFManager.UrlEncodeArgs(entry.Value.ToString()) : "");
-            if (string.IsNullOrWhiteSpace(qs)) return null;
-            return qs.Substring(1);
-        }
-        public static RouteValueDictionary AnonymousObjectToRVD(object obj) {
-            RouteValueDictionary result = new RouteValueDictionary();
-            if (obj != null) {
-                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(obj))
-                    result.Add(property.Name, property.GetValue(obj));
-            }
-            return result;
+#endif
         }
         public static string UrlFor(Type type, string actionName, object args = null) {
             if (!type.Name.EndsWith("Controller")) throw new InternalError("Type {0} is not a controller", type.FullName);
@@ -300,25 +411,32 @@ namespace YetaWF.Core.Support {
                 throw new InternalError("Type {0} is not part of a package", type.FullName);
             string area = package.AreaName;
             string url = "/" + area + "/" + controller + "/" + actionName;
-            if (args != null) {
-                string qs = GetQueryStringFromAnonymousObject(args);
-                if (qs != null)
-                    url = url + "?" + qs.ToString();
-            }
-            return url;
+            QueryHelper query = QueryHelper.FromAnonymousObject(args);
+            return query.ToUrl(url);
         }
-
         public static string HtmlEncode(string s) {
             if (s == null) return "";
+#if MVC6
+            return System.Net.WebUtility.HtmlEncode(s);
+#else
             return HttpUtility.HtmlEncode(s);
+#endif
         }
         public static string HtmlDecode(string s) {
             if (s == null) return "";
+#if MVC6
+            return System.Net.WebUtility.HtmlDecode(s);
+#else
             return HttpUtility.HtmlDecode(s);
+#endif
         }
         public static string HtmlAttributeEncode(string s) {
             if (s == null) return "";
+#if MVC6
+            return System.Net.WebUtility.HtmlEncode(s);
+#else
             return HttpUtility.HtmlAttributeEncode(s);
+#endif
         }
         // used to encode args in url
         public static string UrlEncodeArgs(string s) {
@@ -509,13 +627,12 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <remarks>Demo mode allows anonymous users to use all features in Superuser mode, without being able to change any data.
         ///
-        /// Demo mode is enabled/disabled using the Web.config setting P:YetaWF_Core:Demo.
+        /// Demo mode is enabled/disabled using the Web.config/appsettings.json setting P:YetaWF_Core:Demo.
         /// </remarks>
         public bool IsDemo {
             get {
-                if (isDemo == null) {
+                if (isDemo == null)
                     isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Demo");
-                }
                 return (bool)isDemo;
             }
         }
@@ -546,7 +663,6 @@ namespace YetaWF.Core.Support {
                 return Path.Combine(RootSitesFolder, CurrentSite.Identity.ToString());
             }
         }
-
         /// <summary>
         /// Returns the site's custom addons folder
         /// </summary>
@@ -555,7 +671,6 @@ namespace YetaWF.Core.Support {
                 return Path.Combine(YetaWFManager.UrlToPhysical(Globals.AddOnsCustomUrl), SiteDomain);
             }
         }
-
         /// <summary>
         /// The current site definition.
         /// The current site is identified based on the URL of the current request.
@@ -640,23 +755,11 @@ namespace YetaWF.Core.Support {
         /// <param name="url"></param>
         public string NormalizeUrl(string url) {
             // add page control module visible
-            NameValueCollection qs;
-            int index = url.IndexOf('?');
-            if (index >= 0 && index <= url.Length-1) {
-                qs = System.Web.HttpUtility.ParseQueryString(url.Substring(index+1));
-                url = url.Substring(0, index);
-            } else
-                qs = System.Web.HttpUtility.ParseQueryString(string.Empty);
-
-            qs.Remove(Globals.Link_ShowPageControlKey);
+            QueryHelper query = QueryHelper.FromUrl(url, out url);
+            query.Remove(Globals.Link_ShowPageControlKey);
             if (Manager.PageControlShown)
-                qs[Globals.Link_ShowPageControlKey] = Globals.Link_ShowPageControlValue;
-
-            string qsString = qs.ToString();
-            if (qsString.Length > 0)
-                url += "?" + qsString;
-
-            return url;
+                query[Globals.Link_ShowPageControlKey] = Globals.Link_ShowPageControlValue;
+            return query.ToUrl(url);
         }
 
         // GetUrlArg and TryGetUrlArg is used to retrieve optional Url args (outside of a Controller) added to a page using AddUrlArg, so one module can add args for other modules on the same page
@@ -693,6 +796,7 @@ namespace YetaWF.Core.Support {
                 return false;
             }
         }
+
         /// <summary>
         /// Add a temporary (non-visible) Url argument to the current page being rendered.
         /// This is mainly used to propagate selections from one module to another (top-down on page only).
@@ -798,7 +902,7 @@ namespace YetaWF.Core.Support {
             ++_uniqueIdCounter;
             if (string.IsNullOrEmpty(UniqueIdPrefix)) {
                 if (string.IsNullOrWhiteSpace(name))
-                    throw new InternalError("UniqueId must spcify a name prefix");
+                    throw new InternalError("UniqueId must specify a name prefix");
                 return name + _uniqueIdCounter;
             } else
                 return UniqueIdPrefix + "_" + name + _uniqueIdCounter;
@@ -817,79 +921,186 @@ namespace YetaWF.Core.Support {
         public string UserHostAddress {
             get {
                 if (!HaveCurrentRequest) return "";
+#if MVC6
+                IHttpConnectionFeature connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
+                if (connectionFeature != null)
+                    return connectionFeature.RemoteIpAddress.ToString();
+                return "";
+#else
                 return CurrentRequest.UserHostAddress ?? "";
+#endif
             }
         }
-        public NameValueCollection RequestQueryString {
-            get { return CurrentRequest.QueryString; }
+        public QueryHelper RequestQueryString {
+            get {
+                if (_requestQueryString == null) {
+#if MVC6
+                    _requestQueryString = QueryHelper.FromQueryCollection(CurrentRequest.Query);
+#else
+                    _requestQueryString = QueryHelper.FromNameValueCollection(CurrentRequest.QueryString);
+#endif
+                }
+                return _requestQueryString;
+            }
         }
-        public NameValueCollection RequestForm {
-            get { return CurrentRequest.Form; }
+        private QueryHelper _requestQueryString = null;
+
+        public FormHelper RequestForm {
+            get {
+                if (_requestForm == null) {
+#if MVC6
+                    if (!CurrentRequest.HasFormContentType)
+                        _requestForm = new FormHelper();
+                    else
+                        _requestForm = FormHelper.FromFormCollection(CurrentRequest.Form);
+#else
+                    _requestForm = FormHelper.FromNameValueCollection(CurrentRequest.Form);
+#endif
+                }
+                return _requestForm;
+            }
         }
-        public bool HaveCurrentContext { get { return HttpContext.Current != null; } }
+        private FormHelper _requestForm = null;
+
+        public bool HaveCurrentContext {
+            get {
+#if MVC6
+                return HttpContextAccessor.HttpContext != null;
+#else
+                return HttpContext.Current != null;
+#endif
+            }
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpContext CurrentContext {
             get {
+#if MVC6
+                HttpContext context = HttpContextAccessor.HttpContext;
+#else
                 HttpContext context = HttpContext.Current;
-                if (context == null) throw new InternalError("No HttpContext.Current available");
+#endif
+                if (context == null) throw new InternalError("No HttpContext available");
                 return context;
             }
+            set {
+#if MVC6
+                HttpContextAccessor.HttpContext = value;
+#else
+                throw new InternalError("Can't set current context");
+#endif
+            }
         }
-        public bool HaveCurrentRequest { get { return HaveCurrentContext && HttpContext.Current.Request != null; } }
+
+        public bool HaveCurrentRequest {
+            get {
+#if MVC6
+                return HaveCurrentContext && CurrentContext.Request != null;
+#else
+                return HaveCurrentContext && HttpContext.Current.Request != null;
+#endif
+            }
+        }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpRequest CurrentRequest {
             get {
+#if MVC6
+                HttpRequest request = CurrentContext.Request;
+#else
                 HttpRequest request = HttpContext.Current.Request;
-                if (request == null) throw new InternalError("No HttpContext.Current.Request available");
+#endif
+                if (request == null) throw new InternalError("No current Request available");
                 return request;
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpResponse CurrentResponse {
             get {
+#if MVC6
+                HttpResponse response = CurrentContext.Response;
+#else
                 HttpResponse response = HttpContext.Current.Response;
-                if (response == null) throw new InternalError("No HttpContext.Current.Response available");
+#endif
+                if (response == null) throw new InternalError("No current Response available");
                 return response;
             }
         }
-        public bool HaveCurrentSession { get { return HaveCurrentContext && HttpContext.Current.Session != null; } }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
-        public HttpSessionState CurrentSession {
+
+        public bool HaveCurrentSession {
             get {
-                HttpSessionState session = HttpContext.Current.Session;
-                if (session == null) throw new InternalError("No HttpContext.Current.Session available");
+#if MVC6
+                return HaveCurrentContext && CurrentContext.Session != null;
+#else
+                return HaveCurrentContext && HttpContext.Current.Session != null;
+#endif
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
+        public SessionState CurrentSession {
+            get {
+                SessionState session = new SessionState(CurrentContext);
+                if (session == null) throw new InternalError("No Session available");
                 return session;
             }
         }
+        public string CurrentRequestUrl {
+            get {
+#if MVC6
+                return UriHelper.GetDisplayUrl(Manager.CurrentRequest);
+#else
+                return Manager.CurrentRequest.Url.ToString();
+#endif
+            }
+        }
+
+
         public void RestartSite() {
+#if MVC6
+            IApplicationLifetime applicationLifetime = (IApplicationLifetime)ServiceProvider.GetService(typeof(IApplicationLifetime));
+            applicationLifetime.StopApplication();
+#else
             HttpRuntime.UnloadAppDomain();
+#endif
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public bool IsAjaxRequest {
             get {
                 HttpRequest request = CurrentRequest;
-                return (request["X-Requested-With"] == "XMLHttpRequest") || ((request.Headers != null) && (request.Headers["X-Requested-With"] == "XMLHttpRequest"));
+                return ((request.Headers != null) && (request.Headers["X-Requested-With"] == "XMLHttpRequest") || (request.Headers["X-Requested-With"] == "XMLHttpRequest"));
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public bool IsPostRequest {
             get {
                 HttpRequest request = CurrentRequest;
+#if MVC6
+                return (request.Method == "POST");
+#else
                 return (request.RequestType == "POST");
+#endif
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public bool IsGetRequest {
             get {
                 HttpRequest request = CurrentRequest;
+#if MVC6
+                return (request.Method == "GET" || request.Method == "");
+#else
                 return (request.RequestType == "GET");
+#endif
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public bool IsHeadRequest {
             get {
                 HttpRequest request = CurrentRequest;
+#if MVC6
+                return (request.Method == "HEAD");
+#else
                 return (request.RequestType == "HEAD");
+#endif
             }
         }
 
@@ -933,6 +1144,7 @@ namespace YetaWF.Core.Support {
                     _forcedEditMode = value;
             }
         }
+
         public bool IsForcedDisplayMode { get { return _forcedEditMode == false; } }
         public bool IsForcedEditMode { get { return _forcedEditMode == true; } }
         private bool? _editMode = null;
@@ -1109,8 +1321,11 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// AdditionalValues meta data overrides for current control being processed
         /// </summary>
+#if MVC6
+        public IReadOnlyDictionary<object, object> ControlInfoOverrides { get; set; }
+#else
         public Dictionary<string, object> ControlInfoOverrides { get; set; }
-
+#endif
 
         // UTILITY
         // UTILITY
@@ -1236,7 +1451,7 @@ namespace YetaWF.Core.Support {
         public bool HasSuperUserRole {
             get {
                 if (!HaveCurrentSession) return false;
-                string superuser = (string) CurrentSession[Globals.Session_Superuser];
+                string superuser = CurrentSession.GetString(Globals.Session_Superuser);
                 return !string.IsNullOrWhiteSpace(superuser);
             }
         }
@@ -1244,9 +1459,9 @@ namespace YetaWF.Core.Support {
             bool hasRole = HasSuperUserRole;
             if (hasRole != isSuperUser) {
                 if (!HaveCurrentSession) return;
-                CurrentSession[Globals.Session_Superuser] = null;
+                CurrentSession.Remove(Globals.Session_Superuser);
                 if (isSuperUser)
-                    CurrentSession[Globals.Session_Superuser] = "I am/was a superuser";// this is set once we see a superuser. Even if logged off, the session value remains
+                    CurrentSession.SetString(Globals.Session_Superuser, "I am/was a superuser");// this is set once we see a superuser. Even if logged off, the session value remains
                 MenuList.ClearCachedMenus();
             }
         }
@@ -1266,13 +1481,13 @@ namespace YetaWF.Core.Support {
         public DeviceSelected ActiveDevice {
             get {
                 if (CurrentSession == null) return _ActiveDevice;
-                return (DeviceSelected)(CurrentSession[Globals.Session_ActiveDevice] ?? DeviceSelected.Undecided);
+                return (DeviceSelected)(CurrentSession.GetInt(Globals.Session_ActiveDevice, (int)DeviceSelected.Undecided));
             }
             set {
                 if (value != DeviceSelected.Desktop && value != DeviceSelected.Mobile) throw new InternalError("Invalid device selection {0}", value);
                 _ActiveDevice = value;
                 if (CurrentSession == null) return;
-                CurrentSession[Globals.Session_ActiveDevice] = value;
+                CurrentSession.SetInt(Globals.Session_ActiveDevice, (int) value);
             }
         }
         private DeviceSelected _ActiveDevice = DeviceSelected.Undecided;

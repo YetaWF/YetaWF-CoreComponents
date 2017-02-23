@@ -5,7 +5,11 @@ using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+#else
 using System.Web;
+#endif
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
@@ -30,6 +34,7 @@ namespace YetaWF.Core.Models.Attributes {
             ErrorMessage = message;
         }
         private new string ErrorMessage { get; set; }
+
         protected override ValidationResult IsValid(object value, ValidationContext validationContext) {
             if (!Manager.HaveCurrentRequest) throw new InternalError("No http context or request available");
             HttpRequest request = Manager.CurrentRequest;
@@ -37,8 +42,15 @@ namespace YetaWF.Core.Models.Attributes {
             RecaptchaData rc = value as RecaptchaData;
             if (rc == null || !rc.VerifyPresence) return ValidationResult.Success;
 
-            string challenge = request["recaptcha_challenge_field"];
-            string response = request["recaptcha_response_field"];
+            string challenge;
+            string response;
+#if MVC6
+            challenge = request.Query["recaptcha_challenge_field"];
+            response = request.Query["recaptcha_response_field"];
+#else
+            challenge = request["recaptcha_challenge_field"];
+            response = request["recaptcha_response_field"];
+#endif
             if (string.IsNullOrWhiteSpace(challenge) || string.IsNullOrWhiteSpace(response))
                 return new ValidationResult(ErrorMessage);
 

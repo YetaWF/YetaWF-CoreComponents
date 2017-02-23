@@ -3,7 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
@@ -158,8 +162,8 @@ namespace YetaWF.Core.Localize {
         }
         public void SetAbortOnFailure(bool abort) {
             if (AbortOnFailure != abort) {
-                WebConfigHelper.RemoveValue(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey);
                 WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey, abort);
+                WebConfigHelper.Save();
                 abortOnFailure = abort;
             }
         }
@@ -176,8 +180,8 @@ namespace YetaWF.Core.Localize {
         }
         public void SetUseLocalizationResources(bool use) {
             if (UseLocalizationResources != use) {
-                WebConfigHelper.RemoveValue(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, UseKey);
                 WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, UseKey, use);
+                WebConfigHelper.Save();
                 useResources = use;
             }
         }

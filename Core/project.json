@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+
+  "dependencies": {
+    "Microsoft.AspNetCore.Mvc.Abstractions": "1.1.0",
+    "Microsoft.AspNetCore.Mvc.Core": "1.1.0",
+    "Microsoft.AspNetCore.Mvc.Razor": "1.1.0",
+    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.1.0",
+    "Microsoft.VisualBasic": "10.0.0",
+    "dotless": "1.5.2",
+    "DotNetZip": "1.10.1",
+    "EcmaScript.Net": "1.0.1",
+    "NSass.Core": "0.0.3",
+    "YUICompressor.NET": "2.7.0",
+    "Microsoft.AspNetCore.Session": "1.1.0"
+  },
+  "frameworks": {
+    "net462": {
+      "frameworkAssemblies": {
+        "System.Data": "4.0.0.0",
+        "System.Drawing": "4.0.0.0",
+        "System.ServiceModel": "4.0.0",
+        "System.Web.Extensions": "4.0.0.0"
+      }
+    }
+  },
+  "buildOptions": {
+    "outputName": "YetaWF.Core",
+    "define": [ "MVC6" ],
+    "copyToOutput": [ "NSass.Wrapper/NSass.Wrapper.x64.dll", "NSass.Wrapper/NSass.Wrapper.x86.dll" ]
+  }
+}

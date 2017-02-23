@@ -4,9 +4,13 @@ using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using YetaWF.Core.Addons;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web;
 using System.Web.Mvc;
-using YetaWF.Core.Addons;
+#endif
 
 namespace YetaWF.Core.Support {
 
@@ -60,11 +64,22 @@ namespace YetaWF.Core.Support {
             this.Zip = zip;
             this.CookieToReturn = cookieToReturn;
         }
-
+#if MVC6
+        public override void ExecuteResult(ActionContext context) {
+#else
         public override void ExecuteResult(ControllerContext context) {
+#endif
             var Response = context.HttpContext.Response;
 
             Response.ContentType = "application/zip";
+#if MVC6
+            Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
+            Response.Headers.Add("Cookie", Basics.CookieDone + "=" + CookieToReturn.ToString());
+
+            using (Zip) {
+                Zip.Zip.Save(Response.Body);
+            }
+#else
             Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
 
             HttpCookie cookie = new HttpCookie(Basics.CookieDone, CookieToReturn.ToString());
@@ -75,6 +90,7 @@ namespace YetaWF.Core.Support {
                 Zip.Zip.Save(Response.OutputStream);
                 Response.End();
             }
+#endif
         }
     }
 }

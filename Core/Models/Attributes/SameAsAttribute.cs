@@ -1,17 +1,21 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Web.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
+#if MVC6
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+#else
+using System.Collections.Generic;
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class SameAsAttribute : ValidationAttribute, IClientValidatable {
+    public class SameAsAttribute : ValidationAttribute, YIClientValidatable {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -22,18 +26,6 @@ namespace YetaWF.Core.Models.Attributes {
         public SameAsAttribute(string propertyName, string message) : base(message) {
             RequiredPropertyName = propertyName;
             ErrorMessage = message;
-        }
-
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            var rule = new ModelClientValidationRule {
-                ValidationType = "sameas"
-            };
-            if (!string.IsNullOrWhiteSpace(ErrorMessage))
-                rule.ErrorMessage = ErrorMessage;
-            else
-                rule.ErrorMessage = string.Format(__ResStr("SameAs", "The {0} field doesn't match."), AttributeHelper.GetPropertyCaption(metadata));
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
-            yield return rule;
         }
         protected override ValidationResult IsValid(object value, ValidationContext context) {
             if (IsSame(context.ObjectInstance, value))
@@ -51,5 +43,26 @@ namespace YetaWF.Core.Models.Attributes {
             PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
             return pi.GetValue(model, null);
         }
+#if MVC6
+        public void AddValidation(ClientModelValidationContext context) {
+            if (string.IsNullOrWhiteSpace(ErrorMessage))
+                ErrorMessage = string.Format(__ResStr("SameAs", "The {0} field doesn't match."), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        }
+#else
+        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
+            var rule = new ModelClientValidationRule {
+                ValidationType = "sameas"
+            };
+            if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                rule.ErrorMessage = ErrorMessage;
+            else
+                rule.ErrorMessage = string.Format(__ResStr("SameAs", "The {0} field doesn't match."), AttributeHelper.GetPropertyCaption(metadata));
+            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
+            yield return rule;
+        }
+#endif
+
     }
 }

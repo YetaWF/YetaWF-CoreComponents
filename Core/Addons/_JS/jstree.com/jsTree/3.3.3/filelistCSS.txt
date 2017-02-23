@@ -1,0 +1,2 @@
+MVC6 \lib\jstree\dist\themes\default\style.css
+MVC5 \Content\themes\default\style.css

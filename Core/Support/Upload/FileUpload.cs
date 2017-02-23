@@ -3,10 +3,14 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Web;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+#else
+using System.Web;
+#endif
 
 namespace YetaWF.Core.Upload {
     public class FileUpload {
@@ -34,7 +38,11 @@ namespace YetaWF.Core.Upload {
         /// </summary>
         /// <param name="uploadFile">Package file being uploaded.</param>
         /// <returns>A file name (no path) of the uploaded file in the site's temporary folder.</returns>
+#if MVC6
+        public string StoreTempPackageFile(IFormFile uploadFile) {
+#else
         public string StoreTempPackageFile(HttpPostedFileBase uploadFile) {
+#endif
             string name = StoreTempFile(uploadFile, me => me.PackageUse);
             return GetTempFilePathFromName(name);
         }
@@ -44,7 +52,11 @@ namespace YetaWF.Core.Upload {
         /// </summary>
         /// <param name="uploadFile">Image file being uploaded.</param>
         /// <returns>A file name (no path) of the uploaded file in the site's temporary folder.</returns>
+#if MVC6
+        public string StoreTempImageFile(IFormFile uploadFile) {
+#else
         public string StoreTempImageFile(HttpPostedFileBase uploadFile) {
+#endif
             return StoreTempFile(uploadFile, me => me.ImageUse);
         }
 
@@ -54,7 +66,11 @@ namespace YetaWF.Core.Upload {
         /// <param name="uploadFile">File being uploaded.</param>
         /// <param name="canUse"></param>
         /// <returns>A file name (with path) of the uploaded file in the site's temporary folder.</returns>
+#if MVC6
+        private string StoreTempFile(IFormFile uploadFile, Func<MimeEntry, bool> canUse) {
+#else
         private string StoreTempFile(HttpPostedFileBase uploadFile, Func<MimeEntry, bool> canUse) {
+#endif
             return StoreFile(uploadFile, Globals.TempFiles, canUse,
                 (uf => {
                     string tempExt = Path.GetExtension(uf.FileName);
@@ -72,13 +88,27 @@ namespace YetaWF.Core.Upload {
         /// <param name="canUse"></param>
         /// <param name="getFileName"></param>
         /// <returns>A file name (with path) of the uploaded file in the specified folder</returns>
-        public string StoreFile(HttpPostedFileBase uploadFile, string folder, Func<MimeEntry, bool> canUse, Func<HttpPostedFileBase, string> getFileName) {
-            if (uploadFile == null || uploadFile.ContentLength == 0)
+
+#if MVC6
+        public string StoreFile(IFormFile uploadFile, string folder, Func<MimeEntry, bool> canUse, Func<IFormFile, string> getFileName)
+#else
+        public string StoreFile(HttpPostedFileBase uploadFile, string folder, Func<MimeEntry, bool> canUse, Func<HttpPostedFileBase, string> getFileName)
+#endif
+        {
+            long fileLength = 0;
+            if (uploadFile != null) {
+#if MVC6
+                fileLength = uploadFile.Length;
+#else
+                fileLength = uploadFile.ContentLength;
+#endif
+            }
+            if (fileLength == 0)
                 throw new InternalError("No filename specified.");
 
             MimeSection mimeSection = MimeSection.GetMimeSection();
             if (mimeSection == null)
-                throw new Error(this.__ResStr("errWebconfig", "Upload not allowed - Web.config doesn't have a valid MimeSection defining allowable files"));
+                throw new Error(this.__ResStr("errWebconfig", "Upload not allowed - Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files"));
             MimeEntry me = mimeSection.GetElementFromContentType(uploadFile.ContentType);
             if (me == null || !canUse(me))
                 throw new Error(this.__ResStr("errPkgType", "Upload not allowed - The file type '{0}' is not an allowable file type"), uploadFile.ContentType);
@@ -88,8 +118,13 @@ namespace YetaWF.Core.Upload {
             folder = Path.Combine(Manager.SiteFolder, folder);
             Directory.CreateDirectory(folder);
             string filePath = Path.Combine(folder, name);
+#if MVC6
+            using (FileStream fileStream = File.Create(filePath)) {
+                uploadFile.CopyTo(fileStream);
+            }
+#else
             uploadFile.SaveAs(filePath);
-
+#endif
             return Path.GetFileName(name);
         }
 
@@ -125,7 +160,7 @@ namespace YetaWF.Core.Upload {
 
             MimeSection mimeSection = MimeSection.GetMimeSection();
             if (mimeSection == null)
-                throw new Error(this.__ResStr("errDownloadWebconfig", "Download not allowed - Web.config doesn't have a valid MimeSection defining allowable files"));
+                throw new Error(this.__ResStr("errDownloadWebconfig", "Download not allowed - Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files"));
 
             const string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
             HttpWebRequest req = null;

@@ -1,1 +1,2 @@
-﻿\Content\ui.jqgrid.css
+﻿MVC6 \lib\free-jqgrid\css\ui.jqgrid.css
+MVC5 \Content\ui.jqgrid.css

@@ -2,7 +2,13 @@
 
 using System;
 using System.Linq;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Menus;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
@@ -69,9 +75,9 @@ namespace YetaWF.Core.Modules {
 
                     // localize
                     action = modLocalize.GetModuleAction("Browse", null, Package.GetCurrentPackage(this));
-                    if (action.QueryArgsRvd == null)
-                        action.QueryArgsRvd = new System.Web.Routing.RouteValueDictionary();
-                    action.QueryArgsRvd.Add(Globals.Link_TempNoEditMode, "y"); // force no edit mode
+                    if (action.QueryArgsDict == null)
+                        action.QueryArgsDict = new QueryHelper();
+                    action.QueryArgsDict.Add(Globals.Link_TempNoEditMode, "y"); // force no edit mode
                     moduleMenu.New(action, location);
                 }
 
@@ -89,11 +95,12 @@ namespace YetaWF.Core.Modules {
                 if (Manager.EditMode || this.ShowHelp) {
                     // module editing services
                     ModuleDefinition modServices = ModuleDefinition.Load(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
-                    if (modServices == null)
-                        throw new InternalError("No module control services available - no module has been defined");
-
-                    ModuleAction action = modServices.GetModuleAction("Help", this);
-                    moduleMenu.New(action, location);
+                    //if (modServices == null)
+                    //    throw new InternalError("No module control services available - no module has been defined");
+                    if (modServices != null) {
+                        ModuleAction action = modServices.GetModuleAction("Help", this);
+                        moduleMenu.New(action, location);
+                    }
                 }
             }
 

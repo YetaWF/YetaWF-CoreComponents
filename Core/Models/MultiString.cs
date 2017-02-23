@@ -25,9 +25,9 @@ namespace YetaWF.Core.Models {
                 if (_defaultId == null) {
                     _defaultId = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "LanguageId");
                     if (string.IsNullOrEmpty(_defaultId))
-                        throw new InternalError("No LanguageId found in web.config");
+                        throw new InternalError("No LanguageId found in web.config/appsettings.json");
                     if (_defaultId != "en-US")
-                        throw new InternalError("The default language in web.config is currently restricted to en-US. The site (or users) can select a default language using Admin > Site Settings or User > Settings.");
+                        throw new InternalError("The default language in web.config/appsettings.json is currently restricted to en-US. The site (or users) can select a default language using Admin > Site Settings or User > Settings.");
                 }
                 return _defaultId;
             }
@@ -43,7 +43,7 @@ namespace YetaWF.Core.Models {
                     LanguageEntryElementCollection langColl = langSect.Languages;
                     LanguageEntryElement defaultLanguage = (from LanguageEntryElement l in langColl where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
                     if (defaultLanguage == null)
-                        throw new InternalError("The defined default language doesn't exist in web.config LanguageSection");
+                        throw new InternalError("The defined default language doesn't exist in web.config/appsettings.json LanguageSection");
                     _languages = (from LanguageEntryElement l in langColl
                                   where l.Id != MultiString.DefaultLanguage
                                   select new LanguageData {
@@ -188,7 +188,6 @@ namespace YetaWF.Core.Models {
                 Add(id, value);
             }
         }
-
         public static string ActiveLanguage {
             get {
                 if (YetaWFManager.HaveManager && !string.IsNullOrWhiteSpace(YetaWFManager.Manager.UserLanguage))

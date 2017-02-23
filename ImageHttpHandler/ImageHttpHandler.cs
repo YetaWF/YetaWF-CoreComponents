@@ -3,28 +3,63 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Web;
-using System.Web.SessionState;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Image;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
+using Microsoft.Extensions.FileProviders;
+using System.Threading.Tasks;
+#else
+using System.Web;
+using System.Web.SessionState;
+#endif
 
 namespace YetaWF.Core.HttpHandler {
-    public class ImageHttpHandler : IHttpHandler, IReadOnlySessionState {
 
+
+#if MVC6
+
+    public class ImageMiddleware {
+
+        private readonly RequestDelegate _next;
+        private ImageHttpHandler Handler;
+
+        public ImageMiddleware(RequestDelegate next) {
+            _next = next;
+            Handler = new ImageHttpHandler();
+        }
+
+        public async Task Invoke(HttpContext context) {
+
+            await Handler.ProcessRequest(context);
+            //await _next.Invoke(context);
+        }
+    }
+
+    public class ImageHttpHandler
+#else
+    public class ImageHttpHandler : IHttpHandler, IReadOnlySessionState
+#endif
+    {
         // IHttpHandler
         // IHttpHandler
         // IHttpHandler
 
+#if MVC6
+        public async Task ProcessRequest(HttpContext context)
+#else
         public bool IsReusable {
             get { return true; }
         }
 
-        public void ProcessRequest(HttpContext context) {
-
+        public void ProcessRequest(HttpContext context)
+#endif
+        {
             YetaWFManager manager = YetaWFManager.Manager;
 
             string typeVal = manager.RequestQueryString["type"];
@@ -75,8 +110,12 @@ namespace YetaWF.Core.HttpHandler {
 
                     if ((img == null || bytes == null) && filePath == null) {
                         context.Response.StatusCode = 404;
+#if MVC6
+                        Logging.AddErrorLog("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal);
+#else
                         context.Response.StatusDescription = Logging.AddErrorLog("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal);
                         context.ApplicationInstance.CompleteRequest();
+#endif
                         return;
                     }
 
@@ -126,18 +165,32 @@ namespace YetaWF.Core.HttpHandler {
                             throw new InternalError("File type not suitable as image - {0}", filePath);// shouldn't have been uploaded in the first place
                         contentType = me.Type;
                         DateTime lastMod = File.GetLastWriteTimeUtc(filePath);
+#if MVC6
+                        ResponseHeaders rs = context.Response.GetTypedHeaders();
+                        rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
+                            Public = true,
+                        };
+#else
                         context.Response.Cache.SetCacheability(HttpCacheability.Public);
+#endif
                         context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
                         context.Response.ContentType = contentType;
-                        context.Response.StatusDescription = "OK";
                         if (context.Request.Headers["If-None-Match"] != GetETag(filePath, lastMod)) {
-                            context.Response.TransmitFile(filePath);
                             context.Response.StatusCode = 200;
+#if MVC6
+                            await context.Response.SendFileAsync(filePath);
+#else
+                            context.Response.TransmitFile(filePath);
+#endif
                         } else {
                             context.Response.StatusCode = 304;
                         }
+#if MVC6
+#else
+                        context.Response.StatusDescription = "OK";
                         context.ApplicationInstance.CompleteRequest();
+#endif
                         return;
                     } else if (img != null && bytes != null) {
                         if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Gif) contentType = "image/gif";
@@ -145,33 +198,57 @@ namespace YetaWF.Core.HttpHandler {
                         else if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg) contentType = "image/jpeg";
                         else contentType = "image/jpeg";
 
+#if MVC6
+                        ResponseHeaders rs = context.Response.GetTypedHeaders();
+                        rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
+                            Public = true,
+                        };
+#else
                         context.Response.Cache.SetCacheability(HttpCacheability.Public);
+#endif
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
                         context.Response.ContentType = contentType;
+#if MVC6
+#else
                         context.Response.StatusDescription = "OK";
+#endif
                         if (context.Request.Headers["If-None-Match"] != GetETag(bytes)) {
                             context.Response.StatusCode = 200;
+#if MVC6
+                            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+#else
                             context.Response.OutputStream.Write(bytes, 0, bytes.Length);
+#endif
                         } else {
                             context.Response.StatusCode = 304;
                         }
+#if MVC6
+#else
                         context.ApplicationInstance.CompleteRequest();
-
+#endif
                         img.Dispose();
                         return;
                     } else {
                         // we got nothing
                         context.Response.StatusCode = 404;
+#if MVC6
+                        Logging.AddErrorLog(string.Format("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal));
+#else
                         context.Response.StatusDescription = Logging.AddErrorLog(string.Format("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal));
                         context.ApplicationInstance.CompleteRequest();
+#endif
                         return;
                     }
                 }
             }
             context.Response.StatusCode = 404;
+#if MVC6
+            Logging.AddErrorLog("Not Found");
+#else
             context.Response.StatusDescription = Logging.AddErrorLog("Not Found");
             context.ApplicationInstance.CompleteRequest();
+#endif
             return;
         }
 

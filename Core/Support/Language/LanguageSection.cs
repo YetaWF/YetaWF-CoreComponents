@@ -1,9 +1,34 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+#if MVC6
+using System.Collections.Generic;
+#else
 using System.Configuration;
+#endif
 
 namespace YetaWF.Core.Language {
 
+#if MVC6
+    public class LanguageSection {
+
+        public LanguageEntryElementCollection Languages { get; set; }
+
+        private static LanguageSection _settings;
+
+        public static void Init(LanguageSection settings) {
+            _settings = settings;
+        }
+        public static LanguageSection GetLanguageSection() {
+            return _settings;
+        }
+    }
+    public class LanguageEntryElementCollection : List<LanguageEntryElement> { }
+    public class LanguageEntryElement {
+        public string Id { get; set; }
+        public string ShortName { get; set; }
+        public string Description { get; set; }
+    }
+#else
     public class LanguageSection : ConfigurationSection {
 
         public static LanguageSection GetLanguageSection(System.Configuration.Configuration config = null) {
@@ -111,4 +136,5 @@ namespace YetaWF.Core.Language {
             }
         }
     }
+#endif
 }

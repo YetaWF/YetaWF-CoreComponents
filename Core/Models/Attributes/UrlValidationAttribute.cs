@@ -33,8 +33,8 @@ namespace YetaWF.Core.Models.Attributes {
         private Regex _regexHttpsRemote = new Regex(@"^\s*https:\/\/.*\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private Regex _regexHttpRemote = new Regex(@"^\s*http:\/\/.*\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private void SetMessage(object obj) {
-            string caption = AttributeHelper.GetPropertyCaption(obj);
+        private void SetMessage(ValidationContext context) {
+            string caption = AttributeHelper.GetPropertyCaption(context);
             if ((UrlType & (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) == (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) {
                 switch (RemoteSchema) {
                     default:

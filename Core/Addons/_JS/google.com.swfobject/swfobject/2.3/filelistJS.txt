@@ -1,1 +1,2 @@
-swfobject.js
+MVC6 \lib\swfobject\swfobject\src\swfobject.js
+MVC5 swfobject.js

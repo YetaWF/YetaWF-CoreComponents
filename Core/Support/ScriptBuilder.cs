@@ -2,7 +2,11 @@
 
 using System.Collections.Generic;
 using System.Text;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Support {
 

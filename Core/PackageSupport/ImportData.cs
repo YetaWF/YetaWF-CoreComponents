@@ -80,8 +80,15 @@ namespace YetaWF.Core.Packages {
                             ZipEntry e = zip[file.FileName];
                             if (YetaWFManager.HaveManager && file.SiteSpecific)
                                 e.Extract(YetaWFManager.Manager.SiteFolder, ExtractExistingFileAction.OverwriteSilently);
-                            else
-                                e.Extract(YetaWFManager.RootFolder, ExtractExistingFileAction.OverwriteSilently);
+                            else {
+                                string rootFolder;
+#if MVC6
+                                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                                rootFolder = YetaWFManager.RootFolder;
+#endif
+                                e.Extract(rootFolder, ExtractExistingFileAction.OverwriteSilently);
+                            }
                         }
 
                         for (int chunk = 0 ; chunk < serModel.Chunks ; ++chunk) {

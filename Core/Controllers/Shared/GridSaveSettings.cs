@@ -2,7 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Models;
 using YetaWF.Core.Views.Shared;
 

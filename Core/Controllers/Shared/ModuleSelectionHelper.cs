@@ -1,7 +1,11 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Support;
@@ -19,7 +23,7 @@ namespace YetaWF.Core.Controllers.Shared {
         public ActionResult GetPackageModulesNew(string areaName) {
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(ModuleSelectionHelper.RenderReplacementPackageModulesNew(areaName));
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
         /// <summary>
         /// Returns data to replace a dropdownlist's data with existing designed modules given a package name.
@@ -31,7 +35,7 @@ namespace YetaWF.Core.Controllers.Shared {
         public ActionResult GetPackageModulesDesigned(string areaName) {
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(ModuleSelectionHelper.RenderReplacementPackageModulesDesigned(areaName));
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
         /// <summary>
         /// Returns data to replace a dropdownlist's data with existing designed modules given a package name.
@@ -43,7 +47,7 @@ namespace YetaWF.Core.Controllers.Shared {
         public ActionResult GetPackageModulesDesignedFromGuid(Guid modGuid) {
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(ModuleSelectionHelper.RenderReplacementPackageModulesDesigned(modGuid));
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
     }
 }

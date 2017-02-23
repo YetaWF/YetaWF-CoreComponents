@@ -10,6 +10,8 @@ namespace YetaWF.Core.Support.Repository {
 
     public class SettingsDictionary : SerializableDictionary<string, Setting> {
 
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
         public SettingsDictionary() { } // public for serialization
 
         [DontSave]
@@ -42,16 +44,20 @@ namespace YetaWF.Core.Support.Repository {
             Modified = false;
         }
         public static void ClearAllTempItems(string key) {
-            SessionStateIO<SettingsDictionary> session = new SessionStateIO<SettingsDictionary> {
-                Key = key,
-            };
-            SettingsDictionary settings = session.Load();
-            if (settings == null) return;
-            settings.ClearAllNotStartingWith(Globals.Session_Permanent);
-            if (settings.Count == 0)
-                session.Remove();
-            else
-                session.Save();
+            if (key.StartsWith("Setting_")) { // one of our settings dictionaries
+                SessionStateIO<SettingsDictionary> session = new SessionStateIO<SettingsDictionary> {
+                    Key = key,
+                };
+                SettingsDictionary settings = session.Load();
+                if (settings == null) return;
+                settings.ClearAllNotStartingWith(Globals.Session_Permanent);
+                if (settings.Count == 0)
+                    session.Remove();
+                else
+                    session.Save();
+            } else { // regular item
+                Manager.CurrentSession.Remove(key);
+            }
         }
 
         public TYPE GetValue<TYPE>(string settingName, TYPE dfltVal = default(TYPE)) {

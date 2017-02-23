@@ -73,13 +73,20 @@ namespace YetaWF.Core.Support.StaticPages {
             List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
             return list;
         }
+        private string GetScheme() {
+#if MVC6
+            return Manager.CurrentRequest.Scheme;
+#else
+            return Manager.CurrentRequest.Url.Scheme;
+#endif
+        }
         public void AddPage(string localUrl, bool cache, string pageHtml) {
             InitSite();
             string localUrlLower = localUrl.ToLower();
             string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
 
             string tempFile;
-            if (Manager.CurrentRequest.Url.Scheme == "https") {
+            if (GetScheme() == "https") {
                 if (Manager.IsInPopup) {
                     tempFile = "https_popup#";
                 } else {
@@ -115,7 +122,7 @@ namespace YetaWF.Core.Support.StaticPages {
         }
 
         private void SetFileName(PageEntry entry, string tempFile) {
-            if (Manager.CurrentRequest.Url.Scheme == "https") {
+            if (GetScheme() == "https") {
                 if (Manager.IsInPopup) {
                     entry.FileNamePopupHttps = tempFile;
                 } else {
@@ -131,7 +138,7 @@ namespace YetaWF.Core.Support.StaticPages {
         }
 
         private void SetContents(PageEntry entry, string pageHtml) {
-            if (Manager.CurrentRequest.Url.Scheme == "https") {
+            if (GetScheme() == "https") {
                 if (Manager.IsInPopup) {
                     entry.ContentPopupHttps = pageHtml;
                 } else {
@@ -151,7 +158,7 @@ namespace YetaWF.Core.Support.StaticPages {
             PageEntry entry = null;
             if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
                 if (entry.StorageType == PageEntryEnum.Memory) {
-                    if (Manager.CurrentRequest.Url.Scheme == "https") {
+                    if (GetScheme() == "https") {
                         if (Manager.IsInPopup) {
                             return entry.ContentPopupHttps;
                         } else {
@@ -166,7 +173,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     }
                 } else /*if (entry.StorageType == PageEntryEnum.File)*/ {
                     string tempFile = null;
-                    if (Manager.CurrentRequest.Url.Scheme == "https") {
+                    if (GetScheme() == "https") {
                         if (Manager.IsInPopup) {
                             tempFile = entry.FileNamePopupHttps;
                         } else {

@@ -2,8 +2,14 @@
 
 using System;
 using System.Linq;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
+#else
 using System.Web.Mvc;
 using System.Web.Routing;
+#endif
 using System.Web.Script.Serialization;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
@@ -251,7 +257,7 @@ namespace YetaWF.Core.Modules {
                 innerHtml += " <span class='caret'></span>";
             }
             tag.AddCssClass(Globals.CssModuleNoPrint);
-            tag.InnerHtml = innerHtml;
+            tag.SetInnerHtml(innerHtml);
 
             return tag;
         }
@@ -262,26 +268,14 @@ namespace YetaWF.Core.Modules {
             if (!string.IsNullOrWhiteSpace(url)) {
                 // handle all args
                 // add human readable args as URL segments
-                RouteValueDictionary rvdhr = YetaWFManager.AnonymousObjectToRVD(QueryArgsHR);
-                foreach (var entry in rvdhr) {
-                    if (entry.Value != null) {
-                        if (!url.EndsWith("/"))
-                            url += "/";
-                        url += string.Format("{0}/{1}", YetaWFManager.UrlEncodeSegment(entry.Key), YetaWFManager.UrlEncodeSegment(entry.Value.ToString()));
-                    }
-                }
-
-                RouteValueDictionary rvd = YetaWFManager.AnonymousObjectToRVD(QueryArgs);
+                QueryHelper query = QueryHelper.FromAnonymousObject(QueryArgsHR);
+                url = query.ToUrlHumanReadable(url);
+                query = QueryHelper.FromAnonymousObject(QueryArgs);
                 if (NeedsModuleContext) //TODO: Url may already contain Basics.ModuleGuid
-                    rvd.Add(Basics.ModuleGuid, GetOwningModuleGuid());
-                foreach (var entry in rvd)
-                    qs += string.Format("&{0}={1}", YetaWFManager.UrlEncodeArgs(entry.Key), entry.Value != null ? YetaWFManager.UrlEncodeArgs(entry.Value.ToString()) : "");
-                if (QueryArgsRvd != null)
-                    foreach (var entry in QueryArgsRvd)
-                        qs += string.Format("&{0}={1}", YetaWFManager.UrlEncodeArgs(entry.Key), entry.Value != null ? YetaWFManager.UrlEncodeArgs(entry.Value.ToString()) : "");
-
-                if (!string.IsNullOrWhiteSpace(qs) && !url.Contains('?'))
-                    qs = '?' + qs.Substring(1);
+                    query.Add(Basics.ModuleGuid, GetOwningModuleGuid().ToString());
+                url = query.ToUrl(url);
+                if (QueryArgsDict != null)
+                    url = QueryArgsDict.ToUrl(url);
 
                 if (url.StartsWith("/")) {
                     url = Manager.CurrentSite.MakeUrl(url + qs, PagePageSecurity: PageSecurity);

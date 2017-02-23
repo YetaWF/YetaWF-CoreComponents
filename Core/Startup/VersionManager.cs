@@ -411,7 +411,13 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         private static string AreasFolder {
             get {
-                return Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder);
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                return Path.Combine(rootFolder, Globals.AreasFolder);
             }
         }
         /// <summary>
@@ -430,7 +436,6 @@ namespace YetaWF.Core.Addons {
                 return Globals.NugetScriptsUrl;
             }
         }
-
         /// <summary>
         /// Returns the URL of the AddonsCustomization folder
         /// </summary>
@@ -527,7 +532,13 @@ namespace YetaWF.Core.Addons {
 
         private static void CopySiteTemplates(string folder) {
             List<string> files = Directory.GetFiles(folder, "*.txt").ToList();
-            string templateFolder = Path.Combine(YetaWFManager.RootFolder, Globals.SiteTemplates);
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
             foreach (string file in files) {
                 string newFile = Path.Combine(templateFolder, Path.GetFileName(file));
                 File.Copy(file, newFile, true);
@@ -696,6 +707,14 @@ namespace YetaWF.Core.Addons {
             if (File.Exists(file)) {
                 Logging.AddLog("Found {0}", file);
                 lines = File.ReadLines(file).ToList<string>();
+                // remove MVC5/MVC6 lines that don't match current version
+#if MVC6
+                lines = (from l in lines where !l.StartsWith("MVC5 ") select l).ToList();
+                lines = (from l in lines select (l.StartsWith("MVC6 ") ? l.Substring(4) : l).Trim()).ToList();
+#else
+                lines = (from l in lines where !l.StartsWith("MVC6 ") select l).ToList();
+                lines = (from l in lines select (l.StartsWith("MVC5 ") ? l.Substring(4) : l).Trim()).ToList();
+#endif
                 string path = (from l in lines where l.StartsWith("Folder ") select l.Trim()).FirstOrDefault();
                 if (path != null) {
                     if (version.Type != AddOnType.AddonJSGlobal)

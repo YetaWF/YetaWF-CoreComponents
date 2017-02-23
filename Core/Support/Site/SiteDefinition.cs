@@ -2,7 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Language;
 using YetaWF.Core.Localize;
@@ -205,7 +209,7 @@ namespace YetaWF.Core.Site {
         [UIHint("Hidden")]
         public bool IsLocked { get { return Locked; } }
 
-        [Category("Site"), Caption("Locked (Web.config)"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect - Can only be enabled/disable using web.config")]
+        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect - Can only be enabled/disable using web.config/appsettings.json")]
         [UIHint("Boolean"), ReadOnly, SuppressIfEqual("IsLockedExternal", false)]
         [Data_DontSave]
         public bool LockedExternal { get; set; }
@@ -289,7 +293,6 @@ namespace YetaWF.Core.Site {
                 return GetFavIconLinks(FavIcon_Data, FavIcon, FavIconLrg_Data, FavIconLrg);
             }
         }
-
         [Category("Site"), Caption("Currency Format"), Description("The currency format used on this site - the default is $US if omitted")]
         [UIHint("Text20"), StringLength(20)]
         public string CurrencyFormat { get; set; }
@@ -310,7 +313,7 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool StaticPages { get; set; }
 
-        [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through web.config - typically used for debugging (can only be set using web.config)")]
+        [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through web.config/appsettings.json - typically used for debugging (can only be set using web.config/appsettings.json)")]
         [UIHint("Boolean")]
         public bool DEBUGMODE {
             get {
@@ -354,7 +357,7 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         public bool BundleJSFiles { get; set; }
 
-        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config)")]
+        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config/appsettings.json)")]
         [UIHint("Boolean")]
         public bool UseHttpHandler {
             get {
@@ -374,7 +377,7 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN"), Description("Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on web.config settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN WEB.CONFIG (P:YetaWF_Core:UseCDN = false)")]
+        [Category("CDN"), Caption("Use CDN"), Description("Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on web.config/appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN WEB.CONFIG/APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)")]
         [UIHint("Boolean")]
         public bool UseCDN { get; set; }
 
@@ -470,7 +473,6 @@ namespace YetaWF.Core.Site {
         [Category("Email"), Caption("Site Admin Email"), Description("The email address of the site's administrator. The SMTP server must be defined for email delivery to the site administrator")]
         [Required, UIHint("Email"), StringLength(Globals.MaxEmail), EmailValidation, Trim]
         public string AdminEmail { get; set; }
-
         [Category("Email"), Caption("Email Server"), Description("The email server used to send emails from this site")]
         [UIHint("SMTPServer"), AdditionalMetadata("Test", true)]
         public SMTPServer SMTP { get; set; }

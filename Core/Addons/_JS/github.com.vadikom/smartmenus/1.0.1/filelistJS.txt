@@ -1,0 +1,5 @@
+MVC6 \lib\smartmenus\dist\jquery.smartmenus.js,bundle
+MVC6 \lib\smartmenus\dist\addons\bootstrap\jquery.smartmenus.bootstrap.js,bundle
+
+MVC5 jquery.smartmenus.js,bundle
+MVC5 addons/bootstrap/jquery.smartmenus.bootstrap.js,bundle

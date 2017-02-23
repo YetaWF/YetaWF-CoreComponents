@@ -15,6 +15,7 @@ namespace YetaWF.Core.Packages {
         public string PackageVersion { get; set; }
         public PackageTypeEnum PackageType { get; set; }
         public string CoreVersion { get; set; }
+        public YetaWFManager.AspNetMvcVersion AspNetMvcVersion { get; set; }
 
         public SerializableList<SerializableFile> BinFiles { get; set; }
         public SerializableList<SerializableFile> AddOns { get; set; }
@@ -67,8 +68,15 @@ namespace YetaWF.Core.Packages {
                 throw new InternalError("{0} is not a valid filename and cannot be exported", fileName);
             fileName = file.LocalPath;
             string relFileName = fileName;
-            if (string.IsNullOrWhiteSpace(ExternalRoot))
-                ExternalRoot = YetaWFManager.RootFolder;
+            if (string.IsNullOrWhiteSpace(ExternalRoot)) {
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                ExternalRoot = rootFolder;
+            }
             if (!fileName.StartsWith(ExternalRoot, StringComparison.OrdinalIgnoreCase))
                 throw new InternalError("'{0}' is not within the folder '{1}' and cannot be exported.", fileName, ExternalRoot);
 

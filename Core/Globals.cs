@@ -41,7 +41,7 @@ namespace YetaWF.Core {
 
         public void InitializeApplicationStartup() {
             // Generate globals javascript equivalent
-            string outputUrl = "/" + VersionManager.FindAddOnVersion("YetaWF", "Core", "Basics").GetAddOnJsUrl() + "Globals.js";
+            string outputUrl = VersionManager.FindAddOnVersion("YetaWF", "Core", "Basics").GetAddOnJsUrl() + "Globals.js";
             ConvertGlobalsToJavascript.Convert(YetaWFManager.UrlToPhysical(outputUrl), this, "YGlobals");
         }
 
@@ -108,9 +108,22 @@ namespace YetaWF.Core {
         public const string Addons_SkinsDirectoryName = "_Skins";
         public const string SiteFilesUrl = "/SiteFiles/";
         public const string VaultUrl = "/Vault/";
-        public const string NugetScriptsUrl = "/Scripts/";
-        public const string NugetContentsUrl = "/Content/";
-        public const string NugetContentsFolder = "Content";
+
+        private const string NugetContentsFolderMVC6 = "lib";
+        private const string NugetContentsFolderMVC5 = "Content";
+        private const string NugetScriptsFolderMVC6 = "lib";
+        private const string NugetScriptsFolderMVC5 = "Scripts";
+        private const string NugetScriptsUrlMVC6 = "/" + NugetScriptsFolder + "/";
+        private const string NugetScriptsUrlMVC5 = "/Scripts/";
+#if MVC6
+        public const string NugetContentsFolder = NugetContentsFolderMVC6;
+        public const string NugetScriptsFolder = NugetScriptsFolderMVC6;
+#else
+        public const string NugetContentsFolder = NugetContentsFolderMVC5;
+        public const string NugetScriptsFolder = NugetScriptsFolderMVC5;
+#endif
+        public const string NugetContentsUrl = "/" + NugetContentsFolder + "/";
+        public const string NugetScriptsUrl = "/" + NugetScriptsFolder + "/";
         public const string Compiled = "._cmpld_";
         public const string TempImagesFolder = "_img_";
 

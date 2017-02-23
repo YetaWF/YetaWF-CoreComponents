@@ -12,7 +12,7 @@ namespace YetaWF.Core.Pages {
 
         public void AddLinkAltTag(string name, string type, string title, string href) {
             string tag = string.Format("<link rel='alternate' type='{0}' title='{1}' href='{2}'>",
-                HttpUtility.HtmlAttributeEncode(type), HttpUtility.HtmlAttributeEncode(title), HttpUtility.HtmlAttributeEncode(href));
+                YetaWFManager.HtmlAttributeEncode(type), YetaWFManager.HtmlAttributeEncode(title), YetaWFManager.HtmlAttributeEncode(href));
             if (_tags.ContainsKey(name)) {
                 if (_tags[name] != tag)
                     throw new InternalError("Link alt tag {0} has already been added for this page with a different value", name);

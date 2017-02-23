@@ -5,7 +5,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Image;
@@ -411,8 +417,11 @@ namespace YetaWF.Core.Pages {
         // RENDERING
         // RENDERING
 
+#if MVC6
+        public MvcHtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true) {
+#else
         public MvcHtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true) {
-
+#endif
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
             // copy page's moduleDefinitions
@@ -428,7 +437,7 @@ namespace YetaWF.Core.Pages {
                 TagBuilder tagDiv = new TagBuilder("div");
                 tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag));
                 tagDiv.SetInnerText(pane);
-                sb = new StringBuilder(tagDiv.ToString());
+                sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
             }
 
             foreach (var modEntry in moduleList) {
@@ -460,8 +469,8 @@ namespace YetaWF.Core.Pages {
                 if (!string.IsNullOrWhiteSpace(cssClass))
                     tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
                 tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));
-                tagDiv.InnerHtml = sb.ToString();
-                sb = new StringBuilder(tagDiv.ToString());
+                tagDiv.SetInnerHtml(sb.ToString());
+                sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
             }
 
             Manager.PaneRendered = null;
@@ -482,7 +491,11 @@ namespace YetaWF.Core.Pages {
         public class PaneSet : IDisposable {
             protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+#if MVC6
+            public PaneSet(IHtmlHelper<object> Html, bool conditional, bool sameHeight) {
+#else
             public PaneSet(HtmlHelper<object> Html, bool conditional, bool sameHeight) {
+#endif
                 this.Html = Html;
                 DivTag = new TagBuilder("div");
                 Id = Manager.UniqueId();
@@ -504,7 +517,11 @@ namespace YetaWF.Core.Pages {
             }
             //~PaneSet() { Dispose(false); }
 
+#if MVC6
+            public IHtmlHelper<object> Html { get; private set; }
+#else
             public HtmlHelper<object> Html { get; private set; }
+#endif
             public TagBuilder DivTag { get; private set; }
             public string Id { get; private set; }
             public bool Conditional { get; private set; }
@@ -514,7 +531,11 @@ namespace YetaWF.Core.Pages {
         /// Render a set of panes. If all panes are empty, the panes will be hidden (display:none) but still sent to the client
         /// in case we may want to manipulate the panes on the client side
         /// </summary>
+#if MVC6
+        public PaneSet RenderPaneSet(IHtmlHelper<object> htmlHelper, string cssClass = null, bool Conditional = true, bool SameHeight = true) {
+#else
         public PaneSet RenderPaneSet(HtmlHelper<object> htmlHelper, string cssClass = null, bool Conditional = true, bool SameHeight = true) {
+#endif
             PaneSet set = new PaneSet(htmlHelper, Conditional, SameHeight);
             if (!string.IsNullOrWhiteSpace(cssClass))
                 set.DivTag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));

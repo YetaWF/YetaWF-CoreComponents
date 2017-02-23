@@ -1,5 +1,5 @@
 ﻿@*Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Pages.RazorTemplate<Guid?>
 @if (Model != null && Model != Guid.Empty) {
-    @Model.ToString()
+    @(((Guid)Model).ToString())
 }

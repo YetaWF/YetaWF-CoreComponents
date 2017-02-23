@@ -226,8 +226,9 @@ namespace YetaWF.Core.Site {
         // FAVICON
 
         public string GetFavIconLinks(byte[] data, string name, byte[] dataLrg, string nameLrg) {
-            string url;
             HtmlBuilder hb = new HtmlBuilder();
+
+            string url;
             // Seriously? All this for a favicon? Who thought this was a good idea?
             if (data != null && data.Length > 0) {
                 string cb = data.Length.ToString();
@@ -328,7 +329,8 @@ namespace YetaWF.Core.Site {
             }
         }
         public static void RemoveInitialInstall() {
-            WebConfigHelper.RemoveValue(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL");
+            WebConfigHelper.SetValue<string>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL", "0");
+                WebConfigHelper.Save();
             _initial_install = false;
         }
         private static bool? _initial_install = null;

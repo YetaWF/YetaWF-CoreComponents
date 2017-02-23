@@ -1,3 +1,4 @@
-﻿\Scripts\jquery-ui-1.12.1.js
+﻿MVC6 \lib\jquery-ui\jquery-ui.min.js
+MVC5 \Scripts\jquery-ui-1.12.1.js
 prefixup.js
 postfixup.js,bundle,last

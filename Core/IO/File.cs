@@ -9,6 +9,12 @@ using System.Text;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Support.Serializers;
 
+#if MVC6
+using Microsoft.Extensions.Caching.Memory;
+#else
+#endif
+
+
 namespace YetaWF.Core.IO {
 
     /// <summary>

@@ -3,7 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if MVC6
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+#else
 using System.Web.WebPages.Html;
+#endif
 using YetaWF.Core.Log;
 
 namespace YetaWF.Core.Support {
@@ -19,11 +23,14 @@ namespace YetaWF.Core.Support {
         public InternalError(string message) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog("Internal Error: " + message))) { }
     }
 
+#if MVC6
+#else
     public static class ModelStateDictionaryExtender {
         public static void AddModelError(this ModelStateDictionary dict, string key, string errorMessage, params object[] parms) {
             dict.AddError(key, string.Format(errorMessage, parms));
         }
     }
+#endif
     public static class ErrorHandling {
 
         private static object _lockObject = new object();

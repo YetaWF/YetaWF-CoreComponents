@@ -7,6 +7,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Addons {
+
     public class Basics : IAddOnSupport {
 
         // Action (part of Basics)

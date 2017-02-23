@@ -1,8 +1,14 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+#if MVC6
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.DependencyInjection;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 
@@ -11,10 +17,22 @@ namespace YetaWF.Core.Support {
     public static class ViewEnginesStartup {
 
         /// <summary>
-        /// Update view engines so we can find our views
+        /// Update view engines so we can find our views.
         /// </summary>
-        public static void Start() {
+#if MVC6
+        public static void Start(IServiceCollection services) {
 
+            services.Configure<RazorViewEngineOptions>(options => {
+                options.AreaViewLocationFormats.Clear();
+                options.AreaViewLocationFormats.Add("/Areas/{2}/Views/Shared/{0}.cshtml");
+                options.AreaViewLocationFormats.Add("/Areas/{2}/Views/{0}.cshtml");
+                List<string> publicAreaPartialViews = GetPublicAreaPartialViews();
+                foreach (string fmt in publicAreaPartialViews)
+                    options.AreaViewLocationFormats.Add(fmt);
+            });
+        }
+#else
+        public static void Start() {
             Logging.AddLog("Establishing ViewEngines");
 
             // Add global usings for razor pages
@@ -54,17 +72,28 @@ namespace YetaWF.Core.Support {
             //pvs.AddRange(publicAreaPartialViews);
             //engine.AreaPartialViewLocationFormats = pvs.ToArray();
         }
+#endif
         private static List<string> GetPublicAreaPartialViews() {
+#if MVC6
+#else
             Logging.AddLog("Processing Public Area Partial Views");
+#endif
             List<string> pvs = new List<string>();
             List<Package> packages = Package.GetAvailablePackages();
             foreach (Package package in packages) {
                 if (package.HasPublicPartialViews) {
+#if MVC6
+                    pvs.Add(string.Format("/Areas/{0}/Views/Shared/{{0}}.cshtml", package.AreaName));
+#else
                     pvs.Add(string.Format("~/Areas/{0}/Views/Shared/{{0}}.cshtml", package.AreaName));
                     Logging.AddLog("Found {0}", package.AreaName);
+#endif
                 }
             }
+#if MVC6
+#else
             Logging.AddLog("Processing Public Area Partial Views Ended");
+#endif
             return pvs;
         }
     }

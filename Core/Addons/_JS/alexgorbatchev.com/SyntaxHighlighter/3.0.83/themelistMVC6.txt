@@ -1,0 +1,8 @@
+Default,\lib\SyntaxHighlighter\styles\shThemeDefault.css
+Django,\lib\SyntaxHighlighter\styles\shThemeDjango.css
+Eclipse,\lib\SyntaxHighlighter\styles\shThemeEclipse.css
+Emacs,\lib\SyntaxHighlighter\styles\shThemeEmacs.css
+FadeToGray,\lib\SyntaxHighlighter\styles\shThemeFadeToGrey.css
+MDUltra,\lib\SyntaxHighlighter\styles\shThemeMDUltra.css
+Midnight,\lib\SyntaxHighlighter\styles\shThemeMidnight.css
+RDark,\lib\SyntaxHighlighter\styles\shThemeRDark.css

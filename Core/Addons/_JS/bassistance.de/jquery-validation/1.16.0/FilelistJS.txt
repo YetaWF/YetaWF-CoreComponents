@@ -1,1 +1,2 @@
-﻿\Scripts\jquery.validate.js
+﻿MVC6 \lib\jquery-validation\dist\jquery.validate.js
+MVC5 \Scripts\jquery.validate.js

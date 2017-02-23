@@ -1,10 +1,63 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+#if MVC6
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+#else
 using System.Configuration;
+#endif
 using System.Linq;
+
 
 namespace YetaWF.Core.Upload {
 
+#if MVC6
+    public class MimeSection {
+
+        private static MimeSection _settings;
+
+        public List<MimeEntry> MimeTypes { get; set; }
+
+        public static void Init(MimeSection settings) {
+            _settings = settings;
+        }
+        public static MimeSection GetMimeSection() {
+            return _settings;
+        }
+
+        public string GetContentTypeFromExtension(string strExtension) {
+            MimeEntry me = GetElementFromExtension(strExtension);
+            if (me == null)
+                return null;
+            return me.Type;
+        }
+        public MimeEntry GetElementFromExtension(string strExtension) {
+            if (MimeTypes != null) {
+                foreach (var mt in MimeTypes) {
+                    if (mt.Extensions.ToLower().Contains(strExtension + ";") || mt.Extensions.ToLower().EndsWith(strExtension))
+                        return mt;
+                }
+            }
+            return null;
+        }
+        public MimeEntry GetElementFromContentType(string contentType) {
+            contentType = contentType.ToLower();
+            var v = (from MimeEntry entry in MimeTypes where entry.Type.ToLower() == contentType select entry).FirstOrDefault();
+            if (v != null)
+                return v;
+            return null;
+        }
+    }
+
+    public class MimeEntry {
+        public string Type { get; set; }
+        public string Extensions { get; set; }
+        public bool ImageUse { get; set; }
+        public bool FlashUse { get; set; }
+        public bool FileUse { get; set; }
+        public bool PackageUse { get; set; }
+    }
+#else
     public class MimeSection : ConfigurationSection {
 
         public static MimeSection GetMimeSection() {
@@ -18,7 +71,7 @@ namespace YetaWF.Core.Upload {
             }
             set {
                 base["MimeTypes"] = value;
-            } 
+            }
         }
 
         public string GetContentTypeFromExtension(string strExtension)
@@ -56,25 +109,25 @@ namespace YetaWF.Core.Upload {
             return ((MimeEntry)element).Type;
         }
     }
-    public class MimeEntry : ConfigurationElement 
+    public class MimeEntry : ConfigurationElement
     {
         [ConfigurationProperty("Type", IsKey=true , IsRequired=true)]
         public string Type {
-            get { 
-                return (string)this["Type"]; 
+            get {
+                return (string)this["Type"];
             }
-            set { 
-                this["Type"] = value; 
+            set {
+                this["Type"] = value;
             }
         }
 
         [ConfigurationProperty("Extensions", IsKey=false, IsRequired=true)]
         public string Extensions {
-            get { 
-                return (string)this["Extensions"]; 
+            get {
+                return (string)this["Extensions"];
             }
-            set { 
-                this["Extensions"] = value; 
+            set {
+                this["Extensions"] = value;
             }
         }
 
@@ -114,5 +167,6 @@ namespace YetaWF.Core.Upload {
                 this["PackageUse"] = value;
             }
         }
-    } 
+    }
+#endif
 }

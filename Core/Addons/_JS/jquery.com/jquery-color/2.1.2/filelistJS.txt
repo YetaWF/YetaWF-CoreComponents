@@ -1,1 +1,2 @@
-jquery.color-2.1.2.js
+MVC6 \lib\jquery-color\jquery.color.js
+MVC5 jquery.color-2.1.2.js

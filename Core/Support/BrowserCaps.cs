@@ -1,5 +1,10 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+
+#if MVC6
+    // dropped
+#else
+
 using System.Web;
 
 namespace YetaWF.Core.Support {
@@ -33,3 +38,5 @@ namespace YetaWF.Core.Support {
         }
     }
 }
+
+#endif

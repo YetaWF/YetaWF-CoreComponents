@@ -20,13 +20,10 @@ namespace YetaWF.Core.IO {
         /// </summary>
         /// <returns></returns>
         public TObj Load() {
-
             if (!Manager.HaveCurrentSession) return default(TObj);
-            byte[] data = (Manager.CurrentSession[Key] as byte[]);//"foreign" session data can be non-byte[]
+            byte[] data;
+            data = Manager.CurrentSession.GetBytes(Key);
             if (data == null) return default(TObj);
-            data = (byte[])Manager.CurrentSession[Key];
-            if (data == null) return default(TObj);
-
             Data = new GeneralFormatter().Deserialize(data);
             return (TObj) (object) Data;
         }
@@ -37,7 +34,7 @@ namespace YetaWF.Core.IO {
         public void Save() {
             if (Data == null) throw new InternalError("No data");
             if (!Manager.HaveCurrentSession) throw new InternalError("No session");
-            Manager.CurrentSession[Key] = new GeneralFormatter().Serialize(Data);
+            Manager.CurrentSession.SetBytes(Key, new GeneralFormatter().Serialize(Data));
         }
 
         /// <summary>

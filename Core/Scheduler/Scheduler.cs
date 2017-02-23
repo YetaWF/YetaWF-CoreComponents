@@ -2,9 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Scheduler {
 

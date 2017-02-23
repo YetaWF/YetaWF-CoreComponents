@@ -4,8 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Web.Mvc;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -13,13 +17,8 @@ namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     // identifies a property that is never saved by a serializer - Serializers save all properties (not fields)
-    public class DontSaveAttribute : Attribute, IMetadataAware {
-        public void OnMetadataCreated(ModelMetadata metadata) {
-            if (metadata == null)
-                throw new ArgumentNullException("metadata");
-            metadata.AdditionalValues["DontSave"] = true;
-        }
-    }
+    public class DontSaveAttribute : Attribute { }
+
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class PermissionAttribute : Attribute {
         public PermissionAttribute(string level) { Level = level; }
@@ -191,7 +190,11 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
+#if MVC6
+    public class MoreMetadataAttribute : Attribute, IAdditionalAttribute {
+#else
     public class MoreMetadataAttribute : Attribute, IMetadataAware {
+#endif
         private object _typeId = new object();
 
         public MoreMetadataAttribute(string name, object value) {
@@ -208,10 +211,16 @@ namespace YetaWF.Core.Models.Attributes {
         public string Name { get; private set; }
         public object Value { get; private set; }
 
+#if MVC6
+        public void OnAddAdditionalValues(IDictionary<object, object> additionalValues) {
+            additionalValues[Name] = Value;
+        }
+#else
         public void OnMetadataCreated(ModelMetadata metadata) {
             if (metadata == null)
                 throw new ArgumentNullException("metadata");
             metadata.AdditionalValues[Name] = Value;
         }
+#endif
     }
 }

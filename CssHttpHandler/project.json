@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+
+  "dependencies": {
+    "Core": "2.0.0"
+   },
+  "frameworks": {
+    "net462": {
+      "frameworkAssemblies": {
+      }
+    }
+  },
+  "buildOptions": {
+    "outputName": "YetaWF.Core.CssHttpHandler",
+    "define": [ "MVC6" ]
+  }
+}

@@ -17,7 +17,7 @@ namespace YetaWF.Core.Pages {
             if (_tags.Contains(type))
                 throw new InternalError("Metatag name={0} has already been added for this page.", type);
             content = vars.ReplaceVariables(content);// variable substitution
-            string tag = string.Format("<meta name='{0}' content='{1}'/>", HttpUtility.HtmlAttributeEncode(type), HttpUtility.HtmlAttributeEncode(content));
+            string tag = string.Format("<meta name='{0}' content='{1}'/>", YetaWFManager.HtmlAttributeEncode(type), YetaWFManager.HtmlAttributeEncode(content));
             _tags.Add(tag);
         }
         public string Render() {

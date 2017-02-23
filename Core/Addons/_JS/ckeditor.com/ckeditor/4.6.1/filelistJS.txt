@@ -1,1 +1,2 @@
-﻿\Scripts\ckeditor\ckeditor.js,nominify
+﻿MVC6 \lib\ckeditor\ckeditor.js,nominify
+MVC5 \Scripts\ckeditor\ckeditor.js,nominify

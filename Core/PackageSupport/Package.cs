@@ -8,13 +8,16 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Web.Compilation;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using YetaWF.PackageAttributes;
+#if MVC6
+#else
+using System.Web.Compilation;
+#endif
 
 namespace YetaWF.Core.Packages {
 
@@ -197,12 +200,16 @@ namespace YetaWF.Core.Packages {
             //packages.AddRange(GetUtilityPackages());
             return DataProviderImpl<Package>.GetRecords(packages, skip, take, sort, filters, out total);
         }
+
         /// <summary>
         /// Returns all packages referenced by this YetaWF instance, i.e., the website (this excludes templates, utilities)
         /// </summary>
         public static List<Package> GetAvailablePackages() {
             if (_availablePackages == null) {
                 ICollection assemblies = null;
+#if MVC6
+                assemblies = AppDomain.CurrentDomain.GetAssemblies();
+#else
                 if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE) {
                     // this will only work in ASP.NET apps
                     assemblies = BuildManager.GetReferencedAssemblies();
@@ -210,6 +217,7 @@ namespace YetaWF.Core.Packages {
                     // Get all currently loaded assemblies - make sure this is outside asp.net app
                     assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 }
+#endif
                 if (assemblies == null)
                     throw new InternalError("Unable to obtain referenced assemblies");
 
@@ -225,19 +233,19 @@ namespace YetaWF.Core.Packages {
         // We statically hold a reference to ALL available, referenced packages- this is necessary for package information caching (notably localization)
         private static List<Package> _availablePackages = null;
 
-        //public static List<Package> GetTemplatePackages() {
-        //    string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
-        //    List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolder, "..", sourceFolder), csAssemblyTemplateRegex);
-        //    return packages;
-        //}
-        //public static List<Package> GetUtilityPackages() {
-        //    string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
-        //    List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolder, "..", sourceFolder), csAssemblyUtilityRegex);
-        //    return packages;
-        //}
+        public static List<Package> GetTemplatePackages() {
+            string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
+            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
+            return packages;
+        }
+        public static List<Package> GetUtilityPackages() {
+            string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
+            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
+            return packages;
+        }
 
-        //private static readonly Regex csAssemblyTemplateRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Template\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
-        //private static readonly Regex csAssemblyUtilityRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Utility\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex csAssemblyTemplateRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Template\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex csAssemblyUtilityRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Utility\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private static List<Package> FindPackages(string packageRoot, Regex regex) {
             List<Package> packages = new List<Package>();
@@ -477,8 +485,8 @@ namespace YetaWF.Core.Packages {
         /// <remarks>
         /// The Domain name specified cannot include a period (".").
         /// For example, if your company owns the domain "Softelvdm.com", use "Softelvdm" as domain name (no top-level domain .com as that is assumed).
-        /// If your comapny owns "MyComany.com", use "MyCompany". If your company owns "MyCompany.net" but NOT "MyCompany.com", you must include the top-level domain as part yof your domain (but WITHOUT periods), as in "MyCompanyNet".
-        /// If your comapny owns "SomeCompany.co.uk" use "SomeCompanyCoUk").
+        /// If your company owns "MyCompany.com", use "MyCompany". If your company owns "MyCompany.net" but NOT "MyCompany.com", you must include the top-level domain as part yof your domain (but WITHOUT periods), as in "MyCompanyNet".
+        /// If your company owns "SomeCompany.co.uk" use "SomeCompanyCoUk").
         /// </remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string Domain {
@@ -495,7 +503,7 @@ namespace YetaWF.Core.Packages {
         private string _domain;
 
         /// <summary>
-        /// Your comany name, in displayable form.
+        /// Your company name, in displayable form.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string CompanyDisplayName {
@@ -833,5 +841,18 @@ namespace YetaWF.Core.Packages {
         /// Used to cache a package's license data. This is available to package implementers and is not used by YetaWF.
         /// </summary>
         public dynamic CachedLicenseData { get; set; }
+
+        /// <summary>
+        /// The Asp.Net Mvc version for which this package was built
+        /// </summary>
+        public YetaWFManager.AspNetMvcVersion AspNetMvc {
+            get {
+#if MVC6
+                return YetaWFManager.AspNetMvcVersion.MVC6;
+#else
+                return YetaWFManager.AspNetMvcVersion.MVC5;
+#endif
+            }
+        }
     }
 }

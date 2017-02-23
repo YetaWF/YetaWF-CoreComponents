@@ -1,3 +1,4 @@
-Folder \Content\Kendo\2017.1.118\
+MVC6 Folder \lib\kendo-ui-core\styles\
+MVC5 Folder \Content\Kendo\2017.1.118\
 kendo.common.min.css
 {0}

@@ -18,7 +18,7 @@ namespace YetaWF.Core.Log {
     public static partial class Logging {
 
         // we can't use some clever scheme to get a logging provider because we need logging as soon as possible so
-        // logging is set up using web.config.
+        // logging is set up using web.config/appsettings.json.
         public static void SetupLogging() {
 
             TerminateLogging();

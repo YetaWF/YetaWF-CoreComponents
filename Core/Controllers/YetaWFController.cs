@@ -3,19 +3,30 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Web.Mvc;
-using System.Web.Mvc.Filters;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
+#if MVC6
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+#else
+using System.Web.Mvc;
+using System.Web.Mvc.Filters;
+using YetaWF.Core.Addons;
+#endif
 
 namespace YetaWF.Core.Controllers {
 
     // Base class for all controllers used by YetaWF
-    public class YetaWFController : Controller {
+    public class YetaWFController :
+#if MVC6
+                                    Microsoft.AspNetCore.Mvc.Controller
+#else
+                                    Controller
+#endif
+        {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -28,6 +39,9 @@ namespace YetaWF.Core.Controllers {
         }
 
         // Handle exceptions and return suitable error info
+#if MVC6
+        // Handled identically in ErrorHandlingMiddleware
+#else
         protected override void OnException(ExceptionContext filterContext) {
 
             // log the error
@@ -57,6 +71,31 @@ namespace YetaWF.Core.Controllers {
                 string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.Jser.Serialize(msg)));
             cr.ExecuteResult(filterContext);
         }
+#endif
+
+#if MVC6
+        public override void OnActionExecuting(ActionExecutingContext filterContext) {
+            Logging.AddLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
+            SetupEnvironmentInfo();
+            // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
+            if (Manager.IsDemo) {
+                Type ctrlType;
+                string actionName;
+#if MVC6
+                ctrlType = filterContext.Controller.GetType();
+                actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+#else
+                filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
+                actionName = filterContext.ActionDescriptor.ActionName;
+#endif
+                MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+                ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
+                if (exclDemoAttr != null)
+                    throw new Error("This action is not available in Demo mode.");
+            }
+            base.OnActionExecuting(filterContext);
+        }
+#else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             Logging.AddLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
             SetupEnvironmentInfo();
@@ -69,11 +108,15 @@ namespace YetaWF.Core.Controllers {
             }
             base.OnActionExecuting(filterContext);
         }
+#endif
+#if MVC6
+        // This is handled in ResourceAuthorizeHandler
+#else
         protected override void OnAuthentication(AuthenticationContext filterContext) {
             SetupEnvironmentInfo();
             base.OnAuthentication(filterContext);
         }
-
+#endif
         public static void SetupEnvironmentInfo() {
 
             if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled

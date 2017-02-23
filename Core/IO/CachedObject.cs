@@ -2,6 +2,10 @@
 
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+#if MVC6
+using Microsoft.Extensions.Caching.Memory;
+#else
+#endif
 
 namespace YetaWF.Core.IO {
 
@@ -13,6 +17,7 @@ namespace YetaWF.Core.IO {
         public CachedObject() {
             Cacheable = true;
         }
+
         public bool Cacheable { get; set; }
 
         private static object EmptyCachedObject = new object();
@@ -21,13 +26,24 @@ namespace YetaWF.Core.IO {
             if (!HaveManager || !Manager.HaveCurrentContext)
                 return;
             if (Cacheable) {
-                if (data == null)
+                if (data == null) {
+#if MVC6
+                    YetaWFManager.MemoryCache.Set<object>(cacheKey, EmptyCachedObject);
+#else
                     Manager.CurrentContext.Cache[cacheKey] = EmptyCachedObject;
-                else {
+#endif
+
+                } else {
                     // we can't save the entire object, just the data that we actually marked as saveable (Properties)
                     // the main reason the object is not saveable is because it may be derived from other classes with
                     // volatile data which is expected to be cleared for every invokation.
-                    Manager.CurrentContext.Cache[cacheKey] = new GeneralFormatter().Serialize(data);
+                    byte[] cacheData = new GeneralFormatter().Serialize(data);
+#if MVC6
+                    YetaWFManager.MemoryCache.Set<byte[]>(cacheKey, cacheData);
+#else
+                    Manager.CurrentContext.Cache[cacheKey] = cacheData;
+#endif
+
                 }
             }
         }
@@ -45,7 +61,12 @@ namespace YetaWF.Core.IO {
             data = null;
             if (!HaveManager || !Manager.HaveCurrentContext)
                 return false;
+#if MVC6
+            data = YetaWFManager.MemoryCache.Get(cacheKey);
+#else
             data = Manager.CurrentContext.Cache[cacheKey];
+#endif
+
             if (data == EmptyCachedObject) {
                 data = null;
                 return true;
@@ -58,8 +79,11 @@ namespace YetaWF.Core.IO {
         public void RemoveFromCache(string cacheKey) {
             if (!HaveManager || !Manager.HaveCurrentContext)
                 return;
+#if MVC6
+            YetaWFManager.MemoryCache.Remove(cacheKey);
+#else
             Manager.CurrentContext.Cache.Remove(cacheKey);
+#endif
         }
-
     }
 }

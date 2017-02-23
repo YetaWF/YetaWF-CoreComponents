@@ -29,7 +29,13 @@ namespace YetaWF.Core.Packages {
         /// </remarks>
         public static void SavePackageMap() {
             Logging.AddLog("Saving package map");
-            string outFile = Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.PackageMap);
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string outFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.PackageMap);
             StringBuilder sb = new StringBuilder();
             List<Package> packages = GetAvailablePackages();
             packages = (from p in packages orderby p.Name select p).ToList();
@@ -56,12 +62,11 @@ namespace YetaWF.Core.Packages {
         /// </remarks>
         public static void UpgradeToNewPackages() {
 
-            FixDataFolders();
-
             //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
 
             // Create an update log file
-            Logging.RegisterCallback(WriteToUpdateLog);
+            if (Logging.RegisterCallback != null)
+                Logging.RegisterCallback(WriteToUpdateLog);
 
             SiteDefinition site = SiteDefinition.LoadSiteDefinition(null);// get the default site
             if (site == null)
@@ -75,22 +80,21 @@ namespace YetaWF.Core.Packages {
                 throw;
             } finally {
                 // Stop update log file
-                Logging.UnregisterCallback(WriteToUpdateLog);
+                if (Logging.UnregisterCallback != null)
+                    Logging.UnregisterCallback(WriteToUpdateLog);
 
                 YetaWFManager.Manager.CurrentSite = origSite;
             }
         }
 
-        // Fix data folders that are incorrectly using the default site name (fixed in 1.0.9)
-        private static void FixDataFolders() {
-            if (Directory.Exists(YetaWFManager.DataFolderOld))
-                Directory.Move(YetaWFManager.DataFolderOld, YetaWFManager.DataFolder);
-            if (Directory.Exists(YetaWFManager.RootSitesFolderOld))
-                Directory.Move(YetaWFManager.RootSitesFolderOld, YetaWFManager.RootSitesFolder);
-        }
-
         private static void WriteToUpdateLog(string text) {
-            File.AppendAllText(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            File.AppendAllText(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
         }
         private static void UpgradePackages() {
 
@@ -102,7 +106,13 @@ namespace YetaWF.Core.Packages {
             List<Package> allPackages = Package.GetAvailablePackages();
 
             // update/create all models
-            if (File.Exists(Path.Combine(YetaWFManager.RootFolder, Globals.UpdateIndicatorFile))) {
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            if (File.Exists(Path.Combine(rootFolder, Globals.UpdateIndicatorFile))) {
                 Logging.AddLog("Updating ALL packages");
                 UpdateAll();
             } else {
@@ -159,7 +169,7 @@ namespace YetaWF.Core.Packages {
             }
 
             // Remove the update indicator file (if present)
-            File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.UpdateIndicatorFile));
+            File.Delete(Path.Combine(rootFolder, Globals.UpdateIndicatorFile));
         }
         /// <summary>
         /// Loads the existing package map at .\Website\Data\PackageMap.txt
@@ -167,7 +177,13 @@ namespace YetaWF.Core.Packages {
         /// <returns>Information for all packages that were available during the last startup of YetaWF.</returns>
         private static List<PackageInfo> LoadPackageMap() {
             List<PackageInfo> list = new List<PackageInfo>();
-            string inFile = Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.PackageMap);
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string inFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.PackageMap);
             if (!File.Exists(inFile))
                 throw new InternalError("The package map file {0} does not exist", inFile);
             List<string> lines = File.ReadAllLines(inFile).ToList();
@@ -224,8 +240,14 @@ namespace YetaWF.Core.Packages {
         /// all templates with a newer version are executed.
         /// </remarks>
         private static void InstallSiteTemplate(Package package, string lastSeenVersion) {
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderSolution;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
             string templateBase = package.Name.Replace(".", "_");
-            string templateFolder = Path.Combine(YetaWFManager.RootFolder, Globals.SiteTemplates);
+            string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
             List<string> templates = Directory.GetFiles(templateFolder, templateBase + "*.txt", SearchOption.TopDirectoryOnly).ToList();
             templates = (from t in templates select Path.GetFileNameWithoutExtension(t)).ToList();
             templates.Sort(new SiteTemplateNameComparer());
@@ -247,10 +269,10 @@ namespace YetaWF.Core.Packages {
                 if (installTemplate) {
                     // execute this template via built-in command (implemented by the YetaWF.Package package)
                     Logging.AddLog("Executing site template {0}", template);
-                    Action<NameValueCollection> action = BuiltinCommands.Find("/$processtemplate", checkAuthorization: false);
+                    Action<QueryHelper> action = BuiltinCommands.Find("/$processtemplate", checkAuthorization: false);
                     if (action == null)
                         throw new InternalError("Built-in command /$processtemplate not found");
-                    NameValueCollection qs = new NameValueCollection();
+                    QueryHelper qs = new QueryHelper();
                     qs["Template"] = template + ".txt";
                     try {
                         action(qs);

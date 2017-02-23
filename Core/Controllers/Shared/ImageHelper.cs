@@ -2,7 +2,12 @@
 
 using System.Drawing;
 using System.Web;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Image;
@@ -16,7 +21,11 @@ namespace YetaWF.Core.Controllers.Shared
     {
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_UploadImages)]
+#if MVC6
+        public ActionResult SaveImage(IFormFile __filename, string __lastInternalName) {
+#else
         public ActionResult SaveImage(HttpPostedFileBase __filename, string __lastInternalName) {
+#endif
             FileUpload upload = new FileUpload();
             string tempName = upload.StoreTempImageFile(__filename);
 
@@ -34,7 +43,7 @@ namespace YetaWF.Core.Controllers.Shared
             sb.Append("  \"realFilename\": \"{0}\",\n", YetaWFManager.JserEncode(__filename.FileName));
             sb.Append("  \"attributes\": \"{0}\"\n", this.__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));
             sb.Append("}");
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
 
         [HttpPost]

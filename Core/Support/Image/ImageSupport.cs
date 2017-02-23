@@ -25,7 +25,7 @@ namespace YetaWF.Core.Image {
         public void InitializeApplicationStartup() {
             MimeSection mimeSection = MimeSection.GetMimeSection();
             if (mimeSection == null)
-                throw new InternalError("Web.config doesn't have a valid MimeSection defining allowable files");
+                throw new InternalError("Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files");
 
             // Delete all temp images
             string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder);

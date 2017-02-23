@@ -1,2 +1,5 @@
-﻿\Content\bootstrap\bootstrap.less
-\Content\bootstrap\theme.less
+﻿MVC6 \lib\bootstrap\less\bootstrap.less
+MVC6 \lib\bootstrap\less\theme.less
+
+MVC5 \Content\bootstrap\bootstrap.less
+MVC5 \Content\bootstrap\theme.less

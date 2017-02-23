@@ -3,8 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
+using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -13,7 +19,7 @@ namespace YetaWF.Core.Models.Attributes {
     // VALIDATION
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class StringLengthAttribute : System.ComponentModel.DataAnnotations.StringLengthAttribute, IClientValidatable {
+    public class StringLengthAttribute : System.ComponentModel.DataAnnotations.StringLengthAttribute, YIClientValidatable {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -41,11 +47,18 @@ namespace YetaWF.Core.Models.Attributes {
             string errorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(validationContext));
             return new ValidationResult(errorMessage);
         }
-
+#if MVC6
+        public void AddValidation(ClientModelValidationContext context) {
+            ErrorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(context.ModelMetadata));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-stringlength-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        }
+#else
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
             string errorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(metadata));
             yield return new ModelClientValidationStringLengthRule(errorMessage, MinimumLength, MaximumLength);
         }
+#endif
         private string GetErrorMessage(string caption) {
             string errorMessage;
             if (MinimumLength == 0 && MaximumLength > 0)
@@ -59,7 +72,7 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class RangeAttribute : System.ComponentModel.DataAnnotations.RangeAttribute, IClientValidatable {
+    public class RangeAttribute : System.ComponentModel.DataAnnotations.RangeAttribute, YIClientValidatable {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -68,13 +81,23 @@ namespace YetaWF.Core.Models.Attributes {
         public RangeAttribute(double minimum, double maximum) : base(minimum, maximum) { }
         public RangeAttribute(decimal minimum, decimal maximum) : base((double) minimum, (double) maximum) { }
         public RangeAttribute(Type type, string minimum, string maximum) : base(type, minimum, maximum) { }
+
+#if MVC6
+        public void AddValidation(ClientModelValidationContext context) {
+            ErrorMessage = string.Format(__ResStr("range", "The '{0}' value must be between {1} and {2}"),
+                    AttributeHelper.GetPropertyCaption(context.ModelMetadata), Minimum, Maximum);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        }
+#else
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
             string errorMessage = ErrorMessage;
             if (string.IsNullOrWhiteSpace(errorMessage))
-            ErrorMessage = string.Format(__ResStr("range", "The '{0}' value must be between {1} and {2}"),
+                ErrorMessage = string.Format(__ResStr("range", "The '{0}' value must be between {1} and {2}"),
                     AttributeHelper.GetPropertyCaption(metadata), Minimum, Maximum);
             yield return new ModelClientValidationRangeRule(ErrorMessage, base.Minimum, base.Maximum); // string.Format(base.ErrorMessageString, metadata.DisplayName), base.Minimum, base.Maximum);
         }
+#endif
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -86,7 +109,7 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class SiteDomainValidationAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute, IClientValidatable {
+    public class SiteDomainValidationAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute, YIClientValidatable {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -101,14 +124,22 @@ namespace YetaWF.Core.Models.Attributes {
             : base(@"^\s*[A-Za-z0-9][A-Za-z0-9\.\-]*\.[A-Za-z0-9]+\s*$") {
             ErrorMessage = __ResStr("errInvSite", "The site's domain name is invalid - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - .");
         }
+#if MVC6
+        public void AddValidation(ClientModelValidationContext context) {
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sitedomainvalidation-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        }
+#else
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
             return new[] { new ModelClientValidationRegexRule(ErrorMessage, this.Pattern) };
         }
+#endif
+
     }
 
     //sample: <meta name="google-site-verification" content="flC7VM4WGUt7vWo8iiP2-EQ60L4jC44BVOTjpPmH0hg" />
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class GoogleVerificationExpressionAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute, IClientValidatable {
+    public class GoogleVerificationExpressionAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute, YIClientValidatable {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -123,8 +154,15 @@ namespace YetaWF.Core.Models.Attributes {
             : base(@"^(\s*<meta\s+name=""google\-site\-verification""\s+content=\""[^\""]+?\""\s*/>\s*)+$") {
             ErrorMessage = __ResStr("errInvMeta", "The meta tag is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />");
         }
+#if MVC6
+        public void AddValidation(ClientModelValidationContext context) {
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-googleverificationexpression-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        }
+#else
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
             return new[] { new ModelClientValidationRegexRule(ErrorMessage, this.Pattern) };
         }
+#endif
     }
 }

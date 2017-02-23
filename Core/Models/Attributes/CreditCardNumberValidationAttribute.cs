@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models.Attributes {
@@ -15,7 +19,7 @@ namespace YetaWF.Core.Models.Attributes {
 
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class CreditCardNumberValidationAttribute : DataTypeAttribute /*this stopped working after an upgrade of jQuery validation, IClientValidatable*/ {
+    public class CreditCardNumberValidationAttribute : DataTypeAttribute /*this stopped working after an upgrade of jQuery validation, YIClientValidatable*/ {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -23,14 +27,6 @@ namespace YetaWF.Core.Models.Attributes {
         public CreditCardNumberValidationAttribute()
             : base(DataType.CreditCard) {
             ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
-        }
-
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
-            yield return new ModelClientValidationRule {
-                ErrorMessage = ErrorMessage,
-                ValidationType = "creditcard",
-            };
         }
 
         private static Regex _regex = new Regex(@"^\s*([1-9][0-9]{11,15})\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
@@ -57,6 +53,16 @@ namespace YetaWF.Core.Models.Attributes {
             else
                 return false;
         }
+#if MVC6
+#else
+        //public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
+        //    ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
+        //    yield return new ModelClientValidationRule {
+        //        ErrorMessage = ErrorMessage,
+        //        ValidationType = "creditcard",
+        //    };
+        //}
+#endif
 
         // very basic card type determination (close enough)
         public static CreditCardTypeType GetCardTypeFromNumber(string cardNum) {

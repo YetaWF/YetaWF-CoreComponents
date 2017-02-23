@@ -1,11 +1,7 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Web.Mvc;
-using System.Web.Routing;
-using System.Web.Script.Serialization;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Menus;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
@@ -14,9 +10,17 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using System.Web.Script.Serialization;
+#if MVC6
+using Microsoft.AspNetCore.Routing;
+#else
+using System.Web.Mvc;
+using System.Web.Routing;
+#endif
 
 namespace YetaWF.Core.Modules {
 
+    //$$$ There are many properties that should not be serialized
     [Serializable]
     public partial class ModuleAction {
 
@@ -179,7 +183,7 @@ namespace YetaWF.Core.Modules {
             CookieAsDoneSignal = false;
             Location = ActionLocationEnum.Any;
             QueryArgs = null;
-            QueryArgsRvd = null;
+            QueryArgsDict = null;
             _AuthorizationEvaluated = false;
             OwningModule = null;
             PageSecurity = PageDefinition.PageSecurityType.Any;
@@ -226,10 +230,13 @@ namespace YetaWF.Core.Modules {
                     if (img.StartsWith("#")) {
                         ImageUrlFinal = img;
                     } else {
-                        if (OwningModule == null)
-                            throw new InternalError("need an owning module");
-                        SkinImages skinImages = new SkinImages();
-                        ImageUrlFinal = skinImages.FindIcon_Package(img, Package.GetCurrentPackage(OwningModule));
+                        if (OwningModule == null) {
+                            //throw new InternalError("need an owning module");
+                            ImageUrlFinal = "#NotFound";
+                        } else {
+                            SkinImages skinImages = new SkinImages();
+                            ImageUrlFinal = skinImages.FindIcon_Package(img, Package.GetCurrentPackage(OwningModule));
+                        }
                     }
                 } else {
                     ImageUrlFinal = null;
@@ -331,13 +338,15 @@ namespace YetaWF.Core.Modules {
         [ScriptIgnoreAttribute]
         public ActionLocationEnum Location { get; set; } // the type of menu where that action is shown
 
-        [ScriptIgnoreAttribute]
         public SerializableList<ModuleAction> SubMenu { get; set; } // submenu
 
         [ScriptIgnoreAttribute] // menus don't support queryargs - they can be encoded as part of the url
         public object QueryArgs { get; set; } // arguments
         [ScriptIgnoreAttribute]
+        [Obsolete("Do not use - replaced by QueryArgsDict")]
         public RouteValueDictionary QueryArgsRvd { get; set; }
+        [ScriptIgnoreAttribute]
+        public QueryHelper QueryArgsDict { get; set; }
         [ScriptIgnoreAttribute] // menus don't support queryargshr - they can be encoded as part of the url
         public object QueryArgsHR { get; set; } // arguments part of URL as human readable parts
         [ScriptIgnoreAttribute] // anchor used as part of URL
@@ -349,17 +358,12 @@ namespace YetaWF.Core.Modules {
         [ScriptIgnoreAttribute]
         public bool DontCheckAuthorization { get; set; }// don't check whether user is authorized (always show) - this will force a login/register when used
 
-        // we have to use "items" because kendo TreeView doesn't let us to use a different variable name
+        [Obsolete("Discontinued - preserve property so deserializing existing data doesn't fail")]
+        // Discontinued: we have to use "items" because kendo treeview doesn't let us to use a different variable name - we're no longer using kendo treeview
+        [ScriptIgnoreAttribute]
         public SerializableList<ModuleAction> items {
-            get {
-                if (SubMenu == null)
-                    SubMenu = new MenuList();
-                return SubMenu;
-            }
-            set {
-                SubMenu = value;
-            }
-        } // submenu
+            get {  return null; } set { }
+        }
 
         public int Id { get; set; } // ids are used for editing purposes to match up old and new menu entries
 

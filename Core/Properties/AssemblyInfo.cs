@@ -19,6 +19,7 @@ using YetaWF.PackageAttributes;
 [assembly: AssemblyVersion("1.1.1.0")]
 
 [assembly: Package(PackageTypeEnum.Core, "YetaWF")]
+
 [assembly: PackageInfo("http://YetaWF.com/UpdateServer",
     "http://yetawf.com/Documentation/YetaWF/Core",
     "http://YetaWF.com/Documentation/YetaWF/Support",
@@ -58,6 +59,5 @@ using YetaWF.PackageAttributes;
 [assembly: Resource(CoreInfo.Resource_SkinLists, "Retrieve page/module skin lists (Ajax)", Editor = true, Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_SMTPServer_SendTestEmail, "Send test emails (using SMTPServer control)", Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_ViewOwnership, "View module & page ownership", Editor = true, Administrator = true, Superuser = true)]
-
 
 // TODO: There are some templates that generate <label for=id> where id points to a <div> which is invalid html5

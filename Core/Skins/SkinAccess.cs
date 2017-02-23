@@ -4,7 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -151,7 +156,7 @@ namespace YetaWF.Core.Skins {
         }
 
         // a module looks like this - we build this dynamically
-        // <div class='[Globals,CssModule] [ThisModule,AreaName] [ThisModule,CssClass]' id='[ThisModule,ModuleHtmlId]'
+        // <div class='[Globals,CssModule] [ThisModule,Area] [ThisModule,CssClass]' id='[ThisModule,ModuleHtmlId]'
         //      data-moduleguid='[ThisModule,ModuleGuid]' data-charwidth='..' data-charheightavg='..' >
         //    [ThisModule,ModuleMenu]
         //    [ThisModule,TitleHtml]
@@ -172,8 +177,8 @@ namespace YetaWF.Core.Skins {
 
             TagBuilder div = new TagBuilder("div");
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName));
+            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.Area));
+            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.Area + "_" + mod.ModuleName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(modSkinCss));
             if (!string.IsNullOrWhiteSpace(mod.CssClass))
                 div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
@@ -222,11 +227,11 @@ namespace YetaWF.Core.Skins {
             if (showOwnership)
                 inner += "</div>";
 
-            div.InnerHtml = inner;
+            div.SetInnerHtml(inner);
             if (anchor != null)
-                return MvcHtmlString.Create(anchor.ToString() + div.ToString());
+                return MvcHtmlString.Create(anchor.ToString() + div.ToString(TagRenderMode.Normal));
             else
-                return MvcHtmlString.Create(div.ToString());
+                return MvcHtmlString.Create(div.ToString(TagRenderMode.Normal));
         }
 
         /// <summary>

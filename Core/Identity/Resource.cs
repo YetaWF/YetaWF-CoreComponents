@@ -2,11 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+#else
 using System.Web;
 using System.Web.Mvc;
-using YetaWF.Core.Localize;
+#endif
 using YetaWF.Core.Modules;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Identity {
 
@@ -37,19 +40,29 @@ namespace YetaWF.Core.Identity {
 
     // Used for plain MVC controllers (without moduleguid)
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class ResourceAuthorizeAttribute : AuthorizeAttribute {
-        public ResourceAuthorizeAttribute(string name) {
+#if MVC6
+    public class ResourceAuthorizeAttribute : AuthorizeAttribute
+#else
+    public class ResourceAuthorizeAttribute : AuthorizeAttribute
+#endif
+    {
+        public ResourceAuthorizeAttribute(string name)
+#if MVC6
+             : base("ResourceAuthorize")
+#else
+#endif
+        {
             Name = name;
         }
         public string Name { get; private set; }
 
+#if MVC6
+        // This is using AttributeAuthorizationHandler
+#else
         protected override bool AuthorizeCore(HttpContextBase httpContext) {
-            if (!Resource.ResourceAccess.IsResourceAuthorized(Name)) {
-                // Don't challenge a resource as there is no alternative
-                throw new Error(this.__ResStr("notAuth", "Not Authorized"));
-            }
-            return true;
+            return Resource.ResourceAccess.IsResourceAuthorized(Name);
         }
+#endif
     }
 
     public interface IResource {
@@ -73,7 +86,6 @@ namespace YetaWF.Core.Identity {
         int GetSuperuserId();
         List<RoleInfo> GetDefaultRoleList();
         List<User> GetDefaultUserList();
-
         int GetSuperuserRoleId();
         int GetUserRoleId();
         int GetAnonymousRoleId();

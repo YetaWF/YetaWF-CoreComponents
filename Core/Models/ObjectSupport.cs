@@ -5,7 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.IO;
@@ -151,6 +156,17 @@ namespace YetaWF.Core.Models {
 
         private ResourceRedirectAttribute Redirect { get; set; }
 
+#if MVC6
+        /// <summary>
+        /// Retrieves the property caption.
+        /// </summary>
+        /// <param name="parentType">The type of the parent model containing this property.</param>
+        /// <returns>The caption.</returns>
+        public string GetCaption(Type parentType) {
+            return Caption;
+        }
+#else
+#endif
         /// <summary>
         /// Retrieves the property caption.
         /// </summary>
@@ -161,6 +177,17 @@ namespace YetaWF.Core.Models {
             if (parentObject == null || Redirect == null) return Caption;
             return Redirect.GetCaption(parentObject);
         }
+#if MVC6
+        /// <summary>
+        /// Retrieves the property description.
+        /// </summary>
+        /// <param name="parentType">The type of the parent model containing this property.</param>
+        /// <returns>The description.</returns>
+        public string GetDescription(Type parentType) {
+            return Description;
+        }
+#else
+#endif
         /// <summary>
         /// Retrieves the property description.
         /// </summary>
@@ -171,6 +198,18 @@ namespace YetaWF.Core.Models {
             if (parentObject == null || Redirect == null) return Description;
             return Redirect.GetDescription(parentObject);
         }
+#if MVC6
+        /// <summary>
+        /// Retrieves the property help link.
+        /// </summary>
+        /// <param name="parentType">The type of the parent model containing this property.</param>
+        /// <returns>The help link.</returns>
+        /// <remarks>If the RedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
+        public string GetHelpLink(Type parentType) {
+            return HelpLink;
+        }
+#else
+#endif
         /// <summary>
         /// Retrieves the property help link.
         /// </summary>
@@ -749,7 +788,6 @@ namespace YetaWF.Core.Models {
             }
             return dict;
         }
-
         private static List<GridColumnInfo.FilterOptionEnum> GetAllFilterOptions() {
             List<GridColumnInfo.FilterOptionEnum> filterFlags = new List<GridColumnInfo.FilterOptionEnum>() {
                 GridColumnInfo.FilterOptionEnum.Contains,
@@ -884,7 +922,6 @@ namespace YetaWF.Core.Models {
                 }
             }
         }
-
         /// <summary>
         /// Add all string properties of the object (used by dynamic url search to add all string properties as search terms)
         /// </summary>

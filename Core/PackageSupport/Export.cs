@@ -20,10 +20,11 @@ namespace YetaWF.Core.Packages {
         public const string PackageContentsFile = "Contents.xml";
         public static string[] ExcludedFilesAddons = new string[] { };
         public static string[] ExcludedFoldersNoSource = new string[] { "_License" };
-        public static string[] ExcludedFilesNoSource = new string[] { ".csproj.user", ".pdb", };
+        public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
         public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", "_License" };
         public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb", ".lastcodeanalysissucceeded", ".CodeAnalysisLog.xml" };
-        public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };
+        public static string[] ExcludedBinFolders = new string[] { "Debug" };
+        public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };// not necessary any longer (since 2.0.0) as all code was moved to ViewsCode
 
         public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.Xml;
 
@@ -45,7 +46,7 @@ namespace YetaWF.Core.Packages {
 
             // all bin files
             string sourceBin = Path.Combine(PackageSourceRoot, "bin");
-            serPackage.BinFiles.AddRange(ProcessAllFiles(sourceBin, ExcludedBinFiles, null, ExternalRoot: PackageSourceRoot));
+            serPackage.BinFiles.AddRange(ProcessAllFiles(sourceBin, ExcludedBinFiles, ExcludedBinFolders, ExternalRoot: PackageSourceRoot));
             foreach (var file in serPackage.BinFiles) {
                 ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                 ze.FileName = file.FileName;
@@ -60,7 +61,13 @@ namespace YetaWF.Core.Packages {
                     }
                 }
                 // Views
-                string viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                string viewsPath = Path.Combine(rootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
                 serPackage.Views.AddRange(ProcessAllFiles(viewsPath, ExcludedFilesViewsNoSource));
                 foreach (var file in serPackage.Views) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
@@ -69,7 +76,7 @@ namespace YetaWF.Core.Packages {
             }
             // Source code
             if (SourceCode) {
-                serPackage.SourceFiles.AddRange(ProcessAllFiles(PackageSourceRoot, ExcludedFilesNoSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
+                serPackage.SourceFiles.AddRange(ProcessAllFiles(PackageSourceRoot, ExcludedFilesSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
                 ProcessSourceFiles(zipFile, serPackage.SourceFiles);
                 foreach (var file in serPackage.SourceFiles) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
@@ -99,6 +106,7 @@ namespace YetaWF.Core.Packages {
             serPackage.PackageName = this.Name;
             serPackage.PackageVersion = this.Version;
             serPackage.CoreVersion = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version;
+            serPackage.AspNetMvcVersion = this.AspNetMvc;
 
             return new YetaWFZipFile {
                 FileName = zipName,

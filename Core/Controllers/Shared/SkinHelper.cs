@@ -1,6 +1,10 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
 using System.Web.Mvc;
+#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Skins;
@@ -18,7 +22,7 @@ namespace YetaWF.Core.Controllers.Shared {
             PageSkinList skinList = skinAccess.GetAllPageSkins(skinCollection);
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(PageSkinHelper.RenderReplacementSkinsForCollection(skinList));
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
         // returns html <option> to replace a select statement with new popup skins
         [HttpPost]
@@ -28,7 +32,7 @@ namespace YetaWF.Core.Controllers.Shared {
             PageSkinList skinList = skinAccess.GetAllPopupSkins(skinCollection);
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(PageSkinHelper.RenderReplacementSkinsForCollection(skinList));
-            return new JsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = sb.ToString() };
         }
     }
 }
