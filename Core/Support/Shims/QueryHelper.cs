@@ -158,26 +158,35 @@ namespace YetaWF.Core.Support {
     /// <summary>
     /// Form variables.
     /// </summary>
-    public class FormHelper : QueryHelper {
-#if MVC6
-        public static FormHelper FromFormCollection(IFormCollection form) {
-            FormHelper fh = new FormHelper();
-            foreach (string k in form.Keys) {
-                fh.Entries.Add(new Entry { Key = k, Value = form[k], });
+    public class FormHelper {
+
+        public string this[string key] {
+            get {
+                if (Collection == null) return null;
+                return Collection[key];
             }
-            return fh;
+        }
+#if MVC6
+        public FormHelper() {
+            Collection = null;
+        }
+        public FormHelper(IFormCollection collection) {
+            Collection = collection;
+        }
+
+        private IFormCollection Collection { get; set; }
+
+        public static FormHelper FromFormCollection(IFormCollection collection) {
+            return new FormHelper(collection);
         }
 #else
-        public static new FormHelper FromNameValueCollection(NameValueCollection query) {
-            FormHelper fh = new FormHelper();
-            foreach (string k in query.AllKeys) {
-                // when iterating we could get "A potentially dangerous Request.Form value was detected from the client"
-                // so we just skip those fields (model binding will allow access to the value)
-                try {
-                    fh.Entries.Add(new Entry { Key = k, Value = query[k], });
-                } catch (Exception) { }
-            }
-            return fh;
+        public FormHelper(NameValueCollection collection) {
+            Collection = collection;
+        }
+        private NameValueCollection Collection { get; set; }
+
+        public static FormHelper FromNameValueCollection(NameValueCollection collection) {
+            return new FormHelper(collection);
         }
 #endif
     }
