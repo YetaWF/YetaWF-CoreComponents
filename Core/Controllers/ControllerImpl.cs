@@ -1265,7 +1265,6 @@ namespace YetaWF.Core.Controllers {
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
             bool result = TryUpdateModelAsync(obj, objType, modelName).Result;
 #else
-            //$$$MVC5 TEST Above with mvc5
             Type parameterType = objType;
             IModelBinder binder = Binders.GetBinder(parameterType);
             IValueProvider valueProvider = ValueProvider;
