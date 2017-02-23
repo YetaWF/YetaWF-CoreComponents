@@ -171,7 +171,11 @@ namespace YetaWF.Core.Support {
         public static new FormHelper FromNameValueCollection(NameValueCollection query) {
             FormHelper fh = new FormHelper();
             foreach (string k in query.AllKeys) {
-                fh.Entries.Add(new Entry { Key = k, Value = query[k], });
+                // when iterating we could get "A potentially dangerous Request.Form value was detected from the client"
+                // so we just skip those fields (model binding will allow access to the value)
+                try {
+                    fh.Entries.Add(new Entry { Key = k, Value = query[k], });
+                } catch (Exception) { }
             }
             return fh;
         }
