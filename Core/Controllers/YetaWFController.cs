@@ -30,6 +30,14 @@ namespace YetaWF.Core.Controllers {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+#if MVC6
+#else
+        protected YetaWFController() {
+            // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
+            // TODO: this also means we can remove all AllowHtml attributes
+            ValidateRequest = false;
+        }
+#endif
         /// <summary>
         ///  Update an area's view name with the complete area specifier.
         /// </summary>
