@@ -2,7 +2,7 @@
   "version": "2.0.0",
 
   "dependencies": {
-    "Core": "2.0.0"
+    "Core": {"target": "project" }
    },
   "frameworks": {
     "net462": {
