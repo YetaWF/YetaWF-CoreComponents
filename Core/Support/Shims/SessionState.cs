@@ -68,16 +68,17 @@ namespace YetaWF.Core.Support {
         }
         internal byte[] GetBytes(string key) {
 #if MVC6
-            string val = GetString(key);
-            if (val == null) return new byte[] { };
-            return System.Text.Encoding.UTF8.GetBytes(val);
+            byte[] btes;
+            if (_session.TryGetValue(key, out btes))
+                return btes;
+            return new byte[] { };
 #else
             return (byte[]) _session[key];
 #endif
         }
         public void SetBytes(string key, byte[] btes) {
 #if MVC6
-            SetString(key, System.Text.Encoding.UTF8.GetString(btes));
+            _session.Set(key, btes);
 #else
             _session[key] = btes;
 #endif
