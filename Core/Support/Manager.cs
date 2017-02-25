@@ -358,6 +358,32 @@ namespace YetaWF.Core.Support {
             }
         }
 
+        /// <summary>
+        /// Vault data folder (not site specific).
+        /// </summary>
+        /// <remarks>Not publicly accessible on ASP.NET Core MVC. Publicly accessible on MVC5 and must be protected using Web.config files.</remarks>
+        public static string VaultPrivateFolder {
+            get {
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderSolution;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                return Path.Combine(rootFolder, Globals.VaultPrivateFolder);
+            }
+        }
+
+        /// <summary>
+        /// Vault data folder (not site specific).
+        /// </summary>
+        /// <remarks>Publicly accessible.</remarks>
+        public static string VaultFolder {
+            get {
+                return Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder);
+            }
+        }
+
         public static string UrlToPhysical(string url) {
 #if MVC6
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");

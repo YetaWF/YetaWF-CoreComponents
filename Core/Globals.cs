@@ -52,6 +52,8 @@ namespace YetaWF.Core {
         public const string TempFiles = "TempFiles";
         public const string SiteTemplates = "SiteTemplates";
         public const string SiteTemplatesData = SiteTemplates + "\\Data";
+        public const string VaultPrivateFolder = "VaultPrivate";
+        public const string VaultFolder = "Vault";
 
         public const string UpdateIndicatorFile = "UpdateIndicator.txt"; // filename of the file signaling a global package update/create
         public const string UpgradeLogFile = "UpgradeLogFile.txt"; // log file created during YetaWF upgrade
@@ -107,7 +109,7 @@ namespace YetaWF.Core {
         public const string Addons_ModulesDirectoryName = "_Modules";
         public const string Addons_SkinsDirectoryName = "_Skins";
         public const string SiteFilesUrl = "/SiteFiles/";
-        public const string VaultUrl = "/Vault/";
+        public const string VaultUrl = "/" + VaultFolder + "/";
 
         private const string NugetContentsFolderMVC6 = "lib";
         private const string NugetContentsFolderMVC5 = "Content";
