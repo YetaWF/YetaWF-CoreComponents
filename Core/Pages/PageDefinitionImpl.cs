@@ -445,6 +445,8 @@ namespace YetaWF.Core.Pages {
                     ModuleDefinition module = null;
                     try {
                         module = modEntry.Module;
+                        if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
+                            sb.Append(module.RenderModule(htmlHelper).ToString());
                     } catch (Exception exc) {
                         sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
                         ModuleDefinition modServices = ModuleDefinition.Load(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
@@ -459,8 +461,6 @@ namespace YetaWF.Core.Pages {
                             }
                         }
                     }
-                    if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                        sb.Append(module.RenderModule(htmlHelper).ToString());
                 }
             }
 
