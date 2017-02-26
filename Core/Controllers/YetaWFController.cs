@@ -26,10 +26,8 @@ namespace YetaWF.Core.Controllers {
 #else
                                     Controller
 #endif
-        {
-
+    {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-
 #if MVC6
 #else
         protected YetaWFController() {
