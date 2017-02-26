@@ -35,9 +35,10 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
         public void RegisterArea(IRouteBuilder routes) {
             Logging.AddLog("Found {0} in namespace {1}", AreaName, GetType().Namespace);
-            routes.MapRoute(
+            routes.MapAreaRoute(
                 AreaName,
-                "{area="+ AreaName +"}/{controller}/{action}"
+                AreaName,
+                AreaName +"/{controller}/{action}"
             );
         }
 #else
