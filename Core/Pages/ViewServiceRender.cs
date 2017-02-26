@@ -19,25 +19,23 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Pages {
 
     public interface IViewRenderService {
-        Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, object model, Func<IHtmlHelper, ActionContext, string, string> postRender = null);
+        Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, string> postRender = null);
     }
 
     public class ViewRenderService : IViewRenderService {
         private readonly IRazorViewEngine _razorViewEngine;
         private readonly ITempDataProvider _tempDataProvider;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IModelMetadataProvider _modelMetaDataProvider;
 
         public ViewRenderService(IRazorViewEngine razorViewEngine,
             ITempDataProvider tempDataProvider,
-            IServiceProvider serviceProvider) {
+            IModelMetadataProvider modelMetaDataProvider) {
             _razorViewEngine = razorViewEngine;
             _tempDataProvider = tempDataProvider;
-            _serviceProvider = serviceProvider;
+            _modelMetaDataProvider = modelMetaDataProvider;
         }
 
-        public async Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, object model, Func<IHtmlHelper, ActionContext, string, string> postRender = null) {
-            var httpContext = new DefaultHttpContext { RequestServices = _serviceProvider };
-            //var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+        public async Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, string> postRender = null) {
 
             using (var sw = new StringWriter()) {
                 ViewEngineResult viewResult;
@@ -48,13 +46,10 @@ namespace YetaWF.Core.Pages {
                 if (viewResult.View == null)
                     throw new InternalError("{0} does not match any available view", viewName);
 
-                var viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), actionContext.ModelState) {
-                    Model = model,
-                };
                 var viewContext = new ViewContext(
                     actionContext,
                     viewResult.View,
-                    viewDictionary,
+                    viewData,
                     new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
                     sw,
                     new HtmlHelperOptions()

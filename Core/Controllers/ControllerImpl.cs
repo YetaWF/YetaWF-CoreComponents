@@ -739,7 +739,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.InPartialView = true;
                 try {
                     IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
-                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, Model, PostRender);
+                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRender);
                 } catch (Exception) {
                     throw;
                 } finally {

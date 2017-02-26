@@ -679,7 +679,7 @@ namespace YetaWF.Core.Controllers {
 
             string pageHtml;
 #if MVC6
-            pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData.Model);
+            pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
 #else
             View = new PageView(virtPath);
             StringWriter writer = new StringWriter();
