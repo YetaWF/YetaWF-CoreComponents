@@ -15,6 +15,12 @@ namespace YetaWF.Core.DataProvider {
 
     public class DataProviderSortInfo {
 
+        public DataProviderSortInfo() {}
+        public DataProviderSortInfo(DataProviderSortInfo s) {
+            Field = s.Field;
+            Order = s.Order;
+        }
+
         public enum SortDirection { Ascending = 0, Descending };
 
         /// <summary>
@@ -53,6 +59,18 @@ namespace YetaWF.Core.DataProvider {
     }
 
     public class DataProviderFilterInfo {
+
+        public DataProviderFilterInfo() {}
+        public DataProviderFilterInfo(DataProviderFilterInfo f) {
+            Field = f.Field;
+            Filters = f.Filters;
+            Logic = f.Logic;
+            Operator = f.Operator;
+            Value = f.Value;
+            if (f.StringType)
+                ValueAsString = f.ValueAsString;
+        }
+
         /// <summary>
         /// Gets or sets the name of the sorted field (property). Set to <c>null</c> if the <c>Filters</c> property is set.
         /// </summary>
@@ -70,7 +88,11 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Gets or sets the filtering value. Set to <c>null</c> if the <c>Filters</c> property is set.
         /// </summary>
-        public string ValueAsString { get { return Value != null ? Value.ToString() : null; } set { Value = value; } }
+        /// <remarks>When a filter expression is received via querystring/form the value is always set using a string.
+        /// </remarks>
+        public string ValueAsString { get { return Value != null ? Value.ToString() : null; } set { Value = value; StringType = true; } }
+
+        private bool StringType = false;
 
         /// <summary>
         /// Gets or sets the filtering logic. Can be set to "||" or "&quot;&quot;". Set to <c>null</c> unless <c>Filters</c> is set.
@@ -115,6 +137,36 @@ namespace YetaWF.Core.DataProvider {
             if (Filters != null && Filters.Any()) {
                 foreach (DataProviderFilterInfo f in Filters)
                     f.Collect(filters);
+            }
+        }
+        public void NormalizeFilterProperty(Type type) {
+            if (this.Field != null && StringType) { // only normalize string types, explicitly set values don't need to be changed in type
+                string[] parts = Field.Split(new char[] { '.' });
+                Type objType = type;
+                PropertyData prop = null;
+                foreach (string part in parts) {
+                    prop = ObjectSupport.GetPropertyData(objType, part);
+                    if (prop == null) throw new InternalError("Property {0} not found in type {1}", part, objType.Name);
+                    objType = prop.PropInfo.PropertyType;
+                }
+                if (prop == null) throw new InternalError("Can't evaluate field {0} in type {1}", Field, objType.Name);
+                if (objType != typeof(string)) {
+                    if (objType.IsEnum) {
+                        try { Value = Convert.ToInt32(Value); Value = Enum.ToObject(objType, Value); } catch (Exception) { }
+                    } else if (objType == typeof(DateTime) || objType == typeof(DateTime?)) {
+                        try { Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(Value)); } catch (Exception) { Value = DateTime.MinValue; }
+                    } else if (objType == typeof(int) || objType == typeof(int?)) {
+                        try { Value = Convert.ToInt32(Value); } catch (Exception) { Value = 0; }
+                    } else if (objType == typeof(long) || objType == typeof(long?)) {
+                        try { Value = Convert.ToInt64(Value); } catch (Exception) { Value = 0; }
+                    } else if (objType == typeof(bool) || objType == typeof(bool?)) {
+                        try { Value = Convert.ToBoolean(Value); } catch (Exception) { Value = true; }
+                    } else if (objType == typeof(MultiString)) {
+                        try { Value = new MultiString((string)Value); } catch (Exception) { Value = new MultiString(); }
+                    } else {
+                        // default to string and hope for the best
+                    }
+                }
             }
         }
 

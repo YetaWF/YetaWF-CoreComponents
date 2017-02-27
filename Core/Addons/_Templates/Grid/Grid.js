@@ -89,7 +89,7 @@ YetaWF_Grid.modifySend = function ($grid, settingsModuleGuid, options, xhr, sett
         for (var i = 0 ; i < rules.length; i++) {
             var rule = rules[i]
             newData['filters[{0}].Field'.format(i)] = rule.field
-            newData['filters[{0}].Value'.format(i)] = rule.data;
+            newData['filters[{0}].ValueAsString'.format(i)] = rule.data;
             var newOp;
             switch (rule.op) {
                 case 'eq': newOp = "=="; break

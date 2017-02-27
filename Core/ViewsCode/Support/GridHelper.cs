@@ -255,42 +255,8 @@ namespace YetaWF.Core.Views.Shared {
         public static void NormalizeFilters(Type type, List<DataProviderFilterInfo> filters) {
             if (filters != null) {
                 foreach (DataProviderFilterInfo f in filters) {
-                    if (f.Value != null && f.Value.GetType() == typeof(string[])) {
-                        // change the string[] to a string
-                        string[] vals = (string[])f.Value;
-                        if (vals.Length == 1) {
-                            f.Value = vals[0];
-                            NormalizeFilterProperty(f, type, f.Field);
-                        }
-                    } else if (f.Filters != null) {
-                        NormalizeFilters(type, f.Filters);
-                    }
-                }
-            }
-        }
-        private static void NormalizeFilterProperty(DataProviderFilterInfo filter, Type type, string field) {
-            string[] parts = field.Split(new char[] { '.' });
-            Type objType = type;
-            PropertyData prop = null;
-            foreach (string part in parts) {
-                prop = ObjectSupport.GetPropertyData(objType, part);
-                if (prop == null) throw new InternalError("Property {0} not found in type {1}", part, objType.Name);
-                objType = prop.PropInfo.PropertyType;
-            }
-            if (prop == null) throw new InternalError("Can't evaluate field {0} in type {1}", field, objType.Name);
-            if (objType != typeof(string)) {
-                if (objType.IsEnum) {
-                    try { filter.Value = Convert.ToInt32(filter.Value); filter.Value = Enum.ToObject(objType, filter.Value); } catch (Exception) { }
-                } else if (objType == typeof(DateTime) || objType == typeof(DateTime?)) {
-                    try { filter.Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(filter.Value)); } catch (Exception) { filter.Value = DateTime.MinValue; }
-                } else if (objType == typeof(int) || objType == typeof(int?)) {
-                    try { filter.Value = Convert.ToInt32(filter.Value); } catch (Exception) { filter.Value = 0; }
-                } else if (objType == typeof(long) || objType == typeof(long?)) {
-                    try { filter.Value = Convert.ToInt64(filter.Value); } catch (Exception) { filter.Value = 0; }
-                } else if (objType == typeof(bool) || objType == typeof(bool?)) {
-                    try { filter.Value = Convert.ToBoolean(filter.Value); } catch (Exception) { filter.Value = true; }
-                } else if (objType == typeof(MultiString)) {
-                    try { filter.Value = new MultiString((string)filter.Value); } catch (Exception) { filter.Value = new MultiString(); }
+                    f.NormalizeFilterProperty(type);
+                    NormalizeFilters(type, f.Filters);
                 }
             }
         }
