@@ -207,7 +207,7 @@ namespace YetaWF.Core.Views.Shared {
         /// <remarks>
         /// A dropdownlist is rendered based on the enumerated type's EnumDescription attributes.</remarks>
 #if MVC6
-        public static MvcHtmlString RenderEnum(this IHtmlHelper htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static MvcHtmlString RenderEnum(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #else
         public static MvcHtmlString RenderEnum(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #endif
@@ -254,7 +254,7 @@ namespace YetaWF.Core.Views.Shared {
         /// <remarks>
         /// A dropdownlist is rendered based on the enumerated type's EnumDescription attributes.</remarks>
 #if MVC6
-        public static MvcHtmlString RenderEnumDisplay(this IHtmlHelper htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static MvcHtmlString RenderEnumDisplay(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #else
         public static MvcHtmlString RenderEnumDisplay(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #endif

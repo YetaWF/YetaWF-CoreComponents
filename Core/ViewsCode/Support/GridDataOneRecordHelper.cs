@@ -68,8 +68,6 @@ namespace YetaWF.Core.Views.Shared {
             IModelMetadataProvider metadataProvider = (IModelMetadataProvider) YetaWFManager.ServiceProvider.GetService(typeof(IModelMetadataProvider));
 #else
 #endif
-            string fieldPrefix = "";
-
             int propCount = 0;
             Manager.RenderingGridCount = Manager.RenderingGridCount + 1;
             foreach (PropertyListEntry prop in props) {
@@ -78,7 +76,6 @@ namespace YetaWF.Core.Views.Shared {
                 ViewDataDictionary oldVdd = htmlHelper.ViewContext.ViewData;
 #if MVC6
                 ModelMetadata meta = metadataProvider.GetMetadataForProperty(model.GetType(), prop.Name);
-                fieldPrefix = prefix;
 #else
                 ModelMetadata meta = ModelMetadataProviders.Current.GetMetadataForProperty(() => prop.Value, model.GetType(), prop.Name);
 #endif
@@ -96,6 +93,7 @@ namespace YetaWF.Core.Views.Shared {
 #if MVC6
                         htmlHelper.ViewContext.ViewData = new ViewDataDictionary(metadataProvider, new ModelStateDictionary { }) {
                             Model = prop.Value,
+                            TemplateInfo = { HtmlFieldPrefix = prefix },
                         };
 #else
                         htmlHelper.ViewContext.ViewData = htmlHelper.ViewDataContainer.ViewData = new ViewDataDictionary(prop.Value) {
@@ -104,16 +102,16 @@ namespace YetaWF.Core.Views.Shared {
                         };
 #endif
                         if (!readOnly && prop.Editable && recordEnabled) {
-                            output = htmlHelper.EditorFor(m => prop.Value, prop.UIHint, fieldPrefix + "[" + recordCount + "]." + prop.Name).AsString();
+                            output = htmlHelper.EditorFor(m => prop.Value, prop.UIHint, "[" + recordCount + "]." + prop.Name).AsString();
                         } else {
-                            output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, fieldPrefix + "[" + recordCount + "]." + prop.Name).AsString();
+                            output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, "[" + recordCount + "]." + prop.Name).AsString();
                         }
                         if (string.IsNullOrWhiteSpace(output)) { output = "&nbsp;"; }
 
                         if (!readOnly && prop.Editable && hiddenProps != null) {
                             // list hidden properties with the first editable field
                             foreach (var h in hiddenProps) {
-                                output += htmlHelper.DisplayFor(m => h.Value, "Hidden", fieldPrefix + "[" + recordCount + "]." + h.Name).AsString();
+                                output += htmlHelper.DisplayFor(m => h.Value, "Hidden", "[" + recordCount + "]." + h.Name).AsString();
                             }
                             hiddenProps = null;
                         }
