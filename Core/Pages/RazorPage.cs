@@ -159,8 +159,8 @@ namespace YetaWF.Core.Pages {
             return Manager.UniqueId(name);
         }
 
-        public MvcHtmlString JSEncode(object obj) {
-            return MvcHtmlString.Create(YetaWFManager.Jser.Serialize(obj));
+        public HtmlString JSEncode(object obj) {
+            return new HtmlString(YetaWFManager.Jser.Serialize(obj));
         }
 
         // DOCUMENTREADY

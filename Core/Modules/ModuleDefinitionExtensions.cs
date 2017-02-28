@@ -2,17 +2,16 @@
 
 using System;
 using System.Collections.Generic;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Modules {
     public static class ModuleDefinitionExtensions {
@@ -23,22 +22,22 @@ namespace YetaWF.Core.Modules {
 
 
 #if MVC6
-        public static MvcHtmlString RenderPageControl<TYPE>(this IHtmlHelper<object> htmlHelper) {
+        public static HtmlString RenderPageControl<TYPE>(this IHtmlHelper<object> htmlHelper) {
 #else
-        public static MvcHtmlString RenderPageControl<TYPE>(this HtmlHelper<object> htmlHelper) {
+        public static HtmlString RenderPageControl<TYPE>(this HtmlHelper<object> htmlHelper) {
 #endif
             Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
             return htmlHelper.RenderPageControl(permGuid);
         }
 
 #if MVC6
-        private static MvcHtmlString RenderPageControl(this IHtmlHelper<object> htmlHelper, Guid moduleGuid) {
+        private static HtmlString RenderPageControl(this IHtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #else
-        private static MvcHtmlString RenderPageControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
+        private static HtmlString RenderPageControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #endif
-            if (Manager.IsInPopup) return MvcHtmlString.Empty;
-            if (Manager.IsForcedDisplayMode) return MvcHtmlString.Empty;
-            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return MvcHtmlString.Empty;
+            if (Manager.IsInPopup) return HtmlString.Empty;
+            if (Manager.IsForcedDisplayMode) return HtmlString.Empty;
+            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlString.Empty;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
@@ -67,28 +66,28 @@ namespace YetaWF.Core.Modules {
                 Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
                 tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.CssPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());
                 Manager.ForceModuleActionLinks = false;
-                return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+                return tag.ToHtmlString(TagRenderMode.Normal);
             } else
-                return MvcHtmlString.Empty;
+                return HtmlString.Empty;
         }
 
 #if MVC6
-        public static MvcHtmlString RenderEditControl<TYPE>(this IHtmlHelper<object> htmlHelper) {
+        public static HtmlString RenderEditControl<TYPE>(this IHtmlHelper<object> htmlHelper) {
 #else
-        public static MvcHtmlString RenderEditControl<TYPE>(this HtmlHelper<object> htmlHelper) {
+        public static HtmlString RenderEditControl<TYPE>(this HtmlHelper<object> htmlHelper) {
 #endif
             Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
             return htmlHelper.RenderEditControl(permGuid);
         }
 
 #if MVC6
-        private static MvcHtmlString RenderEditControl(this IHtmlHelper<object> htmlHelper, Guid moduleGuid) {
+        private static HtmlString RenderEditControl(this IHtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #else
-        private static MvcHtmlString RenderEditControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
+        private static HtmlString RenderEditControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #endif
-            if (Manager.IsInPopup) return MvcHtmlString.Empty;
-            if (Manager.IsForcedDisplayMode) return MvcHtmlString.Empty;
-            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return MvcHtmlString.Empty;
+            if (Manager.IsInPopup) return HtmlString.Empty;
+            if (Manager.IsForcedDisplayMode) return HtmlString.Empty;
+            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlString.Empty;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
@@ -111,16 +110,16 @@ namespace YetaWF.Core.Modules {
                 }
                 tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.CssEditControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());// mainly just to get js/css, the module is normally empty
 
-                return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+                return tag.ToHtmlString(TagRenderMode.Normal);
             } else
-                return MvcHtmlString.Empty;
+                return HtmlString.Empty;
         }
 
         // unique, possibly new, typically used in skin to create unique non-pane modules
 #if MVC6
-        public static MvcHtmlString RenderModule<TYPE>(this IHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
+        public static HtmlString RenderModule<TYPE>(this IHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
 #else
-        public static MvcHtmlString RenderModule<TYPE>(this HtmlHelper htmlHelper, Action<TYPE> initModule = null) {
+        public static HtmlString RenderModule<TYPE>(this HtmlHelper htmlHelper, Action<TYPE> initModule = null) {
 #endif
             return htmlHelper.RenderUniqueModule(typeof(TYPE), (mod) => {
                 if (initModule != null)
@@ -128,9 +127,9 @@ namespace YetaWF.Core.Modules {
             });
         }
 #if MVC6
-        public static MvcHtmlString RenderUniqueModule(this IHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
+        public static HtmlString RenderUniqueModule(this IHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
 #else
-        public static MvcHtmlString RenderUniqueModule(this HtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
+        public static HtmlString RenderUniqueModule(this HtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
 #endif
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
@@ -154,14 +153,14 @@ namespace YetaWF.Core.Modules {
                 });
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
-                return hb.ToMvcHtmlString();
+                return hb.ToHtmlString();
             }
             return mod.RenderModule(htmlHelper);
         }
 #if MVC6
-        public static MvcHtmlString RenderReferencedModule_Ajax(this IHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
+        public static HtmlString RenderReferencedModule_Ajax(this IHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
 #else
-        public static MvcHtmlString RenderReferencedModule_Ajax(this HtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
+        public static HtmlString RenderReferencedModule_Ajax(this HtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
 #endif
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
@@ -185,7 +184,7 @@ namespace YetaWF.Core.Modules {
                 });
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
-                return hb.ToMvcHtmlString();
+                return hb.ToHtmlString();
             }
             return mod.RenderReferencedModule_Ajax(htmlHelper);
         }
@@ -193,9 +192,9 @@ namespace YetaWF.Core.Modules {
         // non-unique, possibly new, typically used in skin to create non-unique non-pane modules
 
 #if MVC6
-        public static MvcHtmlString RenderModule<TYPE>(this IHtmlHelper<object> htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null)
+        public static HtmlString RenderModule<TYPE>(this IHtmlHelper<object> htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null)
 #else
-        public static MvcHtmlString RenderModule<TYPE>(this HtmlHelper<object> htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null)
+        public static HtmlString RenderModule<TYPE>(this HtmlHelper<object> htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null)
 #endif
         {
             ModuleDefinition mod = null;
@@ -220,15 +219,15 @@ namespace YetaWF.Core.Modules {
                 });
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, moduleGuid.ToString());
-                return hb.ToMvcHtmlString();
+                return hb.ToHtmlString();
             }
             return mod.RenderModule(htmlHelper);
         }
 
 #if MVC6
-        public static MvcHtmlString RenderUniqueModuleAddOns(this IHtmlHelper htmlHelper) {
+        public static HtmlString RenderUniqueModuleAddOns(this IHtmlHelper htmlHelper) {
 #else
-        public static MvcHtmlString RenderUniqueModuleAddOns(this HtmlHelper htmlHelper) {
+        public static HtmlString RenderUniqueModuleAddOns(this HtmlHelper htmlHelper) {
 #endif
             Manager.Verify_NotAjaxRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
@@ -240,12 +239,12 @@ namespace YetaWF.Core.Modules {
                 }
             }
             Manager.RenderingUniqueModuleAddons = false;
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderReferencedModule_Ajax(this IHtmlHelper htmlHelper) {
+        public static HtmlString RenderReferencedModule_Ajax(this IHtmlHelper htmlHelper) {
 #else
-        public static MvcHtmlString RenderReferencedModule_Ajax(this HtmlHelper htmlHelper) {
+        public static HtmlString RenderReferencedModule_Ajax(this HtmlHelper htmlHelper) {
 #endif
             Manager.Verify_AjaxRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
@@ -256,7 +255,7 @@ namespace YetaWF.Core.Modules {
                     hb.Append(htmlHelper.RenderReferencedModule_Ajax(mod.ModuleType));
             }
             Manager.RenderingUniqueModuleAddonsAjax = false;
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
     }
 }

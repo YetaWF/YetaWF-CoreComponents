@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Text.Encodings.Web;
 #else
@@ -36,6 +37,12 @@ namespace YetaWF.Core.Support {
                 tagBuilder.InnerHtml.WriteTo(writer, HtmlEncoder.Default);
                 return writer.ToString();
             }
+        }
+        public static HtmlString ToHtmlString(this TagBuilder tagBuilder) {
+            return new HtmlString(tagBuilder.ToString(TagRenderMode.Normal));
+        }
+        public static HtmlString ToHtmlString(this TagBuilder tagBuilder, TagRenderMode mode) {
+            return new HtmlString(tagBuilder.ToString(mode));
         }
 #else
         public static string GetInnerHtml(this TagBuilder tagBuilder) {

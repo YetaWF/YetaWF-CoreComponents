@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -567,12 +568,12 @@ namespace YetaWF.Core.Modules {
 
 
 #if MVC6
-        public MvcHtmlString RenderModule(IHtmlHelper htmlHelper)
+        public HtmlString RenderModule(IHtmlHelper htmlHelper)
 #else
-        public MvcHtmlString RenderModule(HtmlHelper htmlHelper)
+        public HtmlString RenderModule(HtmlHelper htmlHelper)
 #endif
         {
-            if (!Visible && !Manager.EditMode) return MvcHtmlString.Empty;
+            if (!Visible && !Manager.EditMode) return HtmlString.Empty;
 
             // determine char dimensions for current skin
             SkinAccess skinAccess = new SkinAccess();
@@ -609,12 +610,12 @@ namespace YetaWF.Core.Modules {
             Manager.WantFocus = false;
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
-                return MvcHtmlString.Empty; // if the module contents are empty, we bail
+                return HtmlString.Empty; // if the module contents are empty, we bail
 
             Manager.AddOnManager.AddModule(this);
 
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
-                return MvcHtmlString.Empty; // if the module contents are empty, we bail
+                return HtmlString.Empty; // if the module contents are empty, we bail
 
             bool showTitle = ShowTitle;
             bool showMenu = true;
@@ -659,7 +660,7 @@ namespace YetaWF.Core.Modules {
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(ReferencedModules);
 
-            return MvcHtmlString.Create(containerHtml);
+            return new HtmlString(containerHtml);
         }
 
         /// <summary>
@@ -667,9 +668,9 @@ namespace YetaWF.Core.Modules {
         /// </summary>
 
 #if MVC6
-        public MvcHtmlString RenderReferencedModule_Ajax(IHtmlHelper htmlHelper)
+        public HtmlString RenderReferencedModule_Ajax(IHtmlHelper htmlHelper)
 #else
-        public MvcHtmlString RenderReferencedModule_Ajax(HtmlHelper htmlHelper)
+        public HtmlString RenderReferencedModule_Ajax(HtmlHelper htmlHelper)
 #endif
         {
             // execute action
@@ -692,11 +693,11 @@ namespace YetaWF.Core.Modules {
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
-                return MvcHtmlString.Empty; // if the module contents are empty, we bail
+                return HtmlString.Empty; // if the module contents are empty, we bail
 
             Manager.AddOnManager.AddModule(this);
 
-            return MvcHtmlString.Create(moduleHtml);
+            return new HtmlString(moduleHtml);
         }
 
         public static HtmlBuilder ProcessModuleError(Exception exc, string name) {
@@ -716,13 +717,13 @@ namespace YetaWF.Core.Modules {
             return hb;
         }
 
-        public MvcHtmlString TitleHtml {
+        public HtmlString TitleHtml {
             get {
                 if (string.IsNullOrWhiteSpace(Title))
-                    return MvcHtmlString.Empty;
+                    return HtmlString.Empty;
                 TagBuilder tag = new TagBuilder("h1");
                 tag.SetInnerText(Title);
-                return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+                return tag.ToHtmlString(TagRenderMode.Normal);
             }
         }
 

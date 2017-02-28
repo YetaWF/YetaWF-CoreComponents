@@ -3,20 +3,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -26,9 +24,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageSelectionHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderPageSelectionDD(this IHtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
+        public static HtmlString RenderPageSelectionDD(this IHtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
+        public static HtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #endif
             List<SelectionItem<Guid>> list;
             list = (
@@ -42,9 +40,9 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<Guid>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderPageSelectionLink(this IHtmlHelper htmlHelper, Guid? pageGuid) {
+        public static HtmlString RenderPageSelectionLink(this IHtmlHelper htmlHelper, Guid? pageGuid) {
 #else
-        public static MvcHtmlString RenderPageSelectionLink(this HtmlHelper htmlHelper, Guid? pageGuid) {
+        public static HtmlString RenderPageSelectionLink(this HtmlHelper htmlHelper, Guid? pageGuid) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -68,7 +66,7 @@ namespace YetaWF.Core.Views.Shared {
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
             hb.Append(tag.ToString(TagRenderMode.Normal));
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

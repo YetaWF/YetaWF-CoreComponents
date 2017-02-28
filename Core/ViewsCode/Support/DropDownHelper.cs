@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
@@ -44,9 +43,9 @@ namespace YetaWF.Core.Views.Shared {
         /// </remarks>
 
 #if MVC6
-        public static MvcHtmlString RenderDropDownList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
+        public static HtmlString RenderDropDownList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderDropDownList<TYPE>(this HtmlHelper<object> htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
+        public static HtmlString RenderDropDownList<TYPE>(this HtmlHelper<object> htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
 #endif
             List<TYPE> list = htmlHelper.GetParentModelSupportProperty<List<TYPE>>(name, "List");
             List<SelectionItem<TYPE>> itemList = new List<SelectionItem<TYPE>>();
@@ -73,9 +72,9 @@ namespace YetaWF.Core.Views.Shared {
         /// The parent model containing the property has to offer a property "_List" with a List<SelectionItem<TYPE>> of possible values.
         /// </remarks>
 #if MVC6
-        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
+        public static HtmlString RenderDropDownSelectionList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
 #else
-        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
+        public static HtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
 #endif
                 object HtmlAttributes = null, bool BrowserControls = false) {
             List<SelectionItem<TYPE>> list = htmlHelper.GetParentModelSupportProperty<List<SelectionItem<TYPE>>>(name, "List");
@@ -93,9 +92,9 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="HtmlAttributes">Optional attributes.</param>
         /// <returns></returns>
 #if MVC6
-        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
+        public static HtmlString RenderDropDownSelectionList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
 #else
-        public static MvcHtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
+        public static HtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
 #endif
             Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false) {
 
@@ -159,8 +158,8 @@ namespace YetaWF.Core.Views.Shared {
 
             HtmlBuilder hb = new Support.HtmlBuilder();
             hb.Append(tag.ToString(TagRenderMode.Normal));
-            hb.Append(Manager.ScriptManager.AddNow(sb.ToString()));
-            return hb.ToMvcHtmlString();
+            hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToHtmlString());
+            return hb.ToHtmlString();
         }
 
         /// <summary>
@@ -171,7 +170,7 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="list">A list of all items part of the dropdownlist.</param>
         /// <param name="FuncToString">A method that converts TYPE to a string.</param>
         /// <returns>A JSON object containing data and tooltips to update the contents of a dropdownlist.</returns>
-        public static MvcHtmlString RenderDataSource<TYPE>(string extraData, List<SelectionItem<TYPE>> list, Func<TYPE, string> FuncToString = null) {
+        public static HtmlString RenderDataSource<TYPE>(string extraData, List<SelectionItem<TYPE>> list, Func<TYPE, string> FuncToString = null) {
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(Basics.AjaxJavascriptReturn);
             sb.Append(@"{""data"":[");
@@ -193,7 +192,7 @@ namespace YetaWF.Core.Views.Shared {
                 sb.Append("{0}", YetaWFManager.Jser.Serialize(extraData));
             }
             sb.Append("]}");
-            return MvcHtmlString.Create(sb.ToString());
+            return sb.ToHtmlString();
         }
 
         /// <summary>
@@ -207,9 +206,9 @@ namespace YetaWF.Core.Views.Shared {
         /// <remarks>
         /// A dropdownlist is rendered based on the enumerated type's EnumDescription attributes.</remarks>
 #if MVC6
-        public static MvcHtmlString RenderEnum(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static HtmlString RenderEnum(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderEnum(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static HtmlString RenderEnum(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #endif
             List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
 
@@ -254,9 +253,9 @@ namespace YetaWF.Core.Views.Shared {
         /// <remarks>
         /// A dropdownlist is rendered based on the enumerated type's EnumDescription attributes.</remarks>
 #if MVC6
-        public static MvcHtmlString RenderEnumDisplay(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static HtmlString RenderEnumDisplay(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderEnumDisplay(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static HtmlString RenderEnumDisplay(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #endif
             Type enumType = value.GetType();
             EnumData enumData = ObjectSupport.GetEnumData(enumType);
@@ -284,9 +283,9 @@ namespace YetaWF.Core.Views.Shared {
                 htmlAttributes.Add(Basics.CssTooltip, YetaWFManager.HtmlEncode(desc));
                 tag.MergeAttributes(htmlAttributes, replaceExisting: true);
                 tag.SetInnerText(caption);
-                return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+                return tag.ToHtmlString(TagRenderMode.Normal);
             } else {
-                return MvcHtmlString.Create(caption);
+                return new HtmlString(caption);
             }
         }
     }

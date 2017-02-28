@@ -3,13 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
@@ -17,6 +10,12 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -38,9 +37,9 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="HtmlAttributes">Optional HTML attributes.</param>
         /// <returns></returns>
 #if MVC6
-        public static MvcHtmlString RenderModuleSelectionPackages(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static HtmlString RenderModuleSelectionPackages(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderModuleSelectionPackages(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static HtmlString RenderModuleSelectionPackages(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #endif
             string areaName = GetAreaNameFromGuid(newMods, moduleGuid);
             List<SelectionItem<string>> list = (
@@ -55,9 +54,9 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<string>("Packages", areaName, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderModuleSelection(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static HtmlString RenderModuleSelection(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderModuleSelection(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static HtmlString RenderModuleSelection(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #endif
             string areaName = GetAreaNameFromGuid(newMods, moduleGuid);
             List<SelectionItem<Guid>> list = new List<SelectionItem<Guid>>();
@@ -101,7 +100,7 @@ namespace YetaWF.Core.Views.Shared {
             }
             return null;
         }
-        public static MvcHtmlString RenderReplacementPackageModulesNew(string areaName) {
+        public static HtmlString RenderReplacementPackageModulesNew(string areaName) {
             List<SelectionItem<Guid>> list = (
                 from module in InstalledModules.Modules
                 where module.Value.Package.AreaName == areaName
@@ -114,7 +113,7 @@ namespace YetaWF.Core.Views.Shared {
             list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("none", "(none)"), Value = Guid.Empty });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
-        public static MvcHtmlString RenderReplacementPackageModulesDesigned(string areaName) {
+        public static HtmlString RenderReplacementPackageModulesDesigned(string areaName) {
             List<SelectionItem<Guid>> list = (
                 from module in DesignedModules.LoadDesignedModules()
                 where module.AreaName == areaName
@@ -127,7 +126,7 @@ namespace YetaWF.Core.Views.Shared {
             list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("none", "(none)"), Value = Guid.Empty });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
-        public static MvcHtmlString RenderReplacementPackageModulesDesigned(Guid modGuid) {
+        public static HtmlString RenderReplacementPackageModulesDesigned(Guid modGuid) {
             List<DesignedModule> designedMods = DesignedModules.LoadDesignedModules();
             string areaName = GetAreaNameFromGuid(false, modGuid);
             List<SelectionItem<Guid>> list = (
@@ -143,9 +142,9 @@ namespace YetaWF.Core.Views.Shared {
             return DropDownHelper.RenderDataSource(areaName, list);
         }
 #if MVC6
-        public static MvcHtmlString RenderModuleSelectionLink(this IHtmlHelper htmlHelper, Guid? modGuid) {
+        public static HtmlString RenderModuleSelectionLink(this IHtmlHelper htmlHelper, Guid? modGuid) {
 #else
-        public static MvcHtmlString RenderModuleSelectionLink(this HtmlHelper htmlHelper, Guid? modGuid) {
+        public static HtmlString RenderModuleSelectionLink(this HtmlHelper htmlHelper, Guid? modGuid) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -165,12 +164,12 @@ namespace YetaWF.Core.Views.Shared {
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
             hb.Append(tag.ToString(TagRenderMode.Normal));
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderModuleSelectionDisplay(this IHtmlHelper htmlHelper, string name, Guid? modGuid) {
+        public static HtmlString RenderModuleSelectionDisplay(this IHtmlHelper htmlHelper, string name, Guid? modGuid) {
 #else
-        public static MvcHtmlString RenderModuleSelectionDisplay(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
+        public static HtmlString RenderModuleSelectionDisplay(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
 #endif
         HtmlBuilder hb = new HtmlBuilder();
             bool newMods = htmlHelper.GetControlInfo<bool>("", "New", false);
@@ -220,7 +219,7 @@ namespace YetaWF.Core.Views.Shared {
                 tag.SetInnerText(mod.Description.ToString());
             hb.Append(tag.ToString(TagRenderMode.Normal));
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
@@ -22,9 +21,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(TimeZoneHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderTimeZoneDD(this IHtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
+        public static HtmlString RenderTimeZoneDD(this IHtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderTimeZoneDD(this HtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
+        public static HtmlString RenderTimeZoneDD(this HtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
 #endif
             List<TimeZoneInfo> tzis = TimeZoneInfo.GetSystemTimeZones().ToList();
             DateTime dt = DateTime.Now;// Need local time
@@ -49,13 +48,13 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<string>(name, model, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderTimeZoneDisplay(this IHtmlHelper htmlHelper, string name, string model) {
+        public static HtmlString RenderTimeZoneDisplay(this IHtmlHelper htmlHelper, string name, string model) {
 #else
-        public static MvcHtmlString RenderTimeZoneDisplay(this HtmlHelper htmlHelper, string name, string model) {
+        public static HtmlString RenderTimeZoneDisplay(this HtmlHelper htmlHelper, string name, string model) {
 #endif
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(model);
             if (tzi == null) {
-                return MvcHtmlString.Create(__ResStr("unknown", "(unknown)"));
+                return new HtmlString(__ResStr("unknown", "(unknown)"));
             } else {
                 HtmlBuilder hb = new HtmlBuilder();
                 TagBuilder tag = new TagBuilder("div");
@@ -63,7 +62,7 @@ namespace YetaWF.Core.Views.Shared {
                 tag.Attributes.Add("title", tzi.IsDaylightSavingTime(DateTime.Now/*need local time*/) ? tzi.DaylightName : tzi.StandardName);
                 hb.Append(tag.ToString(TagRenderMode.Normal));
 
-                return MvcHtmlString.Create(hb.ToString());
+                return hb.ToHtmlString();
             }
         }
     }

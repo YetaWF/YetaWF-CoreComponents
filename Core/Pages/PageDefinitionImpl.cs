@@ -5,13 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Image;
@@ -21,6 +14,12 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Pages {
 
@@ -418,9 +417,9 @@ namespace YetaWF.Core.Pages {
         // RENDERING
 
 #if MVC6
-        public MvcHtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true) {
+        public HtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true) {
 #else
-        public MvcHtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true) {
+        public HtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true) {
 #endif
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
@@ -485,7 +484,7 @@ namespace YetaWF.Core.Pages {
                     sb.Append(RenderPane(htmlHelper, p, "yGeneratedPane"));
                 }
             }
-            return MvcHtmlString.Create(sb.ToString());
+            return new HtmlString(sb.ToString());
         }
 
         public class PaneSet : IDisposable {

@@ -12,6 +12,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -30,11 +31,11 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static MvcHtmlString ExtLabelFor<TModel, TValue>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static HtmlString ExtLabelFor<TModel, TValue>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
             ModelExplorer modelExplorer = ExpressionMetadataProvider.FromLambdaExpression(expression, htmlHelper.ViewData, htmlHelper.MetadataProvider);
             ModelMetadata metadata = modelExplorer.Metadata;
 #else
-        public static MvcHtmlString ExtLabelFor<TModel, TValue>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static HtmlString ExtLabelFor<TModel, TValue>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
             ModelMetadata metadata = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData);
 #endif
             if (string.IsNullOrWhiteSpace(htmlFieldName))
@@ -42,20 +43,20 @@ namespace YetaWF.Core.Views.Shared {
             return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
         }
 #if MVC6
-        public static MvcHtmlString ExtLabel(this IHtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static HtmlString ExtLabel(this IHtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null) {
             ModelExplorer modelExplorer = ExpressionMetadataProvider.FromStringExpression(expression, htmlHelper.ViewData, htmlHelper.MetadataProvider);
             ModelMetadata metadata = modelExplorer.Metadata;
 #else
-        public static MvcHtmlString ExtLabel(this HtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static HtmlString ExtLabel(this HtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null) {
             ModelMetadata metadata = ModelMetadata.FromStringExpression(expression, htmlHelper.ViewData);
 #endif
             string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
             return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(htmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
         }
 #if MVC6
-        private static MvcHtmlString ExtLabelHelper(IHtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null)
+        private static HtmlString ExtLabelHelper(IHtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null)
 #else
-        private static MvcHtmlString ExtLabelHelper(HtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null)
+        private static HtmlString ExtLabelHelper(HtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null)
 #endif
         {
             PropertyData propData = ObjectSupport.GetPropertyData(metadata.ContainerType, metadata.PropertyName);
@@ -92,21 +93,21 @@ namespace YetaWF.Core.Views.Shared {
                 tagA.SetInnerHtml(tagImg.ToString(TagRenderMode.StartTag));
                 sb.Append(tagA.ToString(TagRenderMode.Normal));
             }
-            return MvcHtmlString.Create(sb.ToString());
+            return new HtmlString(sb.ToString());
         }
 #if MVC6
-        public static MvcHtmlString RenderExtLabel(this IHtmlHelper htmlHelper, string text, int dummy = 0, string ToolTip = null, IDictionary<string, object> htmlAttributes = null) {
+        public static HtmlString RenderExtLabel(this IHtmlHelper htmlHelper, string text, int dummy = 0, string ToolTip = null, IDictionary<string, object> htmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderExtLabel(this HtmlHelper htmlHelper, string text, int dummy = 0, string ToolTip = null, IDictionary<string, object> htmlAttributes = null) {
+        public static HtmlString RenderExtLabel(this HtmlHelper htmlHelper, string text, int dummy = 0, string ToolTip = null, IDictionary<string, object> htmlAttributes = null) {
 #endif
-            if (string.IsNullOrWhiteSpace(text)) return MvcHtmlString.Empty;
+            if (string.IsNullOrWhiteSpace(text)) return HtmlString.Empty;
 
             TagBuilder tag = new TagBuilder("label");
             tag.MergeAttributes(htmlAttributes, replaceExisting: true);
             if (!string.IsNullOrWhiteSpace(ToolTip))
                 tag.Attributes.Add(Basics.CssTooltip, ToolTip);
             tag.SetInnerText(text);
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
     }
 }

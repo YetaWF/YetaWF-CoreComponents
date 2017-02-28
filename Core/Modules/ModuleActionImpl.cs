@@ -1,15 +1,6 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
-#else
-using System.Web.Mvc;
-using System.Web.Routing;
-#endif
 using System.Web.Script.Serialization;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
@@ -17,6 +8,14 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Linq;
+using System.Web.Mvc;
+using System.Web.Routing;
+#endif
 
 namespace YetaWF.Core.Modules {
     public partial class ModuleAction {
@@ -35,18 +34,18 @@ namespace YetaWF.Core.Modules {
         }
 
         // Render an action as button
-        public MvcHtmlString RenderAsButton(string id = null) {
+        public HtmlString RenderAsButton(string id = null) {
             return Render(RenderModeEnum.Button, Id: id);
         }
-        public MvcHtmlString RenderAsButtonIcon(string id = null) {
+        public HtmlString RenderAsButtonIcon(string id = null) {
             return Render(RenderModeEnum.ButtonIcon, Id: id);
         }
         // Render an action as icon
-        public MvcHtmlString RenderAsIcon(string id = null) {
+        public HtmlString RenderAsIcon(string id = null) {
             return Render(RenderModeEnum.IconsOnly, Id: id);
         }
         // Render an action as link
-        public MvcHtmlString RenderAsLink(string id = null) {
+        public HtmlString RenderAsLink(string id = null) {
             return Render(RenderModeEnum.LinksOnly, Id: id);
         }
 
@@ -75,11 +74,11 @@ namespace YetaWF.Core.Modules {
         /// Render an action
         /// </summary>
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
-        public MvcHtmlString Render(RenderModeEnum mode, int dummy = 0, string Id = null, RenderEngineEnum RenderEngine = RenderEngineEnum.JqueryMenu,
+        public HtmlString Render(RenderModeEnum mode, int dummy = 0, string Id = null, RenderEngineEnum RenderEngine = RenderEngineEnum.JqueryMenu,
                 bool HasSubmenu = false) {
 
             // check if we're in the right mode
-            if (!RendersSomething) return MvcHtmlString.Empty;
+            if (!RendersSomething) return HtmlString.Empty;
 
             if (!string.IsNullOrWhiteSpace(ConfirmationText) && (Style != ActionStyleEnum.Post && Style != ActionStyleEnum.Nothing))
                 throw new InternalError("When using ConfirmationText, the Style property must be set to Post");
@@ -128,7 +127,7 @@ namespace YetaWF.Core.Modules {
                     tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, Post: true);
                     break;
             }
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
 
         private TagBuilder Render_ALink(RenderEngineEnum renderEngine, RenderModeEnum mode, string id, bool hasSubmenu,

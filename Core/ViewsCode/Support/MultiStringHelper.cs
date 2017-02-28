@@ -2,17 +2,16 @@
 
 using System;
 using System.Collections.Generic;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -23,9 +22,9 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static MvcHtmlString RenderMultiStringEdit(this IHtmlHelper htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
+        public static HtmlString RenderMultiStringEdit(this IHtmlHelper htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderMultiStringEdit(this HtmlHelper<object> htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
+        public static HtmlString RenderMultiStringEdit(this HtmlHelper<object> htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
 #endif
             string fullName = htmlHelper.FieldName(name);
 
@@ -90,7 +89,7 @@ namespace YetaWF.Core.Views.Shared {
                         }
             ));
             tagDiv.SetInnerHtml(hb.ToString());
-            return MvcHtmlString.Create(tagDiv.ToString(TagRenderMode.Normal));
+            return tagDiv.ToHtmlString(TagRenderMode.Normal);
         }
     }
 }

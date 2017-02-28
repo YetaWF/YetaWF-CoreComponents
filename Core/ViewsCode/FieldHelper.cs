@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
@@ -98,18 +97,18 @@ namespace YetaWF.Core.Views {
                 tagBuilder.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cls));
         }
 #if MVC6
-        public static MvcHtmlString GetErrorClass(this IHtmlHelper htmlHelper, string name) {
+        public static HtmlString GetErrorClass(this IHtmlHelper htmlHelper, string name) {
 #else
-        public static MvcHtmlString GetErrorClass(this HtmlHelper htmlHelper, string name) {
+        public static HtmlString GetErrorClass(this HtmlHelper htmlHelper, string name) {
 #endif
 #if NOYET
             ModelState modelState;
             if (htmlHelper.ViewData.ModelState.TryGetValue(name, out modelState)) {
                 if (modelState.Errors.Count > 0)
-                    return MvcHtmlString.Create(HtmlHelper.ValidationInputCssClassName);
+                    return new HtmlString(HtmlHelper.ValidationInputCssClassName);
             }
 #endif
-            return MvcHtmlString.Empty;
+            return HtmlString.Empty;
         }
 
 #if MVC6

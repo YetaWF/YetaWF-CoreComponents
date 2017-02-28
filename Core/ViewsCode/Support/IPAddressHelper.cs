@@ -1,17 +1,16 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -21,12 +20,12 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(IPAddressHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderIPAddressDisplay(this IHtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static HtmlString RenderIPAddressDisplay(this IHtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #else
-        public static MvcHtmlString RenderIPAddressDisplay(this HtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static HtmlString RenderIPAddressDisplay(this HtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
-            if (string.IsNullOrWhiteSpace(ipAddress)) return MvcHtmlString.Empty;
+            if (string.IsNullOrWhiteSpace(ipAddress)) return HtmlString.Empty;
 
             hb.Append(ipAddress);
 
@@ -42,7 +41,7 @@ namespace YetaWF.Core.Views.Shared {
                         hb.Append(actionDisplay.Render(ModuleAction.RenderModeEnum.IconsOnly));
                 }
             }
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

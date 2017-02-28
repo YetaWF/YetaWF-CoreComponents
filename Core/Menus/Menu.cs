@@ -86,10 +86,10 @@ namespace YetaWF.Core.Menus {
             int level = 0;
 
             if (this.Count == 0)
-                return MvcHtmlString.Empty;
+                return HtmlString.Empty;
             string menuContents = RenderLI(htmlHelper, this, null, RenderMode, RenderEngine, level);
             if (string.IsNullOrWhiteSpace(menuContents))
-                return MvcHtmlString.Empty;
+                return HtmlString.Empty;
 
             // <ul class= style= >
             TagBuilder ulTag = new TagBuilder("ul");
@@ -110,7 +110,7 @@ namespace YetaWF.Core.Menus {
             // </ul>
             hb.Append(ulTag.ToString(TagRenderMode.EndTag));
 
-            return new HtmlString(hb.ToString());
+            return hb.ToHtmlString();
         }
 #if MVC6
         private static string Render(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
@@ -191,7 +191,7 @@ namespace YetaWF.Core.Menus {
                                     tag.AddCssClass("t_megamenu_hassub");
                                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-                                MvcHtmlString menuContents =  menuEntry.Render(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
+                                HtmlString menuContents =  menuEntry.Render(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
                                 hb.Append(menuContents);
 
                                 hb.Append("\n");
@@ -209,7 +209,7 @@ namespace YetaWF.Core.Menus {
                             //    tag.MergeAttribute("disabled", "disabled");
                             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-                            MvcHtmlString menuContents = menuEntry.Render(renderMode, RenderEngine: renderEngine);
+                            HtmlString menuContents = menuEntry.Render(renderMode, RenderEngine: renderEngine);
                             hb.Append(menuContents);
 
                             hb.Append("</li>\n");

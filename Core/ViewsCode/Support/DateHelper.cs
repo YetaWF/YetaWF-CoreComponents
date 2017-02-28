@@ -7,6 +7,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
@@ -28,9 +29,9 @@ namespace YetaWF.Core.Views.Shared {
         }
 
 #if MVC6
-        public static MvcHtmlString RenderDate(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderDate(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #else
-        public static MvcHtmlString RenderDate(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderDate(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #endif
             Include();
 
@@ -60,7 +61,7 @@ namespace YetaWF.Core.Views.Shared {
                 tag.MergeAttribute("value", Formatting.FormatDate((DateTime)model));
             hb.Append(tag.ToString(TagRenderMode.SelfClosing));
 
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
         public static string RenderDateJavascript(string jqElem) {
 

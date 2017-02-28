@@ -3,7 +3,8 @@
 using System.Collections.Generic;
 using System.Text;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
+using System.Text.Encodings.Web;
 #else
 using System.Web.Mvc;
 #endif
@@ -19,10 +20,15 @@ namespace YetaWF.Core.Support {
             if (s == null) return;
             _sb.Append(s);
         }
-        public void Append(MvcHtmlString s) {
-            if (s == null) return;
-            _sb.Append(s.ToString());
+#if MVC6
+        public void Append(IHtmlContent content) {
+            if (content == null) return;
+            System.IO.StringWriter writer = new System.IO.StringWriter();
+            content.WriteTo(writer, HtmlEncoder.Default);
+            _sb.Append(writer.ToString());
         }
+#else
+#endif
         public void Append(string s, params object[] parms) {
             if (s == null) return;
             _sb.AppendFormat(s, parms);
@@ -36,6 +42,9 @@ namespace YetaWF.Core.Support {
         public new string ToString() {
             return _sb.ToString();
         }
+        public HtmlString ToHtmlString() {
+            return new HtmlString(_sb.ToString());
+        }
         public int Length {
             get { return _sb.Length; }
             set { _sb.Length = value; }
@@ -44,7 +53,5 @@ namespace YetaWF.Core.Support {
             if (_sb.Length > 0)
                 _sb.Remove(_sb.Length - 1, 1);
         }
-
-        static public implicit operator MvcHtmlString(ScriptBuilder s) { return MvcHtmlString.Create(s.ToString()); }
     }
 }

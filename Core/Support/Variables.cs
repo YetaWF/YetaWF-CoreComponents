@@ -6,17 +6,16 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Support {
 
@@ -360,11 +359,11 @@ namespace YetaWF.Core.Support {
 
     public static partial class HtmlVarExtender {
 #if MVC6
-        public static MvcHtmlString Var(this IHtmlHelper htmlHelper, string var) {
+        public static HtmlString Var(this IHtmlHelper htmlHelper, string var) {
 #else
-        public static MvcHtmlString Var(this HtmlHelper htmlHelper, string var) {
+        public static HtmlString Var(this HtmlHelper htmlHelper, string var) {
 #endif
-            return MvcHtmlString.Create(var);
+            return new HtmlString(var);
         }
     }
 }

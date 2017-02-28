@@ -13,9 +13,8 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Repository;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
@@ -72,12 +71,12 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="htmlHelper"></param>
         /// <returns></returns>
 #if MVC6
-        public static MvcHtmlString GetSettingsSaveColumnWidthsUrl(this IHtmlHelper htmlHelper) {
+        public static HtmlString GetSettingsSaveColumnWidthsUrl(this IHtmlHelper htmlHelper) {
 #else
-        public static MvcHtmlString GetSettingsSaveColumnWidthsUrl(this HtmlHelper<object> htmlHelper) {
+        public static HtmlString GetSettingsSaveColumnWidthsUrl(this HtmlHelper<object> htmlHelper) {
 #endif
             string settingsSaveUrl = YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.GridHelperController), "GridSaveColumnWidths");
-            return MvcHtmlString.Create(settingsSaveUrl);
+            return new HtmlString(settingsSaveUrl);
         }
 
         public static void SaveSettings(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filter, Guid? settingsModuleGuid = null) {
@@ -209,16 +208,16 @@ namespace YetaWF.Core.Views.Shared {
             return list;
         }
 #if MVC6
-        public static MvcHtmlString RenderExtraData<TModel>(this IHtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
+        public static HtmlString RenderExtraData<TModel>(this IHtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
 #else
-        public static MvcHtmlString RenderExtraData<TModel>(this HtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
+        public static HtmlString RenderExtraData<TModel>(this HtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
 #endif
-            return MvcHtmlString.Create(YetaWFManager.HtmlEncode(YetaWFManager.Jser.Serialize(gridDef.ExtraData)));
+            return new HtmlString(YetaWFManager.HtmlEncode(YetaWFManager.Jser.Serialize(gridDef.ExtraData)));
         }
 #if MVC6
-        public static MvcHtmlString GetDataFieldPrefix<TModel>(this IHtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
+        public static HtmlString GetDataFieldPrefix<TModel>(this IHtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
 #else
-        public static MvcHtmlString GetDataFieldPrefix<TModel>(this HtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
+        public static HtmlString GetDataFieldPrefix<TModel>(this HtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
 #endif
             if (gridDef == null)
                 throw new InternalError("Need a GridDefinition object");
@@ -249,7 +248,7 @@ namespace YetaWF.Core.Views.Shared {
                 prefix = string.Join(".", segs);
             else
                 prefix = "";
-            return MvcHtmlString.Create(prefix);
+            return new HtmlString(prefix);
         }
 
         public static void NormalizeFilters(Type type, List<DataProviderFilterInfo> filters) {

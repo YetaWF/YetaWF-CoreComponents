@@ -3,18 +3,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -24,9 +23,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageSkinHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderPopupSkinDefinitionDisplay(this IHtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
+        public static HtmlString RenderPopupSkinDefinitionDisplay(this IHtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderPopupSkinDefinitionDisplay(this HtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
+        public static HtmlString RenderPopupSkinDefinitionDisplay(this HtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
@@ -61,12 +60,12 @@ namespace YetaWF.Core.Views.Shared {
                 }
                 tag.SetInnerText(sb.ToString());
             }
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
 #if MVC6
-        public static MvcHtmlString RenderPageSkinDefinitionDisplay(this IHtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
+        public static HtmlString RenderPageSkinDefinitionDisplay(this IHtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderPageSkinDefinitionDisplay(this HtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
+        public static HtmlString RenderPageSkinDefinitionDisplay(this HtmlHelper htmlHelper, string name, SkinDefinition model, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
@@ -101,12 +100,12 @@ namespace YetaWF.Core.Views.Shared {
                 }
                 tag.SetInnerText(sb.ToString());
             }
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
 #if MVC6
-        public static MvcHtmlString RenderSkinCollection(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static HtmlString RenderSkinCollection(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderSkinCollection(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static HtmlString RenderSkinCollection(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             // get all available skins
             SkinAccess skinAccess = new SkinAccess();
@@ -125,9 +124,9 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderPageSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static HtmlString RenderPageSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderPageSkinsForCollection(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static HtmlString RenderPageSkinsForCollection(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #endif
         // get all available page skins for this collection
         SkinAccess skinAccess = new SkinAccess();
@@ -135,9 +134,9 @@ namespace YetaWF.Core.Views.Shared {
             return RenderSkinsForCollection(htmlHelper, name, selection, skinList, HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderPopupSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static HtmlString RenderPopupSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderPopupSkinsForCollection(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static HtmlString RenderPopupSkinsForCollection(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #endif
             // get all available popup skins for this collection
             SkinAccess skinAccess = new SkinAccess();
@@ -145,9 +144,9 @@ namespace YetaWF.Core.Views.Shared {
             return RenderSkinsForCollection(htmlHelper, name, selection, skinList, HtmlAttributes);
         }
 #if MVC6
-        private static MvcHtmlString RenderSkinsForCollection(IHtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
+        private static HtmlString RenderSkinsForCollection(IHtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
 #else
-        private static MvcHtmlString RenderSkinsForCollection(HtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
+        private static HtmlString RenderSkinsForCollection(HtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
 #endif
         {
             List<SelectionItem<string>> list = (from skin in skinList orderby skin.Description select new SelectionItem<string>() {
@@ -158,7 +157,7 @@ namespace YetaWF.Core.Views.Shared {
             // display the skins in a drop down
             return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
-        public static MvcHtmlString RenderReplacementSkinsForCollection(PageSkinList skinList) {
+        public static HtmlString RenderReplacementSkinsForCollection(PageSkinList skinList) {
             List<SelectionItem<string>> list = (from skin in skinList orderby skin.Description select new SelectionItem<string>() {
                     Text = skin.Name,
                     Tooltip = skin.Description,
@@ -168,9 +167,9 @@ namespace YetaWF.Core.Views.Shared {
             return DropDownHelper.RenderDataSource(null, list);
         }
 #if MVC6
-        public static MvcHtmlString RenderModuleSkinsForCollection(this IHtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
+        public static HtmlString RenderModuleSkinsForCollection(this IHtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderModuleSkinsForCollection(this HtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
+        public static HtmlString RenderModuleSkinsForCollection(this HtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
 #endif
             // get all available module skins for this collection
             SkinAccess skinAccess = new SkinAccess();

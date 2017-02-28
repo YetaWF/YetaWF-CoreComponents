@@ -24,14 +24,12 @@ using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
 #else
 using System.Web;
 using System.Web.Hosting;
@@ -1430,7 +1428,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Adds the specified css, the current edit mode, the current page's defined css and returns all classes as a string
         /// </summary>
-        public MvcHtmlString PageCss(string css) {
+        public HtmlString PageCss(string css) {
             string s = CombineCss(css, ModeCss);
             s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");
             s = CombineCss(s, IsInPopup ? "yPopup" : "yPage");
@@ -1447,7 +1445,7 @@ namespace YetaWF.Core.Support {
                 else if (!user)
                     s = CombineCss(s, "ypagerole_noUser");
             }
-            return MvcHtmlString.Create(CombineCss(s, CurrentPage.CssClass));
+            return new HtmlString(CombineCss(s, CurrentPage.CssClass));
         }
 
         // CURRENT USER

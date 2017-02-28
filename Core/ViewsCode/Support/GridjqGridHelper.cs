@@ -2,18 +2,17 @@
 
 using System;
 using System.Collections.Generic;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -23,9 +22,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static MvcHtmlString RenderColNames(this IHtmlHelper htmlHelper, GridDefinition gridDef) {
+        public static HtmlString RenderColNames(this IHtmlHelper htmlHelper, GridDefinition gridDef) {
 #else
-        public static MvcHtmlString RenderColNames(this HtmlHelper<object> htmlHelper, GridDefinition gridDef) {
+        public static HtmlString RenderColNames(this HtmlHelper<object> htmlHelper, GridDefinition gridDef) {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -50,12 +49,12 @@ namespace YetaWF.Core.Views.Shared {
                     sb.Append("'<span {0}=\"{1}\">{2}</span>',", Basics.CssTooltip, YetaWFManager.HtmlEncode(description), YetaWFManager.HtmlEncode(caption));
             }
             sb.RemoveLast(); // remove last comma
-            return MvcHtmlString.Create(sb.ToString());
+            return sb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderColModel(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
+        public static HtmlString RenderColModel(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
 #else
-        public static MvcHtmlString RenderColModel(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
+        public static HtmlString RenderColModel(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -168,7 +167,7 @@ namespace YetaWF.Core.Views.Shared {
                     Manager.AddOnManager.AddTemplateFromUIHint(prop.UIHint);
             }
             sb.RemoveLast(); // remove last comma
-            return MvcHtmlString.Create(sb.ToString());
+            return sb.ToHtmlString();
         }
 
         private static void AddFilterOptions(ScriptBuilder sb, GridColumnInfo gridCol) {
@@ -200,9 +199,9 @@ namespace YetaWF.Core.Views.Shared {
         /// Renders the grid sort order
         /// </summary>
 #if MVC6
-        public static MvcHtmlString RenderGridSortOrder(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
+        public static HtmlString RenderGridSortOrder(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #else
-        public static MvcHtmlString RenderGridSortOrder(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
+        public static HtmlString RenderGridSortOrder(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #endif
             GridDefinition.ColumnDictionary columns = null;
 
@@ -218,7 +217,7 @@ namespace YetaWF.Core.Views.Shared {
                 }
             }
             if (columns == null)
-                return MvcHtmlString.Empty;
+                return HtmlString.Empty;
 
             ScriptBuilder sb = new ScriptBuilder();
             foreach (var col in columns) {
@@ -239,7 +238,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (found) break;// only one column supported in jqgrid
             }
 
-            return MvcHtmlString.Create(sb.ToString());
+            return sb.ToHtmlString();
         }
     }
 }

@@ -11,9 +11,8 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -79,9 +78,9 @@ namespace YetaWF.Core.Views.Shared {
             return data;
         }
 #if MVC6
-        public static MvcHtmlString RenderReferencedModules<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static HtmlString RenderReferencedModules<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #else
-        public static MvcHtmlString RenderReferencedModules<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static HtmlString RenderReferencedModules<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #endif
             bool header;
             if (!htmlHelper.TryGetControlInfo<bool>("", "Header", out header))
@@ -98,7 +97,7 @@ namespace YetaWF.Core.Views.Shared {
                 }
             };
 #if MVC6
-            return MvcHtmlString.Create(htmlHelper.DisplayFor(m => grid.GridDef));
+            return new HtmlString(htmlHelper.DisplayFor(m => grid.GridDef).AsString());
 #else
             return htmlHelper.DisplayFor(m => grid.GridDef);
 #endif
@@ -143,9 +142,9 @@ namespace YetaWF.Core.Views.Shared {
             return data;
         }
 #if MVC6
-        public static MvcHtmlString RenderReferencedModulesDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static HtmlString RenderReferencedModulesDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #else
-        public static MvcHtmlString RenderReferencedModulesDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static HtmlString RenderReferencedModulesDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #endif
             bool header;
             if (!htmlHelper.TryGetControlInfo<bool>("", "Header", out header))
@@ -162,7 +161,7 @@ namespace YetaWF.Core.Views.Shared {
                 }
             };
 #if MVC6
-            return MvcHtmlString.Create(htmlHelper.DisplayFor(m => grid.GridDef));
+            return new HtmlString(htmlHelper.DisplayFor(m => grid.GridDef).AsString());
 #else
             return htmlHelper.DisplayFor(m => grid.GridDef);
 #endif

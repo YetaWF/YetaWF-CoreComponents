@@ -3,19 +3,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -38,9 +37,9 @@ namespace YetaWF.Core.Views.Shared {
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelper), name, defaultValue, parms); }
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static MvcHtmlString RenderUrlDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static HtmlString RenderUrlDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #else
-        public static MvcHtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static HtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -61,7 +60,7 @@ namespace YetaWF.Core.Views.Shared {
                     tag.MergeAttribute(Basics.CssTooltip, Tooltip);
 
                 tag.SetInnerText(model);
-                return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+                return tag.ToHtmlString(TagRenderMode.Normal);
 
             } else {
                 // link
@@ -90,13 +89,13 @@ namespace YetaWF.Core.Views.Shared {
                 tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
                 hb.Append(tag.ToString(TagRenderMode.Normal));
 
-                return MvcHtmlString.Create(hb.ToString());
+                return hb.ToHtmlString();
             }
         }
 #if MVC6
-        public static MvcHtmlString RenderUrlSel(this IHtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlSel(this IHtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderUrlSel(this HtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlSel(this HtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
 #endif
             List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
             if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
@@ -119,9 +118,9 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList(name, 0, items, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderUrlDD(this IHtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlDD(this IHtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderUrlDD(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlDD(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
 #endif
             List<string> pages = PageDefinition.GetDesignedUrls();
 
@@ -140,9 +139,9 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<string>(name, url, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderUrlLinkAndImage(this IHtmlHelper htmlHelper, string url) {
+        public static HtmlString RenderUrlLinkAndImage(this IHtmlHelper htmlHelper, string url) {
 #else
-        public static MvcHtmlString RenderUrlLinkAndImage(this HtmlHelper htmlHelper, string url) {
+        public static HtmlString RenderUrlLinkAndImage(this HtmlHelper htmlHelper, string url) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -161,7 +160,7 @@ namespace YetaWF.Core.Views.Shared {
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
             hb.Append(tag.ToString(TagRenderMode.Normal));
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

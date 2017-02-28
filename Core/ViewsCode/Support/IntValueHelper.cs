@@ -2,16 +2,15 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -21,9 +20,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static MvcHtmlString RenderIntValue(this IHtmlHelper htmlHelper, string name, int? value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderIntValue(this IHtmlHelper htmlHelper, string name, int? value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #else
-        public static MvcHtmlString RenderIntValue(this HtmlHelper<object> htmlHelper, string name, int? value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderIntValue(this HtmlHelper<object> htmlHelper, string name, int? value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #endif
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.userevents.min.js");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.numerictextbox.min.js");
@@ -49,7 +48,7 @@ namespace YetaWF.Core.Views.Shared {
             if (value != null)
                 tag.MergeAttribute("value", ((int)value).ToString());
 
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.SelfClosing));
+            return tag.ToHtmlString(TagRenderMode.SelfClosing);
         }
     }
 }

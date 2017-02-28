@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Skins {
 
@@ -164,7 +164,7 @@ namespace YetaWF.Core.Skins {
         //    [ThisModule,ActionMenu]
         // </div>
         // Depending on the BootstrapContainer property <div class="container"> and <div class="row"> may be added.
-        internal MvcHtmlString MakeModuleContainer(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
+        internal HtmlString MakeModuleContainer(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
 
@@ -229,9 +229,9 @@ namespace YetaWF.Core.Skins {
 
             div.SetInnerHtml(inner);
             if (anchor != null)
-                return MvcHtmlString.Create(anchor.ToString() + div.ToString(TagRenderMode.Normal));
+                return new HtmlString(anchor.ToString() + div.ToString(TagRenderMode.Normal));
             else
-                return MvcHtmlString.Create(div.ToString(TagRenderMode.Normal));
+                return div.ToHtmlString(TagRenderMode.Normal);
         }
 
         /// <summary>

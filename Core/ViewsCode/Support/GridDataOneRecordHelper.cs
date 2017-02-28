@@ -5,6 +5,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -22,9 +23,9 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static MvcHtmlString RenderGridDataOneRecord<TModel>(this IHtmlHelper<TModel> htmlHelper, object model) {
+        public static HtmlString RenderGridDataOneRecord<TModel>(this IHtmlHelper<TModel> htmlHelper, object model) {
 #else
-        public static MvcHtmlString RenderGridDataOneRecord(this HtmlHelper<object> htmlHelper, object model) {
+        public static HtmlString RenderGridDataOneRecord(this HtmlHelper<object> htmlHelper, object model) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -126,7 +127,7 @@ namespace YetaWF.Core.Views.Shared {
             }
             Manager.RenderingGridCount = Manager.RenderingGridCount - 1;
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

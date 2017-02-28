@@ -5,6 +5,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
@@ -42,9 +43,9 @@ namespace YetaWF.Core.Views.Shared {
             Action = action;
             RenderAs = renderAs;
         }
-        public MvcHtmlString Render() {
+        public HtmlString Render() {
             if (ButtonType == ButtonTypeEnum.Empty)
-                return MvcHtmlString.Empty;
+                return HtmlString.Empty;
             if (Action != null) {
                 if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
                     return Action.RenderAsIcon();
@@ -59,7 +60,7 @@ namespace YetaWF.Core.Views.Shared {
                     case ButtonTypeEnum.ConditionalSubmit:
                         if (ButtonType == ButtonTypeEnum.ConditionalSubmit && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
                             // if we don't have anyplace to return to and we're not in a popup we don't need a submit button
-                            return MvcHtmlString.Empty;
+                            return HtmlString.Empty;
                         }
                         if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnSave", "Save");
                         tag.Attributes.Add("type", "submit");
@@ -77,7 +78,7 @@ namespace YetaWF.Core.Views.Shared {
                     case ButtonTypeEnum.ConditionalCancel:
                         if (ButtonType == ButtonTypeEnum.ConditionalCancel && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
                             // if we don't have anyplace to return to and we're not in a popup we don't need a cancel button
-                            return MvcHtmlString.Empty;
+                            return HtmlString.Empty;
                         }
                         if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnCancel", "Cancel");
                         tag.Attributes.Add("type", "button");
@@ -95,7 +96,7 @@ namespace YetaWF.Core.Views.Shared {
                 tag.Attributes.Add("value", text);
                 if (!string.IsNullOrWhiteSpace(CssClass))
                     tag.AddCssClass(CssClass);
-                return MvcHtmlString.Create(tag.ToString(TagRenderMode.StartTag));
+                return tag.ToHtmlString(TagRenderMode.StartTag);
             }
         }
     }

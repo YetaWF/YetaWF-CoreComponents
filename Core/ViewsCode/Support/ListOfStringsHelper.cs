@@ -1,25 +1,24 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
+using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
     public static class ListOfStringsHelper {
 #if MVC6
-        public static MvcHtmlString RenderListOfStringsDisplay(this IHtmlHelper htmlHelper, string name, List<string> model, object HtmlAttributes = null) {
+        public static HtmlString RenderListOfStringsDisplay(this IHtmlHelper htmlHelper, string name, List<string> model, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderListOfStringsDisplay(this HtmlHelper<object> htmlHelper, string name, List<string> model, object HtmlAttributes = null) {
+        public static HtmlString RenderListOfStringsDisplay(this HtmlHelper<object> htmlHelper, string name, List<string> model, object HtmlAttributes = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
-            if (model == null || model.Count == 0 || (model.Count == 1 && string.IsNullOrWhiteSpace(model[0]))) return MvcHtmlString.Empty;
+            if (model == null || model.Count == 0 || (model.Count == 1 && string.IsNullOrWhiteSpace(model[0]))) return HtmlString.Empty;
 
             hb.Append("<div class='yt_listofstrings t_display'>");
 
@@ -34,7 +33,7 @@ namespace YetaWF.Core.Views.Shared {
                 hb.Append(YetaWFManager.HtmlEncode(s));
             }
             hb.Append("</div>");
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

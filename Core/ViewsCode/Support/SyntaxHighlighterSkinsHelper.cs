@@ -2,17 +2,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
 using YetaWF.Core.Support;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -22,9 +21,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(SyntaxHighlighterSkinsHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderSyntaxHighlighterSkins(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static HtmlString RenderSyntaxHighlighterSkins(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderSyntaxHighlighterSkins(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static HtmlString RenderSyntaxHighlighterSkins(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             // get all available skins
             SkinAccess skinAccess = new SkinAccess();

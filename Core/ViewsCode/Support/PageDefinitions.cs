@@ -7,9 +7,8 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -52,9 +51,9 @@ namespace YetaWF.Core.Views.Shared {
             return data;
         }
 #if MVC6
-        public static MvcHtmlString RenderPageDefinitionsDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, List<PageDefinition> model) {
+        public static HtmlString RenderPageDefinitionsDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, List<PageDefinition> model) {
 #else
-        public static MvcHtmlString RenderPageDefinitionsDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, List<PageDefinition> model) {
+        public static HtmlString RenderPageDefinitionsDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, List<PageDefinition> model) {
 #endif
             bool header = htmlHelper.GetControlInfo<bool>("", "Header", true);
             GridModel grid = new GridModel() {
@@ -69,7 +68,7 @@ namespace YetaWF.Core.Views.Shared {
                 }
             };
 #if MVC6
-            return MvcHtmlString.Create(htmlHelper.DisplayFor(m => grid.GridDef));
+            return new HtmlString(htmlHelper.DisplayFor(m => grid.GridDef).AsString());
 #else
             return htmlHelper.DisplayFor(m => grid.GridDef);
 #endif

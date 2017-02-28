@@ -2,18 +2,19 @@
 
 using System;
 using System.IO;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
-#endif
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+using System.Web.Mvc.Html;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -50,9 +51,9 @@ namespace YetaWF.Core.Views.Shared {
             return tImg;
         }
 #if MVC6
-        public static MvcHtmlString RenderImageEdit(this IHtmlHelper<string> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderImageEdit(this IHtmlHelper<string> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #else
-        public static MvcHtmlString RenderImageEdit(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderImageEdit(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #endif
             // the upload control
             FileUpload1 info = new FileUpload1() {
@@ -60,15 +61,15 @@ namespace YetaWF.Core.Views.Shared {
                 RemoveURL = YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.ImageHelperController), "RemoveImage", new { __ModuleGuid = Manager.CurrentModule.ModuleGuid }),
             };
 #if MVC6
-            return MvcHtmlString.Create(htmlHelper.EditorFor(x => info, UIHintAttribute.TranslateHint("FileUpload1")));
+            return new HtmlString(htmlHelper.EditorFor(x => info, UIHintAttribute.TranslateHint("FileUpload1")).AsString());
 #else
             return htmlHelper.EditorFor(x => info, UIHintAttribute.TranslateHint("FileUpload1"));
 #endif
         }
 #if MVC6
-        public static MvcHtmlString RenderImage(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0,
+        public static HtmlString RenderImage(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0,
 #else
-        public static MvcHtmlString RenderImage(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0,
+        public static HtmlString RenderImage(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0,
 #endif
                 string CacheBuster = null,
                 string Alt = null,
@@ -87,14 +88,14 @@ namespace YetaWF.Core.Views.Shared {
                 TagBuilder img = new TagBuilder("img");
                 img.Attributes.Add("src", model);
                 img.Attributes.Add("alt", __ResStr("altImage", Alt??"Image"));
-                return MvcHtmlString.Create(img.ToString(TagRenderMode.Normal));
+                return img.ToHtmlString(TagRenderMode.Normal);
 
             } else {
 
                 if (string.IsNullOrWhiteSpace(imageType)) throw new InternalError("No ImageType specified");
 
                 bool showMissing = htmlHelper.GetControlInfo<bool>(name, "ShowMissing", true);
-                if (string.IsNullOrWhiteSpace(model) && !showMissing) return MvcHtmlString.Empty;
+                if (string.IsNullOrWhiteSpace(model) && !showMissing) return HtmlString.Empty;
 
                 string imgTag = RenderImage(imageType, width, height, model, CacheBuster: CacheBuster, Alt:Alt, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
 
@@ -105,9 +106,9 @@ namespace YetaWF.Core.Views.Shared {
                     link.MergeAttribute("href", Manager.GetCDNUrl(imgUrl));
                     link.MergeAttribute("target", "_blank");
                     link.SetInnerHtml(imgTag);
-                    return MvcHtmlString.Create(link.ToString(TagRenderMode.Normal));
+                    return link.ToHtmlString(TagRenderMode.Normal);
                 } else
-                    return MvcHtmlString.Create(imgTag);
+                    return new HtmlString(imgTag);
             }
         }
         public static string RenderImage(string imageType, int width, int height, string model,
@@ -120,20 +121,20 @@ namespace YetaWF.Core.Views.Shared {
             return img.ToString(TagRenderMode.StartTag);
         }
 #if MVC6
-        public static MvcHtmlString RenderImageAttributes(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0) {
+        public static HtmlString RenderImageAttributes(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0) {
 #else
-        public static MvcHtmlString RenderImageAttributes(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0) {
+        public static HtmlString RenderImageAttributes(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0) {
 #endif
-            if (model == null) return MvcHtmlString.Empty;
+            if (model == null) return HtmlString.Empty;
             System.Drawing.Size size = ImageSupport.GetImageSize(model);
-            if (size.IsEmpty) return MvcHtmlString.Empty;
+            if (size.IsEmpty) return HtmlString.Empty;
 
-            return MvcHtmlString.Create(__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));
+            return new HtmlString(__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));
         }
 #if MVC6
-        public static MvcHtmlString RenderImageDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
+        public static HtmlString RenderImageDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
 #else
-        public static MvcHtmlString RenderImageDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
+        public static HtmlString RenderImageDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
 #endif
             return htmlHelper.RenderImage(name, model, CacheBuster: CacheBuster, Alt: Alt, ForceHttpHandler: ForceHttpHandler);
         }

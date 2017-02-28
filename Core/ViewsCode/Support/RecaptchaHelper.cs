@@ -1,17 +1,16 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -72,9 +71,9 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class RecaptchaHelper {
 #if MVC6
-        public static MvcHtmlString RenderRecaptcha(this IHtmlHelper htmlHelper, string name, RecaptchaData value, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderRecaptcha(this IHtmlHelper htmlHelper, string name, RecaptchaData value, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderRecaptcha(this HtmlHelper<object> htmlHelper, string name, RecaptchaData value, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderRecaptcha(this HtmlHelper<object> htmlHelper, string name, RecaptchaData value, int dummy = 0, object HtmlAttributes = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append(htmlHelper.RenderHidden("VerifyPresence", value.VerifyPresence));
@@ -83,7 +82,7 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
             hb.Append(tag.ToString(TagRenderMode.Normal));
 
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
     }
 }

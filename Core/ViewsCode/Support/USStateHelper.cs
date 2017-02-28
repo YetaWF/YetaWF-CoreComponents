@@ -4,18 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -25,9 +24,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(USStateHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderUSState(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderUSState(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #else
-        public static MvcHtmlString RenderUSState(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderUSState(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #endif
             List<SelectionItem<string>> states = ReadStatesList();
 
@@ -43,13 +42,13 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<string>(name, model, states, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static MvcHtmlString RenderUSStateDisplay(this IHtmlHelper htmlHelper, string name, string model) {
+        public static HtmlString RenderUSStateDisplay(this IHtmlHelper htmlHelper, string name, string model) {
 #else
-        public static MvcHtmlString RenderUSStateDisplay(this HtmlHelper htmlHelper, string name, string model) {
+        public static HtmlString RenderUSStateDisplay(this HtmlHelper htmlHelper, string name, string model) {
 #endif
             List<SelectionItem<string>> states = ReadStatesList();
             string state = (from s in states where string.Compare(s.Value, model.ToUpper(), true) == 0 select s.Text).FirstOrDefault();
-            return MvcHtmlString.Create(state);
+            return new HtmlString(state);
         }
 
         private static List<SelectionItem<string>> ReadStatesList() {

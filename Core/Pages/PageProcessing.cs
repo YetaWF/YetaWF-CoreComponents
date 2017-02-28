@@ -60,7 +60,7 @@ namespace YetaWF.Core.Pages {
             pageHtml = reEndHead.Replace(pageHtml, linkAlt + css + js + "</head>", 1);
 
             // endofpage-js + </body> replaces </body>
-            string endstuff = Manager.ScriptManager.RenderEndofPageScripts().ToString();
+            string endstuff = Manager.ScriptManager.RenderEndofPageScripts();
             if (Manager.Deployed) {
                 if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
                     endstuff += Manager.CurrentPage.Analytics;

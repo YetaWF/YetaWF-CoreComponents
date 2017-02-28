@@ -11,10 +11,9 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -53,46 +52,46 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PropertyListSupport), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderTabStripStart(this IHtmlHelper htmlHelper, string controlId) {
+        public static HtmlString RenderTabStripStart(this IHtmlHelper htmlHelper, string controlId) {
 #else
-        public static MvcHtmlString RenderTabStripStart(this HtmlHelper htmlHelper, string controlId) {
+        public static HtmlString RenderTabStripStart(this HtmlHelper htmlHelper, string controlId) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("<ul class='t_tabstrip'>");
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderTabStripEnd(this IHtmlHelper htmlHelper, string controlId) {
+        public static HtmlString RenderTabStripEnd(this IHtmlHelper htmlHelper, string controlId) {
 #else
-        public static MvcHtmlString RenderTabStripEnd(this HtmlHelper htmlHelper, string controlId) {
+        public static HtmlString RenderTabStripEnd(this HtmlHelper htmlHelper, string controlId) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("</ul>");
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderTabPaneStart(this IHtmlHelper htmlHelper, string controlId, int panel, string cssClass = "") {
+        public static HtmlString RenderTabPaneStart(this IHtmlHelper htmlHelper, string controlId, int panel, string cssClass = "") {
 #else
-        public static MvcHtmlString RenderTabPaneStart(this HtmlHelper htmlHelper, string controlId, int panel, string cssClass = "") {
+        public static HtmlString RenderTabPaneStart(this HtmlHelper htmlHelper, string controlId, int panel, string cssClass = "") {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             if (!string.IsNullOrWhiteSpace(cssClass)) cssClass = " " + cssClass;
             hb.Append("<div class='t_table t_cat t_tabpanel{0}' data-tab='{1}' id='{2}'>", cssClass, panel, controlId + "_tab" + panel.ToString());
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderTabPaneEnd(this IHtmlHelper htmlHelper, string controlId, int panel) {
+        public static HtmlString RenderTabPaneEnd(this IHtmlHelper htmlHelper, string controlId, int panel) {
 #else
-        public static MvcHtmlString RenderTabPaneEnd(this HtmlHelper htmlHelper, string controlId, int panel) {
+        public static HtmlString RenderTabPaneEnd(this HtmlHelper htmlHelper, string controlId, int panel) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("</div>");
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderTabEntry(this IHtmlHelper htmlHelper, string controlId, string label, string tooltip, int count) {
+        public static HtmlString RenderTabEntry(this IHtmlHelper htmlHelper, string controlId, string label, string tooltip, int count) {
 #else
-        public static MvcHtmlString RenderTabEntry(this HtmlHelper htmlHelper, string controlId, string label, string tooltip, int count) {
+        public static HtmlString RenderTabEntry(this HtmlHelper htmlHelper, string controlId, string label, string tooltip, int count) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.JQuery) {
@@ -101,12 +100,12 @@ namespace YetaWF.Core.Views.Shared {
             } else {
                 hb.Append("<li data-tab='{0}' {1}='{2}'>{3}</li>", count, Basics.CssTooltip, YetaWFManager.HtmlAttributeEncode(tooltip), YetaWFManager.HtmlEncode(label));
             }
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderTabInit(this IHtmlHelper htmlHelper, string controlId, object model = null) {
+        public static HtmlString RenderTabInit(this IHtmlHelper htmlHelper, string controlId, object model = null) {
 #else
-        public static MvcHtmlString RenderTabInit(this HtmlHelper htmlHelper, string controlId, object model = null) {
+        public static HtmlString RenderTabInit(this HtmlHelper htmlHelper, string controlId, object model = null) {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
             // About tab switching and YetaWF_PropertyList_PanelSwitched
@@ -153,7 +152,7 @@ namespace YetaWF.Core.Views.Shared {
                 sb.Append("}).data('kendoTabStrip');\n");
             } else
                 throw new InternalError("Unknown tab control style");
-            return Manager.ScriptManager.AddNow(sb.ToString()).ToMvcHtmlString();
+            return Manager.ScriptManager.AddNow(sb.ToString()).ToHtmlString();
         }
 
         // Returns all categories implemented by this object - these are decorated with the [CategoryAttribute]
@@ -262,16 +261,16 @@ namespace YetaWF.Core.Views.Shared {
             return properties;
         }
 #if MVC6
-        public static MvcHtmlString RenderPropertyListDisplay(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyListDisplay(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static MvcHtmlString RenderPropertyListDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyListDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #endif
             return htmlHelper.RenderPropertyList(name, model, null, ReadOnly: true);
         }
 #if MVC6
-        public static MvcHtmlString RenderPropertyList(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyList(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static MvcHtmlString RenderPropertyList(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyList(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
@@ -295,10 +294,10 @@ namespace YetaWF.Core.Views.Shared {
                 tagFieldSet.SetInnerHtml(tagLegend.ToString(TagRenderMode.Normal) + hbProps.ToString());
                 hb.Append(tagFieldSet.ToString(TagRenderMode.Normal));
             } else {
-                hb.Append(hbProps);
+                hb.Append(hbProps.ToHtmlString());
             }
             RenderFooter(hb, classData);
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 
         private static void RenderHeader(HtmlBuilder hb, ClassData classData) {
@@ -322,9 +321,9 @@ namespace YetaWF.Core.Views.Shared {
             }
         }
 #if MVC6
-        private static MvcHtmlString RenderList(IHtmlHelper htmlHelper, object model, string category, bool showVariables, bool readOnly)
+        private static HtmlString RenderList(IHtmlHelper htmlHelper, object model, string category, bool showVariables, bool readOnly)
 #else
-        private static MvcHtmlString RenderList(HtmlHelper<object> htmlHelper, object model, string category, bool showVariables, bool readOnly)
+        private static HtmlString RenderList(HtmlHelper<object> htmlHelper, object model, string category, bool showVariables, bool readOnly)
 #endif
         {
             bool focusSet = Manager.WantFocus ? false : true;
@@ -334,12 +333,12 @@ namespace YetaWF.Core.Views.Shared {
 
             foreach (PropertyListEntry property in properties) {
                 bool labelDone = false;
-                MvcHtmlString shtmlDisp = null;
+                HtmlString shtmlDisp = null;
                 if (property.Restricted) {
-                    shtmlDisp = MvcHtmlString.Create(__ResStr("demo", "This property is not available in Demo Mode"));
+                    shtmlDisp = new HtmlString(__ResStr("demo", "This property is not available in Demo Mode"));
                 } else if (readOnly || !property.Editable) {
 #if MVC6
-                    shtmlDisp = MvcHtmlString.Create(htmlHelper.Display(property.Name));
+                    shtmlDisp = new HtmlString(htmlHelper.Display(property.Name).AsString());
 #else
                     shtmlDisp = htmlHelper.Display(property.Name);
 #endif
@@ -347,7 +346,7 @@ namespace YetaWF.Core.Views.Shared {
                     if (string.IsNullOrWhiteSpace(s)) {
                         if (property.SuppressEmpty)
                             continue;
-                        shtmlDisp = MvcHtmlString.Create("&nbsp;");
+                        shtmlDisp = new HtmlString("&nbsp;");
                     }
                 }
                 hb.Append("<div class='t_row t_{0}'>", property.Name.ToLower());
@@ -404,7 +403,7 @@ namespace YetaWF.Core.Views.Shared {
                 }
                 hb.Append("</div>");
             }
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
         /// <summary>
         /// Generate the control sets based on a model's ProcessIf attributes.
@@ -453,9 +452,9 @@ namespace YetaWF.Core.Views.Shared {
         }
 
 #if MVC6
-        private static MvcHtmlString RenderHidden(IHtmlHelper htmlHelper, object model)
+        private static HtmlString RenderHidden(IHtmlHelper htmlHelper, object model)
 #else
-        private static MvcHtmlString RenderHidden(HtmlHelper<object> htmlHelper, object model)
+        private static HtmlString RenderHidden(HtmlHelper<object> htmlHelper, object model)
 #endif
         {
             HtmlBuilder hb = new HtmlBuilder();
@@ -463,19 +462,19 @@ namespace YetaWF.Core.Views.Shared {
             foreach (var property in properties) {
                 hb.Append(htmlHelper.Display(property.Name));
             }
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderPropertyListTabbedDisplay(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyListTabbedDisplay(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static MvcHtmlString RenderPropertyListTabbedDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyListTabbedDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #endif
             return htmlHelper.RenderPropertyListTabbed(name, model, null, ReadOnly: true);
         }
 #if MVC6
-        public static MvcHtmlString RenderPropertyListTabbed(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyListTabbed(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static MvcHtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static HtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #endif
             Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript as the regular propertylist template */
 
@@ -522,7 +521,7 @@ namespace YetaWF.Core.Views.Shared {
 
             RenderFooter(hb, classData);
 
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
 
         public static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {

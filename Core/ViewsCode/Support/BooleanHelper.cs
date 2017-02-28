@@ -1,14 +1,13 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+using YetaWF.Core.Localize;
+using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Localize;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -16,9 +15,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(BooleanHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderBoolean(this IHtmlHelper htmlHelper, string name, bool value, object HtmlAttributes = null) {
+        public static HtmlString RenderBoolean(this IHtmlHelper htmlHelper, string name, bool value, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderBoolean(this HtmlHelper<object> htmlHelper, string name, bool value, object HtmlAttributes = null) {
+        public static HtmlString RenderBoolean(this HtmlHelper<object> htmlHelper, string name, bool value, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
@@ -33,14 +32,14 @@ namespace YetaWF.Core.Views.Shared {
             tagHidden.Attributes.Add("type", "hidden");
             tagHidden.Attributes.Add("value", "false");
 
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.StartTag) + tagHidden.ToString(TagRenderMode.StartTag));
+            return new HtmlString(tag.ToHtmlString(TagRenderMode.StartTag) + tagHidden.ToString(TagRenderMode.StartTag));
         }
 
 
 #if MVC6
-        public static MvcHtmlString RenderBooleanDisplay(this IHtmlHelper<bool> htmlHelper, string name, bool value, object HtmlAttributes = null) {
+        public static HtmlString RenderBooleanDisplay(this IHtmlHelper<bool> htmlHelper, string name, bool value, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderBooleanDisplay(this HtmlHelper<object> htmlHelper, string name, bool value, object HtmlAttributes = null) {
+        public static HtmlString RenderBooleanDisplay(this HtmlHelper<object> htmlHelper, string name, bool value, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
@@ -48,7 +47,7 @@ namespace YetaWF.Core.Views.Shared {
             tag.Attributes.Add("disabled", "disabled");
             if (value)
                 tag.Attributes.Add("checked", "checked");
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.StartTag));
+            return tag.ToHtmlString(TagRenderMode.StartTag);
         }
     }
 

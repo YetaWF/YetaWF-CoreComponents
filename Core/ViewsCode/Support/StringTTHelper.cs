@@ -1,14 +1,13 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+using YetaWF.Core.Addons;
+using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Addons;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -19,16 +18,16 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class StringTTHelper {
 #if MVC6
-        public static MvcHtmlString RenderStringTTDisplay(this IHtmlHelper htmlHelper, string name, StringTT model) {
+        public static HtmlString RenderStringTTDisplay(this IHtmlHelper htmlHelper, string name, StringTT model) {
 #else
-        public static MvcHtmlString RenderStringTTDisplay(this HtmlHelper htmlHelper, string name, StringTT model) {
+        public static HtmlString RenderStringTTDisplay(this HtmlHelper htmlHelper, string name, StringTT model) {
 #endif
             return RenderStringTTDisplay(htmlHelper, name, model.Text, model.Tooltip);
         }
 #if MVC6
-        public static MvcHtmlString RenderStringTTDisplay(IHtmlHelper htmlHelper, string name, string text, string tooltip = null) {
+        public static HtmlString RenderStringTTDisplay(IHtmlHelper htmlHelper, string name, string text, string tooltip = null) {
 #else
-        public static MvcHtmlString RenderStringTTDisplay(HtmlHelper htmlHelper, string name, string text, string tooltip = null) {
+        public static HtmlString RenderStringTTDisplay(HtmlHelper htmlHelper, string name, string text, string tooltip = null) {
 #endif
             TagBuilder tag = new TagBuilder("span");
             htmlHelper.FieldSetup(tag, name, Validation: false, Anonymous: true);
@@ -37,7 +36,7 @@ namespace YetaWF.Core.Views.Shared {
                 tag.Attributes.Add(Basics.CssTooltipSpan, tooltip);
             if (!string.IsNullOrWhiteSpace(text))
                 tag.SetInnerText(text);
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
 
         }
     }

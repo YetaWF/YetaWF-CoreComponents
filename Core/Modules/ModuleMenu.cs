@@ -2,19 +2,18 @@
 
 using System;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Menus;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Modules {
 
@@ -113,7 +112,7 @@ namespace YetaWF.Core.Modules {
             return moduleMenu;
         }
 
-        public MvcHtmlString RenderModuleMenu() {
+        public HtmlString RenderModuleMenu() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -121,7 +120,7 @@ namespace YetaWF.Core.Modules {
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleMenu).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
-                return MvcHtmlString.Empty;// we don't have a menu
+                return HtmlString.Empty;// we don't have a menu
 
             // <div class= >
             TagBuilder divTag = new TagBuilder("div");
@@ -155,10 +154,10 @@ namespace YetaWF.Core.Modules {
             Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Modules");// various module support
             Manager.AddOnManager.AddAddOnGlobal("jquery.com", "jquery-color");// for color change when entering module edit menu
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
 
-        public MvcHtmlString RenderModuleLinks() {
+        public HtmlString RenderModuleLinks() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -166,7 +165,7 @@ namespace YetaWF.Core.Modules {
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleLinks).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
-                return MvcHtmlString.Empty;// we don't have a menu
+                return HtmlString.Empty;// we don't have a menu
 
             // <div>
             TagBuilder div2Tag = new TagBuilder("div");
@@ -179,7 +178,7 @@ namespace YetaWF.Core.Modules {
             // </div>
             hb.Append(div2Tag.ToString(TagRenderMode.EndTag));
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
 
         private MenuList GetMoveToOtherPanes(PageDefinition page, ModuleDefinition modServices) {

@@ -1,14 +1,13 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
+using YetaWF.Core.Pages;
+using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Pages;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -18,9 +17,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static MvcHtmlString RenderTextArea(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextArea(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #else
-        public static MvcHtmlString RenderTextArea(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextArea(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #endif
             Manager.AddOnManager.AddAddOnGlobal("ckeditor.com", "ckeditor");
 
@@ -29,12 +28,12 @@ namespace YetaWF.Core.Views.Shared {
 
             tag.SetInnerText(text);
 
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
 #if MVC6
-        public static MvcHtmlString RenderTextAreaDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #else
-        public static MvcHtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append(Globals.LazyHTMLOptimization);
@@ -61,7 +60,7 @@ namespace YetaWF.Core.Views.Shared {
             hb.Append(tag.ToString(TagRenderMode.Normal));
             hb.Append(Globals.LazyHTMLOptimizationEnd);
 
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

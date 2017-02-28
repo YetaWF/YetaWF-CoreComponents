@@ -431,18 +431,18 @@ namespace YetaWF.Core.Pages {
             if (sbA.Length > 0) {
                 //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 tag.Append("<script type=\"text/javascript\">");
-                tag.Append(sbA);
+                tag.Append(sbA.ToString());
                 tag.Append("</script>");
                 //tag.Append("\n//]]>\n</script>\n");
             }
             HtmlBuilder hb = RenderScriptsFiles();
-            tag.Append(hb);
+            tag.Append(hb.ToHtmlString());
 
             ScriptBuilder sbB = RenderScriptsPartB();
             if (sbB.Length > 0) {
                 //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 tag.Append("<script type=\"text/javascript\">");
-                tag.Append(sbB);
+                tag.Append(sbB.ToString());
                 tag.Append("</script>");
                 //tag.Append("\n//]]>\n</script>\n");
             }
@@ -457,7 +457,7 @@ namespace YetaWF.Core.Pages {
 
             HtmlBuilder hb = RenderScriptsFiles();
             if (hb.Length > 0) throw new InternalError("Somehow script file links were added in an Ajax request - this is not supported");
-            tag.Append(hb);
+            tag.Append(hb.ToHtmlString());
 
             tag.Append(RenderEndofPageScripts());
 
@@ -465,7 +465,7 @@ namespace YetaWF.Core.Pages {
             if (sbB.Length > 0) {
                 //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 tag.Append("<script type=\"text/javascript\">");
-                tag.Append(sbB);
+                tag.Append(sbB.ToString());
                 tag.Append("</script>");
                 //tag.Append("\n//]]>\n</script>\n");
             }
@@ -600,7 +600,7 @@ namespace YetaWF.Core.Pages {
             return sb;
         }
 
-        public HtmlBuilder RenderEndofPageScripts() {
+        public string RenderEndofPageScripts() {
             HtmlBuilder hb = new HtmlBuilder();
             if (_SavedNamedScripts.Count > 0 || _SavedNamedScriptsDocReady.Count > 0) {
                 //hb.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
@@ -622,7 +622,7 @@ namespace YetaWF.Core.Pages {
                 hb.Append("</script>");
                 //hb.Append("\n//]]>\n</script>\n");
             }
-            return hb;
+            return hb.ToString();
         }
 
         // TRIM JAVASCRIPT CODE

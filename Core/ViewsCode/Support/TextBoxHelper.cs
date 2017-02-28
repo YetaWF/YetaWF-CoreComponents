@@ -1,18 +1,17 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -24,9 +23,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(TextBoxHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderTextBox(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderTextBox(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #else
-        public static MvcHtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #endif
             Manager.AddOnManager.AddTemplate("Text");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
@@ -61,12 +60,12 @@ namespace YetaWF.Core.Views.Shared {
                 tagImg.AddCssClass("yt_text_copy");
                 hb.Append(tagImg.ToString(TagRenderMode.StartTag));
             }
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
 #if MVC6
-        public static MvcHtmlString RenderTextBoxDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextBoxDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #else
-        public static MvcHtmlString RenderTextBoxDisplay(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextBoxDisplay(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
 #endif
             Manager.AddOnManager.AddTemplate("Text");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
@@ -96,7 +95,7 @@ namespace YetaWF.Core.Views.Shared {
                 tagImg.AddCssClass("yt_text_copy");
                 hb.Append(tagImg.ToString(TagRenderMode.StartTag));
             }
-            return MvcHtmlString.Create(hb.ToString());
+            return hb.ToHtmlString();
         }
     }
 }

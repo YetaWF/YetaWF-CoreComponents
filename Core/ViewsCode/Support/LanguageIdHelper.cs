@@ -8,9 +8,8 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
 #endif
@@ -23,9 +22,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(LanguageIdHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderLanguageId(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static HtmlString RenderLanguageId(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static MvcHtmlString RenderLanguageId(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static HtmlString RenderLanguageId(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             bool useDefault = ! htmlHelper.GetControlInfo<bool>("", "NoDefault");
             bool allLanguages = htmlHelper.GetControlInfo<bool>("", "AllLanguages");

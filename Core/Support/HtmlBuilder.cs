@@ -10,19 +10,17 @@ using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Support {
-    public class HtmlBuilder : HtmlString {
 
-        public HtmlBuilder() : base("") { }
-        public HtmlBuilder(string s) : base(s) { }
+    public class HtmlBuilder {
+
+        public HtmlBuilder() { }
+        public HtmlBuilder(string s) { }
 
         private readonly StringBuilder _hb = new StringBuilder(4000);
+
         public void Append(string s) {
             if (s == null) return;
             _hb.Append(s);
-        }
-        public void Append(MvcHtmlString s) {
-            if (s == null) return;
-            _hb.Append(s.ToString());
         }
 #if MVC6
         public void Append(IHtmlContent content) {
@@ -40,26 +38,20 @@ namespace YetaWF.Core.Support {
         public new string ToString() {
             return _hb.ToString();
         }
-        public MvcHtmlString ToMvcHtmlString() {
-            return MvcHtmlString.Create(_hb.ToString());
+        public HtmlString ToHtmlString() {
+            return new HtmlString(_hb.ToString());
         }
+
         public int Length {
             get { return _hb.Length; }
             set { _hb.Length = value; }
         }
+
         public StringBuilder Replace(string oldStr, string newStr) {
             return _hb.Replace(oldStr, newStr);
         }
         public void Remove(int startIndex, int length) {
             _hb.Remove(startIndex, length);
         }
-
-        static public implicit operator MvcHtmlString(HtmlBuilder h) { return MvcHtmlString.Create(h.ToString()); }
-#if MVC6
-        public string ToHtmlString() {
-            return this.ToString();
-        }
-#else
-#endif
     }
 }

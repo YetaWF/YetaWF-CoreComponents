@@ -11,6 +11,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Threading.Tasks;
@@ -87,8 +88,8 @@ namespace YetaWF.Core.Views {
         /// <summary>
         /// Get a localized string from resources
         /// </summary>
-        public MvcHtmlString __ResStrHtml(string name, string defaultValue, params object[] parms) {
-            return MvcHtmlString.Create(ResourceAccessHelper.__ResStr(Module, name, defaultValue, parms));
+        public HtmlString __ResStrHtml(string name, string defaultValue, params object[] parms) {
+            return new HtmlString(ResourceAccessHelper.__ResStr(Module, name, defaultValue, parms));
         }
 
         // MODULE PROPERTIES
@@ -207,7 +208,7 @@ namespace YetaWF.Core.Views {
         private object _model = null;
 
         // PartialForm rendering called during regular form processing (not ajax)
-        public MvcHtmlString PartialForm(string partialViewName = null)
+        public HtmlString PartialForm(string partialViewName = null)
         {
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
@@ -240,13 +241,13 @@ namespace YetaWF.Core.Views {
 #else
             viewHtml = RazorViewExtensions.PostProcessViewHtml(Html, Module, viewHtml);
 #endif
-            return MvcHtmlString.Create(viewHtml);
+            return new HtmlString(viewHtml);
         }
-        public MvcHtmlString FormButtons(List<FormButton> buttons, int dummy = 0) {
+        public HtmlString FormButtons(List<FormButton> buttons, int dummy = 0) {
             return FormButtons(buttons.ToArray());
         }
 
-        public MvcHtmlString FormButtons(FormButton[] buttons, int dummy = 0) {
+        public HtmlString FormButtons(FormButton[] buttons, int dummy = 0) {
             HtmlBuilder hb = new HtmlBuilder();
             if (Module.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
@@ -255,7 +256,7 @@ namespace YetaWF.Core.Views {
                 }
                 hb.Append("</div>");
             }
-            return hb.ToMvcHtmlString();
+            return hb.ToHtmlString();
         }
     }
 

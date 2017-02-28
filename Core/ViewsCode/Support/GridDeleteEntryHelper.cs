@@ -7,6 +7,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
@@ -20,9 +21,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(GridDeleteEntryHelper), name, defaultValue, parms); }
 #if MVC6
-        public static MvcHtmlString RenderGridDeleteEntry(this IHtmlHelper htmlHelper, string name,
+        public static HtmlString RenderGridDeleteEntry(this IHtmlHelper htmlHelper, string name,
 #else
-        public static MvcHtmlString RenderGridDeleteEntry(this HtmlHelper htmlHelper, string name,
+        public static HtmlString RenderGridDeleteEntry(this HtmlHelper htmlHelper, string name,
 #endif
                 int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
             TagBuilder tag = new TagBuilder("span");
@@ -38,7 +39,7 @@ namespace YetaWF.Core.Views.Shared {
             if (!string.IsNullOrWhiteSpace(Tooltip))
                 tag.MergeAttribute(Basics.CssTooltipSpan, Tooltip);
 
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.Normal));
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
     }
 }

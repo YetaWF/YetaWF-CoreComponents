@@ -1,18 +1,17 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -20,9 +19,9 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class CurrencyHelper {
 #if MVC6
-        public static MvcHtmlString RenderCurrency(this IHtmlHelper htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderCurrency(this IHtmlHelper htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #else
-        public static MvcHtmlString RenderCurrency(this HtmlHelper<object> htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderCurrency(this HtmlHelper<object> htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
 #endif
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);
@@ -39,7 +38,7 @@ namespace YetaWF.Core.Views.Shared {
             if (model != null)
                 tag.MergeAttribute("value", Formatting.FormatAmount((decimal) model));
 
-            return MvcHtmlString.Create(tag.ToString(TagRenderMode.SelfClosing));
+            return tag.ToHtmlString(TagRenderMode.SelfClosing);
         }
     }
 }
