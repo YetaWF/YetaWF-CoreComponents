@@ -115,6 +115,7 @@
     <Compile Include="Pages\ViewServiceRender.cs" />
     <Compile Include="Pages\YetaWFRazorView.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
+    <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
     <Compile Include="Support\Shims\AllowHtmlAttribute.cs" />
