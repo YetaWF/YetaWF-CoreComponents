@@ -280,9 +280,8 @@ namespace YetaWF.Core.Views {
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
             hb.Append(htmlHelper.AntiForgeryToken());
-            // id required below because MVC6 DefaultHtmlGenerator generates id (which can become duplicates if multiple forms contain the same hidden fields)
-            hb.Append(htmlHelper.Hidden(Basics.ModuleGuid, module.ModuleGuid, new { id = Manager.UniqueId() }));
-            hb.Append(htmlHelper.Hidden(Forms.UniqueIdPrefix, Manager.UniqueIdPrefix, new { id = Manager.UniqueId() }));
+            hb.Append(htmlHelper.Hidden(Basics.ModuleGuid, module.ModuleGuid));
+            hb.Append(htmlHelper.Hidden(Forms.UniqueIdPrefix, Manager.UniqueIdPrefix));
 
             viewHtml = ProcessImages(viewHtml);
             hb.Append(viewHtml);
