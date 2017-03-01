@@ -119,6 +119,7 @@
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
     <Compile Include="Support\Shims\AllowHtmlAttribute.cs" />
+    <Compile Include="Support\Shims\HtmlString.cs" />
     <Compile Include="Support\Shims\IHtmlContent.cs" />
     <Compile Include="Support\Shims\JsonResult.cs" />
     <Compile Include="Support\Shims\MvcHtmlString.cs" />
@@ -317,7 +318,6 @@
     <Compile Include="Support\BrowserCaps.cs" />
     <Compile Include="Support\ConvertGlobalsToJavascript.cs" />
     <Compile Include="Support\Error.cs" />
-    <Compile Include="Extensions\ExtensionsTemp.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Support\Localize\ResourceAccess.cs" />
     <Compile Include="PackageSupport\Package.cs" />

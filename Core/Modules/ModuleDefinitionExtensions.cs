@@ -10,6 +10,7 @@ using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -35,9 +36,9 @@ namespace YetaWF.Core.Modules {
 #else
         private static HtmlString RenderPageControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #endif
-            if (Manager.IsInPopup) return HtmlString.Empty;
-            if (Manager.IsForcedDisplayMode) return HtmlString.Empty;
-            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlString.Empty;
+            if (Manager.IsInPopup) return HtmlStringExtender.Empty;
+            if (Manager.IsForcedDisplayMode) return HtmlStringExtender.Empty;
+            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
@@ -68,7 +69,7 @@ namespace YetaWF.Core.Modules {
                 Manager.ForceModuleActionLinks = false;
                 return tag.ToHtmlString(TagRenderMode.Normal);
             } else
-                return HtmlString.Empty;
+                return HtmlStringExtender.Empty;
         }
 
 #if MVC6
@@ -85,9 +86,9 @@ namespace YetaWF.Core.Modules {
 #else
         private static HtmlString RenderEditControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #endif
-            if (Manager.IsInPopup) return HtmlString.Empty;
-            if (Manager.IsForcedDisplayMode) return HtmlString.Empty;
-            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlString.Empty;
+            if (Manager.IsInPopup) return HtmlStringExtender.Empty;
+            if (Manager.IsForcedDisplayMode) return HtmlStringExtender.Empty;
+            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
@@ -112,7 +113,7 @@ namespace YetaWF.Core.Modules {
 
                 return tag.ToHtmlString(TagRenderMode.Normal);
             } else
-                return HtmlString.Empty;
+                return HtmlStringExtender.Empty;
         }
 
         // unique, possibly new, typically used in skin to create unique non-pane modules

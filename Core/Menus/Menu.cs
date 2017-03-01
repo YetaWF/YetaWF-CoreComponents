@@ -86,10 +86,10 @@ namespace YetaWF.Core.Menus {
             int level = 0;
 
             if (this.Count == 0)
-                return HtmlString.Empty;
+                return HtmlStringExtender.Empty;
             string menuContents = RenderLI(htmlHelper, this, null, RenderMode, RenderEngine, level);
             if (string.IsNullOrWhiteSpace(menuContents))
-                return HtmlString.Empty;
+                return HtmlStringExtender.Empty;
 
             // <ul class= style= >
             TagBuilder ulTag = new TagBuilder("ul");

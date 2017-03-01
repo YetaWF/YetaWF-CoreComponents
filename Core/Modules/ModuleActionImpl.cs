@@ -12,9 +12,8 @@ using YetaWF.Core.Views.Shared;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
-using System.Linq;
+using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 #endif
 
 namespace YetaWF.Core.Modules {
@@ -78,7 +77,7 @@ namespace YetaWF.Core.Modules {
                 bool HasSubmenu = false) {
 
             // check if we're in the right mode
-            if (!RendersSomething) return HtmlString.Empty;
+            if (!RendersSomething) return HtmlStringExtender.Empty;
 
             if (!string.IsNullOrWhiteSpace(ConfirmationText) && (Style != ActionStyleEnum.Post && Style != ActionStyleEnum.Nothing))
                 throw new InternalError("When using ConfirmationText, the Style property must be set to Post");

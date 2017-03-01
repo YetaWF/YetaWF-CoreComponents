@@ -30,6 +30,10 @@ namespace YetaWF.Core.Support {
             _hb.Append(writer.ToString());
         }
 #else
+        public void Append(IHtmlString content) {
+            if (content == null) return;
+            _hb.Append(content.ToHtmlString());
+        }
 #endif
         public void Append(string s, params object[] parms) {
             if (s == null) return;

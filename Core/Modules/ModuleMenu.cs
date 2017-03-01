@@ -12,6 +12,7 @@ using YetaWF.Core.Views.Shared;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -120,7 +121,7 @@ namespace YetaWF.Core.Modules {
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleMenu).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
-                return HtmlString.Empty;// we don't have a menu
+                return HtmlStringExtender.Empty;// we don't have a menu
 
             // <div class= >
             TagBuilder divTag = new TagBuilder("div");
@@ -165,7 +166,7 @@ namespace YetaWF.Core.Modules {
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleLinks).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
-                return HtmlString.Empty;// we don't have a menu
+                return HtmlStringExtender.Empty;// we don't have a menu
 
             // <div>
             TagBuilder div2Tag = new TagBuilder("div");

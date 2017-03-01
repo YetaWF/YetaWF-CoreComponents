@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Text.Encodings.Web;
 #else
-using System;
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -45,6 +45,12 @@ namespace YetaWF.Core.Support {
             return new HtmlString(tagBuilder.ToString(mode));
         }
 #else
+        public static HtmlString ToHtmlString(this TagBuilder tagBuilder) {
+            return new HtmlString(tagBuilder.ToString(TagRenderMode.Normal));
+        }
+        public static HtmlString ToHtmlString(this TagBuilder tagBuilder, TagRenderMode mode) {
+            return new HtmlString(tagBuilder.ToString(mode));
+        }
         public static string GetInnerHtml(this TagBuilder tagBuilder) {
             return tagBuilder.InnerHtml;
         }

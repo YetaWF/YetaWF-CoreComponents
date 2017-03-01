@@ -16,6 +16,7 @@ using YetaWF.Core.Support.Repository;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 

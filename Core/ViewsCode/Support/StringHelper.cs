@@ -6,6 +6,7 @@ using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -23,7 +24,7 @@ namespace YetaWF.Core.Views.Shared {
                 text = "";
             string t = text.ToString();
             if (string.IsNullOrWhiteSpace(t))
-                return HtmlString.Empty;
+                return HtmlStringExtender.Empty;
             t = YetaWFManager.HtmlEncode(t);
             return new HtmlString(t);
         }

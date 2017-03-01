@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.AspNetCore.Html;
 using System.Text.Encodings.Web;
 #else
-using System.Web.Mvc;
+using System.Web;
 #endif
 
 namespace YetaWF.Core.Support {
@@ -28,6 +28,10 @@ namespace YetaWF.Core.Support {
             _sb.Append(writer.ToString());
         }
 #else
+        public void Append(IHtmlString content) {
+            if (content == null) return;
+            _sb.Append(content.ToHtmlString());
+        }
 #endif
         public void Append(string s, params object[] parms) {
             if (s == null) return;

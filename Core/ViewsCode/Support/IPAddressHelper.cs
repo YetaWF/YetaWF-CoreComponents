@@ -9,6 +9,7 @@ using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -25,7 +26,7 @@ namespace YetaWF.Core.Views.Shared {
         public static HtmlString RenderIPAddressDisplay(this HtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
-            if (string.IsNullOrWhiteSpace(ipAddress)) return HtmlString.Empty;
+            if (string.IsNullOrWhiteSpace(ipAddress)) return HtmlStringExtender.Empty;
 
             hb.Append(ipAddress);
 

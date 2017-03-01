@@ -12,6 +12,7 @@ using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 #endif
@@ -95,7 +96,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (string.IsNullOrWhiteSpace(imageType)) throw new InternalError("No ImageType specified");
 
                 bool showMissing = htmlHelper.GetControlInfo<bool>(name, "ShowMissing", true);
-                if (string.IsNullOrWhiteSpace(model) && !showMissing) return HtmlString.Empty;
+                if (string.IsNullOrWhiteSpace(model) && !showMissing) return HtmlStringExtender.Empty;
 
                 string imgTag = RenderImage(imageType, width, height, model, CacheBuster: CacheBuster, Alt:Alt, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
 
@@ -125,9 +126,9 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderImageAttributes(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0) {
 #endif
-            if (model == null) return HtmlString.Empty;
+            if (model == null) return HtmlStringExtender.Empty;
             System.Drawing.Size size = ImageSupport.GetImageSize(model);
-            if (size.IsEmpty) return HtmlString.Empty;
+            if (size.IsEmpty) return HtmlStringExtender.Empty;
 
             return new HtmlString(__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));
         }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -54,7 +55,7 @@ namespace YetaWF.Core.Views.Shared {
         private static HtmlString ExtHiddenHelper(HtmlHelper htmlHelper, object model, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null)
 #endif
         {
-            if (model == null) return HtmlString.Empty;
+            if (model == null) return HtmlStringExtender.Empty;
             string value = model.ToString();
             TagBuilder tag = new TagBuilder("input");
             tag.Attributes.Add("type", "hidden");

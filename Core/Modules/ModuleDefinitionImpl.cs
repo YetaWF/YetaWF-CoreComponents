@@ -5,17 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
-using System.Web.Routing;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Identity;
@@ -27,6 +16,18 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Controllers.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#else
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Mvc.Html;
+using System.Web.Routing;
+#endif
 
 namespace YetaWF.Core.Modules {
 
@@ -573,7 +574,7 @@ namespace YetaWF.Core.Modules {
         public HtmlString RenderModule(HtmlHelper htmlHelper)
 #endif
         {
-            if (!Visible && !Manager.EditMode) return HtmlString.Empty;
+            if (!Visible && !Manager.EditMode) return HtmlStringExtender.Empty;
 
             // determine char dimensions for current skin
             SkinAccess skinAccess = new SkinAccess();
@@ -610,12 +611,12 @@ namespace YetaWF.Core.Modules {
             Manager.WantFocus = false;
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
-                return HtmlString.Empty; // if the module contents are empty, we bail
+                return HtmlStringExtender.Empty; // if the module contents are empty, we bail
 
             Manager.AddOnManager.AddModule(this);
 
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
-                return HtmlString.Empty; // if the module contents are empty, we bail
+                return HtmlStringExtender.Empty; // if the module contents are empty, we bail
 
             bool showTitle = ShowTitle;
             bool showMenu = true;
@@ -693,7 +694,7 @@ namespace YetaWF.Core.Modules {
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
-                return HtmlString.Empty; // if the module contents are empty, we bail
+                return HtmlStringExtender.Empty; // if the module contents are empty, we bail
 
             Manager.AddOnManager.AddModule(this);
 
@@ -720,7 +721,7 @@ namespace YetaWF.Core.Modules {
         public HtmlString TitleHtml {
             get {
                 if (string.IsNullOrWhiteSpace(Title))
-                    return HtmlString.Empty;
+                    return HtmlStringExtender.Empty;
                 TagBuilder tag = new TagBuilder("h1");
                 tag.SetInnerText(Title);
                 return tag.ToHtmlString(TagRenderMode.Normal);

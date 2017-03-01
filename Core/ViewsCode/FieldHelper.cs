@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.AspNetCore.Routing;
 #else
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 #endif
@@ -108,7 +109,7 @@ namespace YetaWF.Core.Views {
                     return new HtmlString(HtmlHelper.ValidationInputCssClassName);
             }
 #endif
-            return HtmlString.Empty;
+            return HtmlStringExtender.Empty;
         }
 
 #if MVC6

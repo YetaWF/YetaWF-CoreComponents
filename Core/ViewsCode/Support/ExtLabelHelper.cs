@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -100,7 +101,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderExtLabel(this HtmlHelper htmlHelper, string text, int dummy = 0, string ToolTip = null, IDictionary<string, object> htmlAttributes = null) {
 #endif
-            if (string.IsNullOrWhiteSpace(text)) return HtmlString.Empty;
+            if (string.IsNullOrWhiteSpace(text)) return HtmlStringExtender.Empty;
 
             TagBuilder tag = new TagBuilder("label");
             tag.MergeAttributes(htmlAttributes, replaceExisting: true);

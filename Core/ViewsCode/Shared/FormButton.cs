@@ -8,6 +8,7 @@ using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -45,7 +46,7 @@ namespace YetaWF.Core.Views.Shared {
         }
         public HtmlString Render() {
             if (ButtonType == ButtonTypeEnum.Empty)
-                return HtmlString.Empty;
+                return HtmlStringExtender.Empty;
             if (Action != null) {
                 if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
                     return Action.RenderAsIcon();
@@ -60,7 +61,7 @@ namespace YetaWF.Core.Views.Shared {
                     case ButtonTypeEnum.ConditionalSubmit:
                         if (ButtonType == ButtonTypeEnum.ConditionalSubmit && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
                             // if we don't have anyplace to return to and we're not in a popup we don't need a submit button
-                            return HtmlString.Empty;
+                            return HtmlStringExtender.Empty;
                         }
                         if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnSave", "Save");
                         tag.Attributes.Add("type", "submit");
@@ -78,7 +79,7 @@ namespace YetaWF.Core.Views.Shared {
                     case ButtonTypeEnum.ConditionalCancel:
                         if (ButtonType == ButtonTypeEnum.ConditionalCancel && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
                             // if we don't have anyplace to return to and we're not in a popup we don't need a cancel button
-                            return HtmlString.Empty;
+                            return HtmlStringExtender.Empty;
                         }
                         if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnCancel", "Cancel");
                         tag.Attributes.Add("type", "button");

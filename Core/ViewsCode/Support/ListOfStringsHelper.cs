@@ -6,6 +6,7 @@ using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -18,7 +19,7 @@ namespace YetaWF.Core.Views.Shared {
         public static HtmlString RenderListOfStringsDisplay(this HtmlHelper<object> htmlHelper, string name, List<string> model, object HtmlAttributes = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
-            if (model == null || model.Count == 0 || (model.Count == 1 && string.IsNullOrWhiteSpace(model[0]))) return HtmlString.Empty;
+            if (model == null || model.Count == 0 || (model.Count == 1 && string.IsNullOrWhiteSpace(model[0]))) return HtmlStringExtender.Empty;
 
             hb.Append("<div class='yt_listofstrings t_display'>");
 

@@ -1,12 +1,16 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
-namespace YetaWF.Core.Support {
-
 #if MVC6
 #else
-    public static class HtmlStringExtender  {
-
-
-    }
+using System.Web;
 #endif
+
+namespace YetaWF.Core.Support {
+
+    public static class HtmlStringExtender  {
+#if MVC6
+#else
+        public static readonly HtmlString Empty = new HtmlString("");
+#endif
+    }
 }
