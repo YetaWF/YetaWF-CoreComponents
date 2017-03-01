@@ -1,5 +1,5 @@
 MVC6 Folder \lib\kendo-ui-core\js\
-MVC5 Folder \Scripts\kendo\2017.1.118\
+MVC5 Folder \Scripts\kendo\2017.1.223\
 kendo.core.min.js
 # Basics (Window)
 kendo.userevents.min.js,bundle
