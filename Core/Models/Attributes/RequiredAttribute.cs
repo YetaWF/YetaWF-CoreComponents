@@ -34,7 +34,8 @@ namespace YetaWF.Core.Models.Attributes {
         public override bool IsValid(object value) {
             if (value is MultiString) {
                 MultiString ms = (MultiString) value;
-                if (ms.ToString().Length == 0)
+                string s = ms.ToString();
+                if (s == null || s.Length == 0)
                     return false;
                 return true;
             } else if (value is Guid) {

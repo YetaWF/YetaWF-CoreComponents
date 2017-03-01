@@ -218,16 +218,21 @@ namespace YetaWF.Core.Models {
         public void Trim(char c = ' ') {
             List<string> ids = (from l in this select l.Key).ToList();
             foreach (var id in ids) {
-                this[id] = this[id].Trim(new char[] { c });
+                string s = this[id];
+                if (s != null)
+                    this[id] = s.Trim(new char[] { c });
             }
         }
         public void Case(CaseAttribute.EnumStyle style) {
             List<string> ids = (from l in this select l.Key).ToList();
             foreach (var id in ids) {
-                if (style == CaseAttribute.EnumStyle.Lower)
-                    this[id] = this[id].ToLower();
-                else if (style == CaseAttribute.EnumStyle.Upper)
-                    this[id] = this[id].ToUpper();
+                string s = this[id];
+                if (s != null) {
+                    if (style == CaseAttribute.EnumStyle.Lower)
+                        this[id] = s.ToLower();
+                    else if (style == CaseAttribute.EnumStyle.Upper)
+                        this[id] = s.ToUpper();
+                }
             }
         }
 
