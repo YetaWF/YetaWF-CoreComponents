@@ -7,6 +7,7 @@ using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Globalization;
 #if MVC6
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Http;
@@ -63,7 +64,20 @@ namespace YetaWF.Core.HttpHandler {
             GetCharSize(manager, out charWidth, out charHeight);
             bool processCharSize = charWidth > 0 && charHeight > 0;
             string fullUrl = context.Request.Path;
-            string file = YetaWFManager.UrlToPhysical(fullUrl);
+            string file;
+#if MVC6
+            if (fullUrl.StartsWith(Globals.VaultPrivateUrl)) {
+                // Private Vault files are a special case as their not within the website.
+                // We need to make sure to only allow .css, .less, .scss files otherwise this would expose other files.
+                if (!fullUrl.EndsWith(".css", true, CultureInfo.InvariantCulture) && !fullUrl.EndsWith(".less", true, CultureInfo.InvariantCulture) && !fullUrl.EndsWith(".scss", true, CultureInfo.InvariantCulture)) {
+                    context.Response.StatusCode = 404;
+                    Logging.AddErrorLog("Not Found");
+                    return;
+                }
+            }
+#else
+#endif
+            file = YetaWFManager.UrlToPhysical(fullUrl);
             // we only process scss files here in debug mode, otherwise they're compiled once in CssManager
             bool processNsass = manager.CurrentSite.DEBUGMODE && file.EndsWith(".scss", StringComparison.OrdinalIgnoreCase);
             // we only process scss files here in debug mode, otherwise they're compiled once in CssManager

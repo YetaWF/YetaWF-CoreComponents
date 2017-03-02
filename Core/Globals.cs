@@ -110,6 +110,7 @@ namespace YetaWF.Core {
         public const string Addons_SkinsDirectoryName = "_Skins";
         public const string SiteFilesUrl = "/SiteFiles/";
         public const string VaultUrl = "/" + VaultFolder + "/";
+        public const string VaultPrivateUrl = "/" + VaultPrivateFolder + "/";
 
         private const string NugetContentsFolderMVC6 = "lib";
         private const string NugetContentsFolderMVC5 = "Content";

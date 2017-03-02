@@ -383,16 +383,30 @@ namespace YetaWF.Core.Support {
         }
 
         public static string UrlToPhysical(string url) {
-#if MVC6
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
-            return RootFolder + url.Replace('/', '\\');
+            string path;
+#if MVC6
+            if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
+                path = YetaWFManager.RootFolderSolution + YetaWFManager.UrlToPhysicalRaw(url);
+            } else {
+                path = RootFolder + UrlToPhysicalRaw(url);
+            }
+            return path;
 #else
             return HostingEnvironment.MapPath(url);
 #endif
-
+        }
+        private static string UrlToPhysicalRaw(string url) {
+            if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
+            return url.Replace('/', '\\');
         }
         public static string PhysicalToUrl(string path) {
-            return ReplaceString(path, RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase).Replace('\\', '/');
+            path = ReplaceString(path, RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase);
+#if MVC6
+            path = ReplaceString(path, RootFolderSolution, String.Empty, StringComparison.OrdinalIgnoreCase);
+#else
+#endif
+            return path.Replace('\\', '/');
         }
         private static string ReplaceString(string str, string oldValue, string newValue, StringComparison comparison) {
             StringBuilder sb = new StringBuilder();
@@ -1539,6 +1553,8 @@ namespace YetaWF.Core.Support {
                     else if (url.StartsWith(Globals.SiteFilesUrl))
                         useCDN = CurrentSite.CDNSiteFiles;
                     else if (url.StartsWith(Globals.VaultUrl))
+                        useCDN = CurrentSite.CDNVault;
+                    else if (url.StartsWith(Globals.VaultPrivateUrl))
                         useCDN = CurrentSite.CDNVault;
                     else if (url.StartsWith(Globals.AddOnsUrl))
                         useCDN = CurrentSite.CDNAddons;

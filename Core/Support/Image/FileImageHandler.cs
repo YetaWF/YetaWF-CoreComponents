@@ -19,9 +19,9 @@ namespace YetaWF.Core.Support.Image {
             if (!string.IsNullOrWhiteSpace(location)) return false;
             if (string.IsNullOrWhiteSpace(name)) return false;
 
-            string file = YetaWFManager.UrlToPhysical(name);
-            if (!name.StartsWith(Globals.VaultUrl)) // only allow vault files, otherwise this would be a huge security hole
+            if (!name.StartsWith(Globals.VaultUrl) && !name.StartsWith(Globals.VaultPrivateUrl)) // only allow vault files, otherwise this would be a huge security hole
                 return false;
+            string file = YetaWFManager.UrlToPhysical(name);
             if (!File.Exists(file))
                 return false;
             content = File.ReadAllBytes(file);
