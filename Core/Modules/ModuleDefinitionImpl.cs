@@ -309,7 +309,7 @@ namespace YetaWF.Core.Modules {
         // this is provided by a specific derived module type - its dataprovider reads/writes specific module types
         // Must be disposed after use
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        protected IModuleDefinitionIO DataProvider {
+        private IModuleDefinitionIO DataProvider {
             get {
                 if (_dataProvider == null)
                     _dataProvider = GetDataProvider();
@@ -782,32 +782,35 @@ namespace YetaWF.Core.Modules {
             get {
                 DataProviderImpl dataProvider = TryGetConfigDataProvider();
                 if (dataProvider == null) return new { };
-                Type typeDP = dataProvider.GetType();
-                // get the config data
-                MethodInfo mi = typeDP.GetMethod("GetConfig");
-                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
-                object config = mi.Invoke(dataProvider, null);
-                return config;
+                using (dataProvider) {
+                    Type typeDP = dataProvider.GetType();
+                    // get the config data
+                    MethodInfo mi = typeDP.GetMethod("GetConfig");
+                    if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
+                    object config = mi.Invoke(dataProvider, null);
+                    return config;
+                }
            }
         }
 
         // Method used to save initial settings from site templates
         public void UpdateConfigProperty(string name, object value) {
-            DataProviderImpl dataProvider = GetConfigDataProvider();
-            Type typeDP = dataProvider.GetType();
-            // get the config data
-            MethodInfo mi = typeDP.GetMethod("GetConfig");
-            if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
-            object config = mi.Invoke(dataProvider, null);
-            // update the property
-            Type configType = config.GetType();
-            PropertyInfo pi = ObjectSupport.TryGetProperty(configType, name);
-            if (pi == null) throw new InternalError("Configuration {0} doesn't offer a {1} property", configType.FullName, name);
-            pi.SetValue(config, value);
+            using (DataProviderImpl dataProvider = GetConfigDataProvider()) {
+                Type typeDP = dataProvider.GetType();
+                // get the config data
+                MethodInfo mi = typeDP.GetMethod("GetConfig");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
+                object config = mi.Invoke(dataProvider, null);
+                // update the property
+                Type configType = config.GetType();
+                PropertyInfo pi = ObjectSupport.TryGetProperty(configType, name);
+                if (pi == null) throw new InternalError("Configuration {0} doesn't offer a {1} property", configType.FullName, name);
+                pi.SetValue(config, value);
 
-            mi = typeDP.GetMethod("UpdateConfig");
-            if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfig method for a configuration module", typeDP.FullName);
-            mi.Invoke(dataProvider, new object[] { config });
+                mi = typeDP.GetMethod("UpdateConfig");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfig method for a configuration module", typeDP.FullName);
+                mi.Invoke(dataProvider, new object[] { config });
+            }
         }
 
         // REFERENCES
@@ -983,6 +986,7 @@ namespace YetaWF.Core.Modules {
 
         [Category("Pages"), Caption("Pages"), Description("The pages where this module is used")]
         [UIHint("PageDefinitions"), ReadOnly]
+        [BindingBehaviorAttribute(BindingBehavior.Never)]//$$$
         public List<PageDefinition> Pages {
             get {
                 if (_pages == null)

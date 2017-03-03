@@ -18,11 +18,14 @@ using YetaWF.Core.Views.Shared;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Pages;
 #else
@@ -1259,11 +1262,24 @@ namespace YetaWF.Core.Controllers {
         /// <param name="modelName">The model name (always "Module").</param>
         /// <returns>The bound object of the specified type.</returns>
         protected object GetObjectFromModel(Type objType, string modelName) {
+            object obj;
 #if MVC6
-            object obj = Activator.CreateInstance(objType);
+            obj = Activator.CreateInstance(objType);
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
             bool result = TryUpdateModelAsync(obj, objType, modelName).Result;
+            if (!result)
+                throw new InternalError("Model with type {0} cannot be updated", objType.FullName);
+            //$$$ParameterDescriptor parmDesc = new ParameterDescriptor {
+            //    BindingInfo = null,
+            //    Name = modelName,
+            //    ParameterType = objType,
+            //};
+            //DefaultControllerArgumentBinder binder = (DefaultControllerArgumentBinder)YetaWFManager.ServiceProvider.GetService(typeof(IControllerArgumentBinder));
+            //ModelBindingResult result = binder.BindModelAsync(parmDesc, ControllerContext).Result;
+            //if (!result.IsModelSet)
+            //    throw new InternalError("Failed to bind model {0} in {1}", modelName, this.ControllerName);
+            //obj = result.Model;
 #else
             Type parameterType = objType;
             IModelBinder binder = Binders.GetBinder(parameterType);
@@ -1278,7 +1294,7 @@ namespace YetaWF.Core.Controllers {
                 PropertyFilter = propertyFilter,
                 ValueProvider = valueProvider
             };
-            object obj = binder.BindModel(ControllerContext, bindingContext);
+            obj = binder.BindModel(ControllerContext, bindingContext);
 #endif
             if (obj != null) {
                 FixArgumentParmTrim(obj);

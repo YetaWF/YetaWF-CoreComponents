@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
 using System.Web.Mvc;
 #endif
@@ -101,8 +102,19 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class ReadOnlyAttribute : MoreMetadataAttribute {
+    public class ReadOnlyAttribute : MoreMetadataAttribute
+#if MVC6
+        , IPropertyValidationFilter
+#else
+#endif
+    {
         public ReadOnlyAttribute() : base("ReadOnly", true) { }
+#if MVC6
+        public bool ShouldValidateEntry(ValidationEntry entry, ValidationEntry parentEntry) {
+            return false;
+        }
+#else
+#endif
     }
     /// <summary>
     /// Used with tabbed property lists to identify with which tab(s) the property is associated.
