@@ -135,7 +135,7 @@ namespace YetaWF.Core.Views.Shared {
                 string desc = (item.Tooltip != null) ? item.Tooltip.ToString() : null;
                 if (!useKendo) {
                     if (!string.IsNullOrWhiteSpace(desc))
-                        tagOpt.Attributes["title"] = "selected";
+                        tagOpt.Attributes["title"] = desc;
                 } else {
                     if (string.IsNullOrWhiteSpace(desc))
                         desc = "";

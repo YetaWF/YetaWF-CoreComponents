@@ -1,4 +1,4 @@
-﻿__editable          hidden onlysubmitwhenchecked
+﻿__editable          hidden 
 RoleName            20
 View                center [Globals.ChBoolean]
 Edit                center [Globals.ChBoolean]
