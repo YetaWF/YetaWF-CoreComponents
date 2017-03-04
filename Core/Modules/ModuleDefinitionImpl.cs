@@ -986,7 +986,6 @@ namespace YetaWF.Core.Modules {
 
         [Category("Pages"), Caption("Pages"), Description("The pages where this module is used")]
         [UIHint("PageDefinitions"), ReadOnly]
-        [BindingBehaviorAttribute(BindingBehavior.Never)]//$$$
         public List<PageDefinition> Pages {
             get {
                 if (_pages == null)

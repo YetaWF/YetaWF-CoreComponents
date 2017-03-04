@@ -384,8 +384,8 @@ namespace YetaWF.Core.Support {
 
         public static string UrlToPhysical(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
-            string path;
 #if MVC6
+            string path;
             if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderSolution + YetaWFManager.UrlToPhysicalRaw(url);
             } else {
