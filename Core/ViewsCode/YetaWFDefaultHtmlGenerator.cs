@@ -23,9 +23,8 @@ namespace YetaWF.Core.Views
                 IModelMetadataProvider metadataProvider,
                 IUrlHelperFactory urlHelperFactory,
                 HtmlEncoder htmlEncoder,
-                ClientValidatorCache clientValidatorCache,
                 ValidationHtmlAttributeProvider validationAttributeProvider) :
-                    base(antiforgery, optionsAccessor, metadataProvider, urlHelperFactory, htmlEncoder, clientValidatorCache, validationAttributeProvider) { }
+                    base(antiforgery, optionsAccessor, metadataProvider, urlHelperFactory, htmlEncoder, validationAttributeProvider) { }
 
         protected override TagBuilder GenerateInput(
                 ViewContext viewContext,
