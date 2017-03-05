@@ -114,10 +114,8 @@ namespace YetaWF.Core.Pages {
 #endif
 
         public HtmlString RenderPane(string pane, string cssClass = null, bool Conditional = true) {
-#if DEBUG
             if (IsTemplate)
                 throw new InternalError("Can't use RenderPane in templates");
-#endif
 #if MVC6
             return CurrentPage.RenderPane((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
 #else
@@ -125,10 +123,8 @@ namespace YetaWF.Core.Pages {
 #endif
         }
         public PageDefinition.PaneSet PaneSet(string cssClass = null, bool Conditional = true, bool SameHeight = true) {
-#if DEBUG
             if (IsTemplate)
                 throw new InternalError("Can't use Pane in templates");
-#endif
 #if MVC6
             return CurrentPage.RenderPaneSet((IHtmlHelper<object>)GetHtml(), cssClass, Conditional: Conditional, SameHeight: SameHeight);
 #else

@@ -646,7 +646,9 @@ namespace YetaWF.Core.Controllers {
             if (context == null)
                 throw new ArgumentNullException("context");
 
-            bool staticPage = Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
+            bool staticPage = false;
+            if (Manager.Deployed)
+                staticPage = Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
             Manager.RenderStaticPage = staticPage;
 
             Manager.PageTitle = Manager.CurrentPage.Title;
