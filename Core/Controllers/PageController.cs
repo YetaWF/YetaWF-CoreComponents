@@ -610,6 +610,7 @@ namespace YetaWF.Core.Controllers {
 
         public static bool IsMobileBrowser(HttpRequest request) {
             var userAgent = request.Headers["User-Agent"].ToString();
+            if (string.IsNullOrWhiteSpace(userAgent)) return false;
             if ((b.IsMatch(userAgent) || v.IsMatch(userAgent.Substring(0, 4))))
                 return true;
             return false;
