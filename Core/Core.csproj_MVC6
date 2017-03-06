@@ -19,17 +19,13 @@
     <Content Include="NSass.Wrapper\NSass.Wrapper.x64.dll;NSass.Wrapper\NSass.Wrapper.x86.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="App.config" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\MVC6Source\src\Microsoft.AspNetCore.Mvc.Abstractions\Microsoft.AspNetCore.Mvc.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\..\MVC6Source\src\Microsoft.AspNetCore.Mvc.Core\Microsoft.AspNetCore.Mvc.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\MVC6Source\src\Microsoft.AspNetCore.Mvc.Razor\Microsoft.AspNetCore.Mvc.Razor.csproj" />
-    <ProjectReference Include="..\..\..\..\MVC6Source\src\Microsoft.AspNetCore.Mvc.ViewFeatures\Microsoft.AspNetCore.Mvc.ViewFeatures.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="1.2.0-preview1-23730" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.2.0-preview1-23730" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="1.2.0-preview1-23730" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="1.2.0-preview1-23730" />
     <PackageReference Include="Microsoft.VisualBasic" Version="10.0.1" />
     <PackageReference Include="dotless" Version="1.5.2" />
     <PackageReference Include="DotNetZip" Version="1.10.1" />
