@@ -5,9 +5,11 @@
 *.plg
 *.scss.css
 *.xml
+*.csproj
+packages.config
+app.config
 
 globals.js
-**/project.lock.json
 
 !Core/NSass.Wrapper/*.dll
 
@@ -90,5 +92,3 @@ Core/Addons/_JS/no-margin-for-errors.com/prettyLoader/**/*.min.css
 Core/Addons/_JS/no-margin-for-errors.com/prettyLoader/**/*.min.scss
 
 # telerik.com/Kendo_UI_Core - provides min files
-
-*.csproj
