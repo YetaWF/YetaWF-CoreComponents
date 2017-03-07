@@ -15,8 +15,6 @@ using System.Web.WebPages;
 
 namespace YetaWF.Core.Pages {
 
-    //$$ https://github.com/aspnet/Mvc/issues/5397
-
 #if MVC6
     public static class HtmlStringExtension {
         public static string ToHtmlString(this HtmlString htmlString) {

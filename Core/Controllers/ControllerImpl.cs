@@ -1270,16 +1270,6 @@ namespace YetaWF.Core.Controllers {
             bool result = TryUpdateModelAsync(obj, objType, modelName).Result;
             if (!result)
                 throw new InternalError("Model with type {0} cannot be updated", objType.FullName);
-            //$$$ParameterDescriptor parmDesc = new ParameterDescriptor {
-            //    BindingInfo = null,
-            //    Name = modelName,
-            //    ParameterType = objType,
-            //};
-            //DefaultControllerArgumentBinder binder = (DefaultControllerArgumentBinder)YetaWFManager.ServiceProvider.GetService(typeof(IControllerArgumentBinder));
-            //ModelBindingResult result = binder.BindModelAsync(parmDesc, ControllerContext).Result;
-            //if (!result.IsModelSet)
-            //    throw new InternalError("Failed to bind model {0} in {1}", modelName, this.ControllerName);
-            //obj = result.Model;
 #else
             Type parameterType = objType;
             IModelBinder binder = Binders.GetBinder(parameterType);

@@ -20,7 +20,7 @@ using System.Web.Routing;
 
 namespace YetaWF.Core.Modules {
 
-    //$$$ There are many properties that should not be serialized
+    //TODO: There are many properties that should not be serialized
     [Serializable]
     public partial class ModuleAction {
 
