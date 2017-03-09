@@ -26,6 +26,7 @@ namespace YetaWF.Core.Packages {
             string xmlFile = null;
 
             using (ZipFile zip = ZipFile.Read(zipFileName)) {
+
                 // check id file
                 ZipEntry ze = zip[PackageIDFile];
                 if (ze == null) {
