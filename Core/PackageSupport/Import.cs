@@ -48,7 +48,7 @@ namespace YetaWF.Core.Packages {
                 File.Delete(xmlFile);
 
                 if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
-                    errorList.Add(string.Format(__ResStr("invCore", "This package was built for {0}, but this site is running {1}",
+                    errorList.Add(string.Format(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",
                         YetaWFManager.GetAspNetMvcName(serPackage.AspNetMvcVersion), YetaWFManager.GetAspNetMvcName(YetaWFManager.AspNetMvc))));
                     return false;
                 }

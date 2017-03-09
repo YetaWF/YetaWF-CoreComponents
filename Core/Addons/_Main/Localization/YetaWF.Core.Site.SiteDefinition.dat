@@ -113,7 +113,7 @@
                           <Properties>
                             <Name Value="BundleCSSFiles" />
                             <Caption Value="Bundle CSS Files" />
-                            <Description Value="Defines whether styleheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
+                            <Description Value="Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -257,7 +257,7 @@
                           <Properties>
                             <Name Value="CompressCSSFiles" />
                             <Caption Value="Compress CSS Files" />
-                            <Description Value="Defines whether styleheets (CSS files) are automatically compressed and saved the first time they are used (Yes). Otherwise, stylesheets are not compressed and remain unchanged (No)" />
+                            <Description Value="Defines whether stylesheets (CSS files) are automatically compressed and saved the first time they are used (Yes). Otherwise, stylesheets are not compressed and remain unchanged (No)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -353,7 +353,7 @@
                           <Properties>
                             <Name Value="DEBUGMODE" />
                             <Caption Value="Debug Mode" />
-                            <Description Value="Defines whether all data caching and compression is disabled through web.config - typically used for debugging (can only be set using web.config)" />
+                            <Description Value="Defines whether all data caching and compression is disabled through web.config/appsettings.json - typically used for debugging (can only be set using web.config/appsettings.json)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -556,8 +556,8 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="LockedExternal" />
-                            <Caption Value="Locked (Web.config)" />
-                            <Description Value="Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a 'Maintenance' page defined using Locked Url Redirect - Can only be enabled/disable using web.config" />
+                            <Caption Value="Locked" />
+                            <Description Value="Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a 'Maintenance' page defined using Locked Url Redirect - Can only be enabled/disable using web.config/appsettings.json" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -821,7 +821,7 @@
                           <Properties>
                             <Name Value="StaticPages" />
                             <Caption Value="Allow Static Pages" />
-                            <Description Value="Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't changed can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property)" />
+                            <Description Value="Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't changed can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property) - Only a deployed site uses static pages" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -869,7 +869,7 @@
                           <Properties>
                             <Name Value="UseCDN" />
                             <Caption Value="Use CDN" />
-                            <Description Value="Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on web.config settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN WEB.CONFIG (P:YetaWF_Core:UseCDN = false)" />
+                            <Description Value="Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on web.config/appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN WEB.CONFIG/APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -893,7 +893,7 @@
                           <Properties>
                             <Name Value="UseHttpHandler" />
                             <Caption Value="Use HttpHandler" />
-                            <Description Value="Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config)" />
+                            <Description Value="Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config/appsettings.json)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

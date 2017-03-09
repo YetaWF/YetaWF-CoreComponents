@@ -190,6 +190,14 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
+                <Name Value="invMvc" />
+                <Text Value="This package was built for {0}, but this site is running {1}" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
                 <Name Value="noCompany" />
                 <Text Value="Incorrectly packaged module - no company name available - Package {0}" />
               </Properties>

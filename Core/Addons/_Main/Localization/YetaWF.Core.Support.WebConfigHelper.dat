@@ -26,7 +26,7 @@
                           <Properties>
                             <Name Value="Determine" />
                             <Value Value="Determine" />
-                            <Caption Value="Mixed file/SQL database (web.config ConnectionStrings)" />
+                            <Caption Value="Mixed file/SQL database (web.config/appsettings.json ConnectionStrings)" />
                             <Description />
                           </Properties>
                         </Object>
