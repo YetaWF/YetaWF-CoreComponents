@@ -23,6 +23,20 @@ using System.Web.Mvc.Html;
 
 namespace YetaWF.Core.Views {
 
+#if MVC6
+    public class RazorView<TModel> : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel>
+                where TModel : class
+#else
+    public class RazorView<TModel> : WebViewPage<TModel>
+                where TModel: class
+#endif
+    {
+#if MVC6
+        public override async Task ExecuteAsync() { await Task.FromResult(0); }
+#else
+        public override void Execute() { }
+#endif
+    }
 
 #if MVC6
     public class RazorView<TModule, TModel> : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel>, IRazorPageLifetime
