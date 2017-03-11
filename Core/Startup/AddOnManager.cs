@@ -9,6 +9,10 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+#if MVC6
+#else
+using System.Web;
+#endif
 
 namespace YetaWF.Core.Addons {
 
@@ -274,6 +278,20 @@ namespace YetaWF.Core.Addons {
         internal List<Module> GetAddedUniqueInvokedCssModules() {
             // make a copy in case the invoked modules try to register additional modules (which are then ignored)
             return (from a in _AddedInvokedCssModules select a).ToList();
+        }
+
+        /// <summary>
+        /// Read a file
+        /// </summary>
+        public HtmlString GetFile(string path, object replacements = null) {
+            string file = "";
+            try {
+                file = File.ReadAllText(YetaWFManager.UrlToPhysical(path));
+            } catch (System.Exception) { }
+            QueryHelper query = QueryHelper.FromAnonymousObject(replacements);
+            foreach (QueryHelper.Entry entry in query.Entries)
+                file = file.Replace("$" + entry.Key + "$", entry.Value.ToString());
+            return new HtmlString(file);
         }
     }
 }
