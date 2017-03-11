@@ -327,7 +327,7 @@ namespace YetaWF.Core.Addons {
             // if the skin doesn't exist return the fallback skin
             if (version == null) {
                 // if the skin doesn't exist, use the default skin (it better be there)
-                skinDef = new SkinDefinition();//$$$$ need to use something like SkinAccess.FallbackSkinCollectionName
+                skinDef = new SkinDefinition();//TODO: need to use something like SkinAccess.FallbackSkinCollectionName - this doesn't work
                 version = TryFindSkinVersion(skinDef.Collection);
                 if (version == null)
                     throw new InternalError("Skin collection {0} doesn't exist", skinDef.Collection);
