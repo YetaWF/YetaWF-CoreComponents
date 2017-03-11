@@ -324,11 +324,7 @@ namespace YetaWF.Core.Site {
 
         public static bool GetDEBUGMODE() {
             if (debugMode == null) {
-#if RELEASE
-                debugMode = false;
-#else
                 debugMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "DEBUG-MODE");
-#endif
             }
             return (bool)debugMode;
         }

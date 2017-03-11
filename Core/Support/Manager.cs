@@ -642,11 +642,7 @@ namespace YetaWF.Core.Support {
 
         protected static bool GetDeployed() {
             if (deployed == null) {
-#if RELEASE
-                deployed = true;
-#else
                 deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Deployed");
-#endif
             }
             return (bool)deployed;
         }
