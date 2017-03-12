@@ -393,6 +393,8 @@ namespace YetaWF.Core.Support {
             }
             return path;
 #else
+            if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase))
+                url = url.ReplaceFirst(Globals.VaultPrivateUrl, Globals.VaultUrl);
             return HostingEnvironment.MapPath(url);
 #endif
         }
@@ -1212,7 +1214,7 @@ namespace YetaWF.Core.Support {
         /// Indicates whether the current page being rendered is actually rendered as a static page.
         /// </summary>
         /// <remarks>A page may be marked as a static page, but will only be rendered as a static page if there is no logged on user and if site settings permit static pages.
-        /// 
+        ///
         /// Static pages are only used with deployed sites.</remarks>
         public bool RenderStaticPage { get; set; }
 
