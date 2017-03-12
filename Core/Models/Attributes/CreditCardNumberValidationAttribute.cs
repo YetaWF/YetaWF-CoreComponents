@@ -55,13 +55,13 @@ namespace YetaWF.Core.Models.Attributes {
         }
 #if MVC6
 #else
-        //public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-        //    ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
-        //    yield return new ModelClientValidationRule {
-        //        ErrorMessage = ErrorMessage,
-        //        ValidationType = "creditcard",
-        //    };
-        //}
+        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
+            ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
+            yield return new ModelClientValidationRule {
+                ErrorMessage = ErrorMessage,
+                ValidationType = "creditcard",
+            };
+        }
 #endif
 
         // very basic card type determination (close enough)
