@@ -26,13 +26,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.2.0-preview1-23730-*" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="1.2.0-preview1-23730-*" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="1.2.0-preview1-23730-*" />
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.0.1" />
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.1.0" />
     <PackageReference Include="dotless" Version="1.5.2" />
     <PackageReference Include="DotNetZip" Version="1.10.1" />
     <PackageReference Include="EcmaScript.Net" Version="1.0.1" />
     <PackageReference Include="NSass.Core" Version="0.0.3" />
     <PackageReference Include="YUICompressor.NET" Version="2.7.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Session" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
