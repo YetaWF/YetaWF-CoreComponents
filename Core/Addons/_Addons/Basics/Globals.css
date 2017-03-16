@@ -63,6 +63,7 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
 .ui-tooltip.ui-widget {
     font-size:12px;
     z-index:20000;
+    overflow:hidden;
 }
 @media print {
     .ui-tooltip {
