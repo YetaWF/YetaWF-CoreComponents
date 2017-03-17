@@ -1091,13 +1091,25 @@ namespace YetaWF.Core.Support {
             }
         }
 
-
-        public void RestartSite() {
+        public void RestartSite(string url = null) {
 #if MVC6
             IApplicationLifetime applicationLifetime = (IApplicationLifetime)ServiceProvider.GetService(typeof(IApplicationLifetime));
             applicationLifetime.StopApplication();
+
+            if (!string.IsNullOrWhiteSpace(url)) {
+# if DEBUG
+                // with Kestrel/IIS Express we shut down so provide some feedback
+                byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site is restarting - Please restart your browser.<strong></body></html>");
+                Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length);
+                Manager.CurrentResponse.Body.FlushAsync();
+# else
+                CurrentResponse.Redirect(url);
+# endif
+            }
 #else
             HttpRuntime.UnloadAppDomain();
+            if (!string.IsNullOrWhiteSpace(url))
+                CurrentResponse.Redirect(url);
 #endif
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
