@@ -1099,7 +1099,7 @@ namespace YetaWF.Core.Support {
             if (!string.IsNullOrWhiteSpace(url)) {
 # if DEBUG
                 // with Kestrel/IIS Express we shut down so provide some feedback
-                byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site is restarting - Please restart your browser.<strong></body></html>");
+                byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site has stopped - Please close your browser and restart the application.<strong></body></html>");
                 Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length);
                 Manager.CurrentResponse.Body.FlushAsync();
 # else
