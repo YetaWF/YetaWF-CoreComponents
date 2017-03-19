@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
@@ -476,7 +477,7 @@ namespace YetaWF.Core.Addons {
                             // make sure it's symlink not regular folder (which can occur when upgrading from bin to source package)
                             string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
                             if (!Directory.Exists(addonsProductPath) || !Package.IsPackageSymLink(addonsProductPath)) {
-                                Directory.Delete(addonsProductPath, true);
+                                DirectoryIO.DeleteFolder(addonsProductPath);
                                 if (!Package.CreatePackageSymLink(addonsProductPath, to))
                                     throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                             }
@@ -490,7 +491,7 @@ namespace YetaWF.Core.Addons {
                                     Directory.CreateDirectory(viewsPath);
                                 viewsPath = Path.Combine(viewsPath, Globals.ViewsFolder);
                                 if (!Directory.Exists(viewsPath) || !Package.IsPackageSymLink(viewsPath)) {
-                                    Directory.Delete(viewsPath, true);
+                                    DirectoryIO.DeleteFolder(viewsPath);
                                     if (!Package.CreatePackageSymLink(viewsPath, to))
                                         throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
                                 }

@@ -132,9 +132,7 @@ namespace YetaWF.Core.Packages {
                 }
             }
             // remove the site's data folder
-            try {
-                Directory.Delete(siteFolder, true);
-            } catch (Exception) { }
+            DirectoryIO.DeleteFolder(siteFolder);
         }
     }
 }
