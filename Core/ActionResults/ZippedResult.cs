@@ -74,7 +74,7 @@ namespace YetaWF.Core.Support {
             Response.ContentType = "application/zip";
 #if MVC6
             Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
-            Response.Headers.Add("Cookie", Basics.CookieDone + "=" + CookieToReturn.ToString());
+            Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" } );
 
             using (Zip) {
                 Zip.Zip.Save(Response.Body);
