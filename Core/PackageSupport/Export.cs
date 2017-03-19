@@ -34,8 +34,18 @@ namespace YetaWF.Core.Packages {
                 throw new InternalError("Package export requested for package {0} which is not exportable (not a source package)", Name);
 
             string zipName = SourceCode ?
-                    string.Format(__ResStr("packageFmtSrc", "Package (w_Source) - {0}.{1}.zip", this.Name, this.Version)) :
-                    string.Format(__ResStr("packageFmt", "Package - {0}.{1}.zip", this.Name, this.Version));
+#if MVC6
+                    string.Format(__ResStr("packageFmtSrcCore", "Package w_Source ASPNETCore - {0}.{1}.zip", this.Name, this.Version))
+#else
+                    string.Format(__ResStr("packageFmtSrc", "Package w_Source ASPNET4 - {0}.{1}.zip", this.Name, this.Version))
+#endif
+                :
+#if MVC6
+                    string.Format(__ResStr("packageFmtCore", "Package ASPNETCore - {0}.{1}.zip", this.Name, this.Version))
+#else
+                    string.Format(__ResStr("packageFmt", "Package ASPNET4 - {0}.{1}.zip", this.Name, this.Version))
+#endif
+                ;
 
             SerializablePackage serPackage;
             YetaWFZipFile zipFile = MakeZipFile(zipName, out serPackage);
