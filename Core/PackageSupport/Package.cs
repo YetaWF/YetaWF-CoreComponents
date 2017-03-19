@@ -187,7 +187,7 @@ namespace YetaWF.Core.Packages {
 #if MVC6
         public /* Only so startup code can access */
 #else
-        private 
+        private
 #endif
             Package(Assembly assembly) {
             PackageAssembly = assembly;
@@ -240,12 +240,12 @@ namespace YetaWF.Core.Packages {
 
         public static List<Package> GetTemplatePackages() {
             string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
-            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderWebProject, sourceFolder), csAssemblyTemplateRegex);
+            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
             return packages;
         }
         public static List<Package> GetUtilityPackages() {
             string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
-            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderWebProject, sourceFolder), csAssemblyUtilityRegex);
+            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
             return packages;
         }
 

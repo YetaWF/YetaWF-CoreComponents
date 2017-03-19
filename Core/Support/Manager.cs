@@ -302,30 +302,32 @@ namespace YetaWF.Core.Support {
 #endif
 
         /// <summary>
-        /// Solution root folder (physical)
+        /// Web project root folder (physical)
         /// </summary>
         /// <remarks>
         /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.</remarks>
-#if MVC6
         public static string RootFolderWebProject {
+#if MVC6
             get { return HostingEnvironment.ContentRootPath; }
-        }
 #else
-        public static string RootFolderSolution { get; set; }
+            get { return RootFolder; }
 #endif
+        }
+        /// <summary>
+        /// Solution root folder (physical)
+        /// </summary>
+        /// <remarks>
+        /// The folder where the solution file is located.</remarks>
+        public static string RootFolderSolution {
+            get { return Path.Combine(RootFolderWebProject, ".."); }
+        }
 
         /// <summary>
         /// Returns the folder containing all sites' file data.
         /// </summary>
         public static string RootSitesFolder {
             get {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
-                return Path.Combine(rootFolder, Globals.SitesFolder, "DataFolder");
+                return Path.Combine(YetaWFManager.RootFolderWebProject, Globals.SitesFolder, "DataFolder");
             }
         }
 

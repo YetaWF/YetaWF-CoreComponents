@@ -97,7 +97,7 @@ namespace YetaWF.Core.Packages {
                             errorList.Add(__ResStr("errPackageType", "Unsupported package type {0}", serPackage.PackageType));
                             return true;
                     }
-                    sourcePath = Path.Combine(YetaWFManager.RootFolderWebProject, "..", sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
+                    sourcePath = Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                     try {
                         Directory.Delete(sourcePath, true);
                     } catch (Exception exc) {
@@ -189,7 +189,13 @@ namespace YetaWF.Core.Packages {
                     // Views
                     foreach (var file in serPackage.Views) {
                         ZipEntry e = zip[file.FileName];
-                        e.Extract(YetaWFManager.RootFolderWebProject, ExtractExistingFileAction.OverwriteSilently);
+                        string rootFolder;
+#if MVC6
+                        rootFolder = YetaWFManager.RootFolderWebProject;
+#else
+                        rootFolder = YetaWFManager.RootFolder;
+#endif
+                        e.Extract(rootFolder, ExtractExistingFileAction.OverwriteSilently);
                     }
                 } else {
                     // bin
