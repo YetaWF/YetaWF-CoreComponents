@@ -184,8 +184,12 @@ namespace YetaWF.Core.Packages {
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
         private const string SOURCE_IDENTIFIER = "Properties\\AssemblyInfo.cs";
-
-        private Package(Assembly assembly) {
+#if MVC6
+        public /* Only so startup code can access */
+#else
+        private 
+#endif
+            Package(Assembly assembly) {
             PackageAssembly = assembly;
         }
 
@@ -230,17 +234,18 @@ namespace YetaWF.Core.Packages {
             }
             return (from p in _availablePackages select p).ToList();// copy
         }
+
         // We statically hold a reference to ALL available, referenced packages- this is necessary for package information caching (notably localization)
         private static List<Package> _availablePackages = null;
 
         public static List<Package> GetTemplatePackages() {
             string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
-            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
+            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderWebProject, sourceFolder), csAssemblyTemplateRegex);
             return packages;
         }
         public static List<Package> GetUtilityPackages() {
             string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
-            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
+            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderWebProject, sourceFolder), csAssemblyUtilityRegex);
             return packages;
         }
 

@@ -97,7 +97,7 @@ namespace YetaWF.Core.Packages {
                             errorList.Add(__ResStr("errPackageType", "Unsupported package type {0}", serPackage.PackageType));
                             return true;
                     }
-                    sourcePath = Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
+                    sourcePath = Path.Combine(YetaWFManager.RootFolderWebProject, "..", sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                     try {
                         Directory.Delete(sourcePath, true);
                     } catch (Exception exc) {
@@ -120,7 +120,7 @@ namespace YetaWF.Core.Packages {
                 }
                 string viewsPath;
 #if MVC6
-                viewsPath = Path.Combine(YetaWFManager.RootFolderSolution, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
+                viewsPath = Path.Combine(YetaWFManager.RootFolderWebProject, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
 #else
                 viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
 #endif
@@ -136,7 +136,7 @@ namespace YetaWF.Core.Packages {
                 // copy bin files to website
                 {
                     // copy bin files to a temporary location
-                    string tempBin = Path.Combine(YetaWFManager.RootFolderSolution, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct);
+                    string tempBin = Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct);
                     foreach (var file in serPackage.BinFiles) {
                         ZipEntry e = zip[file.FileName];
                         e.Extract(tempBin, ExtractExistingFileAction.OverwriteSilently);
@@ -144,22 +144,22 @@ namespace YetaWF.Core.Packages {
                     // copy bin files to required location
 #if MVC6
                     // find out if this is a source system or bin system (determined by location of YetaWF.Core.dll)
-                    if (File.Exists(Path.Combine(YetaWFManager.RootFolderSolution, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
+                    if (File.Exists(Path.Combine(YetaWFManager.RootFolderWebProject, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
                         // Published (w/o source by definition)
                         string sourceBin = Path.Combine(tempBin, "bin", "Release", "net462");
-                        CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderSolution));
-                        CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderSolution, "refs"));
+                        CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject));
+                        CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject, "refs"));
                     } else {
                         // Dev (with or without source code)
                         bool copied = false;
                         string binPath;
-                        binPath = Path.Combine(YetaWFManager.RootFolderSolution, "bin", "Debug", "net462", "win7-x64");
+                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", "net462", "win7-x64");
                         string sourceBin = Path.Combine(tempBin, "bin", "Release", "net462");
                         if (Directory.Exists(binPath)) {
                             CopyVersionedFiles(sourceBin, binPath);
                             copied = true;
                         }
-                        binPath = Path.Combine(YetaWFManager.RootFolderSolution, "bin", "Release", "net462", "win7-x64");
+                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Release", "net462", "win7-x64");
                         if (Directory.Exists(binPath)) {
                             CopyVersionedFiles(sourceBin, binPath);
                             copied = true;
@@ -174,9 +174,9 @@ namespace YetaWF.Core.Packages {
                     CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolder, "Bin"));
 #endif
                     try {// try to delete all dirs up to and including tempbin if empty (ignore any errors)
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderSolution, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct), true);
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderSolution, "tempbin", serPackage.PackageDomain));
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderSolution, "tempbin"));
+                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct), true);
+                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain));
+                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin"));
                     } catch (Exception) { }
                 }
 
@@ -189,7 +189,7 @@ namespace YetaWF.Core.Packages {
                     // Views
                     foreach (var file in serPackage.Views) {
                         ZipEntry e = zip[file.FileName];
-                        e.Extract(YetaWFManager.RootFolder, ExtractExistingFileAction.OverwriteSilently);
+                        e.Extract(YetaWFManager.RootFolderWebProject, ExtractExistingFileAction.OverwriteSilently);
                     }
                 } else {
                     // bin
@@ -237,14 +237,14 @@ namespace YetaWF.Core.Packages {
                 FileVersionInfo versTarget = FileVersionInfo.GetVersionInfo(targetFile);
                 FileVersionInfo versSource = FileVersionInfo.GetVersionInfo(sourceFile);
                 if (!string.IsNullOrWhiteSpace(versTarget.FileVersion) && !string.IsNullOrWhiteSpace(versSource.FileVersion)) {
-                    if (Package.CompareVersion(versTarget.FileVersion, versSource.FileVersion) > 0)
-                        return; // no need to copy, target version > source version
+                    if (Package.CompareVersion(versTarget.FileVersion, versSource.FileVersion) >= 0)
+                        return; // no need to copy, target version >= source version
                 }
             }
             DateTime modTarget = File.GetLastWriteTimeUtc(targetFile);
             DateTime modSource = File.GetLastWriteTimeUtc(sourceFile);
             if (modTarget >= modSource)
-                return; // no need to copy, target modified date/time > source modified
+                return; // no need to copy, target modified date/time >= source modified
             File.Copy(sourceFile, targetFile, true);
         }
 
@@ -258,6 +258,9 @@ namespace YetaWF.Core.Packages {
             // use junctions instead (no special privilege needed)
             Junction.Create(from, to, true);
             return true;
+        }
+        public static bool IsPackageSymLink(string folder) {
+            return Junction.Exists(folder);
         }
 
         //enum SymbolicLink {

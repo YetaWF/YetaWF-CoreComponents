@@ -291,7 +291,7 @@ namespace YetaWF.Core.Support {
         private static string _cacheBuster;
 
         /// <summary>
-        /// Web site root folder (physical)
+        /// Web site root folder (physical, wwwroot on ASP.NET MVC)
         /// </summary>
 #if MVC6
         public static string RootFolder {
@@ -305,9 +305,9 @@ namespace YetaWF.Core.Support {
         /// Solution root folder (physical)
         /// </summary>
         /// <remarks>
-        /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the solution.</remarks>
+        /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.</remarks>
 #if MVC6
-        public static string RootFolderSolution {
+        public static string RootFolderWebProject {
             get { return HostingEnvironment.ContentRootPath; }
         }
 #else
@@ -321,7 +321,7 @@ namespace YetaWF.Core.Support {
             get {
                 string rootFolder;
 #if MVC6
-                rootFolder = YetaWFManager.RootFolderSolution;
+                rootFolder = YetaWFManager.RootFolderWebProject;
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -348,7 +348,7 @@ namespace YetaWF.Core.Support {
             get {
                 string rootFolder;
 #if MVC6
-                rootFolder = YetaWFManager.RootFolderSolution;
+                rootFolder = YetaWFManager.RootFolderWebProject;
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -364,7 +364,7 @@ namespace YetaWF.Core.Support {
             get {
                 string rootFolder;
 #if MVC6
-                rootFolder = YetaWFManager.RootFolderSolution;
+                rootFolder = YetaWFManager.RootFolderWebProject;
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -387,7 +387,7 @@ namespace YetaWF.Core.Support {
 #if MVC6
             string path;
             if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
-                path = YetaWFManager.RootFolderSolution + YetaWFManager.UrlToPhysicalRaw(url);
+                path = YetaWFManager.RootFolderWebProject + YetaWFManager.UrlToPhysicalRaw(url);
             } else {
                 path = RootFolder + UrlToPhysicalRaw(url);
             }
@@ -405,7 +405,7 @@ namespace YetaWF.Core.Support {
         public static string PhysicalToUrl(string path) {
             path = ReplaceString(path, RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase);
 #if MVC6
-            path = ReplaceString(path, RootFolderSolution, String.Empty, StringComparison.OrdinalIgnoreCase);
+            path = ReplaceString(path, RootFolderWebProject, String.Empty, StringComparison.OrdinalIgnoreCase);
 #else
 #endif
             return path.Replace('\\', '/');

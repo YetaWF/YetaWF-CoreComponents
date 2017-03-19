@@ -413,7 +413,7 @@ namespace YetaWF.Core.Addons {
             get {
                 string rootFolder;
 #if MVC6
-                rootFolder = YetaWFManager.RootFolderSolution;
+                rootFolder = YetaWFManager.RootFolderWebProject;
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -473,8 +473,10 @@ namespace YetaWF.Core.Addons {
                         // Make a symlink to the addons for this package
                         {
                             // Make a symlink to the source code for the addons of this package
+                            // make sure it's symlink not regular folder (which can occur when upgrading from bin to source package)
                             string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
-                            if (!Directory.Exists(addonsProductPath)) {
+                            if (!Directory.Exists(addonsProductPath) || !Package.IsPackageSymLink(addonsProductPath)) {
+                                Directory.Delete(addonsProductPath, true);
                                 if (!Package.CreatePackageSymLink(addonsProductPath, to))
                                     throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                             }
@@ -487,7 +489,8 @@ namespace YetaWF.Core.Addons {
                                 if (!Directory.Exists(viewsPath))
                                     Directory.CreateDirectory(viewsPath);
                                 viewsPath = Path.Combine(viewsPath, Globals.ViewsFolder);
-                                if (!Directory.Exists(viewsPath)) {
+                                if (!Directory.Exists(viewsPath) || !Package.IsPackageSymLink(viewsPath)) {
+                                    Directory.Delete(viewsPath, true);
                                     if (!Package.CreatePackageSymLink(viewsPath, to))
                                         throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
                                 }
@@ -534,7 +537,7 @@ namespace YetaWF.Core.Addons {
             List<string> files = Directory.GetFiles(folder, "*.txt").ToList();
             string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderSolution;
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif

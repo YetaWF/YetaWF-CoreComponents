@@ -235,6 +235,22 @@ namespace YetaWF.Core.PackageSupport {
                 }
             }
         }
+        /// <summary>
+        /// Determines whether the specified path exists and refers to a junction point.
+        /// </summary>
+        /// <param name="path">The junction point path</param>
+        /// <returns>True if the specified path represents a junction point</returns>
+        /// <exception cref="IOException">Thrown if the specified path is invalid
+        /// or some other error occurs</exception>
+        public static bool Exists(string path) {
+            if (!Directory.Exists(path))
+                return false;
+
+            using (SafeFileHandle handle = OpenReparsePoint(path, EFileAccess.GenericRead)) {
+                string target = InternalGetTarget(handle);
+                return target != null;
+            }
+        }
         private static SafeFileHandle OpenReparsePoint(string reparsePoint, EFileAccess accessMode) {
 
             IntPtr f = CreateFile(reparsePoint, accessMode,
@@ -245,6 +261,40 @@ namespace YetaWF.Core.PackageSupport {
                 throw new InternalError("Unable to open reparse point - {0}", Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message);
 
             return new SafeFileHandle(f, true);
+        }
+        private static string InternalGetTarget(SafeFileHandle handle) {
+            int outBufferSize = Marshal.SizeOf(typeof(REPARSE_DATA_BUFFER));
+            IntPtr outBuffer = Marshal.AllocHGlobal(outBufferSize);
+
+            try {
+                int bytesReturned;
+                bool result = DeviceIoControl(handle.DangerousGetHandle(), FSCTL_GET_REPARSE_POINT,
+                    IntPtr.Zero, 0, outBuffer, outBufferSize, out bytesReturned, IntPtr.Zero);
+
+                if (!result) {
+                    int error = Marshal.GetLastWin32Error();
+                    if (error == ERROR_NOT_A_REPARSE_POINT)
+                        return null;
+
+                    throw new InternalError("Unable to get information about junction point - {0}", error);
+                }
+
+                REPARSE_DATA_BUFFER reparseDataBuffer = (REPARSE_DATA_BUFFER)
+                    Marshal.PtrToStructure(outBuffer, typeof(REPARSE_DATA_BUFFER));
+
+                if (reparseDataBuffer.ReparseTag != IO_REPARSE_TAG_MOUNT_POINT)
+                    return null;
+
+                string targetDir = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
+                    reparseDataBuffer.SubstituteNameOffset, reparseDataBuffer.SubstituteNameLength);
+
+                if (targetDir.StartsWith(NonInterpretedPathPrefix))
+                    targetDir = targetDir.Substring(NonInterpretedPathPrefix.Length);
+
+                return targetDir;
+            } finally {
+                Marshal.FreeHGlobal(outBuffer);
+            }
         }
     }
 }

@@ -54,7 +54,7 @@ namespace YetaWF.Core.Packages {
             if (!SourceCode) {
                 // Addons
                 if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
-                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource));
+                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource, ExternalRoot: YetaWFManager.RootFolder));
                     foreach (var file in serPackage.AddOns) {
                         ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                         ze.FileName = file.FileName;
@@ -63,7 +63,7 @@ namespace YetaWF.Core.Packages {
                 // Views
                 string rootFolder;
 #if MVC6
-                rootFolder = YetaWFManager.RootFolderSolution;
+                rootFolder = YetaWFManager.RootFolderWebProject;
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif

@@ -31,7 +31,7 @@ namespace YetaWF.Core.Packages {
             Logging.AddLog("Saving package map");
             string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderSolution;
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -90,7 +90,7 @@ namespace YetaWF.Core.Packages {
         private static void WriteToUpdateLog(string text) {
             string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderSolution;
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -108,7 +108,7 @@ namespace YetaWF.Core.Packages {
             // update/create all models
             string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderSolution;
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -179,7 +179,7 @@ namespace YetaWF.Core.Packages {
             List<PackageInfo> list = new List<PackageInfo>();
             string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderSolution;
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
@@ -242,7 +242,7 @@ namespace YetaWF.Core.Packages {
         private static void InstallSiteTemplate(Package package, string lastSeenVersion) {
             string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderSolution;
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
