@@ -255,7 +255,15 @@
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="packageFmt" />
-                <Text Value="Package - {0}.{1}.zip" />
+                <Text Value="Package ASPNET4 - {0}.{1}.zip" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="packageFmtCore" />
+                <Text Value="Package ASPNETCore - {0}.{1}.zip" />
               </Properties>
             </Object>
           </Value>
@@ -263,7 +271,15 @@
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="packageFmtSrc" />
-                <Text Value="Package (w_Source) - {0}.{1}.zip" />
+                <Text Value="Package w_Source ASPNET4 - {0}.{1}.zip" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="packageFmtSrcCore" />
+                <Text Value="Package w_Source ASPNETCore - {0}.{1}.zip" />
               </Properties>
             </Object>
           </Value>
