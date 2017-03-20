@@ -50,8 +50,9 @@ namespace YetaWF.Core.Support.StaticPages {
 
         private void InitSite() {
             lock (LockObject) {
-                if (Sites == null) {
+                if (Sites == null)
                     Sites = new Dictionary<int, SiteEntry>();
+                if (!Sites.ContainsKey(Manager.CurrentSite.Identity)) {
                     string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
                     // when restarting the site, remove all saved static pages
                     RemoveAllPages();
