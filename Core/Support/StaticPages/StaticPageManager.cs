@@ -53,9 +53,8 @@ namespace YetaWF.Core.Support.StaticPages {
                 if (Sites == null)
                     Sites = new Dictionary<int, SiteEntry>();
                 if (!Sites.ContainsKey(Manager.CurrentSite.Identity)) {
+                    RemoveAllPagesInternal();
                     string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-                    // when restarting the site, remove all saved static pages
-                    RemoveAllPages();
                     Directory.CreateDirectory(folder);
                     // create a don't deploy marker
                     File.WriteAllText(Path.Combine(folder, Globals.DontDeployMarker), "");
@@ -220,14 +219,17 @@ namespace YetaWF.Core.Support.StaticPages {
             InitSite();
             lock (Site.StaticPages) {
                 Site.StaticPages = new Dictionary<string, StaticPages.StaticPageManager.PageEntry>();
-                string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-                if (Directory.Exists(folder)) {
-                    string[] files = Directory.GetFiles(folder, "*" + FileData.FileExtension);
-                    foreach (string file in files) {
-                        try {
-                            File.Delete(file);
-                        } catch (Exception) { }
-                    }
+                RemoveAllPagesInternal();
+            }
+        }
+        private void RemoveAllPagesInternal() {
+            string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
+            if (Directory.Exists(folder)) {
+                string[] files = Directory.GetFiles(folder, "*" + FileData.FileExtension);
+                foreach (string file in files) {
+                    try {
+                        File.Delete(file);
+                    } catch (Exception) { }
                 }
             }
         }
