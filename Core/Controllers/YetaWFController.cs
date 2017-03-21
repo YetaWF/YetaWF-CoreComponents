@@ -211,9 +211,13 @@ namespace YetaWF.Core.Controllers {
                 if (originList == null)
                     originList = Manager.RequestQueryString[Globals.Link_OriginList];
             } catch (Exception) { }
-            if (!string.IsNullOrWhiteSpace(originList))
-                return YetaWFManager.Jser.Deserialize<List<Origin>>(originList);
-            else
+            if (!string.IsNullOrWhiteSpace(originList)) {
+                try {
+                    return YetaWFManager.Jser.Deserialize<List<Origin>>(originList);
+                } catch (Exception) {
+                    throw new InternalError("Invalid Url arguments");
+                }
+            }  else
                 return new List<Origin>();
         }
     }
