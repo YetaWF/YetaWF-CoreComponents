@@ -142,11 +142,12 @@ namespace YetaWF.Core.Packages {
     public enum ServiceLevelEnum {
         Unknown = -1,
         Core = 0,
-        LowLevelServiceProvider = 100,
-        ServiceProvider = 200,
-        ServiceConsumer = 300,
-        Module = 1000,
-        ModuleConsumer = 2000,
+        LowLevelServiceProvider = 100, // Language, Identity (can't use higher services,like Scheduling)
+        SchedulerProvider = 150, // Scheduler
+        ServiceProvider = 200, // Logging
+        ServiceConsumer = 300, // not currently used
+        Module = 1000, // all modules
+        ModuleConsumer = 2000, // not currently used
     }
     /// <summary>
     /// Attribute class used in a package's AssemblyInfo.cs file to define its purpose and at which point the package is installed, relative to other packages.
