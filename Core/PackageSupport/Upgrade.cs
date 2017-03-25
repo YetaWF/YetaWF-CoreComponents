@@ -65,8 +65,8 @@ namespace YetaWF.Core.Packages {
             //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
 
             // Create an update log file
-            if (Logging.RegisterCallback != null)
-                Logging.RegisterCallback(WriteToUpdateLog);
+            UpgradeLogging log = new UpgradeLogging();
+            Logging.RegisterLogging(log);
 
             SiteDefinition site = SiteDefinition.LoadSiteDefinition(null);// get the default site
             if (site == null)
@@ -80,21 +80,24 @@ namespace YetaWF.Core.Packages {
                 throw;
             } finally {
                 // Stop update log file
-                if (Logging.UnregisterCallback != null)
-                    Logging.UnregisterCallback(WriteToUpdateLog);
-
+                Logging.UnregisterLogging(log);
                 YetaWFManager.Manager.CurrentSite = origSite;
             }
         }
-
-        private static void WriteToUpdateLog(string text) {
-            string rootFolder;
+        public class UpgradeLogging : ILogging {
+            public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Info; }
+            public void Clear() { }
+            public void Flush() { }
+            public bool IsInstalled() { return true; }
+            public void WriteToLogFile(Logging.LevelEnum level, int relStack, string text) {
+                string rootFolder;
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
+                rootFolder = YetaWFManager.RootFolderWebProject;
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
-            File.AppendAllText(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
+                File.AppendAllText(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
+            }
         }
         private static void UpgradePackages() {
 

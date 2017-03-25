@@ -64,57 +64,48 @@ namespace YetaWF.Core.Support {
             SiteDomain = host; // save the host name that owns this Manager
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification="This is a catastrophic error so we must abort")]
-        public static YetaWFManager Manager
-        {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
+        public static YetaWFManager Manager {
             get {
+                YetaWFManager manager = null;
 #if MVC6
-                YetaWFManager manager = null;
                 HttpContext context = HttpContextAccessor.HttpContext;
-
-                if (context != null) {
+                if (context != null)
                     manager = context.Items[YetaWF_ManagerKey] as YetaWFManager;
-                } else {
-                    // not a webrequest - most likely a scheduled task
-                    // check if we have thread data
-                    LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
-                    manager = (YetaWFManager)Thread.GetData(slot);
-                }
-                if (manager == null)
-                    throw new Error("We don't have a YetaWFManager object.");
-                return manager;
 #else
-                YetaWFManager manager = null;
-                if (HttpContext.Current != null) {
+                if (HttpContext.Current != null)
                     manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
-                } else {
+#endif
+                if (manager == null) {
                     // not a webrequest - most likely a scheduled task
                     // check if we have thread data
                     LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
-                    manager = (YetaWFManager) Thread.GetData(slot);
+                    if (slot != null)
+                        manager = Thread.GetData(slot) as YetaWFManager;
                 }
                 if (manager == null)
                     throw new Error("We don't have a YetaWFManager object.");
                 return manager;
-#endif
             }
         }
 
         public static bool HaveManager {
             get {
+                YetaWFManager manager = null;
 #if MVC6
-                if (HttpContextAccessor.HttpContext != null) {
-                    if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] == null) return false;
+                HttpContext context = HttpContextAccessor.HttpContext;
+                if (context != null)
+                    manager = HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] as YetaWFManager;
 #else
-                if (HttpContext.Current != null) {
-                    if (HttpContext.Current.Items[YetaWF_ManagerKey] == null) return false;
+                if (HttpContext.Current != null)
+                    manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
 #endif
-                } else {
+                if (manager == null) {
                     LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
-                    if (slot == null) return false;
-                    if (Thread.GetData(slot) == null) return false;
+                    if (slot != null)
+                        manager = Thread.GetData(slot) as YetaWFManager;
                 }
-                return true;
+                return manager != null;
             }
         }
 
@@ -331,7 +322,7 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification= "This is a catastrophic error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error")]
         public static string DefaultSiteName {
             get {
                 if (defaultSiteName == null)
@@ -513,7 +504,7 @@ namespace YetaWF.Core.Support {
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
             string validChars = "_./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
-            for (int len = s.Length, ix = 0 ; ix < len ; ++ix) {
+            for (int len = s.Length, ix = 0; ix < len; ++ix) {
                 char c = s[ix];
                 if (c == '?') {
                     sb.Append(s.Substring(ix));
@@ -540,7 +531,7 @@ namespace YetaWF.Core.Support {
             if (string.IsNullOrWhiteSpace(s)) return null;
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
-            for (int len = s.Length, ix = 0 ; ix < len ; ++ix) {
+            for (int len = s.Length, ix = 0; ix < len; ++ix) {
                 char c = s[ix];
                 if (c == '?') {
                     sb.Append(s.Substring(ix));
@@ -570,8 +561,8 @@ namespace YetaWF.Core.Support {
             //   abc://username:password@example.com:123/path/data?key=value#fragid1
             int iScheme = s.IndexOf(':');
             if (iScheme >= 0) {
-                sb.Append(s.Substring(0, iScheme+1));
-                s = s.Substring(iScheme+1);
+                sb.Append(s.Substring(0, iScheme + 1));
+                s = s.Substring(iScheme + 1);
             }
             if (s.StartsWith("//")) {
                 sb.Append("//");
@@ -579,7 +570,7 @@ namespace YetaWF.Core.Support {
             }
             int iAuth = s.IndexOf('@');
             if (iAuth >= 0) {
-                sb.Append(s.Substring(0, iAuth+1));
+                sb.Append(s.Substring(0, iAuth + 1));
                 s = s.Substring(iAuth + 1);
             }
             int iPort = s.IndexOf(':');
@@ -742,7 +733,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Returns the last entry of the OriginList
         /// </summary>
-         public Origin QueryReturnToUrl {
+        public Origin QueryReturnToUrl {
             get {
                 if (OriginList == null || OriginList.Count == 0)
                     return new Origin {
@@ -754,11 +745,11 @@ namespace YetaWF.Core.Support {
             }
         }
 
-         public bool HaveReturnToUrl {
-             get {
-                 return OriginList != null && OriginList.Count > 0;
-             }
-         }
+        public bool HaveReturnToUrl {
+            get {
+                return OriginList != null && OriginList.Count > 0;
+            }
+        }
 
         /// <summary>
         /// Returns the Url to return to, including origin list and other querystring parms
@@ -828,7 +819,7 @@ namespace YetaWF.Core.Support {
                 val = (TYPE)(object)((v == "1" || v.ToLower() == "on" || v.ToLower() == "true" || v.ToLower() == "yes") ? true : false);
                 return true;
             } else if (typeof(TYPE) == typeof(string)) {
-                val = (TYPE) (object) v;
+                val = (TYPE)(object)v;
                 return true;
             } else {
                 // TryGetUrlArg doesn't support this type
@@ -1101,9 +1092,11 @@ namespace YetaWF.Core.Support {
             if (!string.IsNullOrWhiteSpace(url)) {
 # if DEBUG
                 // with Kestrel/IIS Express we shut down so provide some feedback
-                byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site has stopped - Please close your browser and restart the application.<strong></body></html>");
-                Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length);
-                Manager.CurrentResponse.Body.FlushAsync();
+                try {
+                    byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site has stopped - Please close your browser and restart the application.<strong></body></html>");
+                    Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length);
+                    Manager.CurrentResponse.Body.FlushAsync();
+                } catch (Exception) { }
 # else
                 CurrentResponse.Redirect(url);
 # endif
@@ -1173,7 +1166,7 @@ namespace YetaWF.Core.Support {
                 if (_forcedEditMode != null) return (bool)_forcedEditMode;
                 if (_editMode == null)
                     _editMode = SessionSettings.SiteSettings.GetValue<bool>("EditMode");
-                return (bool) _editMode;
+                return (bool)_editMode;
             }
             set {
                 if (_editMode != value) {
@@ -1540,7 +1533,7 @@ namespace YetaWF.Core.Support {
                 if (value != DeviceSelected.Desktop && value != DeviceSelected.Mobile) throw new InternalError("Invalid device selection {0}", value);
                 _ActiveDevice = value;
                 if (CurrentSession == null) return;
-                CurrentSession.SetInt(Globals.Session_ActiveDevice, (int) value);
+                CurrentSession.SetInt(Globals.Session_ActiveDevice, (int)value);
             }
         }
         private DeviceSelected _ActiveDevice = DeviceSelected.Undecided;

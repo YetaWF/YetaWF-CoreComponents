@@ -125,8 +125,8 @@ namespace YetaWF.Core.Controllers {
             }
 
             if (SiteDefinition.INITIAL_INSTALL) {
-                string initPageUrl = "/$initall";
-                string initPageQs = "?From=Data";
+                string initPageUrl = "/YetaWF_Packages/StartupPage/Show";
+                string initPageQs = "";
                 string newUrl;
                 if (!Manager.IsLocalHost)
                     // if we're using IIS we need to use the real domain which we haven't saved yet in Site Properties

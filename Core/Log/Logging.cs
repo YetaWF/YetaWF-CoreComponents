@@ -13,6 +13,8 @@ namespace YetaWF.Core.Log {
         public enum LevelEnum {
             [EnumDescription("Info", "Informational")]
             Info = 0,
+            [EnumDescription("Warning", "Warning")]
+            Warning = 50,
             [EnumDescription("Error", "Error")]
             Error = 99,
         }
@@ -20,55 +22,45 @@ namespace YetaWF.Core.Log {
         /// <summary>
         /// Installable logging routine to record a log message, typically registered during application startup.
         /// </summary>
-        public static Action<LevelEnum, int, string> AddLogMessage { get; set; }
-        public static Action ForceFlush { get; set; }
-        public static Action<Action<string>> RegisterCallback { get; set; }
-        public static Action<Action<string>> UnregisterCallback { get; set; }
-        public static int /*LevelEnum*/ MinLevel { get; set; }
-
         public static string AddLog(string text) {
-            if (MinLevel <= (int)LevelEnum.Info && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Info, 0, text);
+            if (MinLevel <= LevelEnum.Info)
+                WriteToAllLogFiles(LevelEnum.Info, 0, text);
             return text;
         }
         public static string AddLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel <= (int)LevelEnum.Info && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Info, 0, text);
+            if (MinLevel <= LevelEnum.Info)
+                WriteToAllLogFiles(LevelEnum.Info, 0, text);
             return text;
         }
         public static string AddLogAdjustStack(int relStack, string text) {
-            if (MinLevel <= (int)LevelEnum.Info && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Info, relStack, text);
+            if (MinLevel <= LevelEnum.Info)
+                WriteToAllLogFiles(LevelEnum.Info, relStack, text);
             return text;
         }
         public static string AddLogAdjustStack(int relStack, string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel <= (int)LevelEnum.Info && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Info, relStack, text);
+            if (MinLevel <= LevelEnum.Info)
+                WriteToAllLogFiles(LevelEnum.Info, relStack, text);
             return text;
         }
 
         public static string AddErrorLog(string text) {
-            if (MinLevel <= (int)LevelEnum.Error && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Error, 0, text);
+            WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
         public static string AddErrorLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel <= (int)LevelEnum.Error && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Error, 0, text);
+            WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
         public static string AddErrorLogAdjustStack(int relStack, string text) {
-            if (MinLevel <= (int)LevelEnum.Error && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Error, relStack, text);
+            WriteToAllLogFiles(LevelEnum.Error, relStack, text);
             return text;
         }
         public static string AddErrorLogAdjustStack(int relStack, string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel <= (int)LevelEnum.Error && AddLogMessage != null)
-                AddLogMessage(LevelEnum.Error, relStack, text);
+            WriteToAllLogFiles(LevelEnum.Error, relStack, text);
             return text;
         }
 
@@ -126,11 +118,6 @@ namespace YetaWF.Core.Log {
                     bld.Remove(bld.Length - 1, 1);
             }
             return bld.ToString();
-        }
-
-        public static void LogForceFlush() {
-            if (ForceFlush != null)
-                ForceFlush();
         }
     }
 }
