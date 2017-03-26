@@ -23,14 +23,12 @@ namespace YetaWF.Core.IO {
         private static object EmptyCachedObject = new object();
 
         public void AddObjectToCache(string cacheKey, object data) {
-            if (!HaveManager || !Manager.HaveCurrentContext)
-                return;
             if (Cacheable) {
                 if (data == null) {
 #if MVC6
                     YetaWFManager.MemoryCache.Set<object>(cacheKey, EmptyCachedObject);
 #else
-                    Manager.CurrentContext.Cache[cacheKey] = EmptyCachedObject;
+                    System.Web.HttpRuntime.Cache[cacheKey] = EmptyCachedObject;
 #endif
 
                 } else {
@@ -41,7 +39,7 @@ namespace YetaWF.Core.IO {
 #if MVC6
                     YetaWFManager.MemoryCache.Set<byte[]>(cacheKey, cacheData);
 #else
-                    Manager.CurrentContext.Cache[cacheKey] = cacheData;
+                    System.Web.HttpRuntime.Cache[cacheKey] = cacheData;
 #endif
 
                 }
@@ -59,12 +57,10 @@ namespace YetaWF.Core.IO {
 
         public bool GetObjectFromCache(string cacheKey, out object data) {
             data = null;
-            if (!HaveManager || !Manager.HaveCurrentContext)
-                return false;
 #if MVC6
             data = YetaWFManager.MemoryCache.Get(cacheKey);
 #else
-            data = Manager.CurrentContext.Cache[cacheKey];
+            data = System.Web.HttpRuntime.Cache[cacheKey];
 #endif
 
             if (data == EmptyCachedObject) {
@@ -77,12 +73,10 @@ namespace YetaWF.Core.IO {
                 return false;
         }
         public void RemoveFromCache(string cacheKey) {
-            if (!HaveManager || !Manager.HaveCurrentContext)
-                return;
 #if MVC6
             YetaWFManager.MemoryCache.Remove(cacheKey);
 #else
-            Manager.CurrentContext.Cache.Remove(cacheKey);
+            System.Web.HttpRuntime.Cache.Remove(cacheKey);
 #endif
         }
     }

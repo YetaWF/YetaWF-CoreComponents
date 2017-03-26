@@ -121,8 +121,8 @@ namespace YetaWF.Core.HttpHandler {
                     IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
                     bytes = cache.Get<byte[]>(cacheKey);
 #else
-                    if (context.Cache[cacheKey] != null)
-                        bytes = (byte[])context.Cache[cacheKey];
+                    if (System.Web.HttpRuntime.Cache[cacheKey] != null)
+                        bytes = (byte[])System.Web.HttpRuntime.Cache[cacheKey];
 #endif
                 } catch (Exception) { processCharSize = false; } // this can fail for *.css requests without !CI=
             }
@@ -156,7 +156,7 @@ namespace YetaWF.Core.HttpHandler {
                         IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
                         cache.Set<byte[]>(cacheKey, bytes);
 #else
-                        manager.CurrentContext.Cache[cacheKey] = bytes;
+                        System.Web.HttpRuntime.Cache[cacheKey] = bytes;
 #endif
                     }
                 } else {
