@@ -492,7 +492,6 @@ YetaWF_Basics.formatDate = function (date, fmt)
         case 22: //"Year.Month.Day"
             return "{0}.{1}.{2}".format(YZeroPad(year, 4), YZeroPad(month, 2), YZeroPad(day, 2));
     }
-    return date;
 }
 
 // WHENREADY

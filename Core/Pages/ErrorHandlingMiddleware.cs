@@ -47,6 +47,11 @@ namespace YetaWF.Core.Pages {
                 }
                 Logging.AddErrorLog(msg);
             }
+            // flush log on error, but avoid log spamming
+            if (LastError == null || DateTime.Now > ((DateTime)LastError).AddSeconds(10)) {
+                Logging.ForceFlush();// make sure this is recorded immediately so we can see it in the log
+                LastError = DateTime.Now;
+            }
             if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest))
                 return false;// not handled
 
@@ -59,6 +64,7 @@ namespace YetaWF.Core.Pages {
             await context.Response.WriteAsync(content);
             return true;// handled
         }
+        private static DateTime? LastError = null;// use local time
     }
 }
 #else
