@@ -67,45 +67,53 @@ namespace YetaWF.Core.Support {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public static YetaWFManager Manager {
             get {
-                YetaWFManager manager = null;
 #if MVC6
+                YetaWFManager manager = null;
                 HttpContext context = HttpContextAccessor.HttpContext;
-                if (context != null)
+
+                if (context != null) {
                     manager = context.Items[YetaWF_ManagerKey] as YetaWFManager;
-#else
-                if (HttpContext.Current != null)
-                    manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
-#endif
-                if (manager == null) {
+                } else {
                     // not a webrequest - most likely a scheduled task
                     // check if we have thread data
                     LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
-                    if (slot != null)
-                        manager = Thread.GetData(slot) as YetaWFManager;
+                    manager = (YetaWFManager)Thread.GetData(slot);
                 }
                 if (manager == null)
                     throw new Error("We don't have a YetaWFManager object.");
                 return manager;
+#else
+                YetaWFManager manager = null;
+                if (HttpContext.Current != null) {
+                    manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
+                } else {
+                    // not a webrequest - most likely a scheduled task
+                    // check if we have thread data
+                    LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
+                    manager = (YetaWFManager)Thread.GetData(slot);
+                }
+                if (manager == null)
+                    throw new Error("We don't have a YetaWFManager object.");
+                return manager;
+#endif
             }
         }
 
         public static bool HaveManager {
             get {
-                YetaWFManager manager = null;
 #if MVC6
-                HttpContext context = HttpContextAccessor.HttpContext;
-                if (context != null)
-                    manager = HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] as YetaWFManager;
+                if (HttpContextAccessor.HttpContext != null) {
+                    if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] == null) return false;
 #else
-                if (HttpContext.Current != null)
-                    manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
+                if (HttpContext.Current != null) {
+                    if (HttpContext.Current.Items[YetaWF_ManagerKey] == null) return false;
 #endif
-                if (manager == null) {
+                } else {
                     LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
-                    if (slot != null)
-                        manager = Thread.GetData(slot) as YetaWFManager;
+                    if (slot == null) return false;
+                    if (Thread.GetData(slot) == null) return false;
                 }
-                return manager != null;
+                return true;
             }
         }
 
