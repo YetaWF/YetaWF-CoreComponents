@@ -55,7 +55,7 @@ namespace YetaWF.Core.Addons {
         public const string AjaxJavascriptReloadModule = "JSRelodModule:";
         public const string AjaxJavascriptReloadModuleParts = "JSReloadModuleParts:";
 
-        public const string AjaxJavascriptErrorReturn = "JSERROR:"; // not yet used
+        public const string AjaxJavascriptErrorReturn = "JSERROR:";
 
         public void AddSupport(YetaWFManager manager) {
 
