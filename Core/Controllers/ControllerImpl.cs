@@ -937,10 +937,10 @@ namespace YetaWF.Core.Controllers {
         }
 
         /// <summary>
-        /// Not authorized for this type of access
+        /// Not authorized for this type of access.
         /// </summary>
         /// <returns></returns>
-        protected ActionResult NotAuthorized() {
+        protected new ActionResult NotAuthorized() {
             if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
 #if MVC6
                 return new UnauthorizedResult();

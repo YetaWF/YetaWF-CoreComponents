@@ -115,6 +115,18 @@ namespace YetaWF.Core.Controllers {
             base.OnActionExecuting(filterContext);
         }
 #endif
+        /// <summary>
+        /// Not authorized for this type of access.
+        /// </summary>
+        /// <returns></returns>
+        protected ActionResult NotAuthorized() {
+#if MVC6
+            return new UnauthorizedResult();
+#else
+            return new HttpUnauthorizedResult();
+#endif
+        }
+
 #if MVC6
         // This is handled in ResourceAuthorizeHandler
 #else
