@@ -34,6 +34,16 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="Warning" />
+                            <Value Value="Warning" />
+                            <Caption Value="Warning" />
+                            <Description Value="Warning" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="Error" />
                             <Value Value="Error" />
                             <Caption Value="Error" />
