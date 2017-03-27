@@ -318,7 +318,7 @@ namespace YetaWF.Core.Controllers {
             // set up all info, like who is logged on, popup, origin list, etc.
             YetaWFController.SetupEnvironmentInfo();
 
-            Logging.AddLog("Request");
+            Logging.AddTraceLog("Request");
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
             Action<QueryHelper> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
             if (action != null) {
@@ -553,7 +553,7 @@ namespace YetaWF.Core.Controllers {
                                 break;
                         }
                     }
-                    Logging.AddLog("Page {0}", page.PageGuid);
+                    Logging.AddTraceLog("Page {0}", page.PageGuid);
                     return ProcessingStatus.Page;
                 } else {
                     // Send to login page with redirect (IF NOT LOGGED IN)
@@ -595,7 +595,7 @@ namespace YetaWF.Core.Controllers {
                         Manager.IsInPopup = true;
                         page.SelectedPopupSkin = module.SelectedPopupSkin;
                     }
-                    Logging.AddLog("Module {0}", module.ModuleGuid);
+                    Logging.AddTraceLog("Module {0}", module.ModuleGuid);
                     return ProcessingStatus.Page;
                 }
             }

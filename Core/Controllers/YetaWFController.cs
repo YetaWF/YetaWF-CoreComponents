@@ -82,7 +82,7 @@ namespace YetaWF.Core.Controllers {
 
 #if MVC6
         public override void OnActionExecuting(ActionExecutingContext filterContext) {
-            Logging.AddLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
+            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
             SetupEnvironmentInfo();
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {
@@ -104,7 +104,7 @@ namespace YetaWF.Core.Controllers {
         }
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
-            Logging.AddLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
+            Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
             SetupEnvironmentInfo();
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {

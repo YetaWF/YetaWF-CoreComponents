@@ -11,8 +11,10 @@ namespace YetaWF.Core.Log {
     public static partial class Logging {
 
         public enum LevelEnum {
+            [EnumDescription("Trace", "Tracing/Debug Information")]
+            Trace = 0,
             [EnumDescription("Info", "Informational")]
-            Info = 0,
+            Info = 25,
             [EnumDescription("Warning", "Warning")]
             Warning = 50,
             [EnumDescription("Error", "Error")]
@@ -20,7 +22,7 @@ namespace YetaWF.Core.Log {
         }
 
         /// <summary>
-        /// Installable logging routine to record a log message, typically registered during application startup.
+        /// Logging routine to record a log message, typically registered during application startup.
         /// </summary>
         public static string AddLog(string text) {
             if (MinLevel <= LevelEnum.Info)
@@ -33,15 +35,26 @@ namespace YetaWF.Core.Log {
                 WriteToAllLogFiles(LevelEnum.Info, 0, text);
             return text;
         }
-        public static string AddLogAdjustStack(int relStack, string text) {
-            if (MinLevel <= LevelEnum.Info)
-                WriteToAllLogFiles(LevelEnum.Info, relStack, text);
+
+        public static string AddTraceLog(string text) {
+            if (MinLevel <= LevelEnum.Trace)
+                WriteToAllLogFiles(LevelEnum.Trace, 0, text);
             return text;
         }
-        public static string AddLogAdjustStack(int relStack, string text, params object[] parms) {
+        public static string AddTraceLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel <= LevelEnum.Info)
-                WriteToAllLogFiles(LevelEnum.Info, relStack, text);
+            if (MinLevel <= LevelEnum.Trace)
+                WriteToAllLogFiles(LevelEnum.Trace, 0, text);
+            return text;
+        }
+
+        public static string AddWarningLog(string text) {
+            WriteToAllLogFiles(LevelEnum.Warning, 0, text);
+            return text;
+        }
+        public static string AddWarningLog(string text, params object[] parms) {
+            text = FormatMessage(text, parms);
+            WriteToAllLogFiles(LevelEnum.Warning, 0, text);
             return text;
         }
 

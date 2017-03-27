@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using YetaWF.Core.Support;
 
@@ -20,6 +21,20 @@ namespace YetaWF.Core.Log {
         public static LevelEnum MinLevel { get; private set; }
         private static List<ILogging> Loggers { get; set; }
         private static ILogging DefaultLogger { get; set; }
+
+        private static object _lockObject = new object();
+
+        private static List<ILogging> GetLoggers() {
+            lock (_lockObject) {
+                if (Loggers == null) return new List<ILogging>();
+                return Loggers.ToList();
+            }
+        }
+        private static void SetLoggers(List<ILogging> loggers) {
+            lock (_lockObject) {
+                Loggers = loggers;
+            }
+        }
 
         // we can't use some clever scheme to get a logging provider because we need logging as soon as possible so
         // logging is set up using web.config/appsettings.json.
@@ -68,14 +83,17 @@ namespace YetaWF.Core.Log {
         /// </summary>
         /// <param name="logger"></param>
         public static void RegisterLogging(ILogging logger) {
-            if (Loggers == null) Loggers = new List<ILogging>();
-            Loggers.Add(logger);
+            lock (_lockObject) {
+                if (Loggers == null)
+                    Loggers = new List<ILogging>();
+                Loggers.Add(logger);
+            }
             MinLevel = GetLowestLogLevel();
         }
         private static LevelEnum GetLowestLogLevel() {
             LevelEnum level = LevelEnum.Error;
-            if (Loggers == null) return LevelEnum.Info;
-            foreach (ILogging log in Loggers) {
+            if (Loggers == null) return LevelEnum.Trace;
+            foreach (ILogging log in GetLoggers()) {
                 if (log.GetLevel() < level)
                     level = log.GetLevel();
             }
@@ -85,9 +103,11 @@ namespace YetaWF.Core.Log {
         /// Unregister an existing logger.
         /// </summary>
         public static void UnregisterLogging(ILogging logger) {
-            if (Loggers != null) {
-                if (Loggers.Contains(logger))
-                    Loggers.Remove(logger);
+            lock (_lockObject) {
+                if (Loggers != null) {
+                    if (Loggers.Contains(logger))
+                        Loggers.Remove(logger);
+                }
             }
             MinLevel = GetLowestLogLevel();
         }
@@ -95,21 +115,17 @@ namespace YetaWF.Core.Log {
         /// Write a message to all loggers.
         /// </summary>
         public static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
-            if (Loggers != null) {
-                string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);
-                foreach (ILogging log in Loggers) {
-                    log.WriteToLogFile(level, relStack, text);
-                }
+            string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);
+            foreach (ILogging log in GetLoggers()) {
+                log.WriteToLogFile(level, relStack, text);
             }
         }
         /// <summary>
         /// Flush all loggers.
         /// </summary>
         public static void ForceFlush() {
-            if (Loggers != null) {
-                foreach (ILogging log in Loggers) {
-                    log.Flush();
-                }
+            foreach (ILogging log in GetLoggers()) {
+                log.Flush();
             }
         }
     }

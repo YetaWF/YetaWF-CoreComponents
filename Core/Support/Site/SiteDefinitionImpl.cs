@@ -320,6 +320,9 @@ namespace YetaWF.Core.Site {
         // INITIAL INSTALL
         // INITIAL INSTALL
 
+        /// <summary>
+        /// Defines whether the current application instance started as an initial install.
+        /// </summary>
         public static bool INITIAL_INSTALL {
             get {
                 if (_initial_install == null) {
@@ -328,12 +331,29 @@ namespace YetaWF.Core.Site {
                 return (bool)_initial_install;
             }
         }
+        /// <summary>
+        /// Call when the initial install process ends.
+        /// </summary>
+        /// <remarks>
+        /// Even once the initial install process has ended, INITIAL_INSTALL still returns true to indicate that a site restart is needed. 
+        /// Some data providers are still marked as not installed until the site is restarted.
+        /// </remarks>
         public static void RemoveInitialInstall() {
             WebConfigHelper.SetValue<string>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL", "0");
                 WebConfigHelper.Save();
-            _initial_install = false;
+            _initial_install_ended = true;
         }
         private static bool? _initial_install = null;
+        private static bool _initial_install_ended = false;
+
+        /// <summary>
+        /// Defines whether the current application instance started as an initial install, but the initial install process has ended.
+        /// </summary>
+        public static bool INITIAL_INSTALL_ENDED {
+            get {
+                return _initial_install_ended;
+            }
+        }
     }
 }
 
