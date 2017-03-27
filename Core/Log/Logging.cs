@@ -49,31 +49,37 @@ namespace YetaWF.Core.Log {
         }
 
         public static string AddWarningLog(string text) {
-            WriteToAllLogFiles(LevelEnum.Warning, 0, text);
+            if (MinLevel <= LevelEnum.Warning)
+                WriteToAllLogFiles(LevelEnum.Warning, 0, text);
             return text;
         }
         public static string AddWarningLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            WriteToAllLogFiles(LevelEnum.Warning, 0, text);
+            if (MinLevel <= LevelEnum.Warning)
+                WriteToAllLogFiles(LevelEnum.Warning, 0, text);
             return text;
         }
 
         public static string AddErrorLog(string text) {
-            WriteToAllLogFiles(LevelEnum.Error, 0, text);
+            if (MinLevel <= LevelEnum.Error)
+                WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
         public static string AddErrorLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            WriteToAllLogFiles(LevelEnum.Error, 0, text);
+            if (MinLevel <= LevelEnum.Error)
+                WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
         public static string AddErrorLogAdjustStack(int relStack, string text) {
-            WriteToAllLogFiles(LevelEnum.Error, relStack, text);
+            if (MinLevel <= LevelEnum.Error)
+                WriteToAllLogFiles(LevelEnum.Error, relStack, text);
             return text;
         }
         public static string AddErrorLogAdjustStack(int relStack, string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            WriteToAllLogFiles(LevelEnum.Error, relStack, text);
+            if (MinLevel <= LevelEnum.Error)
+                WriteToAllLogFiles(LevelEnum.Error, relStack, text);
             return text;
         }
 

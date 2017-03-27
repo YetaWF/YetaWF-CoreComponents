@@ -117,7 +117,8 @@ namespace YetaWF.Core.Log {
         public static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
             string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);
             foreach (ILogging log in GetLoggers()) {
-                log.WriteToLogFile(level, relStack, text);
+                if (log.GetLevel() <= level)
+                    log.WriteToLogFile(level, relStack, text);
             }
         }
         /// <summary>
