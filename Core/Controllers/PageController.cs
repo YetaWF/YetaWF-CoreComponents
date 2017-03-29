@@ -1,7 +1,11 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using System.Text;
+using System.Text.RegularExpressions;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Modules;
@@ -11,9 +15,6 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
-using System.Threading.Tasks;
-using System.Text;
-using System.Text.RegularExpressions;
 using YetaWF.Core.Identity;
 #if MVC6
 using Microsoft.AspNetCore.Http;
@@ -323,10 +324,11 @@ namespace YetaWF.Core.Controllers {
             if (Manager.Need2FA) {
                 if (Manager.Need2FARedirect) {
                     Logging.AddLog("Two-step authentication setup required");
-                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null, uri.ToString());
+                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null);
                     Manager.Need2FARedirect = false;
-                    string newUrl = action2FA.GetCompleteUrl();
-                    return new RedirectResult(newUrl);
+                    Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
+                    Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
+                    return new RedirectResult(Manager.ReturnToUrl);
                 }
                 Resource.ResourceAccess.ShowNeed2FA();
             }
