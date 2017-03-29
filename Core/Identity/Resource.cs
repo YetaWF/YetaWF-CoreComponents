@@ -84,16 +84,20 @@ namespace YetaWF.Core.Identity {
         string GetUserName(int userId);
         string GetUserEmail(int userId);
         int GetSuperuserId();
-        List<RoleInfo> GetDefaultRoleList();
+        List<RoleInfo> GetDefaultRoleList(bool Exclude2FA = false);
         List<User> GetDefaultUserList();
         int GetSuperuserRoleId();
         int GetUserRoleId();
+        int GetUser2FARoleId();
         int GetAnonymousRoleId();
         int GetAdministratorRoleId();
         int GetEditorRoleId();
         int GetRoleId(string roleName);
 
         ModuleAction GetSelectTwoStepAction(int userId, string userName, string email);
+        ModuleAction GetForceTwoStepActionSetup(string url, string nextUrl);
+        void ShowNeed2FA();
+
         List<string> GetEnabledTwoStepAuthentications(int userId);
         void SetEnabledTwoStepAuthentications(int userId, List<string> auths);
         void AddEnabledTwoStepAuthentication(int userId, string auth);

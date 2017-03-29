@@ -136,7 +136,7 @@ namespace YetaWF.Core.Modules {
                             // collect unique modules that are invoked by css on templates
                             if (mod.Invokable) {
                                 if (!mod.IsModuleUnique)
-                                    throw new InternalError("Only unique modules can be invokable");
+                                    throw new InternalError("Only unique modules can be marked invokable ({0})", type.FullName);
                                 YetaWFManager.Manager.AddOnManager.AddUniqueInvokedCssModule(type, mod.ModuleGuid, mod.SupportedTemplates, mod.InvokingCss, mod.InvokeInPopup, mod.InvokeInAjax);
                             }
                         } catch (Exception exc) {

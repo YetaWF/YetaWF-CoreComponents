@@ -85,6 +85,8 @@ namespace YetaWF.Core {
         public const string Session_Permanent = "##perm##_";
         public const string Session_Superuser = Session_Permanent + "superuser"; // this is a superuser (saved in session state)
         public const string Session_ActiveDevice = Session_Permanent + "activedevice"; // device mobile/desktop (saved in session state)
+        public const string Session_Need2FA = "YetaWF_Core_Need2FA"; // user needs to set up two-step authentication
+        public const string Session_Need2FARedirect = "YetaWF_Core_Need2FARedirect"; // user needs redirect to set up two-step authentication
 
         // String/name prefix
         public const string ModuleClassSuffix = "Module";
@@ -93,7 +95,8 @@ namespace YetaWF.Core {
         public const string MainPane = "Main";
 
         // Roles
-        public const string Role_User = "User"; // every logged on user has this role
+        public const string Role_User = "User"; // every logged on user that does not need to set up two-step authentication has this role
+        public const string Role_User2FA = "User (two-step authentication setup required)"; // every logged on user that needs to set up two-step authentication has this role
         public const string Role_Anonymous = "Anonymous"; // every user that is not logged on has this role
         public const string Role_Superuser = "Superuser"; // controls ALL sites
         public const string Role_Administrator = "Administrator"; // controls ONE site

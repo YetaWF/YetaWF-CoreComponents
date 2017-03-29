@@ -14,6 +14,7 @@ using YetaWF.Core.Support.UrlHistory;
 using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
+using YetaWF.Core.Identity;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -318,6 +319,18 @@ namespace YetaWF.Core.Controllers {
             // set up all info, like who is logged on, popup, origin list, etc.
             YetaWFController.SetupEnvironmentInfo();
 
+            // redirect current request to two-step authentication setup
+            if (Manager.Need2FA) {
+                if (Manager.Need2FARedirect) {
+                    Logging.AddLog("Two-step authentication setup required");
+                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null, uri.ToString());
+                    Manager.Need2FARedirect = false;
+                    string newUrl = action2FA.GetCompleteUrl();
+                    return new RedirectResult(newUrl);
+                }
+                Resource.ResourceAccess.ShowNeed2FA();
+            }
+
             Logging.AddTraceLog("Request");
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
             Action<QueryHelper> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
@@ -566,7 +579,6 @@ namespace YetaWF.Core.Controllers {
                         Manager.CurrentResponse.Redirect(retUrl);
                         return ProcessingStatus.Complete;
                     } else {
-
 #if MVC6
                         Logging.AddErrorLog("403 Not Authorized");
                         Manager.CurrentResponse.StatusCode = 403;

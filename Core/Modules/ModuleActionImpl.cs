@@ -200,10 +200,11 @@ namespace YetaWF.Core.Modules {
             if (CookieAsDoneSignal)
                 tag.Attributes.Add(Basics.CookieDoneCssAttr, "");
 
-            if (SaveReturnUrl)
+            if (SaveReturnUrl) {
                 tag.Attributes.Add(Basics.CssSaveReturnUrl, "");
-            if (!AddToOriginList)
-                tag.Attributes.Add(Basics.CssDontAddToOriginList, "");
+                if (!AddToOriginList)
+                    tag.Attributes.Add(Basics.CssDontAddToOriginList, "");
+            }
 
             if (NeedsModuleContext)
                 tag.Attributes.Add(Basics.CssAddModuleContext, "");

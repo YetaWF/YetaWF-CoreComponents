@@ -739,7 +739,7 @@ namespace YetaWF.Core.Support {
         public List<Origin> OriginList { get; set; }
 
         /// <summary>
-        /// Returns the last entry of the OriginList
+        /// Returns the last entry of the OriginList without removing it.
         /// </summary>
         public Origin QueryReturnToUrl {
             get {
@@ -760,8 +760,11 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Returns the Url to return to, including origin list and other querystring parms
+        /// Returns the Url to return to, including origin list and other querystring parms.
         /// </summary>
+        /// <remarks>The Return To Url also contains the remaining Origin List as a parameter.
+        ///
+        /// The Return To Url is removed from the saved Origin List. To preserve the Url, use QueryReturnToUrl instead.</remarks>
         public string ReturnToUrl {
             get {
                 if (OriginList == null) return CurrentSite.HomePageUrl;
@@ -1488,7 +1491,6 @@ namespace YetaWF.Core.Support {
         public int UserId { get; set; }
         public List<int> UserRoles { get; set; }
         public object UserObject { get; set; }// data saved by Authentication provider
-        public bool IsAnonymousUser { get { return string.IsNullOrWhiteSpace(UserName); } }
         public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider
         public string UserLanguage { get; private set; }
         public string GetUserLanguage() {
@@ -1517,6 +1519,49 @@ namespace YetaWF.Core.Support {
                 if (isSuperUser)
                     CurrentSession.SetString(Globals.Session_Superuser, "I am/was a superuser");// this is set once we see a superuser. Even if logged off, the session value remains
                 MenuList.ClearCachedMenus();
+            }
+        }
+        /// <summary>
+        /// Currently logged on user is authenticated but needs to set up two-step authentication.
+        /// </summary>
+        public bool Need2FA {
+            get {
+                bool? need2FAState = Need2FAState;
+                if (need2FAState == null) return false;
+                return (bool)need2FAState;
+            }
+        }
+        public bool? Need2FAState {
+            get {
+                if (!HaveCurrentSession) return null;
+                string need2FA = CurrentSession.GetString(Globals.Session_Need2FA);
+                if (string.IsNullOrWhiteSpace(need2FA)) return null;
+                return need2FA == "Yes";
+            }
+            set {
+                bool? hasNeeds2FA = Need2FAState;
+                if (hasNeeds2FA != value) {
+                    if (!HaveCurrentSession) return;
+                    if (value != null) {
+                        CurrentSession.SetString(Globals.Session_Need2FA, (bool)value ? "Yes" : "No");
+                        Need2FARedirect = (bool)value;
+                    } else {
+                        CurrentSession.Remove(Globals.Session_Need2FA);
+                        Need2FARedirect = false;
+                    }
+                }
+            }
+        }
+        public bool Need2FARedirect {
+            get {
+                return !string.IsNullOrWhiteSpace(CurrentSession.GetString(Globals.Session_Need2FARedirect));
+            }
+            set {
+                if (value) {
+                    CurrentSession.SetString(Globals.Session_Need2FARedirect, "Yes");
+                } else {
+                    CurrentSession.Remove(Globals.Session_Need2FARedirect);
+                }
             }
         }
 

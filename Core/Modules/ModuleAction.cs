@@ -307,7 +307,7 @@ namespace YetaWF.Core.Modules {
         [UIHint("Boolean")]
         public bool SaveReturnUrl { get; set; }
 
-        [Caption("Add to Origin List"), Description("Defines whether the current Url will be added to the origin list so we can return to the current Url - This is used in conjunction with the Save Return Url property")]
+        [Caption("Add to Origin List"), Description("Defines whether the current Url will be added to the origin list so we can return to the current Url - This is used in conjunction with the Save Return Url property - If the Save Return Url property is false, the AddToOriginList property is ignored")]
         [UIHint("Boolean")]
         public bool AddToOriginList { get; set; }
 

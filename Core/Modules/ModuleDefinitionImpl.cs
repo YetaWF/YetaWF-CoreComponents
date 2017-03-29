@@ -885,58 +885,54 @@ namespace YetaWF.Core.Modules {
 
             if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
 
+            // check if it's a superuser
+            if (Manager.HasSuperUserRole)
+                return true;
+
             if (Manager.HaveUser) {
                 // we have a logged on user
-                // check if it's a superuser
-                if (Manager.HasSuperUserRole)
-                    return true;
-                int superuserRole = Resource.ResourceAccess.GetSuperuserRoleId();
-                if (Manager.UserRoles != null && Manager.UserRoles.Contains(superuserRole))
-                    return true;
-                // see if the user has a role that is explicitly forbidden to access this module
-                int userRole = Resource.ResourceAccess.GetUserRoleId();
-                foreach (AllowedRole allowedRole in AllowedRoles) {
-                    if (Manager.UserRoles != null && Manager.UserRoles.Contains(allowedRole.RoleId)) {
-                        if (testRole(allowedRole) == AllowedEnum.No)
-                            return false;
-                    }
-                    if (allowedRole.RoleId == userRole) {// check if any logged on user is forbidden
-                        if (testRole(allowedRole) == AllowedEnum.No)
-                            return false;
-                    }
-                }
-                // check if the user is explicitly forbidden
-                AllowedUser allowedUser = AllowedUser.Find(AllowedUsers, Manager.UserId);
-                if (allowedUser != null)
-                    if (testUser(allowedUser) == AllowedEnum.No)
-                        return false;
-                // see if the user has a role that is explicitly permitted to access this module
-                foreach (AllowedRole allowedRole in AllowedRoles) {
-                    if (Manager.UserRoles != null && Manager.UserRoles.Contains(allowedRole.RoleId)) {
-                        if (testRole(allowedRole) == AllowedEnum.Yes)
-                            return true;
-                    }
-                    if (allowedRole.RoleId == userRole) {// check if any logged on user is permitted
-                        if (testRole(allowedRole) == AllowedEnum.Yes)
-                            return true;
-                    }
-                }
-                // check if the user listed is explicitly allowed
-                if (allowedUser != null)
-                    if (testUser(allowedUser) == AllowedEnum.Yes)
+                if (Manager.Need2FA) {
+                    return IsAuthorized_Role(testRole, Resource.ResourceAccess.GetAnonymousRoleId()) || IsAuthorized_Role(testRole, Resource.ResourceAccess.GetUser2FARoleId());
+                } else {
+                    int superuserRole = Resource.ResourceAccess.GetSuperuserRoleId();
+                    if (Manager.UserRoles != null && Manager.UserRoles.Contains(superuserRole))
                         return true;
+                    // see if the user has a role that is explicitly forbidden to access this module
+                    int userRole = Resource.ResourceAccess.GetUserRoleId();
+                    foreach (AllowedRole allowedRole in AllowedRoles) {
+                        if (Manager.UserRoles != null && Manager.UserRoles.Contains(allowedRole.RoleId)) {
+                            if (testRole(allowedRole) == AllowedEnum.No)
+                                return false;
+                        }
+                        if (allowedRole.RoleId == userRole) {// check if any logged on user is forbidden
+                            if (testRole(allowedRole) == AllowedEnum.No)
+                                return false;
+                        }
+                    }
+                    // check if the user is explicitly forbidden
+                    AllowedUser allowedUser = AllowedUser.Find(AllowedUsers, Manager.UserId);
+                    if (allowedUser != null)
+                        if (testUser(allowedUser) == AllowedEnum.No)
+                            return false;
+                    // see if the user has a role that is explicitly permitted to access this module
+                    foreach (AllowedRole allowedRole in AllowedRoles) {
+                        if (Manager.UserRoles != null && Manager.UserRoles.Contains(allowedRole.RoleId)) {
+                            if (testRole(allowedRole) == AllowedEnum.Yes)
+                                return true;
+                        }
+                        if (allowedRole.RoleId == userRole) {// check if any logged on user is permitted
+                            if (testRole(allowedRole) == AllowedEnum.Yes)
+                                return true;
+                        }
+                    }
+                    // check if the user listed is explicitly allowed
+                    if (allowedUser != null)
+                        if (testUser(allowedUser) == AllowedEnum.Yes)
+                            return true;
+                }
             } else {
                 // anonymous user
-                int anonymousRole = Resource.ResourceAccess.GetAnonymousRoleId();
-                AllowedRole allowedRole = AllowedRole.Find(AllowedRoles, anonymousRole);
-                if (allowedRole != null) {
-                    // check if the anonymous role is explicitly forbidden
-                    if (testRole(allowedRole) == AllowedEnum.No)
-                        return false;
-                    // check if the anonymous role is explicitly allowed
-                    if (testRole(allowedRole) == AllowedEnum.Yes)
-                        return true;
-                }
+                return IsAuthorized_Role(testRole, Resource.ResourceAccess.GetAnonymousRoleId());
             }
             return false;
         }
