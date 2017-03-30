@@ -74,6 +74,14 @@ namespace YetaWF.Core.Menus {
                     Add(action);
             }
         }
+        public void NewIf(ModuleAction action, ModuleAction.ActionLocationEnum desiredLocation, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
+            if (action != null) {
+                if ((location & ModuleAction.ActionLocationEnum.Explicit) != 0) // grid links are always explicit calls
+                    Add(action);
+                else if ((desiredLocation & location) != 0)
+                    Add(action);
+            }
+        }
 
         public ModuleAction.RenderModeEnum RenderMode { get; set; }
 #if MVC6
