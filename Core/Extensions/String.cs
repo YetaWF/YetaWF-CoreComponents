@@ -52,5 +52,11 @@ namespace YetaWF.Core.Extensions {
         public static bool IsAbsoluteUrl(this string text) {
             return text.StartsWith("http://") || text.StartsWith("https://") || text.StartsWith("//");
         }
+        public static string AddQSSeparator(this string text) {
+            if (string.IsNullOrWhiteSpace(text))
+                return "?";
+            else
+                return text + "&";
+        }
     }
 }

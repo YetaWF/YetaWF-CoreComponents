@@ -263,53 +263,60 @@ namespace YetaWF.Core.Controllers {
             // rewrite it to make it a proper querystring
             {
                 string url = uri.LocalPath;
-                string newUrl;
+                string newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl);
+                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
-                        Logging.AddLog("Server.TransferRequest - {0}", newUrl);
+                        Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
-                        //TODO: Redirect is not really correct here
-                        return new RedirectResult(newUrl);
+                        HttpContext.Request.Path = newUrl;
+                        HttpContext.Request.QueryString = new QueryString(newQs);
+                        uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                        Server.TransferRequest(newUrl);
+                        Server.TransferRequest(newUrl + newQs);
                         return new EmptyResult();
 #endif
                     }
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl);
+                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
-                        Logging.AddLog("Server.TransferRequest - {0}", newUrl);
+                        Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
-                        return new RedirectResult(newUrl);
+                        HttpContext.Request.Path = newUrl;
+                        HttpContext.Request.QueryString = new QueryString(newQs);
+                        uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                        Server.TransferRequest(newUrl);
+                        Server.TransferRequest(newUrl + newQs);
                         return new EmptyResult();
 #endif
                     }
                 } else {
-                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, uri.Query, out newUrl);
+                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, uri.Query, out newUrl, out newQs);
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (newUrl != url) {
-                            Logging.AddLog("Server.TransferRequest - {0}", newUrl);
+                            Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
-                            return new RedirectResult(newUrl);
+                            HttpContext.Request.Path = newUrl;
+                            HttpContext.Request.QueryString = new QueryString(newQs);
+                            uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                            Server.TransferRequest(newUrl);
+                            Server.TransferRequest(newUrl + newQs);
                             return new EmptyResult();
 #endif
                         }
                     } else {
                         // we have a direct url, make sure it's exactly 3 segments otherwise rewrite the remaining args as non-human readable qs args
                         // don't rewrite css/scss/less file path - we handle that in a http handler
-                        PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 4, uri.Query, out newUrl);
+                        PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 4, uri.Query, out newUrl, out newQs);
                         if (newUrl != url) {
-                            Logging.AddLog("Server.TransferRequest - {0}", newUrl);
+                            Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
-                            return new RedirectResult(newUrl);
+                            HttpContext.Request.Path = newUrl;
+                            HttpContext.Request.QueryString = new QueryString(newQs);
+                            uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                            Server.TransferRequest(newUrl);
+                            Server.TransferRequest(newUrl + newQs);
                             return new EmptyResult();
 #endif
                         }
@@ -386,13 +393,11 @@ namespace YetaWF.Core.Controllers {
                 if (page != null) {
                     Manager.CurrentPage = page;// Found It!!
                     if (Manager.IsHeadRequest) {
-
 #if MVC6
                         return new NotFoundObjectResult(path);
 #else
                         throw new HttpException(404, "404 Not Found");
 #endif
-
                     }
 #if MVC6
                     Logging.AddErrorLog("404 Not Found");

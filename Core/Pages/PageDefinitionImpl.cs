@@ -343,7 +343,8 @@ namespace YetaWF.Core.Pages {
             int index = url.IndexOf("?");
             if (index >= 0) url = url.Truncate(index);
             string newUrl = YetaWFManager.UrlDecodePath(url);
-            return GetPageUrlFromUrlWithSegments(newUrl, "", out newUrl);
+            string newQs;
+            return GetPageUrlFromUrlWithSegments(newUrl, "", out newUrl, out newQs);
         }
 
         // We'll accept any URL that looks like this:
@@ -351,9 +352,10 @@ namespace YetaWF.Core.Pages {
         // as there could be keywords which need to xlated to &segment=segment?...
         // we'll check if there is a page by checking the longest sequence of
         // segments, removing a pair at a time, until we find a page
-        public static PageDefinition GetPageUrlFromUrlWithSegments(string url, string qs, out string newUrl) {
+        public static PageDefinition GetPageUrlFromUrlWithSegments(string url, string qs, out string newUrl, out string newQs) {
             if (!url.StartsWith("/")) throw new InternalError("Not a local Url");
             newUrl = url;
+            newQs = qs;
             PageDefinition page = null;
             for ( ; ; ) {
                 page = PageDefinition.LoadPageDefinitionByUrl(newUrl);
@@ -369,21 +371,18 @@ namespace YetaWF.Core.Pages {
                 string key = segs[seglen - 2];
 
                 newUrl = "/" + string.Join("/", segs, 0, seglen - 2);
-                qs += string.Format("&{0}={1}", key, val);
-            }
-            if (page != null && newUrl != url) {
-                if (!string.IsNullOrWhiteSpace(qs) && qs.Length > 1)
-                    newUrl = newUrl + "?" + qs.Substring(1);
+                newQs = newQs.AddQSSeparator();
+                newQs += string.Format("{0}={1}", key, val);
             }
             return page;
         }
 
-        public static void GetUrlFromUrlWithSegments(string url, string[] segments, int urlSegments, string origQuery, out string newUrl) {
+        public static void GetUrlFromUrlWithSegments(string url, string[] segments, int urlSegments, string origQuery, out string newUrl, out string newQs) {
             newUrl = url;
+            newQs = origQuery;
             if (segments.Length > urlSegments) { // we have additional human readable args
                 string[] args = (from s in segments select s.TrimEnd(new char[] { '/' })).ToArray();
                 url = "";
-                string qs = "";
                 for (int i = 0 ; i < urlSegments ; ++i) {
                     url += args[i];
                     if (i < urlSegments - 1)
@@ -391,12 +390,10 @@ namespace YetaWF.Core.Pages {
                 }
                 if (((args.Length - urlSegments) % 2) == 0) { // we need key/value pairs
                     for (int i = urlSegments ; i < args.Length ; i += 2) {
-                        qs += string.Format("&{0}={1}", args[i], args[i + 1]);
+                        newQs = newQs.AddQSSeparator();
+                        newQs += string.Format("{0}={1}", args[i], args[i + 1]);
                     }
-                    if (string.IsNullOrWhiteSpace(origQuery))
-                        newUrl = url + "?" + qs.Substring(1);
-                    else
-                        newUrl = url + origQuery + qs;
+                    newUrl = url;
                     return;
                 }
             }
