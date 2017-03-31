@@ -230,7 +230,7 @@ namespace YetaWF.Core.Skins {
 
             div.SetInnerHtml(inner);
             if (anchor != null)
-                return new HtmlString(anchor.ToString() + div.ToString(TagRenderMode.Normal));
+                return new HtmlString(anchor.ToString(TagRenderMode.Normal) + div.ToString(TagRenderMode.Normal));
             else
                 return div.ToHtmlString(TagRenderMode.Normal);
         }
