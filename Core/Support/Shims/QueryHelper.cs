@@ -28,6 +28,7 @@ namespace YetaWF.Core.Support {
             public string Value { get; set; }
         }
         public List<Entry> Entries { get; private set; }
+        public string Anchor { get; set; }
 
         public QueryHelper() {
             Entries = new List<Entry>();
@@ -54,7 +55,13 @@ namespace YetaWF.Core.Support {
 
         public static QueryHelper FromUrl(string url, out string urlOnly) {
             QueryHelper query;
-            int index = url.IndexOf('?');
+            string anchor = null;
+            int index = url.IndexOf('#'); // strip off anchor
+            if (index >= 0 && index <= url.Length - 1) {
+                anchor = url.Substring(index + 1);
+                url = url.Substring(0, index);
+            }
+            index = url.IndexOf('?');
             if (index >= 0 && index <= url.Length - 1) {
                 query = QueryHelper.FromQueryString(url.Substring(index + 1));
                 urlOnly = url.Substring(0, index);
@@ -62,6 +69,7 @@ namespace YetaWF.Core.Support {
                 query = new QueryHelper();
                 urlOnly = url;
             }
+            query.Anchor = anchor;
             return query;
         }
         public static QueryHelper FromNameValueCollection(NameValueCollection query) {
@@ -134,7 +142,10 @@ namespace YetaWF.Core.Support {
             return sb.ToString();
         }
         public string ToUrl(string url) {
-            return ToUrl(url, ToQueryString());
+            string completeUrl = ToUrl(url, ToQueryString());
+            if (Anchor != null)
+                completeUrl += "#" + Anchor;
+            return completeUrl;
         }
         public static string ToUrl(string url, string queryString) {
             if (string.IsNullOrWhiteSpace(queryString)) return url;
@@ -151,6 +162,8 @@ namespace YetaWF.Core.Support {
                     url += string.Format("{0}/{1}", YetaWFManager.UrlEncodeSegment(entry.Key), YetaWFManager.UrlEncodeSegment(entry.Value));
                 }
             }
+            if (Anchor != null)
+                url = "#" + Anchor;
             return url;
         }
     }
