@@ -783,8 +783,11 @@ namespace YetaWF.Core.Support {
                 originList.RemoveAt(originList.Count - 1); // remove last entry
                 string url = entry.Url;
                 if (originList.Count > 0) {
-                    url += url.Contains("?") ? "&" : "?";
-                    url += Globals.Link_OriginList + "=" + YetaWFManager.UrlEncodeArgs(Jser.Serialize(originList));
+                    string urlOnly;
+                    QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
+                    qh.Remove(Globals.Link_OriginList);
+                    qh.Add(Globals.Link_OriginList, Jser.Serialize(originList));
+                    url = qh.ToUrl(urlOnly);
                 }
                 return url;
             }
