@@ -171,6 +171,7 @@
     <Compile Include="ViewsCode\Support\RecaptchaV2Helper.cs" />
     <Compile Include="ViewsCode\Support\ReferencedModules.cs" />
     <Compile Include="ViewsCode\Support\ScrollerHelper.cs" />
+    <Compile Include="ViewsCode\Support\SiteIdHelper.cs" />
     <Compile Include="ViewsCode\Support\StringHelper.cs" />
     <Compile Include="ViewsCode\Support\StringTTHelper.cs" />
     <Compile Include="ViewsCode\Support\SyntaxHighlighterSkinsHelper.cs" />
@@ -627,6 +628,7 @@
     <Content Include="Views\Shared\EditorTemplates\PageSelection.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\RecaptchaV2.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\FormButton.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\SiteId.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
