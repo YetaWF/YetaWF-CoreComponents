@@ -1320,6 +1320,11 @@ namespace YetaWF.Core.Support {
             CharHeight = height;
             PushCharSize();
         }
+        /// <summary>
+        /// Contains the last date/time updated while rendering a page.
+        /// </summary>
+        public DateTime LastUpdated { get { return _lastUpdated; } set { if (value > LastUpdated) _lastUpdated = value; } }
+        private DateTime _lastUpdated;
 
         public bool RenderingUniqueModuleAddons { get; set; }
         public bool RenderingUniqueModuleAddonsAjax { get; set; }

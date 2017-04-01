@@ -428,8 +428,12 @@ namespace YetaWF.Core.Controllers {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
                 }
-                pageData = Manager.StaticPageManager.GetPage(localUrl);
-                return !string.IsNullOrWhiteSpace(pageData);
+                DateTime lastUpdate;
+                pageData = Manager.StaticPageManager.GetPage(localUrl, out lastUpdate);
+                if (!string.IsNullOrWhiteSpace(pageData)) {
+                    Manager.CurrentResponse.Headers.Add("Last-Modified", string.Format("{0:R}", lastUpdate));
+                    return true;
+                }
             }
             return false;
         }
@@ -688,6 +692,7 @@ namespace YetaWF.Core.Controllers {
             int charWidth, charHeight;
             skinAccess.GetPageCharacterSizes(out charWidth, out charHeight);
             Manager.NewCharSize(charWidth, charHeight);
+            Manager.LastUpdated = Manager.CurrentPage.Updated;
             Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", charWidth);
             Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", charHeight);
 
@@ -720,7 +725,8 @@ namespace YetaWF.Core.Controllers {
                 pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
 
             if (staticPage)
-                Manager.StaticPageManager.AddPage(Manager.CurrentPage.Url, Manager.CurrentPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml);
+                Manager.StaticPageManager.AddPage(Manager.CurrentPage.Url, Manager.CurrentPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
+            context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
 #if MVC6
             byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);

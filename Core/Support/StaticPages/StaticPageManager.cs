@@ -33,6 +33,7 @@ namespace YetaWF.Core.Support.StaticPages {
         public class PageEntry {
             public string LocalUrl { get; set; }
             public PageEntryEnum StorageType { get; set; }
+            public DateTime LastUpdate { get; set; }
             public string Content { get; set; }
             public string ContentPopup { get; set; }
             public string ContentHttps { get; set; }
@@ -80,7 +81,7 @@ namespace YetaWF.Core.Support.StaticPages {
             return Manager.CurrentRequest.Url.Scheme;
 #endif
         }
-        public void AddPage(string localUrl, bool cache, string pageHtml) {
+        public void AddPage(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
             InitSite();
             string localUrlLower = localUrl.ToLower();
             string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
@@ -105,6 +106,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
                     entry = new StaticPages.StaticPageManager.PageEntry {
                         LocalUrl = localUrl,
+                        LastUpdate = lastUpdated,
                     };
                     Site.StaticPages.Add(localUrlLower, entry);
                 }
@@ -152,11 +154,13 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
         }
-        public string GetPage(string localUrl) {
+        public string GetPage(string localUrl, out DateTime lastUpdate) {
             InitSite();
+            lastUpdate = DateTime.MinValue;
             string localUrlLower = localUrl.ToLower();
             PageEntry entry = null;
             if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                lastUpdate = entry.LastUpdate;
                 if (entry.StorageType == PageEntryEnum.Memory) {
                     if (GetScheme() == "https") {
                         if (Manager.IsInPopup) {

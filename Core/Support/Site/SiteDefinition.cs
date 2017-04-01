@@ -13,6 +13,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 using YetaWF.Core.SendEmail;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
@@ -95,6 +96,9 @@ namespace YetaWF.Core.Site {
             UnsupportedBrowserUrl = "/Maintenance/Unsupported Browser.html";
             LoginUrl = "/";
             ExternalAccountSetupUrl = "/";
+
+            SiteMapPriority = PageDefinition.SiteMapPrioritySiteEnum.Medium;
+            DefaultChangeFrequency = PageDefinition.ChangeFrequencySiteEnum.Weekly;
 
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
 
@@ -609,6 +613,15 @@ namespace YetaWF.Core.Site {
         [Category("Meta"), Caption("Page Meta Tags"), Description("Defines <meta> tags that are added to all pages by default but can be overridden by each page if the page defines meta tags using the PageMetaTags property")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxMeta), Trim]
         public string PageMetaTags { get; set; }
+
+        [Category("Meta"), Caption("SiteMap Default Priority"), Description("Defines the default page priority used for the site map - Each page can override the default value using its SiteMap Priority property")]
+        [UIHint("Enum")]
+        [Data_NewValue("(0)")]
+        public PageDefinition.SiteMapPrioritySiteEnum SiteMapPriority { get; set; }
+        [Category("Meta"), Caption("SiteMap Change Frequency Default"), Description("Defines the default page change frequency - Each page can override the default value using its Change Frequency property")]
+        [UIHint("Enum")]
+        [Data_NewValue("(0)")]
+        public PageDefinition.ChangeFrequencySiteEnum DefaultChangeFrequency { get; set; }
 
         // MODULE CONTROL & EDITING
         // MODULE CONTROL & EDITING

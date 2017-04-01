@@ -43,6 +43,82 @@ namespace YetaWF.Core.Pages {
             [EnumDescription("Yes, In Memory", "The page is a static page (internally saved in memory)")]
             YesMemory = 2,
         }
+        public enum ChangeFrequencyEnum {
+            [EnumDescription("(Site Default)", "Use the site defined default Change Frequency")]
+            Default = 0,
+            [EnumDescription("Always", "The page may change each time it is accessed")]
+            Always = 1,
+            [EnumDescription("Hourly", "The page may change hourly")]
+            Hourly = 2,
+            [EnumDescription("Daily", "The page may change daily")]
+            Daily = 3,
+            [EnumDescription("Weekly", "The page may change weekly")]
+            Weekly = 4,
+            [EnumDescription("Monthly", "The page may change monthly")]
+            Monthly = 5,
+            [EnumDescription("Yearly", "The page may change yearly")]
+            Yearly = 6,
+            [EnumDescription("Never", "The page never changes - use for archived pages")]
+            Never = 7,
+        }
+        public enum ChangeFrequencySiteEnum {
+            [EnumDescription("Always", "Pages may change each time they are accessed")]
+            Always = 1,
+            [EnumDescription("Hourly", "Pages may change hourly")]
+            Hourly = 2,
+            [EnumDescription("Daily", "Pages may change daily")]
+            Daily = 3,
+            [EnumDescription("Weekly", "Pages may change weekly")]
+            Weekly = 4,
+            [EnumDescription("Monthly", "Pages may change monthly")]
+            Monthly = 5,
+            [EnumDescription("Yearly", "Pages may change yearly")]
+            Yearly = 6,
+            [EnumDescription("Never", "Pages never change - use for archived pages")]
+            Never = 7,
+        }
+        public enum SiteMapPriorityEnum {
+            [EnumDescription("(Site Default)", "Use the site defined default page priority")]
+            Default = 0,
+            [EnumDescription("(Exclude From Site Map)", "The page is never added to the site map")]
+            Excluded = -1,
+            [EnumDescription("None")]
+            None = 10,
+            [EnumDescription("Really Low")]
+            SuperLow = 20,
+            [EnumDescription("Low")]
+            Low = 30,
+            [EnumDescription("Below Medium")]
+            BelowMedium = 40,
+            [EnumDescription("Medium")]
+            Medium = 50,
+            [EnumDescription("Above Medium")]
+            AboveMedium = 70,
+            [EnumDescription("High")]
+            High = 90,
+            [EnumDescription("Highest")]
+            Top = 100,
+        }
+        public enum SiteMapPrioritySiteEnum {
+            [EnumDescription("(Exclude From Site Map)", "Pages are never added to the site map")]
+            Excluded = -1,
+            [EnumDescription("None")]
+            None = 10,
+            [EnumDescription("Really Low")]
+            SuperLow = 20,
+            [EnumDescription("Low")]
+            Low = 30,
+            [EnumDescription("Below Medium")]
+            BelowMedium = 40,
+            [EnumDescription("Medium")]
+            Medium = 50,
+            [EnumDescription("Above Medium")]
+            AboveMedium = 70,
+            [EnumDescription("High")]
+            High = 90,
+            [EnumDescription("Highest")]
+            Top = 100,
+        }
 
         public PageDefinition() {
             Temporary = true;
@@ -70,6 +146,8 @@ namespace YetaWF.Core.Pages {
             Created = Updated = DateTime.UtcNow;
             WantSearch = true;
             FavIcon_Data = new byte[0];
+            ChangeFrequency = ChangeFrequencyEnum.Default;
+            SiteMapPriority = SiteMapPriorityEnum.Medium;
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
         }
 
@@ -200,6 +278,11 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(SiteDefinition.MaxMeta)]
         public string PageMetaTags { get; set; }
+
+        [Data_NewValue("(0)")]
+        public ChangeFrequencyEnum ChangeFrequency { get; set; }
+        [Data_NewValue("(0)")]
+        public SiteMapPriorityEnum SiteMapPriority { get; set; }
 
         [Data_Binary]
         public SerializableList<AllowedRole> AllowedRoles { get; set; }

@@ -9,8 +9,18 @@ using YetaWF.Core.Packages;
 namespace YetaWF.Core.Pages {
 
     public interface ISearchDynamicUrls {
-        // this is used by Search to extract keywords from dynamically generated pages
+        /// <summary>
+        /// Used by Search to extract keywords from dynamically generated pages.
+        /// </summary>
+        /// <param name="addTermsForPage"></param>
         void KeywordsForDynamicUrls(Action<YetaWF.Core.Models.MultiString, PageDefinition, string, string, DateTime, DateTime?> addTermsForPage);
+    }
+    public interface ISiteMapDynamicUrls {
+        /// <summary>
+        ///  Used to discover dynamic Urls to build a site map.
+        /// </summary>
+        void FindDynamicUrls(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum> addDynamicUrl,
+                Func<PageDefinition, bool> validForSiteMap);
     }
 
     public class DynamicUrlsImpl {
@@ -34,7 +44,7 @@ namespace YetaWF.Core.Pages {
         private bool IsDynamicUrlType(Type type) {
             if (!TypeIsPublicClass(type))
                 return false;
-            return typeof(ISearchDynamicUrls).IsAssignableFrom(type);
+            return typeof(ISearchDynamicUrls).IsAssignableFrom(type) || typeof(ISiteMapDynamicUrls).IsAssignableFrom(type);
         }
         private bool TypeIsPublicClass(Type type) {
             return (type != null && type.IsPublic && type.IsClass && !type.IsAbstract && !type.IsGenericType);

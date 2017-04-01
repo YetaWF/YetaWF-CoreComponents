@@ -655,6 +655,8 @@ namespace YetaWF.Core.Modules {
                 }
             }
 
+            Manager.LastUpdated = this.DateUpdated;
+
             //DEBUG:  containerHtml has entire module
 
             Manager.PopCharSize();
