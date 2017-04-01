@@ -24,6 +24,16 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="Trace" />
+                            <Value Value="Trace" />
+                            <Caption Value="Trace" />
+                            <Description Value="Tracing/Debug Information" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="Info" />
                             <Value Value="Info" />
                             <Caption Value="Info" />

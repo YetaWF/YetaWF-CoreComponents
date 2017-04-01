@@ -363,6 +363,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="DefaultChangeFrequency" />
+                            <Caption Value="SiteMap Change Frequency Default" />
+                            <Description Value="Defines the default page change frequency - Each page can override the default value using its Change Frequency property" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="DefaultLanguageId" />
                             <Caption Value="Default Language" />
                             <Description Value="The site's default language" />
@@ -750,6 +762,18 @@
                             <Name Value="SiteDomain" />
                             <Caption Value="Site Domain" />
                             <Description Value="The domain name of your site (e.g., yourcompany.com, yetawf.com)" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="SiteMapPriority" />
+                            <Caption Value="SiteMap Default Priority" />
+                            <Description Value="Defines the default page priority used for the site map - Each page can override the default value using its SiteMap Priority property" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

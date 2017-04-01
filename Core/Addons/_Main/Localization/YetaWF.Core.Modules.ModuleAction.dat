@@ -30,7 +30,7 @@
                           <Properties>
                             <Name Value="AddToOriginList" />
                             <Caption Value="Add to Origin List" />
-                            <Description Value="Defines whether the current Url will be added to the origin list so we can return to the current Url - This is used in conjunction with the Save Return Url property" />
+                            <Description Value="Defines whether the current Url will be added to the origin list so we can return to the current Url - This is used in conjunction with the Save Return Url property - If the Save Return Url property is false, the AddToOriginList property is ignored" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

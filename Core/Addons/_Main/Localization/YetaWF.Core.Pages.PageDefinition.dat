@@ -60,6 +60,184 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
               <Properties>
+                <Name Value="YetaWF.Core.Pages.PageDefinition+ChangeFrequencyEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Default" />
+                            <Value Value="Default" />
+                            <Caption Value="(Site Default)" />
+                            <Description Value="Use the site defined default Change Frequency" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Always" />
+                            <Value Value="Always" />
+                            <Caption Value="Always" />
+                            <Description Value="The page may change each time it is accessed" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Hourly" />
+                            <Value Value="Hourly" />
+                            <Caption Value="Hourly" />
+                            <Description Value="The page may change hourly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Daily" />
+                            <Value Value="Daily" />
+                            <Caption Value="Daily" />
+                            <Description Value="The page may change daily" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Weekly" />
+                            <Value Value="Weekly" />
+                            <Caption Value="Weekly" />
+                            <Description Value="The page may change weekly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Monthly" />
+                            <Value Value="Monthly" />
+                            <Caption Value="Monthly" />
+                            <Description Value="The page may change monthly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Yearly" />
+                            <Value Value="Yearly" />
+                            <Caption Value="Yearly" />
+                            <Description Value="The page may change yearly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Never" />
+                            <Value Value="Never" />
+                            <Caption Value="Never" />
+                            <Description Value="The page never changes - use for archived pages" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="YetaWF.Core.Pages.PageDefinition+ChangeFrequencySiteEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Always" />
+                            <Value Value="Always" />
+                            <Caption Value="Always" />
+                            <Description Value="Pages may change each time they are accessed" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Hourly" />
+                            <Value Value="Hourly" />
+                            <Caption Value="Hourly" />
+                            <Description Value="Pages may change hourly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Daily" />
+                            <Value Value="Daily" />
+                            <Caption Value="Daily" />
+                            <Description Value="Pages may change daily" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Weekly" />
+                            <Value Value="Weekly" />
+                            <Caption Value="Weekly" />
+                            <Description Value="Pages may change weekly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Monthly" />
+                            <Value Value="Monthly" />
+                            <Caption Value="Monthly" />
+                            <Description Value="Pages may change monthly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Yearly" />
+                            <Value Value="Yearly" />
+                            <Caption Value="Yearly" />
+                            <Description Value="Pages may change yearly" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Never" />
+                            <Value Value="Never" />
+                            <Caption Value="Never" />
+                            <Description Value="Pages never change - use for archived pages" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+PageSecurityType" />
                 <Entries>
                   <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
@@ -91,6 +269,224 @@
                             <Name Value="httpOnly" />
                             <Value Value="httpOnly" />
                             <Caption Value="Show With http:// Only" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="YetaWF.Core.Pages.PageDefinition+SiteMapPriorityEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Default" />
+                            <Value Value="Default" />
+                            <Caption Value="(Site Default)" />
+                            <Description Value="Use the site defined default page priority" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Excluded" />
+                            <Value Value="Excluded" />
+                            <Caption Value="(Exclude From Site Map)" />
+                            <Description Value="The page is never added to the site map" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="None" />
+                            <Value Value="None" />
+                            <Caption Value="None" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="SuperLow" />
+                            <Value Value="SuperLow" />
+                            <Caption Value="Really Low" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Low" />
+                            <Value Value="Low" />
+                            <Caption Value="Low" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="BelowMedium" />
+                            <Value Value="BelowMedium" />
+                            <Caption Value="Below Medium" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Medium" />
+                            <Value Value="Medium" />
+                            <Caption Value="Medium" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="AboveMedium" />
+                            <Value Value="AboveMedium" />
+                            <Caption Value="Above Medium" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="High" />
+                            <Value Value="High" />
+                            <Caption Value="High" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Top" />
+                            <Value Value="Top" />
+                            <Caption Value="Highest" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="YetaWF.Core.Pages.PageDefinition+SiteMapPrioritySiteEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Excluded" />
+                            <Value Value="Excluded" />
+                            <Caption Value="(Exclude From Site Map)" />
+                            <Description Value="Pages are never added to the site map" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="None" />
+                            <Value Value="None" />
+                            <Caption Value="None" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="SuperLow" />
+                            <Value Value="SuperLow" />
+                            <Caption Value="Really Low" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Low" />
+                            <Value Value="Low" />
+                            <Caption Value="Low" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="BelowMedium" />
+                            <Value Value="BelowMedium" />
+                            <Caption Value="Below Medium" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Medium" />
+                            <Value Value="Medium" />
+                            <Caption Value="Medium" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="AboveMedium" />
+                            <Value Value="AboveMedium" />
+                            <Caption Value="Above Medium" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="High" />
+                            <Value Value="High" />
+                            <Caption Value="High" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="Top" />
+                            <Value Value="Top" />
+                            <Caption Value="Highest" />
                             <Description />
                           </Properties>
                         </Object>
