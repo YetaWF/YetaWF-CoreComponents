@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6</DefineConstants>
     <AssemblyName>YetaWF.Core.ImageHttpHandler</AssemblyName>
     <PackageId>ImageHttpHandler</PackageId>
@@ -20,7 +20,7 @@
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

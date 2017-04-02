@@ -146,20 +146,20 @@ namespace YetaWF.Core.Packages {
                     // find out if this is a source system or bin system (determined by location of YetaWF.Core.dll)
                     if (File.Exists(Path.Combine(YetaWFManager.RootFolderWebProject, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
                         // Published (w/o source by definition)
-                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net462");
+                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net46");
                         CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject));
                         CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject, "refs"));
                     } else {
                         // Dev (with or without source code)
                         bool copied = false;
                         string binPath;
-                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", "net462", "win7-x64");
-                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net462");
+                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", "net46", "win7-x64");
+                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net46");
                         if (Directory.Exists(binPath)) {
                             CopyVersionedFiles(sourceBin, binPath);
                             copied = true;
                         }
-                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Release", "net462", "win7-x64");
+                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Release", "net46", "win7-x64");
                         if (Directory.Exists(binPath)) {
                             CopyVersionedFiles(sourceBin, binPath);
                             copied = true;
