@@ -688,6 +688,28 @@ $(document).ready(function () {
         var $t = $(this);
 
         var uri = $t.uri();
+
+        // send tracking info
+        if ($t.hasClass('yTrack')) {
+
+            // find the unique skinvisitor module so we have antiforgery tokens and other context info
+            var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
+            if ($f.length == 1) {
+                var data = { 'url': $t[0].href };
+                var info = YetaWF_Forms.getFormInfo($f);
+                data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
+                data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
+                data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
+                var url = $f.attr('data-track');
+                if (url == undefined) throw "data-track not defined";/*DEBUG*/
+                $.ajax({
+                    'url': url,
+                    'type': 'post',
+                    'data': data,
+                });
+            }
+        }
+
         // add our module context info (if requested)
         if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
             if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {

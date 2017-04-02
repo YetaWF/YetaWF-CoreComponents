@@ -15,6 +15,7 @@ namespace YetaWF.Core.Addons {
         public const string CssPopupLink = "ypopup-link";// every popup link has this class
         public const string CssTooltip = "data-tooltip";// a tooltip in a specific location (with other classes or container)
         public const string CssTooltipSpan = "data-tooltipspan";// a tooltip in a <span>
+        public const string CssActionTrack = "yTrack";// added to <a> tag tracks clicks in Visitors log (use with static files)
         public const string CssLegend = "data-legend";
         public const string CssConfirm = "data-confirm";
         public const string CssPleaseWait = "data-pleasewait";
