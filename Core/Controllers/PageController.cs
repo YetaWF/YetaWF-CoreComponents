@@ -724,9 +724,12 @@ namespace YetaWF.Core.Controllers {
             if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
                 pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
 
-            if (staticPage)
+            if (staticPage) {
                 Manager.StaticPageManager.AddPage(Manager.CurrentPage.Url, Manager.CurrentPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
-            context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
+                // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
+                // so is only helpful for static pages and can't be used for dynamic pages
+                context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
+            }
 #if MVC6
             byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
