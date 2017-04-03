@@ -62,6 +62,14 @@ namespace YetaWF.Core.Models {
         }
         private static List<LanguageData> _languages;
 
+        /// <summary>
+        /// Given a language id (which may be invalid or deleted), return a valid language id.
+        /// </summary>
+        public static string NormalizeLanguageId(string id) {
+            if (LanguageIdList.Contains(id)) return id;
+            return MultiString.DefaultLanguage;
+        }
+
         // returns the language Ids, used by javascript to set text box values in a multistring
         public static List<string> LanguageIdList {
             get {
