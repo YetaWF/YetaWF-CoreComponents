@@ -232,6 +232,16 @@ namespace YetaWF.Core.Support {
                     return "(unknown)";
             }
         }
+        public static string GetAspNetCss(AspNetMvcVersion version) {
+            switch (version) {
+                case AspNetMvcVersion.MVC5:
+                    return "yASPNET4 yMVC5";
+                case AspNetMvcVersion.MVC6:
+                    return "yASPNETCore yMVC12";
+                default:
+                    return null;
+            }
+        }
 
         public static void SetRequestedDomain(string siteDomain) {
 #if MVC6
@@ -1473,6 +1483,7 @@ namespace YetaWF.Core.Support {
             string s = CombineCss(css, ModeCss);
             s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");
             s = CombineCss(s, IsInPopup ? "yPopup" : "yPage");
+            s = CombineCss(s, GetAspNetCss(AspNetMvc));
             // add a class whether page can be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
             if (showOwnership) {
@@ -1502,11 +1513,11 @@ namespace YetaWF.Core.Support {
         public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider
         public string UserLanguage { get; private set; }
         public string GetUserLanguage() {
-            UserLanguage = UserSettings.GetProperty<string>("LanguageId");
-            return UserLanguage;
+            string userLang = UserSettings.GetProperty<string>("LanguageId");
+            return MultiString.NormalizeLanguageId(userLang);
         }
         public void SetUserLanguage(string language) {
-            UserLanguage = language;
+            language = MultiString.NormalizeLanguageId(language);
             UserSettings.SetProperty<string>("LanguageId", language);
         }
         public bool HaveUser { get { return UserId != 0; } }
