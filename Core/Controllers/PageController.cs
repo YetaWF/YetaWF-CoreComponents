@@ -729,6 +729,10 @@ namespace YetaWF.Core.Controllers {
                 // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
                 // so is only helpful for static pages and can't be used for dynamic pages
                 context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
+            } else if (Manager.HaveUser && Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
+                // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any perviously
+                // served page to the then anonymous user before he/she logged on.
+                context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
             }
 #if MVC6
             byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
