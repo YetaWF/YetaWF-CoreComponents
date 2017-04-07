@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using YetaWF.Core.Packages;
+using YetaWF.Core.Search;
 
 namespace YetaWF.Core.Pages {
 
@@ -13,7 +14,7 @@ namespace YetaWF.Core.Pages {
         /// Used by Search to extract keywords from dynamically generated pages.
         /// </summary>
         /// <param name="addTermsForPage"></param>
-        void KeywordsForDynamicUrls(Action<YetaWF.Core.Models.MultiString, PageDefinition, string, string, DateTime, DateTime?> addTermsForPage);
+        void KeywordsForDynamicUrls(ISearchWords searchWords);
     }
     public interface ISiteMapDynamicUrls {
         /// <summary>

@@ -5,21 +5,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
-using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Models {
 
@@ -918,24 +917,6 @@ namespace YetaWF.Core.Models {
                             object o = propData.PropInfo.GetValue(originalObject, null);
                             propData.PropInfo.SetValue(toObject, o, null);
                         } catch (Exception) { }
-                    }
-                }
-            }
-        }
-        /// <summary>
-        /// Add all string properties of the object (used by dynamic url search to add all string properties as search terms)
-        /// </summary>
-        public static void AddStringProperties(object originalObject, Action<YetaWF.Core.Models.MultiString, PageDefinition, string, string, DateTime, DateTime?> addTermsForPage,
-                PageDefinition page, string url, string title, DateTime dateCreated, DateTime? dateUpdated) {
-            Type tp = originalObject.GetType();
-            foreach (var propData in GetPropertyData(tp)) {
-                if (propData.PropInfo.CanRead && propData.PropInfo.CanWrite) {
-                    if (propData.PropInfo.PropertyType == typeof(string)) {
-                        string s = (string) propData.PropInfo.GetValue(originalObject, null);
-                        addTermsForPage(s, page, url, title, dateCreated, dateUpdated);
-                    } else if (propData.PropInfo.PropertyType == typeof(MultiString)) {
-                        MultiString ms = (MultiString) propData.PropInfo.GetValue(originalObject, null);
-                        addTermsForPage(ms, page, url, title, dateCreated, dateUpdated);
                     }
                 }
             }

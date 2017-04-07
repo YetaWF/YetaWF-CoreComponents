@@ -15,7 +15,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Controllers.Shared;
+using YetaWF.Core.Search;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -998,7 +998,7 @@ namespace YetaWF.Core.Modules {
         // SEARCH
         // SEARCH
 
-        public virtual void CustomSearch(PageDefinition page, Action<MultiString> addTerms) { }
+        public virtual void CustomSearch(ISearchWords searchWords) { }
 
         // VALIDATION
         // VALIDATION
