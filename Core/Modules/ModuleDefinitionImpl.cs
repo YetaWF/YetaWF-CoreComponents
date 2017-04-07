@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using YetaWF.Core.Controllers.Shared;
 #else
 using System.Web;
 using System.Web.Mvc;
