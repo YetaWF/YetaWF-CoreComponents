@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -33,9 +31,6 @@ using Microsoft.Extensions.Caching.Memory;
 #else
 using System.Web;
 using System.Web.Hosting;
-using System.Web.Mvc;
-using System.Web.Routing;
-using System.Web.SessionState;
 #endif
 
 namespace YetaWF.Core.Support {
@@ -1081,11 +1076,19 @@ namespace YetaWF.Core.Support {
         }
 
         public static void SetStaticCacheInfo(HttpResponse response) {
-            int duration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0, Package: false);
-            if (GetDeployed() && duration > 0)
-                response.Headers.Add("Cache-Control", string.Format("max-age={0}", duration)); 
-            else
-                response.Headers.Add("Cache-Control", "public");
+            int duration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0);// duration in minutes
+            if (GetDeployed() && duration > 0) {
+#if MVC6
+                response.Headers.Add("Cache-Control", string.Format("max-age={0}", duration*60));
+#else
+                response.Cache.SetCacheability(HttpCacheability.Public);
+                response.Cache.SetMaxAge(new TimeSpan(0, duration, 0));
+#endif
+            } else {
+#if MVC6
+#else
+#endif
+            }
         }
 
         public bool HaveCurrentSession {
