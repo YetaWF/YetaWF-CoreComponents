@@ -1080,6 +1080,14 @@ namespace YetaWF.Core.Support {
             }
         }
 
+        public static void SetStaticCacheInfo(HttpResponse response) {
+            int duration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0, Package: false);
+            if (GetDeployed() && duration > 0)
+                response.Headers.Add("Cache-Control", string.Format("max-age={0}", duration)); 
+            else
+                response.Headers.Add("Cache-Control", "public");
+        }
+
         public bool HaveCurrentSession {
             get {
 #if MVC6

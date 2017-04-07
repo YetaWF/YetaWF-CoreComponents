@@ -165,16 +165,9 @@ namespace YetaWF.Core.HttpHandler {
                             throw new InternalError("File type not suitable as image - {0}", filePath);// shouldn't have been uploaded in the first place
                         contentType = me.Type;
                         DateTime lastMod = File.GetLastWriteTimeUtc(filePath);
-#if MVC6
-                        ResponseHeaders rs = context.Response.GetTypedHeaders();
-                        rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
-                            Public = true,
-                        };
-#else
-                        context.Response.Cache.SetCacheability(HttpCacheability.Public);
-#endif
                         context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
+                        YetaWFManager.SetStaticCacheInfo(context.Response);
                         context.Response.ContentType = contentType;
                         if (context.Request.Headers["If-None-Match"] != GetETag(filePath, lastMod)) {
                             context.Response.StatusCode = 200;
@@ -198,14 +191,7 @@ namespace YetaWF.Core.HttpHandler {
                         else if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg) contentType = "image/jpeg";
                         else contentType = "image/jpeg";
 
-#if MVC6
-                        ResponseHeaders rs = context.Response.GetTypedHeaders();
-                        rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
-                            Public = true,
-                        };
-#else
-                        context.Response.Cache.SetCacheability(HttpCacheability.Public);
-#endif
+                        YetaWFManager.SetStaticCacheInfo(context.Response);
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
                         context.Response.ContentType = contentType;

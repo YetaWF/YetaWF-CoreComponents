@@ -95,14 +95,7 @@ namespace YetaWF.Core.HttpHandler {
                 context.Response.StatusDescription = "OK";
 #endif
                 context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
-#if MVC6
-                ResponseHeaders rs = context.Response.GetTypedHeaders();
-                rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
-                    Public = true,
-                };
-#else
-                context.Response.Cache.SetCacheability(HttpCacheability.Public);
-#endif
+                YetaWFManager.SetStaticCacheInfo(context.Response);
                 context.Response.Headers.Add("ETag", GetETag());
 #if MVC6
 #else
@@ -174,16 +167,7 @@ namespace YetaWF.Core.HttpHandler {
             context.Response.StatusDescription = "OK";
 #endif
             context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
-#if MVC6
-            {
-                ResponseHeaders rs = context.Response.GetTypedHeaders();
-                rs.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue {
-                    Public = true,
-                };
-            }
-#else
-            context.Response.Cache.SetCacheability(HttpCacheability.Public);
-#endif
+            YetaWFManager.SetStaticCacheInfo(context.Response);
             context.Response.Headers.Add("ETag", GetETag());
 #if MVC6
             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
