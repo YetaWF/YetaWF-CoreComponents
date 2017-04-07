@@ -114,6 +114,7 @@
     <Compile Include="Pages\RazorPageLifetime.cs" />
     <Compile Include="Pages\ViewServiceRender.cs" />
     <Compile Include="Pages\YetaWFRazorView.cs" />
+    <Compile Include="Search\Search.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
