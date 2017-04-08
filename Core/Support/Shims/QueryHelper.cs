@@ -72,6 +72,10 @@ namespace YetaWF.Core.Support {
             query.Anchor = anchor;
             return query;
         }
+        public static QueryHelper FromUrl(string url) {
+            string urlOnly;
+            return FromUrl(url, out urlOnly);
+        }
         public static QueryHelper FromNameValueCollection(NameValueCollection query) {
             QueryHelper qh = new QueryHelper();
             foreach (string k in query.AllKeys) {
@@ -123,6 +127,10 @@ namespace YetaWF.Core.Support {
                 Remove(key);
                 Add(key, value);
             }
+        }
+        public bool HasEntry(string key) {
+            Entry entry = (from e in Entries where string.Compare(e.Key, key, true) == 0 select e).FirstOrDefault();
+            return entry != null;
         }
         public void Remove(string key) {
             Entries = (from e in Entries where string.Compare(e.Key, key, true) != 0 select e).ToList();
