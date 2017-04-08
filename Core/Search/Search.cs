@@ -19,7 +19,7 @@ namespace YetaWF.Core.Search {
         /// Prepares to add new search terms for the specified Url.
         /// </summary>
         /// <returns>true if the Url is eligible, false otherwise.</returns>
-        bool SetUrl(string url, MultiString title, MultiString summary, DateTime dateCreated, DateTime? dateUpdated, bool allowAnonymous, bool allowUser);
+        bool SetUrl(string url, PageDefinition.PageSecurityType pageSecurity, MultiString title, MultiString summary, DateTime dateCreated, DateTime? dateUpdated, bool allowAnonymous, bool allowUser);
         /// <summary>
         /// Adds the specified data as search terms for the current Url.
         /// </summary>
