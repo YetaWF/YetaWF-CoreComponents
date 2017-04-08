@@ -70,13 +70,12 @@ namespace YetaWF.Core {
         [JS] public const string Link_InPopup = "!InPopup"; // we're in a popup
         [JS] public const string Link_ToEditMode = "!ToEditMode"; // force this mode
         [JS] public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
-        [JS] public const string Link_ShowPageControlKey = "!Pagectl"; // show page control module
-        [JS] public const string Link_ShowPageControlValue = "y";
-        [JS] public const string Link_ShowPageControl = Link_ShowPageControlKey +"="+ Link_ShowPageControlValue; // show page control module
+        [JS] public const string Link_PageControl = "!Pagectl"; // show page control module
+             public const string Link_NoPageControl = "!Nopagectl"; // no page control module
         [JS] public const string Link_CharInfo = "!ci"; // character info (char width, char height) for module issuing req.
         [JS] public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
-        [JS] public const string Link_TempEditMode = "!Edit"; // temp. edit mode
-        [JS] public const string Link_TempNoEditMode = "!Noedit"; // temp. no edit mode
+        [JS] public const string Link_EditMode = "!Edit"; // site edit mode
+        [JS] public const string Link_NoEditMode = "!Noedit"; // site display mode
              public const string Link_ForceSite = "!Domain"; // force a specific site
         [JS] public const string Link_ScrollLeft = "!Left";
         [JS] public const string Link_ScrollTop = "!Top";

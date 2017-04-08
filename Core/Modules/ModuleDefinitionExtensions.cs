@@ -37,7 +37,6 @@ namespace YetaWF.Core.Modules {
         private static HtmlString RenderPageControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #endif
             if (Manager.IsInPopup) return HtmlStringExtender.Empty;
-            if (Manager.IsForcedDisplayMode) return HtmlStringExtender.Empty;
             if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
@@ -87,7 +86,6 @@ namespace YetaWF.Core.Modules {
         private static HtmlString RenderEditControl(this HtmlHelper<object> htmlHelper, Guid moduleGuid) {
 #endif
             if (Manager.IsInPopup) return HtmlStringExtender.Empty;
-            if (Manager.IsForcedDisplayMode) return HtmlStringExtender.Empty;
             //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {

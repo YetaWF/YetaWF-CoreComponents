@@ -1025,6 +1025,7 @@ namespace YetaWF.Core.Controllers {
                 string url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
+                url = AddUrlPayload(url, false);
                 url = YetaWFManager.Jser.Serialize(url);
 
                 if (Manager.IsInPopup) {
@@ -1181,11 +1182,13 @@ namespace YetaWF.Core.Controllers {
         /// <returns>An ActionResult to be returned by the controller.
         ///
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
-        /// This works on cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.</returns>
-        protected ActionResult Redirect(string url, bool ForcePopup = false) {
+        /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.</returns>
+        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false) {
 
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
+
+            url = AddUrlPayload(url, SetCurrentEditMode);
 
             if (Manager.IsAjaxRequest) {
                 // for ajax requests we return javascript to redirect
@@ -1237,6 +1240,43 @@ namespace YetaWF.Core.Controllers {
             } else {
                 return base.Redirect(url);
             }
+        }
+
+        private static string AddUrlPayload(string url, bool SetCurrentEditMode) {
+
+            string urlOnly;
+            QueryHelper qhUrl = QueryHelper.FromUrl(url, out urlOnly);
+            // If we're coming from a referring page with edit/noedit, we need to propagate that to the redirect
+            if (SetCurrentEditMode) { // forced set edit mode
+                qhUrl.Remove(Globals.Link_EditMode);
+                qhUrl.Remove(Globals.Link_NoEditMode);
+                if (Manager.EditMode)
+                    qhUrl.Add(Globals.Link_EditMode, "y");
+            } else if (!qhUrl.HasEntry(Globals.Link_EditMode) && !qhUrl.HasEntry(Globals.Link_NoEditMode)) {
+                // current url has no edit/noedit preference
+                if (Manager.EditMode) {
+                    // in edit mode, force edit again
+                    qhUrl.Add(Globals.Link_EditMode, "y");
+                } else {
+                    // not in edit mode, use referrer mode
+                    string referrer = Manager.ReferrerUrl;
+                    if (!string.IsNullOrWhiteSpace(referrer)) {
+                        string refUrlOnly;
+                        QueryHelper qhRef = QueryHelper.FromUrl(referrer, out refUrlOnly);
+                        if (qhRef.HasEntry(Globals.Link_EditMode)) { // referrer is edit
+                            qhUrl.Remove(Globals.Link_EditMode);
+                            qhUrl.Add(Globals.Link_EditMode, "y");
+                        }
+                    }
+                }
+            }
+            // check whether control panel should be open
+            if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {
+                if (Manager.PageControlShown)
+                    qhUrl.Add(Globals.Link_PageControl, "y");
+            }
+            url = qhUrl.ToUrl(urlOnly);
+            return url;
         }
 
         /// <summary>

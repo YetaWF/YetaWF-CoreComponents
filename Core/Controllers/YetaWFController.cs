@@ -143,9 +143,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.IsInPopup = InPopup();
                 Manager.OriginList = GetOriginList();
                 Manager.PageControlShown = PageControlShown();
-                bool? tempEditMode = GetTempEditMode();
-                if (tempEditMode != null)
-                    Manager.ForcedEditMode = (bool)tempEditMode;
+                Manager.EditMode = GetTempEditMode();
 
                 // determine user identity - authentication provider updates Manager with user information
                 Resource.ResourceAccess.ResolveUser();
@@ -176,9 +174,9 @@ namespace YetaWF.Core.Controllers {
         protected static bool PageControlShown() {
             string pageControlShown = null;
             try {
-                pageControlShown = Manager.RequestForm[Globals.Link_ShowPageControlKey];
+                pageControlShown = Manager.RequestForm[Globals.Link_PageControl];
                 if (pageControlShown == null)
-                    pageControlShown = Manager.RequestQueryString[Globals.Link_ShowPageControlKey];
+                    pageControlShown = Manager.RequestQueryString[Globals.Link_PageControl];
             } catch (Exception) { }
             return pageControlShown != null;
         }
@@ -199,16 +197,13 @@ namespace YetaWF.Core.Controllers {
                 Manager.NewCharSize(width, height);
             }
         }
-        protected static bool? GetTempEditMode() {
+        protected static bool GetTempEditMode() {
             try {
-                string editMode = Manager.RequestQueryString[Globals.Link_TempEditMode];
+                string editMode = Manager.RequestQueryString[Globals.Link_EditMode];
                 if (editMode != null)
                     return true;
-                editMode = Manager.RequestQueryString[Globals.Link_TempNoEditMode];
-                if (editMode != null)
-                    return false;
             } catch (Exception) { }
-            return null;
+            return false;
         }
         protected static List<Origin> GetOriginList() {
 

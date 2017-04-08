@@ -813,19 +813,6 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        /// <summary>
-        /// Normalize a url for the current site
-        /// </summary>
-        /// <param name="url"></param>
-        public string NormalizeUrl(string url) {
-            // add page control module visible
-            QueryHelper query = QueryHelper.FromUrl(url, out url);
-            query.Remove(Globals.Link_ShowPageControlKey);
-            if (Manager.PageControlShown)
-                query[Globals.Link_ShowPageControlKey] = Globals.Link_ShowPageControlValue;
-            return query.ToUrl(url);
-        }
-
         // GetUrlArg and TryGetUrlArg is used to retrieve optional Url args (outside of a Controller) added to a page using AddUrlArg, so one module can add args for other modules on the same page
 
         public TYPE GetUrlArg<TYPE>(string arg) {
@@ -1089,6 +1076,15 @@ namespace YetaWF.Core.Support {
                 return response;
             }
         }
+        public string ReferrerUrl {
+            get {
+#if MVC6
+                return Manager.CurrentRequest.Headers["Referer"].ToString();
+#else
+                return Manager.CurrentRequest.UrlReferrer != null ? Manager.CurrentRequest.UrlReferrer.ToString() : null;
+#endif
+            }
+        }
 
         public static void SetStaticCacheInfo(HttpResponse response) {
             int duration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0);// duration in minutes
@@ -1211,38 +1207,7 @@ namespace YetaWF.Core.Support {
         }
         private SessionSettings _SessionSettings = null;
 
-        public bool EditMode {
-            get {
-                if (_forcedEditMode != null) return (bool)_forcedEditMode;
-                if (_editMode == null)
-                    _editMode = SessionSettings.SiteSettings.GetValue<bool>("EditMode");
-                return (bool)_editMode;
-            }
-            set {
-                if (_editMode != value) {
-                    _editMode = value;
-                    _forcedEditMode = null;
-                    SessionSettings.SiteSettings.SetValue<bool>("EditMode", (bool)_editMode);
-                    SessionSettings.SiteSettings.Save();
-                }
-            }
-        }
-        public bool ForcedEditMode {// forced mode (display, edit or not specified) just for the page about to be displayed
-            get {
-                if (_forcedEditMode == null)
-                    _forcedEditMode = EditMode;
-                return (bool)_forcedEditMode;
-            }
-            set {
-                if (_forcedEditMode != value)
-                    _forcedEditMode = value;
-            }
-        }
-
-        public bool IsForcedDisplayMode { get { return _forcedEditMode == false; } }
-        public bool IsForcedEditMode { get { return _forcedEditMode == true; } }
-        private bool? _editMode = null;
-        private bool? _forcedEditMode = null;
+        public bool EditMode { get; set; }
 
         public ModuleDefinition CurrentModuleEdited { get; set; }// used during module editing to signal which module is being edited
         public string ModeCss { get { return EditMode ? "yEditMode" : "yDisplayMode"; } }// used on body tag when in edit mode

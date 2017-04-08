@@ -13,10 +13,10 @@
     }
     Guid owningGuid = Guid.Empty;
     Html.TryGetParentModelSupportProperty<Guid>("", "Folder", out owningGuid);
-    if (owningGuid == Guid.Empty && Manager.CurrentModuleEdited != null) { 
+    if (owningGuid == Guid.Empty && Manager.CurrentModuleEdited != null) {
         owningGuid = Manager.CurrentModuleEdited.ModuleGuid;
     }
-    if (owningGuid == Guid.Empty) { 
+    if (owningGuid == Guid.Empty) {
         owningGuid = Manager.CurrentModule.ModuleGuid;
     }
     Guid subFolder = Guid.Empty;
@@ -25,7 +25,7 @@
         Html.TryGetParentModelSupportProperty<Guid>("", "SubFolder", out subFolder);
     }
 }
-@{ 
+@{
     bool sourceOnly = Html.GetControlInfo<bool>("", "SourceOnly", false);
     bool useSave = Html.GetControlInfo<bool>("", "TextAreaSave", false);
     bool useImageBrowsing = Html.GetControlInfo<bool>("", "ImageBrowse", false);
@@ -37,19 +37,19 @@
 
     string filebrowserImageBrowseUrl = null;
     if (useImageBrowsing) {
-        filebrowserImageBrowseUrl = string.Format("/__CKEditor/ImageBrowseLinkUrl?__FolderGuid={0}&__SubFolder={1}", 
+        filebrowserImageBrowseUrl = string.Format("/__CKEditor/ImageBrowseLinkUrl?__FolderGuid={0}&__SubFolder={1}",
             owningGuid.ToString(), subFolder.ToString());
-        filebrowserImageBrowseUrl += "&" + Globals.Link_TempNoEditMode + "=y";
+        filebrowserImageBrowseUrl += "&" + Globals.Link_NoEditMode + "=y";
     }
     string filebrowserFlashBrowseUrl = null;
     if (useFlashBrowsing) {
         filebrowserFlashBrowseUrl = string.Format("/__CKEditor/FlashBrowseLinkUrl?__FolderGuid={0}&__SubFolder={1}", owningGuid.ToString(), subFolder.ToString());
-        filebrowserFlashBrowseUrl += "&" + Globals.Link_TempNoEditMode + "=y";
+        filebrowserFlashBrowseUrl += "&" + Globals.Link_NoEditMode + "=y";
     }
     string filebrowserPageBrowseUrl = null;
     if (usePageBrowsing) {
         filebrowserPageBrowseUrl = "/__CKEditor/PageBrowseLinkUrl?";
-        filebrowserPageBrowseUrl += Globals.Link_TempNoEditMode + "=y";
+        filebrowserPageBrowseUrl += Globals.Link_NoEditMode + "=y";
     }
     string addonUrl = AddOnManager.GetAddOnGlobalUrl("ckeditor.com", "ckeditor", YetaWF.Core.Addons.AddOnManager.UrlType.Base) + "__CUSTOM_FILES/";
     string url = addonUrl + "full_config.js";

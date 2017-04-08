@@ -710,6 +710,19 @@ $(document).ready(function () {
             }
         }
 
+        if (!$t.get(0).href.startsWith('javascript:')) {
+            // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
+            if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {
+                var currUri = new URI(window.location.href);
+                if (currUri.hasSearch(YGlobals.Link_EditMode))
+                    uri.addSearch(YGlobals.Link_EditMode, 'y');
+            }
+            // add status/visibility of page control module
+            uri.removeSearch(YGlobals.Link_PageControl);
+            if (YVolatile.Basics.PageControlVisible)
+                uri.addSearch(YGlobals.Link_PageControl, 'y');
+        }
+
         // add our module context info (if requested)
         if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
             if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
@@ -717,10 +730,6 @@ $(document).ready(function () {
                 uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
             }
         }
-        // add status/visibility of page control module
-        uri.removeSearch(YGlobals.Link_ShowPageControlKey);
-        if (!$t.get(0).href.startsWith('javascript:') && YVolatile.Basics.PageControlVisible)
-            uri.addSearch(YGlobals.Link_ShowPageControlKey, YGlobals.Link_ShowPageControlValue);
 
         // fix the url to include where we came from
         var target = $t.attr("target");

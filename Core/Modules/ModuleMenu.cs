@@ -77,7 +77,8 @@ namespace YetaWF.Core.Modules {
                     action = modLocalize.GetModuleAction("Browse", null, Package.GetCurrentPackage(this));
                     if (action.QueryArgsDict == null)
                         action.QueryArgsDict = new QueryHelper();
-                    action.QueryArgsDict.Add(Globals.Link_TempNoEditMode, "y"); // force no edit mode
+                    action.QueryArgsDict.Add(Globals.Link_NoEditMode, "y"); // force no edit mode
+                    action.QueryArgsDict.Add(Globals.Link_PageControl, "y"); // force no control panel
                     moduleMenu.New(action, location);
                 }
 

@@ -225,7 +225,7 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
         formData = formData + "&" + YGlobals.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
         // add the status of the Pagecontrol
         if (YVolatile.Basics.PageControlVisible)
-            formData = formData + "&" + YGlobals.Link_ShowPageControl;
+            formData = formData + "&" + YGlobals.Link_PageControl + "=y";
         // add if we're in a popup
         if (Y_InPopup())
             formData = formData + "&" + YGlobals.Link_InPopup + "=y";
