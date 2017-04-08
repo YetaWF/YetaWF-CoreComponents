@@ -363,6 +363,21 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
+        /// Data folder (not site specific).
+        /// </summary>
+        public static string LicenseFolder {
+            get {
+                string rootFolder;
+#if MVC6
+                rootFolder = YetaWFManager.RootFolderWebProject;
+#else
+                rootFolder = YetaWFManager.RootFolder;
+#endif
+                return Path.Combine(rootFolder, Globals.DataFolder, "Licenses");
+            }
+        }
+
+        /// <summary>
         /// Vault data folder (not site specific).
         /// </summary>
         /// <remarks>Not publicly accessible on ASP.NET Core MVC. Publicly accessible on MVC5 and must be protected using Web.config files.</remarks>

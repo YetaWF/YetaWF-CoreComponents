@@ -19,9 +19,9 @@ namespace YetaWF.Core.Packages {
         public const string PackageIDDataFile = "PackageData.txt";
         public const string PackageContentsFile = "Contents.xml";
         public static string[] ExcludedFilesAddons = new string[] { };
-        public static string[] ExcludedFoldersNoSource = new string[] { "_License" };
+        public static string[] ExcludedFoldersNoSource = new string[] { };
         public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
-        public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", "_License" };
+        public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", };
         public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb", ".lastcodeanalysissucceeded", ".CodeAnalysisLog.xml" };
         public static string[] ExcludedBinFolders = new string[] { "Debug" };
         public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };// not necessary any longer (since 2.0.0) as all code was moved to ViewsCode
