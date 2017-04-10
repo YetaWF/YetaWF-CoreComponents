@@ -9,6 +9,7 @@ using YetaWF.Core.Localize;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Collections.Generic;
 using System.Web.Mvc;
 #endif
 

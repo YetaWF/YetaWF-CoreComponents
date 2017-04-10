@@ -7,6 +7,7 @@ using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
+using System.Collections.Generic;
 using System.Web.Mvc;
 #endif
 

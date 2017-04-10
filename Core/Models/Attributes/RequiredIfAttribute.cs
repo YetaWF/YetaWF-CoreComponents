@@ -3,14 +3,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
+using System.Collections.Generic;
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Addons;
-using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models.Attributes {
 
