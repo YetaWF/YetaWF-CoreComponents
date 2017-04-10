@@ -23,17 +23,18 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
                     }
                 }
                 if (item.Disable) {
-                    if (found)
-                        $row.removeAttr("disabled").removeClass('yNoValidate');
-                    else
-                        $row.attr("disabled", "disabled").addClass('yNoValidate');
+                    if (found) {
+                        $row.removeAttr("disabled");
+                    } else {
+                        $row.attr("disabled", "disabled");
+                    }
                 } else {
                     $row.toggle(found);
-                    if (found)
-                        $row.removeClass('yNoValidate');
-                    else
-                        $row.addClass('yNoValidate');
                 }
+                if (found)
+                    $('input,select,textarea', $row).removeClass('yNoValidate');
+                else
+                    $('input,select,textarea', $row).addClass('yNoValidate');
             }
         });
     }
@@ -47,24 +48,6 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
     controlData.Controls.forEach(function (item, index) {
         change($('.t_row.t_{0} select[name="{1}"]'.format(item.toLowerCase(), item)), $div);
     });
-
-    // add a form presubmit handler so we can mark all hidden properties as not to be evaluated
-    var $form = $div.closest('form');
-    if ($form.length > 0 && typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
-        YetaWF_Forms.addPreSubmitHandler(inPartialView, {
-            form: $form,
-            callback: function(entry) {
-                // Before submitting, mark all hidden properties as not to be evaluated
-                $('input,select,textarea', $div).removeClass('yNoValidate');
-                controlData.Controls.forEach(function (ctlItem, index) {
-                    controlData.Dependents.forEach(function (propItem, index) {
-                        var $row = $('.t_row.t_{0}'.format(propItem.Prop.toLowerCase()), $div);
-                        $('input,select,textarea', $row).addClass('yNoValidate');
-                    });
-                });
-            },
-        });
-    }
 };
 
 
