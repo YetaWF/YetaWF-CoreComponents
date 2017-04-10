@@ -207,13 +207,10 @@ namespace YetaWF.Core.Controllers {
         // CONTROLLER
 
 #if MVC6
-        //TODO: verify
-        //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/response
-        //https://damienbod.com/2015/09/15/asp-net-5-action-filters/
 #else
         protected override void OnResultExecuting(ResultExecutingContext filterContext) {
             // THIS SUPPRESSES CACHING
-            // RESEARCH: Use OutputCache for actions that can be cached
+            // RESEARCH: Use OutputCache for actions that can be cached - first thought: that's how you're really going to mess up your site, need automatic solution
             // http://www.dotnet-tricks.com/Tutorial/mvc/4R5c050113-Understanding-Caching-in-Asp.Net-MVC-with-example.html
             filterContext.HttpContext.Response.Cache.SetExpires(DateTime.UtcNow.AddDays(-1));
             filterContext.HttpContext.Response.Cache.SetValidUntilExpires(false);
