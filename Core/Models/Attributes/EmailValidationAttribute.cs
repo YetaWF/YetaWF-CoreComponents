@@ -1,13 +1,10 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Addons;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
 using System.Web.Mvc;
@@ -35,7 +32,7 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled {0} is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-email-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-email", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

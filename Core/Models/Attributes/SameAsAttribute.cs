@@ -7,6 +7,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Collections.Generic;
 using System.Web.Mvc;
@@ -47,7 +48,8 @@ namespace YetaWF.Core.Models.Attributes {
         public void AddValidation(ClientModelValidationContext context) {
             if (string.IsNullOrWhiteSpace(ErrorMessage))
                 ErrorMessage = string.Format(__ResStr("SameAs", "The {0} field doesn't match."), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

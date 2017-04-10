@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using YetaWF.Core.Addons;
@@ -45,8 +44,8 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = string.Format(__ResStr("requiredIfSupplied", "The {0} field is required"), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

@@ -1,12 +1,9 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
@@ -57,7 +54,7 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             SetMessage(context.ModelMetadata);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-customrequired-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-customrequired", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -113,7 +110,7 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             SetMessage(context.ModelMetadata);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-selectionrequired-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-selectionrequired", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

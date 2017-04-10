@@ -1,11 +1,8 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
 using System.Web.Mvc;
@@ -24,7 +21,8 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("valArea2", "The area specified is invalid ({0}) - Please use only letters and numbers in the format domain_product", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-areavalidation-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

@@ -1,11 +1,9 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
@@ -49,7 +47,9 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = string.Format(__ResStr("requiredIf", "The {0} field is required"), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -100,7 +100,9 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = string.Format(__ResStr("requiredIfNot", "The {0} field is required"), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -151,10 +153,10 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = string.Format(__ResStr("requiredIfNot", "The {0} field is required"), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-" + Forms.ConditionPropertyValueLow, RequiredValueLow.ToString());
-            AttributeHelper.MergeAttribute(context.Attributes, "data-" + Forms.ConditionPropertyValueHigh, RequiredValueHigh.ToString());
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyValueLow, RequiredValueLow.ToString());
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyValueHigh, RequiredValueHigh.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

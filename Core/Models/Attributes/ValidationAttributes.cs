@@ -1,12 +1,9 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
 using System.Web.Mvc;
@@ -50,7 +47,10 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-stringlength-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-length", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-length-max", MaximumLength.ToString());
+            if (MinimumLength > 0)
+                AttributeHelper.MergeAttribute(context.Attributes, "data-val-length-min", MinimumLength.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -86,7 +86,9 @@ namespace YetaWF.Core.Models.Attributes {
         public void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = string.Format(__ResStr("range", "The '{0}' value must be between {1} and {2}"),
                     AttributeHelper.GetPropertyCaption(context.ModelMetadata), Minimum, Maximum);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-min", base.Minimum.ToString());
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-max", base.Maximum.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -126,7 +128,8 @@ namespace YetaWF.Core.Models.Attributes {
         }
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sitedomainvalidation-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -156,7 +159,8 @@ namespace YetaWF.Core.Models.Attributes {
         }
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-googleverificationexpression-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else

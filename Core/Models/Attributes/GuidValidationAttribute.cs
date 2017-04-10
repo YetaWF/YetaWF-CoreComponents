@@ -1,13 +1,10 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
 using System.Web.Mvc;
@@ -35,7 +32,7 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("valGuid2", "The guid ({0}) is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-guid-" + Forms.ConditionPropertyName, ErrorMessage);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-guid", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
