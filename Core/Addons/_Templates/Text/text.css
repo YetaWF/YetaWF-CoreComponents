@@ -2,16 +2,16 @@
 
 input[type="text"].yt_text10 {
     max-width:100%;
-    width: 14ch;
+    width: 16ch;
 }
 input[type="text"].yt_text20 {
     max-width:100%;
-    width: 24ch;
+    width: 26ch;
 }
 input[type="text"].yt_text,
 input[type="text"].yt_text40 {
     max-width:100%;
-    width: 44ch;
+    width: 45ch;
 }
 input[type="text"].yt_text80 {
     max-width:100%;
