@@ -340,7 +340,7 @@ namespace YetaWF.Core.Controllers {
                 Resource.ResourceAccess.ShowNeed2FA();
             }
 
-            Logging.AddTraceLog("Request");
+            Logging.AddLog("Page");
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
             Action<QueryHelper> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
             if (action != null) {
