@@ -40,5 +40,27 @@ namespace YetaWF.Core.Views.Shared {
             return tag.ToHtmlString(TagRenderMode.Normal);
 
         }
+#if MVC6
+        public static HtmlString StringTTDisplay(this IHtmlHelper htmlHelper, StringTT model)
+#else
+        public static HtmlString StringTTDisplay(this HtmlHelper htmlHelper, StringTT model)
+#endif
+        {
+            return StringTTDisplay(htmlHelper, model.Text, model.Tooltip);
+        }
+#if MVC6
+        public static HtmlString StringTTDisplay(this IHtmlHelper htmlHelper, string text, string tooltip)
+#else
+        public static HtmlString StringTTDisplay(this HtmlHelper htmlHelper, string text, string tooltip)
+#endif
+        {
+            TagBuilder tag = new TagBuilder("span");
+            if (!string.IsNullOrWhiteSpace(tooltip))
+                tag.Attributes.Add(Basics.CssTooltipSpan, tooltip);
+            if (!string.IsNullOrWhiteSpace(text))
+                tag.SetInnerText(text);
+            return tag.ToHtmlString(TagRenderMode.Normal);
+
+        }
     }
 }
