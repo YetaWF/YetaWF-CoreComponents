@@ -938,14 +938,24 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <returns></returns>
         protected new ActionResult NotAuthorized() {
+            return NotAuthorized(null);
+        }
+        /// <summary>
+        /// Not authorized for this type of access.
+        /// </summary>
+        /// <returns></returns>
+        protected ActionResult NotAuthorized(string message) {
             if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
 #if MVC6
                 return new UnauthorizedResult();
 #else
                 return new HttpUnauthorizedResult();
 #endif
-            } else
-                return View("ShowMessage", __ResStr("nothAuth", "You are not authorized to access this module - {0}", GetType().FullName), UseAreaViewName: false);
+            } else {
+                Manager.CurrentResponse.Status = "403 Not Authorized";
+                Manager.CurrentResponse.StatusCode = 403;
+                return View("ShowMessage", message, UseAreaViewName: false);
+            }
         }
 
         protected enum OnPopupCloseEnum {
