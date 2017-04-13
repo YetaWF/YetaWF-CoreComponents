@@ -952,7 +952,10 @@ namespace YetaWF.Core.Controllers {
                 return new HttpUnauthorizedResult();
 #endif
             } else {
+#if MVC6
+#else
                 Manager.CurrentResponse.Status = "403 Not Authorized";
+#endif
                 Manager.CurrentResponse.StatusCode = 403;
                 return View("ShowMessage", message, UseAreaViewName: false);
             }
