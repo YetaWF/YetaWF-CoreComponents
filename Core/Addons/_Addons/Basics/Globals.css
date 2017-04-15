@@ -28,6 +28,7 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     color: white;
     padding: 1em;
     border: 1px solid gray;
+    border-radius:5px;
     margin: 1em 0 1em 0;
 }
 .yDivSmallAlert {
@@ -40,6 +41,7 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     color: white;
     padding:1em;
     border: 1px solid gray;
+    border-radius:5px;
     margin: 1em 0 1em 0;
 }
 
@@ -52,6 +54,7 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     color: black;
     padding: 1em;
     border: 1px solid gray;
+    border-radius:5px;
     margin: 1em 0 1em 0;
 }
 .yDivSmallAdmin {
