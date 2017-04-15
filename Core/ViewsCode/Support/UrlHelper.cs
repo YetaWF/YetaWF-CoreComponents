@@ -74,6 +74,7 @@ namespace YetaWF.Core.Views.Shared {
 
                 tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(hrefUrl));
                 tag.MergeAttribute("target", "_blank");
+                tag.MergeAttribute("rel", "nofollow");
                 if (!string.IsNullOrWhiteSpace(Tooltip))
                     tag.MergeAttribute(Basics.CssTooltip, Tooltip);
                 string text;
@@ -151,6 +152,7 @@ namespace YetaWF.Core.Views.Shared {
 
             tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(url));
             tag.MergeAttribute("target", "_blank");
+            tag.MergeAttribute("rel", "nofollow");
 
             // image
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
