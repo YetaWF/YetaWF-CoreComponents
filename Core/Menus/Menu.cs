@@ -305,6 +305,7 @@ namespace YetaWF.Core.Menus {
                 action.SaveReturnUrl = false;
                 action.AddToOriginList = false;
                 action.NeedsModuleContext = false;
+                action.DontFollow = false;
             } else if (newAction.Separator) {
                 // separator without real action
                 action.Separator = newAction.Separator;
@@ -326,6 +327,7 @@ namespace YetaWF.Core.Menus {
                 action.SaveReturnUrl = false;
                 action.AddToOriginList = false;
                 action.NeedsModuleContext = false;
+                action.DontFollow = false;
             } else {
                 action.Separator = false;
                 action.Url = newAction.Url;
@@ -347,6 +349,7 @@ namespace YetaWF.Core.Menus {
                 action.SaveReturnUrl = newAction.SaveReturnUrl;
                 action.AddToOriginList = newAction.AddToOriginList;
                 action.NeedsModuleContext = newAction.NeedsModuleContext;
+                action.DontFollow = newAction.DontFollow;
             }
             action.CookieAsDoneSignal = false;
             action.Location = ModuleAction.ActionLocationEnum.AnyMenu;
@@ -407,6 +410,7 @@ namespace YetaWF.Core.Menus {
                     action.Location = ModuleAction.ActionLocationEnum.AnyMenu;
                     action.QueryArgs = null;
                     action.QueryArgsDict = null;
+                    action.DontFollow = false;
                 } else if (action.Separator) {
                     // separator without real action
                     action.Url = null;
@@ -430,6 +434,7 @@ namespace YetaWF.Core.Menus {
                     action.Location = ModuleAction.ActionLocationEnum.AnyMenu;
                     action.QueryArgs = null;
                     action.QueryArgsDict = null;
+                    action.DontFollow = false;
                 }
                 if (action.SubMenu != null && action.SubMenu.Count > 0)
                     FixMenuEntries(action.SubMenu);

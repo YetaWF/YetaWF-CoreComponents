@@ -212,7 +212,7 @@ namespace YetaWF.Core.Modules {
             if (Post)
                 tag.Attributes.Add(Basics.PostAttr, "");
             if (DontFollow || Post)
-                tag.Attributes.Add("rel", "nofollow"); // this is so bots don't follow this assuming it's a simple page (Post actions can't betrieved with GET/HEAD anyway)
+                tag.Attributes.Add("rel", "nofollow"); // this is so bots don't follow this assuming it's a simple page (Post actions can't be retrieved with GET/HEAD anyway)
             if (OuterWindow)
                 tag.Attributes.Add(Basics.CssOuterWindow, "");
             if (!Nothing)

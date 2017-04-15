@@ -178,6 +178,7 @@ namespace YetaWF.Core.Modules {
             SaveReturnUrl = false;
             AddToOriginList = true;
             NeedsModuleContext = false;
+            DontFollow = false;
 
             Displayed = true;
             CookieAsDoneSignal = false;
@@ -315,7 +316,8 @@ namespace YetaWF.Core.Modules {
         [UIHint("Boolean")]
         public bool NeedsModuleContext { get; set; }
 
-        // Don't follow for search engines (rel=nofollow)
+        [Caption("Don't Follow"), Description("Defines whether search engines and bots follow this link (select to disable)")]
+        [UIHint("Boolean")]
         public bool DontFollow { get; set; }
 
         /// <summary>

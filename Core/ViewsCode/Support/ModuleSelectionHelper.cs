@@ -154,6 +154,7 @@ namespace YetaWF.Core.Views.Shared {
 
             tag.MergeAttribute("href", ModuleDefinition.GetModulePermanentUrl(modGuid ?? Guid.Empty));
             tag.MergeAttribute("target", "_blank");
+            tag.MergeAttribute("rel", "nofollow");
             tag.Attributes.Add(Basics.CssTooltip, __ResStr("linkTT", "Click to preview the module in a new window - not all modules can be displayed correctly and may require additional parameters"));
 
             // image
