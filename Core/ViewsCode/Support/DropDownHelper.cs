@@ -258,26 +258,12 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderEnumDisplay(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #endif
-            Type enumType = value.GetType();
-            EnumData enumData = ObjectSupport.GetEnumData(enumType);
-
-            string desc = value.ToString();
-            string caption = "";
-
             bool showValues = UserSettings.GetProperty<bool>("ShowEnumValue");
             showValues = showValues && htmlHelper.GetControlInfo<bool>("", "ShowEnumValue", true);
 
-            // try to get enum caption/description
-            foreach (EnumDataEntry entry in enumData.Entries) {
-                object v = entry.Value;
-                if (Equals(value, v)) {
-                    desc = entry.Description;
-                    caption = entry.Caption;
-                    if (showValues)
-                        caption = __ResStr("enumFmt", "{0} - {1}", (int)v, caption);
-                    break;
-                }
-            }
+            string desc;
+            string caption = ObjectSupport.GetEnumDisplayInfo(value, out desc, ShowValue: showValues);
+
             if (HtmlAttributes != null || !string.IsNullOrWhiteSpace(desc)) {
                 TagBuilder tag = new TagBuilder("span");
                 IDictionary<string, object> htmlAttributes = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);

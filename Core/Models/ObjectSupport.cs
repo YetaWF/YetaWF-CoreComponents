@@ -603,8 +603,33 @@ namespace YetaWF.Core.Models {
                     }
                 }
             });
-
             return objEnumData.EnumData;
+        }
+        /// <summary>
+        /// Retrieve caption/description for an enum value, derived from EnumDescription attribute.
+        /// </summary>
+        /// <param name="enumValue">The enum value.</param>
+        /// <param name="description">Returns the description found in the EnumDescription attribute.</param>
+        /// <returns>Returns the caption found in the EnumDescription attribute.</returns>
+        public static string GetEnumDisplayInfo(object enumValue, out string description, bool ShowValue = false) {
+            Type enumType = enumValue.GetType();
+            EnumData enumData = ObjectSupport.GetEnumData(enumType);
+
+            description = enumValue.ToString();
+            string caption = "";
+
+            // try to get enum caption/description
+            foreach (EnumDataEntry entry in enumData.Entries) {
+                object v = entry.Value;
+                if (Equals(enumValue, v)) {
+                    description = entry.Description;
+                    caption = entry.Caption;
+                    if (ShowValue)
+                        caption = string.Format("{0} - {1}", (int)v, caption);
+                    break;
+                }
+            }
+            return caption;
         }
         /// <summary>
         /// Retrieve information for one property.
