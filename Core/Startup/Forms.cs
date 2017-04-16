@@ -55,11 +55,11 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Forms", "CssFormCancel", CssFormCancel);
             scripts.AddConfigOption("Forms", "CssDataApplyButton", CssDataApplyButton);
             scripts.AddConfigOption("Forms", "CssWarningIcon", CssWarningIcon);
-            string url = skinImages.FindIcon_Package("#WarningIcon", package);
+            string url = skinImages.FindIcon_Package("#Warning", package);
             scripts.AddConfigOption("Forms", "CssWarningIconUrl", url);
 
             scripts.AddVolatileOption("Forms", "TabStyle", (int) manager.CurrentSite.TabStyle);
-            
+
         }
     }
 }

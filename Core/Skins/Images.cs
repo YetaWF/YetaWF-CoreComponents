@@ -28,7 +28,7 @@ namespace YetaWF.Core.Skins {
            { "#ModuleMenu", "ModuleMenu.png" },
            { "#Preview", "Preview.png" },
            { "#Remove", "Remove.png" },
-           { "#WarningIcon", "WarningIcon.png" },
+           { "#Warning", "WarningIcon.png" },
         };
 
         // Cache url icons searched (hits and misses)
