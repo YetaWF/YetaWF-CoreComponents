@@ -1,4 +1,4 @@
-﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -34,18 +34,32 @@ namespace YetaWF.Core.Views.Shared {
             HtmlBuilder hb = new HtmlBuilder();
 
             bool copy = htmlHelper.GetControlInfo<bool>("", "Copy", false);
+            //string mask = htmlHelper.GetControlInfo<string>("", "Mask", null);
 
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);
+            //string id = null;
+            //if (!string.IsNullOrWhiteSpace(mask)) {
+            //    id = htmlHelper.MakeId(tag);
+            //}
 
             // handle StringLengthAttribute as maxlength
             PropertyData propData = ObjectSupport.GetPropertyData(htmlHelper.ViewData.ModelMetadata.ContainerType, htmlHelper.ViewData.ModelMetadata.PropertyName);
             StringLengthAttribute lenAttr = propData.TryGetAttribute<StringLengthAttribute>();
             if (lenAttr != null) {
+#if DEBUG
+                if (tag.Attributes.ContainsKey("maxlength"))
+                    throw new InternalError("Both StringLengthAttribute and maxlength specified - {0}", name);//$$$$$
+#endif
                 int maxLength = lenAttr.MaximumLength;
                 if (maxLength > 0 && maxLength <= 8000)
                     tag.MergeAttribute("maxlength", maxLength.ToString());
             }
+#if DEBUG
+            if (lenAttr == null && !tag.Attributes.ContainsKey("maxlength")) {
+                throw new InternalError("No max string length given using StringLengthAttribute or maxlength - {0}", name);//$$$$$
+            }
+#endif
             // text
             tag.MergeAttribute("type", "text");
             tag.MergeAttribute("value", text);
@@ -61,6 +75,12 @@ namespace YetaWF.Core.Views.Shared {
                 tagImg.AddCssClass("yt_text_copy");
                 hb.Append(tagImg.ToString(TagRenderMode.StartTag));
             }
+            // 4/10/2017 can't use mask as there is a focusout hang on submit TODO: Investigate whose problem this is
+            //if (!string.IsNullOrWhiteSpace(mask)) {
+            //    ScriptBuilder sb = new ScriptBuilder();
+            //    sb.Append("$('#{0}').kendoMaskedTextBox({{ mask: '{1}' }});\n", id, YetaWFManager.JserEncode(mask));
+            //    Manager.ScriptManager.AddLastDocumentReady(sb);
+            //}
             return hb.ToHtmlString();
         }
 #if MVC6

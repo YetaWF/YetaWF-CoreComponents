@@ -1,4 +1,4 @@
-﻿/* Copyright © 2017 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Text.RegularExpressions;
@@ -27,12 +27,12 @@ namespace YetaWF.Core.Pages {
 
             string yetawfMsg;
             if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression) {
-                yetawfMsg = "/**** Powered by Yet Another Web Framework - http://YetaWF.com - (c) Copyright <<YEAR>> Softel vdm, Inc. */";
+                yetawfMsg = "/**** Powered by Yet Another Web Framework - https://YetaWF.com - (c) Copyright <<YEAR>> Softel vdm, Inc. */";
             } else {
                 yetawfMsg = "\n" +
                     "/*****************************************/\n" +
                     "/* Powered by Yet Another Web Framework  */\n" +
-                    "/* http://YetaWF.com                     */\n" +
+                    "/* https://YetaWF.com                     */\n" +
                     "/* (c) Copyright <<YEAR>> - Softel vdm, Inc. */\n" +
                     "/*****************************************/" +
                     "\n";
