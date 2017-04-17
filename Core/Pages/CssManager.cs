@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
+using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
 
@@ -130,18 +132,22 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("File {0} not found - can't be compiled to css", fullScssPath);
             string fullCssPath = Path.ChangeExtension(fullScssPath, Globals.Compiled + ".css");
 
-            if (File.Exists(fullCssPath)) {
-                if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullScssPath)) {
-                    return File.ReadAllText(fullCssPath);
+            // Make sure we don't have multiple threads processing the same file
+            StringLocks.DoAction(string.Format("{0}_{1}_{2}", AreaRegistration.CurrentPackage.AreaName, nameof(CssManager), fullCssPath.ToLower()), () => {
+                if (File.Exists(fullCssPath)) {
+                    if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullScssPath)) {
+                        text = File.ReadAllText(fullCssPath);
+                    }
+                } else {
+                    try {
+                        NSass.SassCompiler nsass = new NSass.SassCompiler();
+                        text = nsass.Compile(text);
+                        File.WriteAllText(fullCssPath, text);
+                    } catch (Exception exc) {
+                        throw new InternalError(Logging.AddErrorLog("Sass compile error in file {0}: {1}", fullScssPath, exc.Message));
+                    }
                 }
-            }
-            try {
-                NSass.SassCompiler nsass = new NSass.SassCompiler();
-                text = nsass.Compile(text);
-                File.WriteAllText(fullCssPath, text);
-            } catch (Exception exc) {
-                throw new InternalError(Logging.AddErrorLog("Sass compile error in file {0}: {1}", fullScssPath, exc.Message));
-            }
+            });
             return text;
         }
         public static string CompileLess(string fullLessPath, string text) {
@@ -151,25 +157,29 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("File {0} not found - can't be compiled to css", fullLessPath);
             string fullCssPath = Path.ChangeExtension(fullLessPath, Globals.Compiled + ".css");
 
-            if (File.Exists(fullCssPath)) {
-                if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullLessPath)) {
-                    return File.ReadAllText(fullCssPath);
-                }
-            }
-            try {
-                ILessEngine lessEngine = new EngineFactory(new DotlessConfiguration {
-                    CacheEnabled = false,
-                    DisableParameters = true,
-                    LogLevel = LogLevel.Error,
-                    MinifyOutput = true
-                }).GetEngine();
+            // Make sure we don't have multiple threads processing the same file
+            StringLocks.DoAction(string.Format("{0}_{1}_{2}", AreaRegistration.CurrentPackage.AreaName, nameof(CssManager), fullCssPath.ToLower()), () => {
+                if (File.Exists(fullCssPath)) {
+                    if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullLessPath)) {
+                        text = File.ReadAllText(fullCssPath);
+                    }
+                } else {
+                    try {
+                        ILessEngine lessEngine = new EngineFactory(new DotlessConfiguration {
+                            CacheEnabled = false,
+                            DisableParameters = true,
+                            LogLevel = LogLevel.Error,
+                            MinifyOutput = true
+                        }).GetEngine();
 
-                lessEngine.CurrentDirectory = Path.GetDirectoryName(fullCssPath);
-                text = lessEngine.TransformToCss(text, null);
-                File.WriteAllText(fullCssPath, text);
-            } catch (Exception exc) {
-                throw new InternalError(Logging.AddErrorLog("Less compile error in file {0}: {1}", fullLessPath, exc.Message));
-            }
+                        lessEngine.CurrentDirectory = Path.GetDirectoryName(fullCssPath);
+                        text = lessEngine.TransformToCss(text, null);
+                        File.WriteAllText(fullCssPath, text);
+                    } catch (Exception exc) {
+                        throw new InternalError(Logging.AddErrorLog("Less compile error in file {0}: {1}", fullLessPath, exc.Message));
+                    }
+                }
+            });
             return text;
         }
 
