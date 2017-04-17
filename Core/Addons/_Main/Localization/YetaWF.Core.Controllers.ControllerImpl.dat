@@ -35,14 +35,6 @@
               </Properties>
             </Object>
           </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
-                <Name Value="nothAuth" />
-                <Text Value="You are not authorized to access this module - {0}" />
-              </Properties>
-            </Object>
-          </Value>
         </List>
       </Object>
     </Strings>

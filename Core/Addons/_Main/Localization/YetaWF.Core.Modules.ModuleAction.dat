@@ -88,6 +88,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="DontFollow" />
+                            <Caption Value="Don't Follow" />
+                            <Description Value="Defines whether search engines and bots follow this link (select to disable)" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="Enabled" />
                             <Caption Value="Enabled" />
                             <Description Value="Defines whether this entry is enabled - Disabled entries are automatically hidden in menus" />
