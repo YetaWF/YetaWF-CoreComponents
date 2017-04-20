@@ -93,8 +93,13 @@ namespace YetaWF.Core.Views.Shared {
                         // check whether the record supports a special "__highlight" property
                         hb.Append(prop.Value is bool && (bool)prop.Value == true ? "true" : "false");
                     } else {
+#if MVC6
+                        string oldPrefix = htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
+                        htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix = prefix;
+#else
                         TemplateInfo oldTemplateInfo = htmlHelper.ViewContext.ViewData.TemplateInfo;
                         htmlHelper.ViewContext.ViewData.TemplateInfo = new TemplateInfo() { HtmlFieldPrefix = prefix };
+#endif
 
                         string propName = "[" + recordCount + "]." + prop.Name;
                         if (!readOnly && prop.Editable && recordEnabled) {
@@ -113,8 +118,11 @@ namespace YetaWF.Core.Views.Shared {
                         }
 
                         hb.Append(YetaWFManager.Jser.Serialize(output));
-
+#if MVC6
+                        htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix = oldPrefix;
+#else
                         htmlHelper.ViewContext.ViewData.TemplateInfo = oldTemplateInfo;
+#endif
                     }
                 }
                 ++propCount;

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.Support;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -102,7 +103,11 @@ namespace YetaWF.Core.Views {
 #else
         public static HtmlString GetErrorClass(this HtmlHelper htmlHelper, string name) {
 #endif
+#if MVC6
+            ModelStateEntry modelState;
+#else
             ModelState modelState;
+#endif
             if (htmlHelper.ViewData.ModelState.TryGetValue(name, out modelState)) {
                 if (modelState.Errors.Count > 0)
                     return new HtmlString(HtmlHelper.ValidationInputCssClassName);
