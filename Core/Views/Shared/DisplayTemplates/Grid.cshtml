@@ -176,9 +176,7 @@
         }
         YetaWF_Grid.fixHeaders($grid);
     }
-    @using (DocumentReady()) {
-        @: InitGrid_@Model.Id ();
-    }
+    InitGrid_@(Model.Id)();
 </script>
 }
 
