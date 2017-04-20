@@ -3,11 +3,11 @@
 var YetaWF_TemplateText = {};
 YetaWF_TemplateText.init = function ($partialForm) {
     'use strict';
-    $('input.yt_text,input.yt_text10,input.yt_text20,input.yt_text40,input.yt_text80,input.yt_text_base', $partialForm).each(function (index) {
+    $('input.yt_text,input.yt_text10,input.yt_text20,input.yt_text40,input.yt_text80,input.yt_text_base', $partialForm).not('.ybrowsercontrols').each(function (index) {
         var $this = $(this);
-        var autocomplate = $this.attr('autocomplete');// preserve autocomplete
+        var autocomplete = $this.attr('autocomplete');// preserve autocomplete
         $this.kendoMaskedTextBox({ });
-        $this.attr('autocomplete', autocomplate);
+        $this.attr('autocomplete', autocomplete);
     });
 };
 
