@@ -71,7 +71,7 @@ namespace YetaWF.Core.Views {
 
             if (HtmlAttributes != null)
                 tag.MergeAttributes(FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), true);
-            string fullName = ModelNameOverride ?? htmlHelper.FieldName(name);
+            string fullName = ModelNameOverride ?? htmlHelper.FieldName(name);//$$$remove ModelNameOverride
             if (!Anonymous) {
                 tag.MergeAttribute("name", fullName, true);
                 if (Validation) {
@@ -84,7 +84,7 @@ namespace YetaWF.Core.Views {
             }
             return fullName;
         }
-        public static IDictionary<string,object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+        public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
         }
@@ -102,13 +102,11 @@ namespace YetaWF.Core.Views {
 #else
         public static HtmlString GetErrorClass(this HtmlHelper htmlHelper, string name) {
 #endif
-#if NOYET
             ModelState modelState;
             if (htmlHelper.ViewData.ModelState.TryGetValue(name, out modelState)) {
                 if (modelState.Errors.Count > 0)
                     return new HtmlString(HtmlHelper.ValidationInputCssClassName);
             }
-#endif
             return HtmlStringExtender.Empty;
         }
 
@@ -125,6 +123,14 @@ namespace YetaWF.Core.Views {
             ModelMetadata metadata = ModelMetadata.FromStringExpression(name, htmlHelper.ViewContext.ViewData);
             tagBuilder.MergeAttributes(htmlHelper.GetUnobtrusiveValidationAttributes(name, metadata));
 #endif
+            // patch up auto-generated "required" validation (added by MVC) and rename our own customrequired validation to required
+            if (tagBuilder.Attributes.ContainsKey("data-val-required")) {
+                tagBuilder.Attributes.Remove("data-val-required");
+            }
+            if (tagBuilder.Attributes.ContainsKey("data-val-customrequired")) {
+                tagBuilder.Attributes.Add("data-val-required", tagBuilder.Attributes["data-val-customrequired"]);
+                tagBuilder.Attributes.Remove("data-val-customrequired");
+            }
         }
     }
 }

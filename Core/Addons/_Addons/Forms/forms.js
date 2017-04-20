@@ -37,12 +37,21 @@ YetaWF_Forms.initPartialForm = function ($partialForm) {
     }
     YetaWF_Forms.partialFormActions1 = [];
 
+    // re-evaluate form validation if requested
+    var $forms = $('form[data-validationneeded=true]');
+    $forms.each(function() {
+        _YetaWF_Forms.redoValidation($(this));
+    });
+
     // add warning icons to validation errors
     var $errs = $('.field-validation-error', $partialForm);
     $errs.each(function () {
         var $val = $(this);
+        var name = $val.attr("data-valmsg-for");
+        var $err = $('img.{0}[name="{1}"]'.format(YConfigs.Forms.CssWarningIcon, name), $val.closest('form'));
+        $err.remove();
         $val.before('<img src="{0}" name={1} class="{2}" {3}="{4}"/>'.format(
-            Y_HtmlEscape(YConfigs.Forms.CssWarningIconUrl), $val.attr("data-valmsg-for"), YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_HtmlEscape($val.text())));
+            Y_HtmlEscape(YConfigs.Forms.CssWarningIconUrl), name, YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_HtmlEscape($val.text())));
     });
 
     var hasErrors = _YetaWF_Forms.hasErrors($partialForm);
@@ -295,6 +304,26 @@ YetaWF_Forms.submitTemplate = function (obj, useValidation, templateName, templa
     YetaWF_Forms.submit(YetaWF_Forms.getForm($(obj)), true, qs);
 };
 
+YetaWF_Forms.restartValidation = function ($div) {
+    var $form = $div.closest('form');
+    $form.attr('data-validationneeded', 'true');// mark that we need validtion to run once everything is loaded
+};
+// re-init validation for the specified form
+_YetaWF_Forms.redoValidation = function ($form) {
+    var $form = $form.closest('form');
+    // Hacky at best because there is no simple api for this, also somewhat inefficient to restart the entire form after ajax just to update some fields
+    // grid templates definitely push the limit of jquery.validate
+    // make sure validation is reset (including hooks) so we evaluate the new fields
+    var validator = $form.validate();
+    validator.destroy();// destroy current validator
+    $.validator.unobtrusive.parse($form);// reparse added input fields
+    $form.data('jQueryValidateTriggersAdded', false);// need to reinit hooks
+    $form.unbind('formValidation'); // unbind any controls we removed
+    $form.addTriggersToJqueryValidate().triggerElementValidationsOnFormValidation();// prepare to attach hooks
+    $form.validate();// attaches hooks
+    $form.valid();// add warning indicators
+    $form.removeAttr('data-validationneeded');
+}
 YetaWF_Forms.getForm = function (obj) {
     var $form = $(obj).closest('form');
     if ($form.length == 0) throw "Can't locate enclosing form";/*DEBUG*/
@@ -323,9 +352,21 @@ YetaWF_Forms.getFormInfo = function (obj) {
 _YetaWF_Forms.showErrors = function ($form) {
     var $summary = _YetaWF_Forms.formErrorSummary($form);
     var $list = $('ul li', $summary);
-    var s = "";
+
+    // only show unique messages (no duplicates)
+    var list = [];
     $list.each(function () {
-        s += $(this).text() + '(+nl)';
+        list.push($(this).text());
+    });
+    var uniqueMsgs = [];
+    $.each(list, function (i, el) {
+        if ($.inArray(el, uniqueMsgs) === -1) uniqueMsgs.push(el);
+    });
+
+    // build output
+    var s = "";
+    $.each(uniqueMsgs, function (i, el) {
+        s += el + '(+nl)';
     });
     _YetaWF_Forms.dontUpdateWarningIcons = true;
     Y_Error(YLocs.Forms.FormErrors + s);
@@ -385,9 +426,6 @@ _YetaWF_Forms.dontUpdateWarningIcons = false;
 
 $(document).ready(function () {
 
-    // we're assuming that this has already been run (which MVC does automatically)
-    // $('form').validate();
-
     // running this overrides some jQuery Validate stuff so we can hook into its validations.
     // triggerElementValidationsOnFormValidation is optional and will fire off all of your
     // element validations WHEN the form validation runs ... it requires jquery.validate.unobtrusive
@@ -418,7 +456,7 @@ $(document).ready(function () {
         var name = $input.attr("name");
         // remove the error icon
         var $err = $('img.{0}[name="{1}"]'.format(YConfigs.Forms.CssWarningIcon, name), $form);
-        if ($err.length == 1) $err.remove();
+        $err.remove();
         // find the validation message
         var $val = $('span.field-validation-error[data-valmsg-for="{0}"]'.format(name), $form);// get the validation message (which follows the input field but is hidden via CSS)
         // some templates incorrectly add  @Html.ValidationMessageFor(m => Model) to the rendered template - THIS IS WRONG
@@ -434,13 +472,15 @@ $(document).ready(function () {
         var name = $input.attr("name");
         // remove the error icon
         var $err = $('img.{0}[name="{1}"]'.format(YConfigs.Forms.CssWarningIcon, name), $form);
-        if ($err.length == 1) $err.remove();
+        $err.remove();
     });
+
+    // remove any reqeusts to re-evaluate  as we're doing it below
+    var $forms = $('form');
+    $forms.removeAttr('data-validationneeded');
+
+    $forms.validate();
+    $forms = $('form').filter('.yValidateImmediately');
+    if ($forms.length > 0)
+        $forms.valid(); // force all fields to show valid/not valid
 });
-
-
-
-
-
-
-

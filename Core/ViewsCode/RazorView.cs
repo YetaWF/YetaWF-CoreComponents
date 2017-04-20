@@ -199,7 +199,7 @@ namespace YetaWF.Core.Views {
         // FORM
         // FORM
 
-        protected MvcForm Form(string actionName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false) {
+        protected MvcForm Form(string actionName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false) {
             Manager.NextUniqueIdPrefix();
             Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Forms");
 
@@ -209,7 +209,11 @@ namespace YetaWF.Core.Views {
             IDictionary<string,object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
             if (SaveReturnUrl)
                 rvd.Add(Basics.CssSaveReturnUrl, "");
-            rvd.Add("class", Forms.CssFormAjax);
+            string css = null;
+            if (Manager.CurrentSite.FormErrorsImmed)
+                css = YetaWFManager.CombineCss(css, "yValidateImmediately");
+            css = YetaWFManager.CombineCss(css, Forms.CssFormAjax);
+            rvd.Add("class", css);
 
 #if MVC6
             HtmlHelper<TModel> htmlHelper = GetHtml();

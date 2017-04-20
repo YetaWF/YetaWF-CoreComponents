@@ -1,8 +1,7 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 var YetaWF_Grid = {};
-
-YetaWF_Grid._dataBoundEnabled = 1;
+var _YetaWF_Grid = {};
 
 jQuery.extend(jQuery.jgrid.defaults, {
     autowidth: true,
@@ -222,9 +221,22 @@ YetaWF_Grid.HandleInputUpdates = function ($grid, saveInDataSource) {
             //var data = $grid.jqGrid('getCell', id, name);
             //if (data == null) return;
             $grid.jqGrid('setCell', id, name, $cell.html());
+            if (name == '__Value') {
+                // update key and display info for native values
+                //$$ var ds = $grid.jqGrid('getGridParam', 'data');
+                var propertyName = $grid.attr('data-deleteproperty');
+                if (propertyName == undefined) throw "Can't get property name";/*DEBUG*/
+                var displayName = $grid.attr('data-displayproperty');
+                if (displayName == undefined) throw "Can't get display property name";/*DEBUG*/
+                var rec = $grid.jqGrid('getRowData', id);
+                //$$ var rec = ds[id];
+                rec[propertyName] = val;
+                rec[displayName] = val;
+                $grid.jqGrid('setRowData', id, rec);
+            }
             // copy cell contents to data source
             //var cellText = $cell.html();
-            //var ds = $grid.jqGrid('getGridParam', 'data');
+            //
             //ds[id][name] = cellText;
         }
     });
@@ -275,7 +287,11 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
                 var text = item[col.name];
                 text = text.replace(re1, "'" + newtext);
                 text = text.replace(re2, "\"" + newtext);
-                text = text.replace(re3, "."+newtext);
+                text = text.replace(re3, "." + newtext);
+                if (col.name == '__Value') { // remove the variable name for native types
+                    var reName = new RegExp("\]\\." + col.name, "gim");
+                    text = text.replace(reName, "\]");
+                }
                 itemDiv += text;
                 haveData = true;
             }
@@ -336,7 +352,7 @@ YetaWF_Grid.gridComplete = function ($grid, gridId) {
     'use strict';
     Y_KillTooltips();
     // execute javascript in grid
-    if (YetaWF_Grid._dataBoundEnabled) {
+    if ($grid.getGridParam("datatype") == 'json') {
         var $scripts = $("script", $grid);
         $scripts.each(function (index) {
             eval($scripts[index].innerHTML);
@@ -356,6 +372,9 @@ YetaWF_Grid.gridComplete = function ($grid, gridId) {
     var $gbox = $('#gbox_{0}'.format(gridId));
     if ($gbox.length != 1) throw "Can't find main grid";/*DEBUG*/
     $("option[value={0}]".format(YConfigs.Grid.allRecords), $gbox).text(YLocs.Grid.allRecords);
+    // restart validation for new data exposed (by paging)
+    if ($grid.getGridParam("datatype") == 'local')
+        YetaWF_Forms.restartValidation($grid);
 };
 
 // update the grid in case there are no records shown
@@ -380,51 +399,6 @@ YetaWF_Grid.ShowPager = function ($grid) {
     var id = $grid.attr('id');
     var pagerId = id + '_Pager';
     $('#' + pagerId).toggle(rowNum < records);
-};
-
-// user clicked on delete action, remove from list
-YetaWF_Grid.deleteAction = function(actionCtrl) {
-    'use strict';
-
-    var $actionCtrl = $(actionCtrl);
-
-    var $ctrl = $actionCtrl.closest('.yt_grid_addordelete');
-    if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
-
-    var $grid = $('.yt_grid', $ctrl);
-    if ($grid.length != 1) throw "Can't find grid control";/*DEBUG*/
-
-    var propertyName = $grid.attr('data-deleteproperty');
-    if (propertyName == undefined) throw "Can't get property name";/*DEBUG*/
-    var displayName = $grid.attr('data-displayproperty');
-    if (displayName == undefined) throw "Can't get display property name";/*DEBUG*/
-
-    var $row = $actionCtrl.closest('td');
-    if ($row.length != 1) throw "Can't find grid row";/*DEBUG*/
-
-    var $value = $('input[type="hidden"][name$=".'+propertyName+'"]', $row);
-    if ($value.length != 1) throw "Can't find grid row's hidden field {0}".format(propertyName);/*DEBUG*/
-    var value = $value.val();
-    if (value == undefined) throw "Can't find value to remove in {0}".format(propertyName);/*DEBUG*/
-
-    var ds = $grid.jqGrid('getGridParam', 'data');
-    var total = ds.length;
-
-    // find the value in the datasource
-    for (var i = 0 ; i < total ; ++i) {
-        var rec = ds[i];
-        if (rec[propertyName] == value) {
-            $grid.jqGrid('delRowData', rec.id);
-            if (rec[displayName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
-            var fmt = $ctrl.attr('data-remmsg');
-            if (fmt.length > 0)
-                Y_Confirm(fmt.format(rec[displayName]));
-            $grid.trigger('reloadGrid', [{page:1}]);
-            YetaWF_Grid.ShowPager($grid);
-            return;
-        }
-    }
-    Y_Error($ctrl.attr('data-notfoundmsg').format(value));
 };
 
 // propagate all column css classes to grid headers (so we can manipulate headers in css)
@@ -458,6 +432,42 @@ YetaWF_Grid.clearSearchFilters = function (gridId) {
     $('#gbox_{0} .ui-search-toolbar input[name="dtpicker"]'.format(gridId)).val('');
 };
 
+// enable/disable add button in yt_grid_addordelete template
+YetaWF_Grid.setAddButtonStatus = function ($elem) {
+    'use strict';
+    var $ctrl = $elem.closest('.yt_grid_addordelete');
+    if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
+    var disabled = $elem.val().trim() == "";
+    if (disabled) {
+        $('input[name="btnAdd"]', $ctrl).button("disable");
+    } else {
+        $('input[name="btnAdd"]', $ctrl).button("enable");
+    }
+    // mark input field as not to be validated
+    var $inp = $('input[name$=".NewValue"]', $ctrl);
+    if (!$inp.hasClass('yNoValidate'))
+        $inp.addClass('yNoValidate');
+};
+_YetaWF_Grid.isDuplicate = function ($grid, value) {
+    value = value.trim().toUpperCase();
+
+    var ds = $grid.jqGrid('getGridParam', 'data');
+    var total = ds.length;
+
+    var propertyName = $grid.attr('data-deleteproperty');
+    if (propertyName == undefined) throw "Can't get property name";/*DEBUG*/
+
+    // validate it's not a duplicate
+    for (var i = 0 ; i < total ; ++i) {
+        var rec = ds[i];
+        if (rec[propertyName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
+        if (rec[propertyName].trim().toUpperCase() == value) {
+            return true;
+        }
+    }
+    return false;
+};
+
 $(document).ready(function () {
     'use strict';
 
@@ -487,11 +497,53 @@ $(document).ready(function () {
         });
     });
 
-
     // CanAddOrDelete
     // handle all delete actions in grids
     $("body").on('click', '.yt_grid_addordelete .ui-jqgrid img[name="DeleteAction"]', function () {
-        YetaWF_Grid.deleteAction(this);
+        var $actionCtrl = $(this);
+
+        var $ctrl = $actionCtrl.closest('.yt_grid_addordelete');
+        if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
+
+        var $grid = $('.yt_grid', $ctrl);
+        if ($grid.length != 1) throw "Can't find grid control";/*DEBUG*/
+
+        var $row = $actionCtrl.closest('tr');
+        if ($row.length != 1) throw "Can't find grid row";/*DEBUG*/
+        var id = $row.attr("id");// record id (0..n)
+        if (id == undefined) throw "Can't find record id";/*DEBUG*/
+        var rec = $grid.jqGrid('getRowData', id);
+
+        $grid.jqGrid('delRowData', id);
+        var fmt = $ctrl.attr('data-remmsg');
+        if (fmt.length > 0) {
+            var displayName = $grid.attr('data-displayproperty');
+            if (displayName == undefined) throw "Can't get display property name";/*DEBUG*/
+            if (rec[displayName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
+            Y_Confirm(fmt.format(rec[displayName]));
+        }
+        var total = $grid.getGridParam("reccount");// get total # of records on page
+        //var rowsPerPage = $grid.getGridParam("rowNum");// get # of rows per page
+        //var currPage = $grid.getGridParam('page');// get current page
+        var lastPage = $grid.getGridParam('lastpage');// get last page
+        if (total > 0) {
+            // there are still records on the page, reload current position
+            $grid.trigger('reloadGrid', [{ current: true }]);
+        } else {
+            if (lastPage > 0) {
+                // we're on an empty, last page
+                $grid.trigger('reloadGrid', [{ page: lastPage-1 }]);
+            } else {
+                // grid is empty now
+                $grid.trigger('reloadGrid', [{ page: 1 }]);
+            }
+        }
+        YetaWF_Grid.ShowPager($grid);
+    });
+
+    // CanAddOrDelete
+    $("body").on("propertychange change click keyup input paste", ".yt_grid_addordelete input[name$='.NewValue']", function (e) {
+        YetaWF_Grid.setAddButtonStatus($(this));
     });
 
     // CanAddOrDelete
@@ -518,18 +570,23 @@ $(document).ready(function () {
         var $ctrl = $btnAdd.closest('.yt_grid_addordelete');
         if ($ctrl.length != 1) throw "Can't find yt_grid_addordelete with new value control";/*DEBUG*/
 
-        var $attrVal = $('input[name$=".NewValue"]', $ctrl);
-        if ($attrVal.length != 1) throw "Can't find new value control";/*DEBUG*/
-        var attrVal = $attrVal.val();
-        attrVal = attrVal.trim();
-        if (attrVal == "") return;
-
         var $grid = $('.yt_grid', $ctrl);
         if ($grid.length != 1) throw "Can't find grid control for new value";/*DEBUG*/
         var propertyName = $grid.attr('data-deleteproperty');
         if (propertyName == undefined) throw "Can't get property name";/*DEBUG*/
         var displayName = $grid.attr('data-displayproperty');
         if (displayName == undefined) throw "Can't get property name";/*DEBUG*/
+        // get new value to add
+
+        var $attrVal = $('input[name$=".NewValue"]', $ctrl);
+        if ($attrVal.length != 1) throw "Can't find new value control";/*DEBUG*/
+        var attrVal = $attrVal.val();
+        attrVal = attrVal.trim();
+        if (attrVal == "") return;
+        if (_YetaWF_Grid.isDuplicate($grid, attrVal)) {
+            Y_Error($ctrl.attr('data-dupmsg').format(attrVal));
+            return;
+        }
 
         // find the guid of the module being edited (if any)
         var $form = YetaWF_Forms.getForm($btnAdd);
@@ -566,21 +623,21 @@ $(document).ready(function () {
                 }
                 // we got a new attribute value
                 var newAttrVal = JSON.parse(result);
-                // validate it's not a duplicate
-                for (var i = 0 ; i < total ; ++i) {
-                    var rec = ds[i];
-                    if (rec[propertyName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
-                    if (newAttrVal[propertyName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
-                    if (rec[propertyName] == newAttrVal[propertyName]) {
-                        if (rec[displayName] == undefined) throw "{0} property is missing".format(displayName);/*DEBUG*/
-                        Y_Error($ctrl.attr('data-dupmsg').format(rec[displayName]));
-                        return;
-                    }
+                if (newAttrVal[propertyName] == undefined) throw "{0} property is missing".format(propertyName);/*DEBUG*/
+                // validate it's not a duplicate (again, just in case)
+                if (_YetaWF_Grid.isDuplicate($grid, newAttrVal[propertyName])) {
+                    if (newAttrVal[displayName] == undefined) throw "{0} property is missing".format(displayName);/*DEBUG*/
+                    Y_Error($ctrl.attr('data-dupmsg').format(newAttrVal[displayName]));
+                    return;
                 }
                 $grid.addRowData(total + 1, newAttrVal, 'last')// add new user to grid datasource
                 $attrVal.val('');// clear value name text box
+                $btnAdd.button("disable");
                 $grid.trigger('reloadGrid');
                 YetaWF_Grid.ShowPager($grid);
+
+                _YetaWF_Forms.redoValidation($grid)
+
                 Y_Confirm($ctrl.attr('data-addedmsg').format(attrVal));
             },
             error: function (jqXHR, textStatus, errorThrown) {

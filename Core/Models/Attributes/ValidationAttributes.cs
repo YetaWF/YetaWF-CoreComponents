@@ -27,9 +27,16 @@ namespace YetaWF.Core.Models.Attributes {
         public override bool IsValid(object value) {
             if (MaximumLength == 0) return true;
             if (value is MultiString) {
-                MultiString ms = (MultiString) value;
+                MultiString ms = (MultiString)value;
                 foreach (var mse in ms) {
                     string s = mse.Value;
+                    if (!base.IsValid(s))
+                        return false;
+                }
+                return true;
+            } else if (value is List<string>) {
+                List<string> list = (List<string>)value;
+                foreach (string s in list) {
                     if (!base.IsValid(s))
                         return false;
                 }
@@ -63,10 +70,10 @@ namespace YetaWF.Core.Models.Attributes {
         private string GetErrorMessage(string caption) {
             string errorMessage;
             if (MinimumLength == 0 && MaximumLength > 0)
-                errorMessage = string.Format(__ResStr("badStringLengthMax", "The length for '{0}' can't exceed {1} characters"),
+                errorMessage = __ResStr("badStringLengthMax", "The length for '{0}' can't exceed {1} characters",
                     caption, MaximumLength);
             else
-                errorMessage = string.Format(__ResStr("badStringLengthMinMax", "The length for '{0}' must be between {1} and {2} characters"),
+                errorMessage = __ResStr("badStringLengthMinMax", "The length for '{0}' must be between {1} and {2} characters",
                     caption, MinimumLength, MaximumLength);
             return errorMessage;
         }
@@ -85,7 +92,7 @@ namespace YetaWF.Core.Models.Attributes {
 
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = string.Format(__ResStr("range", "The '{0}' value must be between {1} and {2}"),
+            ErrorMessage = __ResStr("range", "The '{0}' value must be between {1} and {2}",
                     AttributeHelper.GetPropertyCaption(context.ModelMetadata), Minimum, Maximum);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-range", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-min", base.Minimum.ToString());
@@ -96,7 +103,7 @@ namespace YetaWF.Core.Models.Attributes {
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
             string errorMessage = ErrorMessage;
             if (string.IsNullOrWhiteSpace(errorMessage))
-                ErrorMessage = string.Format(__ResStr("range", "The '{0}' value must be between {1} and {2}"),
+                ErrorMessage = __ResStr("range", "The '{0}' value must be between {1} and {2}",
                     AttributeHelper.GetPropertyCaption(metadata), Minimum, Maximum);
             yield return new ModelClientValidationRangeRule(ErrorMessage, base.Minimum, base.Maximum); // string.Format(base.ErrorMessageString, metadata.DisplayName), base.Minimum, base.Maximum);
         }

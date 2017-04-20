@@ -552,6 +552,11 @@ namespace YetaWF.Core.Site {
         [UIHint("PopupSkin"), AdditionalMetadata("NoDefault", true), Required, Trim]
         public SkinDefinition SelectedPopupSkin { get; set; }
 
+        [Category("Skin"), Caption("Immediate Form Errors"), Description("Defines whether errors on forms are immediately marked using warning indicators when first displayed - otherwise indicators are shown as fields are edited and after a form is first submitted")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool FormErrorsImmed { get; set; }
+
         [Category("Skin"), Caption("Default jQuery UI Skin"), Description("The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://jqueryui.com/themeroller/")]
         [UIHint("jQueryUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]

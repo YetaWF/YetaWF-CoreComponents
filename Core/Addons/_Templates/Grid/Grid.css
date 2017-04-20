@@ -37,3 +37,12 @@
 .ui-jqgrid .s-ico > .ui-icon-desc.ui-icon.ui-sort-ltr {
 	margin-left: 0px;
 }
+
+/* Grid add/delete sub-template */
+.yt_grid_addordelete .t_newvalue {
+    margin-top:0.5em;
+}
+.yt_grid_addordelete .t_newvalue label,
+.yt_grid_addordelete .t_newvalue input[type='text'] {
+    margin-right:1ch;
+}
