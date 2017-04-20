@@ -33,6 +33,8 @@ namespace YetaWF.Core.Views.Shared {
 
             HtmlBuilder hb = new HtmlBuilder();
 
+            bool useKendo = !Manager.IsRenderingGrid;
+
             bool copy = htmlHelper.GetControlInfo<bool>("", "Copy", false);
             //string mask = htmlHelper.GetControlInfo<string>("", "Mask", null);
 
@@ -47,14 +49,25 @@ namespace YetaWF.Core.Views.Shared {
             PropertyData propData = ObjectSupport.GetPropertyData(htmlHelper.ViewData.ModelMetadata.ContainerType, htmlHelper.ViewData.ModelMetadata.PropertyName);
             StringLengthAttribute lenAttr = propData.TryGetAttribute<StringLengthAttribute>();
             if (lenAttr != null) {
+#if DEBUG
+                if (tag.Attributes.ContainsKey("maxlength"))
+                    throw new InternalError("Both StringLengthAttribute and maxlength specified - {0}", name);//$$$$$
+#endif
                 int maxLength = lenAttr.MaximumLength;
                 if (maxLength > 0 && maxLength <= 8000)
                     tag.MergeAttribute("maxlength", maxLength.ToString());
             }
+#if DEBUG
+            if (lenAttr == null && !tag.Attributes.ContainsKey("maxlength")) {
+                throw new InternalError("No max string length given using StringLengthAttribute or maxlength - {0}", name);//$$$$$
+            }
+#endif
             // text
             tag.MergeAttribute("type", "text");
             tag.MergeAttribute("value", text);
             tag.MergeAttribute("autocomplete", "on");
+            if (!useKendo)
+                tag.AddCssClass("ybrowsercontrols");
 
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
