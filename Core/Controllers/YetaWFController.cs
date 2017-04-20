@@ -127,6 +127,18 @@ namespace YetaWF.Core.Controllers {
             return new HttpUnauthorizedResult();
 #endif
         }
+        /// <summary>
+        /// Current request is marked 404 (Not Found).
+        /// </summary>
+        /// <remarks>The page and all modules are still rendered and processed.</remarks>
+        protected void MarkNotFound() {
+#if MVC6
+            Logging.AddErrorLog("404 Not Found");
+            Manager.CurrentResponse.StatusCode = 404;
+#else
+            Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
+#endif
+        }
 
 #if MVC6
         // This is handled in ResourceAuthorizeHandler
