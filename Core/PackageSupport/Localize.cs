@@ -301,7 +301,7 @@ namespace YetaWF.Core.Packages {
             if (strings.Count > 0) {
 
                 if (string.IsNullOrWhiteSpace(cls))
-                    throw new InternalError("File {0} can't contain resource string definitions because its class doesn't support resource access");
+                    throw new InternalError("File {0} can't contain resource string definitions because its class doesn't support resource access", file);
 
                 string filename = cls;
                 LocalizationData data = LocalizationSupport.Load(this, filename, LocalizationSupport.Location.DefaultResources);
