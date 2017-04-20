@@ -471,6 +471,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="FormErrorsImmed" />
+                            <Caption Value="Immediate Form Errors" />
+                            <Description Value="Defines whether errors on forms are immediately marked using warning indicators when first displayed - otherwise indicators are shown as fields are edited and after a form is first submitted" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="GoogleVerification" />
                             <Caption Value="Google Verification" />
                             <Description Value="The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)" />
