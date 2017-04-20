@@ -1,29 +1,13 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
-'use strict';
 
 // validation for all forms
-
-// REQUIRED
-// REQUIRED
-// REQUIRED
-
-$.validator.addMethod('customrequired', function (value, element, parameters) {
-    if ($(element).hasClass('.yNoValidate')) return true;
-    if (value == undefined || value == null || value.trim().length == 0) return false;
-    return true;
-});
-
-$.validator.unobtrusive.adapters.add('customrequired', [YConfigs.Forms.ConditionPropertyName, YConfigs.Forms.ConditionPropertyValue], function (options) {
-    options.rules['customrequired'] = { };
-    options.messages['customrequired'] = options.message;
-});
 
 // SELECTIONREQUIRED
 // SELECTIONREQUIRED
 // SELECTIONREQUIRED
 
 $.validator.addMethod('selectionrequired', function (value, element, parameters) {
-    if ($(element).hasClass('.yNoValidate')) return true;
+    if ($(element).hasClass('yNoValidate')) return true;
     if (value == undefined || value == null || value.trim().length == 0 || value.trim() == "0") return false;
     return true;
 });
@@ -38,8 +22,9 @@ $.validator.unobtrusive.adapters.add('selectionrequired', [YConfigs.Forms.Condit
 // REQUIREDIF
 
 $.validator.addMethod('requiredif', function (value, element, parameters) {
+    'use strict';
 
-    if ($(element).hasClass('.yNoValidate')) return true;
+    if ($(element).hasClass('yNoValidate')) return true;
 
     // get the target value (as a string)
     var conditionvalue = parameters['targetvalue'];
@@ -101,8 +86,9 @@ $.validator.unobtrusive.adapters.add('requiredif', [YConfigs.Forms.ConditionProp
 // REQUIREDIFNOT
 
 $.validator.addMethod('requiredifnot', function (value, element, parameters) {
+    'use strict';
 
-    if ($(element).hasClass('.yNoValidate')) return true;
+    if ($(element).hasClass('yNoValidate')) return true;
 
     // get the target value (as a string,
     // as that's what the actual value will be)
@@ -159,8 +145,9 @@ $.validator.unobtrusive.adapters.add('requiredifnot', [YConfigs.Forms.ConditionP
 // REQUIREDIFINRANGE
 
 $.validator.addMethod('requiredifinrange', function (value, element, parameters) {
+    'use strict';
 
-    if ($(element).hasClass('.yNoValidate')) return true;
+    if ($(element).hasClass('yNoValidate')) return true;
 
     // get the target value (as a int as that's what the actual value will be)
     var conditionvaluelow = parseInt(parameters['targetvaluelow'], 10);
@@ -208,8 +195,9 @@ $.validator.unobtrusive.adapters.add('requiredifinrange', [YConfigs.Forms.Condit
 // REQUIREDIFSUPPLIED
 
 $.validator.addMethod('requiredifsupplied', function (value, element, parameters) {
+    'use strict';
 
-    if ($(element).hasClass('.yNoValidate')) return true;
+    if ($(element).hasClass('yNoValidate')) return true;
 
     // Get value of the target control - we can't use its Id because it could be non-unique, not predictable
     // use the name attribute instead
@@ -250,8 +238,9 @@ $.validator.unobtrusive.adapters.add('requiredifsupplied', [YConfigs.Forms.Condi
 // SAMEAS
 
 $.validator.addMethod('sameas', function (value, element, parameters) {
+    'use strict';
 
-    if ($(element).hasClass('.yNoValidate')) return true;
+    if ($(element).hasClass('yNoValidate')) return true;
 
     // Get value of the target control - we can't use its Id because it could be non-unique, not predictable
     // use the name attribute instead
@@ -284,5 +273,54 @@ $.validator.unobtrusive.adapters.add('sameas', [YConfigs.Forms.ConditionProperty
         dependentproperty: options.params[YConfigs.Forms.ConditionPropertyName],
     };
     options.messages['sameas'] = options.message;
+});
+
+// LISTNODUPLICATES
+// LISTNODUPLICATES
+// LISTNODUPLICATES
+
+$.validator.addMethod('listnoduplicates', function (value, element, parameters) {
+    'use strict';
+
+    var $element = $(element);
+    if ($element.hasClass('yNoValidate')) return true;
+
+    // Lists are always in a grid. Because field names can be duplicates (occurs due to add/delete) we can use the element name for comparisons
+    // instead we locate the jqgrid record id
+    // verify we're in a grid control
+    var $grid = $element.closest('.yt_grid');/*DEBUG*/
+    if ($grid.length != 1) throw "Can't find grid control";/*DEBUG*/
+
+    function getRowId($element) {
+        // get the closest row (it has the record id)
+        var $row = $element.closest('tr');
+        if ($row.length != 1) throw "Can't find grid row";/*DEBUG*/
+        var id = $row.attr("id");// record id (0..n)
+        if (id == undefined) throw "Can't find record id";/*DEBUG*/
+        return id;
+    }
+    var index = getRowId($element);// get the index of the element we're checking
+
+    // extract the field name (usually fieldname[x].__name)
+    var re1 = new RegExp(new RegExp('([a-z0-9]+\\[)([0-9]+)(\\].*)', 'i'));
+    var result = element.name.match(re1);
+    if (result == null) return false;
+    value = value.trim().toUpperCase(); // value to find
+
+    // find all matching fields with indexed names
+    var $set = $('input[name^="{0}"]'.format(result[1])).filter('[name$="{0}"]'.format(result[3]));
+
+    for (var i = 0 ; i < $set.length ; ++i) {
+        if (getRowId($set.eq(i)) != index) {
+            if ($set.eq(i).val().trim().toUpperCase() == value)
+                return false;// duplicate found
+        }
+    }
+    return true;
+});
+
+$.validator.unobtrusive.adapters.add('listnoduplicates', [YConfigs.Forms.ConditionPropertyName, YConfigs.Forms.ConditionPropertyValue], function (options) {
+    options.rules['listnoduplicates'] = {};
+    options.messages['listnoduplicates'] = options.message;
 });
 
