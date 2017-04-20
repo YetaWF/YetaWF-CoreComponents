@@ -63,6 +63,7 @@ namespace YetaWF.Core.Views.Shared {
             } else if (gridEntry != null) {
                 readOnly = false;
                 prefix = gridEntry.Prefix;
+                recordCount = gridEntry.RecNumber;
                 hiddenProps = GridHelper.GetHiddenGridProperties(model);//not sure whether this could fail - if so, handle it
                 props = GridHelper.GetGridProperties(model);
             }
@@ -92,39 +93,31 @@ namespace YetaWF.Core.Views.Shared {
                         // check whether the record supports a special "__highlight" property
                         hb.Append(prop.Value is bool && (bool)prop.Value == true ? "true" : "false");
                     } else {
-#if MVC6
-                        htmlHelper.ViewContext.ViewData = new ViewDataDictionary(metadataProvider, new ModelStateDictionary { }) {
-                            Model = prop.Value,
-                            TemplateInfo = { HtmlFieldPrefix = prefix },
-                        };
-#else
-                        htmlHelper.ViewContext.ViewData = htmlHelper.ViewDataContainer.ViewData = new ViewDataDictionary(prop.Value) {
-                            ModelMetadata = meta,
-                            TemplateInfo = new TemplateInfo() { HtmlFieldPrefix = prefix },
-                        };
-#endif
+                        TemplateInfo oldTemplateInfo = htmlHelper.ViewContext.ViewData.TemplateInfo;
+                        htmlHelper.ViewContext.ViewData.TemplateInfo = new TemplateInfo() { HtmlFieldPrefix = prefix };
+
+                        string propName = "[" + recordCount + "]." + prop.Name;
                         if (!readOnly && prop.Editable && recordEnabled) {
-                            output = htmlHelper.EditorFor(m => prop.Value, prop.UIHint, "[" + recordCount + "]." + prop.Name).AsString();
+                            output = htmlHelper.Editor(prop.Name, prop.UIHint, propName).AsString();
+                            output += htmlHelper.ValidationMessage(propName).AsString();
                         } else {
-                            output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, "[" + recordCount + "]." + prop.Name).AsString();
+                            output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, propName).AsString();
                         }
                         if (string.IsNullOrWhiteSpace(output)) { output = "&nbsp;"; }
 
                         if (!readOnly && prop.Editable && hiddenProps != null) {
                             // list hidden properties with the first editable field
-                            foreach (var h in hiddenProps) {
+                            foreach (var h in hiddenProps)
                                 output += htmlHelper.DisplayFor(m => h.Value, "Hidden", "[" + recordCount + "]." + h.Name).AsString();
-                            }
                             hiddenProps = null;
                         }
 
                         hb.Append(YetaWFManager.Jser.Serialize(output));
+
+                        htmlHelper.ViewContext.ViewData.TemplateInfo = oldTemplateInfo;
                     }
                 }
                 ++propCount;
-
-                // restore original viewdata
-                htmlHelper.ViewContext.ViewData = oldVdd;
             }
             Manager.RenderingGridCount = Manager.RenderingGridCount - 1;
 
