@@ -47,7 +47,7 @@ namespace YetaWF.Core.Models.Attributes {
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             if (string.IsNullOrWhiteSpace(ErrorMessage))
-                ErrorMessage = string.Format(__ResStr("SameAs", "The {0} field doesn't match."), AttributeHelper.GetPropertyCaption(context.ModelMetadata));
+                ErrorMessage = __ResStr("SameAs", "The {0} field doesn't match", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
@@ -60,7 +60,7 @@ namespace YetaWF.Core.Models.Attributes {
             if (!string.IsNullOrWhiteSpace(ErrorMessage))
                 rule.ErrorMessage = ErrorMessage;
             else
-                rule.ErrorMessage = string.Format(__ResStr("SameAs", "The {0} field doesn't match."), AttributeHelper.GetPropertyCaption(metadata));
+                rule.ErrorMessage = __ResStr("SameAs", "The {0} field doesn't match", AttributeHelper.GetPropertyCaption(metadata));
             rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
             yield return rule;
         }

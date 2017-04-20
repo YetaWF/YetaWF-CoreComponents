@@ -27,7 +27,7 @@ namespace YetaWF.Core.Packages {
                 // check id file
                 ZipEntry ze = zip[PackageIDDataFile];
                 if (ze == null) {
-                    errorList.Add(string.Format(__ResStr("invDataFormat", "{0} is not a valid package data file."), displayFileName));
+                    errorList.Add(__ResStr("invDataFormat", "{0} is not a valid package data file.", displayFileName));
                     return false;
                 }
 
@@ -48,11 +48,11 @@ namespace YetaWF.Core.Packages {
                 List<Package> allPackages = Package.GetAvailablePackages();
                 Package realPackage = allPackages.Where(x => string.Compare(x.Name, serData.PackageName, StringComparison.OrdinalIgnoreCase) == 0).FirstOrDefault();
                 if (realPackage == null) {
-                    errorList.Add(string.Format(__ResStr("errPkgReqDataImp", "Package {0} required to import data is not installed."), serData.PackageName));
+                    errorList.Add(__ResStr("errPkgReqDataImp", "Package {0} required to import data is not installed.", serData.PackageName));
                     return false;
                 }
                 if (Package.CompareVersion(realPackage.Version, serData.PackageVersion) < 0) {
-                    errorList.Add(string.Format(__ResStr("errPkgDataVers", "The data to be imported was created for version {0} of package {1}, but the installed package is older (version is {2})."),
+                    errorList.Add(__ResStr("errPkgDataVers", "The data to be imported was created for version {0} of package {1}, but the installed package is older (version is {2}).",
                             serData.PackageVersion, realPackage.Name, realPackage.Version));
                     return false;
                 }

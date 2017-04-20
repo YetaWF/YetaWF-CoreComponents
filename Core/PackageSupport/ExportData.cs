@@ -19,7 +19,7 @@ namespace YetaWF.Core.Packages {
             if (!IsModulePackage && !IsCorePackage)
                 throw new InternalError("This package type has no associated data to export");
 
-            string zipName = string.Format(__ResStr("packageDataFmt", "Package Data - {0}.{1}.zip", this.Name, this.Version));
+            string zipName = __ResStr("packageDataFmt", "Package Data - {0}.{1}.zip", this.Name, this.Version);
 
             SerializableData serData;
             ZipEntry ze;

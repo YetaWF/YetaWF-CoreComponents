@@ -45,7 +45,7 @@ namespace YetaWF.Core.Views.Shared {
                 else {
                     string collName = (from s in skinAccess.GetAllSkinCollections() where s.CollectionName == model.Collection select s.CollectionDescription).FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(collName))
-                        sb.Append(string.Format(__ResStr("noColl", "(unknown {0})", model.Collection)));
+                        sb.Append(__ResStr("noColl", "(unknown {0})", model.Collection));
                     else
                         sb.Append(collName);
                 }
@@ -55,7 +55,7 @@ namespace YetaWF.Core.Views.Shared {
                 else {
                     string skinName = (from s in skinAccess.GetAllPopupSkins(model.Collection) where s.FileName == model.FileName select s.Name).FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(skinName))
-                        sb.Append(string.Format(__ResStr("noFile", "(unknown {0})", model.FileName)));
+                        sb.Append(__ResStr("noFile", "(unknown {0})", model.FileName));
                     else
                         sb.Append(skinName);
                 }
@@ -85,7 +85,7 @@ namespace YetaWF.Core.Views.Shared {
                 else {
                     string collName = (from s in skinAccess.GetAllSkinCollections() where s.CollectionName == model.Collection select s.CollectionDescription).FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(collName))
-                        sb.Append(string.Format(__ResStr("noColl", "(unknown {0})", model.Collection)));
+                        sb.Append(__ResStr("noColl", "(unknown {0})", model.Collection));
                     else
                         sb.Append(collName);
                 }
@@ -95,7 +95,7 @@ namespace YetaWF.Core.Views.Shared {
                 else {
                     string skinName = (from s in skinAccess.GetAllPageSkins(model.Collection) where s.FileName == model.FileName select s.Name).FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(skinName))
-                        sb.Append(string.Format(__ResStr("noFile", "(unknown {0})", model.FileName)));
+                        sb.Append(__ResStr("noFile", "(unknown {0})", model.FileName));
                     else
                         sb.Append(skinName);
                 }

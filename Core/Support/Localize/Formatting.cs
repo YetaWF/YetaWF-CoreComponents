@@ -221,7 +221,7 @@ namespace YetaWF.Core.Localize {
 
         public static string LongMBDisplay(long value, bool detailed = false) {
             if (detailed) {
-                return string.Format(__ResStr("strFmtMBdet", "{0:##,#} Bytes"), value);
+                return __ResStr("strFmtMBdet", "{0:##,#} Bytes", value);
             } else {
                 const long oneMeg = 1024*1204;
 
@@ -231,13 +231,13 @@ namespace YetaWF.Core.Localize {
                 else if (value < oneMeg)
                     strValue = __ResStr("strLT1MB", "< 1 MB");
                 else
-                    strValue = string.Format(__ResStr("strFmtMB", "{0} MB"), (value+(oneMeg/2)) / oneMeg);
+                    strValue = __ResStr("strFmtMB", "{0} MB", (value+(oneMeg/2)) / oneMeg);
                 return strValue;
             }
         }
         public static string LongKBDisplay(long value, bool detailed = false) {
             if (detailed) {
-                return string.Format(__ResStr("strFmtKBdet", "{0:##,0} Bytes"), value);
+                return __ResStr("strFmtKBdet", "{0:##,0} Bytes", value);
             } else {
                 if (value < 0)
                     return __ResStr("unknownKB", "(unknown)");
@@ -245,7 +245,7 @@ namespace YetaWF.Core.Localize {
                     return __ResStr("less1KB", "< 1K");
                 if (value > 1024*1024*10) // 10 MB
                     return LongMBDisplay(value, detailed);
-                return string.Format(__ResStr("strFmtKB", "{0} KB"), (long)((value + 512)/1024));
+                return __ResStr("strFmtKB", "{0} KB", (long)((value + 512)/1024));
             }
         }
         public static string FormatFileSize(long value) {

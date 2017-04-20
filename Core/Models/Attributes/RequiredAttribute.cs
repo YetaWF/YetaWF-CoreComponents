@@ -23,11 +23,11 @@ namespace YetaWF.Core.Models.Attributes {
 
         protected void SetMessage(ValidationContext valContext) {
             string caption = AttributeHelper.GetPropertyCaption(valContext);
-            ErrorMessage = string.Format(__ResStr("required", "The '{0}' field is required"), caption);
+            ErrorMessage = __ResStr("required", "The '{0}' field is required", caption);
         }
         protected void SetMessage(ModelMetadata metadata) {
             string caption = AttributeHelper.GetPropertyCaption(metadata);
-            ErrorMessage = string.Format(__ResStr("required", "The '{0}' field is required"), caption);
+            ErrorMessage = __ResStr("required", "The '{0}' field is required", caption);
         }
         public override bool IsValid(object value) {
             if (value is MultiString) {
@@ -52,6 +52,10 @@ namespace YetaWF.Core.Models.Attributes {
             }
             return ValidationResult.Success;
         }
+        // our customrequired rule is renamed to required in FieldHelper.AddValidation
+        // MVC auto-adds "required" rules for some attributes, so we remove these altogether as they're too eager sometimes
+        // We use our own RequiredAttribute which generates a customrequired rule, but it is renamed to required in FieldHelper.AddValidation
+        // client-side the "required" rule must be used as it's pretty much hardcoded in jquery.validate.js.
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
             SetMessage(context.ModelMetadata);
@@ -80,11 +84,11 @@ namespace YetaWF.Core.Models.Attributes {
 
         protected void SetMessage(ValidationContext context) {
             string caption = AttributeHelper.GetPropertyCaption(context);
-            ErrorMessage = string.Format(__ResStr("selectionRequired", "The '{0}' field is required - Please select one of the available options"), caption);
+            ErrorMessage = __ResStr("selectionRequired", "The '{0}' field is required - Please select one of the available options", caption);
         }
         protected void SetMessage(ModelMetadata metadata) {
             string caption = AttributeHelper.GetPropertyCaption(metadata);
-            ErrorMessage = string.Format(__ResStr("selectionRequired", "The '{0}' field is required - Please select one of the available options"), caption);
+            ErrorMessage = __ResStr("selectionRequired", "The '{0}' field is required - Please select one of the available options", caption);
         }
         public override bool IsValid(object value) {
             if (value is MultiString) {

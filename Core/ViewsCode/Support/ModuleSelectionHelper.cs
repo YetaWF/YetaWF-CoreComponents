@@ -46,9 +46,9 @@ namespace YetaWF.Core.Views.Shared {
             List<SelectionItem<string>> list = (
                 from p in InstalledModules.Packages orderby p.Name select
                     new SelectionItem<string> {
-                        Text = string.Format(__ResStr("package", "{0}", p.Name)),
+                        Text = __ResStr("package", "{0}", p.Name),
                         Value = p.AreaName,
-                        Tooltip = string.Format(__ResStr("packageTT", "{0} - {1}", p.Description.ToString(), p.CompanyDisplayName)),
+                        Tooltip = __ResStr("packageTT", "{0} - {1}", p.Description.ToString(), p.CompanyDisplayName),
                     }).ToList<SelectionItem<string>>();
             list = (from l in list orderby l.Text select l).ToList();
             list.Insert(0, new SelectionItem<string> { Text = __ResStr("selectPackage", "(select)"), Value = null });

@@ -14,7 +14,7 @@ namespace YetaWF.Core.Modules {
 
         public YetaWFZipFile ExportData() {
 
-            string zipName = string.Format(__ResStr("moduleFmt", "Module Data - {0}.{1}.zip", this.ModuleDisplayName, this.Version));
+            string zipName = __ResStr("moduleFmt", "Module Data - {0}.{1}.zip", this.ModuleDisplayName, this.Version);
 
             SerializableModule serModule;
             YetaWFZipFile zipFile = MakeZipFile(zipName, out serModule);

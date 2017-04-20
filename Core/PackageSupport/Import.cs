@@ -30,7 +30,7 @@ namespace YetaWF.Core.Packages {
                 // check id file
                 ZipEntry ze = zip[PackageIDFile];
                 if (ze == null) {
-                    errorList.Add(string.Format(__ResStr("invFormat", "{0} is not a valid binary or source code package file."), displayFileName));
+                    errorList.Add(__ResStr("invFormat", "{0} is not a valid binary or source code package file.", displayFileName));
                     return false;
                 }
 
@@ -48,12 +48,12 @@ namespace YetaWF.Core.Packages {
                 File.Delete(xmlFile);
 
                 if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
-                    errorList.Add(string.Format(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",
-                        YetaWFManager.GetAspNetMvcName(serPackage.AspNetMvcVersion), YetaWFManager.GetAspNetMvcName(YetaWFManager.AspNetMvc))));
+                    errorList.Add(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",
+                        YetaWFManager.GetAspNetMvcName(serPackage.AspNetMvcVersion), YetaWFManager.GetAspNetMvcName(YetaWFManager.AspNetMvc)));
                     return false;
                 }
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serPackage.CoreVersion) < 0) {
-                    errorList.Add(string.Format(__ResStr("invCore", "This package requires YetaWF version {0} - Current version found is {1}"), serPackage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
+                    errorList.Add(__ResStr("invCore", "This package requires YetaWF version {0} - Current version found is {1}", serPackage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
                 return Import(zip, displayFileName, serPackage, errorList);
@@ -224,7 +224,7 @@ namespace YetaWF.Core.Packages {
                     errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when it's rebuilt using Visual Studio."));
                 }
             } catch (Exception exc) {
-                errorList.Add(string.Format(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}"), serPackage.PackageName, serPackage.PackageVersion, exc.Message));
+                errorList.Add(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}", serPackage.PackageName, serPackage.PackageVersion, exc.Message));
                 return false;
             }
             return true;

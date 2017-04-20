@@ -24,7 +24,7 @@ namespace YetaWF.Core.Modules {
                 // check id file
                 ZipEntry ze = zip[ModuleIDFile];
                 if (ze == null) {
-                    errorList.Add(string.Format(__ResStr("invFormat", "{0} is not valid module data"), displayFileName));
+                    errorList.Add(__ResStr("invFormat", "{0} is not valid module data", displayFileName));
                     return false;
                 }
 
@@ -40,7 +40,7 @@ namespace YetaWF.Core.Modules {
                 File.Delete(xmlFile);
 
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serModule.CoreVersion) < 0) {
-                    errorList.Add(string.Format(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}"), serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
+                    errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
                 return Import(zip, displayFileName, serModule, pageGuid, newModule, pane, top, errorList);
@@ -93,7 +93,7 @@ namespace YetaWF.Core.Modules {
                     }
                 }
             } catch (Exception exc) {
-                errorList.Add(string.Format(__ResStr("errCantImport", "Module Data {0}({1}) cannot be imported - {2}"), serModule.ModuleName, serModule.ModuleVersion, exc.Message));
+                errorList.Add(__ResStr("errCantImport", "Module Data {0}({1}) cannot be imported - {2}", serModule.ModuleName, serModule.ModuleVersion, exc.Message));
                 return false;
             }
             return true;

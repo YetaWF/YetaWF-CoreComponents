@@ -35,15 +35,15 @@ namespace YetaWF.Core.Packages {
 
             string zipName = SourceCode ?
 #if MVC6
-                    string.Format(__ResStr("packageFmtSrcCore", "Package w_Source ASPNETCore - {0}.{1}.zip", this.Name, this.Version))
+                    __ResStr("packageFmtSrcCore", "Package w_Source ASPNETCore - {0}.{1}.zip", this.Name, this.Version)
 #else
-                    string.Format(__ResStr("packageFmtSrc", "Package w_Source ASPNET4 - {0}.{1}.zip", this.Name, this.Version))
+                    __ResStr("packageFmtSrc", "Package w_Source ASPNET4 - {0}.{1}.zip", this.Name, this.Version)
 #endif
                 :
 #if MVC6
-                    string.Format(__ResStr("packageFmtCore", "Package ASPNETCore - {0}.{1}.zip", this.Name, this.Version))
+                    __ResStr("packageFmtCore", "Package ASPNETCore - {0}.{1}.zip", this.Name, this.Version)
 #else
-                    string.Format(__ResStr("packageFmt", "Package ASPNET4 - {0}.{1}.zip", this.Name, this.Version))
+                    __ResStr("packageFmt", "Package ASPNET4 - {0}.{1}.zip", this.Name, this.Version)
 #endif
                 ;
 
