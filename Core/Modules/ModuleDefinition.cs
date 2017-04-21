@@ -69,8 +69,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             ReferencedModules = new SerializableList<ReferencedModule>();
         }
 
-        //[Category("Variables"), Caption("Category Order"), Description("The order in which the property categories are shown")]
-        //[UIHint("ListOfStrings")]
         public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
 
         [Category("Variables"), Caption("Permanent Guid"), Description("Displays a unique identifier for this type of module. This is typically used for development purposes only and can be used to uniquely identify this module type. This id never changes")]
