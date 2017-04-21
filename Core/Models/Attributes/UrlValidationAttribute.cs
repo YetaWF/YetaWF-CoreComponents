@@ -94,12 +94,20 @@ namespace YetaWF.Core.Models.Attributes {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
         }
-        public override bool IsValid(object objValue) {
-            if (objValue == null) return true;
-            string value = objValue as string;
-            if (string.IsNullOrWhiteSpace(value)) return true;
-
-            return Pattern.Match(value).Length > 0;
+        public override bool IsValid(object value) {
+            if (value == null) return true;
+            if (value is string) {
+                string valueAsString = (string)value;
+                if (string.IsNullOrWhiteSpace(valueAsString)) return true;
+                return Pattern.Match(valueAsString).Length > 0;
+            } else if (value is List<string>) {
+                List<string> list = (List<string>)value;
+                foreach (string l in list) {
+                    if (!IsValid(l)) return false;
+                }
+                return true;
+            } else
+                throw new InternalError("Invalid type used for UrlValidationAttribute - {0}", value.GetType().FullName);
         }
         protected override ValidationResult IsValid(object objValue, ValidationContext context) {
             if (IsValid(objValue)) return ValidationResult.Success;
