@@ -30,9 +30,9 @@ namespace YetaWF.Core.Views.Shared {
         }
 
 #if MVC6
-        public static HtmlString RenderDate(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderDate(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderDate(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderDate(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             Include();
 

@@ -16,12 +16,12 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class LongValueHelper {
 #if MVC6
-        public static HtmlString RenderLongValue(this IHtmlHelper htmlHelper, string name, long value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderLongValue(this IHtmlHelper htmlHelper, string name, long value, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderLongValue(this HtmlHelper<object> htmlHelper, string name, long value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderLongValue(this HtmlHelper<object> htmlHelper, string name, long value, int dummy = 0, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
 
             tag.MergeAttribute("type", "text");
             tag.MergeAttribute("value", value.ToString());

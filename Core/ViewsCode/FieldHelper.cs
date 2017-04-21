@@ -64,23 +64,23 @@ namespace YetaWF.Core.Views {
             return id;
         }
 #if MVC6
-        public static string FieldSetup(this IHtmlHelper htmlHelper, TagBuilder tag, string name, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true, bool Anonymous = false) {
+        public static string FieldSetup(this IHtmlHelper htmlHelper, TagBuilder tag, string name, object HtmlAttributes = null, bool Validation = true, bool Anonymous = false) {
 #else
-        public static string FieldSetup(this HtmlHelper htmlHelper, TagBuilder tag, string name, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true, bool Anonymous = false) {
+        public static string FieldSetup(this HtmlHelper htmlHelper, TagBuilder tag, string name, object HtmlAttributes = null, bool Validation = true, bool Anonymous = false) {
 #endif
             if (Anonymous && Validation) throw new InternalError("Can't use validation with anonymous input fields");
 
             if (HtmlAttributes != null)
                 tag.MergeAttributes(FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), true);
-            string fullName = ModelNameOverride ?? htmlHelper.FieldName(name);//$$$remove ModelNameOverride
+            string fullName = htmlHelper.FieldName(name);
             if (!Anonymous) {
                 tag.MergeAttribute("name", fullName, true);
                 if (Validation) {
                     // error state
-                    htmlHelper.AddErrorClass(tag, ModelNameOverride ?? name);
+                    htmlHelper.AddErrorClass(tag, name);
                     // client side validation
                     if (Validation)
-                        htmlHelper.AddValidation(tag, ModelNameOverride ?? name);
+                        htmlHelper.AddValidation(tag, name);
                 }
             }
             return fullName;

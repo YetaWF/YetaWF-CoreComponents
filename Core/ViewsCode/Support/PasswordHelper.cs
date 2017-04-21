@@ -21,15 +21,15 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static HtmlString RenderPassword(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderPassword(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderPassword(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderPassword(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             Manager.AddOnManager.AddTemplate("Text");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
 
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
 
             // handle StringLengthAttribute as maxlength
             Type containerType = htmlHelper.ViewData.ModelMetadata.ContainerType;

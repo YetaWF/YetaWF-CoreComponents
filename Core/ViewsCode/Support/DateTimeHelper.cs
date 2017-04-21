@@ -30,9 +30,9 @@ namespace YetaWF.Core.Views.Shared {
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.datetimepicker.min.js");
         }
 #if MVC6
-        public static HtmlString RenderDateTime(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderDateTime(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderDateTime(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderDateTime(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             Include();
 

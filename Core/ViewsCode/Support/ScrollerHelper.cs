@@ -18,9 +18,9 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class ScrollerHelper {
 #if MVC6
-        public static HtmlString RenderScrollerDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, object model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderScrollerDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, object model, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderScrollerDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, object model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderScrollerDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, object model, int dummy = 0, object HtmlAttributes = null) {
 #endif
             string uiHint = htmlHelper.GetControlInfo<string>(name, "Template");
             if (uiHint == null) throw new InternalError("No UIHint available for scroller");

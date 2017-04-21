@@ -52,9 +52,9 @@ namespace YetaWF.Core.Views.Shared {
             return tImg;
         }
 #if MVC6
-        public static HtmlString RenderImageEdit(this IHtmlHelper<string> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderImageEdit(this IHtmlHelper<string> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderImageEdit(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderImageEdit(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null) {
 #endif
             // the upload control
             FileUpload1 info = new FileUpload1() {

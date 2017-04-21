@@ -18,23 +18,23 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static HtmlString RenderTextArea(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextArea(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextArea(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextArea(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
             Manager.AddOnManager.AddAddOnGlobal("ckeditor.com", "ckeditor");
 
             TagBuilder tag = new TagBuilder("textarea");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
 
             tag.SetInnerText(text);
 
             return tag.ToHtmlString(TagRenderMode.Normal);
         }
 #if MVC6
-        public static HtmlString RenderTextAreaDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append(Globals.LazyHTMLOptimization);

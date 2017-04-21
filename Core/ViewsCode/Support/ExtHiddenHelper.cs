@@ -38,13 +38,13 @@ namespace YetaWF.Core.Views.Shared {
             return ExtHiddenHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
         }
 #if MVC6
-        public static HtmlString RenderHidden(this IHtmlHelper htmlHelper, string name, object value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Anonymous = false, bool Validation = false) {
+        public static HtmlString RenderHidden(this IHtmlHelper htmlHelper, string name, object value, int dummy = 0, object HtmlAttributes = null, bool Anonymous = false, bool Validation = false) {
 #else
-        public static HtmlString RenderHidden(this HtmlHelper htmlHelper, string name, object value, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Anonymous = false, bool Validation = false) {
+        public static HtmlString RenderHidden(this HtmlHelper htmlHelper, string name, object value, int dummy = 0, object HtmlAttributes = null, bool Anonymous = false, bool Validation = false) {
 #endif
             if (value == null) value = "";
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Anonymous: Anonymous, Validation: Validation);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: Anonymous, Validation: Validation);
             tag.MergeAttribute("type", "hidden");
             tag.MergeAttribute("value", value.ToString());
             return tag.ToHtmlString(TagRenderMode.StartTag);

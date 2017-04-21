@@ -25,9 +25,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(USStateHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderUSState(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderUSState(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderUSState(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderUSState(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             List<SelectionItem<string>> states = ReadStatesList();
 

@@ -20,12 +20,12 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class CurrencyHelper {
 #if MVC6
-        public static HtmlString RenderCurrency(this IHtmlHelper htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderCurrency(this IHtmlHelper htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderCurrency(this HtmlHelper<object> htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderCurrency(this HtmlHelper<object> htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
 
             // handle min/max
             Type containerType = htmlHelper.ViewData.ModelMetadata.ContainerType;

@@ -24,9 +24,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(TextBoxHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderTextBox(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderTextBox(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null, bool Validation = true) {
+        public static HtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             Manager.AddOnManager.AddTemplate("Text");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
@@ -39,7 +39,7 @@ namespace YetaWF.Core.Views.Shared {
             //string mask = htmlHelper.GetControlInfo<string>("", "Mask", null);
 
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: Validation);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
             //string id = null;
             //if (!string.IsNullOrWhiteSpace(mask)) {
             //    id = htmlHelper.MakeId(tag);
@@ -88,9 +88,9 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToHtmlString();
         }
 #if MVC6
-        public static HtmlString RenderTextBoxDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextBoxDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextBoxDisplay(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextBoxDisplay(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
             Manager.AddOnManager.AddTemplate("Text");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
@@ -101,7 +101,7 @@ namespace YetaWF.Core.Views.Shared {
             bool rdonly = htmlHelper.GetControlInfo<bool>("", "ReadOnly", false);
 
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride, Validation: false, Anonymous: true);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
 
             tag.MergeAttribute("type", "text");
             tag.MergeAttribute("value", text);

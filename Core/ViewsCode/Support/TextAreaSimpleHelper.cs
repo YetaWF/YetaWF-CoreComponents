@@ -16,20 +16,20 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class TextAreaSimpleHelper {
 #if MVC6
-        public static HtmlString RenderTextAreaSimple(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaSimple(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextAreaSimple(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaSimple(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("textarea");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, ModelNameOverride: ModelNameOverride);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
             tag.SetInnerText(text);
 
             return tag.ToHtmlString(TagRenderMode.Normal);
         }
 #if MVC6
-        public static HtmlString RenderTextAreaSimpleDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaSimpleDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextAreaSimpleDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, string ModelNameOverride = null) {
+        public static HtmlString RenderTextAreaSimpleDisplay(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
             TagBuilder tag = new TagBuilder("div");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: true, Validation: false);
