@@ -32,7 +32,7 @@ namespace YetaWF.Core.Views.Shared {
 
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Package("#Remove", currentPackage);
+            string imageUrl = skinImages.FindIcon_Package("#RemoveLight", currentPackage);
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altRemove", "Remove"));
             tagImg.MergeAttribute("name", "DeleteAction", true);
             tag.SetInnerHtml(tagImg.ToString(TagRenderMode.StartTag));

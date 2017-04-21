@@ -28,6 +28,7 @@ namespace YetaWF.Core.Skins {
            { "#ModuleMenu", "ModuleMenu.png" },
            { "#Preview", "Preview.png" },
            { "#Remove", "Remove.png" },
+           { "#RemoveLight", "RemoveLight.png" },
            { "#Warning", "WarningIcon.png" },
         };
 
