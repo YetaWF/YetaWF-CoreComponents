@@ -54,6 +54,14 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
+                <Name Value="dupClient" />
+                <Text Value="Duplicate entry found" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
                 <Name Value="errInvMeta" />
                 <Text Value="The meta tag is invalid - It should be in the format &lt;meta name=&quot;google-site-verification&quot; content=&quot;....your-code....&quot; /&gt;" />
               </Properties>
@@ -240,6 +248,14 @@
               <Properties>
                 <Name Value="valGuid2" />
                 <Text Value="The guid ({0}) is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="valUrl" />
+                <Text Value="The Url is invalid" />
               </Properties>
             </Object>
           </Value>
