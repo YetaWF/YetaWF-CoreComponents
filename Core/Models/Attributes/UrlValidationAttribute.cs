@@ -1,13 +1,17 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using System.Web.Mvc;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+#else
+using System.Collections.Generic;
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -105,7 +109,7 @@ namespace YetaWF.Core.Models.Attributes {
         public void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("valUrl", "The Url is invalid");
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern);
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -114,7 +118,7 @@ namespace YetaWF.Core.Models.Attributes {
                 ErrorMessage = __ResStr("dupClient", "Duplicate entry found"),
                 ValidationType = "regex",
             };
-            rule.ValidationParameters.Add("pattern", Pattern);
+            rule.ValidationParameters.Add("pattern", Pattern.ToString());
             yield return rule;
         }
 #endif
