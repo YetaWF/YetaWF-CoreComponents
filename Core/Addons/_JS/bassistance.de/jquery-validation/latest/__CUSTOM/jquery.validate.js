@@ -32,7 +32,17 @@ $.extend( $.fn, {
 		// Check if a validator for this form was already created
 		var validator = $.data( this[ 0 ], "validator" );
 		if ( validator ) {
-			return validator;
+		    // $$$$$$$$$$$$$$$$$$$ CUSTOMIZATION:
+		    if (options) {
+		        // if we already have a validator, update messages and rules (in case unobtrusive validation is calling to re-init after ajax)
+		        validator.rules = options.rules;
+		        validator.messages = options.messages;
+		        validator.settings.rules = options.rules;
+		        validator.settings.messages = options.messages;
+		        validator.init();
+		    }
+		    // $$$$$$$$$$$$$$$$$$$ END-CUSTOMIZATION:
+		    return validator;
 		}
 
 		// Add novalidate tag if HTML5.

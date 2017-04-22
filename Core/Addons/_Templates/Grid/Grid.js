@@ -223,13 +223,11 @@ YetaWF_Grid.HandleInputUpdates = function ($grid, saveInDataSource) {
             $grid.jqGrid('setCell', id, name, $cell.html());
             if (name == '__Value') {
                 // update key and display info for native values
-                //$$ var ds = $grid.jqGrid('getGridParam', 'data');
                 var propertyName = $grid.attr('data-deleteproperty');
                 if (propertyName == undefined) throw "Can't get property name";/*DEBUG*/
                 var displayName = $grid.attr('data-displayproperty');
                 if (displayName == undefined) throw "Can't get display property name";/*DEBUG*/
                 var rec = $grid.jqGrid('getRowData', id);
-                //$$ var rec = ds[id];
                 rec[propertyName] = val;
                 rec[displayName] = val;
                 $grid.jqGrid('setRowData', id, rec);
@@ -373,8 +371,7 @@ YetaWF_Grid.gridComplete = function ($grid, gridId) {
     if ($gbox.length != 1) throw "Can't find main grid";/*DEBUG*/
     $("option[value={0}]".format(YConfigs.Grid.allRecords), $gbox).text(YLocs.Grid.allRecords);
     // restart validation for new data exposed (by paging)
-    if ($grid.getGridParam("datatype") == 'local')
-        YetaWF_Forms.restartValidation($grid);
+    YetaWF_Forms.updateValidation($grid);
 };
 
 // update the grid in case there are no records shown
@@ -612,6 +609,7 @@ $(document).ready(function () {
             data: postData, cache: false, type: 'POST',
             dataType: 'html',
             success: function (result, textStatus, jqXHR) {
+                Y_Loading(false);
                 if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
                     eval(script);
@@ -636,11 +634,12 @@ $(document).ready(function () {
                 $grid.trigger('reloadGrid');
                 YetaWF_Grid.ShowPager($grid);
 
-                _YetaWF_Forms.redoValidation($grid)
+                YetaWF_Forms.updateValidation($grid);
 
                 Y_Confirm($ctrl.attr('data-addedmsg').format(attrVal));
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                Y_Loading(false);
                 Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
             }
         });

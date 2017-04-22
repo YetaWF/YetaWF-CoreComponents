@@ -37,14 +37,9 @@ YetaWF_Forms.initPartialForm = function ($partialForm) {
     }
     YetaWF_Forms.partialFormActions1 = [];
 
-    // re-evaluate form validation if requested
-    var $forms = $('form[data-validationneeded=true]');
-    $forms.each(function() {
-        _YetaWF_Forms.redoValidation($(this));
-    });
-
-    // add warning icons to validation errors
+    // get all fields with errors (set server-side)
     var $errs = $('.field-validation-error', $partialForm);
+    // add warning icons to validation errors
     $errs.each(function () {
         var $val = $(this);
         var name = $val.attr("data-valmsg-for");
@@ -54,6 +49,7 @@ YetaWF_Forms.initPartialForm = function ($partialForm) {
             Y_HtmlEscape(YConfigs.Forms.CssWarningIconUrl), name, YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_HtmlEscape($val.text())));
     });
 
+    // show error popup
     var hasErrors = _YetaWF_Forms.hasErrors($partialForm);
     if (hasErrors)
         _YetaWF_Forms.showErrors($partialForm);
@@ -304,26 +300,12 @@ YetaWF_Forms.submitTemplate = function (obj, useValidation, templateName, templa
     YetaWF_Forms.submit(YetaWF_Forms.getForm($(obj)), true, qs);
 };
 
-YetaWF_Forms.restartValidation = function ($div) {
-    var $form = $div.closest('form');
-    $form.attr('data-validationneeded', 'true');// mark that we need validtion to run once everything is loaded
+YetaWF_Forms.updateValidation = function ($div) {
+    // re-validate all fields within the div, typically used after paging in a grid
+    // to let jquery.validate update all fields
+    $.validator.unobtrusive.parse($div);
+    $('input,select,textarea', $div).trigger('focusout');
 };
-// re-init validation for the specified form
-_YetaWF_Forms.redoValidation = function ($form) {
-    var $form = $form.closest('form');
-    // Hacky at best because there is no simple api for this, also somewhat inefficient to restart the entire form after ajax just to update some fields
-    // grid templates definitely push the limit of jquery.validate
-    // make sure validation is reset (including hooks) so we evaluate the new fields
-    var validator = $form.validate();
-    validator.destroy();// destroy current validator
-    $.validator.unobtrusive.parse($form);// reparse added input fields
-    $form.data('jQueryValidateTriggersAdded', false);// need to reinit hooks
-    $form.unbind('formValidation'); // unbind any controls we removed
-    $form.addTriggersToJqueryValidate().triggerElementValidationsOnFormValidation();// prepare to attach hooks
-    $form.validate();// attaches hooks
-    $form.valid();// add warning indicators
-    $form.removeAttr('data-validationneeded');
-}
 YetaWF_Forms.getForm = function (obj) {
     var $form = $(obj).closest('form');
     if ($form.length == 0) throw "Can't locate enclosing form";/*DEBUG*/
@@ -475,12 +457,11 @@ $(document).ready(function () {
         $err.remove();
     });
 
-    // remove any reqeusts to re-evaluate  as we're doing it below
-    var $forms = $('form');
-    $forms.removeAttr('data-validationneeded');
-
-    $forms.validate();
-    $forms = $('form').filter('.yValidateImmediately');
-    if ($forms.length > 0)
-        $forms.valid(); // force all fields to show valid/not valid
+    var $forms = $('form').filter('.yValidateImmediately');
+    if ($forms.length > 0) {
+        $forms.each(function () {
+            $(this).validate();
+            $(this).valid(); // force all fields to show valid/not valid
+        });
+    }
 });
