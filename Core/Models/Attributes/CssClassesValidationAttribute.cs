@@ -26,8 +26,8 @@ namespace YetaWF.Core.Models.Attributes {
 
         public CssClassValidationAttribute() : base(@"^\s*[_a-zA-Z][_a-zA-Z0-9-]*\s*$",
                 __ResStr("valCssClass", "The class listed is invalid - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit"),
-                __ResStr("valCssClasses2", "The class listed is invalid (field '{0}') - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit"),
-                __ResStr("valCssClasses3", "The class '{0}' is invalid - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit")
+                __ResStr("valCssClass2", "The class listed is invalid (field '{0}') - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit"),
+                __ResStr("valCssClass3", "The class '{0}' is invalid - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit")
             ) { }
     }
 }

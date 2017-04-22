@@ -69,26 +69,26 @@ namespace YetaWF.Core.Models.Attributes {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
-                        return __ResStr("valUrl1", "The Url '{0}' is invalid - It should be in the format '/someLocalPage', '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
+                        return __ResStr("valUrlD1", "The Url '{0}' is invalid - It should be in the format '/someLocalPage', '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
                     case SchemaEnum.HttpOnly:
-                        return __ResStr("valUrl2", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' or 'http://somedomain.com/page' - https is not allowed");
+                        return __ResStr("valUrlD2", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' or 'http://somedomain.com/page' - https is not allowed");
                     case SchemaEnum.HttpsOnly:
-                        return __ResStr("valUrl3", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
+                        return __ResStr("valUrlD3", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
             } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
-                        return __ResStr("valUrl4", "The Url '{0}' is invalid - It should be in the format '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
+                        return __ResStr("valUrlD4", "The Url '{0}' is invalid - It should be in the format '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
                     case SchemaEnum.HttpOnly:
-                        return __ResStr("valUrl5", "The Url '{0}' is invalid - It should be in the format 'http://somedomain.com/page' - https is not allowed");
+                        return __ResStr("valUrlD5", "The Url '{0}' is invalid - It should be in the format 'http://somedomain.com/page' - https is not allowed");
                     case SchemaEnum.HttpsOnly:
-                        return __ResStr("valUrl6", "The Url '{0}' is invalid - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
+                        return __ResStr("valUrlD6", "The Url '{0}' is invalid - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
             } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0) {
-                return __ResStr("valUrl7", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' defining a local Url on the current site");
+                return __ResStr("valUrlD7", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' defining a local Url on the current site");
             } else if (UrlType == UrlHelperEx.UrlTypeEnum.New) {
-                return __ResStr("valUrl8", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
+                return __ResStr("valUrlD8", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
             } else {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
@@ -98,26 +98,26 @@ namespace YetaWF.Core.Models.Attributes {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
-                        return __ResStr("valUrl1", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage', '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
+                        return __ResStr("valUrlF1", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage', '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
                     case SchemaEnum.HttpOnly:
-                        return __ResStr("valUrl2", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' or 'http://somedomain.com/page' - https is not allowed");
+                        return __ResStr("valUrlF2", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' or 'http://somedomain.com/page' - https is not allowed");
                     case SchemaEnum.HttpsOnly:
-                        return __ResStr("valUrl3", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
+                        return __ResStr("valUrlF3", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
             } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
-                        return __ResStr("valUrl4", "The Url is invalid (field '{0}') - It should be in the format '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
+                        return __ResStr("valUrlF4", "The Url is invalid (field '{0}') - It should be in the format '//somedomain.com/page', 'http://somedomain.com/page' or 'https://somedomain.com/page'");
                     case SchemaEnum.HttpOnly:
-                        return __ResStr("valUrl5", "The Url is invalid (field '{0}') - It should be in the format 'http://somedomain.com/page' - https is not allowed");
+                        return __ResStr("valUrlF5", "The Url is invalid (field '{0}') - It should be in the format 'http://somedomain.com/page' - https is not allowed");
                     case SchemaEnum.HttpsOnly:
-                        return __ResStr("valUrl6", "The Url is invalid (field '{0}') - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
+                        return __ResStr("valUrlF6", "The Url is invalid (field '{0}') - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
             } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0) {
-                return __ResStr("valUrl7", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' defining a local Url on the current site");
+                return __ResStr("valUrlF7", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' defining a local Url on the current site");
             } else if (UrlType == UrlHelperEx.UrlTypeEnum.New) {
-                return __ResStr("valUrl8", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
+                return __ResStr("valUrlF8", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
             } else {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
