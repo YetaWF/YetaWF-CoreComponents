@@ -68,7 +68,7 @@ $.validator.addMethod('requiredif', function (value, element, parameters) {
 
     // if the condition is true, reuse the existing
     // required field validator functionality
-    if (conditionvalue === actualvalue)
+    if (conditionvalue.toLowerCase() === actualvalue.toLowerCase())
         return $.validator.methods.required.call(this, value, element, parameters);
     return true;
 });
@@ -127,7 +127,7 @@ $.validator.addMethod('requiredifnot', function (value, element, parameters) {
     }
     // if the condition is false, reuse the existing
     // required field validator functionality
-    if (conditionvalue !== actualvalue)
+    if (conditionvalue.toLowerCase() !== actualvalue.toLowerCase())
         return $.validator.methods.required.call(this, value, element, parameters);
     return true;
 });

@@ -9,6 +9,9 @@
 $.validator.setDefaults({
     ignore: '.yNoValidate', // don't ignore hidden fields - ignore fields with .yNoValidate class
 });
+$.validator.unobtrusive.options = {
+    errorElement: 'label'
+};
 
 var YetaWF_Forms = {};
 var _YetaWF_Forms = {};
@@ -197,9 +200,9 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
     if (useValidation)
         $form.validate();
 
-    if (!useValidation || $form.valid()) {
+    Y_Loading(true);
 
-        Y_Loading(true);
+    if (!useValidation || $form.valid()) {
 
         // serialize the form
         var formData = YetaWF_Forms.serializeForm($form);
@@ -258,6 +261,7 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
             },
         });
     } else {
+        Y_Loading(false);
         // find the first field in a tab control that has an input validation error and activate that tab
         // This will not work for nested tabs. Only the lowermost tab will be activated.
         $("div.yt_propertylisttabbed", $form).each(function (index) {
