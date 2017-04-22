@@ -77,7 +77,7 @@ namespace YetaWF.Core.Views {
                 tag.MergeAttribute("name", fullName, true);
                 if (Validation) {
                     // error state
-                    htmlHelper.AddErrorClass(tag, name);
+                    htmlHelper.AddErrorClass(tag, fullName);
                     // client side validation
                     if (Validation)
                         htmlHelper.AddValidation(tag, name);
