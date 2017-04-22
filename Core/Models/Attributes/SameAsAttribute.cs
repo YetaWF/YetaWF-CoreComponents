@@ -65,6 +65,5 @@ namespace YetaWF.Core.Models.Attributes {
             yield return rule;
         }
 #endif
-
     }
 }

@@ -111,70 +111,29 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class RegularExpressionAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute {
-        [CombinedResources]
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
-
-        public RegularExpressionAttribute(string pattern) : base(pattern) { }
-    }
-
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class SiteDomainValidationAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute, YIClientValidatable {
+    public class SiteDomainValidationAttribute : RegexValidationBaseAttribute {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        // An empty string is valid (otherwise add RequiredAttribute)
-        public override bool IsValid(Object value) {
-            if (string.IsNullOrWhiteSpace((string) value))
-                return true;
-            return base.IsValid(value);
-        }
-        public SiteDomainValidationAttribute()
-            : base(@"^\s*[A-Za-z0-9][A-Za-z0-9\.\-]*\.[A-Za-z0-9]+\s*$") {
-            ErrorMessage = __ResStr("errInvSite", "The site's domain name is invalid - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - .");
-        }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
-        }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            return new[] { new ModelClientValidationRegexRule(ErrorMessage, this.Pattern) };
-        }
-#endif
-
+        public SiteDomainValidationAttribute() : base(@"^\s*[A-Za-z0-9][A-Za-z0-9\.\-]*\.[A-Za-z0-9]+\s*$",
+                __ResStr("errInvSite", "The site's domain name is invalid - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - ."),
+                __ResStr("errInvSite2", "The site's domain name is invalid (field '{0}') - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - ."),
+                __ResStr("errInvSite3", "The site's domain name '{0}' is invalid - It cannot use http:// or https:// and it can only contain letters, numbers and these characters: - .")
+            ) { }
     }
 
     //sample: <meta name="google-site-verification" content="flC7VM4WGUt7vWo8iiP2-EQ60L4jC44BVOTjpPmH0hg" />
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class GoogleVerificationExpressionAttribute : System.ComponentModel.DataAnnotations.RegularExpressionAttribute, YIClientValidatable {
+    public class GoogleVerificationExpressionAttribute : RegexValidationBaseAttribute {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        // An empty string is valid (otherwise add RequiredAttribute)
-        public override bool IsValid(Object value) {
-            if (string.IsNullOrWhiteSpace((string) value))
-                return true;
-            return base.IsValid(value);
-        }
-        public GoogleVerificationExpressionAttribute()
-            : base(@"^(\s*<meta\s+name=""google\-site\-verification""\s+content=\""[^\""]+?\""\s*/>\s*)+$") {
-            ErrorMessage = __ResStr("errInvMeta", "The meta tag is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />");
-        }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", this.Pattern);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
-        }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            return new[] { new ModelClientValidationRegexRule(ErrorMessage, this.Pattern) };
-        }
-#endif
+        public GoogleVerificationExpressionAttribute() : base(@"^(\s*<meta\s+name=""google\-site\-verification""\s+content=\""[^\""]+?\""\s*/>\s*)+$",
+                __ResStr("errInvMeta", "The meta tag is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />"),
+                __ResStr("errInvMeta2", "The meta tag is invalid (field '{0}') - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />"),
+                __ResStr("errInvMeta3", "The meta tag '{0}' is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />")
+            ) { }
     }
 }

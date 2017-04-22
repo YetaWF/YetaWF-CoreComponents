@@ -1,14 +1,6 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models.Attributes {
@@ -17,26 +9,22 @@ namespace YetaWF.Core.Models.Attributes {
     // http://www.codeproject.com/Articles/20271/Ultimate-NET-Credit-Card-Utility-Class
     // http://www.codeproject.com/Tips/515367/Validate-credit-card-number-with-Mod-algorithm
 
-
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class CreditCardNumberValidationAttribute : DataTypeAttribute /*this stopped working after an upgrade of jQuery validation, YIClientValidatable*/ {
+    public class CreditCardNumberValidationAttribute : RegexValidationBaseAttribute {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public CreditCardNumberValidationAttribute()
-            : base(DataType.CreditCard) {
-            ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
-        }
-
-        private static Regex _regex = new Regex(@"^\s*([1-9][0-9]{11,15})\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
-
+        public CreditCardNumberValidationAttribute() : base(@"^\s*([1-9][0-9]{11,15})\s*$",
+                __ResStr("valCCNum", "The credit card number is invalid"),
+                __ResStr("valCCNum2", "The credit card number is invalid (field '{0}')")
+            ) { }
         public override bool IsValid(object value) {
             string valueAsString = value as string;
             if (string.IsNullOrWhiteSpace(valueAsString)) return true;
             return IsValidNumber(valueAsString);
         }
-        public static bool IsValidNumber(string cardNum) {
+        public bool IsValidNumber(string cardNum) {
             cardNum = cardNum.Trim();
             CreditCardTypeType cardType = GetCardTypeFromNumber(cardNum);
             if (IsValidNumber(cardNum, cardType))
@@ -44,7 +32,7 @@ namespace YetaWF.Core.Models.Attributes {
             else
                 return false;
         }
-        public static bool IsValidNumber(string cardNum, CreditCardTypeType cardType) {
+        public bool IsValidNumber(string cardNum, CreditCardTypeType cardType) {
             if (cardType == CreditCardTypeType.Invalid)
                 return false;
             cardNum = cardNum.Trim();
@@ -53,17 +41,6 @@ namespace YetaWF.Core.Models.Attributes {
             else
                 return false;
         }
-#if MVC6
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            ErrorMessage = __ResStr("valCCNum", "The credit card number is invalid");
-            yield return new ModelClientValidationRule {
-                ErrorMessage = ErrorMessage,
-                ValidationType = "creditcard",
-            };
-        }
-#endif
-
         // very basic card type determination (close enough)
         public static CreditCardTypeType GetCardTypeFromNumber(string cardNum) {
             if (cardNum.StartsWith("3")) return CreditCardTypeType.Amex;
@@ -74,13 +51,13 @@ namespace YetaWF.Core.Models.Attributes {
                 return CreditCardTypeType.Invalid;
         }
 
-        public static bool PassesLuhnTest(string cardNumber) {
+        public bool PassesLuhnTest(string cardNumber) {
             //Clean the card number- remove dashes and spaces
             cardNumber = cardNumber.Replace("-", "").Replace(" ", "");
 
             //Convert card number into digits array
             int[] digits = new int[cardNumber.Length];
-            for (int len = 0 ; len < cardNumber.Length ; len++) {
+            for (int len = 0; len < cardNumber.Length; len++) {
                 digits[len] = Int32.Parse(cardNumber.Substring(len, 1));
             }
 
@@ -89,7 +66,7 @@ namespace YetaWF.Core.Models.Attributes {
             //http://en.wikipedia.org/wiki/Luhn_algorithm
             int sum = 0;
             bool alt = false;
-            for (int i = digits.Length - 1 ; i >= 0 ; i--) {
+            for (int i = digits.Length - 1; i >= 0; i--) {
                 int curDigit = digits[i];
                 if (alt) {
                     curDigit *= 2;
@@ -104,20 +81,22 @@ namespace YetaWF.Core.Models.Attributes {
             //If Mod 10 equals 0, the number is good and this will return true
             return sum % 10 == 0;
         }
-    }
 
-    /// <summary>
-    /// CreditCardTypeType copied for PayPal WebPayment Pro API
-    /// (If you use the PayPal API, you do not need this definition)
-    /// </summary>
-    public enum CreditCardTypeType {
-        Invalid  = -1,
-        Visa,
-        MasterCard,
-        Discover,
-        Amex,
-        Switch,
-        Solo
+        /// <summary>
+        /// CreditCardTypeType copied for PayPal WebPayment Pro API
+        /// (If you use the PayPal API, you do not need this definition)
+        /// </summary>
+        public enum CreditCardTypeType {
+            Invalid = -1,
+            Visa,
+            MasterCard,
+            Discover,
+            Amex,
+            Switch,
+            Solo
+        }
     }
-
 }
+
+
+

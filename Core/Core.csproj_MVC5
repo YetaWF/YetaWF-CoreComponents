@@ -104,6 +104,8 @@
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Extensions\HtmlString.cs" />
     <Compile Include="Identity\Setup.cs" />
+    <Compile Include="Models\Attributes\RegexValidationBaseAttribute.cs" />
+    <Compile Include="Models\Attributes\AreaAttribute.cs" />
     <Compile Include="Models\Attributes\ListNoDuplicatesAttribute.cs" />
     <Compile Include="Models\Attributes\PackageDomainValidationAttribute.cs" />
     <Compile Include="Models\Attributes\AreaValidationAttribute.cs" />

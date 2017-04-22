@@ -39,7 +39,7 @@ namespace YetaWF.Core.Views.Shared {
             //string mask = htmlHelper.GetControlInfo<string>("", "Mask", null);
 
             TagBuilder tag = new TagBuilder("input");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
+            string fullName = htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
             //string id = null;
             //if (!string.IsNullOrWhiteSpace(mask)) {
             //    id = htmlHelper.MakeId(tag);
@@ -51,7 +51,7 @@ namespace YetaWF.Core.Views.Shared {
             if (lenAttr != null) {
 #if DEBUG
                 if (tag.Attributes.ContainsKey("maxlength"))
-                    throw new InternalError("Both StringLengthAttribute and maxlength specified - {0}", name);//$$$$$
+                    throw new InternalError("Both StringLengthAttribute and maxlength specified - {0}", fullName);//$$$$$
 #endif
                 int maxLength = lenAttr.MaximumLength;
                 if (maxLength > 0 && maxLength <= 8000)
@@ -59,7 +59,7 @@ namespace YetaWF.Core.Views.Shared {
             }
 #if DEBUG
             if (lenAttr == null && !tag.Attributes.ContainsKey("maxlength")) {
-                throw new InternalError("No max string length given using StringLengthAttribute or maxlength - {0}", name);//$$$$$
+                throw new InternalError("No max string length given using StringLengthAttribute or maxlength - {0}", fullName);//$$$$$
             }
 #endif
             // text
