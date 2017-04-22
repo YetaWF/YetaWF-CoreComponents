@@ -304,7 +304,7 @@ YetaWF_Forms.updateValidation = function ($div) {
     // re-validate all fields within the div, typically used after paging in a grid
     // to let jquery.validate update all fields
     $.validator.unobtrusive.parse($div);
-    $('input,select,textarea', $div).trigger('focusout');
+    $('input,select,textarea', $div).has("[data-val=true]").trigger('focusout');
 };
 YetaWF_Forms.getForm = function (obj) {
     var $form = $(obj).closest('form');
