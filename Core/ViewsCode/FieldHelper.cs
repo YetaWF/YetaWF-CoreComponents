@@ -114,7 +114,6 @@ namespace YetaWF.Core.Views {
             }
             return HtmlStringExtender.Empty;
         }
-
 #if MVC6
         public static void AddValidation(this IHtmlHelper htmlHelper, TagBuilder tagBuilder, string name) {
 #else

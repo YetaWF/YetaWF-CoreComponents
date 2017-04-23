@@ -30,7 +30,7 @@ namespace YetaWF.Core.Models.Attributes {
             HttpsOnly = 2,
         }
         private string _regexLocal = @"^\s*((http[s]{0,1}:){0,1}\/\/.+|\/.*)\s*$";
-        private string _regexLocalNew = @"^\s*\/[^\&\*\,\?]+\s*$";// this may need to be more restrictive
+        private string _regexLocalNew = @"^\s*\/[^\&\*\,\?]*\s*$";// this may need to be more restrictive
         private string _regexRemote = @"^\s*(http[s]{0,1}\:){0,1}\/\/.+\s*$";
         private string _regexHttpsRemote = @"^\s*https:\/\/.+\s*$";
         private string _regexHttpRemote = @"^\s*http:\/\/.+\s*$";

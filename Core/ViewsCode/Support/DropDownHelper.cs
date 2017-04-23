@@ -77,9 +77,9 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
 #endif
-                object HtmlAttributes = null, bool BrowserControls = false) {
+                object HtmlAttributes = null, bool BrowserControls = false, bool Validation = true) {
             List<SelectionItem<TYPE>> list = htmlHelper.GetParentModelSupportProperty<List<SelectionItem<TYPE>>>(name, "List");
-            return htmlHelper.RenderDropDownSelectionList<TYPE>(name, selection, list, FuncToString, HtmlAttributes: HtmlAttributes, BrowserControls: BrowserControls);
+            return htmlHelper.RenderDropDownSelectionList<TYPE>(name, selection, list, FuncToString, HtmlAttributes: HtmlAttributes, BrowserControls: BrowserControls, Validation: Validation);
         }
         /// <summary>
         /// Renders a dropdownlist (with tooltips) for selection.
@@ -97,7 +97,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
 #endif
-            Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false) {
+            Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false, bool Validation = true) {
 
             bool useKendo = !BrowserControls && !Manager.IsRenderingGrid;
 
@@ -115,7 +115,7 @@ namespace YetaWF.Core.Views.Shared {
             }
 
             TagBuilder tag = new TagBuilder("select");
-            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);
+            htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
             tag.AddCssClass("yt_dropdownlist_base");
             string id = htmlHelper.MakeId(tag);
             if (useKendo)

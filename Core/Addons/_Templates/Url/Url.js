@@ -20,6 +20,7 @@ YetaWF_Url.init = function (id) {
             else
                 urlString = $remoteCtl.val();
             YetaWF_Url.Update($control, urlString, false);
+            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
         });
     }
     var $localCtl = _YetaWF_Url.getLocalControl($control);
@@ -28,6 +29,7 @@ YetaWF_Url.init = function (id) {
             var $hidden = _YetaWF_Url.getHidden($control);
             $hidden.val($localCtl.val());
             _YetaWF_Url.updateLink($control);
+            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
         });
     }
     var $remoteCtl = _YetaWF_Url.getRemoteControl($control);
@@ -36,6 +38,7 @@ YetaWF_Url.init = function (id) {
             var $hidden = _YetaWF_Url.getHidden($control);
             $hidden.val($remoteCtl.val());
             _YetaWF_Url.updateLink($control);
+            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
         });
     }
     // initial selection

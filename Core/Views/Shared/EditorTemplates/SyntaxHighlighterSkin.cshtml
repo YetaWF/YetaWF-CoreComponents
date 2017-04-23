@@ -1,5 +1,6 @@
 ﻿@*Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.PageSyntaxHighlighterSkins<string>
+@using YetaWF.Core.Views
 <div class='yt_syntaxhighlighterskin t_edit'>
-    @Html.RenderSyntaxHighlighterSkins("", Model)@Html.ValidationMessageFor(m => Model)
+    @Html.RenderSyntaxHighlighterSkins("", Model)
 </div>

@@ -304,12 +304,6 @@ YetaWF_Forms.submitTemplate = function (obj, useValidation, templateName, templa
     YetaWF_Forms.submit(YetaWF_Forms.getForm($(obj)), true, qs);
 };
 
-YetaWF_Forms.updateValidation = function ($div) {
-    // re-validate all fields within the div, typically used after paging in a grid
-    // to let jquery.validate update all fields
-    $.validator.unobtrusive.parse($div);
-    $('input,select,textarea', $div).has("[data-val=true]").trigger('focusout');
-};
 YetaWF_Forms.getForm = function (obj) {
     var $form = $(obj).closest('form');
     if ($form.length == 0) throw "Can't locate enclosing form";/*DEBUG*/
@@ -334,6 +328,17 @@ YetaWF_Forms.getFormInfo = function (obj) {
               "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(info.ModuleGuid);
     return info;
 };
+
+YetaWF_Forms.updateValidation = function ($div) {
+    // re-validate all fields within the div, typically used after paging in a grid
+    // to let jquery.validate update all fields
+    $.validator.unobtrusive.parse($div);
+    $('input,select,textarea', $div).has("[data-val=true]").trigger('focusout');
+};
+YetaWF_Forms.validateElement = function ($ctrl) {
+    var $form = YetaWF_Forms.getForm($ctrl);
+    $form.validate().element($ctrl);
+}
 
 _YetaWF_Forms.showErrors = function ($form) {
     var $summary = _YetaWF_Forms.formErrorSummary($form);

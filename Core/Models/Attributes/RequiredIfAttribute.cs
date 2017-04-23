@@ -26,7 +26,10 @@ namespace YetaWF.Core.Models.Attributes {
 
         public RequiredIfAttribute(String propertyName, Object value) {
             RequiredPropertyName = propertyName;
-            RequiredValue = value;
+            if (value.GetType().IsEnum)
+                RequiredValue = (int)value;// save enums as int value
+            else
+                RequiredValue = value;
         }
         protected override ValidationResult IsValid(object value, ValidationContext context)
         {

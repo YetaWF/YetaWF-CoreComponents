@@ -95,9 +95,9 @@ namespace YetaWF.Core.Views.Shared {
             }
         }
 #if MVC6
-        public static HtmlString RenderUrlSel(this IHtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlSel(this IHtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderUrlSel(this HtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlSel(this HtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
             if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
@@ -117,12 +117,12 @@ namespace YetaWF.Core.Views.Shared {
             if((type & UrlHelperEx.UrlTypeEnum.New) != 0)
                 throw new InternalError("New url not supported by this template");
 
-            return htmlHelper.RenderDropDownSelectionList(name, 0, items, HtmlAttributes: HtmlAttributes);
+            return htmlHelper.RenderDropDownSelectionList(name, 0, items, HtmlAttributes: HtmlAttributes, Validation: Validation);
         }
 #if MVC6
-        public static HtmlString RenderUrlDD(this IHtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlDD(this IHtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderUrlDD(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null) {
+        public static HtmlString RenderUrlDD(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             List<string> pages = PageDefinition.GetDesignedUrls();
 
@@ -138,7 +138,7 @@ namespace YetaWF.Core.Views.Shared {
             list = (from l in list orderby l.Text select l).ToList();
             list.Insert(0, new SelectionItem<string> { Text = __ResStr("select", "(select)"), Value = "" });
 
-            return htmlHelper.RenderDropDownSelectionList<string>(name, url, list, HtmlAttributes: HtmlAttributes);
+            return htmlHelper.RenderDropDownSelectionList<string>(name, url, list, HtmlAttributes: HtmlAttributes, Validation: Validation);
         }
 #if MVC6
         public static HtmlString RenderUrlLinkAndImage(this IHtmlHelper htmlHelper, string url) {
