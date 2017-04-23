@@ -1,13 +1,13 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 #else
-using System.Collections.Generic;
 using System.Web.Mvc;
 #endif
 
