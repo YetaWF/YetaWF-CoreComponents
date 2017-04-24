@@ -8,13 +8,6 @@ YetaWF_DateTime.init = function (ctrlId) {
     var $ctrl = $('#' + ctrlId);
     var $hidden = _YetaWF_DateTime.getHidden($ctrl);
 
-    function setHidden($this, dateVal) {
-        var s = "";
-        if (dateVal != null)
-            s = dateVal.toUTCString()
-        $hidden.val(s)
-    }
-
     var $dt = $('input[name="dtpicker"]', $ctrl);
     var sd = new Date(1900, 1-1, 1);
     var ed = new Date(2199, 12-1, 31);
@@ -30,12 +23,12 @@ YetaWF_DateTime.init = function (ctrlId) {
         min: sd, max: ed,
         culture: YConfigs.Basics.Language,
         change: function () {
-            setHidden($dt, this.value(), true);
+            _YetaWF_DateTime.setHidden($hidden, this.value());
             if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
         },
     });
     var kdPicker = $dt.data("kendoDateTimePicker");
-    setHidden($dt, kdPicker.value(), false);
+    _YetaWF_DateTime.setHidden($hidden, kdPicker.value());
 };
 
 YetaWF_DateTime.renderjqGridFilter = function ($jqElem, $dtpick) {
@@ -63,12 +56,26 @@ _YetaWF_DateTime.getHidden = function ($control) {
     if ($hidden.length != 1) throw "couldn't find hidden field";/*DEBUG*/
     return $hidden;
 };
+_YetaWF_DateTime.setHidden = function ($hidden, dateVal) {
+    var s = "";
+    try {
+        s = dateVal.toUTCString()
+    } catch(e) {
+        s = dateVal;//even though it's invalid, update the hidden field for validation
+    }
+    $hidden.val(s)
+}
 
 $(document).ready(function () {
-    $('body').on('focusout', '.yt_datetime.t_edit input[name="dtpicker"]', function () {
+    $('body').on('change keyup', '.yt_datetime.t_edit input[name="dtpicker"]', function () {
         var $ctrl = $(this).closest('.yt_datetime.t_edit');
         if ($ctrl.length != 1) throw "couldn't find control";/*DEBUG*/
+        var kdPicker = $(this).data("kendoDateTimePicker");
+        var val = kdPicker.value();
+        if (val == null) // if the datetime picker has an invalid value, still propagate the actual value entered to hidden control for validation
+            val = $(this).val();
         var $hidden = _YetaWF_DateTime.getHidden($ctrl);
+        _YetaWF_DateTime.setHidden($hidden, val);
         if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
     });
 });

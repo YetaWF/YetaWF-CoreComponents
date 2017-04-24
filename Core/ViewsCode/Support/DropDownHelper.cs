@@ -130,6 +130,8 @@ namespace YetaWF.Core.Views.Shared {
                 tagOpt.SetInnerText(item.Text);
                 if (item.Value != null)
                     tagOpt.Attributes["value"] = FuncToString != null ? FuncToString(item.Value) : item.Value.ToString();
+                else
+                    tagOpt.Attributes["value"] = "";
                 if (Equals(item.Value, selection))
                     tagOpt.Attributes["selected"] = "selected";
                 string desc = (item.Tooltip != null) ? item.Tooltip.ToString() : null;

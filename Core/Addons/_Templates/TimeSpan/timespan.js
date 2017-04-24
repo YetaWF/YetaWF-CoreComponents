@@ -24,6 +24,5 @@ YetaWF_TimeSpan.init = function (divId) {
     $('input', $control).on('change', function () {
         updateValue();
     });
-
 };
 

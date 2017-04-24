@@ -11,7 +11,7 @@ namespace YetaWF.Core.Models.Attributes {
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public GuidValidationAttribute() : base(@"^\s*([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})\s*$",
+        public GuidValidationAttribute() : base(@"^\s*([a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12})\s*$",
                 __ResStr("valGuid", "The guid is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'"),
                 __ResStr("valGuid2", "The guid (field '{0}') is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'"),
                 __ResStr("valGuid3", "The guid '{0}' is invalid - it should be in the format '00000000-0000-0000-0000-000000000000'")

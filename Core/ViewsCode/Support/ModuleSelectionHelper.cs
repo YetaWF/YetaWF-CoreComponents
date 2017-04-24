@@ -60,32 +60,32 @@ namespace YetaWF.Core.Views.Shared {
         public static HtmlString RenderModuleSelection(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #endif
             string areaName = GetAreaNameFromGuid(newMods, moduleGuid);
-            List<SelectionItem<Guid>> list = new List<SelectionItem<Guid>>();
+            List<SelectionItem<Guid?>> list = new List<SelectionItem<Guid?>>();
             if (!string.IsNullOrWhiteSpace(areaName)) {
                 if (newMods) {
                     list = (
                         from module in InstalledModules.Modules
                         where module.Value.Package.AreaName == areaName
                         orderby module.Value.DisplayName.ToString() select
-                            new SelectionItem<Guid> {
+                            new SelectionItem<Guid?> {
                                 Text = module.Value.DisplayName.ToString(),
                                 Value = module.Key,
                                 Tooltip = module.Value.Summary,
-                            }).ToList<SelectionItem<Guid>>();
+                            }).ToList<SelectionItem<Guid?>>();
                 } else {
                     list = (
                         from module in DesignedModules.LoadDesignedModules()
                         where module.AreaName == areaName
                         orderby module.Name select
-                            new SelectionItem<Guid> {
+                            new SelectionItem<Guid?> {
                                 Text = module.Name,
                                 Value = module.ModuleGuid,
                                 Tooltip = module.Description,
-                            }).ToList<SelectionItem<Guid>>();
+                            }).ToList<SelectionItem<Guid?>>();
                 }
             }
-            list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("none", "(none)"), Value = Guid.Empty });
-            return htmlHelper.RenderDropDownSelectionList<Guid>(name, moduleGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
+            list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
+            return htmlHelper.RenderDropDownSelectionList<Guid?>(name, moduleGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
         private static string GetAreaNameFromGuid(bool newMods, Guid? moduleGuid) {
             if (moduleGuid != null) {
@@ -102,44 +102,44 @@ namespace YetaWF.Core.Views.Shared {
             return null;
         }
         public static HtmlString RenderReplacementPackageModulesNew(string areaName) {
-            List<SelectionItem<Guid>> list = (
+            List<SelectionItem<Guid?>> list = (
                 from module in InstalledModules.Modules
                 where module.Value.Package.AreaName == areaName
                 orderby module.Value.DisplayName.ToString() select
-                    new SelectionItem<Guid> {
+                    new SelectionItem<Guid?> {
                         Text = module.Value.DisplayName.ToString(),
                         Value = module.Key,
                         Tooltip = module.Value.Summary,
-                    }).ToList<SelectionItem<Guid>>();
-            list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("none", "(none)"), Value = Guid.Empty });
+                    }).ToList<SelectionItem<Guid?>>();
+            list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
         public static HtmlString RenderReplacementPackageModulesDesigned(string areaName) {
-            List<SelectionItem<Guid>> list = (
+            List<SelectionItem<Guid?>> list = (
                 from module in DesignedModules.LoadDesignedModules()
                 where module.AreaName == areaName
                 orderby module.Name select
-                    new SelectionItem<Guid> {
+                    new SelectionItem<Guid?> {
                         Text = module.Name,
                         Value = module.ModuleGuid,
                         Tooltip = module.Description,
-                    }).ToList<SelectionItem<Guid>>();
-            list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("none", "(none)"), Value = Guid.Empty });
+                    }).ToList<SelectionItem<Guid?>>();
+            list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
         public static HtmlString RenderReplacementPackageModulesDesigned(Guid modGuid) {
             List<DesignedModule> designedMods = DesignedModules.LoadDesignedModules();
             string areaName = GetAreaNameFromGuid(false, modGuid);
-            List<SelectionItem<Guid>> list = (
+            List<SelectionItem<Guid?>> list = (
                 from module in designedMods
                 where module.AreaName == areaName
                 orderby module.Name select
-                    new SelectionItem<Guid> {
+                    new SelectionItem<Guid?> {
                         Text = module.Name,
                         Value = module.ModuleGuid,
                         Tooltip = module.Description,
-                    }).ToList<SelectionItem<Guid>>();
-            list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("none", "(none)"), Value = Guid.Empty });
+                    }).ToList<SelectionItem<Guid?>>();
+            list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
 #if MVC6

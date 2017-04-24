@@ -35,7 +35,7 @@ namespace YetaWF.Core.SendEmail {
         }
 
         [Caption("Server"), Description("The SMTP mail server used for all emails originating from this site")]
-        [UIHint("Text40"), StringLength(MaxServer), Trim]
+        [UIHint("Text40"), StringLength(MaxServer), Required, Trim]
         public string Server { get; set; }
 
         [Caption("Port"), Description("The SMTP mail server port used (25 is usually the default)")]
@@ -47,11 +47,11 @@ namespace YetaWF.Core.SendEmail {
         public AuthEnum Authentication { get; set; }
 
         [Caption("User Name"), Description("The user name used to log into the mail server when authentication is required by the mail server")]
-        [UIHint("Text80"), StringLength(MaxUser), RequiredIf("Authentication", AuthEnum.Signon), Trim]
+        [UIHint("Text80"), StringLength(MaxUser), Required, ProcessIf("Authentication", AuthEnum.Signon), Trim]
         public string UserName { get; set; }
 
         [Caption("Password"), Description("The password used to log into the mail server when authentication is required by the mail server")]
-        [UIHint("Password20"), StringLength(MaxPswd), RequiredIf("Authentication", AuthEnum.Signon)]
+        [UIHint("Password20"), StringLength(MaxPswd), Required, ProcessIf("Authentication", AuthEnum.Signon)]
         public string Password { get; set; }
 
         [Caption("Secure"), Description("Defines whether SSL is used when sending emails")]

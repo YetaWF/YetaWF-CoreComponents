@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.Support;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -20,6 +22,8 @@ using System.Web.Routing;
 namespace YetaWF.Core.Views {
 
     public static class FieldHelper {
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(FieldHelper), name, defaultValue, parms); }
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
@@ -123,6 +127,7 @@ namespace YetaWF.Core.Views {
             ModelExplorer modelExplorer = ExpressionMetadataProvider.FromStringExpression(name, htmlHelper.ViewData, htmlHelper.MetadataProvider);
             ValidationHtmlAttributeProvider valHtmlAttrProvider = (ValidationHtmlAttributeProvider)YetaWFManager.ServiceProvider.GetService(typeof(ValidationHtmlAttributeProvider));
             valHtmlAttrProvider.AddAndTrackValidationAttributes(htmlHelper.ViewContext, modelExplorer, name, tagBuilder.Attributes);
+            ModelMetadata metadata = modelExplorer.Metadata;
 #else
             ModelMetadata metadata = ModelMetadata.FromStringExpression(name, htmlHelper.ViewContext.ViewData);
             tagBuilder.MergeAttributes(htmlHelper.GetUnobtrusiveValidationAttributes(name, metadata));
@@ -135,6 +140,11 @@ namespace YetaWF.Core.Views {
                 tagBuilder.Attributes.Add("data-val-required", tagBuilder.Attributes["data-val-customrequired"]);
                 tagBuilder.Attributes.Remove("data-val-customrequired");
             }
+            // replace type dependent messages (MVC, please, who asked for this?)
+            if (tagBuilder.Attributes.ContainsKey("data-val-number"))
+                tagBuilder.Attributes["data-val-number"] = __ResStr("valNumber", "Please enter a valid number for field '{0}'", AttributeHelper.GetPropertyCaption(metadata));
+            if (tagBuilder.Attributes.ContainsKey("data-val-date"))
+                tagBuilder.Attributes["data-val-date"] = __ResStr("valDate", "Please enter a valid date for field '{0}'", AttributeHelper.GetPropertyCaption(metadata));
         }
     }
 }

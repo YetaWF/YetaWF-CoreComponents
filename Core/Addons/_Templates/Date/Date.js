@@ -8,15 +8,6 @@ YetaWF_Date.init = function (ctrlId) {
     var $ctrl = $('#' + ctrlId);
     var $hidden = _YetaWF_Date.getHidden($ctrl);
 
-    function setHidden($this, dateVal) {
-        var s = "";
-        if (dateVal != null) {
-            var utcDate = new Date(Date.UTC(dateVal.getFullYear(), dateVal.getMonth(), dateVal.getDate(), 0, 0, 0));
-            s = utcDate.toUTCString()
-        }
-        $hidden.val(s)
-    }
-
     var $dt = $('input[name="dtpicker"]', $ctrl);
     var sd = new Date(1900, 1 - 1, 1);
     var ed = new Date(2199, 12 - 1, 31);
@@ -32,11 +23,12 @@ YetaWF_Date.init = function (ctrlId) {
         min: sd, max: ed,
         culture: YConfigs.Basics.Language,
         change: function () {
-            setHidden($dt, this.value(), true)
+            _YetaWF_Date.setHidden($hidden, this.value());
+            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
         },
     });
     var kdPicker = $dt.data("kendoDatePicker");
-    setHidden($dt, kdPicker.value(), false);
+    _YetaWF_Date.setHidden($hidden, kdPicker.value());
 };
 
 YetaWF_Date.renderjqGridFilter = function ($jqElem, $dtpick) {
@@ -66,12 +58,27 @@ _YetaWF_Date.getHidden = function ($control) {
     if ($hidden.length != 1) throw "couldn't find hidden field";/*DEBUG*/
     return $hidden;
 };
+_YetaWF_Date.setHidden = function ($hidden, dateVal) {
+    var s = "";
+    try {
+        var utcDate = new Date(Date.UTC(dateVal.getFullYear(), dateVal.getMonth(), dateVal.getDate(), 0, 0, 0));
+        s = utcDate.toUTCString()
+    } catch (e) {
+        s = dateVal;//even though it's invalid, update the hidden field for validation
+    }
+    $hidden.val(s)
+}
 
 $(document).ready(function () {
-    $('body').on('focusout', '.yt_date.t_edit input[name="dtpicker"]', function () {
+    $('body').on('change keyup', '.yt_date.t_edit input[name="dtpicker"]', function () {
         var $ctrl = $(this).closest('.yt_date.t_edit');
         if ($ctrl.length != 1) throw "couldn't find control";/*DEBUG*/
+        var kdPicker = $(this).data("kendoDatePicker");
+        var val = kdPicker.value();
+        if (val == null) // if the date picker has an invalid value, still propagate the actual value entered to hidden control for validation
+            val = $(this).val();
         var $hidden = _YetaWF_Date.getHidden($ctrl);
+        _YetaWF_Date.setHidden($hidden, val);
         if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
     });
 });

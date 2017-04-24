@@ -58,6 +58,9 @@ namespace YetaWF.Core.Models.Attributes {
                     if (!IsValid(l)) return false;
                 }
                 return true;
+            } else if (value is System.Guid || value is System.Guid?) {
+                // any guid is valid as it was already converted into a guid, so no checking needed
+                return true;
             } else
                 throw new InternalError("Invalid type used for RegexValidationBaseAttribute - {0}", value.GetType().FullName);
         }

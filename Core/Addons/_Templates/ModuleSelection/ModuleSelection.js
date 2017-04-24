@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 var YetaWF_ModuleSelection = {};
+var _YetaWF_ModuleSelection = {};
 
 // Load a moduleselection UI object with data
 // $control refers to the div class="yt_moduleselection t_edit"
@@ -59,9 +60,11 @@ YetaWF_ModuleSelection.UpdateComplete = function ($control, modGuid) {
                 $desc.hide();
                 $desc.text('');
             }
+            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($select);
         },
         function (data) { // failure
             YetaWF_ModuleSelection.Clear($control);
+            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($select);
         }
     );
 };
@@ -114,9 +117,6 @@ YetaWF_ModuleSelection.Clear = function ($control) {
     $desc.text('');
 }
 
-
-var _YetaWF_ModuleSelection = {};
-
 _YetaWF_ModuleSelection.getPackages = function ($control) {
     'use strict';
     var $packages = $('.t_packages select', $control);
@@ -155,28 +155,19 @@ _YetaWF_ModuleSelection.getDescriptionText = function ($control) {
     return YetaWF_TemplateDropDownList.getTitle($('.t_select select', $control), ix);
 };
 
-
 YetaWF_ModuleSelection.init = function (id) {
     'use strict';
     var $control = $('#' + id);
     if ($control.length != 1) throw "Can't find control";/*DEBUG*/
     var $select = _YetaWF_ModuleSelection.getSelect($control);
 
-    $select.on('change', function () {
-        var $this = $(this);
-        var val = $this.val();
-        YetaWF_Forms.hideError(YetaWF_Forms.getForm($this), $this.attr("name")); // TODO: This could be removed when RequiredAttribute supports Guid client-side
-        YetaWF_ModuleSelection.Update($control, val);
-    });
-    $select.trigger('change');
+    var val = $select.val();
+    YetaWF_ModuleSelection.Update($control, val);
 };
 
-
 $(document).ready(function () {
-
     $("body").on('change', '.yt_moduleselection.t_edit .t_packages select', function (event) {
         'use strict';
-
         var $this = $(this);
 
         var $control = $this.closest('.yt_moduleselection');

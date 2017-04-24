@@ -13,7 +13,7 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
         var name = $this.attr("name"); // name of controlling item (an enum)
         var val = $this.val(); // the current value
         controlData.Dependents.forEach(function (item, index) {
-            if (name == item.ControlProp) { // this entry is for the controlling item?
+            if (name == item.ControlProp || name.endsWith('.'+item.ControlProp)) { // this entry is for the controlling item?
                 var $row = $('.t_row.t_{0}'.format(item.Prop.toLowerCase()), $div); // the propertylist row affected
                 var found = false, len = item.Values.length, i;
                 for (i = 0 ; i < len ; ++i) {
@@ -40,13 +40,13 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
     }
     // Handle change events
     controlData.Controls.forEach(function (item, index) {
-        $('.t_row.t_{0} select[name="{1}"]'.format(item.toLowerCase(), item), $div).on("change", function () {
+        $('.t_row.t_{0} select[name$="{1}"]'.format(item.toLowerCase(), item), $div).on("change", function () {
             change($(this));
         });
     });
     // Initialize initial form
     controlData.Controls.forEach(function (item, index) {
-        change($('.t_row.t_{0} select[name="{1}"]'.format(item.toLowerCase(), item)), $div);
+        change($('.t_row.t_{0} select[name$="{1}"]'.format(item.toLowerCase(), item)), $div);
     });
 };
 

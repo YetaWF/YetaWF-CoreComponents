@@ -29,16 +29,16 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #endif
-            List<SelectionItem<Guid>> list;
+            List<SelectionItem<Guid?>> list;
             list = (
                 from page in PageDefinition.GetDesignedPages() orderby page.Url select
-                    new SelectionItem<Guid> {
+                    new SelectionItem<Guid?> {
                         Text = page.Url,
                         Value = page.PageGuid,
-                    }).ToList<SelectionItem<Guid>>();
-            list.Insert(0, new SelectionItem<Guid> { Text = __ResStr("select", "(select)"), Value = Guid.Empty });
+                    }).ToList<SelectionItem<Guid?>>();
+            list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("select", "(select)"), Value = null });
 
-            return htmlHelper.RenderDropDownSelectionList<Guid>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
+            return htmlHelper.RenderDropDownSelectionList<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
         public static HtmlString RenderPageSelectionLink(this IHtmlHelper htmlHelper, Guid? pageGuid) {

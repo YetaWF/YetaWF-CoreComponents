@@ -70,6 +70,7 @@ YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl, onSu
             if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
                 var data = JSON.parse(script);
+                $control.val(null);
                 $control.kendoDropDownList({
                     dataTextField: "t",
                     dataValueField: "v",
@@ -110,6 +111,9 @@ $(document).ready(function () {
         $ctls.each(function (index) {
             YetaWF_TemplateDropDownList.initOne($(this));
         });
+    });
+    $("body").on('change', 'select.yt_dropdownlist[data-val=true],select.yt_dropdownlist_base[data-val=true],select.yt_enum[data-val=true]', function () {
+        if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($(this));
     });
 });
 

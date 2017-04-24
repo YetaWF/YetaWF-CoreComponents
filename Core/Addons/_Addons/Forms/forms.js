@@ -364,12 +364,6 @@ _YetaWF_Forms.showErrors = function ($form) {
     _YetaWF_Forms.dontUpdateWarningIcons = false;
 };
 
-// hide an error - typically used in a template to hide an error for a control when a selection or new input is made
-YetaWF_Forms.hideError = function ($form, name) {
-    var $err = $('img.{0}[name="{1}"]'.format(YConfigs.Forms.CssWarningIcon, name), $form);
-    $err.remove();
-};
-
 $(document).ready(function () {
 
     // cancel the form

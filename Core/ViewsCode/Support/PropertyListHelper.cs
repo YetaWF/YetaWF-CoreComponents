@@ -298,6 +298,16 @@ namespace YetaWF.Core.Views.Shared {
                 hb.Append(hbProps.ToHtmlString());
             }
             RenderFooter(hb, classData);
+
+            if (!ReadOnly) {
+                string script = htmlHelper.GetControlSets(model, divId);
+                if (!string.IsNullOrWhiteSpace(script)) {
+                    ScriptBuilder sb = new ScriptBuilder();
+                    sb.Append("YetaWF_PropertyList.init('{0}', {1}, {2});", divId, script, Manager.InPartialView ? 1 : 0);
+                    Manager.ScriptManager.AddLastDocumentReady(sb);
+                }
+            }
+
             return hb.ToHtmlString();
         }
 
@@ -521,6 +531,15 @@ namespace YetaWF.Core.Views.Shared {
             hb.Append(htmlHelper.RenderTabInit(divId));
 
             RenderFooter(hb, classData);
+
+            if (!ReadOnly) {
+                string script = htmlHelper.GetControlSets(model, divId);
+                if (!string.IsNullOrWhiteSpace(script)) {
+                    ScriptBuilder sb = new ScriptBuilder();
+                    sb.Append("YetaWF_PropertyList.init('{0}', {1}, {2});", divId, script, Manager.InPartialView ? 1 : 0);
+                    Manager.ScriptManager.AddLastDocumentReady(sb);
+                }
+            }
 
             return hb.ToHtmlString();
         }

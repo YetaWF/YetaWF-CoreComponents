@@ -4,7 +4,5 @@
     @Html.RenderPropertyList("", Model)
 </div>
 <script>
-    @using (DocumentReady()) {
-        @: YetaWF_SMTPServer.init('@DivId');
-    }
+    YetaWF_SMTPServer.init('@DivId');
 </script>
