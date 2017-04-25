@@ -137,15 +137,15 @@ namespace YetaWF.Core.Pages {
                 if (File.Exists(fullCssPath)) {
                     if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullScssPath)) {
                         text = File.ReadAllText(fullCssPath);
+                        return;
                     }
-                } else {
-                    try {
-                        NSass.SassCompiler nsass = new NSass.SassCompiler();
-                        text = nsass.Compile(text);
-                        File.WriteAllText(fullCssPath, text);
-                    } catch (Exception exc) {
-                        throw new InternalError(Logging.AddErrorLog("Sass compile error in file {0}: {1}", fullScssPath, exc.Message));
-                    }
+                }
+                try {
+                    NSass.SassCompiler nsass = new NSass.SassCompiler();
+                    text = nsass.Compile(text);
+                    File.WriteAllText(fullCssPath, text);
+                } catch (Exception exc) {
+                    throw new InternalError(Logging.AddErrorLog("Sass compile error in file {0}: {1}", fullScssPath, exc.Message));
                 }
             });
             return text;
@@ -162,22 +162,22 @@ namespace YetaWF.Core.Pages {
                 if (File.Exists(fullCssPath)) {
                     if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullLessPath)) {
                         text = File.ReadAllText(fullCssPath);
+                        return;
                     }
-                } else {
-                    try {
-                        ILessEngine lessEngine = new EngineFactory(new DotlessConfiguration {
-                            CacheEnabled = false,
-                            DisableParameters = true,
-                            LogLevel = LogLevel.Error,
-                            MinifyOutput = true
-                        }).GetEngine();
+                }
+                try {
+                    ILessEngine lessEngine = new EngineFactory(new DotlessConfiguration {
+                        CacheEnabled = false,
+                        DisableParameters = true,
+                        LogLevel = LogLevel.Error,
+                        MinifyOutput = true
+                    }).GetEngine();
 
-                        lessEngine.CurrentDirectory = Path.GetDirectoryName(fullCssPath);
-                        text = lessEngine.TransformToCss(text, null);
-                        File.WriteAllText(fullCssPath, text);
-                    } catch (Exception exc) {
-                        throw new InternalError(Logging.AddErrorLog("Less compile error in file {0}: {1}", fullLessPath, exc.Message));
-                    }
+                    lessEngine.CurrentDirectory = Path.GetDirectoryName(fullCssPath);
+                    text = lessEngine.TransformToCss(text, null);
+                    File.WriteAllText(fullCssPath, text);
+                } catch (Exception exc) {
+                    throw new InternalError(Logging.AddErrorLog("Less compile error in file {0}: {1}", fullLessPath, exc.Message));
                 }
             });
             return text;
