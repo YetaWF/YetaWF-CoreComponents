@@ -459,6 +459,8 @@
     <Content Include="Addons\_Templates\ModuleEdit_AllowedRoles\moduleedit.css" />
     <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\moduleedit.css" />
+    <Content Include="Addons\_Templates\SyntaxHighlighterSkin\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\SyntaxHighlighterSkin\SyntaxHighlighterSkin.css" />
     <Content Include="Addons\_Templates\PageSelection\filelistCSS.txt" />
     <Content Include="Addons\_Templates\PageSelection\filelistJS.txt" />
     <Content Include="Addons\_Templates\PageSelection\Icons\PagePreview.png" />
