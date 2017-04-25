@@ -32,7 +32,7 @@ YetaWF_ModuleSelection.UpdateComplete = function ($control, modGuid) {
     'use strict';
 
     var $select = _YetaWF_ModuleSelection.getSelect($control);
-    if (modGuid == null || modGuid == "00000000-0000-0000-0000-000000000000") {
+    if (modGuid == null || modGuid == "" || modGuid == "00000000-0000-0000-0000-000000000000") {
         YetaWF_ModuleSelection.Clear($control);
         return;
     }
@@ -78,6 +78,8 @@ YetaWF_ModuleSelection.Retrieve = function ($control) {
 // $control refers to the div class="yt_moduleselection t_edit"
 YetaWF_ModuleSelection.HasChanged = function ($control, data) {
     var mod = _YetaWF_ModuleSelection.getValue($control);
+    if ((data == null || data == "" || data == "00000000-0000-0000-0000-000000000000") && (mod == undefined || mod == "" || mod == "00000000-0000-0000-0000-000000000000"))
+        return false;
     return (data != mod);
 }
 // Enable a moduleselection object
