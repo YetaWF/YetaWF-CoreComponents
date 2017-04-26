@@ -42,6 +42,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Text",
             "YetaWF.TinyLanguage",
             "YetaWF.TinyLogin",
+            "YetaWF.UserProfile",
             "YetaWF.UserSettings",
             "YetaWF.Visitors",
         };
