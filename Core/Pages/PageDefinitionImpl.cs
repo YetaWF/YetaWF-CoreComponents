@@ -450,11 +450,14 @@ namespace YetaWF.Core.Pages {
                         if (modServices != null) {
                             ModuleAction action = modServices.GetModuleAction("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
                             if (action != null) {
-                                sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
-                                sb.Append("<li>");
-                                sb.Append(action.Render(ModuleAction.RenderModeEnum.NormalLinks));
-                                sb.Append("</li>");
-                                sb.Append("</ul>");
+                                HtmlString act = action.Render(ModuleAction.RenderModeEnum.NormalLinks);
+                                if (act != HtmlStringExtender.Empty) { // only render if the action actually is available
+                                    sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
+                                    sb.Append("<li>");
+                                    sb.Append(act);
+                                    sb.Append("</li>");
+                                    sb.Append("</ul>");
+                                }
                             }
                         }
                     }
