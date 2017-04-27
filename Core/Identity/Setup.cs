@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace YetaWF.Core.Identity {
 
     public interface IIdentity {
-        void SetupLoginProviders(IApplicationBuilder app);
+        void SetupLoginProviders(IServiceCollection services);
         void Setup(IServiceCollection services);
     }
 
@@ -23,11 +23,11 @@ namespace YetaWF.Core.Identity {
             if (identity != null)
                 identity.Setup(services);
         }
-        public static void SetupLoginProviders(IApplicationBuilder app) {
+        public static void SetupLoginProviders(IServiceCollection services) {
             object instance = LoadAssembly();
             IIdentity identity = instance as IIdentity;
             if (identity != null)
-                identity.SetupLoginProviders(app);
+                identity.SetupLoginProviders(services);
         }
 
         private static object LoadAssembly() {
