@@ -8,6 +8,7 @@ using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
+using YetaWF.Core.Modules;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -65,8 +66,22 @@ namespace YetaWF.Core.Controllers {
                 }
                 Logging.AddErrorLog(msg);
             }
-            if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest))
-                throw filterContext.Exception;
+            if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest)) {
+                if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
+                    if (filterContext.HttpContext.Response.StatusCode == 200)
+                        filterContext.HttpContext.Response.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)
+                    throw filterContext.Exception;
+                } else { // this was a direct action GET so we need to show an error page
+                    Server.ClearError(); // this clears the current 500 error (if customErrors is on in web config we would get a 500 - Internal Server Error at this point
+                    filterContext.HttpContext.Response.Clear(); // this prob doesn't do much
+                    filterContext.HttpContext.Response.StatusCode = 200;
+                    filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
+                    filterContext.ExceptionHandled = true;
+                    RedirectResult redir = Redirect(MessageUrl(msg, 500));
+                    redir.ExecuteResult(filterContext);
+                    return;
+                }
+            }
 
             // for post/ajax requests, respond in a way we can display the error
             Server.ClearError(); // this clears the current 500 error (if customErrors is on in web config we would get a 500 - Internal Server Error at this point
@@ -77,6 +92,20 @@ namespace YetaWF.Core.Controllers {
             ContentResult cr = Content(
                 string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.Jser.Serialize(msg)));
             cr.ExecuteResult(filterContext);
+        }
+        /// <summary>
+        /// Redirect with a message - THIS ONLY WORKS FOR A GET REQUEST
+        /// </summary>
+        /// <param name="Message">Error message to display.</param>
+        /// <returns></returns>
+        private string MessageUrl(string message, int statusCode) {
+            // we're in a get request without module, so all we can do is redirect and show the message in the ShowMessage module
+            // the ShowMessage module is in the Basics package and we reference it by permanent Guid
+            string url = YetaWFManager.Manager.CurrentSite.MakeUrl(ModuleDefinition.GetModulePermanentUrl(new Guid("{b486cdfc-3726-4549-889e-1f833eb49865}")));
+            QueryHelper query = QueryHelper.FromUrl(url, out url);
+            query["Message"] = message;
+            query["Code"] = statusCode.ToString();
+            return query.ToUrl(url);
         }
 #endif
 
@@ -134,10 +163,10 @@ namespace YetaWF.Core.Controllers {
         protected void MarkNotFound() {
 #if MVC6
             Logging.AddErrorLog("404 Not Found");
-            Manager.CurrentResponse.StatusCode = 404;
 #else
             Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
 #endif
+            Manager.CurrentResponse.StatusCode = 404;
         }
 
 #if MVC6
