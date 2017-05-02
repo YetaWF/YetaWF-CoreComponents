@@ -20,7 +20,7 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         ///  Used to discover dynamic Urls to build a site map.
         /// </summary>
-        void FindDynamicUrls(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum> addDynamicUrl,
+        void FindDynamicUrls(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum, object> addDynamicUrl,
                 Func<PageDefinition, bool> validForSiteMap);
     }
 
