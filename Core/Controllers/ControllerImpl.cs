@@ -755,31 +755,30 @@ namespace YetaWF.Core.Controllers {
                 IView view = FindView(context).View;
 
                 StringBuilder sb = new StringBuilder();
-                StringWriter sw = new StringWriter(sb);
-                ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
-                IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
-                HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+                using (StringWriter sw = new StringWriter(sb)) {
+                    ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
+                    IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
+                    HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
 
-                bool inPartialView = Manager.InPartialView;
-                Manager.InPartialView = true;
-                try {
-                    viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
-                } catch (Exception) {
-                    throw;
-                } finally {
-                    Manager.InPartialView = inPartialView;
-                }
-
-                viewHtml = PostRender(htmlHelper, context, viewHtml);
+                    bool inPartialView = Manager.InPartialView;
+                    Manager.InPartialView = true;
+                    try {
+                        viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
+                    } catch (Exception) {
+                        throw;
+                    } finally {
+                        Manager.InPartialView = inPartialView;
+                    }
+                    viewHtml = PostRender(htmlHelper, context, viewHtml);
 #endif
 #if MVC6
-                byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
-                await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
+                    byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
+                    await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
-                response.Output.Write(viewHtml);
-
-                if (viewEngine != null)
-                    viewEngine.ViewEngine.ReleaseView(context, View);
+                    response.Output.Write(viewHtml);
+                    if (viewEngine != null)
+                        viewEngine.ViewEngine.ReleaseView(context, View);
+                }
 #endif
             }
 

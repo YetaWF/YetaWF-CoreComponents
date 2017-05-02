@@ -709,12 +709,11 @@ namespace YetaWF.Core.Controllers {
             pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
 #else
             View = new PageView(virtPath);
-            StringWriter writer = new StringWriter();
-
-            ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
-            View.Render(viewContext, writer);
-
-            pageHtml = writer.ToString();
+            using (StringWriter writer = new StringWriter()) {
+                ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
+                View.Render(viewContext, writer);
+                pageHtml = writer.ToString();
+            }
 #endif
             Manager.AddOnManager.AddSkinCustomization(skinCollection);
             Manager.PopCharSize();
@@ -730,7 +729,7 @@ namespace YetaWF.Core.Controllers {
                 // so is only helpful for static pages and can't be used for dynamic pages
                 context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
             } else if (Manager.HaveUser && Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
-                // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any perviously
+                // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any previously
                 // served page to the then anonymous user before he/she logged on.
                 context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
             }
