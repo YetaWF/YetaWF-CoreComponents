@@ -13,6 +13,19 @@ namespace YetaWF.Core.Pages {
 
         private readonly List<string> _tags = new List<string>();
 
+        /// <summary>
+        /// Add a meta tag to the current page.
+        /// </summary>
+        /// <remarks>Used for rarely used tags.
+        ///
+        /// The "title" meta tag should not be set directly. Set Manager.PageTitle instead.
+        /// For "keywords", set Manager.CurrentPage.Keywords instead. For "description" set Manager.CurrentPage.Description instead.</remarks>
+        public void AddMetatag(string type, string content) {
+            if (_tags.Contains(type))
+                return;
+            string tag = string.Format("<meta name='{0}' content='{1}'/>", YetaWFManager.HtmlAttributeEncode(type), YetaWFManager.HtmlAttributeEncode(content));
+            _tags.Add(tag);
+        }
         private void AddMetatag(Variables vars, string type, string content) {
             if (_tags.Contains(type))
                 throw new InternalError("Metatag name={0} has already been added for this page.", type);
