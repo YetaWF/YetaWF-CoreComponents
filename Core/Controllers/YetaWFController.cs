@@ -34,7 +34,7 @@ namespace YetaWF.Core.Controllers {
 #else
         protected YetaWFController() {
             // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
-            // TODO: this also means we can remove all AllowHtml attributes
+            // This also means we don't need AllowHtml attributes
             ValidateRequest = false;
         }
 #endif

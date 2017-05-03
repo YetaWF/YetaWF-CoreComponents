@@ -28,13 +28,10 @@ namespace YetaWF.Core.Localize {
             public string BaseTypeName { get; set; }
 
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Header { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Footer { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Legend { get; set; }
 
             [Data_Binary]
@@ -52,18 +49,14 @@ namespace YetaWF.Core.Localize {
             [StringLength(MaxString)]
             public string Name { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Caption { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Description { get; set; }
             [StringLength(Globals.MaxUrl)]
             public string HelpLink { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string TextAbove { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string TextBelow { get; set; }
         }
         public class EnumData {
@@ -85,17 +78,14 @@ namespace YetaWF.Core.Localize {
             [StringLength(MaxString)]
             public string Value { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Caption { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Description { get; set; }
         }
         public class StringData {
             [StringLength(MaxString)]
             public string Name { get; set; }
             [StringLength(MaxString)]
-            [AllowHtml]
             public string Text { get; set; }
         }
 

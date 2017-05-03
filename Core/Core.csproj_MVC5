@@ -122,7 +122,6 @@
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
-    <Compile Include="Support\Shims\AllowHtmlAttribute.cs" />
     <Compile Include="Support\Shims\HtmlString.cs" />
     <Compile Include="Support\Shims\IHtmlContent.cs" />
     <Compile Include="Support\Shims\JsonResult.cs" />

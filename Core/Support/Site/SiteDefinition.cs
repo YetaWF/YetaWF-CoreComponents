@@ -370,7 +370,7 @@ namespace YetaWF.Core.Site {
         private bool? useHttpHandler = null;
 
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
-        [UIHint("Text80"), StringLength(MaxCopyright), AllowHtml]
+        [UIHint("Text80"), StringLength(MaxCopyright)]
         public string Copyright { get; set; }
 
         // CDN
@@ -580,11 +580,11 @@ namespace YetaWF.Core.Site {
         // ENCRYPTION
 
         [Category("Encryption"), Caption("Public Key"), Description("The public key used to encrypt a token - This is used by this YetaWF site to encrypt/decrypt data internally")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(Globals.MaxPublicKey)]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(Globals.MaxPublicKey)]
         public string PublicKey { get; set; }
 
         [Category("Encryption"), Caption("Private Key"), Description("The private key used to decrypt a token - This is used by this YetaWF site to encrypt/decrypt data internally")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(Globals.MaxPrivateKey)]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(Globals.MaxPrivateKey)]
         public string PrivateKey { get; set; }
 
         // ADDONS
@@ -593,11 +593,11 @@ namespace YetaWF.Core.Site {
 
         [Category("Addons"), Caption("Analytics"), Description("Add analytics code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here - Pages can override this setting")]
         [TextAbove("Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxAnalytics), Trim]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
         public string Analytics { get; set; }
 
         [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
         [HelpLink("http://www.google.com/webmasters/")]
         public string GoogleVerification { get; set; }
 
@@ -612,11 +612,11 @@ namespace YetaWF.Core.Site {
         // META
 
         [Category("Meta"), Caption("Site Meta Tags"), Description("Defines <meta> tags that are added to ALL pages")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxMeta), Trim]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxMeta), Trim]
         public string SiteMetaTags { get; set; }
 
         [Category("Meta"), Caption("Page Meta Tags"), Description("Defines <meta> tags that are added to all pages by default but can be overridden by each page if the page defines meta tags using the PageMetaTags property")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), AllowHtml, StringLength(MaxMeta), Trim]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxMeta), Trim]
         public string PageMetaTags { get; set; }
 
         [Category("Meta"), Caption("SiteMap Default Priority"), Description("Defines the default page priority used for the site map - Each page can override the default value using its SiteMap Priority property")]
