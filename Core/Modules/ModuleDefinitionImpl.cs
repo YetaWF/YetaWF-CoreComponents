@@ -718,6 +718,8 @@ namespace YetaWF.Core.Modules {
                 exc = exc.InnerException;
             }
             hb.Append("</div>");
+            if (Manager.CurrentResponse.StatusCode == 200)
+                Manager.CurrentResponse.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)
             return hb;
         }
 

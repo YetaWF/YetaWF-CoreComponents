@@ -68,8 +68,6 @@ namespace YetaWF.Core.Controllers {
             }
             if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest)) {
                 if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
-                    if (filterContext.HttpContext.Response.StatusCode == 200)
-                        filterContext.HttpContext.Response.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)
                     throw filterContext.Exception;
                 } else { // this was a direct action GET so we need to show an error page
                     Server.ClearError(); // this clears the current 500 error (if customErrors is on in web config we would get a 500 - Internal Server Error at this point
