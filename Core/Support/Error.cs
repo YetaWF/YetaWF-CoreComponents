@@ -19,8 +19,9 @@ namespace YetaWF.Core.Support {
     }
     [Serializable]
     public class InternalError : Exception {
-        public InternalError(string message, params object[] parms) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog("Internal Error: " + message, parms))) { }
-        public InternalError(string message) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog("Internal Error: " + message))) { }
+        private const string IntErr = "Internal Error: ";
+        public InternalError(string message, params object[] parms) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog(message.StartsWith(IntErr) ? message : IntErr+message, parms))) { }
+        public InternalError(string message) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog(message.StartsWith(IntErr) ? message : IntErr + message))) { }
     }
 
 #if MVC6
