@@ -38,7 +38,7 @@ namespace YetaWF.Core.Controllers {
             routes.MapAreaRoute(
                 AreaName,
                 AreaName,
-                AreaName +"/{controller}/{action}"
+                AreaName + "/{controller}/{action}/{*whatevz}"
             );
         }
 #else
