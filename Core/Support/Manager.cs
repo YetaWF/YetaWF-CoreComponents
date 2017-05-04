@@ -39,18 +39,32 @@ namespace YetaWF.Core.Support {
         private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
         public const string BATCHMODE = "Batch";
 
+#if MVC6
+        public class DummyServiceProvider : IServiceProvider {
+            public object GetService(Type serviceType) { return null; }
+        }
+        public class DummyHttpContextAccessor : IHttpContextAccessor {
+            public HttpContext HttpContext { get { return null; } set { } }
+        }
+        public class DummyMemoryCache : IMemoryCache {
+            public ICacheEntry CreateEntry(object key) { return null; }
+            public void Dispose() { }
+            public void Remove(object key) { }
+            public bool TryGetValue(object key, out object value) { value = null; return false; }
+        }
+#else
+#endif
 
 #if MVC6
-        public static void Init(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment,
-                IMemoryCache memoryCache) {
-            ServiceProvider = serviceProvider;
-            HttpContextAccessor = httpContextAccessor;
-            HostingEnvironment = hostingEnvironment;
-            MemoryCache = memoryCache;
+        public static void Init(string webRootPath, string contentRootPath = null, IServiceProvider serviceProvider = null, IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null) {
+            RootFolder = webRootPath;
+            RootFolderWebProject = contentRootPath ?? webRootPath;
+            ServiceProvider = serviceProvider ?? new DummyServiceProvider();
+            HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
+            MemoryCache = memoryCache ?? new DummyMemoryCache();
         }
         public static IServiceProvider ServiceProvider = null;
         public static IHttpContextAccessor HttpContextAccessor = null;
-        public static IHostingEnvironment HostingEnvironment = null;
         public static IMemoryCache MemoryCache = null;
 #else
 #endif
@@ -298,9 +312,7 @@ namespace YetaWF.Core.Support {
         /// Web site root folder (physical, wwwroot on ASP.NET MVC)
         /// </summary>
 #if MVC6
-        public static string RootFolder {
-            get { return HostingEnvironment.WebRootPath; }
-        }
+        public static string RootFolder { get; private set; }
 #else
         public static string RootFolder { get; set; }
 #endif
@@ -312,7 +324,7 @@ namespace YetaWF.Core.Support {
         /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.</remarks>
         public static string RootFolderWebProject {
 #if MVC6
-            get { return HostingEnvironment.ContentRootPath; }
+            get; private set;
 #else
             get { return RootFolder; }
 #endif

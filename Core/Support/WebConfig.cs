@@ -29,16 +29,14 @@ namespace YetaWF.Core.Support {
             //RFFU - It's up to the individual dataprovider to support what they want/can.
         }
 #if MVC6
-        public static void Init(IConfigurationRoot configuration, IHostingEnvironment env, string appSettingsFile) {
+        public static void Init(IConfigurationRoot configuration, string appSettingsFile) {
             Configuration = configuration;
-            HostingEnvironment = env;
-            AppSettingsFile = Path.Combine(env.ContentRootPath, appSettingsFile);
+            AppSettingsFile = appSettingsFile;
             JavaScriptSerializer jser = new JavaScriptSerializer();
             Settings = jser.Deserialize<dynamic>(File.ReadAllText(AppSettingsFile));
         }
 
         private static IConfigurationRoot Configuration;
-        private static IHostingEnvironment HostingEnvironment;
         private static string AppSettingsFile;
         private static dynamic Settings;
 #else
