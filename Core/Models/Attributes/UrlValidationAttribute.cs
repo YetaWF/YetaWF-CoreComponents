@@ -122,7 +122,7 @@ namespace YetaWF.Core.Models.Attributes {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
         }
-        protected virtual string GetPattern() {
+        protected string GetPattern() {
             if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
                 if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0)
                     return _regexLocal;

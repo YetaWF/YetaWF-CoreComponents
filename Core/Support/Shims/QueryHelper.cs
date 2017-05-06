@@ -15,6 +15,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace YetaWF.Core.Support {
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not intended for serialization")]
     public class QueryDictionary : Dictionary<string, object> { }
 
     /// <summary>
