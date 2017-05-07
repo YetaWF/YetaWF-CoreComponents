@@ -19,6 +19,8 @@ namespace YetaWF.Core.Packages {
             public string Version { get; set; }
         }
 
+        public static bool MajorDataChange = false;
+
         /// <summary>
         /// Saves a map of all currently installed packages.
         /// </summary>
@@ -108,6 +110,12 @@ namespace YetaWF.Core.Packages {
             // get all currently installed packages
             List<Package> allPackages = Package.GetAvailablePackages();
 
+            PackageInfo coreInfo = (from p in list where p.Name == "YetaWF.Core" select p).FirstOrDefault();
+            if (coreInfo == null)
+                throw new InternalError("YetaWF.Core package not found in package map");
+            bool dropIndexes = Package.CompareVersion(coreInfo.Version, "2.0.3") < 0; // we're upgrading from pre-2.0.3, need to upgrade all varchar columns -> drop all indexes
+            MajorDataChange = dropIndexes;
+
             // update/create all models
             string rootFolder;
 #if MVC6
@@ -115,7 +123,7 @@ namespace YetaWF.Core.Packages {
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
-            if (File.Exists(Path.Combine(rootFolder, Globals.UpdateIndicatorFile))) {
+            if (dropIndexes || File.Exists(Path.Combine(rootFolder, Globals.UpdateIndicatorFile))) {
                 Logging.AddLog("Updating ALL packages");
                 UpdateAll();
             } else {
@@ -212,7 +220,9 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         private static void UpdateAll() {
             // create models for each package
-            foreach (Package package in Package.GetAvailablePackages()) {
+            // order all available packages by service level so we start them up in the correct order
+            List<Package> packages = (from p in Package.GetAvailablePackages() orderby (int)p.ServiceLevel select p).ToList();
+            foreach (Package package in packages) {
                 InstallPackage(package);
             }
         }
