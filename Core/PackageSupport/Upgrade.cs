@@ -64,6 +64,9 @@ namespace YetaWF.Core.Packages {
         /// </remarks>
         public static void UpgradeToNewPackages() {
 
+            if (SiteDefinition.INITIAL_INSTALL) return;
+            if (YetaWFManager.Manager.Deployed && !MustUpgrade()) return;
+
             //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
 
             // Create an update log file
@@ -101,6 +104,23 @@ namespace YetaWF.Core.Packages {
                 File.AppendAllText(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
             }
         }
+        /// <summary>
+        /// Returns whether an upgrade is force (even on deployed systems)
+        /// </summary>
+        /// <returns></returns>
+        public static bool MustUpgrade() {
+            return File.Exists(GetUpdateIndicatorFileName());
+        }
+        private static string GetUpdateIndicatorFileName() {
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderWebProject;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            return Path.Combine(rootFolder, Globals.UpdateIndicatorFile);
+        }
+
         private static void UpgradePackages() {
 
             Logging.AddLog("Upgrading to new packages");
@@ -117,13 +137,7 @@ namespace YetaWF.Core.Packages {
             MajorDataChange = dropIndexes;
 
             // update/create all models
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
-            if (dropIndexes || File.Exists(Path.Combine(rootFolder, Globals.UpdateIndicatorFile))) {
+            if (dropIndexes || MustUpgrade()) {
                 Logging.AddLog("Updating all packages");
                 UpdateAll();
                 Logging.AddLog("Updating models for all packages completed");
@@ -181,7 +195,10 @@ namespace YetaWF.Core.Packages {
             }
 
             // Remove the update indicator file (if present)
-            File.Delete(Path.Combine(rootFolder, Globals.UpdateIndicatorFile));
+            File.Delete(GetUpdateIndicatorFileName());
+
+            // Save new package map (only if successful)
+            Package.SavePackageMap();
         }
         /// <summary>
         /// Loads the existing package map at .\Website\Data\PackageMap.txt
