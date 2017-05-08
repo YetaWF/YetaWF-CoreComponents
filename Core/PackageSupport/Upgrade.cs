@@ -124,8 +124,9 @@ namespace YetaWF.Core.Packages {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             if (dropIndexes || File.Exists(Path.Combine(rootFolder, Globals.UpdateIndicatorFile))) {
-                Logging.AddLog("Updating ALL packages");
+                Logging.AddLog("Updating all packages");
                 UpdateAll();
+                Logging.AddLog("Updating models for all packages completed");
             } else {
                 // update models
                 Logging.AddLog("Updating models for changed packages");
