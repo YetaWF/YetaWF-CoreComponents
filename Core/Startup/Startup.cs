@@ -21,7 +21,7 @@ namespace YetaWF.Core.Support {
         public static void CallStartupClasses() {
             Logging.AddLog("Processing IInitializeApplicationStartup");
             // get all types, but put the VersionManagerStartup class first
-            List<Type> types = GetStartupTypes();
+            List<Type> types = Package.GetClassesInPackages<IInitializeApplicationStartup>(OrderByServiceLevel: true);
             Type versionManager = typeof(VersionManagerStartup);
             types.Remove(versionManager);
             types.Insert(0, versionManager);
@@ -39,34 +39,6 @@ namespace YetaWF.Core.Support {
                 }
             }
             Logging.AddLog("Processing IInitializeApplicationStartup Ended");
-        }
-        private static List<Type> GetStartupTypes() {
-            List<Type> moduleTypes = new List<Type>();
-
-            List<Package> packages = Package.GetAvailablePackages();
-            // order all available packages by service level so we start them up in the correct order
-            packages = (from p in packages orderby (int)p.ServiceLevel select p).ToList();
-
-            foreach (Package package in packages) {
-
-                Type[] typesInAsm;
-                try {
-                    typesInAsm = package.PackageAssembly.GetTypes();
-                } catch (ReflectionTypeLoadException ex) {
-                    typesInAsm = ex.Types;
-                }
-                Type[] modTypes = typesInAsm.Where(type => IsStartupType(type)).ToArray<Type>();
-                moduleTypes.AddRange(modTypes);
-            }
-            return moduleTypes;
-        }
-        private static bool IsStartupType(Type type) {
-            if (!TypeIsPublicClass(type))
-                return false;
-            return typeof(IInitializeApplicationStartup).IsAssignableFrom(type);
-        }
-        private static bool TypeIsPublicClass(Type type) {
-            return (type != null && type.IsPublic && type.IsClass && !type.IsAbstract && !type.IsGenericType);
         }
     }
 }

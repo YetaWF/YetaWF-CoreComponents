@@ -762,33 +762,61 @@ namespace YetaWF.Core.Packages {
         /// <remarks>Only explicitly defined types using InstallOrderAttributes are listed.</remarks>
         public List<Type> InstallableModels {
             get {
-                if (_installableModels == null) {
-                    _installableModels = new List<Type>();
-                    Type[] typesInAsm;
-                    try {
-                        typesInAsm = PackageAssembly.GetTypes();
-                    } catch (ReflectionTypeLoadException ex) {
-                        typesInAsm = ex.Types;
-                    }
-                    foreach(var t in typesInAsm)
-                        AddModelType(t);
-                }
+                if (_installableModels == null)
+                    _installableModels = GetClassesInPackage<IInstallableModel>();
                 return _installableModels;
             }
         }
-        private bool AddModelType(Type type) {
-            if (!TypeIsPublicClass(type))
-                return false;
-            if (!typeof(IInstallableModel).IsAssignableFrom(type))
-                return false;
-            _installableModels.Add(type);
-            return true;
-        }
-        private static bool TypeIsPublicClass(Type type) {
-            return (type != null && type.IsPublic && type.IsClass && !type.IsAbstract);
-        }
-
         private List<Type> _installableModels;
+
+        /// <summary>
+        /// Return a list of all classes in all packages that support an interface or are derived from the specified type.
+        /// </summary>
+        /// <typeparam name="TYPE">Type used to filter the classes.</typeparam>
+        /// <returns>List of classes.</returns>
+        public static List<Type> GetClassesInPackages<TYPE>(bool OrderByServiceLevel = false) {
+            List<Type> list = new List<Type>();
+            List<Package> packages = Package.GetAvailablePackages();
+            if (OrderByServiceLevel)
+                packages = (from p in packages orderby (int)p.ServiceLevel select p).ToList();
+
+            foreach (Package package in packages) {
+                Type[] typesInAsm;
+                try {
+                    typesInAsm = package.PackageAssembly.GetTypes();
+                } catch (ReflectionTypeLoadException ex) {
+                    typesInAsm = ex.Types;
+                }
+                Type[] classTypes = typesInAsm.Where(type => IsOfType<TYPE>(type)).ToArray<Type>();
+                list.AddRange(classTypes);
+            }
+            return list;
+        }
+        /// <summary>
+        /// Return a list of all classes in one package that support an interface or are derived from the specified type.
+        /// </summary>
+        /// <typeparam name="TYPE">Type used to filter the classes.</typeparam>
+        /// <returns>List of classes.</returns>
+        public List<Type> GetClassesInPackage<TYPE>() {
+            List<Type> list = new List<Type>();
+            Type[] typesInAsm;
+            try {
+                typesInAsm = PackageAssembly.GetTypes();
+            } catch (ReflectionTypeLoadException ex) {
+                typesInAsm = ex.Types;
+            }
+            Type[] classTypes = typesInAsm.Where(type => IsOfType<TYPE>(type)).ToArray<Type>();
+            list.AddRange(classTypes);
+            return list;
+        }
+        private static bool IsOfType<TYPE>(Type type) {
+            if (!IsPublicClass(type))
+                return false;
+            return typeof(TYPE).IsAssignableFrom(type);
+        }
+        private static bool IsPublicClass(Type type) {
+            return (type != null && type.IsPublic && type.IsClass && !type.IsAbstract && !type.IsGenericType);
+        }
 
         /// <summary>
         /// Compares two version strings.

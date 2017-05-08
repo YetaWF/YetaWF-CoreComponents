@@ -87,27 +87,7 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog("Processing RegisterPackages Ended");
         }
         private static List<Type> GetAreaRegistrationTypes() {
-            List<Type> regTypes = new List<Type>();
-            List<Package> packages = Package.GetAvailablePackages();
-            foreach (Package package in packages) {
-                Type[] typesInAsm;
-                try {
-                    typesInAsm = package.PackageAssembly.GetTypes();
-                } catch (ReflectionTypeLoadException ex) {
-                    typesInAsm = ex.Types;
-                }
-                Type[] modTypes = typesInAsm.Where(type => IsAreaRegistrationType(type)).ToArray<Type>();
-                regTypes.AddRange(modTypes);
-            }
-            return regTypes;
-        }
-        private static bool IsAreaRegistrationType(Type type) {
-            if (!TypeIsPublicClass(type))
-                return false;
-            return typeof(YetaWF.Core.Controllers.AreaRegistrationBase).IsAssignableFrom(type);
-        }
-        private static bool TypeIsPublicClass(Type type) {
-            return (type != null && type.IsPublic && type.IsClass && !type.IsAbstract && !type.IsGenericType);
+            return Package.GetClassesInPackages<AreaRegistrationBase>();
         }
     }
 }

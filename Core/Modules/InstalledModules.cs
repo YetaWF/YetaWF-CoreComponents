@@ -103,14 +103,7 @@ namespace YetaWF.Core.Modules {
             Logging.AddLog("Building installed modules dictionary");
 
             foreach (Package package in Package.GetAvailablePackages()) {
-                Assembly assembly = package.PackageAssembly;
-                Type[] typesInAsm;
-                try {
-                    typesInAsm = assembly.GetTypes();
-                } catch (ReflectionTypeLoadException ex) {
-                    typesInAsm = ex.Types;
-                }
-                Type[] modTypes = typesInAsm.Where(type => IsModuleType(type)).ToArray<Type>();
+                List<Type> modTypes = package.GetClassesInPackage<ModuleDefinition>();
                 if (modTypes.Count() > 0) {
                     Packages.Add(package);
                     foreach (Type type in modTypes) {
@@ -147,14 +140,6 @@ namespace YetaWF.Core.Modules {
             }
 
             Logging.AddLog("Installed modules dictionary completed");
-        }
-        private static bool IsModuleType(Type type) {
-            if (!TypeIsPublicClass(type))
-                return false;
-            return typeof(ModuleDefinition).IsAssignableFrom(type); // this includes the ModuleDefinition class itself so we get the Core
-        }
-        private static bool TypeIsPublicClass(Type type) {
-            return (type != null && type.IsPublic && type.IsClass && !type.IsAbstract);
         }
     }
 }
