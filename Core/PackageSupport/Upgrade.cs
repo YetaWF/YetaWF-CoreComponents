@@ -99,7 +99,7 @@ namespace YetaWF.Core.Packages {
 #if MVC6
                 rootFolder = YetaWFManager.RootFolderWebProject;
 #else
-            rootFolder = YetaWFManager.RootFolder;
+                rootFolder = YetaWFManager.RootFolder;
 #endif
                 File.AppendAllText(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
             }
