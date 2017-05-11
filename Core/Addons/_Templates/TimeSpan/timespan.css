@@ -17,3 +17,6 @@ div.yt_timespan.t_edit div.t_minutes,
 div.yt_timespan.t_edit div.t_seconds {
     display:inline;
 }
+div.yt_timespan.t_edit label {
+    padding-right:1ch;
+}
