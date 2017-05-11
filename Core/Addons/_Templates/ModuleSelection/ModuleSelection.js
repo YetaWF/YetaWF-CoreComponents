@@ -9,20 +9,8 @@ var _YetaWF_ModuleSelection = {};
 YetaWF_ModuleSelection.Update = function ($control, data) {
     'use strict';
     var $select = _YetaWF_ModuleSelection.getSelect($control);
-    var $link = _YetaWF_ModuleSelection.getLink($control);
-    var $desc = _YetaWF_ModuleSelection.getDescription($control);
     YetaWF_TemplateDropDownList.Update($select, data);
-    if (_YetaWF_ModuleSelection.hasValue($control)) {
-        $('a', $link).attr("href", '/!Mod/' + data); // Globals.ModuleUrl
-        $link.show();
-        var desc = _YetaWF_ModuleSelection.getDescriptionText($control);
-        $desc.text(desc);
-        $desc.show();
-    } else {
-        $link.hide();
-        $desc.hide();
-        $desc.text('');
-    }
+    _YetaWF_ModuleSelection.showDescription($control, data);
 };
 
 // Load a moduleselection UI object with data
@@ -46,20 +34,8 @@ YetaWF_ModuleSelection.UpdateComplete = function ($control, modGuid) {
         function (data) { // success
             var $packages = _YetaWF_ModuleSelection.getPackages($control);
             YetaWF_TemplateDropDownList.Update($packages, data.extra);
-            var $link = _YetaWF_ModuleSelection.getLink($control);
-            var $desc = _YetaWF_ModuleSelection.getDescription($control);
             YetaWF_TemplateDropDownList.Update($select, modGuid);
-            if (_YetaWF_ModuleSelection.hasValue($control)) {
-                $('a', $link).attr("href", '/!Mod/' + modGuid); // Globals.ModuleUrl
-                $link.show();
-                var desc = _YetaWF_ModuleSelection.getDescriptionText($control);
-                $desc.text(desc);
-                $desc.show();
-            } else {
-                $link.hide();
-                $desc.hide();
-                $desc.text('');
-            }
+            _YetaWF_ModuleSelection.showDescription($control, data);
             if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($select);
         },
         function (data) { // failure
@@ -156,6 +132,21 @@ _YetaWF_ModuleSelection.getDescriptionText = function ($control) {
     var ix = $('.t_select select option:selected', $control).index();
     return YetaWF_TemplateDropDownList.getTitle($('.t_select select', $control), ix);
 };
+_YetaWF_ModuleSelection.showDescription = function ($control, data) {
+    var $desc = _YetaWF_ModuleSelection.getDescription($control);
+    var $link = _YetaWF_ModuleSelection.getLink($control);
+    if (_YetaWF_ModuleSelection.hasValue($control)) {
+        $('a', $link).attr("href", '/!Mod/' + data); // Globals.ModuleUrl
+        $link.show();
+        var desc = _YetaWF_ModuleSelection.getDescriptionText($control);
+        $desc.text(desc);
+        $desc.show();
+    } else {
+        $link.hide();
+        $desc.hide();
+        $desc.text('');
+    }
+}
 
 YetaWF_ModuleSelection.init = function (id) {
     'use strict';
@@ -182,6 +173,12 @@ $(document).ready(function () {
         var data = { 'AreaName': $(this).val() };
         // get a new list of modules
         YetaWF_TemplateDropDownList.AjaxUpdate($select, data, ajaxurl);
+    });
+    $("body").on('change', '.yt_moduleselection.t_edit .t_select select', function (event) {
+        var $this = $(this);
+        var data = $this.val();
+        var $control = $(this).closest('.yt_moduleselection');
+        _YetaWF_ModuleSelection.showDescription($control, data);
     });
 });
 
