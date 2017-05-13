@@ -42,6 +42,8 @@ namespace YetaWF.Core.Controllers {
         ///  Update an area's view name with the complete area specifier.
         /// </summary>
         public static string MakeFullViewName(string viewName, string area) {
+            if (string.IsNullOrWhiteSpace(viewName))
+                throw new InternalError("Missing view name");
             viewName = area + "_" + viewName;
             return viewName;
         }

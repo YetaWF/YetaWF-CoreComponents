@@ -585,7 +585,9 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        // VIEW`
+        // VIEW
+        // VIEW
+        // VIEW
 
         // Invoke a view from a module controller
         [Obsolete("This form of the View() method is not supported by YetaWF")]
@@ -594,51 +596,37 @@ namespace YetaWF.Core.Controllers {
 #else
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View(IView view) { throw new NotSupportedException(); }
-#endif
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
-        protected new ViewResult View(string viewName) {
-            return View(viewName, UseAreaViewName: true);
-        }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
-        protected new ViewResult View(object model) {
-            return View(model, UseAreaViewName: true);
-        }
-#if MVC6
-#else
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View(IView view, object model) { throw new NotSupportedException(); }
-#endif
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
-        protected new ViewResult View(string viewName, object model) {
-            return View(viewName, model, UseAreaViewName: true);
-        }
-#if MVC6
-#else
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new virtual ViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
 #endif
-        protected ViewResult View(string viewName, bool UseAreaViewName) {
-            if (UseAreaViewName)
-                viewName = YetaWFController.MakeFullViewName(viewName, Area);
-            return base.View(viewName);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
+        protected new ViewResult View(object model) {
+            return View(null, model, UseAreaViewName: true);
         }
-        protected ViewResult View(object model, bool UseAreaViewName) {
+        protected ViewResult View(string viewName, bool UseAreaViewName = true) {
+            return View(viewName, null, UseAreaViewName: UseAreaViewName);
+        }
+        protected ViewResult View(string viewName, object model, bool UseAreaViewName = true) {
+            if (UseAreaViewName) {
+                if (string.IsNullOrWhiteSpace(viewName))
+                    viewName = GetModule().DefaultViewName;
+                else
+                    viewName = YetaWFController.MakeFullViewName(viewName, Area);
+                if (string.IsNullOrWhiteSpace(viewName)) {
 #if MVC6
-            string viewName = (string)RouteData.Values["action"];
-            if (string.IsNullOrWhiteSpace(viewName))
-                throw new InternalError("Invalid action");
+                    viewName = (string)RouteData.Values["action"];
 #else
-            string viewName = ControllerContext.RouteData.GetRequiredString("action");
+                    viewName = ControllerContext.RouteData.GetRequiredString("action");
 #endif
-            if (UseAreaViewName)
-                viewName = YetaWFController.MakeFullViewName(viewName, Area);
-            return base.View(viewName, model);
-        }
-        protected ViewResult View(string viewName, object model, bool UseAreaViewName) {
-            if (UseAreaViewName)
-                viewName = YetaWFController.MakeFullViewName(viewName, Area);
+                    viewName = YetaWFController.MakeFullViewName(viewName, Area);
+                }
+            }
+            if (string.IsNullOrWhiteSpace(viewName))
+                throw new InternalError("Missing view name");
             return base.View(viewName, model);
         }
 
@@ -713,18 +701,24 @@ namespace YetaWF.Core.Controllers {
 
                 if (context == null)
                     throw new ArgumentNullException("context");
-                if (String.IsNullOrEmpty(ViewName)) {
+                if (AreaViewName) {
+                    if (String.IsNullOrEmpty(ViewName)) {
+                        if (!string.IsNullOrWhiteSpace(Module.DefaultViewName))
+                            ViewName = Module.DefaultViewName + "_Partial";
+                    } else {
+                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
+                    }
+                    if (string.IsNullOrWhiteSpace(ViewName)) {
 #if MVC6
-                    ViewName = (string)context.RouteData.Values["action"];
-                    if (string.IsNullOrWhiteSpace(ViewName))
-                        throw new InternalError("Invalid action");
+                        ViewName = (string)context.RouteData.Values["action"];
 #else
-                    ViewName = context.RouteData.GetRequiredString("action");
+                        ViewName = context.RouteData.GetRequiredString("action");
 #endif
+                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
+                    }
                 }
-                if (AreaViewName)
-                    ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
-
+                if (string.IsNullOrWhiteSpace(ViewName))
+                    throw new InternalError("Invalid action");
 #if MVC6
                 HttpResponse response = context.HttpContext.Response;
 #else
@@ -980,6 +974,7 @@ namespace YetaWF.Core.Controllers {
             ReloadModule = 1,
             ReloadPage = 2,
         }
+
 
         /// <summary>
         /// The page/form was successfully processed. This handles returning to a parent page or displaying a popup if a return page is not available.

@@ -155,7 +155,6 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-
         private const string MODULE_NAMESPACE = "(xcompanyx.Modules.xproductx.Modules)";
 
         private void GetModuleInfo() {

@@ -42,6 +42,46 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             ContainerOnly = 2,
         }
 
+        // STANDARD MODULE VIEW
+        // STANDARD MODULE VIEW
+        // STANDARD MODULE VIEW
+
+        public class StandardViews {
+            /// <summary>
+            /// Configuration view with Apply/Save/Cancel buttons.
+            /// </summary>
+            public const string Config = EditApply;
+            /// <summary>
+            /// Browse view without buttons.
+            /// </summary>
+            public const string Browse = "Browse";
+            /// <summary>
+            /// Add view with Save/Cancel buttons.
+            /// </summary>
+            public const string Add = "Add";
+            /// <summary>
+            /// Edit view with Save/Cancel buttons.
+            /// </summary>
+            public const string Edit = "Edit";
+            /// <summary>
+            /// Edit view with Apply/Save/Cancel buttons.
+            /// </summary>
+            public const string EditApply = "EditApply";
+            /// <summary>
+            /// Display view Cancel button.
+            /// </summary>
+            public const string Display = "Display";
+
+            /// <summary>
+            /// A view with a read/only PropertyList without any buttons.
+            /// </summary>
+            public const string PropertyListDisplay = "PropertyList_Display";
+            /// <summary>
+            /// A view with an editable PropertyList without any buttons.
+            /// </summary>
+            public const string PropertyListEdit = "PropertyList_Edit";
+        }
+
         public ModuleDefinition() {
             Temporary = true;
             if (IsModuleUnique)
@@ -67,7 +107,10 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             ShowFormButtons = true;
             Print = true;
             ReferencedModules = new SerializableList<ReferencedModule>();
+            DefaultViewName = null;
         }
+
+        public string DefaultViewName { get; set; }
 
         public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
 

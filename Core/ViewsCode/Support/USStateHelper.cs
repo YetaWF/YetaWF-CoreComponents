@@ -48,6 +48,7 @@ namespace YetaWF.Core.Views.Shared {
         public static HtmlString RenderUSStateDisplay(this HtmlHelper htmlHelper, string name, string model) {
 #endif
             List<SelectionItem<string>> states = ReadStatesList();
+            if (model == null) model = "";
             string state = (from s in states where string.Compare(s.Value, model.ToUpper(), true) == 0 select s.Text).FirstOrDefault();
             return new HtmlString(state);
         }

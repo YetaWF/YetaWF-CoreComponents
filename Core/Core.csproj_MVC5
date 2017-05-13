@@ -634,6 +634,20 @@
     <Content Include="Views\Shared\EditorTemplates\RecaptchaV2.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\FormButton.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteId.cshtml" />
+    <Content Include="Views\Shared\Browse.cshtml" />
+    <Content Include="Views\Shared\Browse_Partial.cshtml" />
+    <Content Include="Views\Shared\Add.cshtml" />
+    <Content Include="Views\Shared\Add_Partial.cshtml" />
+    <Content Include="Views\Shared\Display.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\PropertyListTabbed.cshtml" />
+    <Content Include="Views\Shared\EditApply.cshtml" />
+    <Content Include="Views\Shared\Edit.cshtml" />
+    <Content Include="Views\Shared\Display_Partial.cshtml" />
+    <Content Include="Views\Shared\EditApply_Partial.cshtml" />
+    <Content Include="Views\Shared\Edit_Partial.cshtml" />
+    <Content Include="Views\Shared\PropertyList_Display.cshtml" />
+    <Content Include="Views\Shared\PropertyList_Edit.cshtml" />
+    <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

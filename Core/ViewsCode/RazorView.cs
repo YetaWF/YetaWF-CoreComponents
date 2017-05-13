@@ -199,11 +199,13 @@ namespace YetaWF.Core.Views {
         // FORM
         // FORM
 
-        protected MvcForm Form(string actionName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false) {
+        protected MvcForm Form(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
             Manager.NextUniqueIdPrefix();
             Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Forms");
 
-            _viewName = actionName;
+            _viewName = viewName;
+            if (string.IsNullOrWhiteSpace(ActionName))
+                ActionName = viewName;
             _model = Model;
 
             IDictionary<string,object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
@@ -217,16 +219,16 @@ namespace YetaWF.Core.Views {
 
 #if MVC6
             HtmlHelper<TModel> htmlHelper = GetHtml();
-            return htmlHelper.BeginForm(_viewName, Module.Controller, null, FormMethod.Post, false, rvd);
+            return htmlHelper.BeginForm(ActionName, Module.Controller, null, FormMethod.Post, false, rvd);
 #else
-            return Html.BeginForm(_viewName, Module.Controller, null, FormMethod.Post, rvd);
+            return Html.BeginForm(ActionName, Module.Controller, null, FormMethod.Post, rvd);
 #endif
         }
         private string _viewName = null;
         private object _model = null;
 
         // PartialForm rendering called during regular form processing (not ajax)
-        public HtmlString PartialForm(string partialViewName = null)
+        public HtmlString PartialForm(string partialViewName = null, bool UseAreaViewName = true)
         {
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
@@ -239,7 +241,8 @@ namespace YetaWF.Core.Views {
 
             try {
                 if (!string.IsNullOrWhiteSpace(partialViewName)) {
-                    partialViewName = YetaWFController.MakeFullViewName(partialViewName, Module.Area);
+                    if (UseAreaViewName)
+                        partialViewName = YetaWFController.MakeFullViewName(partialViewName, Module.Area);
                     if (_model != null)
                         viewHtml = GetHtml().Partial(partialViewName, _model).AsString();
                     else
