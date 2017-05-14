@@ -110,6 +110,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             DefaultViewName = null;
         }
 
+        [Data_DontSave]
         public string DefaultViewName { get; set; }
 
         public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
