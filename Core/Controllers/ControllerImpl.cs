@@ -1168,14 +1168,14 @@ namespace YetaWF.Core.Controllers {
         /// Redirect to the specified target defined by the supplied action.
         /// </summary>
         /// <param name="action">The ModuleAction defining the target where the page is redirected.</param>
-        /// <returns>An ActionResult to be returned by the controller.
-        ///
+        /// <returns>An ActionResult to be returned by the controller.</returns>
+        /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
-        /// This works on cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.</returns>
+        /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
+        /// </remarks>
         protected ActionResult Redirect(ModuleAction action) {
             if (action == null)
                 return Redirect("");
-            Manager.Verify_AjaxRequest();
             return Redirect(action.GetCompleteUrl(), ForcePopup: action.Style == ModuleAction.ActionStyleEnum.Popup || action.Style == ModuleAction.ActionStyleEnum.ForcePopup);
         }
 
@@ -1183,10 +1183,11 @@ namespace YetaWF.Core.Controllers {
         /// Redirect to the specified target Url.
         /// </summary>
         /// <param name="url">The Urk defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
-        /// <returns>An ActionResult to be returned by the controller.
-        ///
+        /// <returns>An ActionResult to be returned by the controller.</returns>
+        /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
-        /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.</returns>
+        /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
+        /// </remarks>
         protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false) {
 
             if (string.IsNullOrWhiteSpace(url))
