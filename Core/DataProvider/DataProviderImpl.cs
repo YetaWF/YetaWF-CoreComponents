@@ -67,8 +67,7 @@ namespace YetaWF.Core.DataProvider {
             Logic = f.Logic;
             Operator = f.Operator;
             Value = f.Value;
-            if (f.StringType)
-                ValueAsString = f.ValueAsString;
+            StringType = f.StringType;
         }
 
         /// <summary>
