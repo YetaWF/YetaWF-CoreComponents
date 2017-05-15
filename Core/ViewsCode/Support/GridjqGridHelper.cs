@@ -76,7 +76,7 @@ namespace YetaWF.Core.Views.Shared {
                     continue;// we need a caption if we're using resource redirects
 
                 sb.Append("{");
-                sb.Append("name:{0},index:{0},", YetaWFManager.Jser.Serialize(prop.Name));
+                sb.Append("name:{0},index:{0},", YetaWFManager.JsonSerialize(prop.Name));
 
                 int width = 0;
                 if (gridCol.Icons > 0) {
@@ -96,9 +96,9 @@ namespace YetaWF.Core.Views.Shared {
                     if (columnInfo.Width >= 0)
                         width = columnInfo.Width; // override calculated width
                 }
-                sb.Append("has_form_data:{0},", YetaWFManager.Jser.Serialize(!prop.ReadOnly));
+                sb.Append("has_form_data:{0},", YetaWFManager.JsonSerialize(!prop.ReadOnly));
                 if (!prop.ReadOnly)
-                    sb.Append("no_sub_if_notchecked:{0},", YetaWFManager.Jser.Serialize(gridCol.OnlySubmitWhenChecked));
+                    sb.Append("no_sub_if_notchecked:{0},", YetaWFManager.JsonSerialize(gridCol.OnlySubmitWhenChecked));
 
                 sb.Append("width:{0},", width);
                 sb.Append("title: false,");
@@ -148,7 +148,7 @@ namespace YetaWF.Core.Views.Shared {
                         sb.Append("stype:'select',searchoptions:{sopt:['eq','ne'],value:':(no selection)");
                         EnumData enumData = ObjectSupport.GetEnumData(prop.PropInfo.PropertyType);
                         foreach (EnumDataEntry entry in enumData.Entries) {
-                            string capt = YetaWFManager.Jser.Serialize(entry.Caption);
+                            string capt = YetaWFManager.JsonSerialize(entry.Caption);
                             capt = capt.Substring(1, capt.Length - 2);
                             sb.Append(";{0}:{1}", (int)entry.Value, capt);
                         }

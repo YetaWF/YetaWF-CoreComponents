@@ -113,7 +113,7 @@ namespace YetaWF.Core.Support {
                 resp = http.GetResponse();
                 System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
                 string response = sr.ReadToEnd().Trim();
-                geoData = YetaWFManager.Jser.Deserialize<GeoData>(response);
+                geoData = YetaWFManager.JsonDeserialize<GeoData>(response);
             } catch (Exception exc) {
                 Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", exc.Message, ipAddress);
                 return null;

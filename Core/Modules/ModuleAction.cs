@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -10,7 +11,6 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
-using System.Web.Script.Serialization;
 #if MVC6
 using Microsoft.AspNetCore.Routing;
 #else
@@ -220,7 +220,7 @@ namespace YetaWF.Core.Modules {
 
         // Image is only used at runtime to set the image, which is immediately translated to a full path (ImageUrlFinal) for non-builtin icons
         // For built-in icons, we save the icon name
-        [DontSave, ReadOnly, ScriptIgnoreAttribute]
+        [DontSave, ReadOnly, JsonIgnoreAttribute]
         public string Image {
             get {
                 return ImageUrlFinal;
@@ -323,46 +323,46 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Name used in html to identify the action
         /// </summary>
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public string Name { get; set; }
         /// <summary>
         /// Used in html to determine the initial display
         /// </summary>
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public bool Displayed { get; set; }
 
         // in a GET request use a cookie as a signal that the data has been sent
         // this is normally used in <a> links that are used to download data (like zip files)
         // so the "Loading" animation can be stopped
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public bool CookieAsDoneSignal { get; set; }
 
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public ActionLocationEnum Location { get; set; } // the type of menu where that action is shown
 
         public SerializableList<ModuleAction> SubMenu { get; set; } // submenu
 
-        [ScriptIgnoreAttribute] // menus don't support queryargs - they can be encoded as part of the url
+        [JsonIgnoreAttribute] // menus don't support queryargs - they can be encoded as part of the url
         public object QueryArgs { get; set; } // arguments
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         [Obsolete("Do not use - replaced by QueryArgsDict")]
         public RouteValueDictionary QueryArgsRvd { get; set; }
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public QueryHelper QueryArgsDict { get; set; }
-        [ScriptIgnoreAttribute] // menus don't support queryargshr - they can be encoded as part of the url
+        [JsonIgnoreAttribute] // menus don't support queryargshr - they can be encoded as part of the url
         public object QueryArgsHR { get; set; } // arguments part of URL as human readable parts
-        [ScriptIgnoreAttribute] // anchor used as part of URL
+        [JsonIgnoreAttribute] // anchor used as part of URL
         public string AnchorId { get; set; }
 
-        [ScriptIgnoreAttribute]// This is set in IsAuthorized and it is not user-definable
+        [JsonIgnoreAttribute]// This is set in IsAuthorized and it is not user-definable
         public PageDefinition.PageSecurityType PageSecurity { get; set; }
 
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public bool DontCheckAuthorization { get; set; }// don't check whether user is authorized (always show) - this will force a login/register when used
 
         [Obsolete("Discontinued - preserve property so deserializing existing data doesn't fail")]
         // Discontinued: we have to use "items" because kendo treeview doesn't let us to use a different variable name - we're no longer using kendo treeview
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public SerializableList<ModuleAction> items {
             get {  return null; } set { }
         }
@@ -370,7 +370,7 @@ namespace YetaWF.Core.Modules {
         public int Id { get; set; } // ids are used for editing purposes to match up old and new menu entries
 
         // GetUserMenu evaluates all ModuleActions so their authorization doesn't have to be reevaluated
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public bool _AuthorizationEvaluated { get; set; }
 
         public Guid GetOwningModuleGuid() {

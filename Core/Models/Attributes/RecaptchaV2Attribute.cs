@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Web.Script.Serialization;
 using System.Net;
 #if MVC6
 using Microsoft.AspNetCore.Http;
@@ -68,8 +67,7 @@ namespace YetaWF.Core.Models.Attributes {
                 string resp = client.DownloadString(string.Format("https://www.google.com/recaptcha/api/siteverify?secret={0}&response={1}&remoteIp={2}",
                     config.PrivateKey, response, ipAddress));
                 Logging.AddLog("Validating CaptchaV2 - received \"{0}\"", resp);
-                JavaScriptSerializer jser = YetaWFManager.Jser;
-                RecaptchaV2Response recaptchaResp = jser.Deserialize<RecaptchaV2Response>(resp);
+                RecaptchaV2Response recaptchaResp = YetaWFManager.JsonDeserialize<RecaptchaV2Response>(resp);
                 return recaptchaResp.Success;
             }
         }

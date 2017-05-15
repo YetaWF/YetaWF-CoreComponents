@@ -117,7 +117,7 @@ namespace YetaWF.Core.Views.Shared {
                             hiddenProps = null;
                         }
 
-                        hb.Append(YetaWFManager.Jser.Serialize(output));
+                        hb.Append(YetaWFManager.JsonSerialize(output));
 #if MVC6
                         htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix = oldPrefix;
 #else

@@ -6,7 +6,6 @@ using YetaWF.Core.Models.Attributes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System.IO;
-using System.Web.Script.Serialization;
 #else
 using System.Collections.Generic;
 using System.Configuration;

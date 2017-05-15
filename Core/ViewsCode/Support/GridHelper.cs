@@ -213,7 +213,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderExtraData<TModel>(this HtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {
 #endif
-            return new HtmlString(YetaWFManager.HtmlEncode(YetaWFManager.Jser.Serialize(gridDef.ExtraData)));
+            return new HtmlString(YetaWFManager.HtmlEncode(YetaWFManager.JsonSerialize(gridDef.ExtraData)));
         }
 #if MVC6
         public static HtmlString GetDataFieldPrefix<TModel>(this IHtmlHelper<TModel> htmlHelper, GridDefinition gridDef) {

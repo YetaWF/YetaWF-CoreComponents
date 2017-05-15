@@ -1,7 +1,7 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using System;
-using System.Web.Script.Serialization;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -293,7 +293,7 @@ namespace YetaWF.Core.Modules {
         // AUTHORIZATION
         // AUTHORIZATION
 
-        [ScriptIgnoreAttribute]
+        [JsonIgnoreAttribute]
         public bool IsAuthorized {
             get {
                 if (AuthorizationIgnore)

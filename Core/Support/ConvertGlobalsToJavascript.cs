@@ -3,13 +3,10 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Web.Script.Serialization;
-#if MVC6
-
-#else
-
-#endif
 using YetaWF.Core.Log;
+#if MVC6
+#else
+#endif
 
 namespace YetaWF.Core.Support {
 
@@ -18,7 +15,6 @@ namespace YetaWF.Core.Support {
         {
             Logging.AddLog("Generating {0} for {1}", outputFile, inputObject.GetType().Name);
 
-            JavaScriptSerializer jser = YetaWFManager.Jser;
             ScriptBuilder sb = new ScriptBuilder();
 
             sb.Append("var ");
@@ -49,7 +45,7 @@ namespace YetaWF.Core.Support {
                     if (!first) sb.Append(",");
                     first = false;
                     string val = f.GetValue(inputObject).ToString();
-                    sb.Append("'{0}':{1}", f.Name, jser.Serialize(val));
+                    sb.Append("'{0}':{1}", f.Name, YetaWFManager.JsonSerialize(val));
                 }
             }
             sb.Append("};\n");

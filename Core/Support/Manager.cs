@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Web.Script.Serialization;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
@@ -460,14 +459,18 @@ namespace YetaWF.Core.Support {
             return sb.ToString();
         }
 
-        public static JavaScriptSerializer Jser {
-            get {
-                if (_Jser == null)
-                    _Jser = new JavaScriptSerializer();
-                return _Jser;
-            }
+        public static string JsonSerialize(object value) {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(value);
         }
-        private static JavaScriptSerializer _Jser;
+        public static object JsonDeserialize(string value) {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject(value);
+        }
+        public static object JsonDeserialize(string value, Type type) {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject(value, type);
+        }
+        public static TYPE JsonDeserialize<TYPE>(string value) {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<TYPE>(value);
+        }
 
         public static string JserEncode(string s) {
 #if MVC6
@@ -818,7 +821,7 @@ namespace YetaWF.Core.Support {
                     string urlOnly;
                     QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
                     qh.Remove(Globals.Link_OriginList);
-                    qh.Add(Globals.Link_OriginList, Jser.Serialize(originList));
+                    qh.Add(Globals.Link_OriginList, YetaWFManager.JsonSerialize(originList));
                     url = qh.ToUrl(urlOnly);
                 }
                 return url;

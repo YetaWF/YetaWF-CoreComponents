@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.Script.Serialization;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Support;
@@ -478,7 +477,6 @@ namespace YetaWF.Core.Pages {
 
             if (_SavedVolatileOptionsGroups.Count > 0) {
 
-                JavaScriptSerializer jser = YetaWFManager.Jser;
                 sb.Append("var YVolatile={");
 
                 foreach (var groupEntry in _SavedVolatileOptionsGroups) {
@@ -489,7 +487,7 @@ namespace YetaWF.Core.Pages {
                     sb.Append("{0}:{{", groupName);
 
                     foreach (var confEntry in confEntries)
-                        sb.Append("'{0}':{1},", confEntry.Key, jser.Serialize(confEntry.Value));
+                        sb.Append("'{0}':{1},", confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
                     sb.RemoveLast(); // remove last ,
                     sb.Append("},");
                 }
@@ -513,7 +511,6 @@ namespace YetaWF.Core.Pages {
             if (_SavedConfigOptionsGroups.Count > 0) {
 
                 // non-volatile data must be in the same order every time so bundles can be built correctly
-                JavaScriptSerializer jser = YetaWFManager.Jser;
                 sb.Append("var YConfigs={");
 
                 foreach (var groupEntry in _SavedConfigOptionsGroups.OrderBy(kvp => kvp.Key)) {
@@ -524,7 +521,7 @@ namespace YetaWF.Core.Pages {
                     sb.Append("{0}:{{", groupName);
 
                     foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
-                        sb.Append("'{0}':{1},", confEntry.Key, jser.Serialize(confEntry.Value));
+                        sb.Append("'{0}':{1},", confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
                     sb.RemoveLast(); // remove last ,
                     sb.Append("},");
                 }
@@ -545,7 +542,7 @@ namespace YetaWF.Core.Pages {
 
                     foreach (var locEntry in locEntries.OrderBy(kvp => kvp.Key)) {
                         var loc = locEntry;
-                        string val = YetaWFManager.Jser.Serialize(loc.Value);
+                        string val = YetaWFManager.JsonSerialize(loc.Value);
                         sb.Append("'{0}':{1},", loc.Key, val);
                     }
                     sb.RemoveLast(); // remove last ,

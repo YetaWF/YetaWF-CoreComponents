@@ -90,7 +90,7 @@ namespace YetaWF.Core.Controllers {
             filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
             filterContext.ExceptionHandled = true;
             ContentResult cr = Content(
-                string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.Jser.Serialize(msg)));
+                string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.JsonSerialize(msg)));
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
@@ -262,7 +262,7 @@ namespace YetaWF.Core.Controllers {
             } catch (Exception) { }
             if (!string.IsNullOrWhiteSpace(originList)) {
                 try {
-                    return YetaWFManager.Jser.Deserialize<List<Origin>>(originList);
+                    return YetaWFManager.JsonDeserialize<List<Origin>>(originList);
                 } catch (Exception) {
                     throw new InternalError("Invalid Url arguments");
                 }

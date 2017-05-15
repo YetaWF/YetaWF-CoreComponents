@@ -154,7 +154,7 @@ namespace YetaWF.Core.Pages {
         }
 
         public HtmlString JSEncode(object obj) {
-            return new HtmlString(YetaWFManager.Jser.Serialize(obj));
+            return new HtmlString(YetaWFManager.JsonSerialize(obj));
         }
 
         // DOCUMENTREADY

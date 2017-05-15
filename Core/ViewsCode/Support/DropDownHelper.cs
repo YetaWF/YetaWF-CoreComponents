@@ -143,7 +143,7 @@ namespace YetaWF.Core.Views.Shared {
                         desc = "";
                     else
                         haveDesc = true;
-                    sb.Append("{0},", YetaWFManager.Jser.Serialize(desc));
+                    sb.Append("{0},", YetaWFManager.JsonSerialize(desc));
                 }
                 tagHtml.Append(tagOpt.ToString(TagRenderMode.Normal));
             }
@@ -178,21 +178,21 @@ namespace YetaWF.Core.Views.Shared {
             sb.Append(Basics.AjaxJavascriptReturn);
             sb.Append(@"{""data"":[");
             foreach (SelectionItem<TYPE> item in list) {
-                sb.Append(@"{{""t"":{0},""v"":{1}}},", YetaWFManager.Jser.Serialize(item.Text.ToString()), YetaWFManager.Jser.Serialize(FuncToString != null ? FuncToString(item.Value) : item.Value.ToString()));
+                sb.Append(@"{{""t"":{0},""v"":{1}}},", YetaWFManager.JsonSerialize(item.Text.ToString()), YetaWFManager.JsonSerialize(FuncToString != null ? FuncToString(item.Value) : item.Value.ToString()));
             }
             if (list.Count > 0)
                 sb.RemoveLast();
             sb.Append(@"],""tooltips"":[");
             if ((from i in list where i.Tooltip != null && !string.IsNullOrWhiteSpace(i.Tooltip.ToString()) select i).FirstOrDefault() != null) {
                 foreach (SelectionItem<TYPE> item in list) {
-                    sb.Append("{0},", YetaWFManager.Jser.Serialize(item.Tooltip == null ? "" : item.Tooltip.ToString()));
+                    sb.Append("{0},", YetaWFManager.JsonSerialize(item.Tooltip == null ? "" : item.Tooltip.ToString()));
                 }
                 if (list.Count > 0)
                     sb.RemoveLast();
             }
             if (!string.IsNullOrWhiteSpace(extraData)) {
                 sb.Append(@"],""extra"":[");
-                sb.Append("{0}", YetaWFManager.Jser.Serialize(extraData));
+                sb.Append("{0}", YetaWFManager.JsonSerialize(extraData));
             }
             sb.Append("]}");
             return sb.ToHtmlString();

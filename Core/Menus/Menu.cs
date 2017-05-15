@@ -232,7 +232,7 @@ namespace YetaWF.Core.Menus {
         }
 
         public string SerializeToJSON() {
-            return YetaWFManager.Jser.Serialize(this);
+            return YetaWFManager.JsonSerialize(this);
         }
 
         internal void UpdateIds() {
@@ -363,7 +363,7 @@ namespace YetaWF.Core.Menus {
         }
 
         public static MenuList DeserializeFromJSON(string menuJSON, MenuList Original) {
-            List<ModuleAction> actions = (List<ModuleAction>) YetaWFManager.Jser.Deserialize(menuJSON, typeof(List<ModuleAction>));
+            List<ModuleAction> actions = (List<ModuleAction>) YetaWFManager.JsonDeserialize(menuJSON, typeof(List<ModuleAction>));
             // fix some settings that aren't updated on the browser side
             FixMenuEntries(actions);
             MenuList menu = new MenuList(actions);

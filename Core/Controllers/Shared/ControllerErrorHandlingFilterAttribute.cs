@@ -41,7 +41,7 @@ namespace YetaWF.Core.Controllers {
             var response = context.HttpContext.Response;
             response.StatusCode = 200;
             response.ContentType = "application/text";
-            string content = string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.Jser.Serialize(msg));
+            string content = string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.JSONSerialize(msg));
             return context.HttpContext.Response.WriteAsync(content);
         }
     }

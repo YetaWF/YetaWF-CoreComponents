@@ -433,7 +433,7 @@ namespace YetaWF.Core.Views.Shared {
             List<string> selectionControls = new List<string>();
 
             sb.Append("{");
-            sb.Append("'Id':{0},", YetaWFManager.Jser.Serialize(id));
+            sb.Append("'Id':{0},", YetaWFManager.JsonSerialize(id));
             sb.Append("'Dependents':[");
             foreach (PropertyListEntry property in properties) {
                 if (property.ProcIfAttr != null) {
@@ -441,7 +441,7 @@ namespace YetaWF.Core.Views.Shared {
                         selectionControls.Add(property.ProcIfAttr.Name);
                     sb.Append("{");
                     sb.Append("'Prop':{0},'ControlProp':{1},'Disable':{2},'Values':[",
-                        YetaWFManager.Jser.Serialize(property.Name), YetaWFManager.Jser.Serialize(property.ProcIfAttr.Name), property.ProcIfAttr.Disable ? 1 : 0);
+                        YetaWFManager.JsonSerialize(property.Name), YetaWFManager.JsonSerialize(property.ProcIfAttr.Name), property.ProcIfAttr.Disable ? 1 : 0);
                     foreach (object obj in property.ProcIfAttr.Objects) {
                         int i = Convert.ToInt32(obj);
                         sb.Append("{0},", i);
@@ -455,7 +455,7 @@ namespace YetaWF.Core.Views.Shared {
 
             sb.Append("'Controls':[");
             foreach (string selectionControl in selectionControls) {
-                sb.Append("{0},", YetaWFManager.Jser.Serialize(selectionControl));
+                sb.Append("{0},", YetaWFManager.JsonSerialize(selectionControl));
             }
             sb.Append("],");
             sb.Append("}");
