@@ -196,7 +196,7 @@ namespace YetaWF.Core.PackageSupport {
         public static void Create(string junctionPoint, string targetDir, bool overwrite) {
             targetDir = Path.GetFullPath(targetDir);
             if (!Directory.Exists(targetDir))
-                throw new InternalError("Target path does not exist or is not a directory");
+                throw new InternalError("Target path does not exist or is not a directory ({0})", targetDir);
             if (Directory.Exists(junctionPoint)) {
                 if (!overwrite)
                     throw new InternalError("Directory already exists and overwrite parameter is false");
