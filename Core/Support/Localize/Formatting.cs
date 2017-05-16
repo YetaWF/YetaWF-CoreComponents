@@ -235,7 +235,7 @@ namespace YetaWF.Core.Localize {
                 return strValue;
             }
         }
-        public static string LongKBDisplay(long value, bool detailed = false) {
+        public static string LongKBDisplay(long value, bool detailed = false, bool Show0 = true) {
             if (detailed) {
                 return __ResStr("strFmtKBdet", "{0:##,0} Bytes", value);
             } else {
@@ -245,11 +245,16 @@ namespace YetaWF.Core.Localize {
                     return __ResStr("less1KB", "< 1K");
                 if (value > 1024*1024*10) // 10 MB
                     return LongMBDisplay(value, detailed);
-                return __ResStr("strFmtKB", "{0} KB", (long)((value + 512)/1024));
+                if (value != 0 || Show0)
+                    return __ResStr("strFmtKB", "{0} KB", (long)((value + 512)/1024));
+                return "";
             }
         }
         public static string FormatFileSize(long value) {
             return LongKBDisplay(value);
+        }
+        public static string FormatFileFolderSize(long value) {
+            return LongKBDisplay(value, Show0: false);
         }
 
         public static string GetFormatCurrencyFormat() {
