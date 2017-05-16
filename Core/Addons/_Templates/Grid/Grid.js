@@ -381,10 +381,7 @@ YetaWF_Grid.gridComplete_NoRecords = function ($grid, idEmpty, emptyDiv) {
     var records = $grid.jqGrid('getGridParam', 'records');
     $('#' + idEmpty).remove();
     if (records === 0) {
-        $grid.hide();
         $(emptyDiv).insertAfter($grid.parent());
-    } else {
-        $grid.show();
     }
 };
 
