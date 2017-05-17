@@ -652,6 +652,7 @@
     <Content Include="Views\Shared\PropertyList_Display.cshtml" />
     <Content Include="Views\Shared\PropertyList_Edit.cshtml" />
     <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\FileFolderSize.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
