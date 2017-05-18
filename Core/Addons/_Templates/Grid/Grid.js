@@ -142,6 +142,7 @@ YetaWF_Grid.modifyReceive = function ($grid, options, data, status, xhr) {
 // some error occurred during ajax
 YetaWF_Grid.loadError = function ($grid, xhr, status, error) {
     YetaWF_Basics.processAjaxReturn(xhr.responseText, status, xhr);
+    $grid.trigger('YetaWF_Grid_LoadError');
 }
 
 // save column widths after user resizes
@@ -348,6 +349,7 @@ YetaWF_Grid.HandleSubmitFields = function ($grid, $form) {
 
 YetaWF_Grid.gridComplete = function ($grid, gridId) {
     'use strict';
+    $grid.trigger('YetaWF_Grid_LoadSuccessful');
     Y_KillTooltips();
     // execute javascript in grid
     if ($grid.getGridParam("datatype") == 'json') {
