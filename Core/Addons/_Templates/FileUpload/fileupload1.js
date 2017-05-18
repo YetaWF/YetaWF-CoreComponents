@@ -77,11 +77,14 @@ YetaWF_FileUpload1.init = function (divId, serializeForm) {
         },
         onUploadSuccess: function (id, data) {
             //{
-            //    "result":      "Y_Confirm(\"Image \\\"logo_233x133.jpg\\\" successfully uploaded\");",  
+            //    "result":      "Y_Confirm(\"Image \\\"logo_233x133.jpg\\\" successfully uploaded\");",
             //    "filename": "tempc8eb1eb6-31ef-4e5d-9100-9fab50761a81.jpg",
             //    "realFilename": "logo_233x133.jpg",
             //    "attributes": "233 x 123 (w x h)"
             //}
+            // find form in case returned javascript needs to handle the form (e.g., to submit)
+            var $form = $(this).closest('form');
+
             Y_Loading(false);
             if (data.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                 var script = data.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
