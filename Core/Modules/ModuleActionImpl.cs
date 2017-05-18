@@ -205,6 +205,8 @@ namespace YetaWF.Core.Modules {
                 if (!AddToOriginList)
                     tag.Attributes.Add(Basics.CssDontAddToOriginList, "");
             }
+            if (!string.IsNullOrWhiteSpace(ExtraData))
+                tag.Attributes.Add(Basics.CssExtraData, ExtraData);
 
             if (NeedsModuleContext)
                 tag.Attributes.Add(Basics.CssAddModuleContext, "");

@@ -330,6 +330,12 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         [JsonIgnoreAttribute]
         public bool Displayed { get; set; }
+        /// <summary>
+        /// Used in html and rendered as data-extradata attribute.
+        /// </summary>
+        /// <remarks>This could be used to pass additional data to client-side processing of this action, typically used with ActionStyleEnum.Nothing.</remarks>
+        [JsonIgnoreAttribute, DontSave]
+        public string ExtraData { get; set; }
 
         // in a GET request use a cookie as a signal that the data has been sent
         // this is normally used in <a> links that are used to download data (like zip files)

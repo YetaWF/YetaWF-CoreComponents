@@ -29,6 +29,7 @@ namespace YetaWF.Core.Addons {
         public const string CssOuterWindow = "data-outerwindow";
         public const string CssAttrDataSpecialEdit = "data-specialedit";
         public const string CssAttrActionButton = "data-button";
+        public const string CssExtraData = "data-extradata";
 
         // used on url to select specific module
         public const string ModuleGuid = "__ModuleGuid";
