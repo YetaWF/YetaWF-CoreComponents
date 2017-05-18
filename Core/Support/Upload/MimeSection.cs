@@ -56,6 +56,7 @@ namespace YetaWF.Core.Upload {
         public bool FlashUse { get; set; }
         public bool FileUse { get; set; }
         public bool PackageUse { get; set; }
+        public bool DropBoxUse { get; set; }
     }
 #else
     public class MimeSection : ConfigurationSection {
@@ -149,7 +150,7 @@ namespace YetaWF.Core.Upload {
                 this["FlashUse"] = value;
             }
         }
-        [ConfigurationProperty("FileUse", IsKey=false, IsRequired=false)]
+        [ConfigurationProperty("FileUse", IsKey = false, IsRequired = false)]
         public bool FileUse {
             get {
                 return (bool)this["FileUse"];
@@ -165,6 +166,15 @@ namespace YetaWF.Core.Upload {
             }
             set {
                 this["PackageUse"] = value;
+            }
+        }
+        [ConfigurationProperty("DropBoxUse", IsKey = false, IsRequired = false)]
+        public bool DropBoxUse {
+            get {
+                return (bool)this["DropBoxUse"];
+            }
+            set {
+                this["DropBoxUse"] = value;
             }
         }
     }
