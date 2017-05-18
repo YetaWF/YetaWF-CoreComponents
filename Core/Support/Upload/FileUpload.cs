@@ -67,9 +67,9 @@ namespace YetaWF.Core.Upload {
         /// <param name="canUse"></param>
         /// <returns>A file name (with path) of the uploaded file in the site's temporary folder.</returns>
 #if MVC6
-        private string StoreTempFile(IFormFile uploadFile, Func<MimeEntry, bool> canUse) {
+        public string StoreTempFile(IFormFile uploadFile, Func<MimeEntry, bool> canUse) {
 #else
-        private string StoreTempFile(HttpPostedFileBase uploadFile, Func<MimeEntry, bool> canUse) {
+        public string StoreTempFile(HttpPostedFileBase uploadFile, Func<MimeEntry, bool> canUse) {
 #endif
             return StoreFile(uploadFile, Globals.TempFiles, canUse,
                 (uf => {
