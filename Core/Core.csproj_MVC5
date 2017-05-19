@@ -123,6 +123,7 @@
     <Compile Include="Pages\YetaWFRazorView.cs" />
     <Compile Include="Search\Search.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
+    <Compile Include="Support\MimeSection\MimeSection.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
@@ -348,7 +349,6 @@
     <Compile Include="Support\WebConfig.cs" />
     <Compile Include="ActionResults\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
-    <Compile Include="Support\Upload\MimeSection.cs" />
     <Compile Include="Models\Attributes\RecaptchaAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
