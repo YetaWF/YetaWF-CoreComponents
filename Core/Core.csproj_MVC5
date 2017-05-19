@@ -123,6 +123,7 @@
     <Compile Include="Pages\YetaWFRazorView.cs" />
     <Compile Include="Search\Search.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
+    <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\MimeSection\MimeSection.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
@@ -253,7 +254,6 @@
     <Compile Include="IO\StringLocks.cs" />
     <Compile Include="Support\Image\ImageSupport.cs" />
     <Compile Include="Support\Language\LanguageInfo.cs" />
-    <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\Localize\Formatting.cs">
       <SubType>Code</SubType>
     </Compile>

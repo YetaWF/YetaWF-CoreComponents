@@ -1,140 +1,63 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
+using System;
 using System.Collections.Generic;
-#else
-using System.Configuration;
-#endif
+using System.IO;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Language {
 
-#if MVC6
-    public class LanguageSection {
-
-        public LanguageEntryElementCollection Languages { get; set; }
-
-        private static LanguageSection _settings;
-
-        public static void Init(LanguageSection settings) {
-            _settings = settings;
-        }
-        public static LanguageSection GetLanguageSection() {
-            return _settings;
-        }
-    }
     public class LanguageEntryElementCollection : List<LanguageEntryElement> { }
     public class LanguageEntryElement {
         public string Id { get; set; }
         public string ShortName { get; set; }
         public string Description { get; set; }
     }
+
+    public class LanguageSection : IInitializeApplicationStartup {
+
+        // IInitializeApplicationStartup
+        // IInitializeApplicationStartup
+        // IInitializeApplicationStartup
+
+        public void InitializeApplicationStartup() {
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
-    public class LanguageSection : ConfigurationSection {
-
-        public static LanguageSection GetLanguageSection(System.Configuration.Configuration config = null) {
-            return (LanguageSection) System.Configuration.ConfigurationManager.GetSection("YetaWF/LanguageSection");
-        }
-
-        public override bool IsReadOnly() { return false; }
-
-        [ConfigurationProperty("Languages", IsDefaultCollection = true, IsKey = false, IsRequired = true)]
-        public LanguageEntryElementCollection Languages {
-            get {
-                LanguageEntryElementCollection coll = (LanguageEntryElementCollection) base["Languages"];
-                if (coll == null)
-                    coll = new LanguageEntryElementCollection();
-                return coll;
-            }
-            set {
-                base["Languages"] = value;
-            }
-        }
-        public LanguageEntryElement GetLanguageFromID(string id) {
-            if (Languages != null) {
-                foreach (var lang in Languages) {
-                    LanguageEntryElement le = (LanguageEntryElement) lang;
-                    if (le.Id == id)
-                        return le;
-                }
-            }
-            return null;
-        }
-        //public LanguageEntryElement GetElementFromExtension(string strExtension) {
-        //    if (MimeTypes != null) {
-        //        foreach (var mt in MimeTypes) {
-        //            LanguageEntryElement me = (LanguageEntryElement)mt;
-        //            if (me.Extensions.ToLower().Contains(strExtension+";") || me.Extensions.ToLower().EndsWith(strExtension))
-        //                return me;
-        //        }
-        //    }
-        //    return null;
-        //}
-        //public LanguageEntryElement GetElementFromContentType(string contentType) {
-        //    contentType = contentType.ToLower();
-        //    var v = (from LanguageEntryElement entry in MimeTypes where entry.Type.ToLower() == contentType select entry).FirstOrDefault();
-        //    if (v != null)
-        //        return (LanguageEntryElement)v;
-        //    return null;
-        //}
-    }
-
-    public class LanguageEntryElementCollection : ConfigurationElementCollection {
-
-        public override bool IsReadOnly() { return false; }
-
-        public bool AddElement(LanguageEntryElement le) {
-            try {
-                BaseAdd(le, true);
-                return true;
-            } catch {
-                return false;
-            }
-        }
-        public void ReplaceElement(LanguageEntryElement le) {
-            RemoveElement(le.Id);
-            AddElement(le);
-        }
-        public void RemoveElement(string id) {
-            try {
-                BaseRemove(id);
-            } catch { }
-        }
-
-        protected override ConfigurationElement CreateNewElement() {
-            return new LanguageEntryElement();
-        }
-        protected override object GetElementKey(ConfigurationElement element) {
-            return ((LanguageEntryElement) element).Id;
-        }
-    }
-    public class LanguageEntryElement : ConfigurationElement {
-        [ConfigurationProperty("Id", IsKey = true, IsRequired = true)]
-        public string Id {
-            get {
-                return (string) this["Id"];
-            }
-            set {
-                this["Id"] = value;
-            }
-        }
-        [ConfigurationProperty("ShortName", IsKey = false, IsRequired = true)]
-        public string ShortName {
-            get {
-                return (string) this["ShortName"];
-            }
-            set {
-                this["ShortName"] = value;
-            }
-        }
-        [ConfigurationProperty("Description", IsKey = false, IsRequired = false)]
-        public string Description {
-            get {
-                return (string) this["Description"];
-            }
-            set {
-                this["Description"] = value;
-            }
-        }
-    }
+            rootFolder = YetaWFManager.RootFolder;
 #endif
+            Init(Path.Combine(rootFolder, Globals.DataFolder, LanguageSettingsFile));
+        }
+
+        // Languages
+
+        public const string LanguageSettingsFile = "LanguageSettings.json";
+
+        public static LanguageEntryElementCollection Languages { get; set; }
+
+        private void Init(string settingsFile) {
+            if (!File.Exists(settingsFile))
+                throw new InternalError("Language settings not defined - file {0} not found", settingsFile);
+            SettingsFile = settingsFile;
+            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile));
+            Languages = GetLanguages();
+        }
+
+        private static string SettingsFile;
+        private static dynamic Settings;
+
+        private LanguageEntryElementCollection GetLanguages() {
+            dynamic LanguageSection = Settings["LanguageSection"];
+            LanguageEntryElementCollection list = new LanguageEntryElementCollection();
+            foreach (var t in LanguageSection["Languages"]) {
+                list.Add(new LanguageEntryElement { Id = (string)t["Id"], ShortName = (string)t["ShortName"], Description = (string)t["Description"] });
+            }
+            return list;
+        }
+        //public static void Save() {
+        //    string s = YetaWFManager.JsonSerialize(Settings);
+        //    File.WriteAllText(SettingsFile, s);
+        //}
+    }
 }

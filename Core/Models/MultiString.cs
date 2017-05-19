@@ -39,12 +39,10 @@ namespace YetaWF.Core.Models {
         public static List<LanguageData> Languages {
             get {
                 if (_languages == null) {
-                    LanguageSection langSect = LanguageSection.GetLanguageSection();
-                    LanguageEntryElementCollection langColl = langSect.Languages;
-                    LanguageEntryElement defaultLanguage = (from LanguageEntryElement l in langColl where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
+                    LanguageEntryElement defaultLanguage = (from LanguageEntryElement l in LanguageSection.Languages where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
                     if (defaultLanguage == null)
-                        throw new InternalError("The defined default language doesn't exist in web.config/appsettings.json LanguageSection");
-                    _languages = (from LanguageEntryElement l in langColl
+                        throw new InternalError("The defined default language doesn't exist in {0} LanguageSection", LanguageSection.LanguageSettingsFile);
+                    _languages = (from LanguageEntryElement l in LanguageSection.Languages
                                   where l.Id != MultiString.DefaultLanguage
                                   select new LanguageData {
                                       Id = l.Id,
