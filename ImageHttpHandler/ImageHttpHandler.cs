@@ -159,11 +159,10 @@ namespace YetaWF.Core.HttpHandler {
 
                     string contentType;
                     if (filePath != null) {
-                        MimeSection mimeSection = MimeSection.GetMimeSection();
-                        MimeEntry me = mimeSection.GetElementFromExtension(Path.GetExtension(filePath));
-                        if (me == null)
+                        MimeSection mimeSection = new MimeSection();
+                        contentType = mimeSection.GetContentTypeFromExtension(Path.GetExtension(filePath));
+                        if (string.IsNullOrWhiteSpace(contentType))
                             throw new InternalError("File type not suitable as image - {0}", filePath);// shouldn't have been uploaded in the first place
-                        contentType = me.Type;
                         DateTime lastMod = File.GetLastWriteTimeUtc(filePath);
                         context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));

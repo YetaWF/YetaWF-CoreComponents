@@ -43,7 +43,7 @@ namespace YetaWF.Core.Upload {
 #else
         public string StoreTempPackageFile(HttpPostedFileBase uploadFile) {
 #endif
-            string name = StoreTempFile(uploadFile, me => me.PackageUse);
+            string name = StoreTempFile(uploadFile, MimeSection.PackageUse);
             return GetTempFilePathFromName(name);
         }
 
@@ -57,7 +57,7 @@ namespace YetaWF.Core.Upload {
 #else
         public string StoreTempImageFile(HttpPostedFileBase uploadFile) {
 #endif
-            return StoreTempFile(uploadFile, me => me.ImageUse);
+            return StoreTempFile(uploadFile, MimeSection.ImageUse);
         }
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace YetaWF.Core.Upload {
 #if MVC6
         public string StoreTempFile(IFormFile uploadFile, Func<MimeEntry, bool> canUse) {
 #else
-        public string StoreTempFile(HttpPostedFileBase uploadFile, Func<MimeEntry, bool> canUse) {
+        public string StoreTempFile(HttpPostedFileBase uploadFile, string useType) {
 #endif
-            return StoreFile(uploadFile, Globals.TempFiles, canUse,
+            return StoreFile(uploadFile, Globals.TempFiles, useType,
                 (uf => {
                     string tempExt = Path.GetExtension(uf.FileName);
                     string name = TempId + Guid.NewGuid().ToString();
@@ -92,7 +92,7 @@ namespace YetaWF.Core.Upload {
 #if MVC6
         public string StoreFile(IFormFile uploadFile, string folder, Func<MimeEntry, bool> canUse, Func<IFormFile, string> getFileName)
 #else
-        public string StoreFile(HttpPostedFileBase uploadFile, string folder, Func<MimeEntry, bool> canUse, Func<HttpPostedFileBase, string> getFileName)
+        public string StoreFile(HttpPostedFileBase uploadFile, string folder, string useType, Func<HttpPostedFileBase, string> getFileName)
 #endif
         {
             long fileLength = 0;
@@ -104,13 +104,10 @@ namespace YetaWF.Core.Upload {
 #endif
             }
             if (fileLength == 0)
-                throw new InternalError("No filename specified.");
+                throw new InternalError("Can't upload an empty file");
 
-            MimeSection mimeSection = MimeSection.GetMimeSection();
-            if (mimeSection == null)
-                throw new Error(this.__ResStr("errWebconfig", "Upload not allowed - Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files"));
-            MimeEntry me = mimeSection.GetElementFromContentType(uploadFile.ContentType);
-            if (me == null || !canUse(me))
+            MimeSection mimeSection = new MimeSection();
+            if (!mimeSection.CanUse(uploadFile.ContentType, useType))
                 throw new Error(this.__ResStr("errPkgType", "Upload not allowed - The file type '{0}' is not an allowable file type"), uploadFile.ContentType);
 
             string name = getFileName(uploadFile);
@@ -138,7 +135,7 @@ namespace YetaWF.Core.Upload {
         /// <param name="remoteUrl">Package file being downloaded.</param>
         /// <returns>A file name (no path) of the downloaded file in the site's temporary folder.</returns>
         public string StoreTempPackageFile(string remoteUrl) {
-            string name = StoreTempFile(remoteUrl, me => me.PackageUse);
+            string name = StoreTempFile(remoteUrl, MimeSection.PackageUse);
             return GetTempFilePathFromName(name);
         }
         /// <summary>
@@ -147,8 +144,8 @@ namespace YetaWF.Core.Upload {
         /// <param name="remoteUrl">File being downloaded.</param>
         /// <param name="canUse"></param>
         /// <returns>A file name (with path) of the downloaded file in the site's temporary folder.</returns>
-        private string StoreTempFile(string remoteUrl, Func<MimeEntry, bool> canUse) {
-            return StoreFile(remoteUrl, Globals.TempFiles, canUse,
+        private string StoreTempFile(string remoteUrl, string useType) {
+            return StoreFile(remoteUrl, Globals.TempFiles, useType,
                 (uf => {
                     string tempExt = Path.GetExtension(remoteUrl);
                     string name = TempId + Guid.NewGuid().ToString();
@@ -156,11 +153,9 @@ namespace YetaWF.Core.Upload {
                 })
             );
         }
-        private string StoreFile(string remoteUrl, string folder, Func<MimeEntry, bool> canUse, Func<string, string> getFileName) {
+        private string StoreFile(string remoteUrl, string folder, string useType, Func<string, string> getFileName) {
 
-            MimeSection mimeSection = MimeSection.GetMimeSection();
-            if (mimeSection == null)
-                throw new Error(this.__ResStr("errDownloadWebconfig", "Download not allowed - Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files"));
+            MimeSection mimeSection = new MimeSection();
 
             const string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
             HttpWebRequest req = null;
@@ -173,8 +168,7 @@ namespace YetaWF.Core.Upload {
             } catch (Exception ex) {
                 throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ex.Message));
             }
-            MimeEntry me = mimeSection.GetElementFromContentType(resp.ContentType);
-            if (me == null || !canUse(me)) {
+            if (!mimeSection.CanUse(resp.ContentType, useType)) {
                 string contentType = resp.ContentType;
                 resp.Close();
                 throw new Error(this.__ResStr("errDownloadPkgType", "Download not allowed - The file type '{0}' is not an allowable file type"), contentType);
