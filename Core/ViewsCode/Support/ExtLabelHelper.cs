@@ -44,20 +44,20 @@ namespace YetaWF.Core.Views.Shared {
             return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
         }
 #if MVC6
-        public static HtmlString ExtLabel(this IHtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static HtmlString ExtLabel(this IHtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null, bool SuppressIfEmpty = false) {
             ModelExplorer modelExplorer = ExpressionMetadataProvider.FromStringExpression(expression, htmlHelper.ViewData, htmlHelper.MetadataProvider);
             ModelMetadata metadata = modelExplorer.Metadata;
 #else
-        public static HtmlString ExtLabel(this HtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static HtmlString ExtLabel(this HtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null, bool SuppressIfEmpty = false) {
             ModelMetadata metadata = ModelMetadata.FromStringExpression(expression, htmlHelper.ViewData);
 #endif
             string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
-            return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(htmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
+            return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(htmlAttributes), ShowVariable: ShowVariable, Caption: Caption, SuppressIfEmpty: SuppressIfEmpty);
         }
 #if MVC6
-        private static HtmlString ExtLabelHelper(IHtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null)
+        private static HtmlString ExtLabelHelper(IHtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null, bool SuppressIfEmpty = false)
 #else
-        private static HtmlString ExtLabelHelper(HtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null)
+        private static HtmlString ExtLabelHelper(HtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null, bool SuppressIfEmpty = false)
 #endif
         {
             PropertyData propData = ObjectSupport.GetPropertyData(metadata.ContainerType, metadata.PropertyName);
@@ -75,9 +75,11 @@ namespace YetaWF.Core.Views.Shared {
 
             TagBuilder tagLabel = new TagBuilder("label");
 
-            if (string.IsNullOrWhiteSpace(label))
+            if (string.IsNullOrWhiteSpace(label)) {
+                if (SuppressIfEmpty)
+                    return HtmlStringExtender.Empty;
                 tagLabel.SetInnerHtml("&nbsp;");
-            else
+            }  else
                 tagLabel.SetInnerText(label);
             tagLabel.MergeAttributes(htmlAttributes, replaceExisting: true);
             sb.Append(tagLabel.ToString(TagRenderMode.Normal));

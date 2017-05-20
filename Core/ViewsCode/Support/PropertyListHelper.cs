@@ -244,7 +244,7 @@ namespace YetaWF.Core.Views.Shared {
                 return ObjectSupport.GetPropertyData(objType);
             else
                 return from property in ObjectSupport.GetPropertyData(objType)
-                       where !string.IsNullOrWhiteSpace(property.Description)  // This means it has to be a DescriptionAttribute (not a resource redirect)
+                       where property.Description != null  // This means it has to be a DescriptionAttribute (not a resource redirect)
                        orderby property.Order
                        select property;
         }
@@ -363,9 +363,12 @@ namespace YetaWF.Core.Views.Shared {
                 hb.Append("<div class='t_row t_{0}'>", property.Name.ToLower());
                 if (!string.IsNullOrWhiteSpace(property.TextAbove)) {
                     labelDone = true;
-                    hb.Append("<div class='t_labels'>");
-                    hb.Append(htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables));
-                    hb.Append("</div>");
+                    HtmlString hs = htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
+                    if (hs != HtmlStringExtender.Empty) {
+                        hb.Append("<div class='t_labels'>");
+                        hb.Append(hs);
+                        hb.Append("</div>");
+                    }
                     hb.Append("<div class='t_vals t_textabove'>");
                     if (property.TextAbove.StartsWith("-"))
                         hb.Append(property.TextAbove.Substring(1));
@@ -376,9 +379,12 @@ namespace YetaWF.Core.Views.Shared {
                 if (labelDone) {
                     hb.Append("<div class='t_labels t_fillerabove'>&nbsp;</div>");
                 } else {
-                    hb.Append("<div class='t_labels'>");
-                    hb.Append(htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables));
-                    hb.Append("</div>");
+                    HtmlString hs = htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
+                    if (hs != HtmlStringExtender.Empty) {
+                        hb.Append("<div class='t_labels'>");
+                        hb.Append(hs);
+                        hb.Append("</div>");
+                    }
                 }
                 if (!readOnly && property.Editable && !property.Restricted) {
                     string cls = "t_vals" + (!focusSet ? " focusonme" : "");
