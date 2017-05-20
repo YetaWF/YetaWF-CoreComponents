@@ -460,7 +460,7 @@ namespace YetaWF.Core.Support {
         }
 
         public static string JsonSerialize(object value) {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(value, _JsonSettings);
         }
         public static object JsonDeserialize(string value) {
             return Newtonsoft.Json.JsonConvert.DeserializeObject(value);
@@ -471,6 +471,9 @@ namespace YetaWF.Core.Support {
         public static TYPE JsonDeserialize<TYPE>(string value) {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<TYPE>(value);
         }
+        private static Newtonsoft.Json.JsonSerializerSettings _JsonSettings = new Newtonsoft.Json.JsonSerializerSettings {
+            StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml
+        };
 
         public static string JserEncode(string s) {
 #if MVC6
