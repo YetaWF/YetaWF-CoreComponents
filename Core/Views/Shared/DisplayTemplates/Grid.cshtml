@@ -138,15 +138,16 @@
             @: YetaWF_Grid.toggleSearchToolbar($grid, @JSEncode(YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowGridSearchToolbar")));
         }
         @if (Model.SupportReload) {
-            @: if (YConfigs.Forms != undefined && $grid.closest('.'+YConfigs.Forms.CssFormPartial).length > 0) throw "Can't use this in a partial form";
-            @: var $mod = $grid.closest('.yModule');
-            @: if ($mod.length != 1) throw "Can't find containing module";
-            @: YetaWF_Basics.reloadInfo.push({
-                @:    module: $mod,
-                @:    callback: function() {
-                @:        $grid.trigger('reloadGrid');
-                @:    }
-            @: });
+            @: if (YConfigs.Forms === undefined || $grid.closest('.'+YConfigs.Forms.CssFormPartial).length == 0) { // in partial views, we don't need to reload grids
+            @:     var $mod = $grid.closest('.yModule');
+            @:     if ($mod.length != 1) throw "Can't find containing module";
+            @:     YetaWF_Basics.reloadInfo.push({
+            @:        module: $mod,
+            @:        callback: function() {
+            @:          $grid.trigger('reloadGrid');
+            @:        }
+            @:     });
+            @: }
         }
 
         @if (!isAjax) {
