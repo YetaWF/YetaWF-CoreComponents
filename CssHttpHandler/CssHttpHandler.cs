@@ -67,7 +67,7 @@ namespace YetaWF.Core.HttpHandler {
             string file;
 #if MVC6
             if (fullUrl.StartsWith(Globals.VaultPrivateUrl)) {
-                // Private Vault files are a special case as their not within the website.
+                // Private Vault files are a special case as they're not within the website.
                 // We need to make sure to only allow .css, .less, .scss files otherwise this would expose other files.
                 if (!fullUrl.EndsWith(".css", true, CultureInfo.InvariantCulture) && !fullUrl.EndsWith(".less", true, CultureInfo.InvariantCulture) && !fullUrl.EndsWith(".scss", true, CultureInfo.InvariantCulture)) {
                     context.Response.StatusCode = 404;
