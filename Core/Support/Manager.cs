@@ -1202,9 +1202,9 @@ namespace YetaWF.Core.Support {
             get {
                 HttpRequest request = CurrentRequest;
 #if MVC6
-                return (request.Method == "GET" || request.Method == "");
+                return (request.Method == "GET" || request.Method == "HEAD" || request.Method == "");
 #else
-                return (request.RequestType == "GET");
+                return (request.RequestType == "GET" || request.RequestType == "HEAD");
 #endif
             }
         }
