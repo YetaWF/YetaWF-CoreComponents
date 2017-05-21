@@ -2,23 +2,32 @@
 
 using System.Drawing;
 using System.Web;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+#else
+using System.Web.Mvc;
+#endif
 
-namespace YetaWF.Core.Controllers.Shared
-{
-    public class ImageHelperController : YetaWFController
-    {
+namespace YetaWF.Core.Controllers.Shared {
+
+    /// <summary>
+    /// FileUpload1 template support.
+    /// </summary>
+    public class ImageHelperController : YetaWFController {
+
+        /// <summary>
+        /// Saves an uploaded image file. Works in conjuction with the FileUpload1 template and YetaWF.Core.Upload.FileUpload.
+        /// </summary>
+        /// <param name="__filename">Describes the image file being uploaded.</param>
+        /// <param name="__lastInternalName">The name of a previously uploaded file (if any) that is being replaced by the current file being uploaded.</param>
+        /// <returns>An action result.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_UploadImages)]
 #if MVC6
@@ -46,6 +55,12 @@ namespace YetaWF.Core.Controllers.Shared
             return new YJsonResult { Data = sb.ToString() };
         }
 
+        /// <summary>
+        /// Removes an uploaded image file. Works in conjuction with the FileUpload1 template and YetaWF.Core.Upload.FileUpload.
+        /// </summary>
+        /// <param name="__filename">Describes the image file being uploaded.</param>
+        /// <param name="__internalName">The name of the uploaded file that is to be removed.</param>
+        /// <returns>An action result.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_RemoveImages)]
         public ActionResult RemoveImage(string __filename, string __internalName) {

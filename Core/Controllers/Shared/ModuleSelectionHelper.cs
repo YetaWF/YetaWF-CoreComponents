@@ -12,12 +12,18 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Controllers.Shared {
+
+    /// <summary>
+    /// ModuleSelection template support.
+    /// </summary>
     public class ModuleSelectionHelperController : YetaWFController {
         /// <summary>
         /// Returns data to replace a dropdownlist's data with new modules given a package name.
         /// </summary>
         /// <param name="areaName">The area name of the package.</param>
-        /// <returns>JSON containing a data source to update the dropdownlist.</returns>
+        /// <returns>JSON containing a data source to update the dropdownlist.
+        ///
+        /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
         public ActionResult GetPackageModulesNew(string areaName) {
@@ -29,7 +35,9 @@ namespace YetaWF.Core.Controllers.Shared {
         /// Returns data to replace a dropdownlist's data with existing designed modules given a package name.
         /// </summary>
         /// <param name="areaName">The area name of the package.</param>
-        /// <returns>JSON containing a data source to update the dropdownlist.</returns>
+        /// <returns>JSON containing a data source to update the dropdownlist.
+        ///
+        /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
         public ActionResult GetPackageModulesDesigned(string areaName) {
@@ -41,7 +49,9 @@ namespace YetaWF.Core.Controllers.Shared {
         /// Returns data to replace a dropdownlist's data with existing designed modules given a package name.
         /// </summary>
         /// <param name="areaName">The area name of the package.</param>
-        /// <returns>JSON containing a data source to update the dropdownlist.</returns>
+        /// <returns>JSON containing a data source to update the dropdownlist.
+        ///
+        /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
         public ActionResult GetPackageModulesDesignedFromGuid(Guid modGuid) {

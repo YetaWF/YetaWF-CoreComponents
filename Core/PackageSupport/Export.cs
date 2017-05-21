@@ -49,7 +49,6 @@ namespace YetaWF.Core.Packages {
 
             SerializablePackage serPackage;
             YetaWFZipFile zipFile = MakeZipFile(zipName, out serPackage);
-            zipFile.HasSource = SourceCode;
             serPackage.PackageDomain = Domain;
             serPackage.PackageProduct = Product;
             serPackage.PackageType = PackageType;

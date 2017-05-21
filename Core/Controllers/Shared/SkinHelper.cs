@@ -1,20 +1,30 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Controllers.Shared {
-    public class SkinHelperController : YetaWFController
-    {
-        // returns html <option> to replace a select statement with new page skins
+
+    /// <summary>
+    /// PageSkin and PopupSkin template support.
+    /// </summary>
+    public class SkinHelperController : YetaWFController {
+
+        /// <summary>
+        /// Returns &lt;option&gt; HTML to replace a select statement with page skins for the provided skin collection.
+        /// </summary>
+        /// <param name="skinCollection">The name of the skin collection.</param>
+        /// <returns>&lt;option&gt; HTML to replace a select statement with page skins.
+        ///
+        /// Works in conjuction with client-side code and the PageSkin template.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_SkinLists)]
         public ActionResult GetPageSkins(string skinCollection) {
@@ -24,7 +34,13 @@ namespace YetaWF.Core.Controllers.Shared {
             sb.Append(PageSkinHelper.RenderReplacementSkinsForCollection(skinList));
             return new YJsonResult { Data = sb.ToString() };
         }
-        // returns html <option> to replace a select statement with new popup skins
+        /// <summary>
+        /// Returns &lt;option&gt; HTML to replace a select statement with popup skins for the provided skin collection.
+        /// </summary>
+        /// <param name="skinCollection">The name of the skin collection.</param>
+        /// <returns>&lt;option&gt; HTML to replace a select statement with popup skins.
+        ///
+        /// Works in conjuction with client-side code and the PopupSkin template.</returns>
         [HttpPost]
         [ResourceAuthorize(CoreInfo.Resource_SkinLists)]
         public ActionResult GetPopupPageSkins(string skinCollection) {

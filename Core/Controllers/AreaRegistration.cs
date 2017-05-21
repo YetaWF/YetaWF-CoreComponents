@@ -16,22 +16,41 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Controllers {
 
+    /// <summary>
+    /// Base class for area registration.
+    /// </summary>
+    /// <remarks>Each package implements an area registration class deriving from AreaRegistrationBase.</remarks>
 #if MVC6
     public abstract class AreaRegistrationBase {
 #else
     public abstract class AreaRegistrationBase : System.Web.Mvc.AreaRegistration {
 #endif
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public AreaRegistrationBase() {
             Package = Package.GetPackageFromAssembly(GetType().Assembly);
         }
+        /// <summary>
+        /// The area name registered by the current package.
+        /// </summary>
+        /// <remarks>Packages define their area name using the PackageAttribute (for the domain portion) and the AssemblyProduct (for the product name). The area name is the concatenation of the domain, followed by an underscore and the product (e.g., YetaWF_Text).</remarks>
 #if MVC6
         public string AreaName { get { return Package.AreaName; } }
 #else
         public override string AreaName { get { return Package.AreaName; } }
 #endif
-        public Package Package { get; set; }
+        protected Package Package { get; set; }
+
+        /// <summary>
+        /// Retrieves the current package defined by the object derived from AreaRegistrationBase.
+        /// </summary>
+        /// <returns>The Package object.</returns>
         protected Package GetCurrentPackage() { return Package; }
 
+        /// <summary>
+        /// Used internally to register area routes. Don't mess with this.
+        /// </summary>
 #if MVC6
         public void RegisterArea(IRouteBuilder routes) {
             Logging.AddLog("Found {0} in namespace {1}", AreaName, GetType().Namespace);
@@ -56,6 +75,10 @@ namespace YetaWF.Core.Controllers {
         }
 #endif
 
+        /// <summary>
+        /// Used by tools (i.e., non web apps) that need to explicitly register packages to they have access to functionality provided by packages, beyond the Core package.
+        /// </summary>
+        /// <remarks>This is typically used by tools that need access to data providers used by YetaWF.</remarks>
 #if MVC6
         public static void RegisterPackages(IRouteBuilder routes = null) {
 #else

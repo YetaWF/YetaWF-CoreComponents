@@ -38,12 +38,20 @@ using YetaWF.Core.Log;
 #endif
 
 namespace YetaWF.Core.Controllers {
+
+    /// <summary>
+    /// The base class for any module-based controller. Modules within YetaWF that implement controllers derive from this class so controllers have access to module definitions.
+    /// </summary>
+    /// <typeparam name="TMod">The type of the module implementing the controller.</typeparam>
     public class ControllerImpl<TMod> : ControllerImpl where TMod : ModuleDefinition {
 
         // MODULE PROPERTIES
         // MODULE PROPERTIES
         // MODULE PROPERTIES
 
+        /// <summary>
+        /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected TMod Module {
             get {
@@ -77,9 +85,15 @@ namespace YetaWF.Core.Controllers {
         }
         private TMod _module;
 
+        /// <summary>
+        /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller. Can be used with a base class to get the derived module's module definitions.
+        /// </summary>
         protected override ModuleDefinition GetModule() { return Module; }
     }
 
+    /// <summary>
+    /// Abstract base class for any module-based controller.
+    /// </summary>
     public abstract class ControllerImpl : YetaWFController {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ControllerImpl), name, defaultValue, parms); }
@@ -88,6 +102,9 @@ namespace YetaWF.Core.Controllers {
         // MODULE INFO
         // MODULE INFO
 
+        /// <summary>
+        /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller. Can be used with a base class to get the derived module's module definitions.
+        /// </summary>
         protected abstract ModuleDefinition GetModule();
 
         /// <summary>
@@ -192,10 +209,20 @@ namespace YetaWF.Core.Controllers {
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
 
+        /// <summary>
+        /// Returns a unique id usable for HTML.
+        /// </summary>
+        /// <param name="name">The prefix string used to generate the id.</param>
         protected string UniqueId(string name) {
             return Manager.UniqueId(name);
         }
 
+        /// <summary>
+        /// Returns the Url for the requested action with the specified arguments formatted as query string.
+        /// </summary>
+        /// <param name="actionName">The name of the action within the controller.</param>
+        /// <param name="args">Optional anonymous object with arguments to be formatted as query string.</param>
+        /// <returns>The Url.</returns>
         public string GetActionUrl(string actionName, object args = null) {
             string url = "/" + Area + "/" + ControllerName + "/" + actionName;
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
@@ -206,6 +233,10 @@ namespace YetaWF.Core.Controllers {
         // CONTROLLER
         // CONTROLLER
 
+        /// <summary>
+        /// Called before the action result that is returned by an action method is executed.
+        /// </summary>
+        /// <param name="filterContext">Information about the current request and action result.</param>
 #if MVC6
 #else
         protected override void OnResultExecuting(ResultExecutingContext filterContext) {
@@ -221,7 +252,11 @@ namespace YetaWF.Core.Controllers {
             base.OnResultExecuting(filterContext);
         }
 #endif
-
+        /// <summary>
+        /// Called when an unknown action is requested.
+        /// </summary>
+        /// <param name="actionName">The name of the unknown action.</param>
+        /// <remarks>This results in a 404 Not Found HTTP error.</remarks>
 #if MVC6
         // There doesn't appear to be any equivalent functionality in MVC6
         // We'll just say the page doesn't exist - this is only useful in development, otherwise who cares which action doesn't exist
@@ -233,6 +268,10 @@ namespace YetaWF.Core.Controllers {
             throw new HttpException(404, error);
         }
 #endif
+        /// <summary>
+        /// Called when an action is about to be executed.
+        /// </summary>
+        /// <param name="filterContext">Information about the current request and action.</param>
 #if MVC6
         public override void OnActionExecuting(ActionExecutingContext filterContext) {
 #else
@@ -589,7 +628,10 @@ namespace YetaWF.Core.Controllers {
         // VIEW
         // VIEW
 
-        // Invoke a view from a module controller
+        /// <summary>
+        /// Invoke a view from a module controller.
+        /// </summary>
+        /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new ViewResult View() { throw new NotSupportedException(); }
 #if MVC6
@@ -603,13 +645,31 @@ namespace YetaWF.Core.Controllers {
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new virtual ViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
 #endif
+        /// <summary>
+        /// Renders the default view (defined using ModuleDefinition.DefaultView) using the provided model.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>A ViewResult.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
         protected new ViewResult View(object model) {
             return View(null, model, UseAreaViewName: true);
         }
+        /// <summary>
+        /// Renders the specified view.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns>A ViewResult.</returns>
         protected ViewResult View(string viewName, bool UseAreaViewName = true) {
             return View(viewName, null, UseAreaViewName: UseAreaViewName);
         }
+        /// <summary>
+        /// Renders the specified view.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns>A ViewResult.</returns>
         protected ViewResult View(string viewName, object model, bool UseAreaViewName = true) {
             if (UseAreaViewName) {
                 if (string.IsNullOrWhiteSpace(viewName))
@@ -634,18 +694,54 @@ namespace YetaWF.Core.Controllers {
         // PARTIAL VIEW
         // PARTIAL VIEW
 
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
         protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
             return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName);
         }
 
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
         protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
             return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName);
         }
 
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="viewName">The name of the partial view.</param>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
         protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
             return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName);
         }
 
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="viewName">The name of the partial view.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
         protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
 
             if (model != null) {
@@ -667,6 +763,9 @@ namespace YetaWF.Core.Controllers {
                 AreaViewName = AreaViewName,
             };
         }
+        /// <summary>
+        /// An action result to render a partial view.
+        /// </summary>
 #if MVC6
         public class PartialViewResult : Microsoft.AspNetCore.Mvc.PartialViewResult {
 #else
@@ -676,22 +775,37 @@ namespace YetaWF.Core.Controllers {
             protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
             private const string DefaultContentType = "text/html";
+            /// <summary>
+            /// Constructor.
+            /// </summary>
 #if MVC6
             public PartialViewResult() { }
 #else
             public PartialViewResult() { }
 #endif
+            /// <summary>
+            /// The current module being rendered by this partial view.
+            /// </summary>
             public ModuleDefinition Module { get; set; }
+            /// <summary>
+            /// The Javascript to be executed cient-side after the partial view has been rendered.
+            /// </summary>
             public ScriptBuilder Script { get; set; }
 #if MVC6
 #else
+            /// <summary>
+            /// The content type. If not specified, the default is "text/html".
+            /// </summary>
             public string ContentType { get; set; }
 #endif
             public bool PureContent { get; set; }
             public bool AreaViewName { get; set; }
 
             private static readonly Regex reEndDiv = new Regex(@"</\s*div\s*>\s*$"); // very last div
-
+            /// <summary>
+            /// Renders the view.
+            /// </summary>
+            /// <param name="context">The action context.</param>
 #if MVC6
             public override async Task ExecuteResultAsync(ActionContext context) {
 #else
@@ -835,21 +949,32 @@ namespace YetaWF.Core.Controllers {
         // GRID PARTIALVIEW
         // GRID PARTIALVIEW
 
+        /// <summary>
+        /// An action result that renders a grid as a partial view.
+        /// </summary>
+        /// <param name="dataSrc">The data source.</param>
+        /// <returns>Used in conjunction with the Grid template.</returns>
         protected PartialViewResult GridPartialView(DataSourceResult dataSrc) {
             string partialView = "GridData";
             return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false);
         }
-
+        /// <summary>
+        /// An action result that renders a single grid record as a partial view.
+        /// </summary>
+        /// <param name="entryDef">The definition of the grid record.</param>
+        /// <returns>Used in conjunction with the Grid template.</returns>
         protected PartialViewResult GridPartialView(GridDefinition.GridEntryDefinition entryDef) {
             string partialView = "GridEntry";
             return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
         }
 
-
         // PAGE/FORM SAVE
         // PAGE/FORM SAVE
         // PAGE/FORM SAVE
 
+        /// <summary>
+        /// The type of form reload used with the Reload method.
+        /// </summary>
         protected enum ReloadEnum {
             Page = 1,
             Module = 2, // TODO: The entire module is not currently supported - use page reload instead
@@ -857,13 +982,13 @@ namespace YetaWF.Core.Controllers {
         }
 
         /// <summary>
-        /// The page/form was successfully saved. This handles returning to a parent page or displaying a popup if a return page is not available.
+        /// Returns an action result, indicating that the submission was successfully processed, causing a page or module reload, optionally with a popup message.
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="PopupText"></param>
-        /// <param name="PopupTitle"></param>
-        /// <param name="dummy"></param>
-        /// <param name="Reload"></param>
+        /// <param name="model">The model.</param>
+        /// <param name="dummy">Dummy variable to separate positional arguments from named arguments.</param>
+        /// <param name="PopupText">The optional text of the popup message to be displayed. If not specified, no popup will be shown.</param>
+        /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
+        /// <param name="Reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
         /// <returns></returns>
         protected ActionResult Reload(object model = null, string dummy = null, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page)
         {
@@ -927,16 +1052,17 @@ namespace YetaWF.Core.Controllers {
         }
 
         /// <summary>
-        /// Not authorized for this type of access.
+        /// An action result that results in a 403 Not Authorized exception.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An action result.</returns>
         protected new ActionResult NotAuthorized() {
             return NotAuthorized(null);
         }
         /// <summary>
-        /// Not authorized for this type of access.
+        /// An action result that results in a 403 Not Authorized exception.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="message">The message text to be shown on an error page (GET requests only) along with the 403 exception.</param>
+        /// <returns>An action result.</returns>
         protected ActionResult NotAuthorized(string message) {
             if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
 #if MVC6
@@ -954,27 +1080,77 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
+        /// <summary>
+        /// The type of processing used when closing a popup window, used with the FormProcessed method.
+        /// </summary>
         protected enum OnPopupCloseEnum {
+            /// <summary>
+            /// No processing. The popup is not closed.
+            /// </summary>
             Nothing = 0,
+            /// <summary>
+            /// No processing. The popup is closed.
+            /// </summary>
             ReloadNothing = 1,
+            /// <summary>
+            /// The popup is closed and the parent page is reloaded.
+            /// </summary>
             ReloadParentPage = 2,
+            /// <summary>
+            /// The popup is closed and the module is reloaded.
+            /// </summary>
             ReloadModule = 3,
+            /// <summary>
+            /// The popup is closed and a new page is loaded.
+            /// </summary>
             GotoNewPage = 4,
+            /// <summary>
+            /// The popup is not closed and the module is updated in place with the new model.
+            /// </summary>
             UpdateInPlace = 5,
         }
+        /// <summary>
+        /// The type of processing used when closing a page, used with the FormProcessed method.
+        /// </summary>
         protected enum OnCloseEnum {
+            /// <summary>
+            /// No processing. The page is not closed.
+            /// </summary>
             Nothing = 0,
+            /// <summary>
+            /// The page is reloaded with the previous page save in the OriginList. If none is available, the Home page is loaded.
+            /// </summary>
             Return = 1,
+            /// <summary>
+            /// A new page is loaded.
+            /// </summary>
             GotoNewPage = 2,
+            /// <summary>
+            /// The page/module is updated in place with the new model.
+            /// </summary>
             UpdateInPlace = 3,
+            /// <summary>
+            /// The current page is reloaded.
+            /// </summary>
             ReloadPage = 4,
+            /// <summary>
+            /// The current page is closed, which will close the browser window.
+            /// </summary>
             CloseWindow = 9,
         }
+        /// <summary>
+        /// The type of processing used when processing the Apply action for a form, used with the FormProcessed method.
+        /// </summary>
         protected enum OnApplyEnum {
+            /// <summary>
+            /// Reload the current module.
+            /// </summary>
             ReloadModule = 1,
+            /// <summary>
+            /// Reload the current page.
+            /// </summary>
             ReloadPage = 2,
         }
-
 
         /// <summary>
         /// The page/form was successfully processed. This handles returning to a parent page or displaying a popup if a return page is not available.
@@ -1182,7 +1358,9 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Redirect to the specified target Url.
         /// </summary>
-        /// <param name="url">The Urk defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
+        /// <param name="url">The Url defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
+        /// <param name="ForcePopup">true if the redirect should occur in a popup window, false otherwise for a redirect within the browser window.</param>
+        /// <param name="SetCurrentEditMode">true if the new page should be shown in Site Edit Mode, false otherwise.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.

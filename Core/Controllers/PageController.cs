@@ -28,13 +28,19 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Controllers {
 
+    /// <summary>
+    /// Controller for all page request within YetaWF.
+    /// </summary>
+    /// <remarks>This controller is a plain MVC controller because we don't want any startup processing to take place (like authorization, etc.)
+    /// because we handle all this here. This controller is used for page and single module display (GET/HEAD requests only)</remarks>
     public class PageController : Controller {
-        // This controller is a plain MVC controller because we don't want any startup processing to take place (like authorization, etc)
-        // because we handle all this here. This controller is used for page and single module display (GET/HEAD requests only)
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public PageController(IViewRenderService viewRenderService) {
             _viewRenderService = viewRenderService;
         }
@@ -42,9 +48,14 @@ namespace YetaWF.Core.Controllers {
 #else
 #endif
 
+        /// <summary>
+        /// The Show action handles all page requests within YetaWF.
+        /// </summary>
+        /// <param name="path">The local Url requested.</param>
+        /// <returns></returns>
         [AcceptVerbs("GET", "HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
         public ActionResult Show(string path) {
-            // We come here for ANY page request (GET only)
+            // We come here for ANY page request (GET, HEAD only)
 
             if (!YetaWFManager.HaveManager) {
 #if MVC6
@@ -640,7 +651,7 @@ namespace YetaWF.Core.Controllers {
         }
     }
 
-    public class PageViewResult : ActionResult {
+    internal class PageViewResult : ActionResult {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
@@ -744,7 +755,7 @@ namespace YetaWF.Core.Controllers {
 
 #if MVC6
 #else
-    public class PageView : IView {
+    internal class PageView : IView {
 
         public PageView(string virtPath) {
             VirtualPath = virtPath;

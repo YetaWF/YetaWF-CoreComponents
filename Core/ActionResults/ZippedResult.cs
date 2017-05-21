@@ -14,20 +14,41 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Support {
 
+    /// <summary>
+    /// Class describing a ZIP file.
+    /// </summary>
     public class YetaWFZipFile : IDisposable {
+        /// <summary>
+        /// The ZIP archive, provided by Ionic.Zip.
+        /// </summary>
         public ZipFile Zip { get; set; }
+        /// <summary>
+        /// The file name (without path) of the ZIP archive.
+        /// </summary>
         public string FileName { get; set; }
+        /// <summary>
+        /// Temporary files referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
+        /// </summary>
         public List<string> TempFiles { get; set; }
+        /// <summary>
+        /// Temporary files referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
+        /// </summary>
         public List<string> TempFolders { get; set; }
-        public bool HasSource { get; set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public YetaWFZipFile() {
             TempFiles = new List<string>();
             TempFolders = new List<string>();
             DisposableTracker.AddObject(this);
         }
 
+        /// <summary>
+        /// Performs cleanup of temporary files and folders (TempFiles, TempFolders).
+        /// </summary>
         public void Dispose() { Dispose(true); }
+
         protected virtual void Dispose(bool disposing) {
             if (disposing) { DisposableTracker.RemoveObject(this); }
             if (TempFiles != null) {
@@ -60,13 +81,24 @@ namespace YetaWF.Core.Support {
         private YetaWFZipFile Zip { get; set; }
         private long CookieToReturn { get; set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="zip">The ZIP file to return.</param>
+        /// <param name="cookieToReturn">The cookie to return, indicating that the ZIP file has been downloaded. Works in conjunction with client-side code in basics.js.</param>
         public ZippedFileResult(YetaWFZipFile zip, long cookieToReturn) {
             this.Zip = zip;
             this.CookieToReturn = cookieToReturn;
         }
+
+        /// <summary>
+        /// Processes the result of an action method.
+        /// </summary>
 #if MVC6
+        /// <param name="context">The action context.</param>
         public override void ExecuteResult(ActionContext context) {
 #else
+        /// <param name="context">The controller context.</param>
         public override void ExecuteResult(ControllerContext context) {
 #endif
             var Response = context.HttpContext.Response;
