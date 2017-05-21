@@ -41,7 +41,7 @@ namespace YetaWF.Core.Models {
                 if (_languages == null) {
                     LanguageEntryElement defaultLanguage = (from LanguageEntryElement l in LanguageSection.Languages where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
                     if (defaultLanguage == null)
-                        throw new InternalError("The defined default language doesn't exist in {0} LanguageSection", LanguageSection.LanguageSettingsFile);
+                        throw new InternalError("The defined default language doesn't exist");
                     _languages = (from LanguageEntryElement l in LanguageSection.Languages
                                   where l.Id != MultiString.DefaultLanguage
                                   select new LanguageData {
