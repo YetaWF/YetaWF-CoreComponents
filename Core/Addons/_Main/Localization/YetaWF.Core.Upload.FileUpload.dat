@@ -38,24 +38,8 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="errDownloadWebconfig" />
-                <Text Value="Download not allowed - Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
                 <Name Value="errPkgType" />
                 <Text Value="Upload not allowed - The file type '{0}' is not an allowable file type" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
-                <Name Value="errWebconfig" />
-                <Text Value="Upload not allowed - Web.config/appsettings.json doesn't have a valid MimeSection defining allowable files" />
               </Properties>
             </Object>
           </Value>
