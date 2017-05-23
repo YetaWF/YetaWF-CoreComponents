@@ -21,7 +21,9 @@ using YetaWF.Core.Addons;
 
 namespace YetaWF.Core.Controllers {
 
-    // Base class for all controllers used by YetaWF
+    /// <summary>
+    /// Base class for all controllers used by YetaWF (including "plain old" MVC controllers).
+    /// </summary>
     public class YetaWFController :
 #if MVC6
                                     Microsoft.AspNetCore.Mvc.Controller
@@ -32,6 +34,9 @@ namespace YetaWF.Core.Controllers {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
 #else
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         protected YetaWFController() {
             // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
             // This also means we don't need AllowHtml attributes
@@ -48,10 +53,13 @@ namespace YetaWF.Core.Controllers {
             return viewName;
         }
 
-        // Handle exceptions and return suitable error info
 #if MVC6
         // Handled identically in ErrorHandlingMiddleware
 #else
+        /// <summary>
+        /// Handles exceptions and returns suitable error info.
+        /// </summary>
+        /// <param name="filterContext">The exception context.</param>
         protected override void OnException(ExceptionContext filterContext) {
 
             // log the error
@@ -94,12 +102,12 @@ namespace YetaWF.Core.Controllers {
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
-        /// Redirect with a message - THIS ONLY WORKS FOR A GET REQUEST
+        /// Redirect with a message - THIS ONLY WORKS FOR A GET REQUEST.
         /// </summary>
         /// <param name="Message">Error message to display.</param>
         /// <returns></returns>
         private string MessageUrl(string message, int statusCode) {
-            // we're in a get request without module, so all we can do is redirect and show the message in the ShowMessage module
+            // we're in a GET request without module, so all we can do is redirect and show the message in the ShowMessage module
             // the ShowMessage module is in the Basics package and we reference it by permanent Guid
             string url = YetaWFManager.Manager.CurrentSite.MakeUrl(ModuleDefinition.GetModulePermanentUrl(new Guid("{b486cdfc-3726-4549-889e-1f833eb49865}")));
             QueryHelper query = QueryHelper.FromUrl(url, out url);

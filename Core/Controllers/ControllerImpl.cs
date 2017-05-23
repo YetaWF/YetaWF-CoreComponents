@@ -788,7 +788,7 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public ModuleDefinition Module { get; set; }
             /// <summary>
-            /// The Javascript to be executed cient-side after the partial view has been rendered.
+            /// The Javascript to be executed client-side after the partial view has been rendered.
             /// </summary>
             public ScriptBuilder Script { get; set; }
 #if MVC6

@@ -11,7 +11,7 @@ using System.Web.Mvc;
 namespace YetaWF.Core.Controllers {
 
     /// <summary>
-    /// A JSon action result which includes an Access-Control-Allow-Origin header.
+    /// A Json action result which includes an Access-Control-Allow-Origin header.
     /// </summary>
     public class CorsJsonResult : YJsonResult {
 
