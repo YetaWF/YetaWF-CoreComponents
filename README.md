@@ -22,6 +22,9 @@ Adding/removing languages is possible at any time, not just at design-time.
 Links
 -----
 
+STOP - Do not simply retrieve the repository. There are a few easy steps you need to follow to correctly install YetaWF.
+Depending on how you want to install it you can either use our [MakeSite utility](http://yetawf.com/Documentation/YetaWF/Topic/g_installing) which guides you through the whole process, or you can retrieve the repository following [these steps](https://yetawf.com/Documentation/YetaWF/Topic/g_installing_git).
+
 * [YetaWF.com](http://yetawf.com)
 * [Documentation](http://yetawf.com/Documentation/YetaWF)
 * [Installing YetaWF](http://yetawf.com/Documentation/YetaWF/Topic/g_installing)
