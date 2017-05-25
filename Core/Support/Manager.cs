@@ -262,11 +262,9 @@ namespace YetaWF.Core.Support {
 #endif
 
         }
-        public static string GetRequestedDomain(Uri uri, QueryHelper query, out bool overridden, out bool newSwitch) {
-            string siteDomain = null;
+        public static string GetRequestedDomain(Uri uri, string siteDomain, out bool overridden, out bool newSwitch) {
             overridden = newSwitch = false;
 
-            siteDomain = query[Globals.Link_ForceSite];
             if (!string.IsNullOrWhiteSpace(siteDomain)) {
                 overridden = newSwitch = true;
                 YetaWFManager.SetRequestedDomain(siteDomain);
