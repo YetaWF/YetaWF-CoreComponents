@@ -22,7 +22,9 @@ namespace YetaWF.Core.Serializers {
              try {
                  if (typeof(Type) == typeof(int))
                      val = (Type)(object)Convert.ToInt32(o);
-                 else
+                 else if (typeof(Type) == typeof(Guid))
+                    val = (Type)(object)new Guid(o.ToString());
+                else
                     val = (Type)o;
              } catch (Exception) {
                  val = (Type)Activator.CreateInstance(typeof(Type), new object[] { o });
