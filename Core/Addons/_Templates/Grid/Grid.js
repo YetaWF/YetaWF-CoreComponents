@@ -251,7 +251,7 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
 
     // collect all data from grid's datasource
-    var ds = $grid.jqGrid('getGridParam', 'data');
+    var ds = $grid.jqGrid('getRowData');
     var total = ds.length;
     var colDefs = $grid.jqGrid('getGridParam', 'colModel');
     var colCount = colDefs.length;
@@ -424,7 +424,7 @@ YetaWF_Grid.toggleSearchToolbar = function ($grid, show) {
 };
 
 YetaWF_Grid.clearSearchFilters = function (gridId) {
-    // clear ken date(time)pickers because they're nto auomatically cleared by jqgrid
+    // clear kendo date(time)pickers because they're not automatically cleared by jqgrid
     $('#gbox_{0} .ui-search-toolbar input[name="dtpicker"]'.format(gridId)).val('');
 };
 
@@ -472,13 +472,13 @@ $(document).ready(function () {
     // page has completely loaded, so we need to set it again. By then, jqgrid has added extra layers so we can't just
     // take $grid.parent()'s width.
     // For other cases (outside float div) this does no harm and resized to the current size.
-    $("body").on('YetaWF_PropertyList_PanelSwitched', function(event, $panel) {
+    $("body").on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
         var $grids = $('.yt_grid', $panel);
         $grids.each(function () {
             var $grid = $(this);
             var $realGrid = $grid.closest('.ui-jqgrid');
             var width = $realGrid.parent().width();
-            $grid.jqGrid('setGridWidth', width, true);
+            $grid.jqGrid('setGridWidth', width, false);
             $grid.trigger('reloadGrid');
         });
     });
