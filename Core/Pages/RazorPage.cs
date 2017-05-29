@@ -3,6 +3,7 @@
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
+using System.Text;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
@@ -111,18 +112,37 @@ namespace YetaWF.Core.Pages {
         }
 #endif
 
-        public HtmlString RenderPane(string pane, string cssClass = null, bool Conditional = true) {
+        public HtmlString RenderPane(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
             if (IsTemplate)
                 throw new InternalError("Can't use RenderPane in templates");
+
+            if (!Manager.EditMode && Unified && Manager.UnifiedPages != null) {
+                PageDefinition realPage = Manager.CurrentPage;
+                StringBuilder sb = new StringBuilder();
+                foreach (PageDefinition page in Manager.UnifiedPages) {
+                    // for now we don't validate skins
+                    // if (page.SelectedSkin.Collection != realPage.SelectedSkin.Collection)
+                    //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the same skin collection ({2} vs. {3})", realPage.Url, page.Url, realPage.SelectedSkin.Collection, page.SelectedSkin.Collection);
+                    //if (page.SelectedSkin.FileName != realPage.SelectedSkin.FileName)
+                    //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the same skin file ({2} vs. {3})", realPage.Url, page.Url, realPage.SelectedSkin.FileName, page.SelectedSkin.FileName);
+                    //if (page.TemplatePage != realPage.TemplatePage)
+                    //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the template page ({2} vs. {3})", realPage.Url, page.Url, realPage.TemplatePage.Url ?? "(none)", page.TemplatePage.Url ?? "(none)");
+                    Manager.CurrentPage = page;
+                    sb.Append(CurrentPage.RenderPane((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
+                }
+                Manager.CurrentPage = realPage;
+                return new HtmlString(sb.ToString());
+            } else {
 #if MVC6
-            return CurrentPage.RenderPane((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
+                return CurrentPage.RenderPane((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
 #else
-            return CurrentPage.RenderPane((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
+                return CurrentPage.RenderPane((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
 #endif
+            }
         }
         public PageDefinition.PaneSet PaneSet(string cssClass = null, bool Conditional = true, bool SameHeight = true) {
             if (IsTemplate)
-                throw new InternalError("Can't use Pane in templates");
+                throw new InternalError("Can't use PaneSet in templates");
 #if MVC6
             return CurrentPage.RenderPaneSet((IHtmlHelper<object>)GetHtml(), cssClass, Conditional: Conditional, SameHeight: SameHeight);
 #else

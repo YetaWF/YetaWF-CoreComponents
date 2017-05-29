@@ -119,6 +119,14 @@ namespace YetaWF.Core.Pages {
             [EnumDescription("Highest")]
             Top = 100,
         }
+        public enum UnifiedModeEnum {
+            [EnumDescription("None", "The unified page set does not combine page content - Each page is shown individually (used to disable the unified page set)")]
+            None = 0,
+            [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible")]
+            HideDivs = 1, // divs for other urls are hidden
+            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the unified page set")]
+            ShowDivs = 2, // all divs are shown
+        }
 
         public PageDefinition() {
             Temporary = true;
@@ -199,7 +207,15 @@ namespace YetaWF.Core.Pages {
         public SkinDefinition SelectedSkin { get; set; }
         public SkinDefinition SelectedPopupSkin { get; set; }
 
+        /// <summary>
+        /// The page used as template for the current page.
+        /// </summary>
         public Guid? TemplateGuid { get; set; }
+        /// <summary>
+        /// Defines the unified set of pages this page belongs to (if any).
+        /// </summary>
+        [Data_Index]
+        public Guid? UnifiedSetGuid { get; set; }
 
         [StringLength(MaxCssClass)]
         public string CssClass { get; set; }

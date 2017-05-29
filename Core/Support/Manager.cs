@@ -67,7 +67,6 @@ namespace YetaWF.Core.Support {
         public static IMemoryCache MemoryCache = null;
 #else
 #endif
-
         private YetaWFManager(string host) {
             SiteDomain = host; // save the host name that owns this Manager
         }
@@ -1244,6 +1243,19 @@ namespace YetaWF.Core.Support {
         /// The current page.
         /// </summary>
         public PageDefinition CurrentPage { get; set; }
+        /// <summary>
+        /// The set of pages the current page belongs to, if the current page is part of a set of unified pages.
+        /// </summary>
+        public List<PageDefinition> UnifiedPages { get; set; }
+        /// <summary>
+        /// The page mode used for unified pages.
+        /// </summary>
+        public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
+        /// <summary>
+        /// The time spent on animating the transition (if the current UnifiedMode supports a transition).
+        /// </summary>
+        /// <remarks>The specified interval is in milliseconds.</remarks>
+        public int UnifiedAnimation { get; set; }
 
         /// <summary>
         /// The current page title. Modules can override the page title (we don't use the title in the page definition, except to set the default title).

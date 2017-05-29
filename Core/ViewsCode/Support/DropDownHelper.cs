@@ -3,6 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Extensions;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
+using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,10 +15,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Web;
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Addons;
-using YetaWF.Core.Localize;
-using YetaWF.Core.Models;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views.Shared {
 
@@ -152,16 +153,16 @@ namespace YetaWF.Core.Views.Shared {
                 if (!haveDesc) // if we don't have any descriptions, clear the tooltip array
                     sb = new ScriptBuilder();
                 ScriptBuilder newSb = new ScriptBuilder();
-                newSb.Append("$('#{0}').data('tooltips', [{1}]);", id, sb.ToString());
+                newSb.Append("$('#{0}').data('tooltips', [{1}]);", id, sb.ToString().TrimEnd("\"\","));
                 newSb.Append("YetaWF_TemplateDropDownList.initOne($('#{0}'));", id);
                 sb = newSb;
             }
 
             tag.SetInnerHtml(tagHtml.ToString());
 
-            HtmlBuilder hb = new Support.HtmlBuilder();
+            HtmlBuilder hb = new HtmlBuilder();
             hb.Append(tag.ToString(TagRenderMode.Normal));
-            hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToHtmlString());
+            Manager.ScriptManager.AddLast(sb.ToString());
             return hb.ToHtmlString();
         }
 

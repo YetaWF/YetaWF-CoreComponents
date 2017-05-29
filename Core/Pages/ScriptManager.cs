@@ -334,9 +334,9 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add an unnamed javascript code section.
+        /// Add an unnamed javascript code section at end of page.
         /// </summary>
-        public void Add(string javascript) {
+        public void AddLast(string javascript) {
             _SavedScripts.Add(javascript);
         }
 
@@ -437,14 +437,6 @@ namespace YetaWF.Core.Pages {
             HtmlBuilder hb = RenderScriptsFiles();
             tag.Append(hb.ToHtmlString());
 
-            ScriptBuilder sbB = RenderScriptsPartB();
-            if (sbB.Length > 0) {
-                //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
-                tag.Append("<script type=\"text/javascript\">");
-                tag.Append(sbB.ToString());
-                tag.Append("</script>");
-                //tag.Append("\n//]]>\n</script>\n");
-            }
             return tag;
         }
 
@@ -459,15 +451,6 @@ namespace YetaWF.Core.Pages {
             tag.Append(hb.ToHtmlString());
 
             tag.Append(RenderEndofPageScripts());
-
-            ScriptBuilder sbB = RenderScriptsPartB();
-            if (sbB.Length > 0) {
-                //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
-                tag.Append("<script type=\"text/javascript\">");
-                tag.Append(sbB.ToString());
-                tag.Append("</script>");
-                //tag.Append("\n//]]>\n</script>\n");
-            }
             return tag;
         }
 
@@ -599,9 +582,13 @@ namespace YetaWF.Core.Pages {
 
         public string RenderEndofPageScripts() {
             HtmlBuilder hb = new HtmlBuilder();
-            if (_SavedNamedScripts.Count > 0 || _SavedNamedScriptsDocReady.Count > 0) {
+
+            ScriptBuilder sbB = RenderScriptsPartB();
+            if (sbB.Length > 0 || _SavedNamedScripts.Count > 0 || _SavedNamedScriptsDocReady.Count > 0) {
                 //hb.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 hb.Append("<script type=\"text/javascript\">");
+                if (sbB.Length > 0)
+                    hb.Append(sbB.ToString());
                 if (_SavedNamedScripts.Count > 0) {
                     foreach (var script in _SavedNamedScripts) {
                         hb.Append(TrimScript(Manager, script.Value));

@@ -695,6 +695,25 @@ namespace YetaWF.Core.Controllers {
             SkinAccess skinAccess = new SkinAccess();
             SkinDefinition skin = SkinDefinition.EvaluatedSkin(currPage, Manager.IsInPopup);
             string skinCollection = skin.Collection;
+
+            // Unified pages
+            Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
+            if (currPage.UnifiedSetGuid != null && PageDefinition.GetUnifiedPagesFromPageGuid != null) {
+                // Load all unified pages that make up this page
+                PageDefinition.UnifiedInfo info = PageDefinition.GetUnifiedPagesFromPageGuid((Guid)currPage.UnifiedSetGuid);
+                if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None && info.PageGuids != null && info.PageGuids.Count > 0) {
+                    Manager.UnifiedPages = new List<PageDefinition>();
+                    foreach (Guid guid in info.PageGuids) {
+                        PageDefinition page = PageDefinition.Load(guid);
+                        if (page != null)
+                            Manager.UnifiedPages.Add(page);
+                    };
+                    Manager.UnifiedMode = info.Mode;
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
+                }
+            }
+            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
+
             string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
             if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
                 throw new InternalError("No page skin available");

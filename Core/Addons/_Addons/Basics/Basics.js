@@ -688,7 +688,7 @@ $(document).ready(function () {
     });
 
     // For an <a> link clicked, add the page we're coming from (not for popup links though)
-    $("body").on("click", "a.{0},area.{0}".format(YConfigs.Basics.CssActionLink), function () {
+    $("body").on("click", "a.{0},area.{0}".format(YConfigs.Basics.CssActionLink), function (e) {
         var $t = $(this);
 
         var uri = $t.uri();
@@ -711,6 +711,47 @@ $(document).ready(function () {
                     'type': 'post',
                     'data': data,
                 });
+            }
+        }
+
+        // Handle unified page clicks by activating the desired pane(s)
+        if (YVolatile.Basics.UnifiedMode > 0 && (uri.domain() === "" || uri.domain() === window.document.domain)) {
+            // check if we're clicking a link which is part of this unified page
+            var path = uri.path();
+            // check if we have anything with that path as a unified pane
+            var $divs = $('.yUnified[data-url="{0}"]'.format(path));
+            if ($divs.length > 0) {
+                // Close open bootstrap nav menus (if any) by clicking on the page
+                $('body').trigger('click');
+                // Close any open kendo menus (if any)
+                var $menus = $(".k-menu");
+                $menus.each(function () {
+                    var menu = $(this).data("kendoMenu");
+                    menu.close("li.k-item");
+                });
+                if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
+                    $('.yUnified').hide();
+                    $divs.show();
+                    // send event that a new section became active/visible
+                    $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
+                } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
+                    //element.scrollIntoView() as an alternative (check compatibility/options)
+                    // calculate an approximate animation time so the shorter the distance, the shorter the animation
+                    var h = $('body').height();
+                    var t = $divs.eq(0).offset().top;
+                    var anim = YVolatile.Basics.UnifiedAnimation * t / h;
+                    $('body,html').animate({
+                        scrollTop: t
+                    }, anim);
+                } else
+                    throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
+                // Update the browser address bar with the new path
+                try {
+                    var stateObj = {};
+                    history.pushState(stateObj, "", path + window.location.search);
+                    e.preventDefault();
+                } catch(err) {}
+                return false;
             }
         }
 
@@ -975,6 +1016,16 @@ YetaWF_Basics.initPage = function () {
         $(window).scrollTop(Number(v));
         scrolled = true;
     }
+    // check if we have anything with that path as a unified pane
+    if (!scrolled) {
+        if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
+            var $divs = $('.yUnified[data-url="{0}"]'.format(uri.path()));
+            if ($divs.length > 0) {
+                $(window).scrollTop($divs.eq(0).offset().top);
+                scrolled = true;
+            }
+        }
+    }
 
     // FOCUS
     // FOCUS
@@ -982,7 +1033,8 @@ YetaWF_Basics.initPage = function () {
 
     $(document).ready(function () {
         if (!scrolled && location.hash.length <= 1) {
-            Y_SetFocus($('body'));
+            if (YVolatile.Basics.UnifiedMode == 0)
+                Y_SetFocus($('body'));
             if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
                 YetaWF_Forms.partialFormActionsAll.push({
                     callback: Y_SetFocus
