@@ -541,6 +541,50 @@
               </Properties>
             </Object>
           </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="YetaWF.Core.Pages.PageDefinition+UnifiedModeEnum" />
+                <Entries>
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                    <Properties />
+                    <List>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="None" />
+                            <Value Value="None" />
+                            <Caption Value="None" />
+                            <Description Value="The unified page set does not combine page content - Each page is shown individually (used to disable the unified page set)" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="HideDivs" />
+                            <Value Value="HideDivs" />
+                            <Caption Value="Hide Others" />
+                            <Description Value="Only content for the current Url is shown - Content for other pages is embedded but not visible" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="ShowDivs" />
+                            <Value Value="ShowDivs" />
+                            <Caption Value="Show All Content" />
+                            <Description Value="All content is shown in the order the pages appear in the unified page set" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                    </List>
+                  </Object>
+                </Entries>
+              </Properties>
+            </Object>
+          </Value>
         </List>
       </Object>
     </Enums>
