@@ -13,6 +13,11 @@ namespace YetaWF.Core.Extensions {
             if (text.StartsWith(trim)) return text.Substring(trim.Length);
             return text;
         }
+        public static string TrimEnd(this string text, string trim) {
+            while (text.EndsWith(trim))
+                text = text.Substring(0, text.Length - trim.Length);
+            return text;
+        }
         public static string Mid(ref string s, int index, char c) {
             char[] chars = s.ToCharArray();
             chars[index] = c;
