@@ -1511,6 +1511,16 @@ namespace YetaWF.Core.Support {
             s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");
             s = CombineCss(s, IsInPopup ? "yPopup" : "yPage");
             s = CombineCss(s, GetAspNetCss(AspNetMvc));
+            switch (UnifiedMode) {
+                case PageDefinition.UnifiedModeEnum.None:
+                    break;
+                case PageDefinition.UnifiedModeEnum.HideDivs:
+                    s = CombineCss(s, "yUnifiedHideDivs");
+                    break;
+                case PageDefinition.UnifiedModeEnum.ShowDivs:
+                    s = CombineCss(s, "yUnifiedShowDivs");
+                    break;
+            }
             // add a class whether page can be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
             if (showOwnership) {
