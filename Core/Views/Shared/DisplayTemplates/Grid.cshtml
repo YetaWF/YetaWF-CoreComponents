@@ -19,7 +19,7 @@
     }
 }
 
-<table id="@Model.Id" class="yt_grid yt_grid @(YetaWF.Core.Addons.Forms.CssFormNoSubmitContents) t_display" data-fieldprefix="@Html.GetDataFieldPrefix(Model)" @Html.Raw(dataDelete) @Html.Raw(dataDisplay) @Html.Raw(dataExtra)></table>
+<table id="@Model.Id" class="yt_grid @(YetaWF.Core.Addons.Forms.CssFormNoSubmitContents) t_display" data-fieldprefix="@Html.GetDataFieldPrefix(Model)" @Html.Raw(dataDelete) @Html.Raw(dataDisplay) @Html.Raw(dataExtra)></table>
 <div id="@(Model.Id)_Pager"></div>
 
 @{
@@ -50,7 +50,7 @@
             colNames: [ @Html.RenderColNames(Model) ],
             colModel: [ @Html.RenderColModel(gridSavedSettings, Model, out hasFilters) ],
             shrinkToFit: @JSEncode(Model.SizeToFit),
-            @if (isAjax || Model.CanAddOrDelete || pageSize < Model.Data.Data.Count) {
+            @if (pageSize > 0 && (isAjax || Model.CanAddOrDelete || pageSize < Model.Data.Data.Count)) {
                 @: pager : '#@(Model.Id)_Pager',
                 @: // pagerpos: 'left',
                 @: pgButtons: @(Model.PagerButtons > 0 ? "true" : "false"),
@@ -99,7 +99,7 @@
         $grid.jqGrid(options);
 
         $grid.jqGrid('filterToolbar',{searchOperators : true});
-        @if (isAjax || Model.CanAddOrDelete || pageSize < Model.Data.Data.Count) {
+        @if (pageSize > 0 && (isAjax || Model.CanAddOrDelete || pageSize < Model.Data.Data.Count)) {
             @: $grid.jqGrid('navGrid','#@(Model.Id)_Pager', {});
         }
 
@@ -138,7 +138,7 @@
             @: YetaWF_Grid.toggleSearchToolbar($grid, @JSEncode(YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowGridSearchToolbar")));
         }
         @if (Model.SupportReload) {
-            @: if (YConfigs.Forms === undefined || $grid.closest('.'+YConfigs.Forms.CssFormPartial).length == 0) { // in partial views, we don't need to reload grids
+            @: if ((typeof YetaWF_Forms !== 'undefined' && YConfigs.Forms !== undefined) && $grid.closest('.'+YConfigs.Forms.CssFormPartial).length > 0) { // in partial views, we don't need to reload grids
             @:     var $mod = $grid.closest('.yModule');
             @:     if ($mod.length != 1) throw "Can't find containing module";
             @:     YetaWF_Basics.reloadInfo.push({
