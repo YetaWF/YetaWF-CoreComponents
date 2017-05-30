@@ -145,12 +145,14 @@ namespace YetaWF.Core {
         public const string PermanentModuleNameFormat = "{0}.{1}";
         public const string RVD_ModuleDefinition = "ModuleDefinition";
 
+        // Ids
+        // Page/Edit Control
+        public const string IdPageControlDiv = "yPageControlDiv";
+        public const string IdPageControlButton = "yPageControlButton";
+        public const string IdEditControlDiv = "yEditControlDiv";
+        public const string IdEditControlButton = "yEditControlButton";
         // CSS classes
-        // Page/Edit Control (generic)
-        public const string CssPageControlDiv = "yPageControlDiv";
-        public const string CssPageControlButton = "yPageControlButton";
-        public const string CssEditControlDiv = "yEditControlDiv";
-        public const string CssEditControlButton = "yEditControlButton";
+        // Pane
         public const string CssPaneTag = "yPaneTag";
         // Modules (generic)
         public const string CssModule = "yModule";

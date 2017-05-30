@@ -56,15 +56,15 @@ namespace YetaWF.Core.Modules {
                     Legend = __ResStr("pageControlLeg", "Control Panel - Adds new or existing modules, adds new pages, switches to edit mode and accesses page settings"),
                 };
 
-                // <div class=CssPageControlDiv>
+                // <div id=IdPageControlDiv>
                 //  action button (with id CssPageControlButton)
                 //  module html...
                 // </div>
                 TagBuilder tag = new TagBuilder("div");
-                tag.Attributes.Add("id", Globals.CssPageControlDiv);
+                tag.Attributes.Add("id", Globals.IdPageControlDiv);
 
                 Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
-                tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.CssPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());
+                tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.IdPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());
                 Manager.ForceModuleActionLinks = false;
                 return tag.ToHtmlString(TagRenderMode.Normal);
             } else
@@ -96,7 +96,7 @@ namespace YetaWF.Core.Modules {
                 //  action button (with id CssEditControlButton)
                 // </div>
                 TagBuilder tag = new TagBuilder("div");
-                tag.Attributes.Add("id", Globals.CssEditControlDiv);
+                tag.Attributes.Add("id", Globals.IdEditControlDiv);
 
 
                 ModuleAction action = mod.GetModuleAction(Manager.EditMode ? "SwitchToView" : "SwitchToEdit");
@@ -107,7 +107,7 @@ namespace YetaWF.Core.Modules {
                     action.LinkText = __ResStr("editControlLinkToView", "Switch to View Mode");
                     action.MenuText = __ResStr("editControlLinkToView", "Switch to View Mode");
                 }
-                tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.CssEditControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());// mainly just to get js/css, the module is normally empty
+                tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.IdEditControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());// mainly just to get js/css, the module is normally empty
 
                 return tag.ToHtmlString(TagRenderMode.Normal);
             } else
