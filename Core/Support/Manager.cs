@@ -244,7 +244,7 @@ namespace YetaWF.Core.Support {
                 case AspNetMvcVersion.MVC5:
                     return "yASPNET4 yMVC5";
                 case AspNetMvcVersion.MVC6:
-                    return "yASPNETCore yMVC12";
+                    return "yASPNETCore yMVC6";
                 default:
                     return null;
             }
