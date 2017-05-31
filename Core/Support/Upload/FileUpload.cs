@@ -67,7 +67,7 @@ namespace YetaWF.Core.Upload {
         /// <param name="canUse"></param>
         /// <returns>A file name (with path) of the uploaded file in the site's temporary folder.</returns>
 #if MVC6
-        public string StoreTempFile(IFormFile uploadFile, Func<MimeEntry, bool> canUse) {
+        public string StoreTempFile(IFormFile uploadFile, string useType) {
 #else
         public string StoreTempFile(HttpPostedFileBase uploadFile, string useType) {
 #endif
@@ -90,7 +90,7 @@ namespace YetaWF.Core.Upload {
         /// <returns>A file name (with path) of the uploaded file in the specified folder</returns>
 
 #if MVC6
-        public string StoreFile(IFormFile uploadFile, string folder, Func<MimeEntry, bool> canUse, Func<IFormFile, string> getFileName)
+        public string StoreFile(IFormFile uploadFile, string folder, string useType, Func<IFormFile, string> getFileName)
 #else
         public string StoreFile(HttpPostedFileBase uploadFile, string folder, string useType, Func<HttpPostedFileBase, string> getFileName)
 #endif
