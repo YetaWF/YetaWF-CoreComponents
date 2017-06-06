@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Mvc;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Language;
 using YetaWF.Core.Models;
@@ -120,12 +122,16 @@ namespace YetaWF.Core.Pages {
             Top = 100,
         }
         public enum UnifiedModeEnum {
-            [EnumDescription("None", "The unified page set does not combine page content - Each page is shown individually (used to disable the unified page set)")]
+            [EnumDescription("None", "The unified page set does not combine page content - Each page is shown individually (used to disable the unified page set) - Use with small page sets")]
             None = 0,
-            [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible")]
+            [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible - Use with small page sets")]
             HideDivs = 1, // divs for other urls are hidden
-            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the unified page set")]
+            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the unified page set - Use with small page sets")]
             ShowDivs = 2, // all divs are shown
+            [EnumDescription("Dynamic Content", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used with large page sets")]
+            DynamicContent = 3,
+            [EnumDescription("Same Skin Dynamic Content", "All pages with the same skin as the Master Page are combined and page content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used to combine all site pages (using the same skin) into one single page - Pages that are explicitly part of another Unified Page Set are excluded")]
+            SkinDynamicContent = 4,
         }
 
         public PageDefinition() {

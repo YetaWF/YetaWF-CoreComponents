@@ -32,5 +32,11 @@ YetaWF_PageSelection.init = function (id) {
         // var desc = YetaWF_TemplateDropDownList.getTitle($('.t_select select', $control), ix);
         updateLink(val, desc);
     });
-    $('.t_select select', $control).trigger('change');
+    YetaWF_Basics.whenReady.push({
+        callback: function ($tag) {
+            $('.t_select select', $control).each(function () {
+                updateLink($(this).val(), "");
+            });
+        }
+    });
 };

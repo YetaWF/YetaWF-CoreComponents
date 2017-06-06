@@ -1,9 +1,12 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Text;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
@@ -150,6 +153,21 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
+        /// <summary>
+        /// Used to render page contents for unified pages with dynamic content.
+        /// </summary>
+        /// <returns></returns>
+        public HtmlString RenderPageContent() {
+            PageContentController.PageContentData model = (YetaWF.Core.Controllers.PageContentController.PageContentData)ViewData.Model;
+            PageContentController.DataIn dataIn = (PageContentController.DataIn) ViewData["DataIn"];
+#if MVC6
+            CurrentPage.RenderPaneContents((IHtmlHelper<object>)GetHtml(), dataIn, model);
+#else
+            CurrentPage.RenderPaneContents((HtmlHelper<object>)GetHtml(), dataIn, model);
+#endif
+            return null;
+        }
+
         // used by templates
         public string ControlId {
             get {
@@ -188,13 +206,13 @@ namespace YetaWF.Core.Pages {
             public JSDocumentReady(HtmlHelper<object> Html) {
 #endif
                 this.Html = Html;
-                IsAjax = YetaWFManager.Manager.IsAjaxRequest;
+                IsPost = YetaWFManager.Manager.IsAjaxRequest;
                 DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
                 if (disposing) DisposableTracker.RemoveObject(this);
-                if (IsAjax) {
+                if (IsPost) {
                     Html.ViewContext.Writer.Write("}");
                     Html.ViewContext.Writer.Write("});");
                     Html.ViewContext.Writer.Write("}");
@@ -209,7 +227,7 @@ namespace YetaWF.Core.Pages {
 #else
             public HtmlHelper<object> Html { get; set; }
 #endif
-            private bool IsAjax { get; set; }
+            private bool IsPost { get; set; }
         }
         protected JSDocumentReady DocumentReady() {
 #if MVC6

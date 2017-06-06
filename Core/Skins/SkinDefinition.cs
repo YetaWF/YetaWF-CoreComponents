@@ -52,6 +52,8 @@ namespace YetaWF.Core.Skins {
         public const int MaxName = 100;
         public const int MaxSkinFile = 100;
 
+        public SkinDefinition() { } 
+
         [Caption("Skin Collection"), Description("The name of the skin collection")]
         [StringLength(MaxCollection)]
         public string Collection { get; set; } // may be null for site default
@@ -105,7 +107,6 @@ namespace YetaWF.Core.Skins {
             };
         }
 
-        public SkinDefinition() {}
         public SkinDefinition(SkinDefinition copy) {
             ObjectSupport.CopyData(copy, this);
         }

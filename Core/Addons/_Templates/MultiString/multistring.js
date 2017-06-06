@@ -159,7 +159,7 @@ _YetaWF_MultiString.getSelLanguage = function($ms) {
 $(document).ready(function () {
 
     // selection change (put language specific text into text box)
-    $('form').on("change", '.yt_multistring select', function () {
+    $('body').on("change", '.yt_multistring select', function () {
         var $ms = _YetaWF_MultiString.getMS(this);
         var sel = this.selectedIndex;
         if (sel > 0) {
@@ -189,7 +189,7 @@ $(document).ready(function () {
         }
     });
     // textbox change (save text in language specific hidden fields)
-    $('form').on("change blur", '.yt_multistring_text', function () {
+    $('body').on("change blur", '.yt_multistring_text', function () {
 
         var $ms = _YetaWF_MultiString.getMS(this);
         var sel = _YetaWF_MultiString.getSelLanguage($ms);

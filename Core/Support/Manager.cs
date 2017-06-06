@@ -974,19 +974,14 @@ namespace YetaWF.Core.Support {
         // insure that we get Unique ids that don't duplicate ids obtained during the original request
         public string UniqueId(string name = "a") {
             ++_uniqueIdCounter;
-            if (string.IsNullOrEmpty(UniqueIdPrefix)) {
-                if (string.IsNullOrWhiteSpace(name))
-                    throw new InternalError("UniqueId must specify a name prefix");
-                return name + _uniqueIdCounter;
-            } else
-                return UniqueIdPrefix + "_" + name + _uniqueIdCounter;
+            return UniqueIdPrefix + "_" + name + _uniqueIdCounter;
         }
         private int _uniqueIdCounter = 0;
 
-        public string UniqueIdPrefix { get; set; }
+        public string UniqueIdPrefix { get; set; } = "u0";
 
-        public void NextUniqueIdPrefix() { UniqueIdPrefix = string.Format("u{0}", ++_uniqueIdPrefixCounter); }
-        private int _uniqueIdPrefixCounter = 0;
+        public void NextUniqueIdPrefix() { UniqueIdPrefix = string.Format("u{0}", ++UniqueIdPrefixCounter); }
+        internal int UniqueIdPrefixCounter = 0;
 
         // HTTPCONTEXT
         // HTTPCONTEXT
@@ -1018,6 +1013,14 @@ namespace YetaWF.Core.Support {
             }
         }
         private QueryHelper _requestQueryString = null;
+
+        /// <summary>
+        /// Overrides the current query string (used for dynamic content with unified page sets).
+        /// </summary>
+        /// <param name="queryString"></param>
+        internal void OverrideQueryString(string queryString) {
+            _requestQueryString = QueryHelper.FromQueryString(queryString);
+        }
 
         public FormHelper RequestForm {
             get {
@@ -1177,10 +1180,16 @@ namespace YetaWF.Core.Support {
 #endif
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public bool IsAjaxRequest {
+        public bool IsAjaxRequest { //$$$REMOVE
             get {
                 HttpRequest request = CurrentRequest;
-                return ((request.Headers != null) && (request.Headers["X-Requested-With"] == "XMLHttpRequest") || (request.Headers["X-Requested-With"] == "XMLHttpRequest"));
+#if MVC6
+                return (request.Method == "POST");
+#else
+                return (request.RequestType == "POST");
+#endif
+                //HttpRequest request = CurrentRequest;
+                //return ((request.Headers != null) && (request.Headers["X-Requested-With"] == "XMLHttpRequest") || (request.Headers["X-Requested-With"] == "XMLHttpRequest"));
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]

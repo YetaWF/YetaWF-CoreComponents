@@ -502,45 +502,69 @@ YetaWF_Basics.formatDate = function (date, fmt)
 // WHENREADY
 // WHENREADY
 
-// Usage:
-// YetaWF_Basics.whenReady.push({
-//   callback: function() {}    // function to be called
-// });
-// This calls the function on $(document).ready() or in a similar situation. For example after an ajax data transfer.
-// callback functions are registered by whomever needs this type of processing. For example, a grid can
-// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
 YetaWF_Basics.whenReady = [];
 
-YetaWF_Basics.processAllReady = function() {
+// Usage:
+// YetaWF_Basics.whenReady.push({
+//   callback: function($tag) {}    // function to be called
+// });
+// This registers a callback that is called when the document is ready (similar to $(document).ready()), after a module is rendered (for dynamic content)
+// Callback functions are registered by whomever needs this type of processing. For example, a grid can
+// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
+// $tag describes the section that is new and needs to be initialized.
+YetaWF_Basics.processAllReady = function ($tag) {
+    if ($tag === undefined) $tag = $('body');
     for (var index in YetaWF_Basics.whenReady) {
         var entry = YetaWF_Basics.whenReady[index];
-        entry.callback();
+        entry.callback($tag);
     }
-    YetaWF_Basics.whenReady = [];
 }
 
+//$$$// Usage:
+//// YetaWF_Basics.whenReadyPartialForm.push({
+////   callback: function($tag) {}    // function to be called
+//// });
+//// This calls the function when a partial form is initialized (after Apply/postback).
+//// callback functions are registered by whomever needs this type of processing. For example, a grid can
+//// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
+//YetaWF_Basics.whenReadyPartialForm = [];
+
+//if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
+//    YetaWF_Forms.partialFormActionsAll.push({
+//        callback: _YetaWF_Basics.initButtons
+//    });
+//}
+
+//YetaWF_Basics.processAllReadyPartialForm = function ($tag) {
+//    for (var index in YetaWF_Basics.whenReadyPartialForm) {
+//        var entry = YetaWF_Basics.whenReadyPartialForm[index];
+//        if ($tag === undefined) $tag = $('body');
+//        entry.callback($tag);
+//    }
+//}
+
 // BEAUTIFY BUTTONS
 // BEAUTIFY BUTTONS
 // BEAUTIFY BUTTONS
 
-_YetaWF_Basics.initButtons = function ($partialForm) {
+_YetaWF_Basics.initButtons = function ($tag) {
     'use strict';
     if (YVolatile.Skin.Bootstrap && YVolatile.Skin.BootstrapButtons) {
         // bootstrap
-        $("input[type=submit],input[type=button],input[type=reset],input[type=file]", $partialForm).not('.y_jqueryui').addClass('btn btn-default')
-        $("button", $partialForm).not('.y_jqueryui').addClass('btn')
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $partialForm).not('.y_jqueryui').addClass('btn btn-default') // action link as a button
+        $("input[type=submit],input[type=button],input[type=reset],input[type=file]", $tag).not('.y_jqueryui').addClass('btn btn-default')
+        $("button", $tag).not('.y_jqueryui').addClass('btn')
+        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_jqueryui').addClass('btn btn-default') // action link as a button
         // explicitly marked for jquery
-        $("input[type=submit].y_jqueryui,input[type=button].y_jqueryui,input[type=reset].y_jqueryui,input[type=file].y_jqueryui,button.y_jqueryui", $partialForm).button()
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_jqueryui", $partialForm).button() // action link as a button
+        $("input[type=submit].y_jqueryui,input[type=button].y_jqueryui,input[type=reset].y_jqueryui,input[type=file].y_jqueryui,button.y_jqueryui", $tag).button()
+        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_jqueryui", $tag).button() // action link as a button
     } else {
         // jquery-ui
-        $("input[type=submit],input[type=button],input[type=reset],input[type=file],button", $partialForm).not('.y_bootstrap').button() // beautify all buttons
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $partialForm).not('.y_bootstrap').button() // action link as a button
+        $("input[type=submit],input[type=button],input[type=reset],input[type=file],button", $tag).not('.y_bootstrap').button() // beautify all buttons
+        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_bootstrap').button() // action link as a button
         // explicitly marked for bootstrap
-        $("input[type=submit].y_bootstrap,input[type=button].y_bootstrap,input[type=reset].y_bootstrap,input[type=file].y_bootstrap", $partialForm).addClass('btn btn-default')
-        $("button.y_bootstrap", $partialForm).addClass('btn')
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_bootstrap", $partialForm).addClass('btn btn-default') // action link as a button
+        $("input[type=submit].y_bootstrap,input[type=button].y_bootstrap,input[type=reset].y_bootstrap,input[type=file].y_bootstrap", $tag).addClass('btn btn-default')
+        $("button.y_bootstrap", $tag).addClass('btn')
+        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_bootstrap", $tag).addClass('btn btn-default') // action link as a button
     }
 }
 
@@ -695,7 +719,6 @@ $(document).ready(function () {
 
         // send tracking info
         if ($t.hasClass('yTrack')) {
-
             // find the unique skinvisitor module so we have antiforgery tokens and other context info
             var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
             if ($f.length == 1) {
@@ -714,59 +737,30 @@ $(document).ready(function () {
             }
         }
 
-        // Handle unified page clicks by activating the desired pane(s)
-        if (YVolatile.Basics.UnifiedMode > 0 && (uri.domain() === "" || uri.domain() === window.document.domain)) {
-            // check if we're clicking a link which is part of this unified page
-            var path = uri.path();
-            // check if we have anything with that path as a unified pane
-            var $divs = $('.yUnified[data-url="{0}"]'.format(path));
-            if ($divs.length > 0) {
-                // Close open bootstrap nav menus (if any) by clicking on the page
-                $('body').trigger('click');
-                // Close any open kendo menus (if any)
-                var $menus = $(".k-menu");
-                $menus.each(function () {
-                    var menu = $(this).data("kendoMenu");
-                    menu.close("li.k-item");
-                });
-                if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
-                    $('.yUnified').hide();
-                    $divs.show();
-                    // send event that a new section became active/visible
-                    $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
-                } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
-                    //element.scrollIntoView() as an alternative (check compatibility/options)
-                    // calculate an approximate animation time so the shorter the distance, the shorter the animation
-                    var h = $('body').height();
-                    var t = $divs.eq(0).offset().top;
-                    var anim = YVolatile.Basics.UnifiedAnimation * t / h;
-                    $('body,html').animate({
-                        scrollTop: t
-                    }, anim);
-                } else
-                    throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
-                // Update the browser address bar with the new path
-                try {
-                    var stateObj = {};
-                    history.pushState(stateObj, "", path + window.location.search);
-                    e.preventDefault();
-                } catch(err) {}
-                return false;
-            }
+        // Close open bootstrap nav menus (if any) by clicking on the page
+        function closemenus() {
+            $('body').trigger('click');
+            // Close any open kendo menus (if any)
+            var $menus = $(".k-menu");
+            $menus.each(function () {
+                var menu = $(this).data("kendoMenu");
+                menu.close("li.k-item");
+            });
         }
 
-        if (!$t.get(0).href.startsWith('javascript:')) {
-            // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
-            if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {
-                var currUri = new URI(window.location.href);
-                if (currUri.hasSearch(YGlobals.Link_EditMode))
-                    uri.addSearch(YGlobals.Link_EditMode, 'y');
-            }
-            // add status/visibility of page control module
-            uri.removeSearch(YGlobals.Link_PageControl);
-            if (YVolatile.Basics.PageControlVisible)
-                uri.addSearch(YGlobals.Link_PageControl, 'y');
+        var isJavascript = $t.get(0).href.startsWith('javascript:');
+        if (isJavascript) return;
+
+        // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
+        if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {
+            var currUri = new URI(window.location.href);
+            if (currUri.hasSearch(YGlobals.Link_EditMode))
+                uri.addSearch(YGlobals.Link_EditMode, 'y');
         }
+        // add status/visibility of page control module
+        uri.removeSearch(YGlobals.Link_PageControl);
+        if (YVolatile.Basics.PageControlVisible)
+            uri.addSearch(YGlobals.Link_PageControl, 'y');
 
         // add our module context info (if requested)
         if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
@@ -775,6 +769,18 @@ $(document).ready(function () {
                 uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
             }
         }
+
+        var width, height;
+        var $mod = YetaWF_Basics.getModuleFromTag_Cond($t);
+        if ($mod != null) {
+            width = $mod.attr('data-charwidthavg');
+            height = $mod.attr('data-charheight');
+        } else {
+            width = YVolatile.Basics.CharWidthAvg;
+            height = YVolatile.Basics.CharHeight;
+        }
+        uri.removeSearch(YGlobals.Link_CharInfo);
+        uri.addSearch(YGlobals.Link_CharInfo, width + ',' + height);
 
         // fix the url to include where we came from
         var target = $t.attr("target");
@@ -798,20 +804,7 @@ $(document).ready(function () {
         }
         if (target == undefined || target == "" || target == "_self")
             target = "_self";
-        // include the character dimension info
-        if (!$t.get(0).href.startsWith('javascript:')) {
-            var width, height;
-            var $mod = YetaWF_Basics.getModuleFromTag_Cond($t);
-            if ($mod != null) {
-                width = $mod.attr('data-charwidthavg');
-                height = $mod.attr('data-charheight');
-            } else {
-                width = YVolatile.Basics.CharWidthAvg;
-                height = YVolatile.Basics.CharHeight;
-            }
-            uri.removeSearch(YGlobals.Link_CharInfo);
-            uri.addSearch(YGlobals.Link_CharInfo, width + ',' + height);
-        }
+
         // first try to handle this as a link to the outer window (only used in a popup)
         if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.handleOuterWindow != undefined) {
             if (YetaWF_Popup.handleOuterWindow($t))
@@ -909,7 +902,7 @@ $(document).ready(function () {
             }
         }
 
-        if (!$t.get(0).href.startsWith('javascript:') && target == "_self") {
+        if (!isJavascript && target == "_self") {
             Y_Loading();
             // add overlay if desired
             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
@@ -917,6 +910,146 @@ $(document).ready(function () {
             }
         }
         waitForCookie(); // if any
+
+        // Handle unified page clicks by activating the desired pane(s)
+        if ((YVolatile.Basics.UnifiedMode > 0 && (uri.domain() === "" || uri.domain() === window.document.domain))) {
+            // check if we're clicking a link which is part of this unified page
+            var path = uri.path();
+            if (YVolatile.Basics.UnifiedMode === 3 /*UnifiedModeEnum.DynamicContent*/ || YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
+                // find all panes that support dynamic content and replace with new modules
+                closemenus();
+                var $divs = $('.yUnified[data-pane]');
+                // build data context (like scripts, css files we have)
+                var data = {};
+                data.Path = path;
+                data.QueryString = uri.query();
+                data.UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;
+                data.UnifiedMode = YVolatile.Basics.UnifiedMode;
+                if (YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
+                    data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
+                    data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
+                }
+                data.UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
+                data.Panes = [];
+                $divs.each(function () {
+                    data.Panes.push($(this).attr('data-pane'));
+                });
+                data.KnownCss = [];
+                var $css = $('link[rel="stylesheet"]');
+                $css.each(function () {
+                    data.KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
+                });
+                data.KnownScripts = [];
+                var $scr = $('script[type="text/javascript"][src]');
+                $scr.each(function () {
+                    data.KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
+                });
+
+                Y_Loading();
+                $.ajax({
+                    url: '/YetaWF_Core/PageContent/Show',
+                    type: 'get',
+                    data: data,
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (result, textStatus, jqXHR) {
+                        if (result.Status != null && result.Status.length > 0) {
+                            Y_Loading(false);
+                            Y_Alert(result.Status, YLocs.Forms.AjaxErrorTitle);
+                            return;
+                        }
+                        if (result.Redirect != null && result.Redirect.length > 0) {
+                            //Y_Loading(false);
+                            window.location = result.Redirect;
+                            return;
+                        }
+                        // remove all pane contents
+                        $divs.each(function () {
+                            var $div = $(this);
+                            $div.empty();
+                        });
+                        // remove prior page css classes
+                        var $body = $('body');
+                        $body.removeClass($body.attr('data-pagecss'));
+                        // add new css classes
+                        $body.addClass(result.PageCssClasses);
+                        $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
+                        // run all global scripts (YConfigs, etc.)
+                        eval(result.Scripts);
+                        // add all new css files
+                        var cssLength = result.CssFiles.length;
+                        for (var i = 0; i < cssLength; i++) {
+                            $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', result.CssFiles[i]));
+                        }
+                        // add all new script files
+                        var scrLength = result.ScriptFiles.length;
+                        for (var i = 0; i < scrLength; i++) {
+                            $('head').append($('<script />').attr('type', 'text/javascript').attr('src', result.ScriptFiles[i]));
+                        }
+                        // add pane content
+                        var contentLength = result.Content.length;
+                        for (var i = 0; i < contentLength; i++) {
+                            // replace the pane
+                            var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
+                            $pane.append(result.Content[i].HTML);
+                            $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
+                            // find and run all inline scripts within the new pane
+                            //var $scripts = $("script", $pane);
+                            //$scripts.each(function (index) {
+                            //    eval($scripts[index].innerHTML);
+                            //});
+                            // run all registered initializations for the pane
+                            YetaWF_Basics.processAllReady($pane);
+                        }
+                        // end of page scripts
+                        eval(result.EndOfPageScripts);
+                        // Update the browser page title and address bar with the new path
+                        document.title = result.PageTitle;
+                        try {
+                            var stateObj = {};
+                            history.pushState(stateObj, "", result.CanonicalUrl);
+                            e.preventDefault();
+                        } catch (err) { }
+                        Y_Loading(false);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        Y_Loading(false);
+                        Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
+                        debugger;
+                    }
+                });
+                return false;
+            } else {
+                // check if we have anything with that path as a unified pane and activate the panes
+                var $divs = $('.yUnified[data-url="{0}"]'.format(path));
+                if ($divs.length > 0) {
+                    closemenus();
+                    if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
+                        $('.yUnified').hide();
+                        $divs.show();
+                        // send event that a new section became active/visible
+                        $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
+                    } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
+                        //element.scrollIntoView() as an alternative (check compatibility/options)
+                        // calculate an approximate animation time so the shorter the distance, the shorter the animation
+                        var h = $('body').height();
+                        var t = $divs.eq(0).offset().top;
+                        var anim = YVolatile.Basics.UnifiedAnimation * t / h;
+                        $('body,html').animate({
+                            scrollTop: t
+                        }, anim);
+                    } else
+                        throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
+                    // Update the browser address bar with the new path
+                    try {
+                        var stateObj = {};
+                        history.pushState(stateObj, "", path + window.location.search);
+                        e.preventDefault();
+                    } catch (err) { }
+                    return false;
+                }
+            }
+        }
     });
 
     // SUBMITFORMONCHANGE
@@ -980,20 +1113,17 @@ $(document).ready(function () {
     YetaWF_Basics.processAllReady();
 });
 
-$(document).ready(function () {
-    'use strict';
+// BUTTONS
+// BUTTONS
+// BUTTONS
 
-    // BUTTONS
-    // BUTTONS
-    // BUTTONS
-
-    _YetaWF_Basics.initButtons($('body'));
-    if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
-        YetaWF_Forms.partialFormActionsAll.push({
-            callback: _YetaWF_Basics.initButtons
-        });
-    }
+YetaWF_Basics.whenReady.push({
+    callback: _YetaWF_Basics.initButtons
 });
+
+// PAGE
+// PAGE
+// PAGE
 
 YetaWF_Basics.initPage = function () {
     'use strict';

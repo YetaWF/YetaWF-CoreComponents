@@ -2,9 +2,9 @@
 
 var YetaWF_Currency = {};
 
-YetaWF_Currency.init = function ($partialForm) {
+YetaWF_Currency.init = function ($tag) {
     'use strict';
-    $('input.yt_currency.t_edit', $partialForm).each(function (index) {
+    $('input.yt_currency.t_edit', $tag).each(function (index) {
         var sd = 0.0;
         var ed = 99999999.99;
         var $this = $(this);
@@ -22,13 +22,6 @@ YetaWF_Currency.init = function ($partialForm) {
     });
 };
 
-$(document).ready(function () {
-    'use strict';
-    YetaWF_Currency.init($('body'));
-    if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
-        YetaWF_Forms.partialFormActionsAll.push({
-            callback: YetaWF_Currency.init
-        });
-    }
+YetaWF_Basics.whenReady.push({
+    callback: YetaWF_Currency.init
 });
-

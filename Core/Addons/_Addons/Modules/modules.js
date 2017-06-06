@@ -6,7 +6,7 @@
 $(document).ready(function () {
 
     // highlight on module entry/exit (in admin mode)
-    $('.yModule').hover(function () {
+    $('body').on('mouseenter', '.yModule', function (event) {
 
         //console.log("Entering module");
 
@@ -18,7 +18,7 @@ $(document).ready(function () {
         // find the module's edit icon
         var $edit = $('.yModuleMenuEditIcon', $t);
         if ($edit.length == 0) return; /// it just doesn't have a menu
-            
+
         // find the module's menu
         var $menu = $('.yModuleMenu', $t);
         if ($menu.length > 1) throw "too many module menus found";/*DEBUG*/
@@ -39,18 +39,18 @@ $(document).ready(function () {
         // fade in edit icon
         $edit.fadeIn(500);
 
-        YetaWF_Modules_MenuHandler = setInterval(function () { YetaWF_Modules_ClearMenus(false); }, 1500);
-
-    }, function () {
-
+        YetaWF_Core_MenuHandler = setInterval(function () { YetaWF_Modules_ClearMenus(false); }, 1500);
+    });
+    $('body').on('mouseleave', '.yModule', function (event) {
         //console.log("Exiting module");
 
         var $t = $(this);
         $t.removeClass('yModule-current');
     });
-    
+
     // Show/hide menu as we're hovering over the edit icon
-    $('.yModuleMenuEditIcon').hover(function () {
+    $('body').on('mouseenter', '.yModuleMenuEditIcon', function (event) {
+
         //console.log("Entering edit icon");
 
         var $t = $(this);
@@ -59,13 +59,10 @@ $(document).ready(function () {
         if ($menu.length != 1) throw "menu not found";/*DEBUG*/
 
         $menu.show();
-
-    }, function () {
-        //console.log("Exiting edit icon");
     });
 });
 
-var YetaWF_Modules_MenuHandler = 0;
+var YetaWF_Core_MenuHandler = 0;
 
 function YetaWF_Modules_ClearMenus(force) {
     if (!force) {
@@ -75,9 +72,9 @@ function YetaWF_Modules_ClearMenus(force) {
     }
 
     // clear the interval
-    if (YetaWF_Modules_MenuHandler != 0)
-        clearInterval(YetaWF_Modules_MenuHandler);
-    YetaWF_Modules_MenuHandler = 0;
+    if (YetaWF_Core_MenuHandler != 0)
+        clearInterval(YetaWF_Core_MenuHandler);
+    YetaWF_Core_MenuHandler = 0;
 
     var $edit = $('.yModuleMenuEditIcon');
     if ($edit.length == 0) return; //throw "menu not found"; // modules don't necessarily have an edit menu

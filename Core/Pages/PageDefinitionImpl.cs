@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Image;
@@ -14,6 +15,7 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.ResponseFilter;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -50,8 +52,12 @@ namespace YetaWF.Core.Pages {
             public Guid PageGuid { get; set; }
         }
         public class UnifiedInfo {
+            public Guid UnifiedSetGuid { get; set; }
             public UnifiedModeEnum Mode { get; set; }
+            public string PageSkinCollectionName { get; set; }
+            public string PageSkinFileName { get; set; }
             public int Animation { get; set; }
+            public Guid MasterPageGuid { get; set; }
             public List<Guid> PageGuids { get; set; }
         }
 
@@ -66,7 +72,7 @@ namespace YetaWF.Core.Pages {
         public static Func<List<string>> GetDesignedUrls { get; set; }
         public static Func<Guid, List<PageDefinition>> GetPagesFromModule { get; set; }
 
-        public static Func<Guid, UnifiedInfo> GetUnifiedPagesFromPageGuid { get; set; }
+        public static Func<Guid?, string, string, UnifiedInfo> GetUnifiedPageInfo { get; set; }
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
@@ -422,9 +428,9 @@ namespace YetaWF.Core.Pages {
         // RENDERING
 
 #if MVC6
-        public HtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null) {
+        public HtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 #else
-        public HtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null) {
+        public HtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 #endif
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
@@ -478,18 +484,21 @@ namespace YetaWF.Core.Pages {
             if (!empty || !Conditional || Manager.EditMode) {
                 // show pane, but if this is a unified page, only show empty panes if they're part of the main (unified) page
                 if (!empty || (UnifiedMainPage == null || UnifiedMainPage.Url == Manager.CurrentPage.Url)) { // but only for main page
-                    TagBuilder tagDiv = new TagBuilder("div");
-                    if (!string.IsNullOrWhiteSpace(cssClass))
-                        tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
-                    tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));
-                    if (UnifiedMainPage != null) {
-                        tagDiv.Attributes.Add("data-url", YetaWFManager.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
-                        tagDiv.AddCssClass("yUnified");
-                        if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
-                            tagDiv.Attributes.Add("style", "display:none");
+                    if (PaneDiv) {
+                        TagBuilder tagDiv = new TagBuilder("div");
+                        tagDiv.Attributes.Add("data-pane", YetaWFManager.HtmlAttributeEncode(pane));// add pane name
+                        if (!string.IsNullOrWhiteSpace(cssClass))
+                            tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
+                        tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));
+                        if (UnifiedMainPage != null) {
+                            tagDiv.Attributes.Add("data-url", YetaWFManager.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
+                            tagDiv.AddCssClass("yUnified");
+                            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
+                                tagDiv.Attributes.Add("style", "display:none");
+                        }
+                        tagDiv.SetInnerHtml(sb.ToString());
+                        sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
                     }
-                    tagDiv.SetInnerHtml(sb.ToString());
-                    sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
                 }
             }
 
@@ -497,7 +506,7 @@ namespace YetaWF.Core.Pages {
 
             // figure out which modules are not in a defined pane on this page and add these panes dynamically after the Main pane
             // don't consider template page for modules
-            if (pane == Globals.MainPane) {
+            if (PaneDiv && pane == Globals.MainPane) {
                 List<string> leftOver = (from m in ModuleDefinitions select m.Pane).Distinct().ToList();
                 leftOver = (from l in leftOver where !Manager.CurrentPage.Panes.Contains(l) select l).ToList();
                 // now render what's left
@@ -561,6 +570,31 @@ namespace YetaWF.Core.Pages {
             set.DivTag.Attributes.Add("style","display:none");
             htmlHelper.ViewContext.Writer.Write(set.DivTag.ToString(TagRenderMode.StartTag));
             return set;
+        }
+
+        /// <summary>
+        /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
+        /// </summary>
+#if MVC6
+        public void RenderPaneContents(IHtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+#else
+        public void RenderPaneContents(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+#endif
+        {
+            foreach (string pane in dataIn.Panes) {
+
+                string paneHtml = RenderPane(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false).ToString();
+                PageProcessing pageProc = new PageProcessing(Manager);
+                paneHtml = pageProc.PostProcessContentHtml(paneHtml);
+                if (!string.IsNullOrWhiteSpace(paneHtml)) {
+                    if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
+                        paneHtml = WhiteSpaceResponseFilter.Compress(Manager, paneHtml);
+                    model.Content.Add(new Controllers.PageContentController.PaneContent {
+                        Pane = pane,
+                        HTML = paneHtml,
+                    });
+                }
+            }
         }
 
         // AUTHORIZATION

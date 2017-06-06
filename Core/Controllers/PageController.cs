@@ -1,18 +1,12 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Text;
 using System.Text.RegularExpressions;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
-using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Site;
-using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Identity;
@@ -29,10 +23,10 @@ using System.Web.Mvc;
 namespace YetaWF.Core.Controllers {
 
     /// <summary>
-    /// Controller for all page request within YetaWF.
+    /// Controller for all full page requests within YetaWF.
     /// </summary>
     /// <remarks>This controller is a plain MVC controller because we don't want any startup processing to take place (like authorization, etc.)
-    /// because we handle all this here. This controller is used for page and single module display (GET/HEAD requests only)</remarks>
+    /// because we handle all this here. This controller is used for page and single module display (GET/HEAD requests only).</remarks>
     public class PageController : Controller {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -51,17 +45,17 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// The Show action handles all page requests within YetaWF.
         /// </summary>
-        /// <param name="path">The local Url requested.</param>
+        /// <param name="__path">The local Url requested.</param>
         /// <returns></returns>
         [AcceptVerbs("GET", "HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
-        public ActionResult Show(string path) {
+        public ActionResult Show(string __path) {
             // We come here for ANY page request (GET, HEAD only)
 
             if (!YetaWFManager.HaveManager) {
 #if MVC6
                 return new NotFoundObjectResult(path);
 #else
-                throw new HttpException(404, string.Format("Url {0} not found", path));
+                throw new HttpException(404, string.Format("Url {0} not found", __path));
 #endif
             }
             SiteDefinition site = Manager.CurrentSite;
@@ -423,7 +417,7 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
             return NotFound(path);
 #else
-            throw new HttpException(404, string.Format("Url {0} not found", path));
+            throw new HttpException(404, string.Format("Url {0} not found", __path));
 #endif
         }
 
@@ -470,7 +464,7 @@ namespace YetaWF.Core.Controllers {
 #endif
                                     return ProcessingStatus.Complete;
                                 } else
-                                    throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.MobilePageUrl);
+                                    throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
                             }
                         } else {
 #if MVC6
@@ -650,147 +644,4 @@ namespace YetaWF.Core.Controllers {
             return false;
         }
     }
-
-    internal class PageViewResult : ActionResult {
-
-        protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-#if MVC6
-        private IViewRenderService _viewRenderService;
-
-        public PageViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData) {
-            this._viewRenderService = _viewRenderService;
-#else
-        public PageViewResult(ViewDataDictionary viewData, TempDataDictionary tempData) {
-#endif
-            TempData = tempData;
-            ViewData = viewData;
-        }
-#if MVC6
-        public ITempDataDictionary TempData { get; set; }
-#else
-        public TempDataDictionary TempData { get; set; }
-#endif
-        public IView View { get; set; }
-        public ViewDataDictionary ViewData { get; set; }
-
-#if MVC6
-        public override async Task ExecuteResultAsync(ActionContext context) {
-#else
-        public override void ExecuteResult(ControllerContext context) {
-#endif
-            if (context == null)
-                throw new ArgumentNullException("context");
-
-            bool staticPage = false;
-            if (Manager.Deployed)
-                staticPage = Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
-            Manager.RenderStaticPage = staticPage;
-
-            Manager.PageTitle = Manager.CurrentPage.Title;
-
-            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
-            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
-
-            PageDefinition currPage = Manager.CurrentPage;
-            SkinAccess skinAccess = new SkinAccess();
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(currPage, Manager.IsInPopup);
-            string skinCollection = skin.Collection;
-
-            // Unified pages
-            Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
-            if (currPage.UnifiedSetGuid != null && PageDefinition.GetUnifiedPagesFromPageGuid != null) {
-                // Load all unified pages that make up this page
-                PageDefinition.UnifiedInfo info = PageDefinition.GetUnifiedPagesFromPageGuid((Guid)currPage.UnifiedSetGuid);
-                if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None && info.PageGuids != null && info.PageGuids.Count > 0) {
-                    Manager.UnifiedPages = new List<PageDefinition>();
-                    foreach (Guid guid in info.PageGuids) {
-                        PageDefinition page = PageDefinition.Load(guid);
-                        if (page != null)
-                            Manager.UnifiedPages.Add(page);
-                    };
-                    Manager.UnifiedMode = info.Mode;
-                    Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
-                }
-            }
-            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
-
-            string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
-            if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
-                throw new InternalError("No page skin available");
-
-            // set new character dimensions
-            int charWidth, charHeight;
-            skinAccess.GetPageCharacterSizes(out charWidth, out charHeight);
-            Manager.NewCharSize(charWidth, charHeight);
-            Manager.LastUpdated = Manager.CurrentPage.Updated;
-            Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", charWidth);
-            Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", charHeight);
-
-            Manager.AddOnManager.AddStandardAddOns();
-            Manager.AddOnManager.AddSkin(skinCollection);
-
-            Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Basics");
-            Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
-            if (Manager.IsInPopup)
-                Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Popups");
-
-            string pageHtml;
-#if MVC6
-            pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
-#else
-            View = new PageView(virtPath);
-            using (StringWriter writer = new StringWriter()) {
-                ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
-                View.Render(viewContext, writer);
-                pageHtml = writer.ToString();
-            }
-#endif
-            Manager.AddOnManager.AddSkinCustomization(skinCollection);
-            Manager.PopCharSize();
-
-            PageProcessing pageProc = new PageProcessing(Manager);
-            pageHtml = pageProc.PostProcessHtml(pageHtml);
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
-                pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
-
-            if (staticPage) {
-                Manager.StaticPageManager.AddPage(Manager.CurrentPage.Url, Manager.CurrentPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
-                // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
-                // so is only helpful for static pages and can't be used for dynamic pages
-                context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
-            } else if (Manager.HaveUser && Manager.CurrentPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
-                // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any previously
-                // served page to the then anonymous user before he/she logged on.
-                context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
-            }
-#if MVC6
-            byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
-            await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
-#else
-            context.HttpContext.Response.Output.Write(pageHtml);
-#endif
-        }
-    }
-
-#if MVC6
-#else
-    internal class PageView : IView {
-
-        public PageView(string virtPath) {
-            VirtualPath = virtPath;
-        }
-        private string VirtualPath { get; set; }
-
-        public void Render(ViewContext viewContext, TextWriter writer) {
-
-            RazorPage razorPage = (RazorPage)RazorPage.CreateInstanceFromVirtualPath(VirtualPath);
-
-            razorPage.ViewContext = viewContext;
-            razorPage.ViewData = new ViewDataDictionary<object>(viewContext.ViewData);
-            razorPage.InitHelpers();
-
-            razorPage.RenderView(viewContext);
-        }
-    }
-#endif
 }

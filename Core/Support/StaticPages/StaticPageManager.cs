@@ -199,6 +199,12 @@ namespace YetaWF.Core.Support.StaticPages {
             }
             return null;
         }
+        public bool HavePage(string localUrl) {
+            InitSite();
+            string localUrlLower = localUrl.ToLower();
+            PageEntry entry = null;
+            return Site.StaticPages.TryGetValue(localUrlLower, out entry);
+        }
         public void RemovePage(string localUrl) {
             InitSite();
             string localUrlLower = localUrl.ToLower();

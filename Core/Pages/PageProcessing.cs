@@ -74,6 +74,20 @@ namespace YetaWF.Core.Pages {
             return pageHtml;
         }
 
+        /// <summary>
+        /// Post process a rendered pane so it can be returned to the client (used during unified page sets dynamic module processing).
+        /// </summary>
+        /// <param name="paneHtml"></param>
+        /// <returns></returns>
+        public string PostProcessContentHtml(string paneHtml) {
+
+            Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
+            paneHtml = vars.ReplaceVariables(paneHtml);// variable substitution
+
+            // fix up image urls for cdn use
+            return ProcessImages(paneHtml);
+        }
+
         private string ProcessImages(string pageHtml) {
             if (Manager.CurrentSite.UseHttpHandler) {
                 if (Manager.CurrentSite.CanUseCDN && Manager.CurrentSite.CDNFileImage)

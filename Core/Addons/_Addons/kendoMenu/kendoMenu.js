@@ -3,12 +3,15 @@
 /* Init all kendoMenus */
 
 // Module Menu
-$(document).ready(function () {
-    $('.yModuleMenu').kendoMenu({
-        orientation: "vertical"
-    })
-    .css({
-        width: 'auto'
-    });
+YetaWF_Basics.whenReady.push({
+    callback: function ($tag) {
+        $('.yModuleMenu', $tag).kendoMenu({
+            orientation: "vertical"
+        })
+        .css({
+            width: 'auto'
+        });
+    }
 });
+
 

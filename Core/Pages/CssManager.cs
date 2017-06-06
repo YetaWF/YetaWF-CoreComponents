@@ -187,11 +187,11 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        public HtmlBuilder Render() {
+        public HtmlBuilder Render(PageContentController.PageContentData cr = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
+            if (cr == null && !Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
                 List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
                 externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
                 string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.CSS);
@@ -207,13 +207,17 @@ namespace YetaWF.Core.Pages {
 
             foreach (CssEntry entry in externalList) {
                 string url = entry.Url;
-                string sep = url.Contains("?") ? "&amp;" : "?";
                 if (Manager.CurrentSite.CanUseCDN)
                     url = Manager.GetCDNUrl(url);
-                if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || url.ContainsIgnoreCase(Globals.NugetContentsUrl))
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
-                else
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));
+                if (cr == null) {
+                    string sep = url.Contains("?") ? "&amp;" : "?";
+                    if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || url.ContainsIgnoreCase(Globals.NugetContentsUrl))
+                        tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
+                    else
+                        tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));
+                } else {
+                    cr.CssFiles.Add(url);
+                }
             }
             return tag;
         }

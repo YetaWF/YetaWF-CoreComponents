@@ -32,6 +32,7 @@ YetaWF_Forms.partialFormActions1 = [];
 // });
 YetaWF_Forms.initPartialForm = function ($partialForm) {
     // run registered actions (usually javascript initialization, similar to $doc.ready()
+    YetaWF_Basics.processAllReady($partialForm);
     for (var entry in YetaWF_Forms.partialFormActionsAll) {
         YetaWF_Forms.partialFormActionsAll[entry].callback($partialForm);
     }
@@ -367,7 +368,7 @@ _YetaWF_Forms.showErrors = function ($form) {
 $(document).ready(function () {
 
     // cancel the form
-    $('form').on('click', '.' + YConfigs.Forms.CssFormCancel, function (e) {
+    $('body').on('click', 'form .' + YConfigs.Forms.CssFormCancel, function (e) {
 
         if (Y_InPopup()) {
             // we're in a popup, just close it
@@ -392,14 +393,14 @@ $(document).ready(function () {
         }
     });
 
-    $('form').on('click', 'input[type="button"][{0}]'.format(YConfigs.Forms.CssDataApplyButton), function (e) {
+    $('body').on('click', 'form input[type="button"][{0}]'.format(YConfigs.Forms.CssDataApplyButton), function (e) {
         e.preventDefault();
         var $form = YetaWF_Forms.getForm(this);
         YetaWF_Forms.submit($form, true, YGlobals.Link_SubmitIsApply + "=y");
     });
 
     // submit the form
-    $('form.' + YConfigs.Forms.CssFormAjax).submit(function (e) {
+    $('body').on('submit', 'form.' + YConfigs.Forms.CssFormAjax, function (e) {
         var $form = $(this);
         e.preventDefault();
         YetaWF_Forms.submit($form, true);
@@ -433,7 +434,6 @@ $(document).ready(function () {
     //$('input#address').elementValidationSuccess(function (element) {
     //    console.log(['validations just ran for this element and it was valid!', element]);
     //});
-
     $('body').on('elementValidationError', function (element) {
         if (_YetaWF_Forms.dontUpdateWarningIcons) return;
         var $input = $(element.target);
@@ -459,12 +459,22 @@ $(document).ready(function () {
         var $err = $('img.{0}[name="{1}"]'.format(YConfigs.Forms.CssWarningIcon, name), $form);
         $err.remove();
     });
+});
 
-    var $forms = $('form').filter('.yValidateImmediately');
+
+YetaWF_Forms.init = function ($tag) {
+
+    $.validator.unobtrusive.parse($('form', $tag));
+    $('form', $tag).addTriggersToJqueryValidate().triggerElementValidationsOnFormValidation();
+
+    var $forms = $('form', $tag).filter('.yValidateImmediately');
     if ($forms.length > 0) {
         $forms.each(function () {
             $(this).validate();
             $(this).valid(); // force all fields to show valid/not valid
         });
     }
+}
+YetaWF_Basics.whenReady.push({
+    callback: YetaWF_Forms.init
 });

@@ -3,8 +3,8 @@
 
 var YetaWF_Decimal = {};
 
-YetaWF_Decimal.init = function ($partialForm) {
-    $('input.yt_decimal.t_edit', $partialForm).each(function (index) {
+YetaWF_Decimal.init = function ($tag) {
+    $('input.yt_decimal.t_edit', $tag).each(function (index) {
         var sd = 0.0;
         var ed = 99999999.99;
         var $this = $(this);
@@ -22,12 +22,6 @@ YetaWF_Decimal.init = function ($partialForm) {
     });
 };
 
-$(document).ready(function () {
-    YetaWF_Decimal.init($('body'));
-    if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
-        YetaWF_Forms.partialFormActionsAll.push({
-            callback: YetaWF_Decimal.init
-        });
-    }
+YetaWF_Basics.whenReady.push({
+    callback: YetaWF_Decimal.init
 });
-
