@@ -41,9 +41,9 @@ namespace YetaWF.Core.Controllers.Shared {
             };
             sendEmail.PrepareEmailMessage(server, port, ssl, authentication, username, password, null, Manager.UserEmail, subject, sendEmail.GetEmailFile(AreaRegistration.CurrentPackage, "SMTPServer Test Message.txt"), parms);
             sendEmail.Send();
-            string msg = this.__ResStr("emailSent", "A test email has just been sent to {0}", YetaWFManager.JserEncode(Manager.UserEmail));
+            string msg = this.__ResStr("emailSent", "A test email has just been sent to {0}", Manager.UserEmail);
             ContentResult cr = Content(
-                string.Format(Basics.AjaxJavascriptReturn + "Y_Message('{0}');", msg)
+                string.Format(Basics.AjaxJavascriptReturn + "Y_Message('{0}');", YetaWFManager.JserEncode(msg))
             );
             return cr;
         }
