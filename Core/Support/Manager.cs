@@ -1529,6 +1529,12 @@ namespace YetaWF.Core.Support {
                 case PageDefinition.UnifiedModeEnum.ShowDivs:
                     s = CombineCss(s, "yUnifiedShowDivs");
                     break;
+                case PageDefinition.UnifiedModeEnum.DynamicContent:
+                    s = CombineCss(s, "yUnifiedDynamicContent");
+                    break;
+                case PageDefinition.UnifiedModeEnum.SkinDynamicContent:
+                    s = CombineCss(s, "yUnifiedSkinDynamicContent");
+                    break;
             }
             // add a class whether page can be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
@@ -1542,6 +1548,14 @@ namespace YetaWF.Core.Support {
                     s = CombineCss(s, "ypagerole_noAnon");
                 else if (!user)
                     s = CombineCss(s, "ypagerole_noUser");
+            }
+            if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                if (!string.IsNullOrWhiteSpace(CurrentPage.CssClass)) {
+                    // add the extra page css class via javascript to body tag (used for dynamic content)
+                    ScriptBuilder sb = new Support.ScriptBuilder();
+                    sb.Append("$('body').attr('data-pagecss', '{0}');", YetaWFManager.JserEncode(CurrentPage.CssClass));
+                    Manager.ScriptManager.AddLast(sb.ToString());
+                }
             }
             return new HtmlString(CombineCss(s, CurrentPage.CssClass));
         }
