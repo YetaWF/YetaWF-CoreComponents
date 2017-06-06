@@ -90,7 +90,9 @@
 		$.prettyLoader.hide = function(){
 			$(document).unbind('click',$.prettyLoader.positionLoader);
 			$(document).unbind('mousemove',$.prettyLoader.positionLoader);
-			$(window).unbind('scroll');
+		    //CUSTOMIZATON:
+		    //END CUSTOMIZATION
+		    // ORIGINAL: $(window).unbind('scroll');
 
 			$('.prettyLoader').fadeOut(settings.animation_speed,function(){
 				$(this).remove();
