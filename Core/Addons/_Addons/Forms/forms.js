@@ -20,26 +20,11 @@ var _YetaWF_Forms = {};
 // AJAX PARTIALFORM INITIALIZATION
 // AJAX PARTIALFORM INITIALIZATION
 
-YetaWF_Forms.partialFormActionsAll = [];
-YetaWF_Forms.partialFormActions1 = [];
-// Usage (executed on every partial form, not deleted):
-// YetaWF_Forms.partialFormActionsAll.push({
-//   callback: ..., // javascript to execute
-// });
-// Usage (once for partial form then deleted):
-// YetaWF_Forms.partialFormActions1.push({
-//   callback: ..., // javascript to execute
-// });
 YetaWF_Forms.initPartialForm = function ($partialForm) {
     // run registered actions (usually javascript initialization, similar to $doc.ready()
     YetaWF_Basics.processAllReady($partialForm);
-    for (var entry in YetaWF_Forms.partialFormActionsAll) {
-        YetaWF_Forms.partialFormActionsAll[entry].callback($partialForm);
-    }
-    for (var entry in YetaWF_Forms.partialFormActions1) {
-        YetaWF_Forms.partialFormActions1[entry].callback($partialForm);
-    }
-    YetaWF_Forms.partialFormActions1 = [];
+    YetaWF_Basics.processAllReadyPartialFormAll($partialForm);
+    YetaWF_Basics.processAllReadyPartialForm1($partialForm);
 
     // get all fields with errors (set server-side)
     var $errs = $('.field-validation-error', $partialForm);

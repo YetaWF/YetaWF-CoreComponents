@@ -520,28 +520,42 @@ YetaWF_Basics.processAllReady = function ($tag) {
     }
 }
 
-//$$$// Usage:
-//// YetaWF_Basics.whenReadyPartialForm.push({
-////   callback: function($tag) {}    // function to be called
-//// });
-//// This calls the function when a partial form is initialized (after Apply/postback).
-//// callback functions are registered by whomever needs this type of processing. For example, a grid can
-//// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
-//YetaWF_Basics.whenReadyPartialForm = [];
+YetaWF_Basics.whenReadyPartialFormAll = [];
 
-//if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
-//    YetaWF_Forms.partialFormActionsAll.push({
-//        callback: _YetaWF_Basics.initButtons
-//    });
-//}
+// Usage:
+// YetaWF_Basics.whenReadyPartialFormAll.push({
+//   callback: function($tag) {}    // function to be called
+// });
+// Registers a callback which is called after a partial form (post) is rendered. The callback can initialize the replaced partial form section.
+// Callback functions are registered by whomever needs this type of processing. For example, a grid can
+// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
+// The callback is called for all partial forms.
+// $tag describes the section that is new and needs to be initialized.
 
-//YetaWF_Basics.processAllReadyPartialForm = function ($tag) {
-//    for (var index in YetaWF_Basics.whenReadyPartialForm) {
-//        var entry = YetaWF_Basics.whenReadyPartialForm[index];
-//        if ($tag === undefined) $tag = $('body');
-//        entry.callback($tag);
-//    }
-//}
+YetaWF_Basics.processAllReadyPartialFormAll = function ($tag) {
+    for (var index in YetaWF_Basics.whenReadyPartialFormAll) {
+        var entry = YetaWF_Basics.whenReadyPartialFormAll[index];
+        entry.callback($tag);
+    }
+}
+
+YetaWF_Basics.whenReadyPartialForm1 = [];
+
+// Usage:
+// YetaWF_Basics.whenReadyPartialForm1.push({
+//   callback: function($tag) {}    // function to be called
+// });
+// Registers a callback which is called after a partial form (post) is rendered. The callback can initialize the replaced partial form section.
+// The callback is called for the first partial form rendered. Then the callback is removed.
+// $tag describes the section that is new and needs to be initialized.
+
+YetaWF_Basics.processAllReadyPartialForm1 = function ($tag) {
+    for (var index in YetaWF_Basics.whenReadyPartialForm1) {
+        var entry = YetaWF_Basics.whenReadyPartialForm1[index];
+        entry.callback($tag);
+    }
+    YetaWF_Basics.whenReadyPartialForm1 = [];
+}
 
 // BEAUTIFY BUTTONS
 // BEAUTIFY BUTTONS
@@ -1165,11 +1179,9 @@ YetaWF_Basics.initPage = function () {
         if (!scrolled && location.hash.length <= 1) {
             if (YVolatile.Basics.UnifiedMode == 0)
                 Y_SetFocus($('body'));
-            if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {
-                YetaWF_Forms.partialFormActionsAll.push({
-                    callback: Y_SetFocus
-                });
-            }
+            YetaWF_Basics.whenReadyPartialFormAll.push({
+                callback: Y_SetFocus
+            });
         }
     });
 };

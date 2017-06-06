@@ -215,7 +215,6 @@ namespace YetaWF.Core.Pages {
                 if (IsPost) {
                     Html.ViewContext.Writer.Write("}");
                     Html.ViewContext.Writer.Write("});");
-                    Html.ViewContext.Writer.Write("}");
                 } else {
                     Html.ViewContext.Writer.Write("});");
                 }
@@ -237,12 +236,11 @@ namespace YetaWF.Core.Pages {
 #endif
             htmlHelper = GetHtml();
             if (Manager.IsAjaxRequest) {
-                htmlHelper.ViewContext.Writer.Write("if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) {");
-                htmlHelper.ViewContext.Writer.Write("YetaWF_Forms.partialFormActions1.push({");
+                htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyPartialForm1.push({");
                 htmlHelper.ViewContext.Writer.Write("callback: function () {");
                 return new JSDocumentReady(htmlHelper);
             } else {
-                htmlHelper.ViewContext.Writer.Write("$(document).ready(function(){\n");
+                htmlHelper.ViewContext.Writer.Write("$(document).ready(function(){\n");//$$$should this be push?
                 return new JSDocumentReady(htmlHelper);
             }
         }
