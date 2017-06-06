@@ -581,7 +581,7 @@ namespace YetaWF.Core.Pages {
         public void RenderPaneContents(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #endif
         {
-            foreach (string pane in dataIn.Panes) {
+            foreach (string pane in dataIn.__Panes) {
 
                 string paneHtml = RenderPane(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false).ToString();
                 PageProcessing pageProc = new PageProcessing(Manager);

@@ -228,7 +228,7 @@ namespace YetaWF.Core.Modules {
 #else
         public static HtmlString RenderUniqueModuleAddOns(this HtmlHelper htmlHelper) {
 #endif
-            Manager.Verify_NotAjaxRequest();
+            Manager.Verify_NotPostRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
             HtmlBuilder hb = new HtmlBuilder();
             Manager.RenderingUniqueModuleAddons = true;
@@ -245,7 +245,7 @@ namespace YetaWF.Core.Modules {
 #else
         public static HtmlString RenderReferencedModule_Ajax(this HtmlHelper htmlHelper) {
 #endif
-            Manager.Verify_AjaxRequest();
+            Manager.Verify_PostRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
             HtmlBuilder hb = new HtmlBuilder();
             Manager.RenderingUniqueModuleAddonsAjax = true;

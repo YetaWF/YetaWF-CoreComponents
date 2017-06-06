@@ -102,17 +102,23 @@ namespace YetaWF.Core.Controllers {
             public string HTML { get; set; }
         }
 
+        /// <summary>
+        /// Data received from client side for the requested page.
+        /// </summary>
+        /// <remarks>Because we use an Ajax GET request, these are encoded as query string.
+        /// To avoid collisions all properties are prefixed with "__".</remarks>
         public class DataIn {
-            public string Path { get; set; }
-            public string UnifiedSetGuid { get; set; }
-            public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
-            public int UniqueIdPrefixCounter { get; set; }
-            public string UnifiedSkinCollection { get; set; }
-            public string UnifiedSkinFileName { get; set; }
-            public string QueryString { get; set; }
-            public List<string> Panes { get; set; }
-            public List<string> KnownCss { get; set; }
-            public List<string> KnownScripts { get; set; }
+            public string __Path { get; set; }
+            public string __QueryString { get; set; }
+            public string __UnifiedSetGuid { get; set; }
+            public PageDefinition.UnifiedModeEnum __UnifiedMode { get; set; }
+            public int __UniqueIdPrefixCounter { get; set; }
+            public bool __IsMobile { get; set; }
+            public string __UnifiedSkinCollection { get; set; }
+            public string __UnifiedSkinFileName { get; set; }
+            public List<string> __Panes { get; set; }
+            public List<string> __KnownCss { get; set; }
+            public List<string> __KnownScripts { get; set; }
         }
 #if MVC6
         /// <summary>
@@ -132,30 +138,31 @@ namespace YetaWF.Core.Controllers {
         /// <returns></returns>
         [HttpGet] // MUST be a GET request because we are invoking additional controller actions that also require GET
         //$$$ don't come here if there is a new !yLang= querystring arg (means we're switching languages)
-        //$$$$ don't come here if http<>https changed - or we don't care about page security?
-        //$$$ don't come here in edit mode
-        //$$$ provide info whether this is desktop/mobile
-        //$$$ don't come here if we're going into a popup
         public ActionResult Show(DataIn dataIn) {
 
+            dataIn.__Path = YetaWFManager.UrlDecodePath(dataIn.__Path);
             if (!YetaWFManager.HaveManager) {
 #if MVC6
                 return new NotFoundObjectResult(dataIn.Path);
 #else
-                throw new HttpException(404, string.Format("Url {0} not found", dataIn.Path));
+                throw new HttpException(404, string.Format("Url {0} not found", dataIn.__Path));
 #endif
             }
+            if (Manager.EditMode) throw new InternalError("Unified page sets can't be used in Site Edit Mode");
+            if (Manager.IsInPopup) throw new InternalError("Unified page sets can't be used in popup windows");
+
+            Uri uri = new Uri(Manager.CurrentRequestUrl);
 
             SiteDefinition site = Manager.CurrentSite;
 
-            //if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
-            //        Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
-            //        string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
-            //    Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
-            //    PageContentResult cr = new PageContentResult();
-            //    cr.Result.Redirect = site.LockedUrl;
-            //    return cr;
-            //}
+            if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
+                    Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
+                    string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
+                Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
+                PageContentResult cr = new PageContentResult();
+                cr.Result.Redirect = site.LockedUrl;
+                return cr;
+            }
 
             // Check if site language requested using !yLang= arg
 #if MVC6
@@ -163,50 +170,46 @@ namespace YetaWF.Core.Controllers {
 #else
             string lang = Manager.CurrentRequest[Globals.Link_Language];
 #endif
-            // set the unique id prefix so all generated ids start where the main page left off
-            Manager.UniqueIdPrefixCounter = dataIn.UniqueIdPrefixCounter;
-
             if (!string.IsNullOrWhiteSpace(lang))
                 Manager.SetUserLanguage(lang);
+
+            // set the unique id prefix so all generated ids start where the main page left off
+            Manager.UniqueIdPrefixCounter = dataIn.__UniqueIdPrefixCounter;
 
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)
             // rewrite it to make it a proper querystring
             {
-                string url = dataIn.Path;
+                string url = dataIn.__Path;
                 string[] segments = url.Split(new char[] { '/' });
                 string newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    PageDefinition.GetUrlFromUrlWithSegments(url, segments, 3, dataIn.QueryString, out newUrl, out newQs);
-                    if (newUrl != url) {
-                        dataIn.Path = newUrl;
-                        dataIn.QueryString = newQs;
-                    }
+                    // direct module references don't participate in unified page sets
+                    PageContentResult cr = new PageContentResult();
+                    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
+                    return cr;
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    PageDefinition.GetUrlFromUrlWithSegments(url, segments, 3, dataIn.QueryString, out newUrl, out newQs);
-                    if (newUrl != url) {
-                        dataIn.Path = newUrl;
-                        dataIn.QueryString = newQs;
-                    }
+                    // direct page references don't participate in unified page sets
+                    PageContentResult cr = new PageContentResult();
+                    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
+                    return cr;
                 } else {
-                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, dataIn.QueryString, out newUrl, out newQs);
+                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, dataIn.__QueryString, out newUrl, out newQs);
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (newUrl != url) {
-                            dataIn.Path = newUrl;
-                            dataIn.QueryString = newQs;
+                            //$$$$$$$$$$$$$$$$$$$$$$$$$$ DOES NOT WORK YET
+                            PageContentResult cr = new PageContentResult();
+                            cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
+                            return cr;
                         }
                     } else {
-                        // we have a direct url, make sure it's exactly 3 segments otherwise rewrite the remaining args as non-human readable qs args
-                        // don't rewrite css/scss/less file path - we handle that in a http handler
-                        PageDefinition.GetUrlFromUrlWithSegments(url, segments, 4, dataIn.QueryString, out newUrl, out newQs);
-                        if (newUrl != url) {
-                            dataIn.Path = newUrl;
-                            dataIn.QueryString = newQs;
-                        }
+                        // direct urls don't participate in unified page sets
+                        PageContentResult cr = new PageContentResult();
+                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
+                        return cr;
                     }
                 }
             }
-            Manager.OverrideQueryString(dataIn.QueryString);// set new query string in case it was rewritten
 
             // set up all info, like who is logged on, popup, origin list, etc.
             YetaWFController.SetupEnvironmentInfo();
@@ -229,9 +232,9 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog("Page Content");
 
             // Check if this is a static page
-            if (CanProcessAsStaticPage(dataIn.Path)) { // if this is a static page, render as complete static page
+            if (CanProcessAsStaticPage(dataIn.__Path)) { // if this is a static page, render as complete static page
                 PageContentResult cr = new PageContentResult();
-                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                 return cr;
             }
 
@@ -250,7 +253,7 @@ namespace YetaWF.Core.Controllers {
                     default:
                     case ProcessingStatus.No:
                         // if we got here, we shouldn't be here - probably requesting a page outside of unified page set
-                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                         return cr;
                 }
             }
@@ -271,12 +274,12 @@ namespace YetaWF.Core.Controllers {
         private ProcessingStatus CanProcessAsDesignedPage(DataIn dataIn, PageContentResult cr) {
 
             // request for a designed page
-            PageDefinition page = PageDefinition.LoadFromUrl(dataIn.Path);
+            PageDefinition page = PageDefinition.LoadFromUrl(dataIn.__Path);
             if (page != null) {
-                if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                if (dataIn.__UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                     if (page.UnifiedSetGuid != null) {
                         // this page is part of another unified page set
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        string redirUrl = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                         cr.Result.Redirect = redirUrl;
                         return ProcessingStatus.Complete;
                     }
@@ -284,63 +287,55 @@ namespace YetaWF.Core.Controllers {
                     // some pages (created with earlier versions of YetaWF) have a null skin name, which defaults to SkinAccess.FallbackPageFileName
                     if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
                         page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                    if (page.SelectedSkin.Collection != dataIn.UnifiedSkinCollection || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
+                    if (page.SelectedSkin.Collection != dataIn.__UnifiedSkinCollection || page.SelectedSkin.FileName != dataIn.__UnifiedSkinFileName) {
                         // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        string redirUrl = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                         cr.Result.Redirect = redirUrl;
                         return ProcessingStatus.Complete;
                     }
                 } else {
-                    if (page.UnifiedSetGuid != new Guid(dataIn.UnifiedSetGuid)) {
+                    if (page.UnifiedSetGuid != new Guid(dataIn.__UnifiedSetGuid)) {
                         // this page isn't part of this unified set (not listed)
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        string redirUrl = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                         cr.Result.Redirect = redirUrl;
                         return ProcessingStatus.Complete;
                     }
                 }
-                if (!Manager.EditMode) { // only redirect if we're not editing
-                    if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
-                        if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                            PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
-                            if (redirectPage != null) {
-                                if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
-                                    string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
-                                    Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                    cr.Result.Redirect = redirUrl;
-                                    return ProcessingStatus.Complete;
-                                } else
-                                    throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
-                            }
-                        } else {
-                            // redirect elsewhere
-                            Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                            cr.Result.Redirect = page.RedirectToPageUrl;
-                            return ProcessingStatus.Complete;
+                if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
+                    if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
+                        PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                        if (redirectPage != null) {
+                            if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
+                                string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.__QueryString));
+                                Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
+                                cr.Result.Redirect = redirUrl;
+                                return ProcessingStatus.Complete;
+                            } else
+                                throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
                         }
+                    } else {
+                        // redirect elsewhere
+                        Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
+                        cr.Result.Redirect = page.RedirectToPageUrl;
+                        return ProcessingStatus.Complete;
                     }
                 }
-                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
+                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.__Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
                     // if the requested page is for desktop but we're on a mobile device, find the correct page to display
-                    if (!Manager.EditMode) { // only redirect if we're not editing
-                        if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                            PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
-                            if (mobilePage != null) {
-                                if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
-                                    string redirUrl = page.MobilePageUrl;
-                                    Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
-                                    if (redirUrl.StartsWith("/")) {
-                                        redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(redirUrl, dataIn.QueryString));
-                                        cr.Result.Redirect = redirUrl;//$$LOCAL
-                                    } else {
-                                        cr.Result.Redirect = redirUrl;
-                                    }
-                                    return ProcessingStatus.Complete;
-                                }
-#if DEBUG
-                                else
-                                    throw new InternalError("Page {0} redirects to mobile page {1}, which redirects to mobile page {2}", page.Url, page.MobilePageUrl, mobilePage.MobilePageUrl);
-#endif
+                    if (dataIn.__IsMobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
+                        PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                        if (mobilePage != null) {
+                            if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
+                                string redirUrl = page.MobilePageUrl;
+                                Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
+                                redirUrl = QueryHelper.ToUrl(redirUrl, dataIn.__QueryString);
+                                cr.Result.Redirect = redirUrl;
+                                return ProcessingStatus.Complete;
                             }
+#if DEBUG
+                            else
+                                throw new InternalError("Page {0} redirects to mobile page {1}, which redirects to mobile page {2}", page.Url, page.MobilePageUrl, mobilePage.MobilePageUrl);
+#endif
                         }
                     }
                     Manager.CurrentPage = page;// Found It!!
@@ -350,15 +345,11 @@ namespace YetaWF.Core.Controllers {
                     // Send to login page with redirect (IF NOT LOGGED IN)
                     if (!Manager.HaveUser) {
                         Manager.OriginList.Clear();
-                        Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString) });
+                        Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString) });
                         Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
                         string retUrl = Manager.ReturnToUrl;
                         Logging.AddLog("Redirect - {0}", retUrl);
-                        if (retUrl.StartsWith("/")) {
-                            cr.Result.Redirect = retUrl;//$$LOCAL
-                        } else {
-                            cr.Result.Redirect = retUrl;
-                        }
+                        cr.Result.Redirect = retUrl;
                         return ProcessingStatus.Complete;
                     } else {
                         cr.Result.Status = Logging.AddErrorLog("403 Not Authorized");

@@ -99,14 +99,6 @@ namespace YetaWF.Core.Pages {
                 return Manager.CurrentPage;
             }
         }
-
-#if MVC6
-        public bool IsAjax {
-            get { return YetaWFManager.Manager.IsAjaxRequest; }
-        }
-#else
-#endif
-
 #if MVC6
 #else
         public void RenderView(ViewContext viewContext) {
@@ -206,7 +198,7 @@ namespace YetaWF.Core.Pages {
             public JSDocumentReady(HtmlHelper<object> Html) {
 #endif
                 this.Html = Html;
-                IsPost = YetaWFManager.Manager.IsAjaxRequest;
+                IsPost = YetaWFManager.Manager.IsPostRequest;
                 DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
@@ -235,7 +227,7 @@ namespace YetaWF.Core.Pages {
             HtmlHelper<object> htmlHelper;
 #endif
             htmlHelper = GetHtml();
-            if (Manager.IsAjaxRequest) {
+            if (Manager.IsPostRequest) {
                 htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyPartialForm1.push({");
                 htmlHelper.ViewContext.Writer.Write("callback: function () {");
                 return new JSDocumentReady(htmlHelper);

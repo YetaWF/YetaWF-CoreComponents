@@ -335,7 +335,7 @@ namespace YetaWF.Core.Controllers {
                 level = permAttr.Level;
             ModuleDefinition mod = GetModule();
             if (!mod.IsAuthorized(level)) {
-                if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
+                if (Manager.IsPostRequest) {
 #if MVC6
                     filterContext.Result = new UnauthorizedResult();
 #else
@@ -350,7 +350,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // action is about to start - if this is a postback or ajax request, we'll clean up parameters
-            if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
+            if (Manager.IsPostRequest) {
 #if MVC6
                 IDictionary<string,object> parms = filterContext.ActionArguments;
 #else
@@ -811,7 +811,7 @@ namespace YetaWF.Core.Controllers {
 #else
             public override void ExecuteResult(ControllerContext context) {
 #endif
-                Manager.Verify_AjaxRequest();
+                Manager.Verify_PostRequest();
 
                 if (context == null)
                     throw new ArgumentNullException("context");
@@ -992,7 +992,7 @@ namespace YetaWF.Core.Controllers {
         /// <returns></returns>
         protected ActionResult Reload(object model = null, string dummy = null, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page)
         {
-            if (Manager.IsAjaxRequest) {
+            if (Manager.IsPostRequest) {
                 switch (Reload) {
                     default:
                     case ReloadEnum.Page:
@@ -1064,7 +1064,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="message">The message text to be shown on an error page (GET requests only) along with the 403 exception.</param>
         /// <returns>An action result.</returns>
         protected ActionResult NotAuthorized(string message) {
-            if (Manager.IsAjaxRequest || Manager.IsPostRequest) {
+            if (Manager.IsPostRequest) {
 #if MVC6
                 return new UnauthorizedResult();
 #else
@@ -1373,8 +1373,8 @@ namespace YetaWF.Core.Controllers {
 
             url = AddUrlPayload(url, SetCurrentEditMode);
 
-            if (Manager.IsAjaxRequest) {
-                // for ajax requests we return javascript to redirect
+            if (Manager.IsPostRequest) {
+                // for post requests we return javascript to redirect
                 ScriptBuilder sb = new ScriptBuilder();
                 sb.Append(Basics.AjaxJavascriptReturn);
 
@@ -1467,7 +1467,7 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <returns>This is used with client-side code when a JSON object is expected.</returns>
         protected ActionResult ReturnSuccess() {
-            Manager.Verify_AjaxRequest();
+            Manager.Verify_PostRequest();
 
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(Basics.AjaxJavascriptReturn);

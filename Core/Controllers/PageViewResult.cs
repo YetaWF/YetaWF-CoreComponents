@@ -54,7 +54,7 @@ namespace YetaWF.Core.Controllers {
 
             // Unified pages
             Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
-            if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfo != null) {
+            if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfo != null && !requestedPage.Temporary) {
                 // Load all unified pages that this page is part of
                 PageDefinition.UnifiedInfo info = PageDefinition.GetUnifiedPageInfo(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
                 if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None) {

@@ -23,7 +23,7 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
         private IViewRenderService _viewRenderService;
 
-        public PageViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData) {
+        public PageViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData, PageContentController.DataIn dataIn) {
             this._viewRenderService = _viewRenderService;
 #else
         public PageContentViewResult(ViewDataDictionary viewData, TempDataDictionary tempData, PageContentController.DataIn dataIn) {
@@ -80,12 +80,15 @@ namespace YetaWF.Core.Controllers {
             Manager.PopCharSize();
 
             Manager.CssManager.Render(cr);
-            cr.CssFiles = cr.CssFiles.Except(DataIn.KnownCss).ToList(); // eliminate css we already have
+            cr.CssFiles = cr.CssFiles.Except(DataIn.__KnownCss).ToList(); // eliminate css we already have
 
             Manager.ScriptManager.Render(cr);
             Manager.ScriptManager.RenderEndofPageScripts(cr);
-            cr.ScriptFiles = cr.ScriptFiles.Except(DataIn.KnownScripts).ToList(); // eliminate scripts we already have
+            cr.ScriptFiles = cr.ScriptFiles.Except(DataIn.__KnownScripts).ToList(); // eliminate scripts we already have
 
+            //// https://mjau-mjau.com/blog/ajax-universal-analytics/
+            //// https://stackoverflow.com/questions/24199037/how-do-i-get-google-analytics-to-track-pages-called-by-ajax
+            //// ga('send', 'pageview')
             ////$$$ if (Manager.Deployed) {
             ////    if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
             ////        endstuff += Manager.CurrentPage.Analytics;

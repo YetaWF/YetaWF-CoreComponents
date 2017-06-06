@@ -56,7 +56,7 @@ namespace YetaWF.Core.Pages {
                 LastError = DateTime.Now;
             }
             var response = context.Response;
-            if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest)) {
+            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest) {
                 if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
                     return false;// not handled
                 } else { // this was a direct action GET so we need to show an error page

@@ -52,7 +52,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="args"></param>
         /// <param name="name"></param>
         public void AddAddOn(string domainName, string productName, string name, params object[] args) {
-            if (Manager.IsAjaxRequest) return;
+            if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnVersion(domainName, productName, name);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
@@ -67,7 +67,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="productName"></param>
         /// <param name="args"></param>
         public void AddAddOnGlobal(string domainName, string productName, params object[] args) {
-            if (Manager.IsAjaxRequest) return;
+            if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnGlobalVersion(domainName, productName);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
@@ -98,7 +98,7 @@ namespace YetaWF.Core.Addons {
         /// which are all the same template. However, if we find an installed addon template that ends in the exact name (including number) we use that first.
         /// </remarks>
         public void AddTemplate(string domainName, string productName, string templateName) {
-            if (Manager.IsAjaxRequest) return;
+            if (Manager.IsPostRequest) return;
             string templateNameBasic = templateName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
             VersionManager.AddOnProduct version;
             if (templateName != templateNameBasic) {
@@ -133,7 +133,7 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="uiHintTemplate"></param>
         public void AddTemplateFromUIHint(string uiHintTemplate) {
-            if (Manager.IsAjaxRequest) return;
+            if (Manager.IsPostRequest) return;
             if (string.IsNullOrWhiteSpace(uiHintTemplate)) return;
 
             Manager.AddOnManager.CheckInvokedTemplate(uiHintTemplate);
@@ -155,7 +155,7 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="module"></param>
         public void AddModule(ModuleDefinition module) {
-            if (Manager.IsAjaxRequest) return;
+            if (Manager.IsPostRequest) return;
             Package modPackage = Package.GetCurrentPackage(module);
             AddPackage(modPackage, new List<Package>());
         }
@@ -185,7 +185,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="skinCollection"></param>
         /// <param name="args"></param>
         public void AddSkin(string skinCollection, params object[] args) {
-            Manager.Verify_NotAjaxRequest();
+            Manager.Verify_NotPostRequest();
             VersionManager.AddOnProduct version = VersionManager.FindSkinVersion(skinCollection);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
@@ -199,7 +199,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="skinCollection"></param>
         /// <param name="args"></param>
         public void AddSkinCustomization(string skinCollection, params object[] args) {
-            Manager.Verify_NotAjaxRequest();
+            Manager.Verify_NotPostRequest();
             string domainName, productName, skinName;
             VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
             string url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);

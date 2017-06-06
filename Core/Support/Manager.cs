@@ -891,13 +891,13 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public bool IsInPopup { get; set; }
 
-        public void Verify_NotAjaxRequest() {
-            if (IsAjaxRequest)
-                throw new InternalError("This is not supported for Ajax requests");
+        public void Verify_NotPostRequest() {
+            if (IsPostRequest)
+                throw new InternalError("This is not supported for POST requests");
         }
-        public void Verify_AjaxRequest() {
-            if (!IsAjaxRequest)
-                throw new InternalError("This is only supported for Ajax requests");
+        public void Verify_PostRequest() {
+            if (!IsPostRequest)
+                throw new InternalError("This is only supported for POST requests");
         }
 
         public MetatagsManager MetatagsManager {
@@ -1013,14 +1013,6 @@ namespace YetaWF.Core.Support {
             }
         }
         private QueryHelper _requestQueryString = null;
-
-        /// <summary>
-        /// Overrides the current query string (used for dynamic content with unified page sets).
-        /// </summary>
-        /// <param name="queryString"></param>
-        internal void OverrideQueryString(string queryString) {
-            _requestQueryString = QueryHelper.FromQueryString(queryString);
-        }
 
         public FormHelper RequestForm {
             get {
@@ -1178,19 +1170,6 @@ namespace YetaWF.Core.Support {
             if (!string.IsNullOrWhiteSpace(url))
                 CurrentResponse.Redirect(url);
 #endif
-        }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public bool IsAjaxRequest { //$$$REMOVE
-            get {
-                HttpRequest request = CurrentRequest;
-#if MVC6
-                return (request.Method == "POST");
-#else
-                return (request.RequestType == "POST");
-#endif
-                //HttpRequest request = CurrentRequest;
-                //return ((request.Headers != null) && (request.Headers["X-Requested-With"] == "XMLHttpRequest") || (request.Headers["X-Requested-With"] == "XMLHttpRequest"));
-            }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public bool IsPostRequest {

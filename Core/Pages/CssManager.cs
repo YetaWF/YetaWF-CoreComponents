@@ -36,7 +36,7 @@ namespace YetaWF.Core.Pages {
         private readonly List<CssEntry> _CssFiles = new List<CssEntry>(); // css files to include (already minified, etc.) using <link...> tags
 
         public void AddAddOn(VersionManager.AddOnProduct version, params object[] args) {
-            if (Manager.IsAjaxRequest) return;// we never add css files for Ajax requests
+            if (Manager.IsPostRequest) return;// we never add css files for Post requests
             AddFromFileList(version, args);
         }
 

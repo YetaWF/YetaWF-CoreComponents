@@ -33,7 +33,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 Logging.AddErrorLog(msg);
             }
-            if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest))
+            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest)
                 throw context.Exception;
 
             // for post/ajax requests, respond in a way we can display the error

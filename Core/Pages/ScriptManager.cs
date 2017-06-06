@@ -141,7 +141,7 @@ namespace YetaWF.Core.Pages {
             Add(url, true, true, false, false, false);
         }
         public void AddKendoUICoreJsFile(string file) {
-            if (Manager.IsAjaxRequest) return;// can't add this while processing an ajax request
+            if (Manager.IsPostRequest) return;// can't add this while processing a post request
             if (VersionManager.KendoAddonType == VersionManager.KendoAddonTypeEnum.Pro) return;// everything is already included
             AddSpecificJsFile(VersionManager.KendoAddon, file);
         }
@@ -181,12 +181,11 @@ namespace YetaWF.Core.Pages {
                         // there are some keywords
                         //page = true;
                         //popup = true;
-                        //ajax = nominify = false;
+                        //nominify = false;
                         for (int i = 1 ; i < count ; ++i) {
                             var part = parts[i].Trim().ToLower();
                             //if (part == "page") page = true;
                             //else if (part == "popup") popup = true;
-                            //else if (part == "ajax") ajax = true;
                             //else
                             if (part == "nominify") nominify = true;
                             else if (part == "bundle") bundle = true;
@@ -201,10 +200,6 @@ namespace YetaWF.Core.Pages {
                     if (editonly && !Manager.EditMode)
                         continue;
                     // check if we want to send this file
-                    //if (!ajax && Manager.IsAjaxRequest) // We don't want this file in ajax responses
-                    //    continue;
-                    //if (!page && !Manager.IsAjaxRequest) // We don't want this file in a main page request
-                    //    continue;
                     string filePathURL;
                     if (file.IsAbsoluteUrl()) {
                         filePathURL = file;
@@ -424,7 +419,7 @@ namespace YetaWF.Core.Pages {
         public HtmlBuilder Render(PageContentController.PageContentData cr = null) {
 
             if (cr == null)
-                Manager.Verify_NotAjaxRequest();
+                Manager.Verify_NotPostRequest();
 
             HtmlBuilder tag = new HtmlBuilder();
 
@@ -453,7 +448,7 @@ namespace YetaWF.Core.Pages {
 
         public HtmlBuilder RenderAjax() {
 
-            Manager.Verify_AjaxRequest();
+            Manager.Verify_PostRequest();
 
             HtmlBuilder tag = new HtmlBuilder();
 

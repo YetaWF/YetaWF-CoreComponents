@@ -182,7 +182,7 @@ namespace YetaWF.Core.Views {
 #endif
         }
         protected JSDocumentReady DocumentReady() {
-            if (!Manager.IsAjaxRequest) {
+            if (!Manager.IsPostRequest) {
 #if MVC6
                 IHtmlHelper<TModel> htmlHelper = GetHtml();
 #else
@@ -294,7 +294,7 @@ namespace YetaWF.Core.Views {
             TagBuilder tag = new TagBuilder("div");
             tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Forms.CssFormPartial));
             string divId = null;
-            if (Manager.IsAjaxRequest) {
+            if (Manager.IsPostRequest) {
                 divId = Manager.UniqueId();
                 tag.Attributes.Add("id", divId);
             }
@@ -317,7 +317,7 @@ namespace YetaWF.Core.Views {
         }
 
         private static string ProcessImages(string viewHtml) {
-            if (!Manager.IsAjaxRequest) return viewHtml; // we'll handle it in RazorPage::PostProcessHtml
+            if (!Manager.IsPostRequest) return viewHtml; // we'll handle it in RazorPage::PostProcessHtml
             if (Manager.CurrentSite.UseHttpHandler) {
                 if (Manager.CurrentSite.CanUseCDN && Manager.CurrentSite.CDNFileImage)
                     return ImageSupport.ProcessImagesAsCDN(viewHtml);

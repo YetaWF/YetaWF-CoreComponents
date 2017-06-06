@@ -76,7 +76,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 Logging.AddErrorLog(msg);
             }
-            if (!YetaWFManager.HaveManager || (!Manager.IsAjaxRequest && !Manager.IsPostRequest)) {
+            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest) {
                 if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
                     throw filterContext.Exception;
                 } else { // this was a direct action GET so we need to show an error page

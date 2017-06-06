@@ -3,7 +3,7 @@
 @using YetaWF.Core.Views.Shared
 <div id="@DivId" class="yt_recaptchav2"></div>
 @Html.RenderHidden("VerifyPresence", Model.VerifyPresence)
-@if (IsAjax) { // We only need to render the recaptcha for postbacks. The initial setup is done in recaptchav2.js in response to the onload function called by google api
+@if (Manager.IsPostRequest) { // We only need to render the recaptcha for postbacks. The initial setup is done in recaptchav2.js in response to the onload function called by google api
     <script>
         @using (DocumentReady()) {
             @: if (typeof grecaptcha != "undefined") {

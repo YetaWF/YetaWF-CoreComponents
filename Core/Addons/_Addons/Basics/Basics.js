@@ -639,6 +639,167 @@ function Y_KillTooltips() {
     $('.ui-tooltip').remove();
 }
 
+// CONTENT
+// CONTENT
+// CONTENT
+
+_YetaWF_Basics.setContent = function (uri, setState) {
+    'use strict';
+
+    // Close open bootstrap nav menus (if any) by clicking on the page
+    function closemenus() {
+        $('body').trigger('click');
+        // Close any open kendo menus (if any)
+        var $menus = $(".k-menu");
+        $menus.each(function () {
+            var menu = $(this).data("kendoMenu");
+            menu.close("li.k-item");
+        });
+    }
+
+    if (YVolatile.Basics.EditModeActive) return true; // edit mode
+    if (YVolatile.Basics.UnifiedMode == 0) return true; // not unified mode
+
+    // check if we're clicking a link which is part of this unified page
+    var path = uri.path();
+    if (YVolatile.Basics.UnifiedMode === 3 /*UnifiedModeEnum.DynamicContent*/ || YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
+        // find all panes that support dynamic content and replace with new modules
+        closemenus();
+        var $divs = $('.yUnified[data-pane]');
+        // build data context (like scripts, css files we have)
+        var data = {};
+        data.__Path = path;
+        data.__QueryString = uri.query();
+        data.__UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;
+        data.__UnifiedMode = YVolatile.Basics.UnifiedMode;
+        if (YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
+            data.__UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
+            data.__UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
+        }
+        data.__UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
+        data.__IsMobile = YVolatile.Skin.MinWidthForPopups > window.outerWidth;
+        data.__Panes = [];
+        $divs.each(function () {
+            data.__Panes.push($(this).attr('data-pane'));
+        });
+        data.__KnownCss = [];
+        var $css = $('link[rel="stylesheet"]');
+        $css.each(function () {
+            data.__KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
+        });
+        data.__KnownScripts = [];
+        var $scr = $('script[type="text/javascript"][src]');
+        $scr.each(function () {
+            data.__KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
+        });
+
+        Y_Loading();
+        $.ajax({
+            url: '/YetaWF_Core/PageContent/Show?' + uri.query(),
+            type: 'get',
+            data: data,
+            dataType: 'json',
+            traditional: true,
+            success: function (result, textStatus, jqXHR) {
+                if (result.Status != null && result.Status.length > 0) {
+                    Y_Loading(false);
+                    Y_Alert(result.Status, YLocs.Forms.AjaxErrorTitle);
+                    return;
+                }
+                if (result.Redirect != null && result.Redirect.length > 0) {
+                    //Y_Loading(false);
+                    window.location = result.Redirect;
+                    return;
+                }
+                // Update the browser page title and address bar with the new path
+                document.title = result.PageTitle;
+                // remove all pane contents
+                $divs.each(function () {
+                    var $div = $(this);
+                    $div.empty();
+                });
+                // remove prior page css classes
+                var $body = $('body');
+                $body.removeClass($body.attr('data-pagecss'));
+                // add new css classes
+                $body.addClass(result.PageCssClasses);
+                $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
+                // run all global scripts (YConfigs, etc.)
+                eval(result.Scripts);
+                // add all new css files
+                var cssLength = result.CssFiles.length;
+                for (var i = 0; i < cssLength; i++) {
+                    $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', result.CssFiles[i]));
+                }
+                // add all new script files
+                var scrLength = result.ScriptFiles.length;
+                for (var i = 0; i < scrLength; i++) {
+                    $('head').append($('<script />').attr('type', 'text/javascript').attr('src', result.ScriptFiles[i]));
+                }
+                // add pane content
+                var contentLength = result.Content.length;
+                for (var i = 0; i < contentLength; i++) {
+                    // replace the pane
+                    var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
+                    $pane.append(result.Content[i].HTML);
+                    // run all registered initializations for the pane
+                    YetaWF_Basics.processAllReady($pane);
+                }
+                // end of page scripts
+                eval(result.EndOfPageScripts);
+                Y_Loading(false);
+                // Update the browser address bar with the new path
+                if (setState) {
+                    try {
+                        var stateObj = {};
+                        history.pushState(stateObj, "", uri.toString());
+                        e.preventDefault();
+                    } catch (err) { }
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Y_Loading(false);
+                Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
+                debugger;
+            }
+        });
+        return false;
+    } else {
+        // check if we have anything with that path as a unified pane and activate the panes
+        var $divs = $('.yUnified[data-url="{0}"]'.format(path));
+        if ($divs.length > 0) {
+            closemenus();
+            if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
+                $('.yUnified').hide();
+                $divs.show();
+                // send event that a new section became active/visible
+                $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
+            } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
+                //element.scrollIntoView() as an alternative (check compatibility/options)
+                // calculate an approximate animation time so the shorter the distance, the shorter the animation
+                var h = $('body').height();
+                var t = $divs.eq(0).offset().top;
+                var anim = YVolatile.Basics.UnifiedAnimation * t / h;
+                $('body,html').animate({
+                    scrollTop: t
+                }, anim);
+            } else
+                throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
+            // Update the browser address bar with the new path
+            if (setState) {
+                try {
+                    var stateObj = {};
+                    history.pushState(stateObj, "", uri.toString());
+                    e.preventDefault();
+                } catch (err) { }
+            }
+            return false;
+        }
+        return false;
+    }
+    return false;
+};
+
 // DOCUMENT READY
 // DOCUMENT READY
 // DOCUMENT READY
@@ -726,44 +887,33 @@ $(document).ready(function () {
     });
 
     // For an <a> link clicked, add the page we're coming from (not for popup links though)
-    $("body").on("click", "a.{0},area.{0}".format(YConfigs.Basics.CssActionLink), function (e) {
+    $("body").on("click", "a,area", function (e) {
         var $t = $(this);
 
         var uri = $t.uri();
+        var url = $t[0].href;
 
         // send tracking info
         if ($t.hasClass('yTrack')) {
             // find the unique skinvisitor module so we have antiforgery tokens and other context info
             var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
             if ($f.length == 1) {
-                var data = { 'url': $t[0].href };
+                var data = { 'url': url };
                 var info = YetaWF_Forms.getFormInfo($f);
                 data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                 data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                 data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
-                var url = $f.attr('data-track');
-                if (url == undefined) throw "data-track not defined";/*DEBUG*/
+                var urlTrack = $f.attr('data-track');
+                if (urlTrack == undefined) throw "data-track not defined";/*DEBUG*/
                 $.ajax({
-                    'url': url,
+                    'url': urlTrack,
                     'type': 'post',
                     'data': data,
                 });
             }
         }
 
-        // Close open bootstrap nav menus (if any) by clicking on the page
-        function closemenus() {
-            $('body').trigger('click');
-            // Close any open kendo menus (if any)
-            var $menus = $(".k-menu");
-            $menus.each(function () {
-                var menu = $(this).data("kendoMenu");
-                menu.close("li.k-item");
-            });
-        }
-
-        var isJavascript = $t.get(0).href.startsWith('javascript:');
-        if (isJavascript) return;
+        if (url.startsWith('javascript:') || uri.path().length == 0) return true;
 
         // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
         if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {
@@ -851,25 +1001,23 @@ $(document).ready(function () {
                 clearInterval(cookieTimer);
                 Y_Loading(false);// turn off loading indicator
                 console.log("Download complete!!");
-                return;
+                return false;
             }
             console.log("File still downloading...", new Date().getTime());
         }
-        function waitForCookie()
-        {
+        function waitForCookie() {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
                 cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
                 cookieTimer = setInterval(checkCookies, 500);
             }
         }
-        function postLink()
-        {
+        function postLink() {
             Y_Loading();
             waitForCookie();
 
             $.ajax({
-                url: $t.get(0).href,
+                'url': url,
                 type: 'post',
                 data: {},
                 success: function (result, textStatus, jqXHR) {
@@ -889,13 +1037,13 @@ $(document).ready(function () {
             var confirm = $t.attr(YConfigs.Basics.CssConfirm);
             if (confirm != undefined) {
                 Y_AlertYesNo(confirm, null, function () {
-                    window.location = $t.get(0).href;
+                    window.location = url;
                     Y_Loading();
                     waitForCookie();
                 });
                 return false;
             }
-            window.location = $t.get(0).href;
+            window.location = url;
         } else {
             // if a confirmation is wanted, show it
             // this means that it's posted by definition
@@ -916,7 +1064,7 @@ $(document).ready(function () {
             }
         }
 
-        if (!isJavascript && target == "_self") {
+        if (target == "_self") {
             Y_Loading();
             // add overlay if desired
             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
@@ -925,145 +1073,15 @@ $(document).ready(function () {
         }
         waitForCookie(); // if any
 
-        // Handle unified page clicks by activating the desired pane(s)
-        if ((YVolatile.Basics.UnifiedMode > 0 && (uri.domain() === "" || uri.domain() === window.document.domain))) {
-            // check if we're clicking a link which is part of this unified page
-            var path = uri.path();
-            if (YVolatile.Basics.UnifiedMode === 3 /*UnifiedModeEnum.DynamicContent*/ || YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
-                // find all panes that support dynamic content and replace with new modules
-                closemenus();
-                var $divs = $('.yUnified[data-pane]');
-                // build data context (like scripts, css files we have)
-                var data = {};
-                data.Path = path;
-                data.QueryString = uri.query();
-                data.UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;
-                data.UnifiedMode = YVolatile.Basics.UnifiedMode;
-                if (YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
-                    data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
-                    data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
-                }
-                data.UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
-                data.Panes = [];
-                $divs.each(function () {
-                    data.Panes.push($(this).attr('data-pane'));
-                });
-                data.KnownCss = [];
-                var $css = $('link[rel="stylesheet"]');
-                $css.each(function () {
-                    data.KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
-                });
-                data.KnownScripts = [];
-                var $scr = $('script[type="text/javascript"][src]');
-                $scr.each(function () {
-                    data.KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
-                });
+        // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
+        if (cookieToReturn) return true; // expecting cookie return
+        if (uri.domain() !== "" && uri.domain() !== window.document.domain) return true; // wrong domain
+        // if we're switching from https->http or from http->https don't use a unified page set
+        if (!url.startsWith("http") || !window.document.location.href.startsWith("http")) return true; // neither http nor https
+        if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
+              (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
-                Y_Loading();
-                $.ajax({
-                    url: '/YetaWF_Core/PageContent/Show',
-                    type: 'get',
-                    data: data,
-                    dataType: 'json',
-                    traditional: true,
-                    success: function (result, textStatus, jqXHR) {
-                        if (result.Status != null && result.Status.length > 0) {
-                            Y_Loading(false);
-                            Y_Alert(result.Status, YLocs.Forms.AjaxErrorTitle);
-                            return;
-                        }
-                        if (result.Redirect != null && result.Redirect.length > 0) {
-                            //Y_Loading(false);
-                            window.location = result.Redirect;
-                            return;
-                        }
-                        // remove all pane contents
-                        $divs.each(function () {
-                            var $div = $(this);
-                            $div.empty();
-                        });
-                        // remove prior page css classes
-                        var $body = $('body');
-                        $body.removeClass($body.attr('data-pagecss'));
-                        // add new css classes
-                        $body.addClass(result.PageCssClasses);
-                        $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
-                        // run all global scripts (YConfigs, etc.)
-                        eval(result.Scripts);
-                        // add all new css files
-                        var cssLength = result.CssFiles.length;
-                        for (var i = 0; i < cssLength; i++) {
-                            $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', result.CssFiles[i]));
-                        }
-                        // add all new script files
-                        var scrLength = result.ScriptFiles.length;
-                        for (var i = 0; i < scrLength; i++) {
-                            $('head').append($('<script />').attr('type', 'text/javascript').attr('src', result.ScriptFiles[i]));
-                        }
-                        // add pane content
-                        var contentLength = result.Content.length;
-                        for (var i = 0; i < contentLength; i++) {
-                            // replace the pane
-                            var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
-                            $pane.append(result.Content[i].HTML);
-                            $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
-                            // find and run all inline scripts within the new pane
-                            //var $scripts = $("script", $pane);
-                            //$scripts.each(function (index) {
-                            //    eval($scripts[index].innerHTML);
-                            //});
-                            // run all registered initializations for the pane
-                            YetaWF_Basics.processAllReady($pane);
-                        }
-                        // end of page scripts
-                        eval(result.EndOfPageScripts);
-                        // Update the browser page title and address bar with the new path
-                        document.title = result.PageTitle;
-                        try {
-                            var stateObj = {};
-                            history.pushState(stateObj, "", result.CanonicalUrl);
-                            e.preventDefault();
-                        } catch (err) { }
-                        Y_Loading(false);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        Y_Loading(false);
-                        Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
-                        debugger;
-                    }
-                });
-                return false;
-            } else {
-                // check if we have anything with that path as a unified pane and activate the panes
-                var $divs = $('.yUnified[data-url="{0}"]'.format(path));
-                if ($divs.length > 0) {
-                    closemenus();
-                    if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
-                        $('.yUnified').hide();
-                        $divs.show();
-                        // send event that a new section became active/visible
-                        $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
-                    } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
-                        //element.scrollIntoView() as an alternative (check compatibility/options)
-                        // calculate an approximate animation time so the shorter the distance, the shorter the animation
-                        var h = $('body').height();
-                        var t = $divs.eq(0).offset().top;
-                        var anim = YVolatile.Basics.UnifiedAnimation * t / h;
-                        $('body,html').animate({
-                            scrollTop: t
-                        }, anim);
-                    } else
-                        throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
-                    // Update the browser address bar with the new path
-                    try {
-                        var stateObj = {};
-                        history.pushState(stateObj, "", path + window.location.search);
-                        e.preventDefault();
-                    } catch (err) { }
-                    return false;
-                }
-            }
-        }
+        return _YetaWF_Basics.setContent(uri, true);
     });
 
     // SUBMITFORMONCHANGE
@@ -1183,6 +1201,15 @@ YetaWF_Basics.initPage = function () {
                 callback: Y_SetFocus
             });
         }
+    });
+
+    // CONTENT NAVIGATION
+    // CONTENT NAVIGATION
+    // CONTENT NAVIGATION
+
+    $(window).on("popstate", function () {
+        var uri = new URI(window.location.href);
+        _YetaWF_Basics.setContent(uri, false);
     });
 };
 
