@@ -122,11 +122,11 @@ namespace YetaWF.Core.Pages {
             Top = 100,
         }
         public enum UnifiedModeEnum {
-            [EnumDescription("None", "The unified page set does not combine page content - Each page is shown individually (used to disable the unified page set) - Use with small page sets")]
+            [EnumDescription("None", "The Unified Page Set does not combine page content - Each page is shown individually (used to disable the Unified Page Set) - Use with small page sets")]
             None = 0,
             [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible - Use with small page sets")]
             HideDivs = 1, // divs for other urls are hidden
-            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the unified page set - Use with small page sets")]
+            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the Unified Page Set - Use with small page sets")]
             ShowDivs = 2, // all divs are shown
             [EnumDescription("Dynamic Content", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used with large page sets")]
             DynamicContent = 3,

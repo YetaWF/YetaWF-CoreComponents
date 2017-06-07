@@ -10,6 +10,8 @@ using YetaWF.Core.Support.UrlHistory;
 using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.Skins;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Modules;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +61,11 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             /// <remarks>The client will redirect the entire page to this new Url.</remarks>
             public string Redirect { get; set; }
+            /// <summary>
+            /// Returns a new Url if the request can only be answered with page different content.
+            /// </summary>
+            /// <remarks>The client will redirect the page content to this new Url.</remarks>
+            public string RedirectContent { get; set; }
 
             /// <summary>
             /// Returns the content for all panes.
@@ -96,6 +103,16 @@ namespace YetaWF.Core.Controllers {
             /// Css files to include for this page.
             /// </summary>
             public List<string> CssFiles { get; internal set; }
+            /// <summary>
+            /// Javascript files that are included in this page with a bundled Javascript file.
+            /// </summary>
+            /// <remarks>The bundled file is listed in ScriptFiles.</remarks>
+            public List<string> BundleScriptFiles { get; internal set; }
+            /// <summary>
+            /// Css files that are included in this page with a bundled css file.
+            /// </summary>
+            /// <remarks>The bundled file is listed in CssFiles.</remarks>
+            public List<string> BundleCssFiles { get; internal set; }
             /// <summary>
             /// Analytics javascript code executed when a new page becomes active in an active Unified Page Set.
             /// </summary>
@@ -151,8 +168,8 @@ namespace YetaWF.Core.Controllers {
                 throw new HttpException(404, string.Format("Url {0} not found", dataIn.__Path));
 #endif
             }
-            if (Manager.EditMode) throw new InternalError("Unified page sets can't be used in Site Edit Mode");
-            if (Manager.IsInPopup) throw new InternalError("Unified page sets can't be used in popup windows");
+            if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
+            if (Manager.IsInPopup) throw new InternalError("Unified Page Sets can't be used in popup windows");
 
             Uri uri = new Uri(Manager.CurrentRequestUrl);
 
@@ -163,7 +180,10 @@ namespace YetaWF.Core.Controllers {
                     string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
                 Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
                 PageContentResult cr = new PageContentResult();
-                cr.Result.Redirect = site.LockedUrl;
+                if (site.LockedUrl.StartsWith("/"))
+                    cr.Result.RedirectContent = site.LockedUrl;
+                else
+                    cr.Result.Redirect = site.LockedUrl;
                 return cr;
             }
 
@@ -175,6 +195,7 @@ namespace YetaWF.Core.Controllers {
 #endif
             if (!string.IsNullOrWhiteSpace(lang)) {
                 // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page
+                // we need the entire page, content is not sufficient
                 PageContentResult cr = new PageContentResult();
                 cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                 return cr;
@@ -204,9 +225,8 @@ namespace YetaWF.Core.Controllers {
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (newUrl != url) {
-                            //$$$$$$$$$$$$$$$$$$$$$$$$$$ DOES NOT WORK YET
                             PageContentResult cr = new PageContentResult();
-                            cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
+                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
                     } else {
@@ -221,20 +241,25 @@ namespace YetaWF.Core.Controllers {
             // set up all info, like who is logged on, popup, origin list, etc.
             YetaWFController.SetupEnvironmentInfo();
 
-            //// redirect current request to two-step authentication setup
-            //if (Manager.Need2FA) {
-            //    if (Manager.Need2FARedirect) {
-            //        Logging.AddLog("Two-step authentication setup required");
-            //        ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null);
-            //        Manager.Need2FARedirect = false;
-            //        Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
-            //        Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
-            //        PageContentResult cr = new PageContentResult();
-            //        cr.Result.Redirect = Manager.ReturnToUrl;//$$LOCAL
-            //        return cr;
-            //    }
-            //    Resource.ResourceAccess.ShowNeed2FA();//$$$ TEST
-            //}
+            // redirect current request to two-step authentication setup
+            if (Manager.Need2FA) {
+                if (Manager.Need2FARedirect) {
+                    Logging.AddLog("Two-step authentication setup required");
+                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null);
+                    Manager.Need2FARedirect = false;
+                    Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
+                    Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
+                    PageContentResult cr = new PageContentResult();
+                    string returnUrl = Manager.ReturnToUrl;
+                    if (returnUrl.StartsWith("/"))
+                        cr.Result.RedirectContent = returnUrl;
+                    else
+                        cr.Result.Redirect = returnUrl;
+                    return cr;
+                }
+                // this shouldn't be necessary because the first page shown in the unified page set would have generated this
+                //Resource.ResourceAccess.ShowNeed2FA(); //$$$ TEST
+            }
 
             Logging.AddLog("Page Content");
 
@@ -259,7 +284,7 @@ namespace YetaWF.Core.Controllers {
 #endif
                     default:
                     case ProcessingStatus.No:
-                        // if we got here, we shouldn't be here - probably requesting a page outside of unified page set
+                        // if we got here, we shouldn't be here - we're requesting a page outside of unified page set
                         cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
                         return cr;
                 }
@@ -315,7 +340,7 @@ namespace YetaWF.Core.Controllers {
                             if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                                 string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.__QueryString));
                                 Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                cr.Result.Redirect = redirUrl;
+                                cr.Result.RedirectContent = redirUrl;
                                 return ProcessingStatus.Complete;
                             } else
                                 throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
@@ -323,7 +348,10 @@ namespace YetaWF.Core.Controllers {
                     } else {
                         // redirect elsewhere
                         Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                        cr.Result.Redirect = page.RedirectToPageUrl;
+                        if (page.RedirectToPageUrl.StartsWith("/"))
+                            cr.Result.RedirectContent = page.RedirectToPageUrl;
+                        else
+                            cr.Result.Redirect = page.RedirectToPageUrl;
                         return ProcessingStatus.Complete;
                     }
                 }
@@ -336,7 +364,7 @@ namespace YetaWF.Core.Controllers {
                                 string redirUrl = page.MobilePageUrl;
                                 Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
                                 redirUrl = QueryHelper.ToUrl(redirUrl, dataIn.__QueryString);
-                                cr.Result.Redirect = redirUrl;
+                                cr.Result.RedirectContent = redirUrl;
                                 return ProcessingStatus.Complete;
                             }
 #if DEBUG
@@ -356,7 +384,10 @@ namespace YetaWF.Core.Controllers {
                         Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
                         string retUrl = Manager.ReturnToUrl;
                         Logging.AddLog("Redirect - {0}", retUrl);
-                        cr.Result.Redirect = retUrl;
+                        if (retUrl.StartsWith("/"))
+                            cr.Result.RedirectContent = retUrl;
+                        else
+                            cr.Result.Redirect = retUrl;
                         return ProcessingStatus.Complete;
                     } else {
                         cr.Result.Status = Logging.AddErrorLog("403 Not Authorized");

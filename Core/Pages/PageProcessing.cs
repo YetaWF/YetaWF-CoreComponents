@@ -75,7 +75,7 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Post process a rendered pane so it can be returned to the client (used during unified page sets dynamic module processing).
+        /// Post process a rendered pane so it can be returned to the client (used during Unified Page Sets dynamic module processing).
         /// </summary>
         /// <param name="paneHtml"></param>
         /// <returns></returns>

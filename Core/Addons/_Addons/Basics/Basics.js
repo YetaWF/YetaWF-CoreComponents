@@ -687,11 +687,13 @@ _YetaWF_Basics.setContent = function (uri, setState) {
         $css.each(function () {
             data.__KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
         });
+        data.__KnownCss = data.__KnownCss.concat(YVolatile.Basics.UnifiedCssBundle);// add known css files that were added in initial bundle
         data.__KnownScripts = [];
         var $scr = $('script[type="text/javascript"][src]');
         $scr.each(function () {
             data.__KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
         });
+        data.__KnownScripts = data.__KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundle);// add known javascript files that were added in initial bundle
 
         Y_Loading();
         $.ajax({
@@ -710,6 +712,9 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     //Y_Loading(false);
                     window.location = result.Redirect;
                     return;
+                }
+                if (result.RedirectContent != null && result.RedirectContent.length > 0) {
+                    return _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState);
                 }
                 // Update the browser page title and address bar with the new path
                 document.title = result.PageTitle;

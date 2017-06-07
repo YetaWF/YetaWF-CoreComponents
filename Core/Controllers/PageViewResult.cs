@@ -61,7 +61,7 @@ namespace YetaWF.Core.Controllers {
                     // Load the master page for this set
                     masterPage = PageDefinition.Load(info.MasterPageGuid);
                     if (masterPage == null)
-                        throw new InternalError("Master page {0} for unified page set {1} not  found", info.MasterPageGuid, info.UnifiedSetGuid);
+                        throw new InternalError("Master page {0} for Unified Page Set {1} not  found", info.MasterPageGuid, info.UnifiedSetGuid);
                     // get pages that are part of unified set
                     Manager.UnifiedPages = new List<PageDefinition>();
                     if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
@@ -135,6 +135,8 @@ namespace YetaWF.Core.Controllers {
             if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                 Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdPrefixCounter", Manager.UniqueIdPrefixCounter);
+                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundle", Manager.CssManager.GetBundleFiles());
+                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundle", Manager.ScriptManager.GetScriptFiles());
             }
 
             PageProcessing pageProc = new PageProcessing(Manager);

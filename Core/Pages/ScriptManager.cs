@@ -495,7 +495,7 @@ namespace YetaWF.Core.Pages {
                 }
             }
 
-            if (Manager.CurrentSite.DEBUGMODE || !Manager.CurrentSite.BundleJSFiles) {
+            if (cr != null || Manager.CurrentSite.DEBUGMODE || !Manager.CurrentSite.BundleJSFiles) {
                 sb.Append("\n");
                 GenerateNonVolatileJSVariables(sb, cr);
             }
@@ -613,6 +613,12 @@ namespace YetaWF.Core.Pages {
                 }
             }
             return hb;
+        }
+        internal List<string> GetScriptFiles() {
+            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
+                return (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
+            }
+            return null;
         }
 
         /// <summary>

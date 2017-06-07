@@ -581,6 +581,7 @@ namespace YetaWF.Core.Pages {
         public void RenderPaneContents(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #endif
         {
+            if (dataIn.__Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
             foreach (string pane in dataIn.__Panes) {
 
                 string paneHtml = RenderPane(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false).ToString();

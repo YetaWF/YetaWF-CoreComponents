@@ -150,6 +150,7 @@ namespace YetaWF.Core.Pages {
             });
             return text;
         }
+
         public static string CompileLess(string fullLessPath, string text) {
             // http://stackoverflow.com/questions/4798154/how-can-i-output-errors-when-using-less-programmatically
             // create a compiled .css file if it doesn't exist or is older than .less
@@ -191,7 +192,7 @@ namespace YetaWF.Core.Pages {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
-            if (cr == null && !Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
+            if (cr == null && !Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleCSSFiles) {
                 List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
                 externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
                 string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.CSS);
@@ -220,6 +221,16 @@ namespace YetaWF.Core.Pages {
                 }
             }
             return tag;
+        }
+        /// <summary>
+        /// Returns the list of css files in the current bundle (if any).
+        /// </summary>
+        /// <returns></returns>
+        internal List<string> GetBundleFiles() {
+            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleCSSFiles) {
+                return (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
+            }
+            return null;
         }
     }
 }
