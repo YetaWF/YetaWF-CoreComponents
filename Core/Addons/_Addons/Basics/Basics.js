@@ -716,8 +716,16 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 if (result.RedirectContent != null && result.RedirectContent.length > 0) {
                     return _YetaWF_Basics.setContent(new URI(result.RedirectContent), uri, setState);
                 }
-                // Update the browser page title and address bar with the new path
+                // Update the browser page title
                 document.title = result.PageTitle;
+                // Update the browser address bar with the new path
+                if (setState) {
+                    try {
+                        var stateObj = {};
+                        history.pushState(stateObj, "", origUri.toString());
+                        e.preventDefault();
+                    } catch (err) { }
+                }
                 // remove all pane contents
                 $divs.each(function () {
                     var $div = $(this);
@@ -756,14 +764,6 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 // end of page scripts
                 eval(result.EndOfPageScripts);
                 Y_Loading(false);
-                // Update the browser address bar with the new path
-                if (setState) {
-                    try {
-                        var stateObj = {};
-                        history.pushState(stateObj, "", origUri.toString());
-                        e.preventDefault();
-                    } catch (err) { }
-                }
                 try {
                     eval(result.AnalyticsContent);
                 } catch (e) {}
@@ -780,6 +780,16 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
         var $divs = $('.yUnified[data-url="{0}"]'.format(path));
         if ($divs.length > 0) {
             closemenus();
+            // Update the browser page title
+            document.title = result.PageTitle;
+            // Update the browser address bar with the new path
+            if (setState) {
+                try {
+                    var stateObj = {};
+                    history.pushState(stateObj, "", origUri.toString());
+                    e.preventDefault();
+                } catch (err) { }
+            }
             if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
                 $('.yUnified').hide();
                 $divs.show();
@@ -796,14 +806,6 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 }, anim);
             } else
                 throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
-            // Update the browser address bar with the new path
-            if (setState) {
-                try {
-                    var stateObj = {};
-                    history.pushState(stateObj, "", origUri.toString());
-                    e.preventDefault();
-                } catch (err) { }
-            }
             try {
                 eval(result.AnalyticsContent);
             } catch (e) { }

@@ -79,6 +79,8 @@ namespace YetaWF.Core.Controllers {
 #endif
             Manager.PopCharSize();
 
+            Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
+
             Manager.CssManager.Render(cr);
             cr.CssFiles = cr.CssFiles.Except(DataIn.__KnownCss).ToList(); // eliminate css we already have
 
