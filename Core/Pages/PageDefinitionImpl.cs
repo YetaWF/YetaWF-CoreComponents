@@ -385,7 +385,7 @@ namespace YetaWF.Core.Pages {
 
                 newUrl = "/" + string.Join("/", segs, 0, seglen - 2);
                 newQs = newQs.AddQSSeparator();
-                newQs += string.Format("{0}={1}", key, val);
+                newQs += string.Format("{0}={1}", YetaWFManager.UrlEncodeArgs(key), YetaWFManager.UrlEncodeArgs(val));
             }
             return page;
         }
