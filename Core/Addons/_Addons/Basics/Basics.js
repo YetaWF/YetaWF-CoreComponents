@@ -643,7 +643,7 @@ function Y_KillTooltips() {
 // CONTENT
 // CONTENT
 
-_YetaWF_Basics.setContent = function (uri, setState) {
+_YetaWF_Basics.setContent = function (uri, origUri, setState) {
     'use strict';
 
     // Close open bootstrap nav menus (if any) by clicking on the page
@@ -714,7 +714,7 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     return;
                 }
                 if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                    return _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState);
+                    return _YetaWF_Basics.setContent(new URI(result.RedirectContent), uri, setState);
                 }
                 // Update the browser page title and address bar with the new path
                 document.title = result.PageTitle;
@@ -757,7 +757,7 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 if (setState) {
                     try {
                         var stateObj = {};
-                        history.pushState(stateObj, "", uri.toString());
+                        history.pushState(stateObj, "", origUri.toString());
                         e.preventDefault();
                     } catch (err) { }
                 }
@@ -797,7 +797,7 @@ _YetaWF_Basics.setContent = function (uri, setState) {
             if (setState) {
                 try {
                     var stateObj = {};
-                    history.pushState(stateObj, "", uri.toString());
+                    history.pushState(stateObj, "", origUri.toString());
                     e.preventDefault();
                 } catch (err) { }
             }
@@ -1094,7 +1094,7 @@ $(document).ready(function () {
         if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
               (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
-        return _YetaWF_Basics.setContent(uri, true);
+        return _YetaWF_Basics.setContent(uri, uri, true);
     });
 
     // SUBMITFORMONCHANGE
@@ -1222,7 +1222,7 @@ YetaWF_Basics.initPage = function () {
 
     $(window).on("popstate", function () {
         var uri = new URI(window.location.href);
-        _YetaWF_Basics.setContent(uri, false);
+        _YetaWF_Basics.setContent(uri, uri, false);
     });
 };
 
