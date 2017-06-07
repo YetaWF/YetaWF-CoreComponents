@@ -258,7 +258,7 @@ namespace YetaWF.Core.Controllers {
                     return cr;
                 }
                 // this shouldn't be necessary because the first page shown in the unified page set would have generated this
-                //Resource.ResourceAccess.ShowNeed2FA(); //$$$ TEST
+                //Resource.ResourceAccess.ShowNeed2FA();
             }
 
             Logging.AddLog("Page Content");
