@@ -722,6 +722,8 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 $divs.each(function () {
                     var $div = $(this);
                     $div.empty();
+                    if ($div.attr("data-conditional") !== undefined)
+                        $div.hide();// hide, it's a conditional pane
                 });
                 // remove prior page css classes
                 var $body = $('body');
@@ -746,6 +748,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 for (var i = 0; i < contentLength; i++) {
                     // replace the pane
                     var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
+                    $pane.show();// show in case this is a conditional pane
                     $pane.append(result.Content[i].HTML);
                     // run all registered initializations for the pane
                     YetaWF_Basics.processAllReady($pane);
@@ -900,7 +903,7 @@ $(document).ready(function () {
     });
 
     // For an <a> link clicked, add the page we're coming from (not for popup links though)
-    $("body").on("click", "a,area", function (e) {
+    $("body").on("click", "a.{0},area.{0}".format(YConfigs.Basics.CssActionLink), function (e) {
         var $t = $(this);
 
         var uri = $t.uri();
@@ -926,7 +929,7 @@ $(document).ready(function () {
             }
         }
 
-        if (url.startsWith('javascript:') || uri.path().length == 0) return true;
+        if (uri.path().length == 0 || url.startsWith('javascript:') || url.startsWith('mailto:') || url.startsWith('tel:')) return true;
 
         // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
         if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {

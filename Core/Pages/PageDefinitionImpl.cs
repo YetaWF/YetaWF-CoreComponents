@@ -481,24 +481,42 @@ namespace YetaWF.Core.Pages {
                 }
             }
 
-            if (!empty || !Conditional || Manager.EditMode) {
-                // show pane, but if this is a unified page, only show empty panes if they're part of the main (unified) page
-                if (!empty || (UnifiedMainPage == null || UnifiedMainPage.Url == Manager.CurrentPage.Url)) { // but only for main page
-                    if (PaneDiv) {
-                        TagBuilder tagDiv = new TagBuilder("div");
-                        tagDiv.Attributes.Add("data-pane", YetaWFManager.HtmlAttributeEncode(pane));// add pane name
-                        if (!string.IsNullOrWhiteSpace(cssClass))
-                            tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
-                        tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));
-                        if (UnifiedMainPage != null) {
-                            tagDiv.Attributes.Add("data-url", YetaWFManager.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
-                            tagDiv.AddCssClass("yUnified");
-                            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
-                                tagDiv.Attributes.Add("style", "display:none");
-                        }
-                        tagDiv.SetInnerHtml(sb.ToString());
-                        sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
+            // generate pane if requested
+            bool generate = PaneDiv;
+            if (generate) {
+                bool hide = false;
+                if (Manager.EditMode) {
+                    // all panes are always generated in edit mode
+                    if (UnifiedMainPage != null && UnifiedMainPage.Url != Manager.CurrentPage.Url) // but only for main page
+                        generate = false;
+                } else if (empty && Conditional) {
+                    // this pane is empty and the pane is marked as conditional, meaning don't generate if empty
+                    generate = false;
+                    if (UnifiedMainPage != null && UnifiedMainPage.Url == Manager.CurrentPage.Url) {
+                        // however, we're not generating the main page of a unified page set
+                        // do we generate it but hide it
+                        generate = true;
+                        hide = true;
                     }
+                }
+                if (generate) {
+                    TagBuilder tagDiv = new TagBuilder("div");
+                    tagDiv.Attributes.Add("data-pane", YetaWFManager.HtmlAttributeEncode(pane));// add pane name
+                    if (!string.IsNullOrWhiteSpace(cssClass))
+                        tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
+                    tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));
+                    if (Conditional)
+                        tagDiv.Attributes.Add("data-conditional", "true");
+                    if (UnifiedMainPage != null) {
+                        tagDiv.Attributes.Add("data-url", YetaWFManager.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
+                        tagDiv.AddCssClass("yUnified");
+                        if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
+                            hide = true;
+                    }
+                    if (hide)
+                        tagDiv.Attributes.Add("style", "display:none");
+                    tagDiv.SetInnerHtml(sb.ToString());
+                    sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
                 }
             }
 
