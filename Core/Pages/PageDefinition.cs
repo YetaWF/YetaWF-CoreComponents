@@ -297,6 +297,8 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(SiteDefinition.MaxAnalytics)]
         public string Analytics { get; set; }
+        [StringLength(SiteDefinition.MaxAnalytics)]
+        public string AnalyticsContent { get; set; }
 
         [StringLength(SiteDefinition.MaxMeta)]
         public string PageMetaTags { get; set; }

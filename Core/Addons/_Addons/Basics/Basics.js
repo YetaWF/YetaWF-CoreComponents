@@ -756,6 +756,9 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                         e.preventDefault();
                     } catch (err) { }
                 }
+                try {
+                    eval(result.AnalyticsContent);
+                } catch (e) {}
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 Y_Loading(false);
@@ -793,9 +796,14 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     e.preventDefault();
                 } catch (err) { }
             }
+            try {
+                eval(result.AnalyticsContent);
+            } catch (e) { }
+            Y_Loading(false);
             return false;
         }
-        return false;
+        //Y_Loading(false); // don't hide, let new page take over
+        return true;
     }
     return false;
 };

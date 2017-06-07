@@ -591,10 +591,13 @@ namespace YetaWF.Core.Site {
         // ADDONS
         // ADDONS
 
-        [Category("Addons"), Caption("Analytics"), Description("Add analytics code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here - Pages can override this setting")]
-        [TextAbove("Analytics is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
+        [Category("Addons"), Caption("Analytics"), Description("Add analytics Javascript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here - Pages can override this setting")]
+        [TextAbove("Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
         public string Analytics { get; set; }
+        [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics Javascript code that should be executed when a new page becomes active in an active Unified Page Set - Use <<Url>> to substitute the actual Url - Pages can override this setting")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
+        public string AnalyticsContent { get; set; }
 
         [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]

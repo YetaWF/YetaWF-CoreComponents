@@ -86,21 +86,19 @@ namespace YetaWF.Core.Controllers {
             Manager.ScriptManager.RenderEndofPageScripts(cr);
             cr.ScriptFiles = cr.ScriptFiles.Except(DataIn.__KnownScripts).ToList(); // eliminate scripts we already have
 
-            //// https://mjau-mjau.com/blog/ajax-universal-analytics/
-            //// https://stackoverflow.com/questions/24199037/how-do-i-get-google-analytics-to-track-pages-called-by-ajax
-            //// ga('send', 'pageview')
-            ////$$$ if (Manager.Deployed) {
-            ////    if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
-            ////        endstuff += Manager.CurrentPage.Analytics;
-            ////    else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Analytics))
-            ////        endstuff += Manager.CurrentSite.Analytics;
-            ////}
-
+            if (Manager.Deployed) {
+                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.AnalyticsContent))
+                    cr.AnalyticsContent = Manager.CurrentPage.AnalyticsContent;
+                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.AnalyticsContent))
+                    cr.AnalyticsContent = Manager.CurrentSite.AnalyticsContent;
+                if (!string.IsNullOrWhiteSpace(cr.AnalyticsContent))
+                    cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", Manager.CurrentPage.EvaluatedCanonicalUrl);
+            }
             cr.PageTitle = Manager.PageTitle.ToString();
             cr.PageCssClasses = Manager.CurrentPage.CssClass;
             cr.CanonicalUrl = Manager.CurrentPage.EvaluatedCanonicalUrl;
             UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
-            cr.LocalUrl = ub.Path + (string.IsNullOrWhiteSpace(ub.Query) ? "" : "?"+ub.Query);
+            cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
 
             string json = YetaWFManager.JsonSerialize(ViewData.Model);
             context.HttpContext.Response.ContentType = "application/json";

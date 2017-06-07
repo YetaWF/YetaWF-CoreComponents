@@ -96,6 +96,10 @@ namespace YetaWF.Core.Controllers {
             /// Css files to include for this page.
             /// </summary>
             public List<string> CssFiles { get; internal set; }
+            /// <summary>
+            /// Analytics javascript code executed when a new page becomes active in an active Unified Page Set.
+            /// </summary>
+            public string AnalyticsContent { get; internal set; }
         }
         public class PaneContent {
             public string Pane { get; set; }
@@ -137,7 +141,6 @@ namespace YetaWF.Core.Controllers {
         /// <param name="path">The local Url requested.</param>
         /// <returns></returns>
         [HttpGet] // MUST be a GET request because we are invoking additional controller actions that also require GET
-        //$$$ don't come here if there is a new !yLang= querystring arg (means we're switching languages)
         public ActionResult Show(DataIn dataIn) {
 
             dataIn.__Path = YetaWFManager.UrlDecodePath(dataIn.__Path);
@@ -170,8 +173,12 @@ namespace YetaWF.Core.Controllers {
 #else
             string lang = Manager.CurrentRequest[Globals.Link_Language];
 #endif
-            if (!string.IsNullOrWhiteSpace(lang))
-                Manager.SetUserLanguage(lang);
+            if (!string.IsNullOrWhiteSpace(lang)) {
+                // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page
+                PageContentResult cr = new PageContentResult();
+                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.__Path, dataIn.__QueryString);
+                return cr;
+            }
 
             // set the unique id prefix so all generated ids start where the main page left off
             Manager.UniqueIdPrefixCounter = dataIn.__UniqueIdPrefixCounter;
