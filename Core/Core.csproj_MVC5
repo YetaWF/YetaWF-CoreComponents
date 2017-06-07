@@ -102,6 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
+    <Compile Include="Controllers\PageContentController.cs" />
+    <Compile Include="Controllers\PageContentViewResult.cs" />
+    <Compile Include="Controllers\PageViewResult.cs" />
     <Compile Include="Controllers\Shared\ActionHelper.cs" />
     <Compile Include="Controllers\Shared\ControllerErrorHandlingFilterAttribute.cs" />
     <Compile Include="Controllers\Shared\ModuleSelectionHelper.cs" />
@@ -653,6 +656,7 @@
     <Content Include="Views\Shared\PropertyList_Edit.cshtml" />
     <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\FileFolderSize.cshtml" />
+    <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
