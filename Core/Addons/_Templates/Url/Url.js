@@ -113,6 +113,7 @@ YetaWF_Url.Update = function ($control, urlString, initial) {
         if ($localCtl) {
             YetaWF_TemplateDropDownList.Update($localCtl, urlString);
             _YetaWF_Url.getLocalDiv($control).show();
+            YetaWF_TemplateDropDownList.initOne($localCtl);// may need to be initialized
         }
         if ($remoteCtl)
             _YetaWF_Url.getRemoteDiv($control).hide();
@@ -122,6 +123,7 @@ YetaWF_Url.Update = function ($control, urlString, initial) {
         if ($remoteCtl) {
             $remoteCtl.val(urlString);
             _YetaWF_Url.getRemoteDiv($control).show();
+            YetaWF_TemplateDropDownList.initOne($remoteCtl);// may need to be initialized
         }
     }
     _YetaWF_Url.updateLink($control);
