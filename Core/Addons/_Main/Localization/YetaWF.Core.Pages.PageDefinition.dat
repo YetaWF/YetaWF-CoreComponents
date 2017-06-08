@@ -555,7 +555,7 @@
                             <Name Value="None" />
                             <Value Value="None" />
                             <Caption Value="None" />
-                            <Description Value="The unified page set does not combine page content - Each page is shown individually (used to disable the unified page set)" />
+                            <Description Value="The Unified Page Set does not combine page content - Each page is shown individually (used to disable the Unified Page Set) - Use with small page sets" />
                           </Properties>
                         </Object>
                       </Value>
@@ -565,7 +565,7 @@
                             <Name Value="HideDivs" />
                             <Value Value="HideDivs" />
                             <Caption Value="Hide Others" />
-                            <Description Value="Only content for the current Url is shown - Content for other pages is embedded but not visible" />
+                            <Description Value="Only content for the current Url is shown - Content for other pages is embedded but not visible - Use with small page sets" />
                           </Properties>
                         </Object>
                       </Value>
@@ -575,7 +575,27 @@
                             <Name Value="ShowDivs" />
                             <Value Value="ShowDivs" />
                             <Caption Value="Show All Content" />
-                            <Description Value="All content is shown in the order the pages appear in the unified page set" />
+                            <Description Value="All content is shown in the order the pages appear in the Unified Page Set - Use with small page sets" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="DynamicContent" />
+                            <Value Value="DynamicContent" />
+                            <Caption Value="Dynamic Content" />
+                            <Description Value="Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used with large page sets" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="SkinDynamicContent" />
+                            <Value Value="SkinDynamicContent" />
+                            <Caption Value="Same Skin Dynamic Content" />
+                            <Description Value="All pages with the same skin as the Master Page are combined and page content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used to combine all site pages (using the same skin) into one single page - Pages that are explicitly part of another Unified Page Set are excluded" />
                           </Properties>
                         </Object>
                       </Value>
