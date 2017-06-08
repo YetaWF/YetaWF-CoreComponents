@@ -2,8 +2,5 @@
 @inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
 @using (Form("Browse_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial")) {
     // extract grid definition from model (we don't have direct access)
-    YetaWF.Core.Models.GridDefinition gridDef = ((dynamic)Model).GridDef;
     @PartialForm(UseAreaViewName: false)
-    // we have to supply the template because we can't reference the property in the model itself
-    @Html.DisplayFor(m => gridDef, "Grid")
 }
