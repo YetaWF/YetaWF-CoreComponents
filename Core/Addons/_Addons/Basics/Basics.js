@@ -330,10 +330,10 @@ function Y_SetFocus($obj) {
     $items.each(function (index) {
         var item = this;
         if (item.tagName == "DIV") { // if we found a div, find the edit element instead
-            var $i = $('input:visible,select:visible', $(item)).not("input[type='hidden']")
+            var $i = $('input:visible,select:visible,.yt_dropdownlist_base:visible', $(item)).not("input[type='hidden']")
             if ($i.length > 0) {
-                $f = $i
-                return false
+                $f = $i.eq(0);
+                return false;
             }
         }
     });
@@ -508,7 +508,8 @@ YetaWF_Basics.whenReady = [];
 // YetaWF_Basics.whenReady.push({
 //   callback: function($tag) {}    // function to be called
 // });
-// This registers a callback that is called when the document is ready (similar to $(document).ready()), after a module is rendered (for dynamic content)
+// This registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
+// or after a partial form is rendered. The callee must honor $tag and only manipulate child objects.
 // Callback functions are registered by whomever needs this type of processing. For example, a grid can
 // process all whenready requests after reloading the grid with data (which doesn't run any javascript).
 // $tag describes the section that is new and needs to be initialized.
@@ -520,41 +521,26 @@ YetaWF_Basics.processAllReady = function ($tag) {
     }
 }
 
-YetaWF_Basics.whenReadyPartialFormAll = [];
+YetaWF_Basics.whenReadyOnce = [];
 
 // Usage:
-// YetaWF_Basics.whenReadyPartialFormAll.push({
+// YetaWF_Basics.whenReadyOnce.push({
 //   callback: function($tag) {}    // function to be called
 // });
-// Registers a callback which is called after a partial form (post) is rendered. The callback can initialize the replaced partial form section.
+// This registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
+// or after a partial form is rendered. The callee must honor $tag and only manipulate child objects.
 // Callback functions are registered by whomever needs this type of processing. For example, a grid can
 // process all whenready requests after reloading the grid with data (which doesn't run any javascript).
-// The callback is called for all partial forms.
 // $tag describes the section that is new and needs to be initialized.
-
-YetaWF_Basics.processAllReadyPartialFormAll = function ($tag) {
-    for (var index in YetaWF_Basics.whenReadyPartialFormAll) {
-        var entry = YetaWF_Basics.whenReadyPartialFormAll[index];
+// The callback is called for ONCE. Then the callback is removed.
+// $tag describes the section that is new and needs to be initialized.
+YetaWF_Basics.processAllReadyOnce = function ($tag) {
+    if ($tag === undefined) $tag = $('body');
+    for (var index in YetaWF_Basics.whenReadyOnce) {
+        var entry = YetaWF_Basics.whenReadyOnce[index];
         entry.callback($tag);
     }
-}
-
-YetaWF_Basics.whenReadyPartialForm1 = [];
-
-// Usage:
-// YetaWF_Basics.whenReadyPartialForm1.push({
-//   callback: function($tag) {}    // function to be called
-// });
-// Registers a callback which is called after a partial form (post) is rendered. The callback can initialize the replaced partial form section.
-// The callback is called for the first partial form rendered. Then the callback is removed.
-// $tag describes the section that is new and needs to be initialized.
-
-YetaWF_Basics.processAllReadyPartialForm1 = function ($tag) {
-    for (var index in YetaWF_Basics.whenReadyPartialForm1) {
-        var entry = YetaWF_Basics.whenReadyPartialForm1[index];
-        entry.callback($tag);
-    }
-    YetaWF_Basics.whenReadyPartialForm1 = [];
+    YetaWF_Basics.whenReadyOnce = [];
 }
 
 // BEAUTIFY BUTTONS
@@ -723,7 +709,6 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                     try {
                         var stateObj = {};
                         history.pushState(stateObj, "", origUri.toString());
-                        e.preventDefault();
                     } catch (err) { }
                 }
                 // remove all pane contents
@@ -752,6 +737,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                     $('head').append($('<script />').attr('type', 'text/javascript').attr('src', result.ScriptFiles[i]));
                 }
                 // add pane content
+                var $tags = $(); // collect all panes
                 var contentLength = result.Content.length;
                 for (var i = 0; i < contentLength; i++) {
                     // replace the pane
@@ -759,10 +745,13 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                     $pane.show();// show in case this is a conditional pane
                     $pane.append(result.Content[i].HTML);
                     // run all registered initializations for the pane
-                    YetaWF_Basics.processAllReady($pane);
+                    $tags = $tags.add($pane);
                 }
                 // end of page scripts
                 eval(result.EndOfPageScripts);
+                YetaWF_Basics.processAllReady($tags);
+                YetaWF_Basics.processAllReadyOnce($tags);
+                Y_SetFocus();
                 Y_Loading(false);
                 try {
                     eval(result.AnalyticsContent);
@@ -787,7 +776,6 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 try {
                     var stateObj = {};
                     history.pushState(stateObj, "", origUri.toString());
-                    e.preventDefault();
                 } catch (err) { }
             }
             if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
@@ -795,6 +783,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 $divs.show();
                 // send event that a new section became active/visible
                 $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
+                Y_SetFocus();
             } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
                 //element.scrollIntoView() as an alternative (check compatibility/options)
                 // calculate an approximate animation time so the shorter the distance, the shorter the animation
@@ -1161,6 +1150,7 @@ $(document).ready(function () {
     // WHENREADY
 
     YetaWF_Basics.processAllReady();
+    YetaWF_Basics.processAllReadyOnce();
 });
 
 // BUTTONS
@@ -1212,13 +1202,8 @@ YetaWF_Basics.initPage = function () {
     // FOCUS
 
     $(document).ready(function () {
-        if (!scrolled && location.hash.length <= 1) {
-            if (YVolatile.Basics.UnifiedMode == 0)
-                Y_SetFocus($('body'));
-            YetaWF_Basics.whenReadyPartialFormAll.push({
-                callback: Y_SetFocus
-            });
-        }
+        if (!scrolled && location.hash.length <= 1)
+            Y_SetFocus($('body'));
     });
 
     // CONTENT NAVIGATION

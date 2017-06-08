@@ -23,8 +23,7 @@ var _YetaWF_Forms = {};
 YetaWF_Forms.initPartialForm = function ($partialForm) {
     // run registered actions (usually javascript initialization, similar to $doc.ready()
     YetaWF_Basics.processAllReady($partialForm);
-    YetaWF_Basics.processAllReadyPartialFormAll($partialForm);
-    YetaWF_Basics.processAllReadyPartialForm1($partialForm);
+    YetaWF_Basics.processAllReadyOnce($partialForm);
 
     // get all fields with errors (set server-side)
     var $errs = $('.field-validation-error', $partialForm);

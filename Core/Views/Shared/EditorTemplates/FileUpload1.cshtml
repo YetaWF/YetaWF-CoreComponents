@@ -9,7 +9,5 @@
 </div>
 
 <script>
-    @using (DocumentReady()) {
-        @: YetaWF_FileUpload1.init('@ControlId', @JSEncode(Model.SerializeForm));
-    }
+    YetaWF_FileUpload1.init('@ControlId', @JSEncode(Model.SerializeForm));
 </script>

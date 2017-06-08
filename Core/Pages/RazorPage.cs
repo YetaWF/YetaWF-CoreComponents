@@ -197,50 +197,50 @@ namespace YetaWF.Core.Pages {
 
         protected class JSDocumentReady : IDisposable {
 #if MVC6
-            public JSDocumentReady(IHtmlHelper<TModel> Html) {
+            public JSDocumentReady(IHtmlHelper<TModel> Html)
 #else
-            public JSDocumentReady(HtmlHelper<object> Html) {
+            public JSDocumentReady(HtmlHelper<object> Html)
 #endif
+            {
                 this.Html = Html;
-                IsPost = YetaWFManager.Manager.IsPostRequest;
                 DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
                 if (disposing) DisposableTracker.RemoveObject(this);
-                if (IsPost) {
+                while (CloseParen > 0) {
                     Html.ViewContext.Writer.Write("}");
-                    Html.ViewContext.Writer.Write("});");
-                } else {
-                    Html.ViewContext.Writer.Write("});");
+                    CloseParen = CloseParen - 1;
                 }
+                Html.ViewContext.Writer.Write("}});");
             }
             //~JSDocumentReady() { Dispose(false); }
-
 #if MVC6
             public IHtmlHelper<TModel> Html { get; set; }
 #else
             public HtmlHelper<object> Html { get; set; }
+            public int CloseParen { get; internal set; }
 #endif
-            private bool IsPost { get; set; }
         }
-        protected JSDocumentReady DocumentReady() {
+        protected JSDocumentReady DocumentReady(string id) {
 #if MVC6
             IHtmlHelper<TModel> htmlHelper;
 #else
             HtmlHelper<object> htmlHelper;
 #endif
             htmlHelper = GetHtml();
-            if (Manager.IsPostRequest) {
-                htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyPartialForm1.push({");
-                htmlHelper.ViewContext.Writer.Write("callback: function () {");
-                return new JSDocumentReady(htmlHelper);
-            } else {
-                htmlHelper.ViewContext.Writer.Write("$(document).ready(function(){\n");//$$$should this be push?
-                return new JSDocumentReady(htmlHelper);
-            }
+            htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyOnce.push({{callback: function ($tag) {{ if ($tag.has('#{0}').length > 0) {{\n", id);
+            return new JSDocumentReady(htmlHelper) { CloseParen = 1 };
         }
-
+        protected JSDocumentReady DocumentReady() {
+#if MVC6
+            IHtmlHelper<TModel> htmlHelper = GetHtml();
+#else
+            HtmlHelper<object> htmlHelper = GetHtml();
+#endif
+            htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyOnce.push({callback: function ($tag) {\n");
+            return new JSDocumentReady(htmlHelper);
+        }
 #if MVC6
 #else
         public override void ExecutePageHierarchy() {

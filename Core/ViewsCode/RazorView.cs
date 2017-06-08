@@ -172,14 +172,32 @@ namespace YetaWF.Core.Views {
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
                 if (disposing) DisposableTracker.RemoveObject(this);
-                Html.ViewContext.Writer.Write("});");
+                while (CloseParen > 0) {
+                    Html.ViewContext.Writer.Write("}");
+                    CloseParen = CloseParen - 1;
+                }
+                Html.ViewContext.Writer.Write("}});");
             }
             //~JSDocumentReady() { Dispose(false); }
 #if MVC6
             public IHtmlHelper<TModel> Html { get; set; }
 #else
             public HtmlHelper<TModel> Html { get; set; }
+            public int CloseParen { get; internal set; }
 #endif
+        }
+        protected JSDocumentReady DocumentReady(string id) {
+            if (!Manager.IsPostRequest) {
+#if MVC6
+                IHtmlHelper<TModel> htmlHelper = GetHtml();
+#else
+                HtmlHelper<TModel> htmlHelper = GetHtml();
+#endif
+                htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyOnce.push({{callback: function ($tag) {{ if ($tag.has('#{0}').length > 0) {{\n", id);
+                return new JSDocumentReady(htmlHelper) { CloseParen = 1 };
+            } else {
+                return null;
+            }
         }
         protected JSDocumentReady DocumentReady() {
             if (!Manager.IsPostRequest) {
@@ -188,7 +206,7 @@ namespace YetaWF.Core.Views {
 #else
                 HtmlHelper<TModel> htmlHelper = GetHtml();
 #endif
-                htmlHelper.ViewContext.Writer.Write("$(document).ready(function(){\n");
+                htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyOnce.push({callback: function ($tag) {\n");
                 return new JSDocumentReady(htmlHelper);
             } else {
                 return null;

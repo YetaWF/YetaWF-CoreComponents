@@ -34,9 +34,11 @@ YetaWF_PageSelection.init = function (id) {
     });
     YetaWF_Basics.whenReady.push({
         callback: function ($tag) {
-            $('.t_select select', $control).each(function () {
-                updateLink($(this).val(), "");
-            });
+            if ($tag.has($control)) {
+                $('.t_select select', $control).each(function () {
+                    updateLink($(this).val(), "");
+                });
+            }
         }
     });
 };
