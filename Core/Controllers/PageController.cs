@@ -53,7 +53,7 @@ namespace YetaWF.Core.Controllers {
 
             if (!YetaWFManager.HaveManager) {
 #if MVC6
-                return new NotFoundObjectResult(path);
+                return new NotFoundObjectResult(__path);
 #else
                 throw new HttpException(404, string.Format("Url {0} not found", __path));
 #endif
@@ -399,7 +399,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.CurrentPage = page;// Found It!!
                     if (Manager.IsHeadRequest) {
 #if MVC6
-                        return new NotFoundObjectResult(path);
+                        return new NotFoundObjectResult(__path);
 #else
                         throw new HttpException(404, "404 Not Found");
 #endif
@@ -415,7 +415,7 @@ namespace YetaWF.Core.Controllers {
                 }
             }
 #if MVC6
-            return NotFound(path);
+            return NotFound(__path);
 #else
             throw new HttpException(404, string.Format("Url {0} not found", __path));
 #endif

@@ -1,12 +1,12 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.ServiceModel.Syndication;
+using System.Xml;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
 using System.Web.Mvc;
 #endif
-using System.ServiceModel.Syndication;
-using System.Xml;
 
 
 namespace YetaWF.Core.Support.Rss {

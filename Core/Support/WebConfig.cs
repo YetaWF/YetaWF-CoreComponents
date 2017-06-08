@@ -31,8 +31,7 @@ namespace YetaWF.Core.Support {
         public static void Init(IConfigurationRoot configuration, string appSettingsFile) {
             Configuration = configuration;
             AppSettingsFile = appSettingsFile;
-            JavaScriptSerializer jser = new JavaScriptSerializer();
-            Settings = jser.Deserialize<dynamic>(File.ReadAllText(AppSettingsFile));
+            Settings = YetaWFManager.JsonDeserialize<dynamic>(File.ReadAllText(AppSettingsFile));
         }
 
         private static IConfigurationRoot Configuration;
@@ -119,8 +118,7 @@ namespace YetaWF.Core.Support {
         public static void Save() {
 #if MVC6
             // MVC6 needs an explicit Save() call
-            JavaScriptSerializer jser = new JavaScriptSerializer();
-            string s = jser.Serialize(Settings);
+            string s = YetaWFManager.JsonSerialize(Settings);
             File.WriteAllText(AppSettingsFile, s);
 #else
             // settings are immediately saved in SetValue()

@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using System.Text;
+using System.Threading.Tasks;
 #else
 using System.Web.Mvc;
 #endif
@@ -23,7 +25,7 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
         private IViewRenderService _viewRenderService;
 
-        public PageViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData, PageContentController.DataIn dataIn) {
+        public PageContentViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData, PageContentController.DataIn dataIn) {
             this._viewRenderService = _viewRenderService;
 #else
         public PageContentViewResult(ViewDataDictionary viewData, TempDataDictionary tempData, PageContentController.DataIn dataIn) {

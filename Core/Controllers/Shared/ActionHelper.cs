@@ -48,7 +48,7 @@ namespace YetaWF.Core.Controllers.Shared {
             // fetching required services for invocation
             var httpContext = YetaWFManager.Manager.CurrentContext;
             IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory));
-            IActionSelectorDecisionTreeProvider actionSelector = (IActionSelectorDecisionTreeProvider)YetaWFManager.ServiceProvider.GetService(typeof(IActionSelectorDecisionTreeProvider));
+            IActionSelector actionSelector = (IActionSelector)YetaWFManager.ServiceProvider.GetService(typeof(IActionSelector));
 
             // creating new action invocation context
             var routeData = new RouteData();
@@ -66,8 +66,14 @@ namespace YetaWF.Core.Controllers.Shared {
             httpContext.Items.TryGetValue(typeof(IUrlHelper), out oldUrlHelper);
             httpContext.Items.Remove(typeof(IUrlHelper));
 
-            var actionDescriptor = actionSelector.DecisionTree.Select(routeValues).FirstOrDefault();
+            // Microsoft.AspNetCore.Routing.RouteContext
+            RouteContext routeContext = new RouteContext(httpContext) { RouteData = routeData };
+            var candidates = actionSelector.SelectCandidates(routeContext);
+            if (candidates == null || candidates.Count == 0)
+                throw new InternalError("No route cadidates found - /{0}/{1}/{2}", area, controller, action);
+
             string content = null;
+            ActionDescriptor actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);
             if (actionDescriptor != null) {
 
                 ActionContext actionContext = new ActionContext(httpContext, routeData, actionDescriptor);

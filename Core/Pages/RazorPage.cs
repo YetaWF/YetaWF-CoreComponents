@@ -123,7 +123,11 @@ namespace YetaWF.Core.Pages {
                     //if (page.TemplatePage != realPage.TemplatePage)
                     //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the template page ({2} vs. {3})", realPage.Url, page.Url, realPage.TemplatePage.Url ?? "(none)", page.TemplatePage.Url ?? "(none)");
                     Manager.CurrentPage = page;
+#if MVC6
+                    sb.Append(CurrentPage.RenderPane((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
+#else
                     sb.Append(CurrentPage.RenderPane((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
+#endif
                 }
                 Manager.CurrentPage = realPage;
                 return new HtmlString(sb.ToString());
@@ -150,7 +154,7 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         /// <returns></returns>
         public HtmlString RenderPageContent() {
-            PageContentController.PageContentData model = (YetaWF.Core.Controllers.PageContentController.PageContentData)ViewData.Model;
+            PageContentController.PageContentData model = (PageContentController.PageContentData)(object)ViewData.Model;
             PageContentController.DataIn dataIn = (PageContentController.DataIn) ViewData["DataIn"];
 #if MVC6
             CurrentPage.RenderPaneContents((IHtmlHelper<object>)GetHtml(), dataIn, model);
