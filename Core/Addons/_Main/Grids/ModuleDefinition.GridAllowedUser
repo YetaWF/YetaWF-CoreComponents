@@ -1,12 +1,12 @@
 ﻿DeleteMe            icons 1
 DisplayUserId       20
-View                center [Globals.ChBoolean]
-Edit                center [Globals.ChBoolean]
-Remove              center [Globals.ChBoolean]
-Extra1              center [Globals.ChBoolean]
-Extra2              center [Globals.ChBoolean]
-Extra3              center [Globals.ChBoolean]
-Extra4              center [Globals.ChBoolean]
-Extra5              center [Globals.ChBoolean]
+View                7 center
+Edit                7 center
+Remove              7 center
+Extra1              7 center
+Extra2              7 center
+Extra3              7 center
+Extra4              7 center
+Extra5              7 center
 UserId              hidden
 DisplayUserName     hidden
