@@ -64,6 +64,8 @@ AlexGorbatchevCom_SyntaxHighlighter.Init = function (addon) {
 
     SyntaxHighlighter.all();
 };
-AlexGorbatchevCom_SyntaxHighlighter.InitPartial = function () {
-    SyntaxHighlighter.highlight();
-}
+YetaWF_Basics.whenReady.push({
+    callback: function ($tag) {
+        SyntaxHighlighter.highlight();
+    }
+});
