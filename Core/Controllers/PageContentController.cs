@@ -72,6 +72,10 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public List<PaneContent> Content { get; set; }
             /// <summary>
+            /// Returns the addon html.
+            /// </summary>
+            public string Addons { get; set; }
+            /// <summary>
             /// The requested page's title.
             /// </summary>
             public string PageTitle { get; set; }
@@ -133,6 +137,7 @@ namespace YetaWF.Core.Controllers {
             public string __QueryString { get; set; }
             public string __UnifiedSetGuid { get; set; }
             public PageDefinition.UnifiedModeEnum __UnifiedMode { get; set; }
+            public List<Guid> __UnifiedAddonMods { get; set; }
             public int __UniqueIdPrefixCounter { get; set; }
             public bool __IsMobile { get; set; }
             public string __UnifiedSkinCollection { get; set; }

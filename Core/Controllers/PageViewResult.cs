@@ -7,6 +7,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.Modules;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -62,27 +63,32 @@ namespace YetaWF.Core.Controllers {
                 if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None) {
                     // Load the master page for this set
                     masterPage = PageDefinition.Load(info.MasterPageGuid);
-                    if (masterPage == null)
-                        throw new InternalError("Master page {0} for Unified Page Set {1} not  found", info.MasterPageGuid, info.UnifiedSetGuid);
-                    // get pages that are part of unified set
-                    Manager.UnifiedPages = new List<PageDefinition>();
-                    if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                        Manager.UnifiedPages.Add(requestedPage);
-                    } else {
-                        if (info.PageGuids != null && info.PageGuids.Count > 0) {
-                            foreach (Guid guid in info.PageGuids) {
-                                PageDefinition page = PageDefinition.Load(guid);
-                                if (page != null)
-                                    Manager.UnifiedPages.Add(page);
-                            };
+                    if (masterPage != null) {
+                        // get pages that are part of unified set
+                        Manager.UnifiedPages = new List<PageDefinition>();
+                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                            Manager.UnifiedPages.Add(requestedPage);
+                        } else {
+                            if (info.PageGuids != null && info.PageGuids.Count > 0) {
+                                foreach (Guid guid in info.PageGuids) {
+                                    PageDefinition page = PageDefinition.Load(guid);
+                                    if (page != null) {
+                                        Manager.UnifiedPages.Add(page);
+                                        Manager.AddOnManager.AddExplicitlyInvokedModules(page.ReferencedModules);
+                                    }
+                                };
+                            }
                         }
-                    }
-                    Manager.UnifiedMode = info.Mode;
-                    Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
-                    Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
-                    if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
+                        Manager.UnifiedMode = info.Mode;
+                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
+                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
+                        if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
+                        }
+                    } else {
+                        // master page was not found, probably deleted, just ignore
+                        masterPage = Manager.CurrentPage;
                     }
                 }
             }
@@ -91,7 +97,7 @@ namespace YetaWF.Core.Controllers {
 
             bool staticPage = false;
             if (Manager.Deployed)
-                staticPage = masterPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
+                staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
             Manager.RenderStaticPage = staticPage;
 
             SkinAccess skinAccess = new SkinAccess();
@@ -99,7 +105,7 @@ namespace YetaWF.Core.Controllers {
             string skinCollection = skin.Collection;
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
-            Manager.AddOnManager.AddExplicitlyInvokedModules(masterPage.ReferencedModules);
+            Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);
 
             string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
             if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
@@ -109,7 +115,7 @@ namespace YetaWF.Core.Controllers {
             int charWidth, charHeight;
             skinAccess.GetPageCharacterSizes(out charWidth, out charHeight);
             Manager.NewCharSize(charWidth, charHeight);
-            Manager.LastUpdated = masterPage.Updated;
+            Manager.LastUpdated = requestedPage.Updated;
             Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", charWidth);
             Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", charHeight);
 
@@ -141,6 +147,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundle", Manager.CssManager.GetBundleFiles());
                 Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundle", Manager.ScriptManager.GetScriptFiles());
             }
+            ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious:true);
 
             PageProcessing pageProc = new PageProcessing(Manager);
             pageHtml = pageProc.PostProcessHtml(pageHtml);
@@ -148,11 +155,11 @@ namespace YetaWF.Core.Controllers {
                 pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
 
             if (staticPage) {
-                Manager.StaticPageManager.AddPage(requestedPage.Url, masterPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
+                Manager.StaticPageManager.AddPage(requestedPage.Url, requestedPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
                 // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
                 // so is only helpful for static pages and can't be used for dynamic pages
                 context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
-            } else if (Manager.HaveUser && masterPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
+            } else if (Manager.HaveUser && requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
                 // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any previously
                 // served page to the then anonymous user before he/she logged on.
                 context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));

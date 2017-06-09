@@ -614,6 +614,7 @@ namespace YetaWF.Core.Pages {
                     });
                 }
             }
+            model.Addons = htmlHelper.RenderUniqueModuleAddOns(ExcludedGuids: dataIn.__UnifiedAddonMods).ToString();
         }
 
         // AUTHORIZATION

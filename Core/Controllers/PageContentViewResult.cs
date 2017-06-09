@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
@@ -62,6 +63,9 @@ namespace YetaWF.Core.Controllers {
             if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
                 throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
 
+            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
+
             // set new character dimensions
             int charWidth, charHeight;
             skinAccess.GetPageCharacterSizes(out charWidth, out charHeight);
@@ -82,6 +86,7 @@ namespace YetaWF.Core.Controllers {
             Manager.PopCharSize();
 
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
+            ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
 
             Manager.CssManager.Render(cr);
             cr.CssFiles = cr.CssFiles.Except(DataIn.__KnownCss).ToList(); // eliminate css we already have

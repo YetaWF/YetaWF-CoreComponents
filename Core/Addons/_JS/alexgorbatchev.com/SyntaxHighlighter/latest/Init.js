@@ -64,8 +64,17 @@ AlexGorbatchevCom_SyntaxHighlighter.Init = function (addon) {
 
     SyntaxHighlighter.all();
 };
+
+_AlexGorbatchevCom_SyntaxHighlighter.on = true; // initial state
+
+// Handles events turning the addon on/off (used for dynamic content)
+$(document).on('YetaWF_Basics_Addon', function (event, addonGuid, on) {
+    if (addonGuid == '7e3c4322-5bdb-44bf-acff-f62d498705ee')
+        _AlexGorbatchevCom_SyntaxHighlighter.on = on;
+});
 YetaWF_Basics.whenReady.push({
     callback: function ($tag) {
-        SyntaxHighlighter.highlight();
+        if (_AlexGorbatchevCom_SyntaxHighlighter.on)
+            SyntaxHighlighter.highlight();
     }
 });

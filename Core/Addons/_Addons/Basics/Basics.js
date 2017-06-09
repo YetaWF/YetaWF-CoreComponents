@@ -629,6 +629,8 @@ function Y_KillTooltips() {
 // CONTENT
 // CONTENT
 
+_YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
+
 _YetaWF_Basics.setContent = function (uri, origUri, setState) {
     'use strict';
 
@@ -662,6 +664,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
             data.__UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
             data.__UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
         }
+        data.__UnifiedAddonMods = _YetaWF_Basics.UnifiedAddonModsLoaded;// active addons
         data.__UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
         data.__IsMobile = YVolatile.Skin.MinWidthForPopups > window.outerWidth;
         data.__Panes = [];
@@ -747,10 +750,31 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                     // run all registered initializations for the pane
                     $tags = $tags.add($pane);
                 }
+                // add addons
+                $('body').append(result.Addons);
+                if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonModsPrevious')) YVolatile.Basics.UnifiedAddonModsPrevious = [];
+                if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonMods')) YVolatile.Basics.UnifiedAddonMods = [];
                 // end of page scripts
                 eval(result.EndOfPageScripts);
+                // turn off all previously active modules that are no longer active
+                YVolatile.Basics.UnifiedAddonModsPrevious.forEach(function (guid) {
+                    if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
+                        $(document).trigger('YetaWF_Basics_Addon', [guid, false]);
+                });
+                // turn on all newly active modules (if they were previously loaded)
+                // new referenced modules that were just loaded now are already active and don't need to be called
+                YVolatile.Basics.UnifiedAddonMods.forEach(function(guid) {
+                    if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && _YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
+                        $(document).trigger('YetaWF_Basics_Addon', [guid, true]);
+                    if (_YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) < 0)
+                        _YetaWF_Basics.UnifiedAddonModsLoaded.push(guid);
+                });
+                YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonMods;
+                YVolatile.Basics.UnifiedAddonMods = [];
+                // call ready handlers
                 YetaWF_Basics.processAllReady($tags);
                 YetaWF_Basics.processAllReadyOnce($tags);
+                // done, set focus
                 Y_SetFocus();
                 Y_Loading(false);
                 try {
@@ -769,8 +793,6 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
         var $divs = $('.yUnified[data-url="{0}"]'.format(path));
         if ($divs.length > 0) {
             closemenus();
-            // Update the browser page title
-            document.title = result.PageTitle;
             // Update the browser address bar with the new path
             if (setState) {
                 try {
@@ -795,9 +817,6 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 }, anim);
             } else
                 throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
-            try {
-                eval(result.AnalyticsContent);
-            } catch (e) { }
             Y_Loading(false);
             return false;
         }
@@ -1072,7 +1091,6 @@ $(document).ready(function () {
         }
 
         if (target == "_self") {
-            Y_Loading();
             // add overlay if desired
             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
                 Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
@@ -1082,7 +1100,7 @@ $(document).ready(function () {
 
         // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
         if (cookieToReturn) return true; // expecting cookie return
-        if (uri.domain() !== "" && uri.domain() !== window.document.domain) return true; // wrong domain
+        if (uri.domain() !== "" && uri.hostname() !== window.document.domain) return true; // wrong domain
         // if we're switching from https->http or from http->https don't use a unified page set
         if (!url.startsWith("http") || !window.document.location.href.startsWith("http")) return true; // neither http nor https
         if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
@@ -1214,5 +1232,6 @@ YetaWF_Basics.initPage = function () {
         var uri = new URI(window.location.href);
         _YetaWF_Basics.setContent(uri, uri, false);
     });
+    _YetaWF_Basics.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
 };
 

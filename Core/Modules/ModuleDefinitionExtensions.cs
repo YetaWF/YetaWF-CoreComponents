@@ -6,6 +6,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
+using System.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -226,7 +227,7 @@ namespace YetaWF.Core.Modules {
 #if MVC6
         public static HtmlString RenderUniqueModuleAddOns(this IHtmlHelper htmlHelper) {
 #else
-        public static HtmlString RenderUniqueModuleAddOns(this HtmlHelper htmlHelper) {
+        public static HtmlString RenderUniqueModuleAddOns(this HtmlHelper htmlHelper, List<Guid> ExcludedGuids = null) {
 #endif
             Manager.Verify_NotPostRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
@@ -234,7 +235,8 @@ namespace YetaWF.Core.Modules {
             Manager.RenderingUniqueModuleAddons = true;
             foreach (AddOnManager.Module mod in mods) {
                 if (!Manager.IsInPopup || mod.AllowInPopup) {
-                    hb.Append(htmlHelper.RenderUniqueModule(mod.ModuleType));
+                    if (ExcludedGuids == null || !ExcludedGuids.Contains(mod.ModuleGuid))
+                        hb.Append(htmlHelper.RenderUniqueModule(mod.ModuleType));
                 }
             }
             Manager.RenderingUniqueModuleAddons = false;
@@ -255,6 +257,12 @@ namespace YetaWF.Core.Modules {
             }
             Manager.RenderingUniqueModuleAddonsAjax = false;
             return hb.ToHtmlString();
+        }
+        public static void AddVolatileOptionsUniqueModuleAddOns(bool MarkPrevious = false) {
+            Manager.Verify_NotPostRequest();
+            List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
+            Manager.ScriptManager.AddVolatileOption("Basics", MarkPrevious ? "UnifiedAddonModsPrevious" : "UnifiedAddonMods",
+                (from m in mods where !Manager.IsInPopup || m.AllowInPopup select m.ModuleGuid).ToList());
         }
     }
 }
