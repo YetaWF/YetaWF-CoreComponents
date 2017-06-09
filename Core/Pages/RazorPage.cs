@@ -219,8 +219,8 @@ namespace YetaWF.Core.Pages {
             public IHtmlHelper<TModel> Html { get; set; }
 #else
             public HtmlHelper<object> Html { get; set; }
-            public int CloseParen { get; internal set; }
 #endif
+            public int CloseParen { get; internal set; }
         }
         protected JSDocumentReady DocumentReady(string id) {
 #if MVC6

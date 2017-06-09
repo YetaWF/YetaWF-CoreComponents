@@ -225,7 +225,7 @@ namespace YetaWF.Core.Modules {
         }
 
 #if MVC6
-        public static HtmlString RenderUniqueModuleAddOns(this IHtmlHelper htmlHelper) {
+        public static HtmlString RenderUniqueModuleAddOns(this IHtmlHelper htmlHelper, List<Guid> ExcludedGuids = null) {
 #else
         public static HtmlString RenderUniqueModuleAddOns(this HtmlHelper htmlHelper, List<Guid> ExcludedGuids = null) {
 #endif

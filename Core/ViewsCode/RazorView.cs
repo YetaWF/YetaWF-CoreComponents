@@ -183,8 +183,8 @@ namespace YetaWF.Core.Views {
             public IHtmlHelper<TModel> Html { get; set; }
 #else
             public HtmlHelper<TModel> Html { get; set; }
-            public int CloseParen { get; internal set; }
 #endif
+            public int CloseParen { get; internal set; }
         }
         protected JSDocumentReady DocumentReady(string id) {
             if (!Manager.IsPostRequest) {
