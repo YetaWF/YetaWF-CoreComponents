@@ -615,6 +615,9 @@ namespace YetaWF.Core.Pages {
                 }
             }
             model.Addons = htmlHelper.RenderUniqueModuleAddOns(ExcludedGuids: dataIn.__UnifiedAddonMods).ToString();
+
+            // clear any http errors that may have occurred if a module failed (otherwise our ajax request will fail)
+            Manager.CurrentResponse.StatusCode = 200;
         }
 
         // AUTHORIZATION
