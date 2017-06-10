@@ -631,7 +631,7 @@ function Y_KillTooltips() {
 
 _YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
 
-_YetaWF_Basics.setContent = function (uri, origUri, setState) {
+_YetaWF_Basics.setContent = function (uri, setState) {
     'use strict';
 
     // Close open bootstrap nav menus (if any) by clicking on the page
@@ -703,7 +703,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                     return;
                 }
                 if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                    return _YetaWF_Basics.setContent(new URI(result.RedirectContent), uri, setState);
+                    return _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState);
                 }
                 // Update the browser page title
                 document.title = result.PageTitle;
@@ -711,7 +711,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                 if (setState) {
                     try {
                         var stateObj = {};
-                        history.pushState(stateObj, "", origUri.toString());
+                        history.pushState(stateObj, "", uri.toString());
                     } catch (err) { }
                 }
                 // remove all pane contents
@@ -721,6 +721,8 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
                     if ($div.attr("data-conditional") !== undefined)
                         $div.hide();// hide, it's a conditional pane
                 });
+                // Notify that page is changing
+                $(document).trigger('YetaWF_Basics_PageChange', []);
                 // remove prior page css classes
                 var $body = $('body');
                 $body.removeClass($body.attr('data-pagecss'));
@@ -797,7 +799,7 @@ _YetaWF_Basics.setContent = function (uri, origUri, setState) {
             if (setState) {
                 try {
                     var stateObj = {};
-                    history.pushState(stateObj, "", origUri.toString());
+                    history.pushState(stateObj, "", uri.toString());
                 } catch (err) { }
             }
             if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
@@ -1106,7 +1108,7 @@ $(document).ready(function () {
         if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
               (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
-        return _YetaWF_Basics.setContent(uri, uri, true);
+        return _YetaWF_Basics.setContent(uri, true);
     });
 
     // SUBMITFORMONCHANGE
@@ -1230,7 +1232,7 @@ YetaWF_Basics.initPage = function () {
 
     $(window).on("popstate", function () {
         var uri = new URI(window.location.href);
-        _YetaWF_Basics.setContent(uri, uri, false);
+        _YetaWF_Basics.setContent(uri, false);
     });
     _YetaWF_Basics.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
 };

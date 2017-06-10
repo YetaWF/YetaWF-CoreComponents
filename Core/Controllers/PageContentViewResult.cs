@@ -2,11 +2,13 @@
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using System.Linq;
+using YetaWF.Core.Support.UrlHistory;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -84,6 +86,8 @@ namespace YetaWF.Core.Controllers {
             }
 #endif
             Manager.PopCharSize();
+
+            Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
 
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
