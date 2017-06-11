@@ -66,6 +66,7 @@
                 @: url:'@Model.AjaxUrl',
                 @: mtype:'POST',
                 @: datatype: 'json',
+                @: ajaxGridOptions: {'Accept-Encoding' : 'gzip'},
 
                 @: loadBeforeSend: function(xhr,settings) {
                 @:     return YetaWF_Grid.modifySend($grid, '@Model.SettingsModuleGuid.ToString()', options, xhr, settings);

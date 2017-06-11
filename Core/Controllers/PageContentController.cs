@@ -49,6 +49,8 @@ namespace YetaWF.Core.Controllers {
                 Content = new List<PaneContent>();
                 ScriptFiles = new List<string>();
                 CssFiles = new List<string>();
+                ScriptBundleFiles = new List<string>();
+                CssBundleFiles = new List<string>();
             }
             /// <summary>
             /// The status of the request.
@@ -111,12 +113,12 @@ namespace YetaWF.Core.Controllers {
             /// Javascript files that are included in this page with a bundled Javascript file.
             /// </summary>
             /// <remarks>The bundled file is listed in ScriptFiles.</remarks>
-            public List<string> BundleScriptFiles { get; internal set; }
+            public List<string> ScriptBundleFiles { get; internal set; }
             /// <summary>
             /// Css files that are included in this page with a bundled css file.
             /// </summary>
             /// <remarks>The bundled file is listed in CssFiles.</remarks>
-            public List<string> BundleCssFiles { get; internal set; }
+            public List<string> CssBundleFiles { get; internal set; }
             /// <summary>
             /// Analytics javascript code executed when a new page becomes active in an active Unified Page Set.
             /// </summary>
@@ -156,7 +158,6 @@ namespace YetaWF.Core.Controllers {
         private readonly IViewRenderService _viewRenderService;
 #else
 #endif
-
         /// <summary>
         /// The Show action handles all page content requests within YetaWF.
         /// </summary>

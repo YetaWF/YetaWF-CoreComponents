@@ -82,8 +82,10 @@ namespace YetaWF.Core.Site {
             Compression = true;
             CompressCSSFiles = true;
             BundleCSSFiles = true;
+            BundleCSSFilesContent = false;
             CompressJSFiles = true;
             BundleJSFiles = true;
+            BundleJSFilesContent = false;
             Copyright = "YetaWF.com - © Copyright <<Year>> Softel vdm, Inc.";
 
             EmailDebug = false;
@@ -349,6 +351,11 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         public bool BundleCSSFiles { get; set; }
 
+        [Category("Pages"), Caption("Bundle CSS Files (UPS)"), Description("Defines whether stylesheets (CSS files) are bundled into one single file while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool BundleCSSFilesContent { get; set; }
+
         [Category("Pages"), Caption("Compress Javascript Files"), Description("Defines whether Javascript files are automatically compressed and saved the first time they are used (Yes). Otherwise, javascript files are not compressed (No)")]
         [UIHint("Boolean")]
         public bool CompressJSFiles { get; set; }
@@ -356,6 +363,11 @@ namespace YetaWF.Core.Site {
         [Category("Pages"), Caption("Bundle Javascript Files"), Description("Defines whether Javascript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
         [UIHint("Boolean")]
         public bool BundleJSFiles { get; set; }
+
+        [Category("Pages"), Caption("Bundle Javascript Files (UPS)"), Description("Defines whether Javascript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool BundleJSFilesContent { get; set; }
 
         [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config/appsettings.json)")]
         [UIHint("Boolean")]

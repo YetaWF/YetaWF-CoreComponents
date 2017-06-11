@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -702,8 +703,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <returns></returns>
-        protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
-            return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName);
+        protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+            return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
         }
 
         /// <summary>
@@ -715,8 +716,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <returns></returns>
-        protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
-            return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName);
+        protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+            return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
         }
 
         /// <summary>
@@ -728,8 +729,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <returns></returns>
-        protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
-            return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName);
+        protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+            return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
         }
 
         /// <summary>
@@ -742,7 +743,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <returns></returns>
-        protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true) {
+        protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
 
             if (model != null) {
                 ViewData.Model = model;
@@ -761,6 +762,7 @@ namespace YetaWF.Core.Controllers {
                 ContentType = ContentType,
                 PureContent = PureContent,
                 AreaViewName = AreaViewName,
+                Gzip = Gzip,
             };
         }
         /// <summary>
@@ -800,6 +802,7 @@ namespace YetaWF.Core.Controllers {
 #endif
             public bool PureContent { get; set; }
             public bool AreaViewName { get; set; }
+            public bool Gzip { get; set; }
 
             private static readonly Regex reEndDiv = new Regex(@"</\s*div\s*>\s*$"); // very last div
             /// <summary>
@@ -848,6 +851,7 @@ namespace YetaWF.Core.Controllers {
                 try {
                     IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
                     viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRender);
+                    //$$$ verify GZIP in grid responses (once we can actually run this again)
                 } catch (Exception) {
                     throw;
                 } finally {
@@ -879,6 +883,16 @@ namespace YetaWF.Core.Controllers {
                     }
                     viewHtml = PostRender(htmlHelper, context, viewHtml);
 #endif
+                    if (Gzip) {
+                        // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
+                        // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
+#if MVC6
+                        context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
+#else
+                        context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
+#endif
+                        context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
+                    }
 #if MVC6
                     byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
                     await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
@@ -956,7 +970,7 @@ namespace YetaWF.Core.Controllers {
         /// <returns>Used in conjunction with the Grid template.</returns>
         protected PartialViewResult GridPartialView(DataSourceResult dataSrc) {
             string partialView = "GridData";
-            return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false);
+            return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
         }
         /// <summary>
         /// An action result that renders a single grid record as a partial view.

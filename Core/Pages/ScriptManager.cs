@@ -25,6 +25,7 @@ using YetaWF.Core.Support;
 // Gzip Components
 //   While YetaWF doesn't use Gzip, it compresses html, js and css by eliminating unnecessary comments, spaces, new lines, etc.
 //   In IIS dynamic & static compression can be enabled outside of YetaWF (which is fully supported by YetaWF and its CDN support)
+//   Gzip compression for certain Json/Ajax requests has been added (grid contents, dynamic content in Unified Page Sets)
 // Put Stylesheets at the Top
 //   YetaWF places style sheets at the top
 // Put Scripts at the Bottom
@@ -49,7 +50,9 @@ using YetaWF.Core.Support;
 // Flush the Buffer Early
 //   (*) under consideration (TODO:)
 // Use GET for AJAX Requests
-//   (*) under consideration (TODO:)
+//   In theory that sounds good, but any data (json,xml) is passed as query string. This means the maximum Url size is quickly
+//   reached (HTTP 400 - Bad Request (Request Header too long)) which can only be extended by registry changes (not web.config).
+//   So, No on this one.
 // Post-load Components
 //   (*) done for grids, captcha only
 // Preload Components
@@ -416,7 +419,7 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        public HtmlBuilder Render(PageContentController.PageContentData cr = null) {
+        public HtmlBuilder Render(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
 
             if (cr == null)
                 Manager.Verify_NotPostRequest();
@@ -437,10 +440,10 @@ namespace YetaWF.Core.Pages {
                 }
             }
             if (cr != null) {
-                RenderScriptsFiles(cr);
+                RenderScriptsFiles(cr, KnownScripts);
                 return new HtmlBuilder();
             } else {
-                HtmlBuilder hb = RenderScriptsFiles(cr);
+                HtmlBuilder hb = RenderScriptsFiles();
                 tag.Append(hb.ToHtmlString());
                 return tag;
             }
@@ -495,10 +498,8 @@ namespace YetaWF.Core.Pages {
                 }
             }
 
-            if (cr != null || Manager.CurrentSite.DEBUGMODE || !Manager.CurrentSite.BundleJSFiles) {
-                sb.Append("\n");
-                GenerateNonVolatileJSVariables(sb, cr);
-            }
+            sb.Append("\n");
+            GenerateNonVolatileJSVariables(sb, cr);
 
             foreach (var script in _SavedFirstNamedScripts) {
                 sb.Append(TrimScript(Manager, script.Value));
@@ -575,26 +576,37 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        private HtmlBuilder RenderScriptsFiles(PageContentController.PageContentData cr = null) {
+        private bool WantBundle(PageContentController.PageContentData cr) {
+            if (cr != null)
+                return Manager.CurrentSite.BundleJSFilesContent;
+            else
+                return Manager.CurrentSite.BundleJSFiles;
+        }
+
+        private HtmlBuilder RenderScriptsFiles(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbStart = new ScriptBuilder();
 
             List<ScriptEntry> externalList;
-            if (cr == null && !Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
-#if DEBUG
-                sbStart.Append("/**** Non-Volatile ****/\n");
-#endif
-                GenerateNonVolatileJSVariables(sbStart);
+            if (!Manager.CurrentSite.DEBUGMODE && WantBundle(cr)) {
                 List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
+                if (KnownScripts != null)
+                    bundleList = bundleList.Except(KnownScripts).ToList();
                 externalList = (from s in _Scripts orderby s.Last where !s.Bundle select s).ToList();
-                string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
-                if (!string.IsNullOrWhiteSpace(bundleUrl))
-                    externalList.Add(new ScriptEntry {
-                        Url = bundleUrl,
-                        Bundle = false,
-                        Last = true,
-                    });
+                if (bundleList.Count > 1) {
+                    string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
+                    if (!string.IsNullOrWhiteSpace(bundleUrl))
+                        externalList.Add(new ScriptEntry {
+                            Url = bundleUrl,
+                            Bundle = false,
+                            Last = true,
+                        });
+                    if (cr != null)
+                        cr.ScriptBundleFiles.AddRange(bundleList);
+                } else {
+                    externalList = (from s in _Scripts orderby s.Last select s).ToList();
+                }
             } else {
                 externalList = (from s in _Scripts orderby s.Last select s).ToList();
             }
@@ -609,14 +621,17 @@ namespace YetaWF.Core.Pages {
                     hb.Append(string.Format("<script type='text/javascript' src='{0}{1}__yVrs={2}'{3}></script>",
                         YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), delim, YetaWFManager.CacheBuster, opts));
                 } else {
-                    cr.ScriptFiles.Add(Manager.GetCDNUrl(url));
+                    if (KnownScripts == null || !KnownScripts.Contains(url))
+                        cr.ScriptFiles.Add(Manager.GetCDNUrl(url));
                 }
             }
             return hb;
         }
-        internal List<string> GetScriptFiles() {
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleJSFiles) {
-                return (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
+        internal List<string> GetBundleFiles() {
+            if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
+                List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
+                if (bundleList.Count > 1)
+                    return bundleList;
             }
             return null;
         }

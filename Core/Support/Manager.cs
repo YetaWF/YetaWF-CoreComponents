@@ -1178,6 +1178,8 @@ namespace YetaWF.Core.Support {
 #if MVC6
                 return (request.Method == "POST");
 #else
+                if (request.Headers["X-HTTP-Method-Override"] != null)
+                    return request.Headers["X-HTTP-Method-Override"] == "POST";
                 return (request.RequestType == "POST");
 #endif
             }
@@ -1189,6 +1191,9 @@ namespace YetaWF.Core.Support {
 #if MVC6
                 return (request.Method == "GET" || request.Method == "HEAD" || request.Method == "");
 #else
+                string overRide = request.Headers["X-HTTP-Method-Override"];
+                if (overRide != null)
+                    return overRide == "GET";
                 return (request.RequestType == "GET" || request.RequestType == "HEAD");
 #endif
             }

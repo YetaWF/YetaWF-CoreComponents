@@ -9,6 +9,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
+using System.IO.Compression;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -92,12 +93,9 @@ namespace YetaWF.Core.Controllers {
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
 
-            Manager.CssManager.Render(cr);
-            cr.CssFiles = cr.CssFiles.Except(DataIn.__KnownCss).ToList(); // eliminate css we already have
-
-            Manager.ScriptManager.Render(cr);
+            Manager.CssManager.Render(cr, DataIn.__KnownCss);
+            Manager.ScriptManager.Render(cr, DataIn.__KnownScripts);
             Manager.ScriptManager.RenderEndofPageScripts(cr);
-            cr.ScriptFiles = cr.ScriptFiles.Except(DataIn.__KnownScripts).ToList(); // eliminate scripts we already have
 
             if (Manager.Deployed) {
                 if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.AnalyticsContent))
@@ -115,6 +113,14 @@ namespace YetaWF.Core.Controllers {
 
             string json = YetaWFManager.JsonSerialize(ViewData.Model);
             context.HttpContext.Response.ContentType = "application/json";
+
+            // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.
+#if MVC6
+            context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
+#else
+            context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
+#endif
+            context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
 #if MVC6
             byte[] btes = Encoding.ASCII.GetBytes(json);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);

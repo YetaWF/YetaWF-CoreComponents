@@ -87,7 +87,7 @@ namespace YetaWF.Core.HttpHandler {
             DateTime lastMod = File.GetLastWriteTimeUtc(file);
 
             // Cache verification?
-            if (context.Request.Headers["If-None-Match"] == GetETag()) {
+            if (context.Request.Headers["If-None-Match"].TruncateStart("W/") == GetETag()) {
                 context.Response.ContentType = "text/css";
                 context.Response.StatusCode = 304;
 #if MVC6

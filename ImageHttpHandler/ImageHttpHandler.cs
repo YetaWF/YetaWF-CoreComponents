@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
@@ -168,7 +169,7 @@ namespace YetaWF.Core.HttpHandler {
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
                         YetaWFManager.SetStaticCacheInfo(context.Response);
                         context.Response.ContentType = contentType;
-                        if (context.Request.Headers["If-None-Match"] != GetETag(filePath, lastMod)) {
+                        if (context.Request.Headers["If-None-Match"].TruncateStart("W/") != GetETag(filePath, lastMod)) {
                             context.Response.StatusCode = 200;
 #if MVC6
                             await context.Response.SendFileAsync(filePath);
@@ -198,7 +199,7 @@ namespace YetaWF.Core.HttpHandler {
 #else
                         context.Response.StatusDescription = "OK";
 #endif
-                        if (context.Request.Headers["If-None-Match"] != GetETag(bytes)) {
+                        if (context.Request.Headers["If-None-Match"].TruncateStart("W/") != GetETag(bytes)) {
                             context.Response.StatusCode = 200;
 #if MVC6
                             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);

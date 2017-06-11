@@ -144,8 +144,8 @@ namespace YetaWF.Core.Controllers {
             if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                 Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdPrefixCounter", Manager.UniqueIdPrefixCounter);
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundle", Manager.CssManager.GetBundleFiles());
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundle", Manager.ScriptManager.GetScriptFiles());
+                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
+                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
             }
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious:true);
 

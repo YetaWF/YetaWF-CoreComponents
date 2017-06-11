@@ -188,20 +188,34 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        public HtmlBuilder Render(PageContentController.PageContentData cr = null) {
+        private bool WantBundle(PageContentController.PageContentData cr) {
+            if (cr != null)
+                return Manager.CurrentSite.BundleCSSFilesContent;
+            else
+                return Manager.CurrentSite.BundleCSSFiles;
+        }
+
+        public HtmlBuilder Render(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
-            if (cr == null && !Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleCSSFiles) {
+            if (!Manager.CurrentSite.DEBUGMODE && WantBundle(cr)) {
                 List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
-                externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
-                string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.CSS);
-                if (!string.IsNullOrWhiteSpace(bundleUrl))
-                    externalList.Add(new Pages.CssManager.CssEntry {
-                        Url = bundleUrl,
-                        Bundle = false,
-                        Last = true,
-                    });
+                if (KnownCss != null)
+                    bundleList = bundleList.Except(KnownCss).ToList();
+                if (bundleList.Count > 1) {
+                    externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
+                    string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.CSS);
+                    if (!string.IsNullOrWhiteSpace(bundleUrl))
+                        externalList.Add(new Pages.CssManager.CssEntry {
+                            Url = bundleUrl,
+                            Bundle = false,
+                            Last = true,
+                        });
+                    if (cr != null)
+                        cr.CssBundleFiles.AddRange(bundleList);
+                } else
+                    externalList = (from s in _CssFiles orderby s.Last select s).ToList();
             } else {
                 externalList = (from s in _CssFiles orderby s.Last select s).ToList();
             }
@@ -217,7 +231,8 @@ namespace YetaWF.Core.Pages {
                     else
                         tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));
                 } else {
-                    cr.CssFiles.Add(url);
+                    if (KnownCss == null || !KnownCss.Contains(url))
+                        cr.CssFiles.Add(url);
                 }
             }
             return tag;
@@ -227,8 +242,10 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         /// <returns></returns>
         internal List<string> GetBundleFiles() {
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.BundleCSSFiles) {
-                return (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
+            if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
+                List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
+                if (bundleList.Count > 1)
+                    return bundleList;
             }
             return null;
         }
