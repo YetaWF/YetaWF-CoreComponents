@@ -5,6 +5,18 @@
 	Version: 1.0.1
 ------------------------------------------------------------------------- */
 
+
+//CUSTOMIZATON: (to keep track of mouse position so we have it available for show()/positionLoader.
+$(document).ready(function () {
+    YetaWF_Basics.PrettyLoader = {};
+    YetaWF_Basics.PrettyLoader.MouseXPos = YetaWF_Basics.PrettyLoader.MouseYPos = 0;
+    $().mousemove(function (e) {
+        YetaWF_Basics.PrettyLoader.MouseXPos = e.pageX;
+        YetaWF_Basics.PrettyLoader.MouseYPos = e.pageY;
+    });
+});
+// END CUSTOMIZATION
+
 (function($) {
 	$.prettyLoader = {version: '1.0.1'};
 
@@ -30,13 +42,18 @@
 			jQuery(document).ajaxStart(function(){ $.prettyLoader.show() }).ajaxStop(function(){ $.prettyLoader.hide() });
 
 		var cur_x = 0;
-		var cur_y = 0;
+	    var cur_y = 0;
 		$.prettyLoader.positionLoader = function (e) {
       		e = e ? e : window.event;
 
-			// Set the cursor pos only if the even is returned by the browser.
-			cur_x = (e.clientX) ? e.clientX : cur_x;
-			cur_y = (e.clientY) ? e.clientY : cur_y;
+		    // Set the cursor pos only if the even is returned by the browser.
+		    // CUSTOMIZATION
+      		YetaWF_Basics.PrettyLoader.MouseXPos = cur_x = (e.clientX) ? e.clientX : YetaWF_Basics.PrettyLoader.MouseXPos;
+      		YetaWF_Basics.PrettyLoader.MouseYPos = cur_y = (e.clientY) ? e.clientY : YetaWF_Basics.PrettyLoader.MouseYPos;
+		    // END CUSTOMIZATION
+            // ORIGINAL CODE
+      		//cur_x = (e.clientX) ? e.clientX : cur_x;
+      		//cur_y = (e.clientY) ? e.clientY : cur_y;
 
 			left_pos = cur_x + settings.offset_left + scrollPos['scrollLeft'];
 			top_pos = cur_y + settings.offset_top + scrollPos['scrollTop'];
@@ -80,6 +97,10 @@
 			$(document).bind('mousemove',$.prettyLoader.positionLoader);
 			$(window).scroll(function(){ scrollPos = _getScroll(); $(document).triggerHandler('mousemove'); });
 
+		    //CUSTOMIZATON:
+			$.prettyLoader.positionLoader(null); // force show
+		    //END CUSTOMIZATION
+
 			delay = (delay) ? delay : settings.delay;
 
 			if(delay){
@@ -113,3 +134,4 @@
 	};
 
 })(jQuery);
+
