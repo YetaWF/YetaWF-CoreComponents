@@ -52,7 +52,12 @@ YetaWF_SMTPServer.init = function (id) {
         uri.addSearch('Password', $('input[name$=".Password"]', $control).val());
         uri.addSearch('SSL', $('input[name$=".SSL"]', $control).is(':checked'));
     });
-    $(document).ready(function () {
-        showFields($server.val().trim().length != 0);
+
+    YetaWF_Basics.whenReady.push({
+        callback: function ($tag) {
+            if ($tag.has($server)) {
+                showFields($server.val().trim().length != 0);
+            }
+        }
     });
 };
