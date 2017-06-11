@@ -30,7 +30,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <param name="ssl">true if SSL is required when communicating with the email server, false otherwise.</param>
         /// <returns>An action result.</returns>
         /// <remarks>The test email is sent to the email address of the currently logged on user requesting the test email.</remarks>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_SMTPServer_SendTestEmail)]
         [ExcludeDemoMode]
         public ActionResult SendTestEmail(string server, int port, SMTPServer.AuthEnum authentication, string username, string password, bool ssl) {

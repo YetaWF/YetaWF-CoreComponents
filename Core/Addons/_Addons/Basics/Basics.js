@@ -664,41 +664,46 @@ _YetaWF_Basics.setContent = function (uri, setState) {
         var $divs = $('.yUnified[data-pane]');
         // build data context (like scripts, css files we have)
         var data = {};
-        data.__Path = path;
-        data.__QueryString = uri.query();
-        data.__UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;
-        data.__UnifiedMode = YVolatile.Basics.UnifiedMode;
+        data.Path = path;
+        data.QueryString = uri.query();
+        data.UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;
+        data.UnifiedMode = YVolatile.Basics.UnifiedMode;
         if (YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
-            data.__UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
-            data.__UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
+            data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
+            data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
         }
-        data.__UnifiedAddonMods = _YetaWF_Basics.UnifiedAddonModsLoaded;// active addons
-        data.__UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
-        data.__IsMobile = YVolatile.Skin.MinWidthForPopups > window.outerWidth;
-        data.__Panes = [];
+        data.UnifiedAddonMods = _YetaWF_Basics.UnifiedAddonModsLoaded;// active addons
+        data.UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
+        data.IsMobile = YVolatile.Skin.MinWidthForPopups > window.outerWidth;
+        data.Panes = [];
         $divs.each(function () {
-            data.__Panes.push($(this).attr('data-pane'));
+            data.Panes.push($(this).attr('data-pane'));
         });
-        data.__KnownCss = [];
+        data.KnownCss = [];
         var $css = $('link[rel="stylesheet"]');
         $css.each(function () {
-            data.__KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
+            data.KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
         });
-        data.__KnownScripts = [];
+        data.KnownScripts = [];
         var $scripts = $('script[type="text/javascript"][src]');
         $scripts.each(function () {
-            data.__KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
+            data.KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
         });
-        data.__KnownCss = data.__KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
-        data.__KnownScripts = data.__KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
+        data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
+        data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
 
         Y_Loading();
         $.ajax({
             url: '/YetaWF_Core/PageContent/Show?' + uri.query(),
-            type: 'get',
-            data: data,
+            type: 'POST',
+            data: JSON.stringify(data),
             dataType: 'json',
             traditional: true,
+            contentType: "application/json",
+            processData: false,
+            headers: {
+                "X-HTTP-Method-Override": "GET" // server has to think this is a GET request so all actions that are invoked actually work
+            },
             success: function (result, textStatus, jqXHR) {
                 if (result.Status != null && result.Status.length > 0) {
                     Y_Loading(false);
@@ -744,8 +749,12 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 for (var i = 0; i < cssLength; i++) {
                     $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', result.CssFiles[i]));
                 }
-                if (result.CssBundleFiles != null)
-                    YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles);
+                if (result.CssBundleFiles != null) {
+                    if (YVolatile.Basics.UnifiedCssBundleFiles != null)
+                        YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles);
+                    else
+                        YVolatile.Basics.UnifiedCssBundleFiles = result.CssBundleFiles
+                }
                 // add all new script files
                 var scrLength = result.ScriptFiles.length;
                 for (var i = 0; i < scrLength; i++) {
@@ -756,8 +765,12 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                         console.log(err.message);
                     }
                 }
-                if (result.ScriptBundleFiles != null)
-                    YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
+                if (result.ScriptBundleFiles != null) {
+                    if (YVolatile.Basics.UnifiedScriptBundleFiles != null)
+                        YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
+                    else
+                        YVolatile.Basics.UnifiedScriptBundleFiles = result.ScriptBundleFiles;
+                }
                 // add pane content
                 var $tags = $(); // collect all panes
                 var contentLength = result.Content.length;

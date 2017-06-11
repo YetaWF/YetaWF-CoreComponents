@@ -28,7 +28,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <param name="__filename">Describes the image file being uploaded.</param>
         /// <param name="__lastInternalName">The name of a previously uploaded file (if any) that is being replaced by the current file being uploaded.</param>
         /// <returns>An action result.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_UploadImages)]
 #if MVC6
         public ActionResult SaveImage(IFormFile __filename, string __lastInternalName) {
@@ -61,7 +61,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <param name="__filename">Describes the image file being uploaded.</param>
         /// <param name="__internalName">The name of the uploaded file that is to be removed.</param>
         /// <returns>An action result.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_RemoveImages)]
         public ActionResult RemoveImage(string __filename, string __internalName) {
             FileUpload upload = new FileUpload();

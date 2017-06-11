@@ -24,7 +24,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <returns>JSON containing a data source to update the dropdownlist.
         ///
         /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
         public ActionResult GetPackageModulesNew(string areaName) {
             ScriptBuilder sb = new ScriptBuilder();
@@ -38,7 +38,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <returns>JSON containing a data source to update the dropdownlist.
         ///
         /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
         public ActionResult GetPackageModulesDesigned(string areaName) {
             ScriptBuilder sb = new ScriptBuilder();
@@ -52,7 +52,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <returns>JSON containing a data source to update the dropdownlist.
         ///
         /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
         public ActionResult GetPackageModulesDesignedFromGuid(Guid modGuid) {
             ScriptBuilder sb = new ScriptBuilder();

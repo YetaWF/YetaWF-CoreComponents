@@ -52,9 +52,11 @@ using YetaWF.Core.Support;
 // Use GET for AJAX Requests
 //   In theory that sounds good, but any data (json,xml) is passed as query string. This means the maximum Url size is quickly
 //   reached (HTTP 400 - Bad Request (Request Header too long)) which can only be extended by registry changes (not web.config).
-//   So, No on this one.
+//   So, No on this one in general.  https://yetawf.com/BlogEntry/Title/AJAX%20GET%20and%20Query%20String%20Length/?BlogEntry=1030
+//   This could still be used for small requests.
 // Post-load Components
 //   (*) done for grids, captcha only
+//   Unified Page Sets (dynamic content) progressively adds page content as user navigates between pages of a set, including css, javascript, etc.
 // Preload Components
 //   (*) This is somewhat in conflict with YetaWF's design philosophy as modules at the end of a page can affect modules at the top of the page, completely changing rendering of all affected html,css,js
 // Reduce the Number of DOM Elements

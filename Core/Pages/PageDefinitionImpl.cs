@@ -599,8 +599,8 @@ namespace YetaWF.Core.Pages {
         public void RenderPaneContents(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #endif
         {
-            if (dataIn.__Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
-            foreach (string pane in dataIn.__Panes) {
+            if (dataIn.Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
+            foreach (string pane in dataIn.Panes) {
 
                 string paneHtml = RenderPane(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false).ToString();
                 PageProcessing pageProc = new PageProcessing(Manager);
@@ -614,7 +614,7 @@ namespace YetaWF.Core.Pages {
                     });
                 }
             }
-            model.Addons = htmlHelper.RenderUniqueModuleAddOns(ExcludedGuids: dataIn.__UnifiedAddonMods).ToString();
+            model.Addons = htmlHelper.RenderUniqueModuleAddOns(ExcludedGuids: dataIn.UnifiedAddonMods).ToString();
 
             // clear any http errors that may have occurred if a module failed (otherwise our ajax request will fail)
             Manager.CurrentResponse.StatusCode = 200;

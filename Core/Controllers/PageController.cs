@@ -47,7 +47,7 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="__path">The local Url requested.</param>
         /// <returns></returns>
-        [AcceptVerbs("GET", "HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
+        [AllowHttp("GET","HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
         public ActionResult Show(string __path) {
             // We come here for ANY page request (GET, HEAD only)
 

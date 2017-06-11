@@ -25,7 +25,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <returns>&lt;option&gt; HTML to replace a select statement with page skins.
         ///
         /// Works in conjuction with client-side code and the PageSkin template.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_SkinLists)]
         public ActionResult GetPageSkins(string skinCollection) {
             SkinAccess skinAccess = new SkinAccess();
@@ -41,7 +41,7 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <returns>&lt;option&gt; HTML to replace a select statement with popup skins.
         ///
         /// Works in conjuction with client-side code and the PopupSkin template.</returns>
-        [HttpPost]
+        [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_SkinLists)]
         public ActionResult GetPopupPageSkins(string skinCollection) {
             SkinAccess skinAccess = new SkinAccess();

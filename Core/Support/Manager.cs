@@ -1175,11 +1175,11 @@ namespace YetaWF.Core.Support {
         public bool IsPostRequest {
             get {
                 HttpRequest request = CurrentRequest;
+                if (request.Headers["X-HTTP-Method-Override"] != null)
+                    return request.Headers["X-HTTP-Method-Override"] == "POST";
 #if MVC6
                 return (request.Method == "POST");
 #else
-                if (request.Headers["X-HTTP-Method-Override"] != null)
-                    return request.Headers["X-HTTP-Method-Override"] == "POST";
                 return (request.RequestType == "POST");
 #endif
             }
@@ -1188,12 +1188,12 @@ namespace YetaWF.Core.Support {
         public bool IsGetRequest {
             get {
                 HttpRequest request = CurrentRequest;
-#if MVC6
-                return (request.Method == "GET" || request.Method == "HEAD" || request.Method == "");
-#else
                 string overRide = request.Headers["X-HTTP-Method-Override"];
                 if (overRide != null)
                     return overRide == "GET";
+#if MVC6
+                return (request.Method == "GET" || request.Method == "HEAD" || request.Method == "");
+#else
                 return (request.RequestType == "GET" || request.RequestType == "HEAD");
 #endif
             }
@@ -1202,6 +1202,9 @@ namespace YetaWF.Core.Support {
         public bool IsHeadRequest {
             get {
                 HttpRequest request = CurrentRequest;
+                string overRide = request.Headers["X-HTTP-Method-Override"];
+                if (overRide != null)
+                    return overRide == "HEAD";
 #if MVC6
                 return (request.Method == "HEAD");
 #else

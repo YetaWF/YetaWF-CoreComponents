@@ -93,8 +93,8 @@ namespace YetaWF.Core.Controllers {
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
 
-            Manager.CssManager.Render(cr, DataIn.__KnownCss);
-            Manager.ScriptManager.Render(cr, DataIn.__KnownScripts);
+            Manager.CssManager.Render(cr, DataIn.KnownCss);
+            Manager.ScriptManager.Render(cr, DataIn.KnownScripts);
             Manager.ScriptManager.RenderEndofPageScripts(cr);
 
             if (Manager.Deployed) {
