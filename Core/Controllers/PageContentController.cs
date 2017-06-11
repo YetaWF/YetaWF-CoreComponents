@@ -169,7 +169,7 @@ namespace YetaWF.Core.Controllers {
             dataIn.Path = YetaWFManager.UrlDecodePath(dataIn.Path);
             if (!YetaWFManager.HaveManager) {
 #if MVC6
-                return new NotFoundObjectResult(dataIn.__Path);
+                return new NotFoundObjectResult(dataIn.Path);
 #else
                 throw new HttpException(404, string.Format("Url {0} not found", dataIn.Path));
 #endif

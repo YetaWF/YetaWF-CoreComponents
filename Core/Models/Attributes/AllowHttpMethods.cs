@@ -4,8 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#if MVC6
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
+using Microsoft.AspNetCore.Routing;
+#else
 using System.Web;
 using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Controllers {
 
@@ -14,15 +21,27 @@ namespace YetaWF.Core.Controllers {
 
         public AllowHttpBase() { }
         public abstract List<string> Methods { get; }
-
-        public override bool IsValidForRequest(ControllerContext controllerContext, MethodInfo methodInfo) {
-            HttpRequestBase request = controllerContext.HttpContext.Request;
+#if MVC6
+        public override bool IsValidForRequest(RouteContext routeContext, ActionDescriptor action) {
+            HttpRequest request = routeContext.HttpContext.Request;
+            string overRide = request.Headers["X-HTTP-Method-Override"];
             foreach (string verb in Methods) {
-                if (request.Headers["X-HTTP-Method-Override"] == verb || request.HttpMethod == verb)
+                if (overRide == verb || request.Method == verb)
                     return true;
             }
             return false;
         }
+#else
+        public override bool IsValidForRequest(ControllerContext controllerContext, MethodInfo methodInfo) {
+            HttpRequestBase request = controllerContext.HttpContext.Request;
+            string overRide = request.Headers["X-HTTP-Method-Override"];
+            foreach (string verb in Methods) {
+                if (overRide == verb || request.HttpMethod == verb)
+                    return true;
+            }
+            return false;
+        }
+#endif
     }
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class AllowHttp : AllowHttpBase {

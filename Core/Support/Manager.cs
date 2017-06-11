@@ -1175,7 +1175,8 @@ namespace YetaWF.Core.Support {
         public bool IsPostRequest {
             get {
                 HttpRequest request = CurrentRequest;
-                if (request.Headers["X-HTTP-Method-Override"] != null)
+                string overRide = request.Headers["X-HTTP-Method-Override"];
+                if (overRide != null)
                     return request.Headers["X-HTTP-Method-Override"] == "POST";
 #if MVC6
                 return (request.Method == "POST");

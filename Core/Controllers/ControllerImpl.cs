@@ -882,25 +882,25 @@ namespace YetaWF.Core.Controllers {
                         Manager.InPartialView = inPartialView;
                     }
                     viewHtml = PostRender(htmlHelper, context, viewHtml);
-#endif
-                    if (Gzip) {
-                        // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
-                        // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
-#if MVC6
-                        context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
-#else
-                        context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
-#endif
-                        context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
-                    }
-#if MVC6
-                    byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
-                    await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
-#else
-                    response.Output.Write(viewHtml);
-                    if (viewEngine != null)
-                        viewEngine.ViewEngine.ReleaseView(context, View);
                 }
+#endif
+                if (Gzip) {
+                // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
+                // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
+#if MVC6
+                    //$$context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
+#else
+                    context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
+                    context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
+#endif
+                }
+#if MVC6
+                byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
+                await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
+#else
+                response.Output.Write(viewHtml);
+                if (viewEngine != null)
+                    viewEngine.ViewEngine.ReleaseView(context, View);
 #endif
             }
 
