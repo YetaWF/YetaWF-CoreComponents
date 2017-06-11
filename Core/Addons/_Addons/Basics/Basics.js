@@ -517,7 +517,11 @@ YetaWF_Basics.processAllReady = function ($tag) {
     if ($tag === undefined) $tag = $('body');
     for (var index in YetaWF_Basics.whenReady) {
         var entry = YetaWF_Basics.whenReady[index];
-        entry.callback($tag);
+        try { // catch errors to insure all callbacks are called
+            entry.callback($tag);
+        } catch (err) {
+            console.log(err.message);
+        }
     }
 }
 
@@ -538,7 +542,11 @@ YetaWF_Basics.processAllReadyOnce = function ($tag) {
     if ($tag === undefined) $tag = $('body');
     for (var index in YetaWF_Basics.whenReadyOnce) {
         var entry = YetaWF_Basics.whenReadyOnce[index];
-        entry.callback($tag);
+        try { // catch errors to insure all callbacks are called
+            entry.callback($tag);
+        } catch (err) {
+            console.log(err.message);
+        }
     }
     YetaWF_Basics.whenReadyOnce = [];
 }
@@ -676,13 +684,13 @@ _YetaWF_Basics.setContent = function (uri, setState) {
         $css.each(function () {
             data.__KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
         });
-        data.__KnownCss = data.__KnownCss.concat(YVolatile.Basics.UnifiedCssBundle);// add known css files that were added in initial bundle
         data.__KnownScripts = [];
-        var $scr = $('script[type="text/javascript"][src]');
-        $scr.each(function () {
+        var $scripts = $('script[type="text/javascript"][src]');
+        $scripts.each(function () {
             data.__KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
         });
-        data.__KnownScripts = data.__KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundle);// add known javascript files that were added in initial bundle
+        data.__KnownCss = data.__KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
+        data.__KnownScripts = data.__KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
 
         Y_Loading();
         $.ajax({
@@ -736,11 +744,20 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 for (var i = 0; i < cssLength; i++) {
                     $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', result.CssFiles[i]));
                 }
+                if (result.CssBundleFiles != null)
+                    YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles);
                 // add all new script files
                 var scrLength = result.ScriptFiles.length;
                 for (var i = 0; i < scrLength; i++) {
-                    $('head').append($('<script />').attr('type', 'text/javascript').attr('src', result.ScriptFiles[i]));
+                    // we want to execute all scripts even if there are some errors to insure most of the page is OK
+                    try {
+                        $('head').append('<script type="text/javascript" src="{0}"></script>'.format(result.ScriptFiles[i]));
+                    } catch (err) {
+                        console.log(err.message);
+                    }
                 }
+                if (result.ScriptBundleFiles != null)
+                    YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
                 // add pane content
                 var $tags = $(); // collect all panes
                 var contentLength = result.Content.length;
@@ -915,7 +932,7 @@ $(document).ready(function () {
     });
 
     // For an <a> link clicked, add the page we're coming from (not for popup links though)
-    $("body").on("click", "a.{0},area.{0}".format(YConfigs.Basics.CssActionLink), function (e) {
+    $("body").on("click", "a.{0},area.{0},.yt_textarea.t_display a,.yt_textarea.t_display area".format(YConfigs.Basics.CssActionLink), function (e) {
         var $t = $(this);
 
         var uri = $t.uri();
@@ -1232,7 +1249,7 @@ YetaWF_Basics.initPage = function () {
 
     $(window).on("popstate", function () {
         var uri = new URI(window.location.href);
-        _YetaWF_Basics.setContent(uri, false);
+        return _YetaWF_Basics.setContent(uri, false);
     });
     _YetaWF_Basics.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
 };
