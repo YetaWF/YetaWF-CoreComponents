@@ -806,6 +806,12 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 // call ready handlers
                 YetaWF_Basics.processAllReady($tags);
                 YetaWF_Basics.processAllReadyOnce($tags);
+                // scroll
+                var scrolled = YetaWF_Basics.setScrollPosition();
+                if (!scrolled) {
+                    $(window).scrollLeft(0);
+                    $(window).scrollTop(0);
+                }
                 // done, set focus
                 Y_SetFocus();
                 Y_Loading(false);
@@ -837,6 +843,12 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 $divs.show();
                 // send event that a new section became active/visible
                 $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
+                // scroll
+                var scrolled = YetaWF_Basics.setScrollPosition();
+                if (!scrolled) {
+                    $(window).scrollLeft(0);
+                    $(window).scrollTop(0);
+                }
                 Y_SetFocus();
             } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
                 //element.scrollIntoView() as an alternative (check compatibility/options)
@@ -903,13 +915,13 @@ $(document).ready(function () {
                     return null;
                 var s = $this.attr(YConfigs.Basics.CssTooltip);
                 if (s != undefined)
-                    return Y_HtmlEscape(s);
+                    return s;
                 s = $this.attr(YConfigs.Basics.CssTooltipSpan);
                 if (s != undefined)
-                    return Y_HtmlEscape(s);
+                    return s;
                 s = $this.attr('title');
                 if (s != undefined)
-                    return Y_HtmlEscape(s);
+                    return s;
                 if ($this[0].tagName != "IMG" && $this[0].tagName != "I")
                     break;
                 // we're in an IMG or I tag, find enclosing A (if any) and try again
@@ -1215,13 +1227,8 @@ YetaWF_Basics.whenReady.push({
 // PAGE
 // PAGE
 
-YetaWF_Basics.initPage = function () {
+YetaWF_Basics.setScrollPosition = function () {
     'use strict';
-
-    // PAGE POSITION
-    // PAGE POSITION
-    // PAGE POSITION
-
     // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
     var uri = new URI(window.location.href);
     var data = uri.search(true);
@@ -1236,7 +1243,18 @@ YetaWF_Basics.initPage = function () {
         $(window).scrollTop(Number(v));
         scrolled = true;
     }
+    return scrolled;
+};
+
+YetaWF_Basics.initPage = function () {
+    'use strict';
+
+    // PAGE POSITION
+    // PAGE POSITION
+    // PAGE POSITION
+
     // check if we have anything with that path as a unified pane
+    var scrolled = YetaWF_Basics.setScrollPosition();
     if (!scrolled) {
         if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
             var $divs = $('.yUnified[data-url="{0}"]'.format(uri.path()));
@@ -1260,10 +1278,10 @@ YetaWF_Basics.initPage = function () {
     // CONTENT NAVIGATION
     // CONTENT NAVIGATION
 
-    $(window).on("popstate", function () {
-        var uri = new URI(window.location.href);
-        return _YetaWF_Basics.setContent(uri, false);
-    });
     _YetaWF_Basics.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
 };
 
+$(window).on("popstate", function () {
+    var uri = new URI(window.location.href);
+    return _YetaWF_Basics.setContent(uri, false);
+});
