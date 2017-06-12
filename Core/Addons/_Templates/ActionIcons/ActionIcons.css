@@ -4,9 +4,12 @@
 .yaction-link {
     white-space:nowrap;
 }
+h1 .yaction-link, h2 .yaction-link, h3  .yaction-link, h4 .yaction-link, h5 .yaction-link {
+    white-space:normal;
+}
 
 /* align the module action links and grid action up next to each other */
-ul.yActionIcons, ul.yModuleLinks 
+ul.yActionIcons, ul.yModuleLinks
 {
     margin:0;
     padding:0;
