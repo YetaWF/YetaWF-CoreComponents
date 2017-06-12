@@ -651,6 +651,10 @@ _YetaWF_Basics.setContent = function (uri, setState) {
             var menu = $(this).data("kendoMenu");
             menu.close("li.k-item");
         });
+        // Close any open smartmenus
+        try {
+            $('.YetaWF_Menus').collapse('hide');
+        } catch (e) {}
     }
 
     if (YVolatile.Basics.EditModeActive) return true; // edit mode
@@ -660,7 +664,6 @@ _YetaWF_Basics.setContent = function (uri, setState) {
     var path = uri.path();
     if (YVolatile.Basics.UnifiedMode === 3 /*UnifiedModeEnum.DynamicContent*/ || YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
         // find all panes that support dynamic content and replace with new modules
-        closemenus();
         var $divs = $('.yUnified[data-pane]');
         // build data context (like scripts, css files we have)
         var data = {};
@@ -705,6 +708,7 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 "X-HTTP-Method-Override": "GET" // server has to think this is a GET request so all actions that are invoked actually work
             },
             success: function (result, textStatus, jqXHR) {
+                closemenus();
                 if (result.Status != null && result.Status.length > 0) {
                     Y_Loading(false);
                     Y_Alert(result.Status, YLocs.Forms.AjaxErrorTitle);
