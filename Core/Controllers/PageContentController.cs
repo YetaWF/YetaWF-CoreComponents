@@ -270,11 +270,13 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog("Page Content");
 
             // Check if this is a static page
-            if (CanProcessAsStaticPage(dataIn.Path)) { // if this is a static page, render as complete static page
-                PageContentResult cr = new PageContentResult();
-                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                return cr;
-            }
+            // It seems if we can handle a page as a content replacement, that's better than a static page, which reruns all javascript
+            // If it turns out it's not a content page, we'll redirect to the static page
+            //if (CanProcessAsStaticPage(dataIn.Path)) { // if this is a static page, render as complete static page
+            //    PageContentResult cr = new PageContentResult();
+            //    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+            //    return cr;
+            //}
 
             // Process the page
             {
@@ -302,13 +304,13 @@ namespace YetaWF.Core.Controllers {
             Page = 1, // Page has been set up
             Complete = 2,// no more processing is needed
         }
-        private bool CanProcessAsStaticPage(string localUrl) {
-            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers) {
-                if (Manager.StaticPageManager.HavePage(localUrl))
-                    return true;
-            }
-            return false;
-        }
+        //private bool CanProcessAsStaticPage(string localUrl) {
+        //    if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers) {
+        //        if (Manager.StaticPageManager.HavePage(localUrl))
+        //            return true;
+        //    }
+        //    return false;
+        //}
         private ProcessingStatus CanProcessAsDesignedPage(DataIn dataIn, PageContentResult cr) {
 
             // request for a designed page
