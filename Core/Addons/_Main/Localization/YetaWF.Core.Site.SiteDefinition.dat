@@ -101,7 +101,7 @@
                           <Properties>
                             <Name Value="Analytics" />
                             <Caption Value="Analytics" />
-                            <Description Value="Add analytics Javascript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here - Pages can override this setting" />
+                            <Description Value="Add analytics Javascript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including &lt;script&gt;&lt;/script&gt; tags - Pages can override this setting" />
                             <HelpLink />
                             <TextAbove Value="Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed)." />
                             <TextBelow />
@@ -113,7 +113,7 @@
                           <Properties>
                             <Name Value="AnalyticsContent" />
                             <Caption Value="Analytics (Content)" />
-                            <Description Value="Add analytics Javascript code that should be executed when a new page becomes active in an active Unified Page Set - Use &lt;&lt;Url&gt;&gt; to substitute the actual Url - Pages can override this setting" />
+                            <Description Value="Add analytics Javascript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include &lt;script&gt;&lt;/script&gt; tags - Use &lt;&lt;Url&gt;&gt; to substitute the actual Url - Pages can override this setting" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -135,9 +135,33 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="BundleCSSFilesContent" />
+                            <Caption Value="Bundle CSS Files (UPS)" />
+                            <Description Value="Defines whether stylesheets (CSS files) are bundled into one single file while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="BundleJSFiles" />
                             <Caption Value="Bundle Javascript Files" />
                             <Description Value="Defines whether Javascript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="BundleJSFilesContent" />
+                            <Caption Value="Bundle Javascript Files (UPS)" />
+                            <Description Value="Defines whether Javascript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
