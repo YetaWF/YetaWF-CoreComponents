@@ -500,6 +500,10 @@ namespace YetaWF.Core.Addons {
                                     if (!Package.CreatePackageSymLink(viewsPath, to))
                                         throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
                                 }
+                            } else {
+                                // remove any symlinks that may point to a Views folder in source that no longer exists
+                                string viewsPath = Path.Combine(AreasFolder, package.AreaName, Globals.ViewsFolder);
+                                DirectoryIO.DeleteFolder(viewsPath);
                             }
                         }
                     } else {
