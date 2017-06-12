@@ -31,11 +31,11 @@ namespace YetaWF.Core.Views.Shared {
             alt = alt ?? title;
             TagBuilder tImg = new TagBuilder("img");
             if (!string.IsNullOrWhiteSpace(alt))
-                tImg.MergeAttribute("alt", alt);
+                tImg.MergeAttribute("alt", YetaWFManager.HtmlAttributeEncode(alt));
             if (!string.IsNullOrWhiteSpace(cssClass))
                 tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
             if (!string.IsNullOrWhiteSpace(title))
-                tImg.MergeAttribute("title", title);
+                tImg.MergeAttribute("title", YetaWFManager.HtmlAttributeEncode(title));
             if (!string.IsNullOrWhiteSpace(id))
                 tImg.Attributes.Add("id", id);
             if (!url.IsAbsoluteUrl()) {

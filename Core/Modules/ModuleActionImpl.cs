@@ -134,7 +134,7 @@ namespace YetaWF.Core.Modules {
 
             TagBuilder tag = new TagBuilder("a");
             if (!string.IsNullOrWhiteSpace(Tooltip))
-                tag.MergeAttribute(Basics.CssTooltip, Tooltip);
+                tag.MergeAttribute(Basics.CssTooltip, YetaWFManager.HtmlAttributeEncode(Tooltip));
             if (!string.IsNullOrWhiteSpace(Name))
                 tag.MergeAttribute("data-name", Name);
             if (!Displayed)
@@ -187,15 +187,15 @@ namespace YetaWF.Core.Modules {
                 if (Category == ActionCategoryEnum.Delete) {
                     // confirm deletions?
                     if (UserSettings.GetProperty<bool>("ConfirmDelete"))
-                        tag.MergeAttribute(Basics.CssConfirm, ConfirmationText);
+                        tag.MergeAttribute(Basics.CssConfirm, YetaWFManager.HtmlAttributeEncode(ConfirmationText));
                 } else {
                     // confirm actions?
                     if (UserSettings.GetProperty<bool>("ConfirmActions"))
-                        tag.MergeAttribute(Basics.CssConfirm, ConfirmationText);
+                        tag.MergeAttribute(Basics.CssConfirm, YetaWFManager.HtmlAttributeEncode(ConfirmationText));
                 }
             }
             if (!string.IsNullOrWhiteSpace(PleaseWaitText)) {
-                tag.MergeAttribute(Basics.CssPleaseWait, PleaseWaitText);
+                tag.MergeAttribute(Basics.CssPleaseWait, YetaWFManager.HtmlAttributeEncode(PleaseWaitText));
             }
             if (CookieAsDoneSignal)
                 tag.Attributes.Add(Basics.CookieDoneCssAttr, "");

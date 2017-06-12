@@ -66,7 +66,7 @@ namespace YetaWF.Core.Views.Shared {
             if (!string.IsNullOrWhiteSpace(description)) {
                 if (ShowVariable)
                     description = __ResStr("showVarFmt", "{0} (Variable {1})", description, htmlFieldName);
-                htmlAttributes.Add(Basics.CssTooltip, description);
+                htmlAttributes.Add(Basics.CssTooltip, YetaWFManager.HtmlAttributeEncode(description));
             }
             string label = Caption ?? propData.GetCaption(metadata.ContainerType);
             string helpLink = HelpLink ?? propData.GetHelpLink(metadata.ContainerType);
@@ -108,7 +108,7 @@ namespace YetaWF.Core.Views.Shared {
             TagBuilder tag = new TagBuilder("label");
             tag.MergeAttributes(htmlAttributes, replaceExisting: true);
             if (!string.IsNullOrWhiteSpace(ToolTip))
-                tag.Attributes.Add(Basics.CssTooltip, ToolTip);
+                tag.Attributes.Add(Basics.CssTooltip, YetaWFManager.HtmlAttributeEncode(ToolTip));
             tag.SetInnerText(text);
             return tag.ToHtmlString(TagRenderMode.Normal);
         }
