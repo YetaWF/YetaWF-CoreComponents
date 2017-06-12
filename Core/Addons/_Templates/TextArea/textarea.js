@@ -30,13 +30,12 @@ if (typeof CKEDITOR !== 'undefined') { // CKEDITOR is only defined when an edita
 // when we're in a float div (property list or tabbed property list) the parent width isn't available until after the
 // page has completely loaded, so we need to set it again.
 // For other cases (outside float div) this does no harm and resizes to the current size.
-$(document).ready(function () {
-    $("body").on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
-        var $ckeds = $('.yt_textarea.t_edit', $panel);
-        $ckeds.each(function () {
-            var $cked = $(this);
-            var ckEd = CKEDITOR.instances[$cked[0].id];
-            ckEd.resize('100%', $cked.attr('data-height'), true);
-        });
+
+$(document).on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
+    var $ckeds = $('.yt_textarea.t_edit', $panel);
+    $ckeds.each(function () {
+        var $cked = $(this);
+        var ckEd = CKEDITOR.instances[$cked[0].id];
+        ckEd.resize('100%', $cked.attr('data-height'), true);
     });
 });

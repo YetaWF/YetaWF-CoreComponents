@@ -349,46 +349,43 @@ _YetaWF_Forms.showErrors = function ($form) {
     _YetaWF_Forms.dontUpdateWarningIcons = false;
 };
 
-$(document).ready(function () {
+// cancel the form
+$(document).on('click', 'form .' + YConfigs.Forms.CssFormCancel, function (e) {
 
-    // cancel the form
-    $('body').on('click', 'form .' + YConfigs.Forms.CssFormCancel, function (e) {
-
-        if (Y_InPopup()) {
-            // we're in a popup, just close it
-            Y_ClosePopup();
+    if (Y_InPopup()) {
+        // we're in a popup, just close it
+        Y_ClosePopup();
+    } else {
+        // go to the last entry in the origin list, pop that entry and pass it in the url
+        var originList = YVolatile.Basics.OriginList;
+        if (originList.length > 0) {
+            var origin = originList.pop();
+            var uri = new URI(origin.Url);
+            uri.removeSearch(YGlobals.Link_ToEditMode);
+            if (origin.EditMode != YVolatile.Basics.EditModeActive)
+                uri.addSearch(YGlobals.Link_ToEditMode, !YVolatile.Basics.EditModeActive);
+            uri.removeSearch(YGlobals.Link_OriginList);
+            if (originList.length > 0)
+                uri.addSearch(YGlobals.Link_OriginList, JSON.stringify(originList));
+            window.location.assign(uri);
         } else {
-            // go to the last entry in the origin list, pop that entry and pass it in the url
-            var originList = YVolatile.Basics.OriginList;
-            if (originList.length > 0) {
-                var origin = originList.pop();
-                var uri = new URI(origin.Url);
-                uri.removeSearch(YGlobals.Link_ToEditMode);
-                if (origin.EditMode != YVolatile.Basics.EditModeActive)
-                    uri.addSearch(YGlobals.Link_ToEditMode, !YVolatile.Basics.EditModeActive);
-                uri.removeSearch(YGlobals.Link_OriginList);
-                if (originList.length > 0)
-                    uri.addSearch(YGlobals.Link_OriginList, JSON.stringify(originList));
-                window.location.assign(uri);
-            } else {
-                // we don't know where to return so just close the browser
-                window.close();
-            }
+            // we don't know where to return so just close the browser
+            window.close();
         }
-    });
+    }
+});
 
-    $('body').on('click', 'form input[type="button"][{0}]'.format(YConfigs.Forms.CssDataApplyButton), function (e) {
-        e.preventDefault();
-        var $form = YetaWF_Forms.getForm(this);
-        YetaWF_Forms.submit($form, true, YGlobals.Link_SubmitIsApply + "=y");
-    });
+$(document).on('click', 'form input[type="button"][{0}]'.format(YConfigs.Forms.CssDataApplyButton), function (e) {
+    e.preventDefault();
+    var $form = YetaWF_Forms.getForm(this);
+    YetaWF_Forms.submit($form, true, YGlobals.Link_SubmitIsApply + "=y");
+});
 
-    // submit the form
-    $('body').on('submit', 'form.' + YConfigs.Forms.CssFormAjax, function (e) {
-        var $form = $(this);
-        e.preventDefault();
-        YetaWF_Forms.submit($form, true);
-    });
+// submit the form
+$(document).on('submit', 'form.' + YConfigs.Forms.CssFormAjax, function (e) {
+    var $form = $(this);
+    e.preventDefault();
+    YetaWF_Forms.submit($form, true);
 });
 
 // when we display a popup for the error summary, the focus loss causes validation to occur. We suppress updating icons if dontUpdateWarningIcons == true

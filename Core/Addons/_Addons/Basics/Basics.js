@@ -945,7 +945,7 @@ $(document).ready(function () {
     });
 
     // For an <a> link clicked, add the page we're coming from (not for popup links though)
-    $("body").on("click", "a.{0},area.{0},.yt_textarea.t_display a,.yt_textarea.t_display area".format(YConfigs.Basics.CssActionLink), function (e) {
+    $("body").on("click", "a.yaction-link,area.yaction-link", function (e) {
         var $t = $(this);
 
         var uri = $t.uri();

@@ -11,28 +11,26 @@ _YetaWF_Template_PageSkin.FallbackPopupFileName = "Popup.cshtml";
 YetaWF_Template_PageSkin.pageInit = function (id, collection) { };
 YetaWF_Template_PageSkin.popupInit = function (id, collection) { };
 
-$(document).ready(function () {
+$(document).on('change', '.yt_pageskin .t_collection select, .yt_popupskin .t_collection select', function (event) {
 
-    $("body").on('change', '.yt_pageskin .t_collection select, .yt_popupskin .t_collection select', function (event) {
+    'use strict';
 
-        'use strict';
+    var $this = $(this);
 
-        var $this = $(this);
+    var $ctl = $this.closest('.yt_pageskin,.yt_popupskin');
+    if ($ctl.length != 1) throw "Couldn't find skin control";/*DEBUG*/
+    var $coll = $('select[name$=".Collection"]', $ctl);
+    if ($coll.length != 1) throw "Couldn't find skin collection control";/*DEBUG*/
+    var $filename = $('select[name$=".FileName"]', $ctl);
+    if ($filename.length != 1) throw "Couldn't find filename control";/*DEBUG*/
+    var popup = $ctl.hasClass('yt_popupskin');
 
-        var $ctl = $this.closest('.yt_pageskin,.yt_popupskin');
-        if ($ctl.length != 1) throw "Couldn't find skin control";/*DEBUG*/
-        var $coll = $('select[name$=".Collection"]', $ctl);
-        if ($coll.length != 1) throw "Couldn't find skin collection control";/*DEBUG*/
-        var $filename = $('select[name$=".FileName"]', $ctl);
-        if ($filename.length != 1) throw "Couldn't find filename control";/*DEBUG*/
-        var popup = $ctl.hasClass('yt_popupskin');
+    var ajaxurl = $('input[name$=".AjaxUrl"]', $ctl).val();
+    if (ajaxurl == "") throw "Couldn't find ajax url";/*DEBUG*/
 
-        var ajaxurl = $('input[name$=".AjaxUrl"]', $ctl).val();
-        if (ajaxurl == "") throw "Couldn't find ajax url";/*DEBUG*/
-
-        var data = { 'skinCollection': $(this).val() };
-        // get a new list of skins
-        YetaWF_TemplateDropDownList.AjaxUpdate($filename, data, ajaxurl);
-    });
+    var data = { 'skinCollection': $(this).val() };
+    // get a new list of skins
+    YetaWF_TemplateDropDownList.AjaxUpdate($filename, data, ajaxurl);
 });
+
 

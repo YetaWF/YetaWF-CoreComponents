@@ -58,33 +58,31 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
 // $('body').trigger('YetaWF_PropertyList_Visible', $div);
 // $div is any jquery object - all items (including child items) are checked for propertylists.
 
-$(document).ready(function () {
+$(document).on('YetaWF_PropertyList_Visible', function (event, $div) {
     'use strict';
-    $("body").on('YetaWF_PropertyList_Visible', function (event, $div) {
-        // jquery tabs
-        $('.ui-tabs', $div).each(function () {
-            var $tabctl = $(this);
-            var id = $tabctl.attr('id');
-            if (id === undefined) throw "No id on tab control";/*DEBUG*/
-            var tabid = $tabctl.tabs("option", "active");
-            if (tabid >= 0) {
-                var $panel = $('#{0}_tab{1}'.format(id, tabid), $tabctl);
-                if ($panel.length == 0) throw "Tab panel {0} not found in tab control {1}".format(tabid, id);/*DEBUG*/
-                $('body').trigger('YetaWF_PropertyList_PanelSwitched', $panel);
-            }
-        });
-        // kendo tabs
-        $('.k-widget.k-tabstrip', $div).each(function () {
-            var $tabctl = $(this);
-            var id = $tabctl.attr('id');
-            if (id === undefined) throw "No id on tab control";/*DEBUG*/
-            var ts = $tabctl.data("kendoTabStrip");
-            var tabid = ts.select().attr("data-tab");
-            if (tabid >= 0) {
-                var $panel = $('#{0}-{1}'.format(id, +tabid + 1), $tabctl);
-                if ($panel.length == 0) throw "Tab panel {0} not found in tab control {1}".format(tabid, id);/*DEBUG*/
-                $('body').trigger('YetaWF_PropertyList_PanelSwitched', $panel);
-            }
-        });
+    // jquery tabs
+    $('.ui-tabs', $div).each(function () {
+        var $tabctl = $(this);
+        var id = $tabctl.attr('id');
+        if (id === undefined) throw "No id on tab control";/*DEBUG*/
+        var tabid = $tabctl.tabs("option", "active");
+        if (tabid >= 0) {
+            var $panel = $('#{0}_tab{1}'.format(id, tabid), $tabctl);
+            if ($panel.length == 0) throw "Tab panel {0} not found in tab control {1}".format(tabid, id);/*DEBUG*/
+            $('body').trigger('YetaWF_PropertyList_PanelSwitched', $panel);
+        }
+    });
+    // kendo tabs
+    $('.k-widget.k-tabstrip', $div).each(function () {
+        var $tabctl = $(this);
+        var id = $tabctl.attr('id');
+        if (id === undefined) throw "No id on tab control";/*DEBUG*/
+        var ts = $tabctl.data("kendoTabStrip");
+        var tabid = ts.select().attr("data-tab");
+        if (tabid >= 0) {
+            var $panel = $('#{0}-{1}'.format(id, +tabid + 1), $tabctl);
+            if ($panel.length == 0) throw "Tab panel {0} not found in tab control {1}".format(tabid, id);/*DEBUG*/
+            $('body').trigger('YetaWF_PropertyList_PanelSwitched', $panel);
+        }
     });
 });

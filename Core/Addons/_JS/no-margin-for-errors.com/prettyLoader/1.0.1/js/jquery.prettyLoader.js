@@ -5,18 +5,6 @@
 	Version: 1.0.1
 ------------------------------------------------------------------------- */
 
-
-//CUSTOMIZATON: (to keep track of mouse position so we have it available for show()/positionLoader.
-$(document).ready(function () {
-    YetaWF_Basics.PrettyLoader = {};
-    YetaWF_Basics.PrettyLoader.MouseXPos = YetaWF_Basics.PrettyLoader.MouseYPos = 0;
-    $().mousemove(function (e) {
-        YetaWF_Basics.PrettyLoader.MouseXPos = e.pageX;
-        YetaWF_Basics.PrettyLoader.MouseYPos = e.pageY;
-    });
-});
-// END CUSTOMIZATION
-
 (function($) {
 	$.prettyLoader = {version: '1.0.1'};
 
@@ -29,6 +17,10 @@ $(document).ready(function () {
 			offset_top: 13, /* integer */
 			offset_left: 10 /* integer */
 		}, settings);
+
+	    //CUSTOMIZATON:
+		var prettyLoaderOn = false;
+	    // END CUSTOMIZATION
 
 		scrollPos = _getScroll();
 
@@ -43,15 +35,26 @@ $(document).ready(function () {
 
 		var cur_x = 0;
 	    var cur_y = 0;
-		$.prettyLoader.positionLoader = function (e) {
-      		e = e ? e : window.event;
+	    //CUSTOMIZATON:
+	    $(window).mousemove(function (e) {
+	        cur_x = e.clientX;
+	        cur_y = e.clientY;
+	        if (!prettyLoaderOn) return;
+	        $.prettyLoader.positionLoader(null);
+	    });
+	    $(window).scroll(function () { scrollPos = _getScroll(); $(window).triggerHandler('mousemove'); });
+	    // END CUSTOMIZATION
 
-		    // Set the cursor pos only if the even is returned by the browser.
-		    // CUSTOMIZATION
-      		YetaWF_Basics.PrettyLoader.MouseXPos = cur_x = (e.clientX) ? e.clientX : YetaWF_Basics.PrettyLoader.MouseXPos;
-      		YetaWF_Basics.PrettyLoader.MouseYPos = cur_y = (e.clientY) ? e.clientY : YetaWF_Basics.PrettyLoader.MouseYPos;
+	    $.prettyLoader.positionLoader = function (e) {
+
+	        //CUSTOMIZATON:
+		    if (!prettyLoaderOn) return;
 		    // END CUSTOMIZATION
-            // ORIGINAL CODE
+
+		    // CUSTOMIZATION
+		    // END CUSTOMIZATION
+		    // ORIGINAL CODE
+		    //e = e ? e : window.event;
       		//cur_x = (e.clientX) ? e.clientX : cur_x;
       		//cur_y = (e.clientY) ? e.clientY : cur_y;
 
@@ -68,6 +71,7 @@ $(document).ready(function () {
 
             //CUSTOMIZATON:
 		    if ($('.prettyLoader').length > 0) return;
+		    prettyLoaderOn = true;
             //END CUSTOMIZATION
 		    // ORIGINAL: if ($('.prettyLoader').size() > 0) return;
 
@@ -93,9 +97,10 @@ $(document).ready(function () {
 			// Show it!
 			$('.prettyLoader').fadeIn(settings.animation_speed);
 
-			$(document).bind('click',$.prettyLoader.positionLoader);
-			$(document).bind('mousemove',$.prettyLoader.positionLoader);
-			$(window).scroll(function(){ scrollPos = _getScroll(); $(document).triggerHandler('mousemove'); });
+		    // ORIGINAL CODE:
+			//$(document).bind('click', $.prettyLoader.positionLoader);
+			//$(document).bind('mousemove',$.prettyLoader.positionLoader);
+			//$(window).scroll(function(){ scrollPos = _getScroll(); $(document).triggerHandler('mousemove'); });
 
 		    //CUSTOMIZATON:
 			$.prettyLoader.positionLoader(null); // force show
@@ -108,9 +113,15 @@ $(document).ready(function () {
 			}
 		};
 
-		$.prettyLoader.hide = function(){
-			$(document).unbind('click',$.prettyLoader.positionLoader);
-			$(document).unbind('mousemove',$.prettyLoader.positionLoader);
+		$.prettyLoader.hide = function () {
+		    // ORIGINAL CODE:
+		    //$(document).unbind('click', $.prettyLoader.positionLoader);
+		    //CUSTOMIZATON:
+		    prettyLoaderOn = false;
+		    //END CUSTOMIZATION
+            // ORIGINAL CODE:
+			//$(document).unbind('mousemove',$.prettyLoader.positionLoader);
+
 		    //CUSTOMIZATON:
 		    //END CUSTOMIZATION
 		    // ORIGINAL: $(window).unbind('scroll');

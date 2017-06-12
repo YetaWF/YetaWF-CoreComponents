@@ -103,17 +103,15 @@ YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl, onSu
     });
 }
 
-$(document).ready(function () {
-    //'use strict';
-    // We need to delay initialization until a panel becomes visible so we can calculate the dropdown width
-    $("body").on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
-        var $ctls = $('select.yt_dropdownlist[data-needinit],select.yt_dropdownlist_base[data-needinit],select.yt_enum[data-needinit]');
-        $ctls.each(function (index) {
-            YetaWF_TemplateDropDownList.initOne($(this));
-        });
-    });
-    $("body").on('change', 'select.yt_dropdownlist[data-val=true],select.yt_dropdownlist_base[data-val=true],select.yt_enum[data-val=true]', function () {
-        if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($(this));
+// We need to delay initialization until a panel becomes visible so we can calculate the dropdown width
+$(document).on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
+    var $ctls = $('select.yt_dropdownlist[data-needinit],select.yt_dropdownlist_base[data-needinit],select.yt_enum[data-needinit]');
+    $ctls.each(function (index) {
+        YetaWF_TemplateDropDownList.initOne($(this));
     });
 });
+$(document).on('change', 'select.yt_dropdownlist[data-val=true],select.yt_dropdownlist_base[data-val=true],select.yt_enum[data-val=true]', function () {
+    if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($(this));
+});
+
 

@@ -92,7 +92,6 @@ namespace YetaWF.Core.Addons {
             scripts.AddVolatileOption("Basics", "IsInPopup", manager.IsInPopup);
 
             // Css
-            scripts.AddConfigOption("Basics", "CssActionLink", CssActionLink);
             scripts.AddConfigOption("Basics", "CssTooltip", CssTooltip);
             scripts.AddConfigOption("Basics", "CssTooltipSpan", CssTooltipSpan);
             scripts.AddConfigOption("Basics", "CssLegend", CssLegend);

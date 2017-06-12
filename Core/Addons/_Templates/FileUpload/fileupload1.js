@@ -121,10 +121,9 @@ YetaWF_FileUpload1.init = function (divId, serializeForm) {
     }
 };
 
-$(document).ready(function () {
-    // trigger upload button
-    $('body').on('click', '.yt_fileupload1 .t_upload', function (ev) {
-        var $control = $(this).closest('.yt_fileupload1');
-        $('input[type="file"]', $control).trigger('click');
-    });
+// trigger upload button
+$(document).on('click', '.yt_fileupload1 .t_upload', function (ev) {
+    var $control = $(this).closest('.yt_fileupload1');
+    $('input[type="file"]', $control).trigger('click');
 });
+

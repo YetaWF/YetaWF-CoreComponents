@@ -3,63 +3,60 @@
 
 /* Modules */
 
-$(document).ready(function () {
+// highlight on module entry/exit (in admin mode)
+$(document).on('mouseenter', '.yModule', function (event) {
 
-    // highlight on module entry/exit (in admin mode)
-    $('body').on('mouseenter', '.yModule', function (event) {
+    //console.log("Entering module");
 
-        //console.log("Entering module");
+    var $t = $(this);
+    // check if this module is already current
+    if ($t.hasClass('yModule-current'))
+        return;
 
-        var $t = $(this);
-        // check if this module is already current
-        if ($t.hasClass('yModule-current'))
-            return;
+    // find the module's edit icon
+    var $edit = $('.yModuleMenuEditIcon', $t);
+    if ($edit.length == 0) return; /// it just doesn't have a menu
 
-        // find the module's edit icon
-        var $edit = $('.yModuleMenuEditIcon', $t);
-        if ($edit.length == 0) return; /// it just doesn't have a menu
+    // find the module's menu
+    var $menu = $('.yModuleMenu', $t);
+    if ($menu.length > 1) throw "too many module menus found";/*DEBUG*/
+    if ($menu.length < 1) throw "module menu not found";/*DEBUG*/
 
-        // find the module's menu
-        var $menu = $('.yModuleMenu', $t);
-        if ($menu.length > 1) throw "too many module menus found";/*DEBUG*/
-        if ($menu.length < 1) throw "module menu not found";/*DEBUG*/
+    // if the edit icon is already visible, we're done
+    if ($edit.is(':visible')) // edit/menu is still visible
+        return;
 
-        // if the edit icon is already visible, we're done
-        if ($edit.is(':visible')) // edit/menu is still visible
-            return;
+    // entered a new module - clear all module menus that may be open
+    YetaWF_Modules_ClearMenus(true);
 
-        // entered a new module - clear all module menus that may be open
-        YetaWF_Modules_ClearMenus(true);
+    // add a class to the module to identify it's the current module
+    $t.addClass('yModule-current');
 
-        // add a class to the module to identify it's the current module
-        $t.addClass('yModule-current');
+    //if (YVolatile.Basics.EditModeActive) { }
 
-        //if (YVolatile.Basics.EditModeActive) { }
+    // fade in edit icon
+    $edit.fadeIn(500);
 
-        // fade in edit icon
-        $edit.fadeIn(500);
+    YetaWF_Core_MenuHandler = setInterval(function () { YetaWF_Modules_ClearMenus(false); }, 1500);
+});
+$(document).on('mouseleave', '.yModule', function (event) {
+    //console.log("Exiting module");
 
-        YetaWF_Core_MenuHandler = setInterval(function () { YetaWF_Modules_ClearMenus(false); }, 1500);
-    });
-    $('body').on('mouseleave', '.yModule', function (event) {
-        //console.log("Exiting module");
+    var $t = $(this);
+    $t.removeClass('yModule-current');
+});
 
-        var $t = $(this);
-        $t.removeClass('yModule-current');
-    });
+// Show/hide menu as we're hovering over the edit icon
+$(document).on('mouseenter', '.yModuleMenuEditIcon', function (event) {
 
-    // Show/hide menu as we're hovering over the edit icon
-    $('body').on('mouseenter', '.yModuleMenuEditIcon', function (event) {
+    //console.log("Entering edit icon");
 
-        //console.log("Entering edit icon");
+    var $t = $(this);
+    // find the module's menu
+    var $menu = $('.yModuleMenu', $t);
+    if ($menu.length != 1) throw "menu not found";/*DEBUG*/
 
-        var $t = $(this);
-        // find the module's menu
-        var $menu = $('.yModuleMenu', $t);
-        if ($menu.length != 1) throw "menu not found";/*DEBUG*/
-
-        $menu.show();
-    });
+    $menu.show();
 });
 
 var YetaWF_Core_MenuHandler = 0;

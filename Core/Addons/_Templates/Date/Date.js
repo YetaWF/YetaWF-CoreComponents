@@ -69,17 +69,15 @@ _YetaWF_Date.setHidden = function ($hidden, dateVal) {
     $hidden.val(s)
 }
 
-$(document).ready(function () {
-    $('body').on('change keyup', '.yt_date.t_edit input[name="dtpicker"]', function () {
-        var $ctrl = $(this).closest('.yt_date.t_edit');
-        if ($ctrl.length != 1) throw "couldn't find control";/*DEBUG*/
-        var kdPicker = $(this).data("kendoDatePicker");
-        var val = kdPicker.value();
-        if (val == null) // if the date picker has an invalid value, still propagate the actual value entered to hidden control for validation
-            val = $(this).val();
-        var $hidden = _YetaWF_Date.getHidden($ctrl);
-        _YetaWF_Date.setHidden($hidden, val);
-        if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
-    });
+$(document).on('change keyup', '.yt_date.t_edit input[name="dtpicker"]', function () {
+    var $ctrl = $(this).closest('.yt_date.t_edit');
+    if ($ctrl.length != 1) throw "couldn't find control";/*DEBUG*/
+    var kdPicker = $(this).data("kendoDatePicker");
+    var val = kdPicker.value();
+    if (val == null) // if the date picker has an invalid value, still propagate the actual value entered to hidden control for validation
+        val = $(this).val();
+    var $hidden = _YetaWF_Date.getHidden($ctrl);
+    _YetaWF_Date.setHidden($hidden, val);
+    if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($hidden);
 });
 

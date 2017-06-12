@@ -29,42 +29,41 @@ _YetaWF_Scroller.updateButtons = function ($control, direction) {
         $('.t_right', $control).removeAttr('disabled');
 };
 
-$(document).ready(function () {
+_YetaWF_Scroller.scroll = function (direction, elem) {
     'use strict';
 
-    function scroll(direction, elem) {
-        var $elem = $(elem);
-        var $control = _YetaWF_Scroller.getControl($elem);
-        var width = $control.innerWidth();
-        var itemwidth = $('.t_item', $control).eq(0).outerWidth();
+    var $elem = $(elem);
+    var $control = _YetaWF_Scroller.getControl($elem);
+    var width = $control.innerWidth();
+    var itemwidth = $('.t_item', $control).eq(0).outerWidth();
 
-        var index = $control.attr('data-index');
-        if (index == undefined) index = 0;
-        index = parseInt(index);
-        var itemCount = $('.t_item', $control).length;
+    var index = $control.attr('data-index');
+    if (index == undefined) index = 0;
+    index = parseInt(index);
+    var itemCount = $('.t_item', $control).length;
 
-        var skip = Math.floor(width / itemwidth);
-        if (skip < 1) skip = 1;
-        index = index + skip * direction;
-        //if (index >= itemCount - skip) index %= itemCount;
-        //if (index < 0) index = itemCount + index;
-        if (index >= itemCount) index = itemCount - skip;
-        if (index < 0) index = 0;
-        $control.attr('data-index', index);
+    var skip = Math.floor(width / itemwidth);
+    if (skip < 1) skip = 1;
+    index = index + skip * direction;
+    //if (index >= itemCount - skip) index %= itemCount;
+    //if (index < 0) index = itemCount + index;
+    if (index >= itemCount) index = itemCount - skip;
+    if (index < 0) index = 0;
+    $control.attr('data-index', index);
 
-        _YetaWF_Scroller.updateButtons($control)
+    _YetaWF_Scroller.updateButtons($control)
 
-        var offs = index * itemwidth;
-        $('.t_items', $control).animate({
-            left: -offs,
-        }, 250, function () { });
-    }
-    $('body').on('click', '.yt_scroller .t_left', function () {
-        scroll(-1, this);
-    });
-    $('body').on('click', '.yt_scroller .t_right', function () {
-        scroll(1, this);
-    });
+    var offs = index * itemwidth;
+    $('.t_items', $control).animate({
+        left: -offs,
+    }, 250, function () { });
+}
+
+$(document).on('click', '.yt_scroller .t_left', function () {
+    _YetaWF_Scroller.scroll(-1, this);
+});
+$(document).on('click', '.yt_scroller .t_right', function () {
+    _YetaWF_Scroller.scroll(1, this);
 });
 
 YetaWF_Basics.whenReady.push({
