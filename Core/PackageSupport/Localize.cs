@@ -178,6 +178,7 @@ namespace YetaWF.Core.Packages {
             if (path.EndsWith("\\Properties", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Sites", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\SitesHtml", StringComparison.OrdinalIgnoreCase)) return;
+            if (path.EndsWith("\\Vault", StringComparison.OrdinalIgnoreCase)) return;
             string[] files = Directory.GetFiles(path, "*.cs");
             foreach (string file in files)
                 ParseCsSourceFile(file);

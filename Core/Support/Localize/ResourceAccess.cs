@@ -48,6 +48,10 @@ namespace YetaWF.Core.Localize {
                         if (args != null && args.Count() > 0)
                             text = string.Format(text, args);
                     } else {
+                        if (type.BaseType != null && type.BaseType.FullName == "YetaWF.Core.Modules.ModuleDefinition") {
+                            // shared views use the module base class
+                            return GetResourceString(type.BaseType, name, defaultValue, args);
+                        }
                         text = "*miss*" + name;
                         if (LocalizationSupport.AbortOnFailure)
                             throw new InternalError("Missing resource {0} for class {1}", name, type.FullName);
