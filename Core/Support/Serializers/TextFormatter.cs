@@ -22,8 +22,8 @@ namespace YetaWF.Core.Serializers {
         public static void Initialize(this XmlWriter xmlWrt) { }
         public static string Attr(this XmlTextReader xmlRd, string name) {
             string strAttr = xmlRd[name];
-            if (string.IsNullOrEmpty(strAttr))
-                throw new InternalError("{0} element at line {1} doesn't have a required {2} attribute.", xmlRd.Name, xmlRd.LineNumber, name);
+            if (strAttr == null)
+                throw new InternalError("{0} element at line {1} doesn't have a required {2} attribute value", xmlRd.Name, xmlRd.LineNumber, name);
             return strAttr;
         }
         public static void MustRead(this XmlTextReader xmlRd) {
@@ -339,7 +339,7 @@ namespace YetaWF.Core.Serializers {
             if (xmlIn.IsEmptyElement) {
                 // simple value
                 string strVal = null;
-                if (!string.IsNullOrEmpty(xmlIn["Value"])) {
+                if (xmlIn["Value"] != null) {
                     strVal = xmlIn.Attr("Value"); // property value
                 } else if (!string.IsNullOrEmpty(xmlIn["ValueBin"])) {
                     strVal = xmlIn.Attr("ValueBin"); // property value
