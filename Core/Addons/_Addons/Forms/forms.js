@@ -34,7 +34,7 @@ YetaWF_Forms.initPartialForm = function ($partialForm) {
         var $err = $('img.{0}[name="{1}"]'.format(YConfigs.Forms.CssWarningIcon, name), $val.closest('form'));
         $err.remove();
         $val.before('<img src="{0}" name={1} class="{2}" {3}="{4}"/>'.format(
-            Y_HtmlEscape(YConfigs.Forms.CssWarningIconUrl), name, YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_HtmlEscape($val.text())));
+            Y_AttrEscape(YConfigs.Forms.CssWarningIconUrl), name, YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_AttrEscape($val.text())));
     });
 
     // show error popup
@@ -429,7 +429,7 @@ $(document).ready(function () {
         // rather than going back and testing each template, we'll just use the first validation error for the field we find.
         if ($val.length < 1) throw "Validation message not found";/*DEBUG*/
         // insert a new error icon
-        $val.eq(0).before('<img src="{0}" name="{1}" class="{2}" {3}="{4}"/>'.format(Y_HtmlEscape(YConfigs.Forms.CssWarningIconUrl), name, YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_HtmlEscape($val.text())));
+        $val.eq(0).before('<img src="{0}" name="{1}" class="{2}" {3}="{4}"/>'.format(Y_AttrEscape(YConfigs.Forms.CssWarningIconUrl), name, YConfigs.Forms.CssWarningIcon, YConfigs.Basics.CssTooltip, Y_AttrEscape($val.text())));
     });
     $('body').on('elementValidationSuccess', function (element) {
         if (_YetaWF_Forms.dontUpdateWarningIcons) return;

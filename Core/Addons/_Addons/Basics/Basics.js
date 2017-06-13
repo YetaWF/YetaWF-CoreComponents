@@ -45,6 +45,13 @@ function YZeroPad(num, places) {
     return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
+function Y_AttrUnescape(s) {
+    return $('<div/>').html(s).text();
+}
+function Y_AttrEscape(s) {
+    return $('<div/>').text(s).html();
+}
+
 // escape data for html attributes
 function Y_HtmlEscape(s, preserveCR) {
     'use strict';
@@ -62,7 +69,6 @@ function Y_HtmlEscape(s, preserveCR) {
         */
         .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
         .replace(/[\r\n]/g, preserveCR);
-    ;
 }
 
 // escape data for javascript/json strings
@@ -1110,7 +1116,7 @@ $(document).ready(function () {
             // this is a file download
             var confirm = $t.attr(YConfigs.Basics.CssConfirm);
             if (confirm != undefined) {
-                Y_AlertYesNo(confirm, null, function () {
+                Y_AlertYesNo(Y_AttrUnescape(confirm), null, function () {
                     window.location = url;
                     Y_Loading();
                     waitForCookie();
@@ -1123,7 +1129,7 @@ $(document).ready(function () {
             // this means that it's posted by definition
             var confirm = $t.attr(YConfigs.Basics.CssConfirm);
             if (confirm != undefined) {
-                Y_AlertYesNo(confirm, null, function () {
+                Y_AlertYesNo(Y_AttrUnescape(confirm), null, function () {
                     postLink();
                     if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
                         Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
@@ -1132,7 +1138,7 @@ $(document).ready(function () {
                 return false;
             } else if (post) {
                 if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                    Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
+                    Y_PleaseWait(Y_AttrUnencode($t.attr(YConfigs.Basics.CssPleaseWait)))
                 postLink();
                 return false;
             }
@@ -1141,7 +1147,7 @@ $(document).ready(function () {
         if (target == "_self") {
             // add overlay if desired
             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
-                Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
+                Y_PleaseWait(Y_AttrUnencode($t.attr(YConfigs.Basics.CssPleaseWait)))
             }
         }
         waitForCookie(); // if any
