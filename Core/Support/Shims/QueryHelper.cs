@@ -160,8 +160,10 @@ namespace YetaWF.Core.Support {
             if (string.IsNullOrWhiteSpace(queryString)) return url;
             if (url.Contains('?'))
                 return string.Format("{0}&{1}", url, queryString);
-            else
+            else if (!queryString.StartsWith("?"))
                 return string.Format("{0}?{1}", url, queryString);
+            else
+                return string.Format("{0}{1}", url, queryString);
         }
         public string ToUrlHumanReadable(string url) {
             foreach (Entry entry in Entries) {

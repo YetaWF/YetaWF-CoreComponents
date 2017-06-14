@@ -278,7 +278,7 @@ namespace YetaWF.Core.Controllers {
                         HttpContext.Request.QueryString = new QueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                        Server.TransferRequest(newUrl + newQs);
+                        Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
                         return new EmptyResult();
 #endif
                     }
@@ -291,7 +291,7 @@ namespace YetaWF.Core.Controllers {
                         HttpContext.Request.QueryString = new QueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                        Server.TransferRequest(newUrl + newQs);
+                        Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
                         return new EmptyResult();
 #endif
                     }
@@ -306,7 +306,7 @@ namespace YetaWF.Core.Controllers {
                             HttpContext.Request.QueryString = new QueryString(newQs);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                            Server.TransferRequest(newUrl + newQs);
+                            Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
                             return new EmptyResult();
 #endif
                         }
@@ -321,7 +321,7 @@ namespace YetaWF.Core.Controllers {
                             HttpContext.Request.QueryString = new QueryString(newQs);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                            Server.TransferRequest(newUrl + newQs);
+                            Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
                             return new EmptyResult();
 #endif
                         }
