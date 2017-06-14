@@ -69,8 +69,7 @@ YetaWF_MultiString.HasChanged = function ($ms, data) {
     var count = YLocs.MultiString.Languages.length;
     for (var index = 0; index < count ; ++index) {
         var langText = _YetaWF_MultiString.getHidden($ms, index).val();
-        langText = langText.trim();
-        if (langText == '')
+        if (langText.trim() == '')
             langText = text;
         var lang = YLocs.MultiString.Languages[index];
         if (data[lang] != null && !StringYCompare(data[lang], langText))
