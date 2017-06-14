@@ -251,7 +251,7 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
 
     // collect all data from grid's datasource
-    var ds = $grid.jqGrid('getRowData');
+    var ds = $grid.jqGrid('getGridParam', 'data');
     var total = ds.length;
     var colDefs = $grid.jqGrid('getGridParam', 'colModel');
     var colCount = colDefs.length;
