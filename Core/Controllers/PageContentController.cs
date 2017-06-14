@@ -167,7 +167,7 @@ namespace YetaWF.Core.Controllers {
         public ActionResult Show(DataIn dataIn) {
 
             dataIn.Path = YetaWFManager.UrlDecodePath(dataIn.Path);
-            if (!YetaWFManager.HaveManager) {
+            if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
 #if MVC6
                 return new NotFoundObjectResult(dataIn.Path);
 #else
