@@ -1501,14 +1501,15 @@ namespace YetaWF.Core.Support {
         public bool UsingBootstrapButtons { get; set; }
 
         /// <summary>
-        /// Adds the specified css, the current edit mode, the current page's defined css and returns all classes as a string
+        /// Adds the specified Css, the current edit mode, the current page's defined css and returns all classes as a string.
         /// </summary>
+        /// <param name="css">The skin-defined Css class identifying the skin.</param>
         public HtmlString PageCss(string css) {
-            string s = CombineCss(css, ModeCss);
-            s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");
-            s = CombineCss(s, IsInPopup ? "yPopup" : "yPage");
-            s = CombineCss(s, GetAspNetCss(AspNetMvc));
-            switch (UnifiedMode) {
+            string s = CombineCss(css, ModeCss);// edit/display mode (doesn't change in same Unified page set)
+            s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
+            s = CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
+            s = CombineCss(s, GetAspNetCss(AspNetMvc)); // asp/net version used (doesn't change in same Unified page set)
+            switch (UnifiedMode) { // unified page set mode (if any) (doesn't change in same Unified page set)
                 case PageDefinition.UnifiedModeEnum.None:
                     break;
                 case PageDefinition.UnifiedModeEnum.HideDivs:
@@ -1524,28 +1525,14 @@ namespace YetaWF.Core.Support {
                     s = CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
             }
-            // add a class whether page can be seen by anonymous users and users
-            bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
-            if (showOwnership) {
-                PageDefinition page = Manager.CurrentPage;
-                bool anon = page.IsAuthorized_View_Anonymous();
-                bool user = page.IsAuthorized_View_AnyUser();
-                if (!anon && !user)
-                    s = CombineCss(s, "ypagerole_noUserAnon");
-                else if (!anon)
-                    s = CombineCss(s, "ypagerole_noAnon");
-                else if (!user)
-                    s = CombineCss(s, "ypagerole_noUser");
-            }
+            string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
             if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                if (!string.IsNullOrWhiteSpace(CurrentPage.CssClass)) {
-                    // add the extra page css class via javascript to body tag (used for dynamic content)
-                    ScriptBuilder sb = new Support.ScriptBuilder();
-                    sb.Append("$('body').attr('data-pagecss', '{0}');", YetaWFManager.JserEncode(CurrentPage.CssClass));
-                    Manager.ScriptManager.AddLast(sb.ToString());
-                }
+                // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
+                ScriptBuilder sb = new Support.ScriptBuilder();
+                sb.Append("$('body').attr('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
+                Manager.ScriptManager.AddLast(sb.ToString());
             }
-            return new HtmlString(CombineCss(s, CurrentPage.CssClass));
+            return new HtmlString(CombineCss(s, cssClasses));
         }
 
         // CURRENT USER

@@ -13,6 +13,9 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Addons;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -229,6 +232,24 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(MaxCssClass)]
         public string CssClass { get; set; }
+
+        public string GetCssClass() {
+            // add a class whether page can be seen by anonymous users and logged on users
+            string s = string.IsNullOrWhiteSpace(CssClass) ? "yDefaultPage" : CssClass; // get the page specific Css class, if none add yDefaultPage instead
+            bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
+            if (showOwnership) {
+                PageDefinition page = Manager.CurrentPage;
+                bool anon = page.IsAuthorized_View_Anonymous();
+                bool user = page.IsAuthorized_View_AnyUser();
+                if (!anon && !user)
+                    s = YetaWFManager.CombineCss(s, "ypagerole_noUserAnon");
+                else if (!anon)
+                    s = YetaWFManager.CombineCss(s, "ypagerole_noAnon");
+                else if (!user)
+                    s = YetaWFManager.CombineCss(s, "ypagerole_noUser");
+            }
+            return s;
+        }
 
         [StringLength(MaxjQueryUISkin)]
         public string jQueryUISkin { get; set; }
