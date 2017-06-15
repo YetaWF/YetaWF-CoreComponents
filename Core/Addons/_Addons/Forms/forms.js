@@ -8,6 +8,7 @@
 // Make sure all hidden fields are NOT ignored
 $.validator.setDefaults({
     ignore: '.yNoValidate', // don't ignore hidden fields - ignore fields with .yNoValidate class
+    onsubmit: false         // don't validate on submit, we want to see the submit event and validate things ourselves
 });
 $.validator.unobtrusive.options = {
     errorElement: 'label'
