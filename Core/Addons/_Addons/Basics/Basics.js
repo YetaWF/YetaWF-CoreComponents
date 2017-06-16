@@ -802,7 +802,9 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 // add all new css files
                 var cssLength = result.CssFiles.length;
                 for (var i = 0; i < cssLength; i++) {
-                    $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', result.CssFiles[i]));
+                    var sUrl = result.CssFiles[i];
+                    var sUrl = '{0}{1}{2}={3},{4}'.format(sUrl, sUrl.indexOf("?") < 0 ? "?" : "&", YGlobals.Link_CharInfo, YVolatile.Basics.CharWidthAvg, YVolatile.Basics.CharHeight);
+                    $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', sUrl));
                 }
                 if (result.CssBundleFiles != null) {
                     if (YVolatile.Basics.UnifiedCssBundleFiles != null)
