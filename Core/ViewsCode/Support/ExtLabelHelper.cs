@@ -75,11 +75,11 @@ namespace YetaWF.Core.Views.Shared {
 
             TagBuilder tagLabel = new TagBuilder("label");
 
-            if (string.IsNullOrWhiteSpace(label)) {
+            if (string.IsNullOrEmpty(label)) { // we're distinguishing between "" and " "
                 if (SuppressIfEmpty)
                     return HtmlStringExtender.Empty;
                 tagLabel.SetInnerHtml("&nbsp;");
-            }  else
+            } else
                 tagLabel.SetInnerText(label);
             tagLabel.MergeAttributes(htmlAttributes, replaceExisting: true);
             sb.Append(tagLabel.ToString(TagRenderMode.Normal));
