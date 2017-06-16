@@ -501,7 +501,7 @@ namespace YetaWF.Core.Pages {
                 }
                 if (generate) {
                     TagBuilder tagDiv = new TagBuilder("div");
-                    tagDiv.Attributes.Add("data-pane", YetaWFManager.HtmlAttributeEncode(pane));// add pane name
+                    tagDiv.Attributes.Add("data-pane", pane);// add pane name
                     if (!string.IsNullOrWhiteSpace(cssClass))
                         tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
                     tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));

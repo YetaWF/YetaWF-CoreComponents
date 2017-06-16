@@ -5,6 +5,8 @@
 var YetaWF_Popup = {};
 var _YetaWF_Popup = {};
 
+document.YPopupWindowActive = null;
+
 // inline - as soon as we're loading, resize the popup window, if we're in a popup
 if (YVolatile.Basics.IsInPopup) {
     'use strict';
@@ -33,7 +35,7 @@ if (YVolatile.Basics.IsInPopup) {
 
 }
 
-// close a popup (if there is one)
+// Close the popup - this can only be used by code that is running within the popup (not the parent document/page)
 YetaWF_Popup.closePopup = function (forceReload) {
     'use strict';
     if (YVolatile.Basics.IsInPopup) {
@@ -41,6 +43,17 @@ YetaWF_Popup.closePopup = function (forceReload) {
         if (forced)
             Y_ReloadWindowPage(window.parent, true)
         var popup = window.parent.document.YPopupWindowActive;
+        if (popup != null) {
+            popup.close();
+            popup.destroy();
+        }
+    }
+}
+// Close the popup - this can only be used by code that is running on the main page (not within the popup)
+YetaWF_Popup.closeInnerPopup = function () {
+    'use strict';
+    var popup = document.YPopupWindowActive;
+    if (popup != null) {
         popup.close();
         popup.destroy();
     }

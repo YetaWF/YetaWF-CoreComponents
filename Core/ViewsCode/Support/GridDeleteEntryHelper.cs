@@ -38,7 +38,7 @@ namespace YetaWF.Core.Views.Shared {
             tag.SetInnerHtml(tagImg.ToString(TagRenderMode.StartTag));
 
             if (!string.IsNullOrWhiteSpace(Tooltip))
-                tag.MergeAttribute(Basics.CssTooltipSpan, YetaWFManager.HtmlAttributeEncode(Tooltip));
+                tag.MergeAttribute(Basics.CssTooltipSpan, Tooltip);
 
             return tag.ToHtmlString(TagRenderMode.Normal);
         }

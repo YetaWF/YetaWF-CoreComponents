@@ -1177,8 +1177,12 @@ namespace YetaWF.Core.Controllers {
         /// <param name="OnApply">The action to take when the Apply button was processed.</param>
         /// <param name="NextPage">The Url where the page is redirected (OnClose or OnPopupClose must request a matching action, otherwise this is ignored).</param>
         /// <param name="ExtraJavaScript">Optional additional Javascript code that is returned as part of the ActionResult.</param>
+        /// <param name="ForceRedirect">Force a real redirect bypassing Unified Page Set handling.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
-        protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null, OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule, string NextPage = null, string ExtraJavaScript = null) {
+        protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
+                OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
+                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false) {
+
             ScriptBuilder sb = new ScriptBuilder();
 
             sb.Append(Basics.AjaxJavascriptReturn);
@@ -1215,7 +1219,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // handle NextPage (if any)
-            if (!string.IsNullOrWhiteSpace(NextPage)) {
+            if (ForceRedirect || !string.IsNullOrWhiteSpace(NextPage)) {
                 string url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
@@ -1223,18 +1227,48 @@ namespace YetaWF.Core.Controllers {
                 url = YetaWFManager.JsonSerialize(url);
 
                 if (Manager.IsInPopup) {
-                    if (string.IsNullOrWhiteSpace(popupText)) {
-                        sb.Append("Y_Loading();");
-                        sb.Append("window.parent.location.assign({0});", url);
+                    if (ForceRedirect) {
+                        if (string.IsNullOrWhiteSpace(popupText)) {
+                            sb.Append("Y_Loading();window.parent.location.assign({0});", url);
+                        } else {
+                            sb.Append(
+                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.parent.location.assign({2}); }});", popupText, popupTitle, url);
+                        }
+                    } else if (string.IsNullOrWhiteSpace(popupText)) {
+                        sb.Append(
+                            "Y_Loading();" +
+                            "if (!window.parent._YetaWF_Basics.setContent(new URI({0}), true))" +
+                                "window.parent.location.assign({0});",
+                                url);
                     } else {
-                        sb.Append("Y_Alert({0}, {1}, function() {{ Y_Loading();window.parent.location.assign({2}); }});", popupText, popupTitle, url);
+                        sb.Append(
+                            "Y_Alert({0}, {1}, function() {{" +
+                                "Y_Loading();" +
+                                "if (!window.parent._YetaWF_Basics.setContent(new URI({2}), true))" +
+                                "window.parent.location.assign({2});" +
+                            "}});", popupText, popupTitle, url);
                     }
                 } else {
-                    if (string.IsNullOrWhiteSpace(popupText)) {
-                        sb.Append("Y_Loading();");
-                        sb.Append("window.location.assign({0});", url);
+                    if (ForceRedirect) {
+                        if (string.IsNullOrWhiteSpace(popupText)) {
+                            sb.Append("Y_Loading();window.location.assign({0});", url);
+                        } else {
+                            sb.Append(
+                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.location.assign({2}); }});", popupText, popupTitle, url);
+                        }
+                    } else if (string.IsNullOrWhiteSpace(popupText)) {
+                        sb.Append(
+                            "Y_Loading();" +
+                            "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                              "window.location.assign({0});",
+                                url);
                     } else {
-                        sb.Append("Y_Alert({0}, {1}, function() {{ Y_Loading();window.location.assign({2}); }});", popupText, popupTitle, url);
+                        sb.Append(
+                           "Y_Alert({0}, {1}, function() {{" +
+                             "Y_Loading();" +
+                             "if (!_YetaWF_Basics.setContent(new URI({2}), true))" +
+                               "window.location.assign({2});" +
+                           "}});", popupText, popupTitle, url);
                     }
                 }
             } else {
@@ -1311,10 +1345,15 @@ namespace YetaWF.Core.Controllers {
                                     sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }});", popupText, popupTitle);
                             } else {
                                 url = YetaWFManager.JsonSerialize(Manager.ReturnToUrl);
-                                if (string.IsNullOrWhiteSpace(popupText))
-                                    sb.Append("window.location.assign({0});", url);
-                                else
-                                    sb.Append("Y_Alert({0}, {1}, function() {{ window.location.assign({2}); }});", popupText, popupTitle, url);
+                                if (string.IsNullOrWhiteSpace(popupText)) {
+                                    sb.Append("if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                                            "window.location.assign({0});", url);
+                                } else {
+                                    sb.Append("Y_Alert({0}, {1}, function() {{" +
+                                        "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                                          "window.location.assign({2});" +
+                                      "}});", popupText, popupTitle, url);
+                                }
                             }
                             break;
                         case OnCloseEnum.CloseWindow:
@@ -1374,13 +1413,15 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="url">The Url defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
         /// <param name="ForcePopup">true if the redirect should occur in a popup window, false otherwise for a redirect within the browser window.</param>
-        /// <param name="SetCurrentEditMode">true if the new page should be shown in Site Edit Mode, false otherwise.</param>
+        /// <param name="SetCurrentEditMode">true if the new page should be shown using the current Site Edit/Display Mode, false otherwise.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false) {
+        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool ForceRedirect = false) {
+
+            if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
 
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
@@ -1428,10 +1469,18 @@ namespace YetaWF.Core.Controllers {
                     }
                 } else {
                     url = YetaWFManager.JsonSerialize(url);
-                    if (Manager.IsInPopup)
-                        sb.Append("window.parent.location.assign({0});", url);
-                    else
-                        sb.Append("window.location.assign({0});", url);
+                    if (ForceRedirect) {
+                        sb.Append("Y_Loading(); window.location.assign({0});", url);
+                    } else if (Manager.IsInPopup) {
+                        sb.Append("Y_Loading();" +
+                            "window.parent.location.assign({0});", url);
+                    } else {
+                        sb.Append(
+                            "Y_Loading();" +
+                            "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                              "window.location.assign({0});",
+                                url);
+                    }
                 }
                 return new YJsonResult { Data = sb.ToString() };
             } else {

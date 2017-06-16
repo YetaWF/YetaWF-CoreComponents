@@ -34,7 +34,7 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.FieldSetup(tag, name, Validation: false, Anonymous: true);
 
             if (!string.IsNullOrWhiteSpace(tooltip))
-                tag.Attributes.Add(Basics.CssTooltipSpan, YetaWFManager.HtmlAttributeEncode(tooltip));
+                tag.Attributes.Add(Basics.CssTooltipSpan, tooltip);
             if (!string.IsNullOrWhiteSpace(text))
                 tag.SetInnerText(text);
             return tag.ToHtmlString(TagRenderMode.Normal);
@@ -56,7 +56,7 @@ namespace YetaWF.Core.Views.Shared {
         {
             TagBuilder tag = new TagBuilder("span");
             if (!string.IsNullOrWhiteSpace(tooltip))
-                tag.Attributes.Add(Basics.CssTooltipSpan, YetaWFManager.HtmlAttributeEncode(tooltip));
+                tag.Attributes.Add(Basics.CssTooltipSpan, tooltip);
             if (!string.IsNullOrWhiteSpace(text))
                 tag.SetInnerText(text);
             return tag.ToHtmlString(TagRenderMode.Normal);

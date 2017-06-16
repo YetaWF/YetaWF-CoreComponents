@@ -270,7 +270,7 @@ namespace YetaWF.Core.Views.Shared {
             if (HtmlAttributes != null || !string.IsNullOrWhiteSpace(desc)) {
                 TagBuilder tag = new TagBuilder("span");
                 IDictionary<string, object> htmlAttributes = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
-                htmlAttributes.Add(Basics.CssTooltipSpan, YetaWFManager.HtmlEncode(desc));
+                htmlAttributes.Add(Basics.CssTooltipSpan, desc);
                 tag.MergeAttributes(htmlAttributes, replaceExisting: true);
                 tag.SetInnerText(caption);
                 return tag.ToHtmlString(TagRenderMode.Normal);

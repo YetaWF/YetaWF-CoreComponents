@@ -45,9 +45,6 @@ function YZeroPad(num, places) {
     return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
-function Y_AttrUnescape(s) {
-    return $('<div/>').html(s).text();
-}
 function Y_AttrEscape(s) {
     return $('<div/>').text(s).html();
 }
@@ -290,18 +287,26 @@ function Y_Loading(starting)
 
 function Y_ReloadWindowPage(w, keepPosition) {
     'use strict';
+
+    var uri = new URI(w.location.href);
+    uri.removeSearch(YGlobals.Link_ScrollLeft);
+    uri.removeSearch(YGlobals.Link_ScrollTop);
     if (keepPosition == true) {
-        var uri = new URI(w.location.href);
-        uri.removeSearch(YGlobals.Link_ScrollLeft);
-        uri.removeSearch(YGlobals.Link_ScrollTop);
         var v = $(w).scrollLeft();
         if (v != 0)
             uri.addSearch(YGlobals.Link_ScrollLeft, v);
         v = $(w).scrollTop();
         if (v != 0)
             uri.addSearch(YGlobals.Link_ScrollTop, v);
-        uri.removeSearch("!rand");
-        uri.addSearch("!rand", (new Date()).getTime());// cache buster
+    }
+    uri.removeSearch("!rand");
+    uri.addSearch("!rand", (new Date()).getTime());// cache buster
+
+    if (YVolatile.Basics.UnifiedMode != 0) {
+        if (_YetaWF_Basics.setContent(uri, true))
+            return;
+    }
+    if (keepPosition == true) {
         w.location.assign(uri.toString());
         return;
     }
@@ -681,6 +686,9 @@ function Y_KillTooltips() {
 
 _YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
 
+// Change the current page to the specified Uri (may not be part of the unified page set)
+// returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
+// returns true if the page is now shown and is part of the unified page set
 _YetaWF_Basics.setContent = function (uri, setState) {
     'use strict';
 
@@ -699,8 +707,8 @@ _YetaWF_Basics.setContent = function (uri, setState) {
         } catch (e) {}
     }
 
-    if (YVolatile.Basics.EditModeActive) return true; // edit mode
-    if (YVolatile.Basics.UnifiedMode == 0) return true; // not unified mode
+    if (YVolatile.Basics.EditModeActive) return false; // edit mode
+    if (YVolatile.Basics.UnifiedMode == 0) return false; // not unified mode
 
     // check if we're clicking a link which is part of this unified page
     var path = uri.path();
@@ -762,7 +770,8 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     return;
                 }
                 if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                    return _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState);
+                    _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState);
+                    return;
                 }
                 // Update the browser page title
                 document.title = result.PageTitle;
@@ -858,6 +867,8 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     $(window).scrollLeft(0);
                     $(window).scrollTop(0);
                 }
+                // in case there is a popup open, close it now (typically when returning to the page from a popup)
+                YetaWF_Popup.closeInnerPopup();
                 // done, set focus
                 Y_SetFocus();
                 Y_Loading(false);
@@ -871,7 +882,7 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 debugger;
             }
         });
-        return false;
+        return true;
     } else {
         // check if we have anything with that path as a unified pane and activate the panes
         var $divs = $('.yUnified[data-url="{0}"]'.format(path));
@@ -908,10 +919,10 @@ _YetaWF_Basics.setContent = function (uri, setState) {
             } else
                 throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
             Y_Loading(false);
-            return false;
+            return true;
         }
         //Y_Loading(false); // don't hide, let new page take over
-        return true;
+        return false;
     }
     return false;
 };
@@ -1152,7 +1163,7 @@ $(document).ready(function () {
             // this is a file download
             var confirm = $t.attr(YConfigs.Basics.CssConfirm);
             if (confirm != undefined) {
-                Y_AlertYesNo(Y_AttrUnescape(confirm), null, function () {
+                Y_AlertYesNo(confirm, null, function () {
                     window.location = url;
                     Y_Loading();
                     waitForCookie();
@@ -1165,7 +1176,7 @@ $(document).ready(function () {
             // this means that it's posted by definition
             var confirm = $t.attr(YConfigs.Basics.CssConfirm);
             if (confirm != undefined) {
-                Y_AlertYesNo(Y_AttrUnescape(confirm), null, function () {
+                Y_AlertYesNo(confirm, null, function () {
                     postLink();
                     if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
                         Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
@@ -1174,7 +1185,7 @@ $(document).ready(function () {
                 return false;
             } else if (post) {
                 if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                    Y_PleaseWait(Y_AttrUnencode($t.attr(YConfigs.Basics.CssPleaseWait)))
+                    Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
                 postLink();
                 return false;
             }
@@ -1183,7 +1194,7 @@ $(document).ready(function () {
         if (target == "_self") {
             // add overlay if desired
             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
-                Y_PleaseWait(Y_AttrUnencode($t.attr(YConfigs.Basics.CssPleaseWait)))
+                Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
             }
         }
         waitForCookie(); // if any
@@ -1196,7 +1207,7 @@ $(document).ready(function () {
         if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
               (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
-        return _YetaWF_Basics.setContent(uri, true);
+        return ! _YetaWF_Basics.setContent(uri, true);
     });
 
     // SUBMITFORMONCHANGE
@@ -1329,5 +1340,5 @@ YetaWF_Basics.initPage = function () {
 
 $(window).on("popstate", function () {
     var uri = new URI(window.location.href);
-    return _YetaWF_Basics.setContent(uri, false);
+    return ! _YetaWF_Basics.setContent(uri, false);
 });

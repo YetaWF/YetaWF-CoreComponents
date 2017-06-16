@@ -508,7 +508,7 @@ $(document).on('click', '.yt_grid_addordelete .ui-jqgrid img[name="DeleteAction"
     var rec = $grid.jqGrid('getRowData', id);
 
     $grid.jqGrid('delRowData', id);
-    var fmt = Y_AttrUnescape($ctrl.attr('data-remmsg'));
+    var fmt = $ctrl.attr('data-remmsg');
     if (fmt.length > 0) {
         var displayName = $grid.attr('data-displayproperty');
         if (displayName == undefined) throw "Can't get display property name";/*DEBUG*/
@@ -577,7 +577,7 @@ $(document).on('click', '.yt_grid_addordelete input[name="btnAdd"]', function ()
     attrVal = attrVal.trim();
     if (attrVal == "") return;
     if (_YetaWF_Grid.isDuplicate($grid, attrVal)) {
-        Y_Error(Y_AttrUnencode($ctrl.attr('data-dupmsg')).format(attrVal));
+        Y_Error($ctrl.attr('data-dupmsg').format(attrVal));
         return;
     }
 
@@ -621,7 +621,7 @@ $(document).on('click', '.yt_grid_addordelete input[name="btnAdd"]', function ()
             // validate it's not a duplicate (again, just in case)
             if (_YetaWF_Grid.isDuplicate($grid, newAttrVal[propertyName])) {
                 if (newAttrVal[displayName] == undefined) throw "{0} property is missing".format(displayName);/*DEBUG*/
-                Y_Error(Y_AttrUnencode($ctrl.attr('data-dupmsg')).format(newAttrVal[displayName]));
+                Y_Error($ctrl.attr('data-dupmsg').format(newAttrVal[displayName]));
                 return;
             }
             $grid.addRowData(total + 1, newAttrVal, 'last')// add new user to grid datasource
@@ -632,7 +632,7 @@ $(document).on('click', '.yt_grid_addordelete input[name="btnAdd"]', function ()
 
             YetaWF_Forms.updateValidation($grid);
 
-            Y_Confirm(Y_AttrUnescape($ctrl.attr('data-addedmsg')).format(attrVal));
+            Y_Confirm($ctrl.attr('data-addedmsg').format(attrVal));
         },
         error: function (jqXHR, textStatus, errorThrown) {
             Y_Loading(false);

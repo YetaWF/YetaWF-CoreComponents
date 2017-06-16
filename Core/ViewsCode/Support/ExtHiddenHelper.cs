@@ -46,7 +46,7 @@ namespace YetaWF.Core.Views.Shared {
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Anonymous: Anonymous, Validation: Validation);
             tag.MergeAttribute("type", "hidden");
-            tag.MergeAttribute("value", YetaWFManager.HtmlAttributeEncode(value.ToString()));
+            tag.MergeAttribute("value", value.ToString());
             return tag.ToHtmlString(TagRenderMode.StartTag);
         }
 #if MVC6

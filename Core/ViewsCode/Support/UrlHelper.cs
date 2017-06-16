@@ -58,7 +58,7 @@ namespace YetaWF.Core.Views.Shared {
                     tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
 
                 if (!string.IsNullOrWhiteSpace(Tooltip))
-                    tag.MergeAttribute(Basics.CssTooltip, YetaWFManager.HtmlAttributeEncode(Tooltip));
+                    tag.MergeAttribute(Basics.CssTooltip, Tooltip);
 
                 tag.SetInnerText(model);
                 return tag.ToHtmlString(TagRenderMode.Normal);
@@ -76,7 +76,7 @@ namespace YetaWF.Core.Views.Shared {
                 tag.MergeAttribute("target", "_blank");
                 tag.MergeAttribute("rel", "nofollow");
                 if (!string.IsNullOrWhiteSpace(Tooltip))
-                    tag.MergeAttribute(Basics.CssTooltip, YetaWFManager.HtmlAttributeEncode(Tooltip));
+                    tag.MergeAttribute(Basics.CssTooltip, Tooltip);
                 string text;
                 if (!htmlHelper.TryGetParentModelSupportProperty<string>(name, "Text", out text))
                     text = model;
