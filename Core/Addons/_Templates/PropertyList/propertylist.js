@@ -30,6 +30,8 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
                     }
                 } else {
                     $row.toggle(found);
+                    // init any controls that just became visible
+                    $(document).trigger('YetaWF_PropertyList_PanelSwitched', $row);
                 }
                 if (found)
                     $('input,select,textarea', $row).removeClass('yNoValidate');
