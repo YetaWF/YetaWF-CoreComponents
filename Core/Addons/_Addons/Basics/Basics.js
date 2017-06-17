@@ -870,7 +870,8 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     $(window).scrollTop(0);
                 }
                 // in case there is a popup open, close it now (typically when returning to the page from a popup)
-                YetaWF_Popup.closeInnerPopup();
+                if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
+                    YetaWF_Popup.closeInnerPopup();
                 // done, set focus
                 Y_SetFocus();
                 Y_Loading(false);
