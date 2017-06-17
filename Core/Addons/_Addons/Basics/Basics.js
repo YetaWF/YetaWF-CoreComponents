@@ -237,7 +237,7 @@ function Y_PleaseWait(text, title) {
         iframe: true,
         modal: true,
         resizable: false,
-        'title': title,
+        'title': Y_HtmlEscape(title),
         visible: false,
         close: function () {
             var popup = $popupwin.data("kendoWindow");
@@ -974,13 +974,13 @@ $(document).ready(function () {
                     return null;
                 var s = $this.attr(YConfigs.Basics.CssTooltip);
                 if (s != undefined)
-                    return s;
+                    return Y_HtmlEscape(s);
                 s = $this.attr(YConfigs.Basics.CssTooltipSpan);
                 if (s != undefined)
-                    return s;
+                    return Y_HtmlEscape(s);
                 s = $this.attr('title');
                 if (s != undefined)
-                    return s;
+                    return Y_HtmlEscape(s);
                 if ($this[0].tagName != "IMG" && $this[0].tagName != "I")
                     break;
                 // we're in an IMG or I tag, find enclosing A (if any) and try again
@@ -996,7 +996,7 @@ $(document).ready(function () {
                 var target = $this[0].target;
                 if (target === '_blank') {
                     var uri = new URI(href);
-                    return YLocs.Basics.OpenNewWindowTT.format(uri.hostname());
+                    return Y_HtmlEscape(YLocs.Basics.OpenNewWindowTT.format(uri.hostname()));
                 }
             }
             return null;
