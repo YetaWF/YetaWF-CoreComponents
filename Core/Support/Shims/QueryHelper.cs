@@ -177,6 +177,17 @@ namespace YetaWF.Core.Support {
                 url = "#" + Anchor;
             return url;
         }
+        //
+        /// <summary>
+        /// Add some random query string to the url to defeat client-side caching for a page.
+        /// </summary>
+        /// <param name="url">The Url.</param>
+        /// <returns>Returns the same Url with a random query string argument added to defeat client-side caching for a page.
+        /// This is typically used when transitioning from anonymous to authenticated users so the page is re-rendered.
+        /// Otherwise a static page will not be rendered correctly if the client has already cached the page.</returns>
+        public static string AddRando(string url) {
+            return ToUrl(url, "__rand=" + DateTime.UtcNow.Ticks.ToString());
+        }
     }
 
     /// <summary>

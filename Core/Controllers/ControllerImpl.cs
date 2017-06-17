@@ -1224,6 +1224,8 @@ namespace YetaWF.Core.Controllers {
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
                 url = AddUrlPayload(url, false);
+                if (ForceRedirect)
+                    url = QueryHelper.AddRando(url);
                 url = YetaWFManager.JsonSerialize(url);
 
                 if (Manager.IsInPopup) {
@@ -1427,6 +1429,8 @@ namespace YetaWF.Core.Controllers {
                 url = Manager.CurrentSite.HomePageUrl;
 
             url = AddUrlPayload(url, SetCurrentEditMode);
+            if (ForceRedirect)
+                url = QueryHelper.AddRando(url);
 
             if (Manager.IsPostRequest) {
                 // for post requests we return javascript to redirect
