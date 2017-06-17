@@ -766,7 +766,7 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 }
                 if (result.Redirect != null && result.Redirect.length > 0) {
                     //Y_Loading(false);
-                    window.location = result.Redirect;
+                    window.location.assign(result.Redirect);
                     return;
                 }
                 if (result.RedirectContent != null && result.RedirectContent.length > 0) {
@@ -1166,13 +1166,13 @@ $(document).ready(function () {
             var confirm = $t.attr(YConfigs.Basics.CssConfirm);
             if (confirm != undefined) {
                 Y_AlertYesNo(confirm, null, function () {
-                    window.location = url;
+                    window.location.assign(url);
                     Y_Loading();
                     waitForCookie();
                 });
                 return false;
             }
-            window.location = url;
+            window.location.assign(url);
         } else {
             // if a confirmation is wanted, show it
             // this means that it's posted by definition
