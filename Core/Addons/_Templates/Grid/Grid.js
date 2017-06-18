@@ -360,13 +360,9 @@ YetaWF_Grid.gridComplete = function ($grid, gridId) {
         _YetaWF_Basics.initButtons($grid);
     }
     // highlight data rows with the __highlight property set to true
-    var ds = $grid.jqGrid('getGridParam', 'data');
-    var total = ds.length;
-    for (var i = 0 ; i < total ; ++i) {
-        var rec = ds[i];
-        if (rec['__highlight'])
-            $('tr#' + rec.id, $grid).addClass('yHighlightGridRow');
-    }
+    $('tr.yHighlightGridRow', $grid).removeClass('yHighlightGridRow'); // remove all highlights
+    $('tr td div.yHighlightGridRow', $grid).closest('tr').addClass('yHighlightGridRow');// add highlight to selected rows
+
     // Change pagelist dropdown to show All instead of MaxPages 999999999
     // inspired by http://www.trirand.com/blog/?page_id=393/feature-request/rowlist-all-results
     var $gbox = $('#gbox_{0}'.format(gridId));

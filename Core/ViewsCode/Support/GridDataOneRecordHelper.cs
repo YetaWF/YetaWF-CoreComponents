@@ -91,7 +91,7 @@ namespace YetaWF.Core.Views.Shared {
 
                     if (prop.Name == "__highlight") {
                         // check whether the record supports a special "__highlight" property
-                        hb.Append(prop.Value is bool && (bool)prop.Value == true ? "true" : "false");
+                        hb.Append("\"{0}\"", prop.Value is bool && (bool)prop.Value == true ?  YetaWFManager.JserEncode("<div class='yHighlightGridRow'/>") : "");
                     } else {
 #if MVC6
                         string oldPrefix = htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
