@@ -97,7 +97,7 @@ namespace YetaWF.Core.Modules {
                 if (Manager.IsInPopup)
                     style = ActionStyleEnum.NewWindow;
 
-            if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit)
+            if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit || style == ActionStyleEnum.ForcePopup)
                 Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Popups");// this is needed for popup support
 
             TagBuilder tag = null;
