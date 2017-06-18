@@ -123,8 +123,8 @@ namespace YetaWF.Core.Site {
             if (string.IsNullOrWhiteSpace(pathAndQs))
                 pathAndQs = "/";
             if (pathAndQs.IsAbsoluteUrl()) {
-                if (ForceDomain != null || RealDomain != null || SecurityType != PageDefinition.PageSecurityType.Any)
-                    throw new InternalError("Can't use ForceDomain, RealDomain or secure page with full URL");
+                if (ForceDomain != null || RealDomain != null)
+                    throw new InternalError("Can't use ForceDomain or RealDomain with full URL");
                 return pathAndQs;
             }
             if (!pathAndQs.StartsWith("/"))
@@ -335,7 +335,7 @@ namespace YetaWF.Core.Site {
         /// Call when the initial install process ends.
         /// </summary>
         /// <remarks>
-        /// Even once the initial install process has ended, INITIAL_INSTALL still returns true to indicate that a site restart is needed. 
+        /// Even once the initial install process has ended, INITIAL_INSTALL still returns true to indicate that a site restart is needed.
         /// Some data providers are still marked as not installed until the site is restarted.
         /// </remarks>
         public static void RemoveInitialInstall() {
