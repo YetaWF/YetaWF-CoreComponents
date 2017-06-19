@@ -1404,7 +1404,7 @@ namespace YetaWF.Core.Controllers {
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(ModuleAction action) {
+        protected ActionResult Redirect(ModuleAction action, string ExtraJavascript = null) {
             if (action == null)
                 return Redirect("");
             return Redirect(action.GetCompleteUrl(), ForcePopup: action.Style == ModuleAction.ActionStyleEnum.Popup || action.Style == ModuleAction.ActionStyleEnum.ForcePopup);
@@ -1416,14 +1416,17 @@ namespace YetaWF.Core.Controllers {
         /// <param name="url">The Url defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
         /// <param name="ForcePopup">true if the redirect should occur in a popup window, false otherwise for a redirect within the browser window.</param>
         /// <param name="SetCurrentEditMode">true if the new page should be shown using the current Site Edit/Display Mode, false otherwise.</param>
+        /// <param name="ExtraJavascript">Optional Javascript code executed when redirecting to another Url within a Unified Page Set.</param>
+        /// <param name="ForceRedirect">true to force a page load (even in a Unified Page Set), false otherwise to use the default page or page content loading.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool ForceRedirect = false) {
+        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool ForceRedirect = false, string ExtraJavascript = null) {
 
             if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
+            if (!string.IsNullOrWhiteSpace(ExtraJavascript) && !Manager.IsPostRequest) throw new InternalError("ExtraJavascript is only supported with POST requests");
 
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
@@ -1481,9 +1484,10 @@ namespace YetaWF.Core.Controllers {
                     } else {
                         sb.Append(
                             "Y_Loading();" +
+                            "{1}" +
                             "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
                               "window.location.assign({0});",
-                                url);
+                                url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
                     }
                 }
                 return new YJsonResult { Data = sb.ToString() };
