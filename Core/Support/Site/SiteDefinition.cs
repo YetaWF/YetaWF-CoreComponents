@@ -215,7 +215,7 @@ namespace YetaWF.Core.Site {
         [UIHint("Hidden")]
         public bool IsLocked { get { return Locked; } }
 
-        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect - Can only be enabled/disable using web.config/appsettings.json")]
+        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect - Can only be enabled/disable using Appsettings.json")]
         [UIHint("Boolean"), ReadOnly, SuppressIfEqual("IsLockedExternal", false)]
         [Data_DontSave]
         public bool LockedExternal { get; set; }
@@ -319,7 +319,7 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool StaticPages { get; set; }
 
-        [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through web.config/appsettings.json - typically used for debugging (can only be set using web.config/appsettings.json)")]
+        [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through Appsettings.json - typically used for debugging (can only be set using Appsettings.json)")]
         [UIHint("Boolean")]
         public bool DEBUGMODE {
             get {
@@ -369,7 +369,7 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool BundleJSFilesContent { get; set; }
 
-        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config/appsettings.json)")]
+        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and css/scss/less use an HttpHandler (can only be set using Appsettings.json)")]
         [UIHint("Boolean")]
         public bool UseHttpHandler {
             get {
@@ -389,7 +389,7 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN"), Description("Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on web.config/appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN WEB.CONFIG/APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)")]
+        [Category("CDN"), Caption("Use CDN"), Description("Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on Appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)")]
         [UIHint("Boolean")]
         public bool UseCDN { get; set; }
 

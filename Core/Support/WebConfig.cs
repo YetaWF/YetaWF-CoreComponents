@@ -13,7 +13,7 @@ namespace YetaWF.Core.Support {
         private const string AppSettingsFile = "Appsettings.json";
 
         public enum IOModeEnum {
-            [EnumDescription("Mixed file/SQL database (web.config/appsettings.json ConnectionStrings)")]
+            [EnumDescription("Mixed file/SQL database (Appsettings.json ConnectionStrings)")]
             Determine = 0,      // determines I/O mode based on presence/absence of connectionstring
             [EnumDescription("Use file system")]
             File = 1,           // Use file system

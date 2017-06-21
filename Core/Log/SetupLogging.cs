@@ -37,7 +37,7 @@ namespace YetaWF.Core.Log {
         }
 
         // we can't use some clever scheme to get a logging provider because we need logging as soon as possible so
-        // logging is set up using web.config/appsettings.json.
+        // logging is set up using appsettings.json.
         /// <summary>
         /// Set up default log provider.
         /// </summary>

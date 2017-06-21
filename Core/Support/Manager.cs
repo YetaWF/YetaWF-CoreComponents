@@ -349,7 +349,7 @@ namespace YetaWF.Core.Support {
                 if (defaultSiteName == null)
                     defaultSiteName = WebConfigHelper.GetValue<string>("YetaWF_Core"/*==YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName*/, "DEFAULTSITE");
                 if (defaultSiteName == null)
-                    throw new InternalError("Default site must be defined in web.config/appsettings.json");
+                    throw new InternalError("Default site must be defined in Appsettings.json");
                 return defaultSiteName;
             }
         }
@@ -704,7 +704,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <remarks>Demo mode allows anonymous users to use all features in Superuser mode, without being able to change any data.
         ///
-        /// Demo mode is enabled/disabled using the Web.config/appsettings.json setting P:YetaWF_Core:Demo.
+        /// Demo mode is enabled/disabled using the Appsettings.json setting P:YetaWF_Core:Demo.
         /// </remarks>
         public bool IsDemo {
             get {
