@@ -456,8 +456,8 @@ namespace YetaWF.Core.Support {
             return sb.ToString();
         }
 
-        public static string JsonSerialize(object value) {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, _JsonSettings);
+        public static string JsonSerialize(object value, bool Indented = false) {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndented : _JsonSettings);
         }
         public static object JsonDeserialize(string value) {
             return Newtonsoft.Json.JsonConvert.DeserializeObject(value);
@@ -469,7 +469,11 @@ namespace YetaWF.Core.Support {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<TYPE>(value);
         }
         private static Newtonsoft.Json.JsonSerializerSettings _JsonSettings = new Newtonsoft.Json.JsonSerializerSettings {
-            StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml
+            StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml,
+        };
+        private static Newtonsoft.Json.JsonSerializerSettings _JsonSettingsIndented = new Newtonsoft.Json.JsonSerializerSettings {
+            StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml,
+            Formatting = Newtonsoft.Json.Formatting.Indented,
         };
 
         public static string JserEncode(string s) {

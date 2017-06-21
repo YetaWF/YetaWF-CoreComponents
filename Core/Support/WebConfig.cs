@@ -2,20 +2,15 @@
 
 using System;
 using YetaWF.Core.Models.Attributes;
-#if MVC6
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using System.IO;
-#else
-using System.Collections.Generic;
 using System.Configuration;
-#endif
+using Newtonsoft.Json.Linq;
 
 namespace YetaWF.Core.Support {
 
     public static class WebConfigHelper {
 
-        private const string IOMODE_FORMAT = "IOMode-{0}";
+        private const string AppSettingsFile = "Appsettings.json";
 
         public enum IOModeEnum {
             [EnumDescription("Mixed file/SQL database (web.config/appsettings.json ConnectionStrings)")]
@@ -27,102 +22,103 @@ namespace YetaWF.Core.Support {
             //RFFU - expect additional I/O methods - don't assume we just have File/Sql
             //RFFU - It's up to the individual dataprovider to support what they want/can.
         }
-#if MVC6
-        public static void Init(IConfigurationRoot configuration, string appSettingsFile) {
-            Configuration = configuration;
-            AppSettingsFile = appSettingsFile;
-            Settings = YetaWFManager.JsonDeserialize<dynamic>(File.ReadAllText(AppSettingsFile));
+
+        public static void Init() {
+            string settingsFile = Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, WebConfigHelper.AppSettingsFile);
+            if (!File.Exists(settingsFile))
+                throw new InternalError("Appsettings.json file not found ({0})", settingsFile);
+            SettingsFile = settingsFile;
+            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile));
         }
 
-        private static IConfigurationRoot Configuration;
-        private static string AppSettingsFile;
+        private static string SettingsFile;
         private static dynamic Settings;
-#else
-#endif
+
+#if COMPARE
+        // compares web.config to appsettings.json
         public static TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true) {
+            TYPE valNew = GetNewValue<TYPE>(areaName, key, dflt, Package);
+
             string totalKey;
             if (Package)
                 totalKey = string.Format("P:{0}:{1}", areaName, key);
             else
                 totalKey = string.Format("{0}:{1}", areaName, key);
-#if MVC6
-            string val = Configuration.GetSection("Application")[totalKey];
-#else
-            string val = ConfigurationManager.AppSettings[totalKey];
-#endif
-            if (string.IsNullOrWhiteSpace(val)) return dflt;
-            if (typeof(TYPE).IsEnum) return (TYPE) (object) Convert.ToInt32(val);
-            if (typeof(TYPE) == typeof(bool)) {
+            TYPE oldVal;
+            string oldS = ConfigurationManager.AppSettings[totalKey];
+            if (string.IsNullOrWhiteSpace(oldS)) { oldVal = (TYPE)(object)dflt; } else if (typeof(TYPE).IsEnum) oldVal = (TYPE)(object)Convert.ToInt32(oldS);
+            else if (typeof(TYPE) == typeof(bool)) {
                 bool boolVal;
-                if (string.Compare(val, "True", true) == 0 || val == "1")
+                if (string.Compare(oldS, "True", true) == 0 || oldS == "1")
                     boolVal = true;
-                else if (string.Compare(val, "False", true) == 0 || val == "0")
+                else if (string.Compare(oldS, "False", true) == 0 || oldS == "0")
                     boolVal = false;
                 else
                     throw new InternalError("Invalid bool value for {0}:{1}", areaName, key);
-                return (TYPE) (object) (boolVal);
+                oldVal = (TYPE)(object)boolVal;
+            } else if (typeof(TYPE) == typeof(int)) oldVal = (TYPE)(object)Convert.ToInt32(oldS);
+            else if (typeof(TYPE) == typeof(long)) oldVal = (TYPE)(object)Convert.ToInt64(oldS);
+            else if (typeof(TYPE) == typeof(System.TimeSpan)) oldVal = (TYPE)(object)new System.TimeSpan(Convert.ToInt64(oldS));
+            else
+                oldVal = (TYPE)(object)oldS;
+
+            if (!object.Equals(oldVal, valNew))
+                valNew = valNew;// set breakpoint here
+            return valNew;
+        }
+        private static TYPE GetNewValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true) {
+#else
+        public static TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true) {
+#endif
+            dynamic val;
+            try {
+                if (Package)
+                    val = Settings["Application"]["P"][areaName];
+                else
+                    val = Settings["Application"][areaName];
+                if (val == null) return dflt;
+                val = val[key];
+                if (val == null) return dflt;
+                val = val.Value;
+            } catch (Exception) {
+                return dflt;
             }
-            if (typeof(TYPE) == typeof(int)) return (TYPE) (object) Convert.ToInt32(val);
-            if (typeof(TYPE) == typeof(long)) return (TYPE) (object) Convert.ToInt64(val);
-            if (typeof(TYPE) == typeof(System.TimeSpan)) return (TYPE) (object) new System.TimeSpan(Convert.ToInt64(val));
+            if (typeof(TYPE) == typeof(string)) {
+                if (string.IsNullOrWhiteSpace((string)val))
+                    return dflt;
+                else
+                    return (TYPE)val;
+            } else if (typeof(TYPE).IsEnum) return (TYPE)(object)Convert.ToInt32(val);
+            else if (typeof(TYPE) == typeof(bool)) {
+                bool boolVal = Convert.ToBoolean(val);
+                return (TYPE)(object)(boolVal);
+            } else if (typeof(TYPE) == typeof(int)) return (TYPE)(object)Convert.ToInt32(val);
+            else if (typeof(TYPE) == typeof(long)) return (TYPE)(object)Convert.ToInt64(val);
+            else if (typeof(TYPE) == typeof(System.TimeSpan)) return (TYPE)(object)new System.TimeSpan(Convert.ToInt64(val));
             return (TYPE) (object) val;
         }
 
         public static void SetValue<TYPE>(string areaName, string key, TYPE value, bool Package = true) {
-#if MVC6
             if (Package) {
-                dynamic appSettings = Settings["Application"];
-                dynamic packageSettings = appSettings["P"];
-                dynamic areaSettings = packageSettings[areaName];
-                areaSettings[key] = (object)value;
+                JObject jObj = (JObject)Settings["Application"]["P"];
+                JObject jArea = (JObject)jObj[areaName];
+                if (jArea == null)
+                    jObj.Add(areaName, new JObject());
+                JToken jKey = jArea[key];
+                if (jKey == null)
+                    jArea.Add(key, JToken.FromObject(value));
+                else
+                    jArea[key] = JToken.FromObject(value);
             } else
                 throw new NotSupportedException();
-#else
-            string val;
-            if (value == null || value.Equals(default(TYPE)))
-                RemoveValue(areaName, key);
-            else {
-                if (typeof(TYPE) == typeof(TimeSpan)) {
-                    TimeSpan ts = (TimeSpan) (object) value;
-                    val = ts.Ticks.ToString();
-                } else
-                    val = value.ToString();
-                SetValue(string.Format("P:{0}:{1}", areaName, key), val);
-            }
-#endif
         }
         public static void SetValue(string totalKey, string value, bool Package = true) {
-#if MVC6
             // This is not currently used (except ::WEBCONFIG-SECTION:: which is not yet present in site templates)
             throw new InternalError("Updating Application Settings not supported");
-#else
-            Configuration config = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
-            AppSettingsSection appSettings = config.AppSettings;
-            appSettings.Settings.Remove(totalKey);
-            appSettings.Settings.Add(new KeyValueConfigurationElement(totalKey, value));
-            config.Save();
-#endif
         }
-#if MVC6
-#else
-        public static void RemoveValue(string areaName, string key) {
-            RemoveValue(string.Format("P:{0}:{1}", areaName, key));
-        }
-        public static void RemoveValue(string totalKey) {
-            Configuration config = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
-            AppSettingsSection appSettings = config.AppSettings;
-            appSettings.Settings.Remove(totalKey);
-            config.Save();
-        }
-#endif
         public static void Save() {
-#if MVC6
-            // MVC6 needs an explicit Save() call
-            string s = YetaWFManager.JsonSerialize(Settings);
-            File.WriteAllText(AppSettingsFile, s);
-#else
-            // settings are immediately saved in SetValue()
-#endif
+            string s = YetaWFManager.JsonSerialize(Settings, Indented: true);
+            File.WriteAllText(SettingsFile, s);
         }
     }
 }
