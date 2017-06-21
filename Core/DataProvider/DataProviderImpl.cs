@@ -15,7 +15,7 @@ namespace YetaWF.Core.DataProvider {
 
     public class DataProviderSortInfo {
 
-        public DataProviderSortInfo() {}
+        public DataProviderSortInfo() { }
         public DataProviderSortInfo(DataProviderSortInfo s) {
             Field = s.Field;
             Order = s.Order;
@@ -60,7 +60,7 @@ namespace YetaWF.Core.DataProvider {
 
     public class DataProviderFilterInfo {
 
-        public DataProviderFilterInfo() {}
+        public DataProviderFilterInfo() { }
         public DataProviderFilterInfo(DataProviderFilterInfo f) {
             Field = f.Field;
             Filters = f.Filters;
@@ -182,27 +182,37 @@ namespace YetaWF.Core.DataProvider {
                 if (Operators.ContainsKey(command))
                     command = Operators[command];
                 if (command == "StartsWith" || command == "EndsWith" || command == "Contains") {
-                    if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
+                    if (Value == null)
+                        return "(false)";
+                    else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
                         return String.Format("({0} != null && {0}.ToLower().{1}(@{2}.ToLower()))", Field, command, index);
                     else
                         return String.Format("({0} != null && {0}.{1}(@{2}))", Field, command, index);
                 } else if (command == "NotStartsWith") {
-                    if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
+                    if (Value == null)
+                        return "(false)";
+                    else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
                         return String.Format("({0} == null || !{0}.ToLower().StartsWith(@{1}.ToLower()))", Field, index);
                     else
                         return String.Format("{0} == null || !{0}.StartsWith(@{1})", Field, index);
                 } else if (command == "NotEndsWith") {
-                    if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
+                    if (Value == null)
+                        return "(false)";
+                    else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
                         return String.Format("({0} == null || {0}.ToLower().EndsWith(@{1}.ToLower()))", Field, index);
                     else
                         return String.Format("{0} == null || !{0}.EndsWith(@{1})", Field, index);
                 } else if (command == "NotContains") {
-                    if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
+                    if (Value == null)
+                        return "(false)";
+                    else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
                         return String.Format("({0} == null || {0}.ToLower().Contains(@{1}.ToLower()))", Field, index);
                     else
                         return String.Format("{0} == null || !{0}.Contains(@{1})", Field, index);
                 } else {
-                    if (Operator == "!=" || Operator == "<" || Operator == "<=") {
+                    if (Value == null) {
+                        return String.Format("({0} {1} @{2})", Field, command, index);
+                    } else if (Operator == "!=" || Operator == "<" || Operator == "<=") {
                         if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
                             return String.Format("({0} == null || {0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
                         else
