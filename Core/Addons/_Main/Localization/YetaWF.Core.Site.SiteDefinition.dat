@@ -389,7 +389,7 @@
                           <Properties>
                             <Name Value="DEBUGMODE" />
                             <Caption Value="Debug Mode" />
-                            <Description Value="Defines whether all data caching and compression is disabled through web.config/appsettings.json - typically used for debugging (can only be set using web.config/appsettings.json)" />
+                            <Description Value="Defines whether all data caching and compression is disabled through Appsettings.json - typically used for debugging (can only be set using Appsettings.json)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -617,7 +617,7 @@
                           <Properties>
                             <Name Value="LockedExternal" />
                             <Caption Value="Locked" />
-                            <Description Value="Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a 'Maintenance' page defined using Locked Url Redirect - Can only be enabled/disable using web.config/appsettings.json" />
+                            <Description Value="Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a 'Maintenance' page defined using Locked Url Redirect - Can only be enabled/disable using Appsettings.json" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -941,7 +941,7 @@
                           <Properties>
                             <Name Value="UseCDN" />
                             <Caption Value="Use CDN" />
-                            <Description Value="Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on web.config/appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN WEB.CONFIG/APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)" />
+                            <Description Value="Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on Appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -965,7 +965,7 @@
                           <Properties>
                             <Name Value="UseHttpHandler" />
                             <Caption Value="Use HttpHandler" />
-                            <Description Value="Defines whether images and css/scss/less use an HttpHandler (can only be set using web.config/appsettings.json)" />
+                            <Description Value="Defines whether images and css/scss/less use an HttpHandler (can only be set using Appsettings.json)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
