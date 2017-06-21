@@ -90,12 +90,22 @@ namespace YetaWF.Core.Support {
                     return (TYPE)val;
             } else if (typeof(TYPE).IsEnum) return (TYPE)(object)Convert.ToInt32(val);
             else if (typeof(TYPE) == typeof(bool)) {
-                bool boolVal = Convert.ToBoolean(val);
+                bool boolVal;
+                if (val.GetType() == typeof(string)) {
+                    string s = (string)val;
+                    if (string.Compare(s, "True", true) == 0 || s == "1")
+                        boolVal = true;
+                    else if (string.Compare(s, "False", true) == 0 || s == "0")
+                        boolVal = false;
+                    else
+                        throw new InternalError("Invalid bool value for {0}:{1}", areaName, key);
+                } else
+                    boolVal = Convert.ToBoolean(val);
                 return (TYPE)(object)(boolVal);
             } else if (typeof(TYPE) == typeof(int)) return (TYPE)(object)Convert.ToInt32(val);
             else if (typeof(TYPE) == typeof(long)) return (TYPE)(object)Convert.ToInt64(val);
             else if (typeof(TYPE) == typeof(System.TimeSpan)) return (TYPE)(object)new System.TimeSpan(Convert.ToInt64(val));
-            return (TYPE) (object) val;
+            return (TYPE)(object)val;
         }
 
         public static void SetValue<TYPE>(string areaName, string key, TYPE value, bool Package = true) {
@@ -105,10 +115,15 @@ namespace YetaWF.Core.Support {
                 if (jArea == null)
                     jObj.Add(areaName, new JObject());
                 JToken jKey = jArea[key];
-                if (jKey == null)
-                    jArea.Add(key, JToken.FromObject(value));
-                else
-                    jArea[key] = JToken.FromObject(value);
+                if (jKey == null) {
+                    if (value != null)
+                        jArea.Add(key, JToken.FromObject(value));
+                } else {
+                    if (value != null)
+                        jArea[key] = JToken.FromObject(value);
+                    else
+                        jArea[key].Remove();
+                }
             } else
                 throw new NotSupportedException();
         }
