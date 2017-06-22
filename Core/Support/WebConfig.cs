@@ -3,14 +3,11 @@
 using System;
 using YetaWF.Core.Models.Attributes;
 using System.IO;
-using System.Configuration;
 using Newtonsoft.Json.Linq;
 
 namespace YetaWF.Core.Support {
 
     public static class WebConfigHelper {
-
-        private const string AppSettingsFile = "Appsettings.json";
 
         public enum IOModeEnum {
             [EnumDescription("Mixed file/SQL database (Appsettings.json ConnectionStrings)")]
@@ -23,8 +20,7 @@ namespace YetaWF.Core.Support {
             //RFFU - It's up to the individual dataprovider to support what they want/can.
         }
 
-        public static void Init() {
-            string settingsFile = Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, WebConfigHelper.AppSettingsFile);
+        public static void Init(string settingsFile) {
             if (!File.Exists(settingsFile))
                 throw new InternalError("Appsettings.json file not found ({0})", settingsFile);
             SettingsFile = settingsFile;

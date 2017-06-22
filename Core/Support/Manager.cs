@@ -55,9 +55,7 @@ namespace YetaWF.Core.Support {
 #endif
 
 #if MVC6
-        public static void Init(string webRootPath, string contentRootPath = null, IServiceProvider serviceProvider = null, IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null) {
-            RootFolder = webRootPath;
-            RootFolderWebProject = contentRootPath ?? webRootPath;
+        public static void Init(IServiceProvider serviceProvider = null, IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null) {
             ServiceProvider = serviceProvider ?? new DummyServiceProvider();
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
             MemoryCache = memoryCache ?? new DummyMemoryCache();
@@ -307,11 +305,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Web site root folder (physical, wwwroot on ASP.NET MVC)
         /// </summary>
-#if MVC6
-        public static string RootFolder { get; private set; }
-#else
         public static string RootFolder { get; set; }
-#endif
 
         /// <summary>
         /// Web project root folder (physical)
@@ -320,7 +314,7 @@ namespace YetaWF.Core.Support {
         /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.</remarks>
         public static string RootFolderWebProject {
 #if MVC6
-            get; private set;
+            get; set;
 #else
             get { return RootFolder; }
 #endif
