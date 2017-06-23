@@ -331,10 +331,10 @@ namespace YetaWF.Core.Addons {
             if (version == null) {
                 // if the skin doesn't exist, use the default skin (it better be there)
                 skinDef = new SkinDefinition() {
-                    Collection = popup ? SkinAccess.FallbackSkinCollectionName : SkinAccess.FallbackPopupSkinCollectionName,
-                    FileName = popup ? SkinAccess.FallbackPageFileName : SkinAccess.FallbackPopupFileName,
+                    Collection = popup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName,
+                    FileName = popup ? SkinAccess.FallbackPopupFileName : SkinAccess.FallbackPageFileName,
                 };
-                version = TryFindSkinVersion(popup ? SkinAccess.FallbackSkinCollectionName : SkinAccess.FallbackPopupSkinCollectionName);
+                version = TryFindSkinVersion(popup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
                 if (version == null)
                     throw new InternalError("Skin collection {0} doesn't exist", skinDef.Collection);
             }

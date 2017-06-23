@@ -46,9 +46,11 @@ namespace YetaWF.Core.Skins {
             }
             string collection = skin.Collection;
             if (string.IsNullOrWhiteSpace(collection)) {
-                collection = FallbackSkinCollectionName;
-            } else {
-                collection = FallbackPopupSkinCollectionName;
+                if (popup) {
+                    collection = FallbackSkinCollectionName;
+                } else {
+                    collection = FallbackPopupSkinCollectionName;
+                }
             }
             string fileName = skin.FileName;
             if (string.IsNullOrWhiteSpace(fileName)) {
