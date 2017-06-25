@@ -56,6 +56,7 @@ namespace YetaWF.Core.Site {
         public const int MaxGoogleVerification = 1000;
         public const int MaxAnalytics = 1000;
         public const int MaxMeta = 1000;
+        public const int MaxCountry = 50;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -75,7 +76,8 @@ namespace YetaWF.Core.Site {
             CssNoTooltips = "linkpreview-show peelback";
             FavIcon_Data = new byte[0];
             FavIconLrg_Data = new byte[0];
-            CurrencyFormat = "$ 0.00";
+            Country = Globals.DefaultCountry;
+            CurrencyFormat = Globals.DefaultCurrencyFormat;
             CurrencyDecimals = 2;
 
             AllowCacheUse = true;
@@ -299,6 +301,10 @@ namespace YetaWF.Core.Site {
                 return GetFavIconLinks(FavIcon_Data, FavIcon, FavIconLrg_Data, FavIconLrg);
             }
         }
+        [Category("Site"), Caption("Country"), Description("The country where you/your company is located")]
+        [UIHint("CountryISO3166"), StringLength(MaxCountry), Trim, Required]
+        public string Country { get; set; }
+
         [Category("Site"), Caption("Currency Format"), Description("The currency format used on this site - the default is $US if omitted")]
         [UIHint("Text20"), StringLength(20)]
         public string CurrencyFormat { get; set; }

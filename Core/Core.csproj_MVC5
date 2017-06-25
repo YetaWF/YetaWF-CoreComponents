@@ -49,7 +49,7 @@
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.VisualBasic.Compatibility" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NSass.Core, Version=0.0.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -108,6 +108,7 @@
     <Compile Include="Controllers\Shared\ActionHelper.cs" />
     <Compile Include="Controllers\Shared\ControllerErrorHandlingFilterAttribute.cs" />
     <Compile Include="Controllers\Shared\ModuleSelectionHelper.cs" />
+    <Compile Include="Controllers\YetaWFApplicationModelProvider.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Extensions\HtmlString.cs" />
     <Compile Include="Identity\Setup.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="ViewsCode\Support\IPAddressHelper.cs" />
     <Compile Include="ViewsCode\Support\JQueryUISkinsHelper.cs" />
     <Compile Include="ViewsCode\Support\KendoUISkinsHelper.cs" />
+    <Compile Include="ViewsCode\Support\CountryISO3166Helper.cs" />
     <Compile Include="ViewsCode\Support\LanguageIdHelper.cs" />
     <Compile Include="ViewsCode\Support\ListOfStringsHelper.cs" />
     <Compile Include="ViewsCode\Support\LongValueHelper.cs" />
@@ -412,6 +414,7 @@
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
     <Content Include="Addons\_Templates\ActionIcons\ActionIcons.css" />
     <Content Include="Addons\_Templates\ActionIcons\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
     <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
     <Content Include="Addons\_Templates\DropDownList\DropDownList.js" />
@@ -658,6 +661,7 @@
     <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\FileFolderSize.cshtml" />
     <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\CountryISO3166.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

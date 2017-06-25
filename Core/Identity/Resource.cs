@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using YetaWF.Core.Modules;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 using System.Web;
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Modules;
 
 namespace YetaWF.Core.Identity {
 

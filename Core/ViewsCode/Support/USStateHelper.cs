@@ -60,13 +60,13 @@ namespace YetaWF.Core.Views.Shared {
                 string path = YetaWFManager.UrlToPhysical(url);
                 string file = Path.Combine(path, "USStates.txt");
                 _statesList = new List<SelectionItem<string>>();
-                if (!File.Exists(file)) throw new InternalError("File {0} not found");
+                if (!File.Exists(file)) throw new InternalError("File {0} not found", file);
 
                 string[] sts = File.ReadAllLines(file);
                 foreach (var st in sts) {
                     string[] s = st.Split(new string[] { "," }, 2, StringSplitOptions.RemoveEmptyEntries);
                     if (s.Length != 2)
-                        throw new InternalError("Invalid input in US states list.");
+                        throw new InternalError("Invalid input in US states list - {0}", file);
                     _statesList.Add(new SelectionItem<string> { Text = s[1], Value = s[0].ToUpper() });
                 }
             }
