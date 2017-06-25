@@ -30,6 +30,12 @@ namespace YetaWF.Core.Views.Shared {
             public string Id { get; set; }
             public string Id3 { get; set; }
             public string Number { get; set; }
+            public string AddressType { get; set; }
+
+            public const string US = "US";
+            public const string Zip1 = "Zip1";
+            public const string ZipLast = "ZipLast";
+            public const string Generic = "Generic";
         }
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(CountryISO3166Helper), name, defaultValue, parms); }
@@ -55,7 +61,6 @@ namespace YetaWF.Core.Views.Shared {
             });
             return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
-
         /// <summary>
         /// Convert a country name to an ISO 3166 two character Id.
         /// </summary>
@@ -152,6 +157,13 @@ namespace YetaWF.Core.Views.Shared {
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country number {0}", number);
         }
+        public static string CountryToAddressType(string country) {
+            if (string.IsNullOrWhiteSpace(country))
+                return Manager.CurrentSite.Country;
+            if (string.IsNullOrWhiteSpace(country))
+                return null;
+            return (from c in GetCountries() where c.Name == country select c.AddressType).FirstOrDefault();
+        }
 
         private static List<Country> GetCountries(bool IncludeSiteCountry = true) {
             List<Country> countries = ReadCountryList().OrderBy(m => m.Name).ToList();
@@ -190,14 +202,15 @@ namespace YetaWF.Core.Views.Shared {
                 string[] cts = File.ReadAllLines(file);
                 foreach (var st in cts) {
                     if (st.Trim().Length > 0) {
-                        string[] s = st.Trim().Split(new string[] { "+" }, 4, StringSplitOptions.RemoveEmptyEntries);
-                        if (s.Length != 4)
+                        string[] s = st.Trim().Split(new string[] { "+" }, 5, StringSplitOptions.RemoveEmptyEntries);
+                        if (s.Length < 4 || s.Length > 5)
                             throw new InternalError("Invalid input in country list - {0} - {1}", st, file);
                         _countryList.Add(new Country {
                             Name = s[0],
                             Id = s[1].ToUpper(),
                             Id3 = s[2].ToUpper(),
-                            Number = s[3]
+                            Number = s[3],
+                            AddressType = s.Length > 4 ? s[4] : Country.Generic,
                         });
                     }
                 }

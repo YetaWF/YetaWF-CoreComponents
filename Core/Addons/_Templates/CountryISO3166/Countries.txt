@@ -11,15 +11,15 @@ Antigua and Barbuda+AG+ATG+028
 Argentina+AR+ARG+032
 Armenia+AM+ARM+051
 Aruba+AW+ABW+533
-Australia+AU+AUS+036
-Austria+AT+AUT+040
+Australia+AU+AUS+036+ZipLast
+Austria+AT+AUT+040+Zip1
 Azerbaijan+AZ+AZE+031
 Bahamas+BS+BHS+044
 Bahrain+BH+BHR+048
 Bangladesh+BD+BGD+050
 Barbados+BB+BRB+052
 Belarus+BY+BLR+112
-Belgium+BE+BEL+056
+Belgium+BE+BEL+056+Zip1
 Belize+BZ+BLZ+084
 Benin+BJ+BEN+204
 Bermuda+BM+BMU+060
@@ -37,7 +37,7 @@ Burkina Faso+BF+BFA+854
 Burundi+BI+BDI+108
 Cambodia+KH+KHM+116
 Cameroon+CM+CMR+120
-Canada+CA+CAN+124
+Canada+CA+CAN+124+ZipLast
 Cape Verde+CV+CPV+132
 Cayman Islands+KY+CYM+136
 Central African Republic+CF+CAF+140
@@ -59,7 +59,7 @@ Croatia+HR+HRV+191
 Cuba+CU+CUB+192
 Cyprus+CY+CYP+196
 Czech Republic+CZ+CZE+203
-Denmark+DK+DNK+208
+Denmark+DK+DNK+208+Zip1
 Djibouti+DJ+DJI+262
 Dominica+DM+DMA+212
 Dominican Republic+DO+DOM+214
@@ -73,18 +73,18 @@ Ethiopia+ET+ETH+231
 Falkland Islands (Malvinas)+FK+FLK+238
 Faroe Islands+FO+FRO+234
 Fiji+FJ+FJI+242
-Finland+FI+FIN+246
-France+FR+FRA+250
+Finland+FI+FIN+246+Zip1
+France+FR+FRA+250+Zip1
 French Guiana+GF+GUF+254
 French Polynesia+PF+PYF+258
 French Southern Territories+TF+ATF+260
 Gabon+GA+GAB+266
 Gambia+GM+GMB+270
 Georgia+GE+GEO+268
-Germany+DE+DEU+276
+Germany+DE+DEU+276+Zip1
 Ghana+GH+GHA+288
 Gibraltar+GI+GIB+292
-Greece+GR+GRC+300
+Greece+GR+GRC+300+Zip1
 Greenland+GL+GRL+304
 Grenada+GD+GRD+308
 Guadeloupe+GP+GLP+312
@@ -104,10 +104,10 @@ India+IN+IND+356
 Indonesia+ID+IDN+360
 Iran, Islamic Republic of+IR+IRN+364
 Iraq+IQ+IRQ+368
-Ireland+IE+IRL+372
+Ireland+IE+IRL+372+ZipLast
 Isle of Man+IM+IMN+833
-Israel+IL+ISR+376
-Italy+IT+ITA+380
+Israel+IL+ISR+376+Zip1
+Italy+IT+ITA+380+Zip1
 Jamaica+JM+JAM+388
 Japan+JP+JPN+392
 Jersey+JE+JEY+832
@@ -127,7 +127,7 @@ Liberia+LR+LBR+430
 Libya+LY+LBY+434
 Liechtenstein+LI+LIE+438
 Lithuania+LT+LTU+440
-Luxembourg+LU+LUX+442
+Luxembourg+LU+LUX+442+Zip1
 Macedonia, Republic of+MK+MKD+807
 Madagascar+MG+MDG+450
 Malawi+MW+MWI+454
@@ -140,7 +140,7 @@ Martinique+MQ+MTQ+474
 Mauritania+MR+MRT+478
 Mauritius+MU+MUS+480
 Mayotte+YT+MYT+175
-Mexico+MX+MEX+484
+Mexico+MX+MEX+484+Zip1
 Micronesia, Federated States of+FM+FSM+583
 Moldova+MD+MDA+498
 Monaco+MC+MCO+492
@@ -153,17 +153,17 @@ Myanmar+MM+MMR+104
 Namibia+NA+NAM+516
 Nauru+NR+NRU+520
 Nepal+NP+NPL+524
-Netherlands+NL+NLD+528
+Netherlands+NL+NLD+528+Zip1
 Netherlands Antilles+AN+ANT+530
 New Caledonia+NC+NCL+540
-New Zealand+NZ+NZL+554
+New Zealand+NZ+NZL+554+ZipLast
 Nicaragua+NI+NIC+558
 Niger+NE+NER+562
 Nigeria+NG+NGA+566
 Niue+NU+NIU+570
 Norfolk Island+NF+NFK+574
 Northern Mariana Islands+MP+MNP+580
-Norway+NO+NOR+578
+Norway+NO+NOR+578+ZipLast
 Oman+OM+OMN+512
 Pakistan+PK+PAK+586
 Palau+PW+PLW+585
@@ -175,7 +175,7 @@ Peru+PE+PER+604
 Philippines+PH+PHL+608
 Pitcairn+PN+PCN+612
 Poland+PL+POL+616
-Portugal+PT+PRT+620
+Portugal+PT+PRT+620+Zip1
 Puerto Rico+PR+PRI+630
 Qatar+QA+QAT+634
 Réunion+RE+REU+638
@@ -205,14 +205,14 @@ Somalia+SO+SOM+706
 South Africa+ZA+ZAF+710
 South Georgia and the South Sandwich Islands+GS+SGS+239
 South Sudan+SS+SSD+728
-Spain+ES+ESP+724
+Spain+ES+ESP+724+Zip1
 Sri Lanka+LK+LKA+144
 Sudan+SD+SDN+736
 Suriname+SR+SUR+740
 Svalbard and Jan Mayen Islands+SJ+SJM+744
 Swaziland+SZ+SWZ+748
-Sweden+SE+SWE+752
-Switzerland+CH+CHE+756
+Sweden+SE+SWE+752+Zip1
+Switzerland+CH+CHE+756+Zip1
 Syrian Arab Republic (Syria)+SY+SYR+760
 Taiwan, Republic of China+TW+TWN+158
 Tajikistan+TJ+TJK+762
@@ -231,8 +231,8 @@ Tuvalu+TV+TUV+798
 Uganda+UG+UGA+800
 Ukraine+UA+UKR+804
 United Arab Emirates+AE+ARE+784
-United Kingdom+GB+GBR+826
-United States+US+USA+840
+United Kingdom+GB+GBR+826+ZipLast
+United States+US+USA+840+US
 US Minor Outlying Islands+UM+UMI+581
 Uruguay+UY+URY+858
 Uzbekistan+UZ+UZB+860
