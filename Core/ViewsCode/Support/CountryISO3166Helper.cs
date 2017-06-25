@@ -182,15 +182,15 @@ namespace YetaWF.Core.Views.Shared {
             if (addressType == CountryISO3166Helper.Country.US)
                 return city + ", " + state + " " + zip;
             else if (addressType == CountryISO3166Helper.Country.Zip1)
-                return zip + " " + city;
+                return (string.IsNullOrWhiteSpace(zip) ? "" : zip + " ") + city;
             else if (addressType == CountryISO3166Helper.Country.ZipLast)
-                return city + " " + zip;
+                return (string.IsNullOrWhiteSpace(city) ? "" : city + " ") + zip;
 #if EXAMPLE
             else if (addressType == "DE")
-                return Zip + " " + City;
+                return (string.IsNullOrWhiteSpace(zip) ? "" : zip + " ") + city;
 #endif
             //else if (addressType == CountryISO3166Helper.Country.Generic)
-            return city + " " + zip;
+            return (string.IsNullOrWhiteSpace(city) ? "" : city + " ") + zip;
         }
 
         private static List<Country> GetCountries(bool IncludeSiteCountry = true) {
