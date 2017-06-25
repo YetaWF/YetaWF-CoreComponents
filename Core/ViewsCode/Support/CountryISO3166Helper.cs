@@ -157,12 +157,40 @@ namespace YetaWF.Core.Views.Shared {
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country number {0}", number);
         }
+        /// <summary>
+        /// Determine a country's address type.
+        /// </summary>
+        /// <param name="country">The country.</param>
+        /// <returns>The address type.</returns>
         public static string CountryToAddressType(string country) {
             if (string.IsNullOrWhiteSpace(country))
                 return Manager.CurrentSite.Country;
             if (string.IsNullOrWhiteSpace(country))
                 return null;
             return (from c in GetCountries() where c.Name == country select c.AddressType).FirstOrDefault();
+        }
+        /// <summary>
+        /// Given a country name, combine the city, state and zip fields for user display.
+        /// </summary>
+        /// <param name="country">The country name.</param>
+        /// <param name="city">The city portion of the address.</param>
+        /// <param name="state">The state portion of the address.</param>
+        /// <param name="zip">The zip code/postal code portion of the address.</param>
+        /// <returns></returns>
+        public static string CombineCityStateZip(string country, string city, string state, string zip) {
+            string addressType = CountryISO3166Helper.CountryToAddressType(country);
+            if (addressType == CountryISO3166Helper.Country.US)
+                return city + ", " + state + " " + zip;
+            else if (addressType == CountryISO3166Helper.Country.Zip1)
+                return zip + " " + city;
+            else if (addressType == CountryISO3166Helper.Country.ZipLast)
+                return city + " " + zip;
+#if EXAMPLE
+            else if (addressType == "DE")
+                return Zip + " " + City;
+#endif
+            //else if (addressType == CountryISO3166Helper.Country.Generic)
+            return city + " " + zip;
         }
 
         private static List<Country> GetCountries(bool IncludeSiteCountry = true) {
