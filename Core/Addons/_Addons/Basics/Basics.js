@@ -1222,7 +1222,7 @@ $(document).ready(function () {
     /* SUBMIT */
     var submitFormOnChange = function () {
         clearInterval(submitFormTimer);
-        YetaWF_Forms.submit(submitForm);
+        YetaWF_Forms.submit(submitForm, false);
     }
     $('body').on('keyup', '.ysubmitonchange select', function (e) {
         if (e.keyCode == 13) {
@@ -1239,7 +1239,7 @@ $(document).ready(function () {
     /* APPLY */
     var applyFormOnChange = function () {
         clearInterval(submitFormTimer);
-        YetaWF_Forms.submit(submitForm, true, YGlobals.Link_SubmitIsApply + "=y");
+        YetaWF_Forms.submit(submitForm, false, YGlobals.Link_SubmitIsApply + "=y");
     }
     $('body').on('keyup', '.yapplyonchange select,.yapplyonchange input[type="checkbox"]', function (e) {
         if (e.keyCode == 13) {
