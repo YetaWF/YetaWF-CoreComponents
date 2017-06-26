@@ -281,26 +281,6 @@ namespace YetaWF.Core.Controllers {
             base.OnActionExecuting(filterContext);
 
             if (Manager.IsPostRequest) {
-                // Request for a module
-                // Make sure we have all necessary information
-                // otherwise, we'll try to invoke a controller directly
-                // find the module handling this request (saved as hidden field in Form)
-                object moduleGuid = null;
-#if MVC6
-                if (HttpContext.Request.HasFormContentType)
-                    moduleGuid = HttpContext.Request.Form[Basics.ModuleGuid];
-#else
-                moduleGuid = HttpContext.Request.Form[Basics.ModuleGuid];
-#endif
-                if (moduleGuid == null) {
-#if MVC6
-                    moduleGuid = HttpContext.Request.Query[Basics.ModuleGuid];
-#else
-                    moduleGuid = HttpContext.Request.QueryString[Basics.ModuleGuid];
-#endif
-                    if (moduleGuid == null)
-                        throw new InternalError("Missing {0} hidden field for POST request Url {1}", Basics.ModuleGuid, Manager.CurrentRequestUrl);
-                }
                 // find the unique Id prefix (saved as hidden field in Form)
                 string uniqueIdPrefix = null;
 #if MVC6
