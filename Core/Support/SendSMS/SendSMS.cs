@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.Controllers;
@@ -75,7 +76,7 @@ namespace YetaWF.Core.Support.SendSMS {
         ///
         /// In order to use a phone number as <i>toNumber</i>, an SMS provider has to be installed. SMS providers offering SMS services are generally not free.
         /// </remarks>
-        public void SendMessage(string toNumber, string text, string FromNumber = null) {
+        public void SendMessage(string toNumber, string text, string FromNumber = null, bool ThrowError = true) {
             if (toNumber.Contains("@")) {
                 // send email
                 SendEmail.SendEmail sendEmail = new SendEmail.SendEmail();
@@ -83,13 +84,22 @@ namespace YetaWF.Core.Support.SendSMS {
                     Message = text,
                 };
                 sendEmail.PrepareEmailMessage(toNumber, this.__ResStr("smsSubject", "SMS"), sendEmail.GetEmailFile(AreaRegistration.CurrentPackage, "Text Message.txt"), parameters: parms);
-                sendEmail.Send(true);
+                sendEmail.Send(ThrowError);
             } else {
                 // send using SMS provider
                 ISendSMS sendSMS = GetSMSProcessor();
-                if (sendSMS == null)
-                    throw new InternalError("No SMS provider installed");
-                sendSMS.SendSMS(toNumber, text, FromNumber: FromNumber);
+                if (sendSMS == null) {
+                    if (ThrowError)
+                        throw new InternalError("No SMS provider installed");
+                    else
+                        return;
+                }
+                try {
+                    sendSMS.SendSMS(toNumber, text, FromNumber: FromNumber);
+                } catch (Exception) {
+                    if (ThrowError)
+                        throw;
+                }
             }
             Logging.AddLog("SMS sent to {0} - {1}", toNumber, text);
         }
