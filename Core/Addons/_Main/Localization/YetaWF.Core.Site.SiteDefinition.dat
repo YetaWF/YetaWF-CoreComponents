@@ -351,6 +351,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="Country" />
+                            <Caption Value="Country" />
+                            <Description Value="The country where you/your company is located" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="CssNoTooltips" />
                             <Caption Value="Suppress Tooltips" />
                             <Description Value="The class(es) on A tags that will suppress the navigation tooltip" />
