@@ -97,8 +97,8 @@ namespace YetaWF.Core.Views.Shared {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            bool copy = htmlHelper.GetControlInfo<bool>("", "Copy", true);
-            bool rdonly = htmlHelper.GetControlInfo<bool>("", "ReadOnly", false);
+            bool copy = htmlHelper.GetControlInfo<bool>(name, "Copy", true);
+            bool rdonly = htmlHelper.GetControlInfo<bool>(name, "ReadOnly", false);
 
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: false, Anonymous: true);
@@ -124,4 +124,3 @@ namespace YetaWF.Core.Views.Shared {
         }
     }
 }
-;
