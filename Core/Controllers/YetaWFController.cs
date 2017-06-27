@@ -9,13 +9,22 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Views.Shared;
+using YetaWF.Core.Models;
+using System.Text.RegularExpressions;
+using System.Text;
+using System.IO;
+using YetaWF.Core.ResponseFilter;
+using Ionic.Zlib;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 #else
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Filters;
+using System.Web.Mvc.Html;
 using YetaWF.Core.Addons;
 #endif
 
@@ -52,6 +61,10 @@ namespace YetaWF.Core.Controllers {
             viewName = area + "_" + viewName;
             return viewName;
         }
+        /// <summary>
+        /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller (if any). Can be used with a base class to get the derived module's module definitions.
+        /// </summary>
+        protected virtual ModuleDefinition GetModule() { return null; }
 
 #if MVC6
         // Handled identically in ErrorHandlingMiddleware
@@ -276,6 +289,300 @@ namespace YetaWF.Core.Controllers {
                 }
             }  else
                 return new List<Origin>();
+        }
+
+        // GRID PARTIALVIEW
+        // GRID PARTIALVIEW
+        // GRID PARTIALVIEW
+
+        /// <summary>
+        /// An action result that renders a grid as a partial view.
+        /// </summary>
+        /// <param name="dataSrc">The data source.</param>
+        /// <returns>Used in conjunction with the Grid template.</returns>
+        protected PartialViewResult GridPartialView(DataSourceResult dataSrc) {
+            string partialView = "GridData";
+            return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
+        }
+        /// <summary>
+        /// An action result that renders a single grid record as a partial view.
+        /// </summary>
+        /// <param name="entryDef">The definition of the grid record.</param>
+        /// <returns>Used in conjunction with the Grid template.</returns>
+        protected PartialViewResult GridPartialView(GridDefinition.GridEntryDefinition entryDef) {
+            string partialView = "GridEntry";
+            return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
+        }
+
+        // PARTIAL VIEW
+        // PARTIAL VIEW
+        // PARTIAL VIEW
+
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
+        protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+            return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
+        }
+
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
+        protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+            return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
+        }
+
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="viewName">The name of the partial view.</param>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
+        protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+            return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
+        }
+
+        /// <summary>
+        /// Returns an action to render a partial view.
+        /// </summary>
+        /// <param name="viewName">The name of the partial view.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="ContentType">The optional content type. Default is text/html.</param>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
+        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <returns></returns>
+        protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+
+            if (model != null) {
+                ViewData.Model = model;
+            }
+
+            return new PartialViewResult {
+                ViewName = viewName,
+                ViewData = ViewData,
+                TempData = TempData,
+#if MVC6
+#else
+                ViewEngineCollection = ViewEngineCollection,
+#endif
+                Module = GetModule(),
+                Script = Script,
+                ContentType = ContentType,
+                PureContent = PureContent,
+                AreaViewName = AreaViewName,
+                Gzip = Gzip,
+            };
+        }
+        /// <summary>
+        /// An action result to render a partial view.
+        /// </summary>
+#if MVC6
+        public class PartialViewResult : Microsoft.AspNetCore.Mvc.PartialViewResult {
+#else
+        public class PartialViewResult : System.Web.Mvc.PartialViewResult {
+#endif
+
+            protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
+            private const string DefaultContentType = "text/html";
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+#if MVC6
+            public PartialViewResult() { }
+#else
+            public PartialViewResult() { }
+#endif
+            /// <summary>
+            /// The current module being rendered by this partial view.
+            /// </summary>
+            public ModuleDefinition Module { get; set; }
+            /// <summary>
+            /// The Javascript to be executed client-side after the partial view has been rendered.
+            /// </summary>
+            public ScriptBuilder Script { get; set; }
+#if MVC6
+#else
+            /// <summary>
+            /// The content type. If not specified, the default is "text/html".
+            /// </summary>
+            public string ContentType { get; set; }
+#endif
+            public bool PureContent { get; set; }
+            public bool AreaViewName { get; set; }
+            public bool Gzip { get; set; }
+
+            private static readonly Regex reEndDiv = new Regex(@"</\s*div\s*>\s*$"); // very last div
+
+            /// <summary>
+            /// Renders the view.
+            /// </summary>
+            /// <param name="context">The action context.</param>
+#if MVC6
+            public override async Task ExecuteResultAsync(ActionContext context) {
+#else
+            public override void ExecuteResult(ControllerContext context) {
+#endif
+                Manager.Verify_PostRequest();
+
+                if (context == null)
+                    throw new ArgumentNullException("context");
+                if (AreaViewName) {
+                    if (Module == null) throw new InternalError("Can't use AreaViewName without module context");
+                    if (String.IsNullOrEmpty(ViewName)) {
+                        if (!string.IsNullOrWhiteSpace(Module.DefaultViewName))
+                            ViewName = Module.DefaultViewName + "_Partial";
+                    } else {
+                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
+                    }
+                    if (string.IsNullOrWhiteSpace(ViewName)) {
+#if MVC6
+                        ViewName = (string)context.RouteData.Values["action"];
+#else
+                        ViewName = context.RouteData.GetRequiredString("action");
+#endif
+                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(ViewName))
+                    throw new InternalError("Invalid action");
+#if MVC6
+                HttpResponse response = context.HttpContext.Response;
+#else
+                HttpResponseBase response = context.HttpContext.Response;
+#endif
+                if (!string.IsNullOrEmpty(ContentType))
+                    response.ContentType = ContentType;
+
+                string viewHtml;
+#if MVC6
+                bool inPartialView = Manager.InPartialView;
+                Manager.InPartialView = true;
+                try {
+                    IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
+                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRender);
+                    //$$$ verify GZIP in grid responses (once we can actually run this again)
+                } catch (Exception) {
+                    throw;
+                } finally {
+                    Manager.InPartialView = inPartialView;
+                }
+#else
+                ViewEngineResult viewEngine = null;
+
+                if (View == null) {
+                    viewEngine = FindView(context);
+                    View = viewEngine.View;
+                }
+                IView view = FindView(context).View;
+
+                StringBuilder sb = new StringBuilder();
+                using (StringWriter sw = new StringWriter(sb)) {
+                    ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
+                    IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
+                    HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+
+                    bool inPartialView = Manager.InPartialView;
+                    Manager.InPartialView = true;
+                    try {
+                        viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
+                    } catch (Exception) {
+                        throw;
+                    } finally {
+                        Manager.InPartialView = inPartialView;
+                    }
+                    viewHtml = PostRender(htmlHelper, context, viewHtml);
+                }
+#endif
+                if (Gzip) {
+                    // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
+                    // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
+#if MVC6
+                    //$$context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
+#else
+                    context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
+                    context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
+#endif
+                }
+#if MVC6
+                byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
+                await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
+#else
+                response.Output.Write(viewHtml);
+                if (viewEngine != null)
+                    viewEngine.ViewEngine.ReleaseView(context, View);
+#endif
+            }
+
+#if MVC6
+#else
+            private class ViewDataContainer : IViewDataContainer {
+                public ViewDataDictionary ViewData { get; set; }
+            }
+#endif
+
+#if MVC6
+            private string PostRender(IHtmlHelper htmlHelper, ActionContext context, string viewHtml)
+#else
+            private string PostRender(HtmlHelper htmlHelper, ControllerContext context, string viewHtml)
+#endif
+            {
+#if MVC6
+                HttpResponse response = context.HttpContext.Response;
+#else
+                HttpResponseBase response = context.HttpContext.Response;
+#endif
+                // if the controller specified a content type, only return the exact response
+                // if the controller didn't specify a content type and the content type is text/html, add all the other goodies
+#if MVC6
+                if (!PureContent && string.IsNullOrEmpty(ContentType) && (response.ContentType == null || response.ContentType == DefaultContentType))
+#else
+                if (!PureContent && string.IsNullOrEmpty(ContentType) && response.ContentType == DefaultContentType)
+#endif
+                {
+                    if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
+
+                    Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+                    if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
+                    Manager.AddOnManager.AddExplicitlyInvokedModules(Module.ReferencedModules);
+                    viewHtml = viewHtml + htmlHelper.RenderReferencedModule_Ajax().ToString();
+                    viewHtml = YetaWF.Core.Views.RazorViewExtensions.PostProcessViewHtml(htmlHelper, Module, viewHtml);
+
+                    Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
+                    viewHtml = vars.ReplaceVariables(viewHtml);// variable substitution
+
+                    if (Script != null)
+                        Manager.ScriptManager.AddLastDocumentReady(Script);
+
+                    // add generated scripts
+                    string js = Manager.ScriptManager.RenderAjax().ToString();
+                    if (string.IsNullOrWhiteSpace(js))
+                        js = "";
+
+                    viewHtml = reEndDiv.Replace(viewHtml, js + "</div>", 1);
+
+                    // DEBUG: viewHtml is the complete response to the Ajax request
+
+                    if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
+                        viewHtml = WhiteSpaceResponseFilter.Compress(Manager, viewHtml);
+                }
+                return viewHtml;
+            }
         }
     }
 }
