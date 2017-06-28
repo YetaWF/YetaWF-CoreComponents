@@ -19,11 +19,16 @@ namespace YetaWF.Core.Views.Shared {
     public class Currency<TModel> : RazorTemplate<TModel> { }
 
     public static class CurrencyHelper {
+
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
         public static HtmlString RenderCurrency(this IHtmlHelper htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
         public static HtmlString RenderCurrency(this HtmlHelper<object> htmlHelper, string name, Decimal? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.userevents.min.js");
+            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.numerictextbox.min.js");
+
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
 
