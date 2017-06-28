@@ -39,10 +39,10 @@ namespace YetaWF.Core.Views.Shared {
 
             TagBuilder tag = new TagBuilder("input");
             string fullName = htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
-            string id = null;
-            if (!string.IsNullOrWhiteSpace(mask)) {
-                id = htmlHelper.MakeId(tag);
-            }
+            //string id = null;
+            //if (!string.IsNullOrWhiteSpace(mask)) {
+            //    id = htmlHelper.MakeId(tag);
+            //}
 
             // handle StringLengthAttribute as maxlength
             PropertyData propData = ObjectSupport.GetPropertyData(htmlHelper.ViewData.ModelMetadata.ContainerType, htmlHelper.ViewData.ModelMetadata.PropertyName);
