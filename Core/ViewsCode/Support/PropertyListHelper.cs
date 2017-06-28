@@ -148,7 +148,8 @@ namespace YetaWF.Core.Views.Shared {
                 sb.Append("animation: false,\n");
                 sb.Append("activate: function(ev) { if (ev.contentElement!=undefined) {");
                 sb.Append("$('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement));", controlId);
-                sb.Append("$('#{0}').val($(ev.item).attr('data-tab'));", activeTabId);
+                if (!string.IsNullOrWhiteSpace(activeTabId))
+                    sb.Append("$('#{0}').val($(ev.item).attr('data-tab'));", activeTabId);
                 sb.Append("}}\n");
                 sb.Append("}).data('kendoTabStrip');\n");
             } else
