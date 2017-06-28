@@ -51,7 +51,7 @@ namespace YetaWF.Core.Views.Shared {
             if (lenAttr != null) {
 #if DEBUG
                 if (tag.Attributes.ContainsKey("maxlength"))
-                    throw new InternalError("Both StringLengthAttribute and maxlength specified - {0}", fullName);//$$$$$
+                    throw new InternalError("Both StringLengthAttribute and maxlength specified - {0}", fullName);
 #endif
                 int maxLength = lenAttr.MaximumLength;
                 if (maxLength > 0 && maxLength <= 8000)
@@ -59,7 +59,7 @@ namespace YetaWF.Core.Views.Shared {
             }
 #if DEBUG
             if (lenAttr == null && !tag.Attributes.ContainsKey("maxlength")) {
-                throw new InternalError("No max string length given using StringLengthAttribute or maxlength - {0}", fullName);//$$$$$
+                throw new InternalError("No max string length given using StringLengthAttribute or maxlength - {0}", fullName);
             }
 #endif
             // text
