@@ -1,7 +1,8 @@
 MVC6 Folder \lib\kendo-ui\js\
-MVC5 Folder \Scripts\kendo\2017.1.223\
+MVC5 Folder \Scripts\kendo\2017.2.621\
 kendo.core.min.js
 # Basics (Window)
 kendo.userevents.min.js,bundle
 kendo.draganddrop.min.js,bundle
+kendo.popup.min.js,bundle
 kendo.window.min.js,bundle

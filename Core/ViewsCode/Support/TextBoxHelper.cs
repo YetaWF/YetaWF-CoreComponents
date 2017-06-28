@@ -29,7 +29,6 @@ namespace YetaWF.Core.Views.Shared {
         public static HtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             Manager.AddOnManager.AddTemplate("Text");
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -40,10 +39,10 @@ namespace YetaWF.Core.Views.Shared {
 
             TagBuilder tag = new TagBuilder("input");
             string fullName = htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
-            //string id = null;
-            //if (!string.IsNullOrWhiteSpace(mask)) {
-            //    id = htmlHelper.MakeId(tag);
-            //}
+            string id = null;
+            if (!string.IsNullOrWhiteSpace(mask)) {
+                id = htmlHelper.MakeId(tag);
+            }
 
             // handle StringLengthAttribute as maxlength
             PropertyData propData = ObjectSupport.GetPropertyData(htmlHelper.ViewData.ModelMetadata.ContainerType, htmlHelper.ViewData.ModelMetadata.PropertyName);
@@ -79,8 +78,10 @@ namespace YetaWF.Core.Views.Shared {
                 tagImg.AddCssClass("yt_text_copy");
                 hb.Append(tagImg.ToString(TagRenderMode.StartTag));
             }
-            // 4/10/2017 can't use mask as there is a focusout hang on submit TODO: Investigate whose problem this is
+
             //if (!string.IsNullOrWhiteSpace(mask)) {
+            //    // if there is a Mask we need to use the KendoMaskedTextBox
+            //    Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
             //    ScriptBuilder sb = new ScriptBuilder();
             //    sb.Append("$('#{0}').kendoMaskedTextBox({{ mask: '{1}' }});\n", id, YetaWFManager.JserEncode(mask));
             //    Manager.ScriptManager.AddLastDocumentReady(sb);

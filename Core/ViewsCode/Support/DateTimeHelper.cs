@@ -24,7 +24,7 @@ namespace YetaWF.Core.Views.Shared {
 
         public static void Include() {
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.calendar.min.js");
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js");
+            // Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.datepicker.min.js");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.timepicker.min.js");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.datetimepicker.min.js");

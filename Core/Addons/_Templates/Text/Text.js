@@ -19,12 +19,9 @@ _YetaWF_TemplateText.clip = null;
 YetaWF_TemplateText.init = function ($tag) {
     'use strict';
 
-    $('input.yt_text,input.yt_text10,input.yt_text20,input.yt_text40,input.yt_text80,input.yt_text_base', $tag).not('.ybrowsercontrols').each(function (index) {
-        var $this = $(this);
-        var autocomplete = $this.attr('autocomplete');// preserve autocomplete
-        $this.kendoMaskedTextBox({});
-        $this.attr('autocomplete', autocomplete);
-    });
+    // adding k-textbox to the control makes it look like a kendo maskedtext box without the overhead of actually calling kendoMaskedTextBox
+    $('input.yt_text,input.yt_text10,input.yt_text20,input.yt_text40,input.yt_text80,input.yt_text_base', $tag).not('.ybrowsercontrols').addClass('k-textbox');
+
     function initClip() {
         if (_YetaWF_TemplateText.clip == null && $('.yt_text_copy').length > 0) {
             _YetaWF_TemplateText.clip = new Clipboard('.yt_text_copy', {
