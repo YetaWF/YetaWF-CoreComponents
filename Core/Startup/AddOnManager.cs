@@ -225,8 +225,6 @@ namespace YetaWF.Core.Addons {
                 skin = Manager.CurrentSite.jQueryUISkin;
             string themeFolder = skinAccess.FindJQueryUISkin(skin);
             AddAddOnGlobal("jqueryui.com", "jqueryui-themes", themeFolder);
-            //if (Manager.UsingBootstrap)
-            //    AddAddOnGlobal("github.com.arschmitz", "jqueryui-bootstrap-adapter");
 
             // Find Kendo UI theme
             skin = Manager.CurrentPage.KendoUISkin;

@@ -1,1 +1,0 @@
-﻿jqueryui-bootstrap-adapter.js,bundle
