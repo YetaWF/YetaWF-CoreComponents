@@ -113,7 +113,7 @@ YetaWF_Popup.openPopup = function(url) {
     else
         url += "&";
     url += new Date().getUTCMilliseconds();
-    if (screen.width >= 1000 && screen.height >= 800) // only use popups with a large enough screen width
+    if (screen.width >= YVolatile.Skin.MinWidthForPopups && screen.height >= 800) // only use popups with a large enough screen width
         url += "&" + YGlobals.Link_ToPopup + "=y";// we're now going into a popup
 
     // we're already in a popup
