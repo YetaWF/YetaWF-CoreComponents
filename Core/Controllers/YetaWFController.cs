@@ -17,9 +17,13 @@ using System.IO;
 using YetaWF.Core.ResponseFilter;
 using Ionic.Zlib;
 #if MVC6
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
+using YetaWF.Core.Pages;
 #else
 using System.Web;
 using System.Web.Mvc;
