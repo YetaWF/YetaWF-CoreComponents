@@ -46,9 +46,8 @@
     }
 }
 
-$screen-md : 992px;
-@media (max-width: $screen-md) {
-
+.yCondense {
+    // definitions for small screen
     .yt_propertylist,
     .yt_propertylisttabbed {
         .t_labels {

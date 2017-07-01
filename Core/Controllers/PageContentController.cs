@@ -132,8 +132,6 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Data received from client side for the requested page.
         /// </summary>
-        /// <remarks>Because we use an Ajax GET request, these are encoded as query string.
-        /// To avoid collisions all properties are prefixed with "__".</remarks>
         public class DataIn {
             public string Path { get; set; }
             public string QueryString { get; set; }
@@ -175,7 +173,6 @@ namespace YetaWF.Core.Controllers {
 #endif
             }
             if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
-            if (Manager.IsInPopup) throw new InternalError("Unified Page Sets can't be used in popup windows");
 
             Uri uri = new Uri(Manager.CurrentRequestUrl);
 
@@ -217,15 +214,31 @@ namespace YetaWF.Core.Controllers {
                 string[] segments = url.Split(new char[] { '/' });
                 string newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    // direct module references don't participate in unified page sets
-                    PageContentResult cr = new PageContentResult();
-                    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                    return cr;
+                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                        PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
+                        if (newUrl != url) {
+                            PageContentResult cr = new PageContentResult();
+                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
+                            return cr;
+                        }
+                    } else {
+                        PageContentResult cr = new PageContentResult();
+                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        return cr;
+                    }
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    // direct page references don't participate in unified page sets
-                    PageContentResult cr = new PageContentResult();
-                    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                    return cr;
+                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                        PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
+                        if (newUrl != url) {
+                            PageContentResult cr = new PageContentResult();
+                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
+                            return cr;
+                        }
+                    } else {
+                        PageContentResult cr = new PageContentResult();
+                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        return cr;
+                    }
                 } else {
                     PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, dataIn.QueryString, out newUrl, out newQs);
                     if (page != null) {
@@ -292,10 +305,29 @@ namespace YetaWF.Core.Controllers {
 #endif
                     default:
                     case ProcessingStatus.No:
-                        // if we got here, we shouldn't be here - we're requesting a page outside of unified page set
-                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        return cr;
+                        break;
                 }
+            }
+            {
+                PageContentResult cr = new PageContentResult();
+                switch (CanProcessAsModule(dataIn, cr)) {
+                    case ProcessingStatus.Complete:
+                        return cr;
+                    case ProcessingStatus.Page:
+#if MVC6
+                    return new PageContentViewResult(_viewRenderService, ViewData, TempData, dataIn);
+#else
+                        return new PageContentViewResult(ViewData, TempData, dataIn);
+#endif
+                    case ProcessingStatus.No:
+                        break;
+                }
+            }
+            // if we got here, we shouldn't be here - we're requesting a page outside of unified page set
+            {
+                PageContentResult cr = new PageContentResult();
+                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                return cr;
             }
         }
 
@@ -324,14 +356,23 @@ namespace YetaWF.Core.Controllers {
                         return ProcessingStatus.Complete;
                     }
                     // make sure it's the same skin
-                    // some pages (created with earlier versions of YetaWF) have a null skin name, which defaults to SkinAccess.FallbackPageFileName
-                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                    if (page.SelectedSkin.Collection != dataIn.UnifiedSkinCollection || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
+                    if (YetaWFController.GoingToPopup()) {
+                        // popups only care about the skin collection, not the file
+                        if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
+                            // this page is part of another skin
+                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                            cr.Result.Redirect = redirUrl;
+                            return ProcessingStatus.Complete;
+                        }
+                    } else {
+                        if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
+                            page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
+                        if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
+                            // this page is part of another skin
+                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                            cr.Result.Redirect = redirUrl;
+                            return ProcessingStatus.Complete;
+                        }
                     }
                 } else {
                     if (page.UnifiedSetGuid != new Guid(dataIn.UnifiedSetGuid)) {
@@ -382,6 +423,10 @@ namespace YetaWF.Core.Controllers {
                         }
                     }
                     Manager.CurrentPage = page;// Found It!!
+                    if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
+                        // this is a popup request
+                        Manager.IsInPopup = true;
+                    }
                     Logging.AddTraceLog("Page {0}", page.PageGuid);
                     return ProcessingStatus.Page;
                 } else {
@@ -404,6 +449,52 @@ namespace YetaWF.Core.Controllers {
                 }
             }
             return ProcessingStatus.No;
+        }
+        private ProcessingStatus CanProcessAsModule(DataIn dataIn, PageContentResult cr) {
+            // direct request for a module without page
+            ModuleDefinition module = ModuleDefinition.FindDesignedModule(dataIn.Path);
+            if (module == null)
+                module = ModuleDefinition.LoadByUrl(dataIn.Path);
+            if (module != null) {
+                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
+                    PageDefinition page = PageDefinition.Create();
+                    page.AddModule(Globals.MainPane, module);
+                    Manager.CurrentPage = page;
+                    if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
+                        // we're going into a popup for this
+                        Manager.IsInPopup = true;
+                        page.SelectedPopupSkin = module.SelectedPopupSkin;
+                    }
+                    // make sure it's the same skin
+                    if (YetaWFController.GoingToPopup()) {
+                        // popups only care about the skin collection, not the file
+                        if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
+                            // this page is part of another skin
+                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                            cr.Result.Redirect = redirUrl;
+                            return ProcessingStatus.Complete;
+                        }
+                    } else {
+                        if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
+                            page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
+                        if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
+                            // this page is part of another skin
+                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                            cr.Result.Redirect = redirUrl;
+                            return ProcessingStatus.Complete;
+                        }
+                    }
+                    Logging.AddTraceLog("Module {0}", module.ModuleGuid);
+                    return ProcessingStatus.Page;
+                }
+            }
+            return ProcessingStatus.No;
+        }
+
+        private bool SameSkinCollection(string collection1, string collection2, bool popup) {
+            if (string.IsNullOrWhiteSpace(collection1)) collection1 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
+            if (string.IsNullOrWhiteSpace(collection2)) collection2 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
+            return (collection1 == collection2);
         }
     }
 }

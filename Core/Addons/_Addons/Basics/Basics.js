@@ -216,8 +216,8 @@ function Y_AlertYesNo(text, title, onYes, onNo) {
 function Y_PleaseWait(text, title) {
     'use strict';
 
-    // insert <div id="ypopup"></div> at top of page for the window
-    // this is automaticaly removed when destroy() is called
+    // insert <div id="yplwait"></div> at top of page for the window
+    // this is automatically removed when destroy() is called
     $("body").prepend("<div id='yplwait'></div>");
     var $popupwin = $("#yplwait");
     var popup = null;
@@ -333,7 +333,7 @@ function Y_ReloadModule(tag) {
 
 // usage:
 //$(window).smartresize(function () {
-//    // code that takes it easy...
+//    // code that makes it easy...
 //});
 
 (function ($, sr) {
@@ -689,7 +689,7 @@ _YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
 // Change the current page to the specified Uri (may not be part of the unified page set)
 // returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
 // returns true if the page is now shown and is part of the unified page set
-_YetaWF_Basics.setContent = function (uri, setState) {
+_YetaWF_Basics.setContent = function (uri, setState, popupCB) {
     'use strict';
 
     // Close open bootstrap nav menus (if any) by clicking on the page
@@ -709,6 +709,12 @@ _YetaWF_Basics.setContent = function (uri, setState) {
 
     if (YVolatile.Basics.EditModeActive) return false; // edit mode
     if (YVolatile.Basics.UnifiedMode == 0) return false; // not unified mode
+    if (popupCB !== undefined) {
+        if (YVolatile.Basics.UnifiedMode !== 3 /*UnifiedModeEnum.DynamicContent*/ && YVolatile.Basics.UnifiedMode !== 4 /*UnifiedModeEnum.SkinDynamicContent*/)
+            return false; // popups can only be used with some unified modes
+        if (!YVolatile.Basics.UnifiedPopups)
+            return false; // popups not wanted for this UPS
+    }
 
     // check if we're clicking a link which is part of this unified page
     var path = uri.path();
@@ -766,37 +772,45 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 }
                 if (result.Redirect != null && result.Redirect.length > 0) {
                     //Y_Loading(false);
-                    window.location.assign(result.Redirect);
+                    if (popupCB) {
+                        // we want a popup and get a redirect, redirect to iframe popup
+                        YetaWF_Popup.openPopup(result.Redirect, true);
+                    } else {
+                        // simple redirect
+                        window.location.assign(result.Redirect);
+                    }
                     return;
                 }
                 if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                    _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState);
+                    _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState, popupCB);
                     return;
                 }
-                // Update the browser page title
-                document.title = result.PageTitle;
-                // Update the browser address bar with the new path
-                if (setState) {
-                    try {
-                        var stateObj = {};
-                        history.pushState(stateObj, "", uri.toString());
-                    } catch (err) { }
+                if (!popupCB) {
+                    // Update the browser page title
+                    document.title = result.PageTitle;
+                    // Update the browser address bar with the new path
+                    if (setState) {
+                        try {
+                            var stateObj = {};
+                            history.pushState(stateObj, "", uri.toString());
+                        } catch (err) { }
+                    }
+                    // remove all pane contents
+                    $divs.each(function () {
+                        var $div = $(this);
+                        $div.empty();
+                        if ($div.attr("data-conditional") !== undefined)
+                            $div.hide();// hide, it's a conditional pane
+                    });
+                    // Notify that page is changing
+                    $(document).trigger('YetaWF_Basics_PageChange', []);
+                    // remove prior page css classes
+                    var $body = $('body');
+                    $body.removeClass($body.attr('data-pagecss'));
+                    // add new css classes
+                    $body.addClass(result.PageCssClasses);
+                    $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
                 }
-                // remove all pane contents
-                $divs.each(function () {
-                    var $div = $(this);
-                    $div.empty();
-                    if ($div.attr("data-conditional") !== undefined)
-                        $div.hide();// hide, it's a conditional pane
-                });
-                // Notify that page is changing
-                $(document).trigger('YetaWF_Basics_PageChange', []);
-                // remove prior page css classes
-                var $body = $('body');
-                $body.removeClass($body.attr('data-pagecss'));
-                // add new css classes
-                $body.addClass(result.PageCssClasses);
-                $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
                 // run all global scripts (YConfigs, etc.)
                 eval(result.Scripts);
                 // add all new css files
@@ -828,16 +842,20 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                     else
                         YVolatile.Basics.UnifiedScriptBundleFiles = result.ScriptBundleFiles;
                 }
-                // add pane content
                 var $tags = $(); // collect all panes
-                var contentLength = result.Content.length;
-                for (var i = 0; i < contentLength; i++) {
-                    // replace the pane
-                    var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
-                    $pane.show();// show in case this is a conditional pane
-                    $pane.append(result.Content[i].HTML);
-                    // run all registered initializations for the pane
-                    $tags = $tags.add($pane);
+                if (!popupCB) {
+                    // add pane content
+                    var contentLength = result.Content.length;
+                    for (var i = 0; i < contentLength; i++) {
+                        // replace the pane
+                        var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
+                        $pane.show();// show in case this is a conditional pane
+                        $pane.append(result.Content[i].HTML);
+                        // run all registered initializations for the pane
+                        $tags = $tags.add($pane);
+                    }
+                } else {
+                    $tags = popupCB(result);
                 }
                 // add addons
                 $('body').append(result.Addons);
@@ -863,17 +881,19 @@ _YetaWF_Basics.setContent = function (uri, setState) {
                 // call ready handlers
                 YetaWF_Basics.processAllReady($tags);
                 YetaWF_Basics.processAllReadyOnce($tags);
-                // scroll
-                var scrolled = YetaWF_Basics.setScrollPosition();
-                if (!scrolled) {
-                    $(window).scrollLeft(0);
-                    $(window).scrollTop(0);
+                if (!popupCB) {
+                    // scroll
+                    var scrolled = YetaWF_Basics.setScrollPosition();
+                    if (!scrolled) {
+                        $(window).scrollLeft(0);
+                        $(window).scrollTop(0);
+                    }
+                    // in case there is a popup open, close it now (typically when returning to the page from a popup)
+                    if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
+                        YetaWF_Popup.closeInnerPopup();
                 }
-                // in case there is a popup open, close it now (typically when returning to the page from a popup)
-                if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
-                    YetaWF_Popup.closeInnerPopup();
                 // done, set focus
-                Y_SetFocus();
+                Y_SetFocus($tags);
                 Y_Loading(false);
                 try {
                     eval(result.AnalyticsContent);
@@ -1331,7 +1351,7 @@ YetaWF_Basics.initPage = function () {
 
     $(document).ready(function () {
         if (!scrolled && location.hash.length <= 1)
-            Y_SetFocus($('body'));
+            Y_SetFocus();
     });
 
     // CONTENT NAVIGATION
@@ -1344,4 +1364,23 @@ YetaWF_Basics.initPage = function () {
 $(window).on("popstate", function () {
     var uri = new URI(window.location.href);
     return ! _YetaWF_Basics.setContent(uri, false);
+});
+
+// Set rendering mode based on window size
+// we can't really use @media (max-width:...) in css because popups (in Unified Page Sets) don't use iframes so their size may be small but
+// doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
+// a more condensed appearance.
+
+YetaWF_Basics.setCondense = function($tag, width) {
+    if (width < YVolatile.Skin.MinWidthForPopups)
+        $tag.addClass('yCondense');
+    else
+        $tag.removeClass('yCondense');
+}
+
+$(window).on('resize', function () {
+    YetaWF_Basics.setCondense($('body'), window.innerWidth);
+});
+$(document).ready(function () {
+    YetaWF_Basics.setCondense($('body'), window.innerWidth);
 });

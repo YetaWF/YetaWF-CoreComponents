@@ -1,10 +1,16 @@
 ﻿Standard YetaWF skin (also used as fallback skin)
+JQuerySkin
+KendoSkin
+UsingBootstrap false
+UseDefaultBootstrap true
+UsingBootstrapButtons false
+MinWidthForPopups 0
 ::Pages::
-Main (Default)::Default.cshtml::Standard page with a header, footer and a main pane::12::16
-Plain::Plain.cshtml::** not used **::12::16
+Main (Default);Default.cshtml;Standard page with a header, footer and a main pane;pageSkinDefault;12;16
+Plain;Plain.cshtml;** not used **;pageSkinPlain;12;16
 ::Popups::
-Popup (Default)::Popup.cshtml::Standard popup window (1000 x 700 pixels)::12::16
-Medium Popup::PopupMedium.cshtml::** not used **::12::16
-Small Popup::PopupSmall.cshtml::** not used **::12::16
+Popup (Default);Popup.cshtml;Standard popup window;popup;1000;700;0;12;16
+Medium Popup;PopupMedium.cshtml;** not used **;popup;1000;700;0;12;16
+Small Popup;PopupSmall.cshtml;** not used **;popup;1000;700;0;12;16
 ::Modules::
-Standard (Default)::modStandard::Standard module::12::16
+Standard (Default);modStandard;Standard module;12;16

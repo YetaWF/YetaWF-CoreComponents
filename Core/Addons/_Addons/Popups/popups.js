@@ -8,9 +8,11 @@ var _YetaWF_Popup = {};
 document.YPopupWindowActive = null;
 
 // inline - as soon as we're loading, resize the popup window, if we're in a popup
+// this is only used by full page loads (i.e., a popup using an iframe)
 if (YVolatile.Basics.IsInPopup) {
     'use strict';
 
+    var $popupwin = $("#ypopup", $(window.parent.document));
     var popup = window.parent.document.YPopupWindowActive;
 
     // get the popup window height
@@ -18,21 +20,20 @@ if (YVolatile.Basics.IsInPopup) {
     var height = YVolatile.Skin.PopupHeight;
 
     popup.setOptions({
-        width: width == undefined ? YConfigs.Popups.DefaultPopupWidth : width,
-        height: height == undefined ? YConfigs.Popups.DefaultPopupHeight : height,
+        width: width,
+        height: height,
     });
+    YetaWF_Basics.setCondense($popupwin, width);
     popup.center().open();
 
     // show/hide the maximize button (not directly supported so we'll do it manually)
-    var $popupwin = $("#ypopup", $(window.parent.document));
     if ($popupwin.length == 0) throw "Couldn't find popup window";/*DEBUG*/
     var $popWindow = $popupwin.closest('.k-widget.k-window');
     if ($popWindow.length == 0) throw "Couldn't find enclosing popup window";/*DEBUG*/
     if (YVolatile.Skin.PopupMaximize)
-        $('.k-window-action.k-link', $popWindow).eq(0).show();// show the maximize button
+        $('.k-window-action.k-button', $popWindow).eq(0).show();// show the maximize button
     else
-        $('.k-window-action.k-link', $popWindow).eq(0).hide();// hide the maximize button
-
+        $('.k-window-action.k-button', $popWindow).eq(0).hide();// hide the maximize button
 }
 
 // Close the popup - this can only be used by code that is running within the popup (not the parent document/page)
@@ -42,11 +43,13 @@ YetaWF_Popup.closePopup = function (forceReload) {
         var forced = (forceReload === true);
         if (forced)
             Y_ReloadWindowPage(window.parent, true)
+        // with unified page sets there may actually not be a parent, but window.parent returns itself in this case anyway
         var popup = window.parent.document.YPopupWindowActive;
         if (popup != null) {
             popup.close();
             popup.destroy();
         }
+        YVolatile.Basics.IsInPopup = false; // we're no longer in a popup
     }
 }
 // Close the popup - this can only be used by code that is running on the main page (not within the popup)
@@ -56,10 +59,12 @@ YetaWF_Popup.closeInnerPopup = function () {
     if (popup != null) {
         popup.close();
         popup.destroy();
+        document.YPopupWindowActive = null;
     }
+    YVolatile.Basics.IsInPopup = false; // we're no longer in a popup
 }
 
-// Use this in a popup to set link to a url in the outer parent (main) window
+// Use this in a popup to set the link to a url in the outer parent (main) window
 YetaWF_Popup.handleOuterWindow = function ($this) {
     'use strict';
     // check if this is a popup link
@@ -100,8 +105,85 @@ YetaWF_Popup.handlePopupLink = function ($this) {
     return YetaWF_Popup.openPopup(url);
 };
 
+// opens a popup with dynamic content (unified page sets)
+_YetaWF_Popup.openDynamicPopup = function(result) {
+
+    function closePopup() {
+        var popup = $("#ypopup").data("kendoWindow");
+        popup.destroy();
+        popup = null;
+        document.YPopupWindowActive = null;
+        YVolatile.Basics.IsInPopup = false; // we're no longer in a popup
+    }
+
+    // we're already in a popup
+    if (Y_InPopup())
+        closePopup();
+
+    // insert <div id="ypopup" class='yPopupDyn'></div> at top of page for the popup window
+    // this is automatically removed when destroy() is called
+    $("body").prepend("<div id='ypopup' class='yPopupDyn'></div>");
+    var $popupwin = $("#ypopup");
+    $popupwin.addClass(YVolatile.Skin.PopupCss);
+
+    // add pane content
+    var contentLength = result.Content.length;
+    for (var i = 0; i < contentLength; i++) {
+        // add the pane
+        var $pane = $("<div class='yPane'></div>").addClass(result.Content[i].Pane);
+        $pane.append(result.Content[i].HTML);
+        $popupwin.append($pane);
+    }
+
+    var popup = null;
+
+    var acts = [];
+    if (YVolatile.Skin.PopupMaximize)
+        acts.push("Maximize");
+    acts.push("Close");
+
+    // Create the window
+    $popupwin.kendoWindow({
+        actions: acts,
+        width: YVolatile.Skin.PopupWidth,
+        height: YVolatile.Skin.PopupHeight,
+        draggable: true,
+        iframe: false,
+        modal: true,
+        resizable: false,
+        title: result.PageTitle,
+        visible: false,
+        close: function () {
+            closePopup();
+        },
+        animation: {
+            open: false
+        },
+        refresh: function () { // page complete
+            Y_Loading(false);
+        },
+        error: function (e) {
+            Y_Loading(false);
+            Y_Error("Request failed with status " + e.status);
+        }
+    });
+
+    // show and center the window
+    popup = $popupwin.data("kendoWindow");
+    popup.center().open();
+
+    // mark that a popup is active
+    document.expando = true;
+    document.YPopupWindowActive = popup;
+    YVolatile.Basics.IsInPopup = true; // we're in a popup
+
+    YetaWF_Basics.setCondense($popupwin, YVolatile.Skin.PopupWidth);
+
+    return $popupwin;
+}
+
 // opens a popup given a url
-YetaWF_Popup.openPopup = function(url) {
+YetaWF_Popup.openPopup = function(url, forceIframe) {
     'use strict';
 
     Y_Loading(true);
@@ -113,8 +195,10 @@ YetaWF_Popup.openPopup = function(url) {
     else
         url += "&";
     url += new Date().getUTCMilliseconds();
-    if (screen.width >= YVolatile.Skin.MinWidthForPopups && screen.height >= 800) // only use popups with a large enough screen width
-        url += "&" + YGlobals.Link_ToPopup + "=y";// we're now going into a popup
+    url += "&" + YGlobals.Link_ToPopup + "=y";// we're now going into a popup
+
+    if (!forceIframe && _YetaWF_Basics.setContent(new URI(url), false, _YetaWF_Popup.openDynamicPopup))
+        return true;
 
     // we're already in a popup
     if (Y_InPopup()) {
@@ -152,8 +236,9 @@ YetaWF_Popup.openPopup = function(url) {
         close: function () {
             var popup = $popupwin.data("kendoWindow");
             popup.destroy();
-            document.YPopupWindowActive = null;
             popup = null;
+            document.YPopupWindowActive = null;
+            YVolatile.Basics.IsInPopup = false;
         },
         animation: {
             open: false
@@ -178,9 +263,7 @@ YetaWF_Popup.openPopup = function(url) {
     // mark that a popup is active
     document.expando = true;
     document.YPopupWindowActive = popup;
+    YVolatile.Basics.IsInPopup = true; // we're in a popup
 
     return true; // we handled this as a popup
 };
-
-
-

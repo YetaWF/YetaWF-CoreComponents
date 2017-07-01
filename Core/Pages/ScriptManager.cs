@@ -18,6 +18,7 @@ using YetaWF.Core.Support;
 // Minimize HTTP Requests
 //    YetaWF bundles js and css files (except for large packages like jquery, kendo, etc.)
 //    (*) No use of inline images
+//    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
 //   Built-in CDN support (off by default until you have a CDN provider)
 // Add an Expires or a Cache-Control Header
@@ -65,6 +66,7 @@ using YetaWF.Core.Support;
 //   (*) Appears to be a maintenance issue, but could be considered for the future
 // Minimize the Number of iframes
 //   YetaWF makes little use of iframes, except for popups
+//   When using Unified Page Sets (Single Page Site) and popups are enabled for the page set, no iframes are used.
 // No 404s
 //   Duh
 // Reduce Cookie Size
@@ -84,7 +86,7 @@ using YetaWF.Core.Support;
 // Optimize CSS Sprites
 //   (*) No built-in support
 // Don't Scale Images in HTML
-//   YetaWF dynamically re-renders images if requested at other than the natural size
+//   YetaWF dynamically re-renders images server-side if requested at other than the natural size
 // Make favicon.ico Small and Cacheable
 //   favicon.ico is user-provided
 // Keep Components under 25K

@@ -13,6 +13,10 @@ namespace YetaWF.Core.Skins {
         public string Name { get; set; }
         public string FileName { get; set; }
         public string Description { get; set; }
+        public string Css { get; set; }
+        public int Width { get; set; } // popup width
+        public int Height { get; set; } // popup width
+        public bool MaximizeButton { get; set; } // popup has maximize button
         public int CharWidthAvg { get; set; }
         public int CharHeight { get; set; }
     }
@@ -31,6 +35,12 @@ namespace YetaWF.Core.Skins {
     public class SkinCollectionInfo {
         public string CollectionName { get; set; }
         public string CollectionDescription { get; set; }
+        public string JQuerySkin { get; set; }
+        public string KendoSkin { get; set; }
+        public bool UsingBootstrap { get; set; }
+        public bool UseDefaultBootstrap { get; set; }
+        public bool UsingBootstrapButtons { get; set; }
+        public int MinWidthForPopups { get; set; }
         public PageSkinList PageSkins { get; set; }
         public PageSkinList PopupSkins { get; set; }
         public ModuleSkinList ModuleSkins { get; set; }
@@ -52,7 +62,7 @@ namespace YetaWF.Core.Skins {
         public const int MaxName = 100;
         public const int MaxSkinFile = 100;
 
-        public SkinDefinition() { } 
+        public SkinDefinition() { }
 
         [Caption("Skin Collection"), Description("The name of the skin collection")]
         [StringLength(MaxCollection)]

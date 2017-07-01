@@ -2,14 +2,13 @@
 @using global::YetaWF.Core.Pages
 @using global::YetaWF.Core.Modules
 @inherits global::YetaWF.Core.Pages.RazorPage
-@{Manager.SetSkinOptions(1000, 700, false);}
 <!DOCTYPE html>
 <html lang="@Manager.CurrentPage.GetPageLanguageId()">
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
     <title></title>
 </head>
-<body class="@Manager.PageCss("popup")">
+<body class="@Manager.PageCss()">
     @RenderPane("", "MainPane AnyPane")
 </body>
 </html>

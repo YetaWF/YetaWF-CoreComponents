@@ -119,12 +119,12 @@ namespace YetaWF.Core.Controllers {
             if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
                     Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
                     string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
+                Logging.AddLog("302 Found - {0}", site.LockedUrl);
 #if MVC6
-                Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
                 Manager.CurrentResponse.StatusCode = 302;
                 Manager.CurrentResponse.Headers.Add("Location", site.LockedUrl);
 #else
-                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
+                Manager.CurrentResponse.Status = string.Format("302 Found - {0}", site.LockedUrl).Truncate(100);
                 Manager.CurrentResponse.AddHeader("Location", site.LockedUrl);
                 Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif

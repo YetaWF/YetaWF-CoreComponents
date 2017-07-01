@@ -20,6 +20,7 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
+using YetaWF.Core.Skins;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -1246,11 +1247,6 @@ namespace YetaWF.Core.Support {
         /// The page mode used for unified pages.
         /// </summary>
         public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
-        /// <summary>
-        /// The time spent on animating the transition (if the current UnifiedMode supports a transition).
-        /// </summary>
-        /// <remarks>The specified interval is in milliseconds.</remarks>
-        public int UnifiedAnimation { get; set; }
 
         /// <summary>
         /// The current page title. Modules can override the page title (we don't use the title in the page definition, except to set the default title).
@@ -1429,69 +1425,25 @@ namespace YetaWF.Core.Support {
         // UTILITY
 
         /// <summary>
-        /// Define options for the current page skin.
+        /// Define options for the current page or popup skin.
         /// </summary>
-        /// <param name="JQuerySkin">The default jQuery-UI skin. Specify null for the default jQuery-UI skin.</param>
-        /// <param name="KendoSkin">The default Kendo skin. Specify null for the default Kendo skin.</param>
-        /// <param name="UsingBootstrap">Set to true if the current skin is a Bootstrap skin, otherwise false.</param>
-        /// <param name="UseDefaultBootstrap">Set to true to use the global Addon Bootstrap (without any customizations), false if the optionally customized bootstrap version is provided as part of the skin package.
-        /// This parameter is ignored if UsingBootstrap is false.</param>
-        /// <param name="UsingBootstrapButtons">Set to true if the current skin uses Bootstrap buttons, otherwise false for jQuery-UI buttons.
-        /// This parameter is ignored if UsingBootstrap is false.</param>
-        /// <param name="MinWidthForPopups">The minimum page width for which popups are allowed.
-        /// If the page is not wide enough, the page is opened as a full page instead of in a popup.
-        /// This parameter is ignored if UsingBootstrap is false.</param>
-        public void SetSkinOptions(string JQuerySkin = null, string KendoSkin = null,
-                bool UsingBootstrap = false, bool UseDefaultBootstrap = true, bool UsingBootstrapButtons = false, int MinWidthForPopups = 0) {
-            if (IsInPopup) throw new InternalError("This form of the SetSkinOptions method can only be used in page skins (not popup skins)");
-            this.UsingBootstrap = UsingBootstrap;
+        internal void SetSkinOptions() {
+            SkinAccess skinAccess = new SkinAccess();
+            SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
+            this.UsingBootstrap = info.UsingBootstrap;
             if (UsingBootstrap) {
+                this.UsingBootstrapButtons = info.UsingBootstrapButtons;
                 ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
-                ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", MinWidthForPopups);
-                if (UseDefaultBootstrap)
+                if (info.UseDefaultBootstrap)
                     AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
-                this.UsingBootstrapButtons = UsingBootstrapButtons;
-            } else
-                ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", 0);
-            SetSkins(JQuerySkin, KendoSkin);
-        }
-        /// <summary>
-        /// Define options for the current popup skin.
-        /// </summary>
-        /// <param name="popupWidth">The width of the popup window (in pixels).</param>
-        /// <param name="popupHeight">The height of the popup window (in pixels).</param>
-        /// <param name="popupMaximize">Set to true if the popup can be maximized, false otherwise.</param>
-        /// <param name="JQuerySkin">The default jQuery-UI skin. Specify null for the default jQuery-UI skin.</param>
-        /// <param name="KendoSkin">The default Kendo skin. Specify null for the default Kendo skin.</param>
-        /// <param name="UsingBootstrap">Set to true if the current skin is a Bootstrap skin, otherwise false.</param>
-        /// <param name="UseDefaultBootstrap">Set to true to use the global Addon Bootstrap (without any customizations), false if the optionally customized bootstrap version is provided as part of the skin package.
-        /// This parameter is ignored if UsingBootstrap is false.</param>
-        /// <param name="UsingBootstrapButtons">Set to true if the current skin uses Bootstrap buttons, otherwise false for jQuery-UI buttons.
-        /// This parameter is ignored if UsingBootstrap is false.</param>
-        public void SetSkinOptions(int popupWidth, int popupHeight, bool popupMaximize = false, string JQuerySkin = null, string KendoSkin = null,
-                bool UsingBootstrap = false, bool UseDefaultBootstrap = true, bool UsingBootstrapButtons = false) {
-            if (!IsInPopup) throw new InternalError("This form of the SetSkinOptions method can only be used in popup skins (not page skins)");
-            this.UsingBootstrap = UsingBootstrap;
-            if (UsingBootstrap) {
-                ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
-                ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
-                if (UseDefaultBootstrap)
-                    AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
-                this.UsingBootstrapButtons = UsingBootstrapButtons;
             }
-            ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", 0);
-            ScriptManager.AddVolatileOption("Skin", "PopupWidth", popupWidth);// Skin size in a popup window
-            ScriptManager.AddVolatileOption("Skin", "PopupHeight", popupHeight);
-            ScriptManager.AddVolatileOption("Skin", "PopupMaximize", popupMaximize);
-            SetSkins(JQuerySkin, KendoSkin);
-        }
+            ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", info.MinWidthForPopups);
 
-        private void SetSkins(string JQuerySkin, string KendoSkin) {
-            if (!string.IsNullOrWhiteSpace(JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
-                CurrentPage.jQueryUISkin = JQuerySkin;
-            if (!string.IsNullOrWhiteSpace(KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
-                CurrentPage.KendoUISkin = KendoSkin;
+            if (!string.IsNullOrWhiteSpace(info.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
+                CurrentPage.jQueryUISkin = info.JQuerySkin;
+            if (!string.IsNullOrWhiteSpace(info.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
+                CurrentPage.KendoUISkin = info.KendoSkin;
             AddOnManager.AddSkinBasedAddOns();
         }
 
@@ -1499,11 +1451,15 @@ namespace YetaWF.Core.Support {
         public bool UsingBootstrapButtons { get; set; }
 
         /// <summary>
-        /// Adds the specified Css, the current edit mode, the current page's defined css and returns all classes as a string.
+        /// Adds the page's or popup's css classes (the current edit mode, the current page's defined css and other page css).
         /// </summary>
         /// <param name="css">The skin-defined Css class identifying the skin.</param>
-        public HtmlString PageCss(string css) {
-            string s = CombineCss(css, ModeCss);// edit/display mode (doesn't change in same Unified page set)
+        /// <returns>A Css class string.</returns>
+        public HtmlString PageCss() {
+            SkinAccess skinAccess = new SkinAccess();
+            PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
+            string s = pageSkin.Css;
+            s = CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
             s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
             s = CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
             s = CombineCss(s, GetAspNetCss(AspNetMvc)); // asp/net version used (doesn't change in same Unified page set)

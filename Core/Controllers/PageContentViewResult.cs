@@ -58,10 +58,8 @@ namespace YetaWF.Core.Controllers {
 
             PageDefinition currPage = Manager.CurrentPage;
             SkinAccess skinAccess = new SkinAccess();
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(currPage, Manager.IsInPopup);
-            string skinCollection = skin.Collection;
 
-            SkinDefinition skinContent = new Skins.SkinDefinition { Collection = SkinAccess.FallbackSkinCollectionName, FileName = "PageContent.cshtml" };
+            SkinDefinition skinContent = new Skins.SkinDefinition { Collection = SkinAccess.FallbackSkinCollectionName, FileName = Manager.IsInPopup ? "PopupContent.cshtml" : "PageContent.cshtml" };
             string virtPath = skinAccess.PhysicalPageUrl(skinContent, Manager.IsInPopup);
             if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
                 throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
@@ -69,10 +67,17 @@ namespace YetaWF.Core.Controllers {
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
 
-            // set new character dimensions
-            int charWidth, charHeight;
-            skinAccess.GetPageCharacterSizes(out charWidth, out charHeight);
-            Manager.NewCharSize(charWidth, charHeight);
+            // set new character dimensions and popup info
+            PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
+            //Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
+            //Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", pageSkin.CharWidthAvg);
+            //Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", pageSkin.CharHeight);
+            if (Manager.IsInPopup) {
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.Css);
+            }
 
             PageContentController.PageContentData cr = new PageContentController.PageContentData();
             ViewData.Model = cr;
@@ -86,7 +91,7 @@ namespace YetaWF.Core.Controllers {
                 View.Render(viewContext, writer);
             }
 #endif
-            Manager.PopCharSize();
+            //Manager.PopCharSize();
 
             Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
 
@@ -103,7 +108,7 @@ namespace YetaWF.Core.Controllers {
                 else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.AnalyticsContent))
                     cr.AnalyticsContent = Manager.CurrentSite.AnalyticsContent;
                 if (!string.IsNullOrWhiteSpace(cr.AnalyticsContent))
-                    cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", Manager.CurrentPage.EvaluatedCanonicalUrl);
+                    cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", YetaWFManager.JserEncode(Manager.CurrentPage.EvaluatedCanonicalUrl));
             }
             cr.PageTitle = Manager.PageTitle.ToString();
             cr.PageCssClasses = Manager.CurrentPage.GetCssClass();

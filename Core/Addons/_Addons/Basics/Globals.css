@@ -74,7 +74,6 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     }
 }
 
-
 /* make sure module links don't float left/right */
 .yModuleLinksContainer {
     clear:both;
@@ -86,8 +85,15 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
 }
 
 /* popups */
-.ui-dialog {
+.k-widget.k-window {
     z-index:2000 !important;
+}
+.k-overlay {
+    z-index:1999 !important;
+}
+.ui-dialog {
+    z-index:2002 !important;
+    /* 2001 for overlay */
 }
 
 /* To keep ui dialogs on top of everything */
@@ -96,6 +102,7 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
 }
 
 /* templates are inline unless they're large, like grids, propertylists etc. */
+/* Not all templates follow this rule (yet) */
 
 .y_inline {
     display:inline;

@@ -83,9 +83,13 @@ namespace YetaWF.Core.Controllers {
                         Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
                         Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
                         if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
                             Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
                             Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
-                        }
+                        } else if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
+                        } else
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", false);
                     } else {
                         // master page was not found, probably deleted, just ignore
                         masterPage = Manager.CurrentPage;
@@ -111,15 +115,20 @@ namespace YetaWF.Core.Controllers {
             if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
                 throw new InternalError("No page skin available - file {0} not found", virtPath);
 
-            // set new character dimensions
-            int charWidth, charHeight;
-            skinAccess.GetPageCharacterSizes(out charWidth, out charHeight);
-            Manager.NewCharSize(charWidth, charHeight);
+            // set new character dimensions and popup info
+            PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
+            Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
+            Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", pageSkin.CharWidthAvg);
+            Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", pageSkin.CharHeight);
+            if (Manager.IsInPopup) {
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
+            }
             Manager.LastUpdated = requestedPage.Updated;
-            Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", charWidth);
-            Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", charHeight);
 
             Manager.AddOnManager.AddStandardAddOns();
+            Manager.SetSkinOptions();
             Manager.AddOnManager.AddSkin(skinCollection);
 
             Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Basics");

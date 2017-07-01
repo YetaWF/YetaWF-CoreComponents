@@ -102,18 +102,19 @@ namespace YetaWF.Core.Skins {
             strPatt = strPatt.Replace(" ", "\\s*");
             return strPatt;
         }
-
-        public void GetPageCharacterSizes(out int width, out int height) {
-            PageSkinEntry pageSkinEntry = GetPageSkinEntry();
-            width = pageSkinEntry.CharWidthAvg;
-            height = pageSkinEntry.CharHeight;
-        }
         public void GetModuleCharacterSizes(ModuleDefinition mod, out int width, out int height) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             width = modSkinEntry.CharWidthAvg;
             height = modSkinEntry.CharHeight;
         }
-        private PageSkinEntry GetPageSkinEntry() {
+        public SkinCollectionInfo GetSkinCollectionInfo() {
+            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+            SkinCollectionInfo info = TryFindSkinCollection(pageSkin.Collection);
+            if (info == null)
+                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
+            return info;
+        }
+        public PageSkinEntry GetPageSkinEntry() {
             SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
             SkinCollectionInfo info = TryFindSkinCollection(pageSkin.Collection);
             PageSkinEntry pageSkinEntry;

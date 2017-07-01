@@ -56,6 +56,7 @@ namespace YetaWF.Core.Pages {
             public UnifiedModeEnum Mode { get; set; }
             public string PageSkinCollectionName { get; set; }
             public string PageSkinFileName { get; set; }
+            public bool Popups { get; set; }
             public int Animation { get; set; }
             public Guid MasterPageGuid { get; set; }
             public List<Guid> PageGuids { get; set; }
