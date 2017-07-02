@@ -93,7 +93,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 Logging.AddErrorLog(msg);
             }
-            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest) {
+            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest || GetModule() == null) {
                 if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
                     throw filterContext.Exception;
                 } else { // this was a direct action GET so we need to show an error page
@@ -291,7 +291,7 @@ namespace YetaWF.Core.Controllers {
                 } catch (Exception) {
                     throw new InternalError("Invalid Url arguments");
                 }
-            }  else
+            } else
                 return new List<Origin>();
         }
 
