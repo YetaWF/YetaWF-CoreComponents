@@ -364,6 +364,7 @@
     <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridDisplay" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
+    <Content Include="Addons\_Skins\Standard\Popups\PopupContent.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\Popup.cshtml" />
