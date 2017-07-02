@@ -8,7 +8,7 @@ CKEDITOR.editorConfig = function (config) {
     // config.language = 'fr'; TODO: deal with language sometime
     // config.uiColor = '#AADC6E';
     config.startupMode = 'source';
-    config.removePlugins = 'indent,outdent,a11yhelp,basicstyles,bidi,blockquote,clipboard,colorbutton,colordialog,contextmenu,dialogadvtab,div,elementspath,enterkey,entities,filebrowser,find,flash,floatingspace,font,format,forms,horizontalrule,htmlwriter,iframe,image,indentblock,indentlist,justify,language,link,list,liststyle,magicline,newpage,pagebreak,pastefromword,pastetext,preview,print,removeformat,resize,save,scayt,selectall,showblocks,showborders,smiley,specialchar,stylescombo,tab,table,tabletools,templates,undo,wsc,wysiwygarea';
+    config.removePlugins = 'tableselect...,tabletools,indent,outdent,a11yhelp,basicstyles,bidi,blockquote,clipboard,colorbutton,colordialog,contextmenu,copyformatting,dialogadvtab,div,elementspath,enterkey,entities,filebrowser,find,flash,floatingspace,font,format,forms,horizontalrule,htmlwriter,iframe,image,indentblock,indentlist,justify,language,link,list,liststyle,magicline,newpage,pagebreak,pastefromword,pastetext,preview,print,removeformat,resize,save,scayt,selectall,showblocks,showborders,smiley,specialchar,stylescombo,tab,table,templates,undo,wsc,wysiwygarea';
     // allow <i></i> as used with font-awesome
     config.protectedSource.push(/<i[^>]*><\/i>/g);
 
