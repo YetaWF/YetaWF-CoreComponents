@@ -55,23 +55,26 @@ namespace YetaWF.Core.Views.Shared {
 
         private static List<SelectionItem<string>> ReadStatesList() {
             if (_statesList == null) {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "USState");
-                string path = YetaWFManager.UrlToPhysical(url);
-                string file = Path.Combine(path, "USStates.txt");
-                _statesList = new List<SelectionItem<string>>();
-                if (!File.Exists(file)) throw new InternalError("File {0} not found", file);
+                lock (_lockObject) {
+                    Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+                    string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "USState");
+                    string path = YetaWFManager.UrlToPhysical(url);
+                    string file = Path.Combine(path, "USStates.txt");
+                    _statesList = new List<SelectionItem<string>>();
+                    if (!File.Exists(file)) throw new InternalError("File {0} not found", file);
 
-                string[] sts = File.ReadAllLines(file);
-                foreach (var st in sts) {
-                    string[] s = st.Split(new string[] { "," }, 2, StringSplitOptions.RemoveEmptyEntries);
-                    if (s.Length != 2)
-                        throw new InternalError("Invalid input in US states list - {0}", file);
-                    _statesList.Add(new SelectionItem<string> { Text = s[1], Value = s[0].ToUpper() });
+                    string[] sts = File.ReadAllLines(file);
+                    foreach (var st in sts) {
+                        string[] s = st.Split(new string[] { "," }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        if (s.Length != 2)
+                            throw new InternalError("Invalid input in US states list - {0}", file);
+                        _statesList.Add(new SelectionItem<string> { Text = s[1], Value = s[0].ToUpper() });
+                    }
                 }
             }
             return _statesList;
         }
+        private static object _lockObject = new object();
         private static List<SelectionItem<string>> _statesList = null;
     }
 }
