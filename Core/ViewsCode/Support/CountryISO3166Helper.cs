@@ -211,40 +211,43 @@ namespace YetaWF.Core.Views.Shared {
         }
         private static List<Country> ReadCountryList() {
             if (_countryList == null) {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CountryISO3166");
-                string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+                lock (_lockObject) {
+                    Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+                    string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CountryISO3166");
+                    string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                string path = YetaWFManager.UrlToPhysical(url);
-                string customPath = YetaWFManager.UrlToPhysical(customUrl);
+                    string path = YetaWFManager.UrlToPhysical(url);
+                    string customPath = YetaWFManager.UrlToPhysical(customUrl);
 
-                string file = Path.Combine(path, "Countries.txt");
-                string customFile = Path.Combine(customPath, "Countries.txt");
-                if (File.Exists(customFile))
-                    file = customFile;
-                else if (!File.Exists(file))
-                    throw new InternalError("File {0} not found", file);
+                    string file = Path.Combine(path, "Countries.txt");
+                    string customFile = Path.Combine(customPath, "Countries.txt");
+                    if (File.Exists(customFile))
+                        file = customFile;
+                    else if (!File.Exists(file))
+                        throw new InternalError("File {0} not found", file);
 
-                _countryList = new List<Country>();
+                    _countryList = new List<Country>();
 
-                string[] cts = File.ReadAllLines(file);
-                foreach (var st in cts) {
-                    if (st.Trim().Length > 0) {
-                        string[] s = st.Trim().Split(new string[] { "+" }, 5, StringSplitOptions.RemoveEmptyEntries);
-                        if (s.Length < 4 || s.Length > 5)
-                            throw new InternalError("Invalid input in country list - {0} - {1}", st, file);
-                        _countryList.Add(new Country {
-                            Name = s[0],
-                            Id = s[1].ToUpper(),
-                            Id3 = s[2].ToUpper(),
-                            Number = s[3],
-                            AddressType = s.Length > 4 ? s[4] : Country.Generic,
-                        });
+                    string[] cts = File.ReadAllLines(file);
+                    foreach (var st in cts) {
+                        if (st.Trim().Length > 0) {
+                            string[] s = st.Trim().Split(new string[] { "+" }, 5, StringSplitOptions.RemoveEmptyEntries);
+                            if (s.Length < 4 || s.Length > 5)
+                                throw new InternalError("Invalid input in country list - {0} - {1}", st, file);
+                            _countryList.Add(new Country {
+                                Name = s[0],
+                                Id = s[1].ToUpper(),
+                                Id3 = s[2].ToUpper(),
+                                Number = s[3],
+                                AddressType = s.Length > 4 ? s[4] : Country.Generic,
+                            });
+                        }
                     }
                 }
             }
             return _countryList;
         }
+        private static object _lockObject = new object();
         private static List<Country> _countryList = null;
     }
 }
