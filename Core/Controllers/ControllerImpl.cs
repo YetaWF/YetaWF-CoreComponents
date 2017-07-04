@@ -1147,7 +1147,7 @@ namespace YetaWF.Core.Controllers {
                     url = YetaWFManager.JsonSerialize(url);
                     if (Manager.IsInPopup) {
                         // simply replace the current popup with the new popup
-                        sb.Append("window.location.assign({0});", url);
+                        sb.Append("window.parent.YetaWF_Popup.openPopup({0});", url);
                     } else {
                         // create the popup client-side
                         sb.Append("YetaWF_Popup.openPopup({0});", url);
