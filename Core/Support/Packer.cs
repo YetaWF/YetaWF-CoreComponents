@@ -55,24 +55,22 @@ namespace YetaWF.Core.Support {
             if (mode == PackMode.JS && !minify) return fullPathUrl; // no processing for javascript files when we're not minifying
 
             string extension = Path.GetExtension(fullPath);
-
-            if (fullPathUrl.EndsWith(".pack" + extension, StringComparison.InvariantCultureIgnoreCase))
-                return fullPathUrl;
-            if (fullPathUrl.EndsWith(".min" + extension, StringComparison.InvariantCultureIgnoreCase))
-                return fullPathUrl;
-
             string minPathUrl = fullPathUrl;
             minPathUrl = minPathUrl.Remove(minPathUrl.Length - extension.Length);
             if (minify)
-                minPathUrl = minPathUrl + (MarkNameCompiled ? Globals.Compiled : "") + ".min";
+                minPathUrl = minPathUrl + (MarkNameCompiled ? Globals.Compiled : "");
             string minPathUrlWithCharInfo = minPathUrl;
 
             bool process = false;
             switch (mode) {
                 case PackMode.CSS:
+                    if (fullPathUrl.EndsWith(".pack.css", StringComparison.InvariantCultureIgnoreCase))
+                        return fullPathUrl;
+                    if (fullPathUrl.EndsWith(".min.css", StringComparison.InvariantCultureIgnoreCase))
+                        return fullPathUrl;
                     if (!fullPathUrl.EndsWith(".css")) {
-                        minPathUrl += extension + (MarkNameCompiled ? Globals.Compiled : "");
-                        minPathUrlWithCharInfo += extension + (MarkNameCompiled ? Globals.Compiled : "");
+                        minPathUrl += extension;
+                        minPathUrlWithCharInfo += extension;
                     }
                     if (processCharSize && !fullPathUrl.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
                         // add character size to css
@@ -83,6 +81,10 @@ namespace YetaWF.Core.Support {
                     minPathUrlWithCharInfo += ".css";
                     break;
                 case PackMode.JS:
+                    if (fullPathUrl.EndsWith(".pack.js", StringComparison.InvariantCultureIgnoreCase))
+                        return fullPathUrl;
+                    if (fullPathUrl.EndsWith(".min.js", StringComparison.InvariantCultureIgnoreCase))
+                        return fullPathUrl;
                     minPathUrl += ".js";
                     minPathUrlWithCharInfo += ".js";
                     break;

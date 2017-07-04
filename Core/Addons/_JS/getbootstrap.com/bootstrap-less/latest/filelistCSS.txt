@@ -1,5 +1,5 @@
-﻿MVC6 \lib\bootstrap\less\bootstrap.less
-MVC6 \lib\bootstrap\less\theme.less
+﻿MVC6 \lib\bootstrap\less\bootstrap.min.less
+MVC6 \lib\bootstrap\less\theme.min.less
 
-MVC5 \Content\bootstrap\bootstrap.less
-MVC5 \Content\bootstrap\theme.less
+MVC5 \Content\bootstrap\bootstrap.min.less
+MVC5 \Content\bootstrap\theme.min.less

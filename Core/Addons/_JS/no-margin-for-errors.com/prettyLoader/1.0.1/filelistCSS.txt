@@ -1,1 +1,1 @@
-css/prettyLoader.css
+css/prettyLoader.css,bundle

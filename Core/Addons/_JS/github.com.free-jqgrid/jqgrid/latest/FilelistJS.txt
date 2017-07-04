@@ -1,5 +1,5 @@
-﻿MVC6 \lib\free-jqGrid\js\i18n\grid.locale-en.js
+﻿MVC6 \lib\free-jqGrid\js\i18n\min\grid.locale-en.js,nominify
 MVC6 \lib\free-jqGrid\js\jquery.jqGrid.min.js
 
-MVC5 \Scripts\free-jqGrid\i18n\grid.locale-en.js
+MVC5 \Scripts\free-jqGrid\i18n\min\grid.locale-en.js,nominify
 MVC5 \Scripts\free-jqGrid\jquery.jqGrid.min.js
