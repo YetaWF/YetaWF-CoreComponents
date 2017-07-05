@@ -684,6 +684,37 @@ function Y_KillTooltips() {
 // CONTENT
 // CONTENT
 
+// loads all scripts - we need to preserve the order of initialization hence the recursion
+_YetaWF_Basics.loadScripts = function (scripts, run) {
+    if (!YVolatile.Basics.hasOwnProperty('KnownScriptsDynamic')) YVolatile.Basics.KnownScriptsDynamic = [];
+    var total = scripts.length;
+    if (total == 0) {
+        run();
+        return;
+    }
+    _YetaWF_Basics.loadNextScript(scripts, total, 0, run);
+};
+
+_YetaWF_Basics.loadNextScript = function (scripts, total, ix, run) {
+    var name = scripts[ix];
+    YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
+
+    function process() {
+        if (ix >= total - 1) {
+            run();// we're all done
+        } else {
+            _YetaWF_Basics.loadNextScript(scripts, total, ix + 1, run);
+        }
+    }
+
+    $.getScript(name).done(function (script, textStatus) {
+        process();
+    }).fail(function (jqxhr, settings, exception) {
+        console.log("Couldn't load script " + name);
+        process();
+    });
+};
+
 _YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
 
 // Change the current page to the specified Uri (may not be part of the unified page set)
@@ -743,12 +774,13 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
         $css.each(function () {
             data.KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
         });
+        data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
         data.KnownScripts = [];
         var $scripts = $('script[type="text/javascript"][src]');
         $scripts.each(function () {
             data.KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
         });
-        data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
+        data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic);// known javascript files that were added by content pages
         data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
 
         Y_Loading();
@@ -812,7 +844,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                     $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
                 }
                 // run all global scripts (YConfigs, etc.)
-                eval(result.Scripts);
+                $.globalEval(result.Scripts);
                 // add all new css files
                 var cssLength = result.CssFiles.length;
                 for (var i = 0; i < cssLength; i++) {
@@ -827,77 +859,70 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                         YVolatile.Basics.UnifiedCssBundleFiles = result.CssBundleFiles
                 }
                 // add all new script files
-                var scrLength = result.ScriptFiles.length;
-                for (var i = 0; i < scrLength; i++) {
-                    // we want to execute all scripts even if there are some errors to insure most of the page is OK
+                _YetaWF_Basics.loadScripts(result.ScriptFiles, function () {
+                    if (result.ScriptBundleFiles != null) {
+                        if (YVolatile.Basics.UnifiedScriptBundleFiles != null)
+                            YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
+                        else
+                            YVolatile.Basics.UnifiedScriptBundleFiles = result.ScriptBundleFiles;
+                    }
+                    var $tags = $(); // collect all panes
+                    if (!popupCB) {
+                        // add pane content
+                        var contentLength = result.Content.length;
+                        for (var i = 0; i < contentLength; i++) {
+                            // replace the pane
+                            var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
+                            $pane.show();// show in case this is a conditional pane
+                            $pane.append(result.Content[i].HTML);
+                            // run all registered initializations for the pane
+                            $tags = $tags.add($pane);
+                        }
+                    } else {
+                        $tags = popupCB(result);
+                    }
+                    // add addons
+                    $('body').append(result.Addons);
+                    if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonModsPrevious')) YVolatile.Basics.UnifiedAddonModsPrevious = [];
+                    if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonMods')) YVolatile.Basics.UnifiedAddonMods = [];
+                    // end of page scripts
+                    $.globalEval(result.EndOfPageScripts);
+                    // turn off all previously active modules that are no longer active
+                    YVolatile.Basics.UnifiedAddonModsPrevious.forEach(function (guid) {
+                        if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
+                            $(document).trigger('YetaWF_Basics_Addon', [guid, false]);
+                    });
+                    // turn on all newly active modules (if they were previously loaded)
+                    // new referenced modules that were just loaded now are already active and don't need to be called
+                    YVolatile.Basics.UnifiedAddonMods.forEach(function(guid) {
+                        if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && _YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
+                            $(document).trigger('YetaWF_Basics_Addon', [guid, true]);
+                        if (_YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) < 0)
+                            _YetaWF_Basics.UnifiedAddonModsLoaded.push(guid);
+                    });
+                    YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonMods;
+                    YVolatile.Basics.UnifiedAddonMods = [];
+                    // call ready handlers
+                    YetaWF_Basics.processAllReady($tags);
+                    YetaWF_Basics.processAllReadyOnce($tags);
+                    if (!popupCB) {
+                        // scroll
+                        var scrolled = YetaWF_Basics.setScrollPosition();
+                        if (!scrolled) {
+                            $(window).scrollLeft(0);
+                            $(window).scrollTop(0);
+                        }
+                        // in case there is a popup open, close it now (typically when returning to the page from a popup)
+                        if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
+                            YetaWF_Popup.closeInnerPopup();
+                    }
+                    // done, set focus
+                    Y_SetFocus($tags);
+                    Y_Loading(false);
                     try {
-                        $('head').append('<script type="text/javascript" src="{0}"></script>'.format(result.ScriptFiles[i]));
-                    } catch (err) {
-                        console.log(err.message);
-                    }
-                }
-                if (result.ScriptBundleFiles != null) {
-                    if (YVolatile.Basics.UnifiedScriptBundleFiles != null)
-                        YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
-                    else
-                        YVolatile.Basics.UnifiedScriptBundleFiles = result.ScriptBundleFiles;
-                }
-                var $tags = $(); // collect all panes
-                if (!popupCB) {
-                    // add pane content
-                    var contentLength = result.Content.length;
-                    for (var i = 0; i < contentLength; i++) {
-                        // replace the pane
-                        var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
-                        $pane.show();// show in case this is a conditional pane
-                        $pane.append(result.Content[i].HTML);
-                        // run all registered initializations for the pane
-                        $tags = $tags.add($pane);
-                    }
-                } else {
-                    $tags = popupCB(result);
-                }
-                // add addons
-                $('body').append(result.Addons);
-                if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonModsPrevious')) YVolatile.Basics.UnifiedAddonModsPrevious = [];
-                if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonMods')) YVolatile.Basics.UnifiedAddonMods = [];
-                // end of page scripts
-                eval(result.EndOfPageScripts);
-                // turn off all previously active modules that are no longer active
-                YVolatile.Basics.UnifiedAddonModsPrevious.forEach(function (guid) {
-                    if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
-                        $(document).trigger('YetaWF_Basics_Addon', [guid, false]);
+                        $.globalEval(result.AnalyticsContent);
+                    } catch (e) {}
                 });
-                // turn on all newly active modules (if they were previously loaded)
-                // new referenced modules that were just loaded now are already active and don't need to be called
-                YVolatile.Basics.UnifiedAddonMods.forEach(function(guid) {
-                    if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && _YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
-                        $(document).trigger('YetaWF_Basics_Addon', [guid, true]);
-                    if (_YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) < 0)
-                        _YetaWF_Basics.UnifiedAddonModsLoaded.push(guid);
-                });
-                YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonMods;
-                YVolatile.Basics.UnifiedAddonMods = [];
-                // call ready handlers
-                YetaWF_Basics.processAllReady($tags);
-                YetaWF_Basics.processAllReadyOnce($tags);
-                if (!popupCB) {
-                    // scroll
-                    var scrolled = YetaWF_Basics.setScrollPosition();
-                    if (!scrolled) {
-                        $(window).scrollLeft(0);
-                        $(window).scrollTop(0);
-                    }
-                    // in case there is a popup open, close it now (typically when returning to the page from a popup)
-                    if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
-                        YetaWF_Popup.closeInnerPopup();
-                }
-                // done, set focus
-                Y_SetFocus($tags);
-                Y_Loading(false);
-                try {
-                    eval(result.AnalyticsContent);
-                } catch (e) {}
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 Y_Loading(false);
