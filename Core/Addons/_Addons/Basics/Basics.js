@@ -697,7 +697,6 @@ _YetaWF_Basics.loadScripts = function (scripts, run) {
 
 _YetaWF_Basics.loadNextScript = function (scripts, total, ix, run) {
     var name = scripts[ix];
-    YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
 
     function process() {
         if (ix >= total - 1) {
@@ -706,13 +705,20 @@ _YetaWF_Basics.loadNextScript = function (scripts, total, ix, run) {
             _YetaWF_Basics.loadNextScript(scripts, total, ix + 1, run);
         }
     }
-
-    $.getScript(name).done(function (script, textStatus) {
+    if (name.startsWith('//') || name.startsWith('http://') || name.startsWith('https://')) {
+        // cross-site
+        YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
+        $.getScript(name).done(function (script, textStatus) {
+            process();
+        }).fail(function (jqxhr, settings, exception) {
+            console.log("Couldn't load script " + name);
+            process();
+        });
+    } else {
+        // same site
+        $('head').append('<script type="text/javascript" src="{0}"></script>'.format(name));
         process();
-    }).fail(function (jqxhr, settings, exception) {
-        console.log("Couldn't load script " + name);
-        process();
-    });
+    }
 };
 
 _YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
