@@ -9,7 +9,7 @@ namespace YetaWF.Core.Models.Attributes {
     /// <summary>
     /// Conditional processing/validation of properties within a property list.
     /// </summary>
-    /// <remarks>Used to show/hide properties in a property list, dependent on a property's enum value (typically a dropdown list).
+    /// <remarks>Used to show/hide properties in a property list, dependent on a property's enum value (typically a dropdown list) or bool value.
     ///
     /// This is used both client-side and server-side to determine conditional property processing/validation.</remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -46,7 +46,7 @@ namespace YetaWF.Core.Models.Attributes {
         ///
         /// The ProcessIf attribute supports simple and complex properties.
         ///
-        /// ** This is currently only supported for enums as the "other" property (used with the Enum template, UIHint("Enum")). **
+        /// ** This is currently only supported for enums and bool as the "other" property (used with the Enum template, UIHint("Enum") or bool, UIHint("Boolean")). **
         /// </remarks>
         public ProcessIfAttribute(string name, params object[] parms) {
             Name = name;
@@ -61,7 +61,7 @@ namespace YetaWF.Core.Models.Attributes {
             //TODO: This could be expanded to support other types, notably strings - don't have a use case yet
             int currVal = Convert.ToInt32(GetDependentPropertyValue(model));
             foreach (object obj in Objects) {
-                if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) as "other" property
+                if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) or bool as "other" property
                     return true; // we're processing this
             }
             return false;

@@ -9,11 +9,9 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
     var $div = $('#' + divId);
     if ($div.length != 1) throw "div not found";/*DEBUG*/
 
-    function change($this) {
-        var name = $this.attr("name"); // name of controlling item (an enum)
-        var val = $this.val(); // the current value
+    function update(name, val) {
         controlData.Dependents.forEach(function (item, index) {
-            if (name == item.ControlProp || name.endsWith('.'+item.ControlProp)) { // this entry is for the controlling item?
+            if (name == item.ControlProp || name.endsWith('.' + item.ControlProp)) { // this entry is for the controlling item?
                 var $row = $('.t_row.t_{0}'.format(item.Prop.toLowerCase()), $div); // the propertylist row affected
                 var found = false, len = item.Values.length, i;
                 for (i = 0 ; i < len ; ++i) {
@@ -40,15 +38,31 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
             }
         });
     }
+    function changeSelect($this) {
+        var name = $this.attr("name"); // name of controlling item (an enum)
+        var val = $this.val(); // the current value
+        update(name, val);
+    }
+    function changeInput($this) {
+        var name = $this.attr("name"); // name of controlling item (an checkbox)
+        var val = $this.is(':checked'); // the current checkbox state
+        update(name, val);
+    }
     // Handle change events
     controlData.Controls.forEach(function (item, index) {
         $('.t_row.t_{0} select[name$="{1}"]'.format(item.toLowerCase(), item), $div).on("change", function () {
-            change($(this));
+            changeSelect($(this));
+        });
+        $('.t_row.t_{0} input[name$="{1}"]'.format(item.toLowerCase(), item), $div).on("change", function () {
+            changeInput($(this));
         });
     });
     // Initialize initial form
     controlData.Controls.forEach(function (item, index) {
-        change($('.t_row.t_{0} select[name$="{1}"]'.format(item.toLowerCase(), item)), $div);
+        var $s = $('.t_row.t_{0} select[name$="{1}"]'.format(item.toLowerCase(), item));
+        if ($s.length > 0) changeSelect($s, $div);
+        $s = $('.t_row.t_{0} input[name$="{1}"]'.format(item.toLowerCase(), item));
+        if ($s.length > 0) changeInput($s, $div);
     });
 };
 
