@@ -171,6 +171,30 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="CanUseCDN" />
+                            <Caption Value="Current Status" />
+                            <Description Value="Shows whether a Content Delivery Network is currently used for the site's pages and files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the &quot;Use CDN (Site Content)&quot; setting to be honored, otherwise a CDN is not used for site content" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="CanUseCDNComponents" />
+                            <Caption Value="Current Status" />
+                            <Description Value="Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the &quot;Use CDN (Javascript Addons)&quot; setting to be honored, otherwise a CDN is not used for 3rd party packages" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="CDNAddons" />
                             <Caption Value="Addons" />
                             <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /Addons/ folder (typically used for YetaWF files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
@@ -952,8 +976,20 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="UseCDN" />
-                            <Caption Value="Use CDN" />
-                            <Description Value="Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on Appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)" />
+                            <Caption Value="Use CDN (Site Content)" />
+                            <Description Value="Defines whether the Content Delivery Network Url is used for the site's pages and files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="UseCDNComponents" />
+                            <Caption Value="Use CDN (Javascript Addons)" />
+                            <Description Value="Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
