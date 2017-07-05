@@ -273,8 +273,6 @@ function Y_ClosePopup(forceReload) {
     return false;
 }
 
-_YetaWF_Basics.Overlay = null;
-
 function Y_Loading(starting)
 {
     if (starting != false) {
