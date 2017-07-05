@@ -1,2 +1,2 @@
-﻿MVC6 \lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js
-MVC5 \Scripts\jquery.validate.unobtrusive.min.js
+﻿MVC6 \lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js,bundle
+MVC5 \Scripts\jquery.validate.unobtrusive.min.js,bundle

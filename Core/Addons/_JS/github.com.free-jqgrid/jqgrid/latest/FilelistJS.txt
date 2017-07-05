@@ -1,5 +1,8 @@
-﻿MVC6 \lib\free-jqGrid\js\i18n\min\grid.locale-en.js,nominify
-MVC6 \lib\free-jqGrid\js\jquery.jqGrid.min.js
+﻿//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.1/i18n/grid.locale-en.js,CDN
+//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.1/jquery.jqgrid.min.js,CDN
 
-MVC5 \Scripts\free-jqGrid\i18n\min\grid.locale-en.js,nominify
-MVC5 \Scripts\free-jqGrid\jquery.jqGrid.min.js
+MVC6 \lib\free-jqGrid\js\i18n\min\grid.locale-en.js,nominify,noCDN
+MVC6 \lib\free-jqGrid\js\jquery.jqGrid.min.js,noCDN
+
+MVC5 \Scripts\free-jqGrid\i18n\min\grid.locale-en.js,nominify,noCDN
+MVC5 \Scripts\free-jqGrid\jquery.jqGrid.min.js,noCDN

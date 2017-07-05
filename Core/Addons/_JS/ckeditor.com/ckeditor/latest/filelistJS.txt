@@ -1,2 +1,3 @@
-﻿MVC6 \lib\ckeditor\ckeditor.js,nominify
-MVC5 \Scripts\ckeditor\ckeditor.js,nominify
+﻿//cdn.ckeditor.com/4.7.0/standard/ckeditor.js,CDN
+MVC6 \lib\ckeditor\ckeditor.js,nominify,noCDN
+MVC5 \Scripts\ckeditor\ckeditor.js,nominify,noCDN

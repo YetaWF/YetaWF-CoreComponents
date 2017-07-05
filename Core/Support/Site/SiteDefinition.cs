@@ -395,12 +395,18 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN"), Description("Defines whether the Content Delivery Network Url is used - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on Appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = false)")]
+        [Category("CDN"), Caption("Use CDN (Javascript Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on Appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN APPSETTINGS.JSON (P:YetaWF_Core:UseCDNComponents = true/false)")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool UseCDNComponents { get; set; }
+
+        [Category("CDN"), Caption("Use CDN (Site Content)"), Description("Defines whether the Content Delivery Network Url is used for the site's pages - This is typically only used for production sites and is IGNORED in debug builds, when using Localhost and based on Appsettings.json settings (P:YetaWF_Core:Deployed) - THIS MAY BE GLOBALLY OVERRIDDEN IN APPSETTINGS.JSON (P:YetaWF_Core:UseCDN = true/false)")]
         [UIHint("Boolean")]
         public bool UseCDN { get; set; }
 
         [Category("CDN"), Caption("CDN Url"), Description("If you are using a Content Delivery Network for files located in your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
+        [ProcessIf("UseCDN", true, Disable = false)]
         [RequiredIf("UseCDN", true)]
         public string CDNUrl{ get; set; }
 
@@ -410,40 +416,49 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("CDN Url (Secure)"), Description("If you are using a Content Delivery Network for files located in your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public string CDNUrlSecure { get; set; }
 
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
         [Category("CDN"), Caption("SiteFiles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /SiteFiles/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNSiteFiles { get; set; }
 
         [Category("CDN"), Caption("Vault"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Vault/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNVault { get; set; }
 
         [Category("CDN"), Caption("CSS"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Content/ folder (typically used for 3rd party CSS files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNContent { get; set; }
 
         [Category("CDN"), Caption("Javascript"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Scripts/ folder (typically used for 3rd party Javascript files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNScripts { get; set; }
 
         [Category("CDN"), Caption("Addons"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Addons/ folder (typically used for YetaWF files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNAddons { get; set; }
 
         [Category("CDN"), Caption("AddonsCustom"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsCustom/ folder (typically used for your YetaWF file customizations) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNAddonsCustom { get; set; }
 
         [Category("CDN"), Caption("AddonsBundles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for javascript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNAddonsBundles { get; set; }
 
         [Category("CDN"), Caption("FileImage"), Description("Defines whether you want to use a Content Delivery Network for images that use the Urls /File.image /FileHndlr.image - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
+        [ProcessIf("UseCDN", true, Disable = false)]
         public bool CDNFileImage { get; set; }
 
         [UIHint("Hidden")]

@@ -1,2 +1,2 @@
-﻿MVC6 \lib\modernizr\lib\modernizr.js
-MVC5 \Scripts\modernizr-2.8.3.js
+﻿MVC6 \lib\modernizr\lib\modernizr.js,bundle
+MVC5 \Scripts\modernizr-2.8.3.js,bundle

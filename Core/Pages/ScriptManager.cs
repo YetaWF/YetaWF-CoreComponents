@@ -150,6 +150,7 @@ namespace YetaWF.Core.Pages {
         public void AddKendoUICoreJsFile(string file) {
             if (Manager.IsPostRequest) return;// can't add this while processing a post request
             if (VersionManager.KendoAddonType == VersionManager.KendoAddonTypeEnum.Pro) return;// everything is already included
+            if (Manager.CurrentSite.UseCDNComponents) return;// already included
             AddSpecificJsFile(VersionManager.KendoAddon, file);
         }
 
@@ -175,6 +176,7 @@ namespace YetaWF.Core.Pages {
                 //bool ajax = false;
                 bool nominify = false;
                 bool? bundle = null;
+                bool? cdn = null;
                 bool editonly = false;
                 bool last = false;
                 bool async = false, defer = false;
@@ -201,10 +203,16 @@ namespace YetaWF.Core.Pages {
                             else if (part == "editonly") editonly = true;
                             else if (part == "async") async = true;
                             else if (part == "defer") defer = true;
+                            else if (part == "cdn") cdn = true;
+                            else if (part == "nocdn") cdn = false;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
                     if (editonly && !Manager.EditMode)
+                        continue;
+                    if (cdn == true && !Manager.CurrentSite.UseCDNComponents)
+                        continue;
+                    else if (cdn == false && Manager.CurrentSite.UseCDNComponents)
                         continue;
                     // check if we want to send this file
                     string filePathURL;

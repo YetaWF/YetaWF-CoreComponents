@@ -1,5 +1,7 @@
-﻿MVC6 \lib\bootstrap\less\bootstrap.min.less
-MVC6 \lib\bootstrap\less\theme.min.less
+﻿//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css,CDN
 
-MVC5 \Content\bootstrap\bootstrap.min.less
-MVC5 \Content\bootstrap\theme.min.less
+MVC6 \lib\bootstrap\less\bootstrap.min.less,noCDN
+MVC6 \lib\bootstrap\less\theme.min.less,noCDN
+
+MVC5 \Content\bootstrap\bootstrap.min.less,noCDN
+MVC5 \Content\bootstrap\theme.min.less,noCDN

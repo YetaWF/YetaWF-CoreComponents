@@ -1,3 +1,6 @@
-﻿MVC6 jquery-ui.min.css
-MVC5 jquery-ui.min.css
-{0}
+﻿//code.jquery.com/ui/1.12.1/jquery-ui.min.css,CDN
+//code.jquery.com/ui/1.12.1/{0},CDN
+
+MVC6 jquery-ui.min.css,noCDN
+MVC5 jquery-ui.min.css,noCDN
+{0},noCDN

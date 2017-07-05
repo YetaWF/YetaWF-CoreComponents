@@ -47,6 +47,7 @@ namespace YetaWF.Core.Pages {
             foreach (var info in list) {
                 bool nominify = false;
                 bool? bundle = null;
+                bool? cdn = null;
                 string[] parts = info.Split(new Char[] { ',' });
                 int count = parts.Length;
                 string file;
@@ -60,9 +61,15 @@ namespace YetaWF.Core.Pages {
                             if (part == "nominify") nominify = true;
                             else if (part == "bundle") bundle = true;
                             else if (part == "nobundle") bundle = false;
+                            else if (part == "cdn") cdn = true;
+                            else if (part == "nocdn") cdn = false;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
+                    if (cdn == true && !Manager.CurrentSite.UseCDNComponents)
+                        continue;
+                    else if (cdn == false && Manager.CurrentSite.UseCDNComponents)
+                        continue;
                     // check if we want to send this file
                     string filePathURL;
                     if (file.IsAbsoluteUrl()) {

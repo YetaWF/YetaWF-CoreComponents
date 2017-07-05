@@ -1,2 +1,3 @@
-﻿MVC6 \lib\free-jqgrid\css\ui.jqgrid.css
-MVC5 \Content\ui.jqgrid.css
+﻿//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.1/css/ui.jqgrid.css,CDN
+MVC6 \lib\free-jqgrid\css\ui.jqgrid.css,noCDN
+MVC5 \Content\ui.jqgrid.css,noCDN

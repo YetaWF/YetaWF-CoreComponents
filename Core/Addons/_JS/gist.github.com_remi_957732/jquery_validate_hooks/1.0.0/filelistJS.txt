@@ -1,1 +1,1 @@
-﻿jquery.validate.hooks.js
+﻿jquery.validate.hooks.js,bundle

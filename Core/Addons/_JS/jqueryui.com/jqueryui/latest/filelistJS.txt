@@ -1,4 +1,5 @@
-﻿MVC6 \lib\jquery-ui\jquery-ui.min.js
-MVC5 \Scripts\jquery-ui-1.12.1.min.js
+﻿https://code.jquery.com/ui/1.12.1/jquery-ui.min.js,CDN
+MVC6 \lib\jquery-ui\jquery-ui.min.js,noCDN
+MVC5 \Scripts\jquery-ui-1.12.1.min.js,noCDN
 prefixup.js
 postfixup.js,bundle,last

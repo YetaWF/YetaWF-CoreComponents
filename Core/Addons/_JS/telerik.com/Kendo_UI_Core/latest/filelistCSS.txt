@@ -1,4 +1,7 @@
+//kendo.cdn.telerik.com/2017.2.621/styles/kendo.common.min.css,CDN
+//kendo.cdn.telerik.com/2017.2.621/styles/{0},CDN
+
 MVC6 Folder \lib\kendo-ui\styles\
 MVC5 Folder \Content\Kendo\2017.2.621\
-kendo.common.min.css
-{0}
+kendo.common.min.css,noCDN
+{0},noCDN

@@ -1,1 +1,1 @@
-﻿__CUSTOM/jquery.validate.js
+﻿__CUSTOM/jquery.validate.js,bundle
