@@ -698,7 +698,13 @@ _YetaWF_Basics.loadNextScript = function (scripts, total, ix, run) {
 
     function process() {
         if (ix >= total - 1) {
-            run();// we're all done
+            // adding <script> to <head> and using $.getScript may be sync but the scripts don't necessarily RUN...
+            // We just loaded all scripts. By setting a timeout we try to make sure they actually run... smh
+            // this is all voodoo bullshit... Just give me a method to load scripts in the correct order and let me know when
+            // they're done (emphasis) running
+            setTimeout(function () {
+                run();// we're all done
+            }, 50);
         } else {
             _YetaWF_Basics.loadNextScript(scripts, total, ix + 1, run);
         }

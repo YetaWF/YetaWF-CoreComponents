@@ -1,2 +1,2 @@
-﻿recaptchav2.js,nobundle
-https://www.google.com/recaptcha/api.js?onload=YetaWF_Core_RecaptchaV2_onLoad&render=explicit,async,defer
+﻿https://www.google.com/recaptcha/api.js?render=explicit,async,defer
+recaptchav2.js,nobundle
