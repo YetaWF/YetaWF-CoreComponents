@@ -21,12 +21,15 @@ using YetaWF.Core.Support;
 //    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
 //   Built-in CDN support (off by default until you have a CDN provider)
+//   Optional CDN support for all major Javascript addons (jQuery, jQueryUI, KendoUI, CKEditor, etc.)
 // Add an Expires or a Cache-Control Header
 //   YetaWF uses Expires and a Cache-Control Header
 // Gzip Components
-//   While YetaWF doesn't use Gzip, it compresses html, js and css by eliminating unnecessary comments, spaces, new lines, etc.
+//   YetaWF uses Gzip for
+//      - Ajax responses for Unified Page Sets (navigating between pages in a Single Page Site)
+//      - Ajax responses for grid data when rendering/paging a grid
 //   In IIS dynamic & static compression can be enabled outside of YetaWF (which is fully supported by YetaWF and its CDN support)
-//   Gzip compression for certain Json/Ajax requests has been added (grid contents, dynamic content in Unified Page Sets)
+//   YetaWF (non-Gzip) compresses html, js and css by eliminating unnecessary comments, spaces, new lines, etc.
 // Put Stylesheets at the Top
 //   YetaWF places style sheets at the top
 // Put Scripts at the Bottom
@@ -47,7 +50,7 @@ using YetaWF.Core.Support;
 // Configure ETags
 //   used for images and other resources, css (javascript is static and reported as such without ETag)
 // Make Ajax Cacheable
-//   not typically done as ajax requests in general expect modified data
+//   not typically done as Ajax requests in general expect current data
 // Flush the Buffer Early
 //   (*) under consideration (TODO:)
 // Use GET for AJAX Requests
@@ -65,14 +68,14 @@ using YetaWF.Core.Support;
 // Split Components Across Domains
 //   (*) Appears to be a maintenance issue, but could be considered for the future
 // Minimize the Number of iframes
-//   YetaWF makes little use of iframes, except for popups
+//   YetaWF makes little use of iframes, except for popups.
 //   When using Unified Page Sets (Single Page Site) and popups are enabled for the page set, no iframes are used.
 // No 404s
 //   Duh
 // Reduce Cookie Size
 //   YetaWF makes no use of cookies except for authentication
 // Use Cookie-free Domains for Components
-//   That's almost identical as Split "Components Across Domains"
+//   That's almost identical to Split "Components Across Domains"
 // Minimize DOM Access
 //   Always considered when creating new templates, modules, etc.
 // Develop Smart Event Handlers
