@@ -66,9 +66,9 @@ namespace YetaWF.Core.Pages {
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
-                    if (cdn == true && !Manager.CurrentSite.UseCDNComponents)
+                    if (cdn == true && !Manager.CurrentSite.CanUseCDNComponents)
                         continue;
-                    else if (cdn == false && Manager.CurrentSite.UseCDNComponents)
+                    else if (cdn == false && Manager.CurrentSite.CanUseCDNComponents)
                         continue;
                     // check if we want to send this file
                     string filePathURL;

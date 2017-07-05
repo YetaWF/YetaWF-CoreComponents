@@ -150,7 +150,7 @@ namespace YetaWF.Core.Pages {
         public void AddKendoUICoreJsFile(string file) {
             if (Manager.IsPostRequest) return;// can't add this while processing a post request
             if (VersionManager.KendoAddonType == VersionManager.KendoAddonTypeEnum.Pro) return;// everything is already included
-            if (Manager.CurrentSite.UseCDNComponents) return;// already included
+            if (Manager.CurrentSite.CanUseCDNComponents) return;// already included
             AddSpecificJsFile(VersionManager.KendoAddon, file);
         }
 
@@ -210,9 +210,9 @@ namespace YetaWF.Core.Pages {
                     }
                     if (editonly && !Manager.EditMode)
                         continue;
-                    if (cdn == true && !Manager.CurrentSite.UseCDNComponents)
+                    if (cdn == true && !Manager.CurrentSite.CanUseCDNComponents)
                         continue;
-                    else if (cdn == false && Manager.CurrentSite.UseCDNComponents)
+                    else if (cdn == false && Manager.CurrentSite.CanUseCDNComponents)
                         continue;
                     // check if we want to send this file
                     string filePathURL;

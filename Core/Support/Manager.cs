@@ -694,6 +694,16 @@ namespace YetaWF.Core.Support {
         }
         private static bool? canUseCDN = null;
 
+        public bool CanUseCDNComponents {
+            get {
+                if (canUseCDNComponents == null) {
+                    canUseCDNComponents = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseCDNComponents");
+                }
+                return (bool)canUseCDNComponents;
+            }
+        }
+        private static bool? canUseCDNComponents = null;
+
         /// <summary>
         /// Defines whether the current YetaWF instance runs in demo mode.
         /// </summary>
