@@ -2,6 +2,7 @@
 
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -298,6 +299,7 @@ namespace YetaWF.Core.Modules {
         [JsonIgnoreAttribute]
         public bool IsAuthorized {
             get {
+                if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
                 if (AuthorizationIgnore)
                     return true;
                 if (LimitToRole != 0 && !Manager.HasSuperUserRole) {
@@ -332,26 +334,27 @@ namespace YetaWF.Core.Modules {
                     else if (url.StartsWith(Manager.CurrentSite.SiteUrlHttps, System.StringComparison.OrdinalIgnoreCase))
                         url = url.Substring(Manager.CurrentSite.SiteUrlHttps.Length-1);
                     if (url.StartsWith("/")) {
+                        if (Manager.UserAuthorizedUrls != null && Manager.UserAuthorizedUrls.Contains(url)) return true;
+                        if (Manager.UserNotAuthorizedUrls != null && Manager.UserNotAuthorizedUrls.Contains(url)) return true;
                         PageDefinition page = PageDefinition.LoadFromUrl(url);
                         if (page != null) {
                             PageSecurity = page.PageSecurity;
-                            if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
                             if (Manager.EditMode)
-                                return page.IsAuthorized_Edit();
+                                return AddUserUrl(url, page.IsAuthorized_Edit());
                             else
-                                return page.IsAuthorized_View();
+                                return AddUserUrl(url, page.IsAuthorized_View());
                         }
                         ModuleDefinition module = ModuleDefinition.FindDesignedModule(url);
                         if (module == null)
                             module = ModuleDefinition.LoadByUrl(url);
                         if (module != null) {
                             PageSecurity = module.ModuleSecurity;
-                            if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
                             if (Manager.EditMode)
-                                return module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit);
+                                return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit));
                             else
-                                return module.IsAuthorized(ModuleDefinition.RoleDefinition.View);
+                                return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.View));
                         }
+                        AddUserUrl(url, true);
                     }
                     // not a url for us, so we'll allow it
                     return true;
@@ -359,6 +362,17 @@ namespace YetaWF.Core.Modules {
                 // no url
                 return true;
             }
+        }
+
+        private bool AddUserUrl(string url, bool authorized) {
+            if (authorized) {
+                if (Manager.UserAuthorizedUrls == null) Manager.UserAuthorizedUrls = new List<string>();
+                Manager.UserAuthorizedUrls.Add(url);
+            } else {
+                if (Manager.UserNotAuthorizedUrls == null) Manager.UserNotAuthorizedUrls = new List<string>();
+                Manager.UserNotAuthorizedUrls.Add(url);
+            }
+            return authorized;
         }
     }
 }

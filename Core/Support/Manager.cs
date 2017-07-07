@@ -1582,6 +1582,10 @@ namespace YetaWF.Core.Support {
                 }
             }
         }
+        // repetitive authorization
+        // add authorized page urls to this list (new for each http request) so we can avoid repetitive authorizations, particularly in grids
+        public List<string> UserAuthorizedUrls { get; set; }
+        public List<string> UserNotAuthorizedUrls { get; set; }
 
         // CURRENT DEVICE
         // CURRENT DEVICE
