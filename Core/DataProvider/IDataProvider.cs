@@ -34,6 +34,7 @@ namespace YetaWF.Core.DataProvider {
         string ReplaceWithTableName(string text, string searchText);
         string ReplaceWithLanguage(string text, string searchText);
         string GetTableName();
+        string GetDatabaseName();
 
         DataProviderTransaction StartTransaction();
         void CommitTransaction();
@@ -63,6 +64,7 @@ namespace YetaWF.Core.DataProvider {
         string ReplaceWithTableName(string text, string searchText);
         string ReplaceWithLanguage(string text, string searchText);
         string GetTableName();
+        string GetDatabaseName();
 
         DataProviderTransaction StartTransaction();
         void CommitTransaction();

@@ -457,8 +457,9 @@ namespace YetaWF.Core.DataProvider {
         public string ReplaceWithLanguage(string text, string searchText) {
             return DataProviderObject.ReplaceWithLanguage(text, searchText);
         }
-        public dynamic GetDatabase() {
-            return DataProviderObject.GetDatabase();
+        public string GetDatabaseName() {
+            if (DataProviderObject == null) throw new InternalError("DataProvider must be defined in constructor using SetDataProvider() - Only supported for SQL I/O");
+            return DataProviderObject.GetDatabaseName();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
