@@ -126,6 +126,7 @@ namespace YetaWF.Core.Views.Shared {
             ScriptBuilder sb = new ScriptBuilder();
 
             bool haveDesc = false;
+            int empty = 0;// count empty tooltips so we don't generate them (and just drop if all are trailing entries)
             foreach (var item in list) {
                 TagBuilder tagOpt = new TagBuilder("option");
                 tagOpt.SetInnerText(item.Text);
@@ -140,11 +141,16 @@ namespace YetaWF.Core.Views.Shared {
                     if (!string.IsNullOrWhiteSpace(desc))
                         tagOpt.Attributes["title"] = desc;
                 } else {
-                    if (string.IsNullOrWhiteSpace(desc))
+                    if (string.IsNullOrWhiteSpace(desc)) {
                         desc = "";
-                    else
+                        empty++;
+                    } else {
+                        while (empty-- > 0)
+                            sb.Append("\"\",");
+                        empty = 0;
                         haveDesc = true;
-                    sb.Append("{0},", YetaWFManager.JsonSerialize(desc));
+                        sb.Append("{0},", YetaWFManager.JsonSerialize(desc));
+                    }
                 }
                 tagHtml.Append(tagOpt.ToString(TagRenderMode.Normal));
             }
@@ -153,7 +159,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (!haveDesc) // if we don't have any descriptions, clear the tooltip array
                     sb = new ScriptBuilder();
                 ScriptBuilder newSb = new ScriptBuilder();
-                newSb.Append("$('#{0}').data('tooltips', [{1}]);", id, sb.ToString().TrimEnd("\"\","));
+                newSb.Append("$('#{0}').data('tooltips', [{1}]);", id, sb.ToString());
                 newSb.Append("YetaWF_TemplateDropDownList.initOne($('#{0}'));", id);
                 sb = newSb;
             }
