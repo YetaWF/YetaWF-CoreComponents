@@ -32,8 +32,8 @@ namespace YetaWF.Core.IO {
 #endif
 
                 } else {
-                    // we can't save the entire object, just the data that we actually marked as saveable (Properties)
-                    // the main reason the object is not saveable is because it may be derived from other classes with
+                    // we can't save the entire object, just the data that we actually marked as savable (Properties)
+                    // the main reason the object is not savable is because it may be derived from other classes with
                     // volatile data which is expected to be cleared for every invokation.
                     byte[] cacheData = new GeneralFormatter().Serialize(data);
 #if MVC6
