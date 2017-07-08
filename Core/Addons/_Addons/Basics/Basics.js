@@ -827,32 +827,6 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                     _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState, popupCB);
                     return;
                 }
-                if (!popupCB) {
-                    // Update the browser page title
-                    document.title = result.PageTitle;
-                    // Update the browser address bar with the new path
-                    if (setState) {
-                        try {
-                            var stateObj = {};
-                            history.pushState(stateObj, "", uri.toString());
-                        } catch (err) { }
-                    }
-                    // remove all pane contents
-                    $divs.each(function () {
-                        var $div = $(this);
-                        $div.empty();
-                        if ($div.attr("data-conditional") !== undefined)
-                            $div.hide();// hide, it's a conditional pane
-                    });
-                    // Notify that page is changing
-                    $(document).trigger('YetaWF_Basics_PageChange', []);
-                    // remove prior page css classes
-                    var $body = $('body');
-                    $body.removeClass($body.attr('data-pagecss'));
-                    // add new css classes
-                    $body.addClass(result.PageCssClasses);
-                    $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
-                }
                 // run all global scripts (YConfigs, etc.)
                 $.globalEval(result.Scripts);
                 // add all new css files
@@ -875,6 +849,32 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                             YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
                         else
                             YVolatile.Basics.UnifiedScriptBundleFiles = result.ScriptBundleFiles;
+                    }
+                    if (!popupCB) {
+                        // Update the browser page title
+                        document.title = result.PageTitle;
+                        // Update the browser address bar with the new path
+                        if (setState) {
+                            try {
+                                var stateObj = {};
+                                history.pushState(stateObj, "", uri.toString());
+                            } catch (err) { }
+                        }
+                        // remove all pane contents
+                        $divs.each(function () {
+                            var $div = $(this);
+                            $div.empty();
+                            if ($div.attr("data-conditional") !== undefined)
+                                $div.hide();// hide, it's a conditional pane
+                        });
+                        // Notify that page is changing
+                        $(document).trigger('YetaWF_Basics_PageChange', []);
+                        // remove prior page css classes
+                        var $body = $('body');
+                        $body.removeClass($body.attr('data-pagecss'));
+                        // add new css classes
+                        $body.addClass(result.PageCssClasses);
+                        $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
                     }
                     var $tags = $(); // collect all panes
                     if (!popupCB) {
@@ -926,12 +926,12 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                         if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
                             YetaWF_Popup.closeInnerPopup();
                     }
-                    // done, set focus
-                    Y_SetFocus($tags);
-                    Y_Loading(false);
                     try {
                         $.globalEval(result.AnalyticsContent);
                     } catch (e) {}
+                    // done, set focus
+                    Y_SetFocus($tags);
+                    Y_Loading(false);
                 });
             },
             error: function (jqXHR, textStatus, errorThrown) {
