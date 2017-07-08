@@ -23,7 +23,7 @@ namespace YetaWF.Core.Controllers.Shared {
     public class ImageHelperController : YetaWFController {
 
         /// <summary>
-        /// Saves an uploaded image file. Works in conjuction with the FileUpload1 template and YetaWF.Core.Upload.FileUpload.
+        /// Saves an uploaded image file. Works in conjunction with the FileUpload1 template and YetaWF.Core.Upload.FileUpload.
         /// </summary>
         /// <param name="__filename">Describes the image file being uploaded.</param>
         /// <param name="__lastInternalName">The name of a previously uploaded file (if any) that is being replaced by the current file being uploaded.</param>
@@ -56,7 +56,7 @@ namespace YetaWF.Core.Controllers.Shared {
         }
 
         /// <summary>
-        /// Removes an uploaded image file. Works in conjuction with the FileUpload1 template and YetaWF.Core.Upload.FileUpload.
+        /// Removes an uploaded image file. Works in conjunction with the FileUpload1 template and YetaWF.Core.Upload.FileUpload.
         /// </summary>
         /// <param name="__filename">Describes the image file being uploaded.</param>
         /// <param name="__internalName">The name of the uploaded file that is to be removed.</param>

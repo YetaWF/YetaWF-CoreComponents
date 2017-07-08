@@ -20,7 +20,7 @@ namespace YetaWF.Core.Controllers.Shared {
     public class SMTPEmailController : YetaWFController {
 
         /// <summary>
-        /// Sends a test email. Used in conjuction with client-side code and the SmtpServer template.
+        /// Sends a test email. Used in conjunction with client-side code and the SmtpServer template.
         /// </summary>
         /// <param name="server">The email server name.</param>
         /// <param name="port">The email server port number.</param>
