@@ -523,6 +523,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="ShowTitleActions" />
+                            <Caption Value="Show Actions (Title)" />
+                            <Description Value="Defines whether the module's action links are also shown next to the module title - Only the icons are shown if selected" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="SkinDefinitions" />
                             <Caption Value="Module Skins" />
                             <Description Value="The skin used for this module - for each installed skin, a skin can be selected which will be used for the module, if the containing page uses that skin. This way the same module can be used on multiple pages, even if different page skins are used" />

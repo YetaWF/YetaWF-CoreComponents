@@ -378,7 +378,7 @@
     <Content Include="Addons\_Addons\Basics\Basics.js" />
     <Content Include="Addons\_Addons\Basics\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Basics\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Basics\Globals.css" />
+    <Content Include="Addons\_Addons\Basics\Basics.css" />
     <Content Include="Addons\_Addons\Basics\Globals.js" />
     <Content Include="Addons\_Addons\Forms\docs.txt" />
     <Content Include="Addons\_Addons\Forms\filelistCSS.txt" />
