@@ -54,8 +54,16 @@ namespace YetaWF.Core.Controllers {
             // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
             // This also means we don't need AllowHtml attributes
             ValidateRequest = false;
+            AllowJavascriptResult = true;
         }
 #endif
+        /// <summary>
+        /// Defines whether the action can return a Javascript result to be executed client-side.
+        /// </summary>
+        /// <remarks>Most actions can accept a Javascript result which is executed client-side.
+        /// For some "plain old" MVC controllers, a Javascript result is not acceptable, so these need to override and return false.</remarks>
+        public virtual bool AllowJavascriptResult { get; set; }
+
         /// <summary>
         ///  Update an area's view name with the complete area specifier.
         /// </summary>
@@ -93,7 +101,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 Logging.AddErrorLog(msg);
             }
-            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest || GetModule() == null) {
+            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest || !AllowJavascriptResult) {
                 if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
                     throw filterContext.Exception;
                 } else { // this was a direct action GET so we need to show an error page
