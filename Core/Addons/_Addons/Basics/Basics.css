@@ -74,9 +74,24 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     }
 }
 
+/* Module Actions */
 /* make sure module links don't float left/right */
 .yModuleLinksContainer {
     clear:both;
+}
+
+/* Module title */
+.yModuleTitle h1 {
+    float:left
+}
+.yModuleTitle .yModuleLinksContainer {
+    float:right;
+    clear:none;
+}
+@media print {
+    .yModuleLinksContainer {
+        display: none;
+    }
 }
 
 /* Ui overlay leaves horizontal stripe without this fix*/
@@ -106,4 +121,19 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
 
 .y_inline {
     display:inline;
+}
+
+/* Print */
+
+@media print {
+    .yNoPrint,
+    .cke .cke_top {
+        display: none;
+    }
+}
+
+@media screen {
+    .yDisplayMode .yPrintOnly {
+        display: none;
+    }
 }

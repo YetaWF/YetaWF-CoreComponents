@@ -8,3 +8,9 @@
 .yt_moduleactions a.y_act_normlink {
     margin-right: 1.5ch;
 }
+
+@media print {
+    .yt_moduleactions {
+        display: none;
+    }
+}

@@ -193,11 +193,11 @@ namespace YetaWF.Core.Skins {
             div.Attributes.Add("data-charwidthavg", Manager.CharWidthAvg.ToString());
             div.Attributes.Add("data-charheight", Manager.CharHeight.ToString());
 
-            string inner = "";
+            HtmlBuilder inner = new HtmlBuilder();
             if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
-                inner += "<div class='container'><div class='row'>";
+                inner.Append("<div class='container'><div class='row'>");
             else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
-                inner += "<div class='container'>";
+                inner.Append("<div class='container'>");
 
             // add an inner div with css classes to modules that can't be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") &&
@@ -206,32 +206,46 @@ namespace YetaWF.Core.Skins {
                 bool anon = mod.IsAuthorized_View_Anonymous();
                 bool user = mod.IsAuthorized_View_AnyUser();
                 if (!anon && !user)
-                    inner += "<div class='ymodrole_noUserAnon'>";
+                    inner.Append("<div class='ymodrole_noUserAnon'>");
                 else if (!anon)
-                    inner += "<div class='ymodrole_noAnon'>";
+                    inner.Append("<div class='ymodrole_noAnon'>");
                 else if (!user)
-                    inner += "<div class='ymodrole_noUser'>";
+                    inner.Append("<div class='ymodrole_noUser'>");
                 else
                     showOwnership = false;
             }
 
             if (ShowMenu)
-                inner += mod.ModuleMenuHtml;
-            if (ShowTitle)
-                inner += mod.TitleHtml;
-            inner += htmlContents;
+                inner.Append(mod.ModuleMenuHtml);
+            if (ShowTitle) {
+                if (mod.ShowTitleActions) {
+                    string actions = mod.ActionTopMenuHtml;
+                    if (!string.IsNullOrWhiteSpace(actions)) {
+                        inner.Append("<div class='yModuleTitle'>");
+                        inner.Append(mod.TitleHtml);
+                        inner.Append(actions);
+                        inner.Append("</div>");
+                        inner.Append("<div class='y_cleardiv'></div>");
+                    } else {
+                        inner.Append(mod.TitleHtml);
+                    }
+                } else {
+                    inner.Append(mod.TitleHtml);
+                }
+            }
+            inner.Append(htmlContents);
             if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) // only show action menus in a pane
-                inner += mod.ActionMenuHtml;
+                inner.Append(mod.ActionMenuHtml);
 
             if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
-                inner += "</div></div>";
+                inner.Append("</div></div>");
             else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
-                inner += "</div>";
+                inner.Append("</div>");
 
             if (showOwnership)
-                inner += "</div>";
+                inner.Append("</div>");
 
-            div.SetInnerHtml(inner);
+            div.SetInnerHtml(inner.ToString());
             if (anchor != null)
                 return new HtmlString(anchor.ToString(TagRenderMode.Normal) + div.ToString(TagRenderMode.Normal));
             else

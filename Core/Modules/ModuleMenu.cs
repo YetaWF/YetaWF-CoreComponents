@@ -159,11 +159,11 @@ namespace YetaWF.Core.Modules {
             return hb.ToHtmlString();
         }
 
-        public HtmlString RenderModuleLinks() {
+        public HtmlString RenderModuleLinks(ModuleAction.RenderModeEnum renderMode, string cssClass) {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            MenuList moduleMenu = GetModuleMenuList(ModuleAction.RenderModeEnum.NormalLinks, ModuleAction.ActionLocationEnum.ModuleLinks);
+            MenuList moduleMenu = GetModuleMenuList(renderMode, ModuleAction.ActionLocationEnum.ModuleLinks);
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleLinks).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
@@ -171,7 +171,7 @@ namespace YetaWF.Core.Modules {
 
             // <div>
             TagBuilder div2Tag = new TagBuilder("div");
-            div2Tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleLinksContainer));
+            div2Tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
             hb.Append(div2Tag.ToString(TagRenderMode.StartTag));
 
             // <ul><li> menu

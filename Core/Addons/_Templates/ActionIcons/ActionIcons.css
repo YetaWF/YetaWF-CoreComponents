@@ -24,11 +24,23 @@ ul.yActionIcons, ul.yModuleLinks
 ul.yModuleLinks {
     margin-top:1em;
 }
+.yModuleTitle ul.yModuleLinks {
+    margin-top:2em;
+}
 
 /* a bit of extra space around the image in a module action link */
 ul.yModuleLinks a.yaction-link img {
     margin-right:1ch;
 }
 ul.yModuleLinks a.yaction-link {
+    margin-right:1ch;
+}
+.yModuleTitle ul.yModuleLinks a.yaction-link img {
+    margin-right:0;
+}
+.yModuleTitle ul.yModuleLinks a.yaction-link {
+    margin-right:0;
+}
+.yModuleTitle .yModuleLinksContainer {
     margin-right:1ch;
 }

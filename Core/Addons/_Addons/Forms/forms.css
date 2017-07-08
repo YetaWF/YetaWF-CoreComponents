@@ -29,3 +29,9 @@ fieldset {
     line-height:100%;
     padding-bottom: .2em;
 }
+
+@media print {
+    form.yform-ajax .t_detailsbuttons {
+        display: none;
+    }
+}

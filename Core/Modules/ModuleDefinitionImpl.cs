@@ -748,7 +748,15 @@ namespace YetaWF.Core.Modules {
         public string ActionMenuHtml {
             get {
                 if (ShowActionMenu)
-                    return RenderModuleLinks().ToString();
+                    return RenderModuleLinks(ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer).ToString();
+                else
+                    return "";
+            }
+        }
+        public string ActionTopMenuHtml {
+            get {
+                if (ShowTitle && ShowTitleActions)
+                    return RenderModuleLinks(ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer).ToString();
                 else
                     return "";
             }

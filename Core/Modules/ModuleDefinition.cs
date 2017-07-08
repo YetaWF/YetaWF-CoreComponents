@@ -97,6 +97,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             Visible = true;
             ModuleSecurity = PageDefinition.PageSecurityType.Any;
             ShowTitle = true;
+            ShowTitleActions = true;
             ShowHelp = false;
             Name = __ResStr("name", "(unnamed)");
             Title = __ResStr("title", "(untitled)");
@@ -257,19 +258,24 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [UIHint("Boolean")]
         public bool ShowTitle { get; set; }
 
-        [Category("Skin"), Caption("Show Help"), Description("Defines whether the module help link is shown in Display Mode - The help link is always shown in Edit Mode", Order = -88)]
+        [Category("Skin"), Caption("Show Actions (Title)"), Description("Defines whether the module's action links are also shown next to the module title - Only the icons are shown if selected", Order = -88)]
+        [UIHint("Boolean"), ProcessIf("ShowTitle", true, Disable = true)]
+        [Data_NewValue("(0)")]
+        public bool ShowTitleActions { get; set; }
+
+        [Category("Skin"), Caption("Show Help"), Description("Defines whether the module help link is shown in Display Mode - The help link is always shown in Edit Mode", Order = -86)]
         [UIHint("Boolean")]
         public bool ShowHelp { get; set; }
 
-        [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed", Order = -86)]
+        [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed", Order = -84)]
         [UIHint("Boolean")]
         public bool Print { get; set; }
 
-        [Category("Skin"), Caption("Show Form Buttons"), Description("If the module has a form with buttons (Save, Close, Return, etc.) these are shown/hidden based on this setting", Order = -84)]
+        [Category("Skin"), Caption("Show Form Buttons"), Description("If the module has a form with buttons (Save, Close, Return, etc.) these are shown/hidden based on this setting", Order = -82)]
         [UIHint("Boolean")]
         public bool ShowFormButtons { get; set; }
 
-        [Category("Skin"), Caption("Anchor Id"), Description("The optional id used as anchor tag for this module - if an id is entered, an anchor tag is generated so the module can be directly located on the page", Order = -82)]
+        [Category("Skin"), Caption("Anchor Id"), Description("The optional id used as anchor tag for this module - if an id is entered, an anchor tag is generated so the module can be directly located on the page", Order = -80)]
         [UIHint("Text40"), StringLength(MaxHtmlId), AnchorValidationAttribute, Trim]
         public virtual string AnchorId { get; set; }
 
