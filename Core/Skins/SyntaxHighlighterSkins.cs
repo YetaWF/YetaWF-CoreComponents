@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
@@ -28,7 +29,7 @@ namespace YetaWF.Core.Skins {
         private static SyntaxHighlighterTheme _syntaxHighlighterThemeDefault;
 
         private List<SyntaxHighlighterTheme> LoadSyntaxHighlighterThemes() {
-            string url = AddOnManager.GetAddOnGlobalUrl("alexgorbatchev.com", "SyntaxHighlighter", AddOnManager.UrlType.Base);
+            string url = VersionManager.GetAddOnModuleUrl("YetaWF", "SyntaxHighlighter", "SkinSyntaxHighlighter");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

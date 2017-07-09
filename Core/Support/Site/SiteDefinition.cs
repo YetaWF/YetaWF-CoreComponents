@@ -607,7 +607,7 @@ namespace YetaWF.Core.Site {
         public string KendoUISkin { get; set; }
 
         [Category("Skin"), Caption("Default Syntax Highlighter Skin"), Description("The default skin for syntax highlighting (in text areas) - individual pages can override the default skin")]
-        [UIHint("SyntaxHighlighterSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [UIHint("YetaWF_SyntaxHighlighter_SyntaxHighlighter"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         public string SyntaxHighlighterSkin { get; set; }
 
         [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]

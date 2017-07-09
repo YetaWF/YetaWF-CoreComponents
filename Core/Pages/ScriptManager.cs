@@ -255,12 +255,12 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Add a javascript file explicitly. This is rarely used because javascript files are automatically added for modules, templates, etc.
         /// </summary>
-        public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = true, bool Defer = true) {
+        public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
             VersionManager.AddOnProduct addon = VersionManager.FindModuleVersion(domainName, productName);
             Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
         }
 
-        private bool Add(string fullUrl, bool minify, bool bundle, bool last, bool async, bool defer) {
+        private bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
             string key = fullUrl.ToLower();
 
             if (fullUrl.IsAbsoluteUrl() ||

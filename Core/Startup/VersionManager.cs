@@ -570,6 +570,7 @@ namespace YetaWF.Core.Addons {
             string[] addonFolders = Directory.GetDirectories(asmFolder);
             foreach (var folder in addonFolders) {
                 string directoryName = Path.GetFileName(folder);
+                RegisterModuleAddon(package, folder, directoryName);
                 RegisterRegularAddon(package, folder, directoryName);
             }
         }
@@ -613,6 +614,7 @@ namespace YetaWF.Core.Addons {
         private static void RegisterTemplateAddon(Package package, string folder, string templateName) {
             RegisterAnyAddon(AddOnType.Template, package, folder, templateName);
         }
+        ///TODO: This probably should be RegisterModuleAddon instead as the functionality is almost the same
         private static void RegisterRegularAddon(Package package, string folder, string addonName) {
             RegisterAnyAddon(AddOnType.AddonJS, package, folder, addonName);
         }
