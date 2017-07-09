@@ -28,31 +28,6 @@ using YetaWF.PackageAttributes;
 
 [assembly: PublicPartialViews]
 
-//TODO: Check for completeness before each release
-[assembly: RequiresAddOnGlobal("bassistance.de", "jquery-validation")]
-[assembly: RequiresAddOnGlobal("clipboardjs.com", "clipboard")]
-[assembly: RequiresAddOnGlobal("gist.github.com_remi_957732", "jquery_validate_hooks")]
-[assembly: RequiresAddOnGlobal("github.com.danielm", "uploader")]
-[assembly: RequiresAddOnGlobal("github.com.free-jqgrid", "jqgrid")]
-[assembly: RequiresAddOnGlobal("google.com.swfobject", "swfobject")]
-[assembly: RequiresAddOnGlobal("jquery.com", "jquery")]
-[assembly: RequiresAddOnGlobal("jquery.com", "jquery-color")]
-[assembly: RequiresAddOnGlobal("jqueryui.com", "jqueryui")]
-[assembly: RequiresAddOnGlobal("jqueryui.com", "jqueryui-themes")]
-[assembly: RequiresAddOnGlobal("jstree.com", "jsTree")]
-[assembly: RequiresAddOnGlobal("medialize.github.io", "uri.js")]
-[assembly: RequiresAddOnGlobal("microsoft.com", "jquery_unobtrusive_validation")]
-[assembly: RequiresAddOnGlobal("necolas.github.io", "normalize")]
-[assembly: RequiresAddOnGlobal("no-margin-for-errors.com", "prettyLoader")]
-//[assembly: RequiresAddOnGlobal("telerik.com", "Kendo_UI_Core")] // this is validated in code
-//[assembly: RequiresAddOnGlobal("telerik.com", "Kendo_UI_Pro")]
-
-[assembly: RequiresAddOn("YetaWF", "Core", "Basics")]
-[assembly: RequiresAddOn("YetaWF", "Core", "Forms")]
-[assembly: RequiresAddOn("YetaWF", "Core", "kendoMenu")]
-[assembly: RequiresAddOn("YetaWF", "Core", "Modules")]
-[assembly: RequiresAddOn("YetaWF", "Core", "Popups")]
-
 [assembly: Resource(CoreInfo.Resource_BuiltinCommands, "Allow use of built-in commands", Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_CountryISO3166_GetLocationsNew, "Retrieve ISO 3166 country lists (Ajax)", Anonymous = true, User = true, Editor = true, Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_UploadImages, "Allow uploading images", User = true, Editor = true, Administrator = true, Superuser = true)]

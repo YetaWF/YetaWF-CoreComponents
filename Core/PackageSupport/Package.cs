@@ -48,71 +48,6 @@ namespace YetaWF.Core.Packages {
         public string MaxVersion { get; private set; }
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresAddOnAttribute : Attribute {
-        /// <summary>
-        /// Defines that the current packages requires a non-global addon (TODO: REFERENCE).
-        /// </summary>
-        /// <param name="domain">The domain name of the addon's origin, e.g., softelvdm. (TODO: REFERENCE)</param>
-        /// <param name="product">The product name of the addon, e.g., Core. (TODO: REFERENCE)</param>
-        /// <param name="name">The name for the addon. (TODO: REFERENCE)</param>
-        /// <param name="minVersion">Optional. The required minimum version (n.n.n).</param>
-        /// <param name="version"></param>
-        /// <param name="maxVersion">Optional. The required maximum version (n.n.n).</param>
-        public RequiresAddOnAttribute(string domain, string product, string name, string version = "", string minVersion = "", string maxVersion = "") {
-            Domain = domain;
-            Product = product;
-            Name = name;
-            Version = version;
-            if (string.IsNullOrWhiteSpace(version)) {
-                if (!string.IsNullOrWhiteSpace(minVersion) || !string.IsNullOrWhiteSpace(minVersion))
-                    throw new InternalError("If the version is omitted, minimum version and maximum version cannot be specified", minVersion, maxVersion);
-            } else {
-                MinVersion = string.IsNullOrWhiteSpace(minVersion) ? version : minVersion;
-                MaxVersion = maxVersion;
-                if (!string.IsNullOrWhiteSpace(minVersion) && !string.IsNullOrWhiteSpace(maxVersion)) {
-                    if (Package.CompareVersion(minVersion, maxVersion) > 0) throw new InternalError("The specified minimum version {0} is greater than the maximum version {1}", minVersion, maxVersion);
-                }
-                if (!string.IsNullOrWhiteSpace(minVersion)) {
-                    if (Package.CompareVersion(version, minVersion) < 0) throw new InternalError("The specified version {0} is smaller than the minimum version {1}", version, minVersion);
-                }
-                if (!string.IsNullOrWhiteSpace(maxVersion)) {
-                    if (Package.CompareVersion(version, maxVersion) > 0) throw new InternalError("The specified version {0} is greater than the maximum version {1}", version, maxVersion);
-                }
-            }
-        }
-        public string Domain { get; private set; }
-        public string Product { get; private set; }
-        public string Version { get; private set; }
-        public string Name { get; private set; }
-        public string MinVersion { get; private set; }
-        public string MaxVersion { get; private set; }
-    }
-
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresAddOnGlobalAttribute : Attribute {
-        /// <summary>
-        /// Defines that the current packages requires a non-global addon (TODO: REFERENCE).
-        /// </summary>
-        /// <param name="domain">The domain name of the addon's origin, e.g., softelvdm. (TODO: REFERENCE)</param>
-        /// <param name="product">The product name of the addon, e.g., Core. (TODO: REFERENCE)</param>
-        /// <param name="minVersion">Optional. The required minimum version (n.n.n).</param>
-        /// <param name="maxVersion">Optional. The required maximum version (n.n.n).</param>
-        public RequiresAddOnGlobalAttribute(string domain, string product, string minVersion = "", string maxVersion = "") {
-            Domain = domain;
-            Product = product;
-            MinVersion = minVersion;
-            MaxVersion = maxVersion;
-            if (!string.IsNullOrWhiteSpace(MinVersion) && !string.IsNullOrWhiteSpace(MaxVersion)) {
-                if (Package.CompareVersion(MinVersion, MaxVersion) < 0) throw new InternalError("The specified minimum version {0} is greater than the maximum version {1}", minVersion, maxVersion);
-            }
-        }
-        public string Domain { get; private set; }
-        public string Product { get; private set; }
-        public string MinVersion { get; private set; }
-        public string MaxVersion { get; private set; }
-    }
-
     /// <summary>
     /// Attribute class used in a package's AssemblyInfo.cs file to specify an installation order for its types (classes) implementing IInstallableModel.
     /// </summary>
@@ -708,28 +643,6 @@ namespace YetaWF.Core.Packages {
                 return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, Domain, Product);
             }
         }
-
-        //private List<VersionManager.AddOnProduct> GetRequiredAddOnVersions() {
-        //    List<VersionManager.AddOnProduct> addons = new List<VersionManager.AddOnProduct>();
-
-        //    // normal addons
-        //    RequiresAddOnAttribute[] attrs = (RequiresAddOnAttribute[]) Attribute.GetCustomAttributes(PackageAssembly, typeof(RequiresAddOnAttribute));
-        //    if (attrs != null) {
-        //        foreach (var attr in attrs) {
-        //            VersionManager.AddOnProduct addon = VersionManager.FindAddOnVersion(attr.Domain, attr.Product, attr.Name);
-        //            addons.Add(addon);
-        //        }
-        //    }
-        //    // global addons
-        //    RequiresAddOnGlobalAttribute[] globalAttrs = (RequiresAddOnGlobalAttribute[]) Attribute.GetCustomAttributes(PackageAssembly, typeof(RequiresAddOnGlobalAttribute));
-        //    if (globalAttrs != null) {
-        //        foreach (var attr in globalAttrs) {
-        //            VersionManager.AddOnProduct addon = VersionManager.FindAddOnGlobalVersion(attr.Domain, attr.Product);
-        //            addons.Add(addon);
-        //        }
-        //    }
-        //    return addons;
-        //}
 
         /// <summary>
         /// Returns a list of names of all packages required by the current package.
