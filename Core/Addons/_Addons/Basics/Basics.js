@@ -1265,7 +1265,9 @@ $(document).ready(function () {
         if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
               (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
-        return ! _YetaWF_Basics.setContent(uri, true);
+        if (target == "_self")
+            return !_YetaWF_Basics.setContent(uri, true);
+        return true;
     });
 
     // SUBMITFORMONCHANGE

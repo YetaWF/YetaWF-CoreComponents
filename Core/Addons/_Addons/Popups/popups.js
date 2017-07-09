@@ -72,7 +72,8 @@ YetaWF_Popup.handleOuterWindow = function ($this) {
         return false;
     if (!Y_InPopup()) return false; // this shouldn't really happen
     Y_Loading(true);
-    window.parent.location = $this[0].href;
+    if (!window.parent._YetaWF_Basics.setContent(new URI($this[0].href), true))
+        window.parent.location.assign($this[0].href);
     return true;
 };
 

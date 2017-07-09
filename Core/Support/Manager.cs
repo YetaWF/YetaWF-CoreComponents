@@ -548,7 +548,7 @@ namespace YetaWF.Core.Support {
             string validChars = "_./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
             for (int len = s.Length, ix = 0; ix < len; ++ix) {
                 char c = s[ix];
-                if (c == '?') {
+                if (c == '?' || c == '#') {
                     sb.Append(s.Substring(ix));
                     break;
                 }
@@ -575,7 +575,7 @@ namespace YetaWF.Core.Support {
             s = SkipSchemeAndDomain(sb, s);
             for (int len = s.Length, ix = 0; ix < len; ++ix) {
                 char c = s[ix];
-                if (c == '?') {
+                if (c == '?' || c == '#') {
                     sb.Append(s.Substring(ix));
                     break;
                 }
