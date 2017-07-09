@@ -256,7 +256,7 @@ namespace YetaWF.Core.Pages {
         [StringLength(MaxKendoUISkin)]
         public string KendoUISkin { get; set; }
         [StringLength(MaxSyntaxHighlighterSkin)]
-        public string SyntaxHighlighterSkin { get; set; }
+        public string SyntaxHighlighterSkin { get; set; } // not used
 
         [StringLength(Globals.MaxUrl)]
         public string Url { get; set; }
