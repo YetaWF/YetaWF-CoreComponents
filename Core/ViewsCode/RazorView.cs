@@ -219,7 +219,7 @@ namespace YetaWF.Core.Views {
 
         protected MvcForm Form(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
             Manager.NextUniqueIdPrefix();
-            Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Forms");
+            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Forms");
 
             _viewName = viewName;
             if (string.IsNullOrWhiteSpace(ActionName))

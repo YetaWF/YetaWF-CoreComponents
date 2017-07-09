@@ -131,10 +131,10 @@ namespace YetaWF.Core.Controllers {
             Manager.SetSkinOptions();
             Manager.AddOnManager.AddSkin(skinCollection);
 
-            Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Basics");
+            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Basics");
             Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
             if (Manager.IsInPopup)
-                Manager.AddOnManager.AddAddOn("YetaWF", "Core", "Popups");
+                Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Popups");
 
             string pageHtml;
 #if MVC6

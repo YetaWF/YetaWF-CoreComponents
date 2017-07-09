@@ -472,7 +472,7 @@ namespace YetaWF.Core.Modules {
         [Caption("AddOn Folder")]
         public string AddOnModuleUrl {
             get {
-                return VersionManager.TryGetAddOnModuleUrl(Domain, Product);
+                return VersionManager.TryGetAddOnPackageUrl(Domain, Product);
             }
         }
 

@@ -153,7 +153,7 @@ namespace YetaWF.Core.Views.Shared {
             string model = s[1];
             string file = controller + "." + model;
             Package package = Package.GetPackageFromType(recordType);
-            string predefUrl = VersionManager.GetAddOnModuleUrl(package.Domain, package.Product) + "Grids/" + file;
+            string predefUrl = VersionManager.GetAddOnPackageUrl(package.Domain, package.Product) + "Grids/" + file;
             string customUrl = VersionManager.GetCustomUrlFromUrl(predefUrl);
             Dictionary<string, GridColumnInfo> predefDict = ObjectSupport.ReadGridDictionary(package, recordType, YetaWFManager.UrlToPhysical(predefUrl), ref sortCol, ref sortDir);
             Dictionary<string, GridColumnInfo> customDict = ObjectSupport.ReadGridDictionary(package, recordType, YetaWFManager.UrlToPhysical(customUrl), ref sortCol, ref sortDir);

@@ -52,23 +52,23 @@ namespace YetaWF.Core.Addons {
     public static class VersionManager {
 
         public enum AddOnType {
-            [EnumDescription("Module", "Module Addon")]
-            Module = 0,
+            [EnumDescription("Package", "Package Support Addon")]
+            Package = 0,
             [EnumDescription("Template", "Template Addon")]
             Template = 1,
             [EnumDescription("Skin", "Skin Addon")]
             Skin = 2,
-            [EnumDescription("Javascript", "Javascript Addon")]
-            AddonJS = 3,
+            [EnumDescription("Javascript", "Named Addon")]
+            AddonNamed = 3,
             [EnumDescription("Javascript (Global)", "Javascript Global Addon")]
             AddonJSGlobal = 4,
         }
 
-        private const string SkinPrefix = "_skins+";
-        private const string TemplatePrefix = "_templates+";
-        private const string ModulePrefix = "_modules+";
-        private const string AddonPrefix = "_addon+";
-        private const string AddonGlobalPrefix = "_global+";
+        private const string SkinPrefix = "_sk+";
+        private const string TemplatePrefix = "_t+";
+        private const string PackagePrefix = "_pkg+";
+        private const string AddonPrefix = "_add+";
+        private const string AddonGlobalPrefix = "_gl+";
 
         private const string NotUsedPrefix = "notused_";
 
@@ -103,9 +103,9 @@ namespace YetaWF.Core.Addons {
             public string Prefix { get { return GetPrefix(Type); } }
             public static string GetPrefix(AddOnType type) {
                 switch (type) {
-                    case AddOnType.Module: return ModulePrefix;
+                    case AddOnType.Package: return PackagePrefix;
                     case AddOnType.Template: return TemplatePrefix;
-                    case AddOnType.AddonJS: return AddonPrefix;
+                    case AddOnType.AddonNamed: return AddonPrefix;
                     case AddOnType.AddonJSGlobal: return AddonGlobalPrefix;
                     case AddOnType.Skin: return SkinPrefix;
                     default: throw new InternalError("Invalid entry type {0}", type);
@@ -113,7 +113,7 @@ namespace YetaWF.Core.Addons {
             }
 
             internal static string MakeAddOnKey(AddOnType type, string domain, string product, string name = null) {
-                if (type != AddOnType.AddonJS && type != AddOnType.AddonJSGlobal)
+                if (type != AddOnType.AddonNamed && type != AddOnType.AddonJSGlobal)
                     if (name == null)
                         throw new InternalError("A name is required");
                 return (GetPrefix(type) + domain + "+" + product + (name != null ? "+" + name : "")).ToLower();
@@ -183,19 +183,19 @@ namespace YetaWF.Core.Addons {
         // VERSIONS
 
         /// <summary>
-        /// Returns a specific addon's installed and used version.
+        /// Returns a specific named addon's installed and used version.
         /// </summary>
-        public static AddOnProduct TryFindAddOnVersion(string domainName, string productName, string name) {
+        public static AddOnProduct TryFindAddOnNamedVersion(string domainName, string productName, string name) {
             AddOnProduct product;
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.AddonJS, domainName, productName, name), out product))
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.AddonNamed, domainName, productName, name), out product))
                 return null;
             return product;
         }
         /// <summary>
-        /// Returns a specific addon's installed and used version information.
+        /// Returns a specific named addon's installed and used version information.
         /// </summary>
-        public static AddOnProduct FindAddOnVersion(string domainName, string productName, string name) {
-            AddOnProduct version = TryFindAddOnVersion(domainName, productName, name);
+        public static AddOnProduct FindAddOnNamedVersion(string domainName, string productName, string name) {
+            AddOnProduct version = TryFindAddOnNamedVersion(domainName, productName, name);
             if (version == null)
                 throw new InternalError("Addon Domain/Product/Name {0}/{1}/{2} not registered.", domainName, productName, name);
             return version;
@@ -278,24 +278,23 @@ namespace YetaWF.Core.Addons {
         }
 
         /// <summary>
-        /// Returns a specific module's installed and used version information.
+        /// Returns a specific package's installed and used version information.
         /// </summary>
-        public static AddOnProduct TryFindModuleVersion(string domainName, string productName, string module = "_Main") {
+        public static AddOnProduct TryFindPackageVersion(string domainName, string productName) {
             AddOnProduct product;
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Module, domainName, productName, module), out product))
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Package, domainName, productName, "_Main"), out product))
                 return null;
             return product;
         }
         /// <summary>
-        /// Returns a specific module's installed and used version information.
+        /// Returns a specific package's installed and used version information.
         /// </summary>
-        public static AddOnProduct FindModuleVersion(string domainName, string productName, string module = "_Main") {
-            AddOnProduct version = TryFindModuleVersion(domainName, productName, module);
+        public static AddOnProduct FindPackageVersion(string domainName, string productName) {
+            AddOnProduct version = TryFindPackageVersion(domainName, productName);
             if (version == null)
-                throw new InternalError("Module {0} not registered in {1}.{2}.", module, domainName, productName);
+                throw new InternalError("Module not registered for {1}.{2}.", domainName, productName);
             return version;
         }
-
         /// <summary>
         /// Returns a specific skin's installed and used version information.
         /// </summary>
@@ -346,42 +345,55 @@ namespace YetaWF.Core.Addons {
         // URLS
 
         /// <summary>
-        /// Returns the Url to the specific template's addon folder (including version)
+        /// Returns the Url to the specific template's addon folder
         /// </summary>
         public static string GetAddOnTemplateUrl(string domainName, string productName, string templateName) {
             AddOnProduct addon = FindTemplateVersion(domainName, productName, templateName);
             return addon.GetAddOnUrl();
         }
         /// <summary>
-        /// Returns the Url to the specific template's addon folder (including version)
+        /// Returns the Url to the specific template's addon folder
         /// </summary>
         public static string TryGetAddOnTemplateUrl(string domainName, string productName,  string templateName) {
             AddOnProduct addon = TryFindTemplateVersion(domainName, productName, templateName);
             if (addon == null) return string.Empty;
             return addon.GetAddOnUrl();
         }
-
         /// <summary>
-        /// Returns the Url to the specific module's addon folder (including version)
+        /// Returns the Url to the specific package's addon folder
         /// </summary>
-        public static string GetAddOnModuleUrl(string domainName, string productName, string module = "_Main") {
-            AddOnProduct addon = FindModuleVersion(domainName, productName, module);
+        public static string GetAddOnPackageUrl(string domainName, string productName) {
+            AddOnProduct addon = FindPackageVersion(domainName, productName);
             return addon.GetAddOnUrl();
         }
         /// <summary>
-        /// Returns the Url to the specific product's addon folder (including version)
+        /// Returns the Url to the specific package's addon folder
         /// </summary>
-        public static string TryGetAddOnModuleUrl(string domainName, string productName, string module = "_Main") {
-            AddOnProduct addon = TryFindModuleVersion(domainName, productName, module);
+        public static string TryGetAddOnPackageUrl(string domainName, string productName) {
+            AddOnProduct addon = TryFindPackageVersion(domainName, productName);
             if (addon == null) return string.Empty;
             return addon.GetAddOnUrl();
         }
-
         /// <summary>
-        /// Returns the Url to the specific skin's addon folder (including version)
+        /// Returns the Url to the specific skin's addon folder
         /// </summary>
         public static string GetAddOnSkinUrl(string skinCollection) {
             AddOnProduct addon = FindSkinVersion(skinCollection);
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific module's addon folder
+        /// </summary>
+        public static string GetAddOnNamedUrl(string domainName, string productName, string name) {
+            AddOnProduct addon = FindAddOnNamedVersion(domainName, productName, name);
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific product's addon folder
+        /// </summary>
+        public static string TryGetAddOnNamedUrl(string domainName, string productName, string name) {
+            AddOnProduct addon = TryFindAddOnNamedVersion(domainName, productName, name);
+            if (addon == null) return string.Empty;
             return addon.GetAddOnUrl();
         }
 
@@ -524,7 +536,7 @@ namespace YetaWF.Core.Addons {
                 string directoryName = Path.GetFileName(folder);
                 if (string.Compare(directoryName, "_Main", true) == 0) {
                     // main module addon (for all modules in this assembly
-                    RegisterModuleAddon(package, folder, "_Main");
+                    RegisterPackageAddon(package, folder);
                 } else if (string.Compare(directoryName, "_Templates", true) == 0) {
                     RegisterTemplates(package, folder);
                 } else if (string.Compare(directoryName, "_Addons", true) == 0) {
@@ -570,8 +582,7 @@ namespace YetaWF.Core.Addons {
             string[] addonFolders = Directory.GetDirectories(asmFolder);
             foreach (var folder in addonFolders) {
                 string directoryName = Path.GetFileName(folder);
-                RegisterModuleAddon(package, folder, directoryName);
-                RegisterRegularAddon(package, folder, directoryName);
+                RegisterNamedAddon(package, folder, directoryName);
             }
         }
 
@@ -614,12 +625,11 @@ namespace YetaWF.Core.Addons {
         private static void RegisterTemplateAddon(Package package, string folder, string templateName) {
             RegisterAnyAddon(AddOnType.Template, package, folder, templateName);
         }
-        ///TODO: This probably should be RegisterModuleAddon instead as the functionality is almost the same
-        private static void RegisterRegularAddon(Package package, string folder, string addonName) {
-            RegisterAnyAddon(AddOnType.AddonJS, package, folder, addonName);
+        private static void RegisterNamedAddon(Package package, string folder, string addonName) {
+            RegisterAnyAddon(AddOnType.AddonNamed, package, folder, addonName);
         }
-        private static void RegisterModuleAddon(Package package, string folder, string module) {
-            RegisterAnyAddon(AddOnType.Module, package, folder, module);
+        private static void RegisterPackageAddon(Package package, string folder) {
+            RegisterAnyAddon(AddOnType.Package, package, folder, "_Main");
         }
         private static void RegisterSkinAddon(Package package, string folder, string skin) {
             RegisterAnyAddon(AddOnType.Skin, package, folder, skin);
@@ -676,9 +686,9 @@ namespace YetaWF.Core.Addons {
                 if (version.Type == AddOnType.Template) {
                     string templateName = Path.GetFileName(folder);
                     typeName += ".Templates." + templateName;
-                } else if (version.Type == AddOnType.Module) {
+                } else if (version.Type == AddOnType.Package) {
                     typeName += ".Info";
-                } else if (version.Type == AddOnType.AddonJS) {
+                } else if (version.Type == AddOnType.AddonNamed) {
                     string name = Path.GetFileName(folder);
                     typeName += "." + name;
                 } else

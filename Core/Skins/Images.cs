@@ -46,7 +46,7 @@ namespace YetaWF.Core.Skins {
             if (package == null)
                 return FindIcon(imageUrl, null);
             else
-                return FindIcon(imageUrl, VersionManager.FindModuleVersion(package.Domain, package.Product));
+                return FindIcon(imageUrl, VersionManager.FindPackageVersion(package.Domain, package.Product));
         }
 
         // locate an icon image for a template

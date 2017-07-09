@@ -29,7 +29,7 @@ namespace YetaWF.Core.Skins {
         private static SyntaxHighlighterTheme _syntaxHighlighterThemeDefault;
 
         private List<SyntaxHighlighterTheme> LoadSyntaxHighlighterThemes() {
-            string url = VersionManager.GetAddOnModuleUrl("YetaWF", "SyntaxHighlighter", "SkinSyntaxHighlighter");
+            string url = VersionManager.GetAddOnNamedUrl("YetaWF", "SyntaxHighlighter", "SkinSyntaxHighlighter");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

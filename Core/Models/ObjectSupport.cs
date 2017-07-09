@@ -866,7 +866,7 @@ namespace YetaWF.Core.Models {
                     if (fi == null) throw new InternalError("Globals.{0} doesn't exist - column {1} in {2}", vars[1], name, file);
                     part = fi.GetValue(null).ToString();
                 } else if (vars[0] == "Package") {
-                    VersionManager.AddOnProduct addonVersion = VersionManager.FindModuleVersion(package.Domain, package.Product);
+                    VersionManager.AddOnProduct addonVersion = VersionManager.FindPackageVersion(package.Domain, package.Product);
                     foreach (var type in addonVersion.SupportTypes) {
                         object o = Activator.CreateInstance(type);
                         if (o == null)

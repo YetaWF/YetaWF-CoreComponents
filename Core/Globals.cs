@@ -42,7 +42,7 @@ namespace YetaWF.Core {
 
         public void InitializeApplicationStartup() {
             // Generate globals javascript equivalent
-            string outputUrl = VersionManager.FindAddOnVersion("YetaWF", "Core", "Basics").GetAddOnJsUrl() + "Globals.js";
+            string outputUrl = VersionManager.GetAddOnNamedUrl("YetaWF", "Core", "Basics") + "Globals.js";
             ConvertGlobalsToJavascript.Convert(YetaWFManager.UrlToPhysical(outputUrl), this, "YGlobals");
         }
 

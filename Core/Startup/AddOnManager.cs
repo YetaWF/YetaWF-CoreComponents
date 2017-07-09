@@ -45,27 +45,28 @@ namespace YetaWF.Core.Addons {
         private static List<Module> UniqueInvokedCssModules = new List<Module>();
 
         /// <summary>
-        /// Add an addon (normal)
+        /// Add a named addon (normal).
         /// </summary>
-        /// <param name="domainName"></param>
-        /// <param name="productName"></param>
-        /// <param name="args"></param>
-        /// <param name="name"></param>
-        public void AddAddOn(string domainName, string productName, string name, params object[] args) {
+        /// <param name="domainName">The package domain name.</param>
+        /// <param name="productName">The package product name.</param>
+        /// <param name="args">Any optional arguments supported by the addon.</param>
+        /// <param name="name">The name of the addon.</param>
+        /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
+        public void AddAddOnNamed(string domainName, string productName, string name, params object[] args) {
             if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnVersion(domainName, productName, name);
+            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(domainName, productName, name);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             Manager.ScriptManager.AddAddOn(version, args);
             Manager.CssManager.AddAddOn(version, args);
         }
-
         /// <summary>
-        /// Add an addon (global)
+        /// Add an addon (global).
         /// </summary>
-        /// <param name="domainName"></param>
-        /// <param name="productName"></param>
-        /// <param name="args"></param>
+        /// <param name="domainName">The domain name of the addon owner.</param>
+        /// <param name="productName">The product name of the addon.</param>
+        /// <param name="args">Any optional arguments supported by the addon.</param>
+        /// <remarks>Global addons are located in the Core package folder ./Addons/_JS/domainname/productname.</remarks>
         public void AddAddOnGlobal(string domainName, string productName, params object[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnGlobalVersion(domainName, productName);
@@ -80,7 +81,13 @@ namespace YetaWF.Core.Addons {
             Css = 1, // the location of the css/scss/less files
             Base = 2, // the location of filelistJS/CSS.txt
         }
-
+        /// <summary>
+        /// Returns the Url of a global addon.
+        /// </summary>
+        /// <param name="domainName">The domain name of the addon owner.</param>
+        /// <param name="productName">The product name of the addon.</param>
+        /// <param name="type">Defines the requested information for the addon.</param>
+        /// <returns></returns>
         public static string GetAddOnGlobalUrl(string domainName, string productName, UrlType type) {
             VersionManager.AddOnProduct version = VersionManager.FindAddOnGlobalVersion(domainName, productName);
             switch (type) {
@@ -151,9 +158,10 @@ namespace YetaWF.Core.Addons {
         }
 
         /// <summary>
-        /// Add a module - ignores non-existent modules
+        /// Add a module - ignores non-existent modules.
         /// </summary>
-        /// <param name="module"></param>
+        /// <param name="module">The module.</param>
+        /// <remarks>Adds the the associated Javascript/Css for the module's package and all required packages.</remarks>
         public void AddModule(ModuleDefinition module) {
             if (Manager.IsPostRequest) return;
             Package modPackage = Package.GetCurrentPackage(module);
@@ -165,7 +173,7 @@ namespace YetaWF.Core.Addons {
             // Add the package
             if (!packagesFound.Contains(modPackage)) {
                 packagesFound.Add(modPackage);
-                VersionManager.AddOnProduct version = VersionManager.TryFindModuleVersion(domain, product);
+                VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(domain, product);
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 Manager.ScriptManager.AddAddOn(version);

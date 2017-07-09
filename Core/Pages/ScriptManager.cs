@@ -256,7 +256,7 @@ namespace YetaWF.Core.Pages {
         /// Add a javascript file explicitly. This is rarely used because javascript files are automatically added for modules, templates, etc.
         /// </summary>
         public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
-            VersionManager.AddOnProduct addon = VersionManager.FindModuleVersion(domainName, productName);
+            VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(domainName, productName);
             Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
         }
 
