@@ -165,9 +165,12 @@ namespace YetaWF.Core.Addons {
         private static Dictionary<string, AddOnProduct> Products = new Dictionary<string, AddOnProduct>();
 
         public static List<AddOnProduct> GetAvailableSkinCollections() {
-            List<AddOnProduct> list = (from p in Products where p.Value.AddonKey.StartsWith(SkinPrefix) select p.Value).ToList();
-            return list;
+            if (_skinCollections == null)
+                _skinCollections = (from p in Products where p.Value.AddonKey.StartsWith(SkinPrefix) select p.Value).ToList();
+            return _skinCollections;
         }
+        static List<AddOnProduct> _skinCollections = null;
+
         /// <summary>
         /// Returns information about all known addons.
         /// </summary>

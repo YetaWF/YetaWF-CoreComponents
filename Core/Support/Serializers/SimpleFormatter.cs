@@ -99,7 +99,7 @@ namespace YetaWF.Core.Serializers {
             SerializeObjectProperties(serializationStream, graph);
         }
 
-        private Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
+        private static Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
 
         private void SerializeObjectProperties(Stream stream, object obj) {
 
