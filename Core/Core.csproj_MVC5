@@ -189,7 +189,6 @@
     <Compile Include="ViewsCode\Support\SiteIdHelper.cs" />
     <Compile Include="ViewsCode\Support\StringHelper.cs" />
     <Compile Include="ViewsCode\Support\StringTTHelper.cs" />
-    <Compile Include="ViewsCode\Support\SyntaxHighlighterSkinsHelper.cs" />
     <Compile Include="ViewsCode\Support\TextAreaHelper.cs" />
     <Compile Include="ViewsCode\Support\TextAreaSimpleHelper.cs" />
     <Compile Include="ViewsCode\Support\TextBoxHelper.cs" />
@@ -470,8 +469,6 @@
     <Content Include="Addons\_Templates\ModuleEdit_AllowedRoles\moduleedit.css" />
     <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\moduleedit.css" />
-    <Content Include="Addons\_Templates\SyntaxHighlighterSkin\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\SyntaxHighlighterSkin\SyntaxHighlighterSkin.css" />
     <Content Include="Addons\_Templates\PageSelection\filelistCSS.txt" />
     <Content Include="Addons\_Templates\PageSelection\filelistJS.txt" />
     <Content Include="Addons\_Templates\PageSelection\Icons\PagePreview.png" />
@@ -612,8 +609,6 @@
     <Content Include="Views\Shared\DisplayTemplates\KendoUISkin.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Boolean.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\ModuleActions.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\SyntaxHighlighterSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\SyntaxHighlighterSkin.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\IntValue6.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Boolean.cshtml" />
