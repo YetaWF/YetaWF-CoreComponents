@@ -939,18 +939,6 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="SyntaxHighlighterSkin" />
-                            <Caption Value="Default Syntax Highlighter Skin" />
-                            <Description Value="The default skin for syntax highlighting (in text areas) - individual pages can override the default skin" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
                             <Name Value="TabStyle" />
                             <Caption Value="Tab Style" />
                             <Description Value="Defines which UI provides the tab control implementation" />

@@ -33,7 +33,6 @@ namespace YetaWF.Core.Pages {
         public const int MaxCopyright = 100;
         public const int MaxjQueryUISkin = 100;
         public const int MaxKendoUISkin = 100;
-        public const int MaxSyntaxHighlighterSkin = 100;
         public const int MaxCssClass = 40;
 
         public enum PageSecurityType {
@@ -154,7 +153,6 @@ namespace YetaWF.Core.Pages {
             };
             jQueryUISkin = null;
             KendoUISkin = null;
-            SyntaxHighlighterSkin = null;
             Title = new MultiString();
             Description = new MultiString();
             Keywords = new MultiString();
@@ -255,8 +253,6 @@ namespace YetaWF.Core.Pages {
         public string jQueryUISkin { get; set; }
         [StringLength(MaxKendoUISkin)]
         public string KendoUISkin { get; set; }
-        [StringLength(MaxSyntaxHighlighterSkin)]
-        public string SyntaxHighlighterSkin { get; set; } // not used
 
         [StringLength(Globals.MaxUrl)]
         public string Url { get; set; }

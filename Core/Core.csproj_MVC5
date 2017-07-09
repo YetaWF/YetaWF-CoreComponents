@@ -218,7 +218,6 @@
     <Compile Include="Templates\MultiStringInfo.cs" />
     <Compile Include="Templates\PropertyList.cs" />
     <Compile Include="Templates\PropertyListTabbed.cs" />
-    <Compile Include="Templates\TextArea.cs" />
     <Compile Include="Templates\UrlRemote.cs" />
     <Compile Include="Startup\VersionManager.cs" />
     <Compile Include="Controllers\CorsJsonResult.cs" />
@@ -309,7 +308,6 @@
     <Compile Include="Support\Security\RSACrypto.cs" />
     <Compile Include="Support\SendEmail\SendEmail.cs" />
     <Compile Include="Support\SendEmail\SMTPEMail.cs" />
-    <Compile Include="Skins\SyntaxHighlighterSkins.cs" />
     <Compile Include="Skins\KendoUISkins.cs" />
     <Compile Include="Skins\jqueryUISkins.cs" />
     <Compile Include="Skins\ParseSkin.cs" />

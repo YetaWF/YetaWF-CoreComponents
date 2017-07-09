@@ -24,10 +24,10 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="Module" />
-                            <Value Value="Module" />
-                            <Caption Value="Module" />
-                            <Description Value="Module Addon" />
+                            <Name Value="Package" />
+                            <Value Value="Package" />
+                            <Caption Value="Package" />
+                            <Description Value="Package Support Addon" />
                           </Properties>
                         </Object>
                       </Value>
@@ -54,10 +54,10 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="AddonJS" />
-                            <Value Value="AddonJS" />
+                            <Name Value="AddonNamed" />
+                            <Value Value="AddonNamed" />
                             <Caption Value="Javascript" />
-                            <Description Value="Javascript Addon" />
+                            <Description Value="Named Addon" />
                           </Properties>
                         </Object>
                       </Value>

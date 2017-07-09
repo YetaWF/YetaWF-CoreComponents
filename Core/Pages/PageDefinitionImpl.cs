@@ -324,7 +324,6 @@ namespace YetaWF.Core.Pages {
                     page.RobotNoSnippet = modelPage.RobotNoSnippet;
                     page.SelectedPopupSkin = modelPage.SelectedPopupSkin;
                     page.SelectedSkin = modelPage.SelectedSkin;
-                    page.SyntaxHighlighterSkin = modelPage.SyntaxHighlighterSkin;
                     page.Title = string.IsNullOrWhiteSpace(title) ? modelPage.Title : title;
                     page.WantSearch = modelPage.WantSearch;
                     page.TemplateGuid = modelPage.TemplateGuid;

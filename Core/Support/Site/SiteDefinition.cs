@@ -116,7 +116,6 @@ namespace YetaWF.Core.Site {
             };
             jQueryUISkin = null;
             KendoUISkin = null;
-            SyntaxHighlighterSkin = null;
             TabStyle = TabStyleEnum.JQuery;
 
             OriginalUseCDN = UseCDN = false;
@@ -605,10 +604,6 @@ namespace YetaWF.Core.Site {
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
         [UIHint("KendoUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         public string KendoUISkin { get; set; }
-
-        [Category("Skin"), Caption("Default Syntax Highlighter Skin"), Description("The default skin for syntax highlighting (in text areas) - individual pages can override the default skin")]
-        [UIHint("YetaWF_SyntaxHighlighter_SyntaxHighlighter"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
-        public string SyntaxHighlighterSkin { get; set; }
 
         [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]
         [UIHint("Enum"), Required]
