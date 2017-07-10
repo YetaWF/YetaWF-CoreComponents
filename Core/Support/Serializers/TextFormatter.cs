@@ -417,7 +417,7 @@ skip: ;
                     try {
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
-                        throw new InternalError("Element for property {0} has an invalid value - {2}.", propName, exc.Message);
+                        throw new InternalError("Element for property {0} has an invalid value - {1}.", propName, exc.Message);
                     }
                 }
 

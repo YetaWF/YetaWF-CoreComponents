@@ -328,11 +328,11 @@ namespace YetaWF.Core.Serializers {
             PropertyInfo pi = null;
             if (set) {
                 pi = ObjectSupport.TryGetProperty(tpObj, propName);
-                if (pi == null) {
+                //if (pi == null) {
                     //Logging.AddLog("Element found for non-existent property {0}.", propName);
                     //throw new InternalError("Element found for non-existent property {0}.", propName);
                     // This is OK as it can happen when data models change
-                }
+                //}
             }
 
             if (input == "V") {
@@ -342,30 +342,31 @@ namespace YetaWF.Core.Serializers {
                 if (set && pi != null) {
                     bool fail = false;
                     string failMsg = null;
+                    Type pType = pi.PropertyType;
                     try {
-                        if (pi.PropertyType == typeof(Byte[])) {
+                        if (pType == typeof(Byte[])) {
                             if (strVal == null)
                                 objVal = new byte[] { };
                             else
                                 objVal = Convert.FromBase64String(strVal);
                         } else if (strVal == null) {
                             objVal = null;
-                        } else if (pi.PropertyType.IsEnum) {
+                        } else if (pType.IsEnum) {
                             objVal = Convert.ChangeType(strVal, typeof(long), CultureInfo.InvariantCulture);
-                            objVal = Enum.ToObject(pi.PropertyType, objVal);
-                        } else if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
+                            objVal = Enum.ToObject(pType, objVal);
+                        } else if (pType == typeof(DateTime) || pType == typeof(DateTime?)) {
                             long ticks = (long)Convert.ChangeType(strVal, typeof(long), CultureInfo.InvariantCulture);
                             objVal = new DateTime(ticks);
-                        } else if (pi.PropertyType == typeof(Guid) || pi.PropertyType == typeof(Guid?)) {
+                        } else if (pType == typeof(Guid) || pType == typeof(Guid?)) {
                             objVal = new Guid(strVal);
-                        } else if (pi.PropertyType == typeof(TimeSpan) || pi.PropertyType == typeof(TimeSpan?)) {
+                        } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
                             objVal = new TimeSpan(Convert.ToInt64(strVal));
-                        } else if (pi.PropertyType == typeof(System.Drawing.Image) || pi.PropertyType == typeof(Bitmap)) {
+                        } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
                             using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(strVal))) {
                                 objVal = System.Drawing.Image.FromStream(ms);
                             }
                         } else {
-                            objVal = Convert.ChangeType(strVal, pi.PropertyType, CultureInfo.InvariantCulture);
+                            objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
                         }
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
@@ -374,12 +375,8 @@ namespace YetaWF.Core.Serializers {
                     }
                     if (fail) {
                         // try using a constructor (types like Guid can't simply be assigned)
-                        ConstructorInfo ci = pi.PropertyType.GetConstructor(new Type[] { typeof(string) });
+                        ConstructorInfo ci = pType.GetConstructor(new Type[] { typeof(string) });
                         if (ci == null) {
-#if DEBUG
-                            if (propName == "..something...") // use this for specific debugging
-                                goto skip;
-#endif
                             throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}.", propName, failMsg);
                         }
                         try {
@@ -392,9 +389,6 @@ namespace YetaWF.Core.Serializers {
                 } else {
                     objVal = strVal;
                 }
-#if DEBUG
-skip: ;
-#endif
             } else {
                 Unread(input); // pushback
 
@@ -403,7 +397,7 @@ skip: ;
                     try {
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
-                        throw new InternalError("Element for property {0} has an invalid value - {2}.", propName, exc.Message);
+                        throw new InternalError("Element for property {0} has an invalid value - {1}.", propName, exc.Message);
                     }
                 }
             }

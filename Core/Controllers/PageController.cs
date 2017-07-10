@@ -255,7 +255,6 @@ namespace YetaWF.Core.Controllers {
                         Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
                         Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
-
                         return new EmptyResult();
                     }
                     break;
@@ -264,8 +263,32 @@ namespace YetaWF.Core.Controllers {
                     break;
             }
 
+            // set up all info, like who is logged on, popup, origin list, etc.
+            YetaWFController.SetupEnvironmentInfo();
+
+            Logging.AddLog("Page");
+
+            // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
+            Action<QueryHelper> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
+            if (action != null) {
+                if (Manager.IsHeadRequest)
+                    return new EmptyResult();
+                Manager.CurrentPage = PageDefinition.Create();
+                QueryHelper qh = QueryHelper.FromQueryString(uri.Query);
+                action(qh);
+                return new EmptyResult();
+            }
+
+            // Process the page
+            string pageData = null;
+            if (CanProcessAsStaticPage(uri.LocalPath, out pageData)) {
+                return Content(pageData, "text/html");
+            }
+
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)
             // rewrite it to make it a proper querystring
+            PageDefinition pageFound = null;
+            ModuleDefinition moduleFound = null;
             {
                 string url = uri.LocalPath;
                 string newUrl, newQs;
@@ -282,6 +305,10 @@ namespace YetaWF.Core.Controllers {
                         return new EmptyResult();
 #endif
                     }
+                    ModuleDefinition module = ModuleDefinition.FindDesignedModule(url);
+                    if (module == null)
+                        module = ModuleDefinition.LoadByUrl(url);
+                    moduleFound = module;
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
@@ -295,6 +322,7 @@ namespace YetaWF.Core.Controllers {
                         return new EmptyResult();
 #endif
                     }
+                    pageFound = PageDefinition.LoadFromUrl(url);
                 } else {
                     PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, uri.Query, out newUrl, out newQs);
                     if (page != null) {
@@ -310,6 +338,7 @@ namespace YetaWF.Core.Controllers {
                             return new EmptyResult();
 #endif
                         }
+                        pageFound = page;
                     } else {
                         // we have a direct url, make sure it's exactly 3 segments otherwise rewrite the remaining args as non-human readable qs args
                         // don't rewrite css/scss/less file path - we handle that in a http handler
@@ -329,9 +358,6 @@ namespace YetaWF.Core.Controllers {
                 }
             }
 
-            // set up all info, like who is logged on, popup, origin list, etc.
-            YetaWFController.SetupEnvironmentInfo();
-
             // redirect current request to two-step authentication setup
             if (Manager.Need2FA) {
                 if (Manager.Need2FARedirect) {
@@ -344,50 +370,37 @@ namespace YetaWF.Core.Controllers {
                 }
                 Resource.ResourceAccess.ShowNeed2FA();
             }
-
-            Logging.AddLog("Page");
-            // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
-            Action<QueryHelper> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
-            if (action != null) {
-                if (Manager.IsHeadRequest)
-                    return new EmptyResult();
-                Manager.CurrentPage = PageDefinition.Create();
-                QueryHelper qh = QueryHelper.FromQueryString(uri.Query);
-                action(qh);
-                return new EmptyResult();
-            }
-            // Process the page
-            string pageData = null;
-            if (CanProcessAsStaticPage(uri.LocalPath, out pageData)) {
-                return Content(pageData, "text/html");
-            }
-            switch (CanProcessAsDesignedPage(uri.LocalPath, uri.Query)) {
-                case ProcessingStatus.Complete:
-                    return new EmptyResult();
-                case ProcessingStatus.Page:
-                    if (Manager.IsHeadRequest)
+            if (pageFound != null) {
+                switch (CanProcessAsDesignedPage(pageFound, uri.LocalPath, uri.Query)) {
+                    case ProcessingStatus.Complete:
                         return new EmptyResult();
+                    case ProcessingStatus.Page:
+                        if (Manager.IsHeadRequest)
+                            return new EmptyResult();
 #if MVC6
-                    return new PageViewResult(_viewRenderService, ViewData, TempData);
+                        return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
-                    return new PageViewResult(ViewData, TempData);
+                        return new PageViewResult(ViewData, TempData);
 #endif
-                case ProcessingStatus.No:
-                    break;
+                    case ProcessingStatus.No:
+                        break;
+                }
             }
-            switch (CanProcessAsModule(uri.LocalPath, uri.Query)) {
-                case ProcessingStatus.Complete:
-                    return new EmptyResult();
-                case ProcessingStatus.Page:
-                    if (Manager.IsHeadRequest)
+            if (moduleFound != null) {
+                switch (CanProcessAsModule(moduleFound, uri.LocalPath, uri.Query)) {
+                    case ProcessingStatus.Complete:
                         return new EmptyResult();
+                    case ProcessingStatus.Page:
+                        if (Manager.IsHeadRequest)
+                            return new EmptyResult();
 #if MVC6
-                    return new PageViewResult(_viewRenderService, ViewData, TempData);
+                        return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
-                    return new PageViewResult(ViewData, TempData);
+                        return new PageViewResult(ViewData, TempData);
 #endif
-                case ProcessingStatus.No:
-                    break;
+                    case ProcessingStatus.No:
+                        break;
+                }
             }
 
             // if we got here, we shouldn't be here
@@ -442,190 +455,181 @@ namespace YetaWF.Core.Controllers {
             }
             return false;
         }
-        private ProcessingStatus CanProcessAsDesignedPage(string url, string queryString) {
+        private ProcessingStatus CanProcessAsDesignedPage(PageDefinition page, string url, string queryString) {
             // request for a designed page
-            PageDefinition page = PageDefinition.LoadFromUrl(url);
-            if (page != null) {
-                if (!Manager.EditMode) { // only redirect if we're not editing
-                    if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
-                        if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                            PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
-                            if (redirectPage != null) {
-                                if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
-                                    string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
+            if (!Manager.EditMode) { // only redirect if we're not editing
+                if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
+                    if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
+                        PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                        if (redirectPage != null) {
+                            if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
+                                string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
 #if MVC6
-                                    Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                    Manager.CurrentResponse.StatusCode = 302;
-                                    Manager.CurrentResponse.Headers.Add("Location", redirUrl);
+                                Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
+                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.Headers.Add("Location", redirUrl);
 #else
-                                    Manager.CurrentResponse.Status = Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                    Manager.CurrentResponse.AddHeader("Location", redirUrl);
-                                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
+                                Manager.CurrentResponse.AddHeader("Location", redirUrl);
+                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
-                                    return ProcessingStatus.Complete;
-                                } else
-                                    throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
-                            }
-                        } else {
-#if MVC6
-                            Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                            Manager.CurrentResponse.StatusCode = 302;
-                            Manager.CurrentResponse.Headers.Add("Location", page.RedirectToPageUrl);
-#else
-                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                            Manager.CurrentResponse.AddHeader("Location", page.RedirectToPageUrl);
-                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-                            return ProcessingStatus.Complete;
+                                return ProcessingStatus.Complete;
+                            } else
+                                throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
                         }
-                    }
-                }
-                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(url, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
-                    // if the requested page is for desktop but we're on a mobile device, find the correct page to display
-                    if (!Manager.EditMode) { // only redirect if we're not editing
-                        if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                            PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
-                            if (mobilePage != null) {
-                                if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
-                                    string redirUrl = page.MobilePageUrl;
-                                    if (redirUrl.StartsWith("/"))
-                                        redirUrl = Manager.CurrentSite.MakeUrl(redirUrl + queryString);
-#if MVC6
-                                    Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
-                                    Manager.CurrentResponse.StatusCode = 302;
-                                    Manager.CurrentResponse.Headers.Add("Location", redirUrl);
-#else
-                                    Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
-                                    Manager.CurrentResponse.AddHeader("Location", redirUrl);
-                                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-                                    return ProcessingStatus.Complete;
-                                }
-#if DEBUG
-                                else
-                                    throw new InternalError("Page {0} redirects to mobile page {1}, which redirects to mobile page {2}", page.Url, page.MobilePageUrl, mobilePage.MobilePageUrl);
-#endif
-                            }
-                        }
-                    }
-                    Manager.CurrentPage = page;// Found It!!
-                    if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
-                        // we're going into a popup for this
-                        Manager.IsInPopup = true;
-                    }
-                    bool usePageSettings = false;
-                    switch (Manager.CurrentSite.PageSecurity) {
-                        case PageSecurityType.AsProvided:
-                            usePageSettings = true;
-                            break;
-                        case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
-                            if (!Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
-                                usePageSettings = true;
-                            break;
-                        case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
-                            if (Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
-                                usePageSettings = true;
-                            break;
-                        case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
-                        case PageSecurityType.NoSSLOnly:
-                        case PageSecurityType.SSLOnly:
-                            break;
-                        case PageSecurityType.UsePageModuleSettings:
-                            usePageSettings = true;
-                            break;
-                    }
-                    if (usePageSettings) {
-                        switch (page.PageSecurity) {
-                            case PageDefinition.PageSecurityType.Any:
-                                break;
-                            case PageDefinition.PageSecurityType.httpsOnly:
-#if MVC6
-                                if (Manager.CurrentRequest.Scheme != "https") {
-#else
-                                if (Manager.CurrentRequest.Url.Scheme != "https") {
-#endif
-                                    UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
-                                    newUri.Scheme = "https";
-                                    newUri.Port = Manager.CurrentSite.PortNumberSSL == -1 ? 443 : Manager.CurrentSite.PortNumberSSL;
-#if MVC6
-                                    Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                    Manager.CurrentResponse.StatusCode = 302;
-                                    Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                                    Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                    Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-                                    return ProcessingStatus.Complete;
-                                }
-                                break;
-                            case PageDefinition.PageSecurityType.httpOnly:
-#if MVC6
-                                if (Manager.CurrentRequest.Scheme != "http") {
-#else
-                                if (Manager.CurrentRequest.Url.Scheme != "http") {
-#endif
-                                    UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
-                                    newUri.Scheme = "http";
-                                    newUri.Port = Manager.CurrentSite.PortNumber == -1 ? 80 : Manager.CurrentSite.PortNumber;
-#if MVC6
-                                    Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                    Manager.CurrentResponse.StatusCode = 302;
-                                    Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                                    Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                    Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-                                    return ProcessingStatus.Complete;
-                                }
-                                break;
-                        }
-                    }
-                    Logging.AddTraceLog("Page {0}", page.PageGuid);
-                    return ProcessingStatus.Page;
-                } else {
-                    // Send to login page with redirect (IF NOT LOGGED IN)
-                    if (!Manager.HaveUser) {
-                        Manager.OriginList.Clear();
-                        Manager.OriginList.Add(new Origin() { Url = url + queryString });
-                        Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
-                        string retUrl = Manager.ReturnToUrl;
-                        Logging.AddLog("Redirect - {0}", retUrl);
-                        Manager.CurrentResponse.Redirect(retUrl);
-                        return ProcessingStatus.Complete;
                     } else {
 #if MVC6
-                        Logging.AddErrorLog("403 Not Authorized");
-                        Manager.CurrentResponse.StatusCode = 403;
+                        Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
+                        Manager.CurrentResponse.StatusCode = 302;
+                        Manager.CurrentResponse.Headers.Add("Location", page.RedirectToPageUrl);
 #else
-                        Manager.CurrentResponse.Status = Logging.AddErrorLog("403 Not Authorized");
+                        Manager.CurrentResponse.Status = Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
+                        Manager.CurrentResponse.AddHeader("Location", page.RedirectToPageUrl);
                         Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
                         return ProcessingStatus.Complete;
                     }
                 }
             }
-            return ProcessingStatus.No;
-        }
-        private ProcessingStatus CanProcessAsModule(string url, string queryString) {
-            // direct request for a module without page
-            ModuleDefinition module = ModuleDefinition.FindDesignedModule(url);
-            if (module == null)
-                module = ModuleDefinition.LoadByUrl(url);
-            if (module != null) {
-                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
-                    PageDefinition page = PageDefinition.Create();
-                    page.AddModule(Globals.MainPane, module);
-                    Manager.CurrentPage = page;
-                    if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
-                        // we're going into a popup for this
-                        Manager.IsInPopup = true;
-                        page.SelectedPopupSkin = module.SelectedPopupSkin;
+            if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(url, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
+                // if the requested page is for desktop but we're on a mobile device, find the correct page to display
+                if (!Manager.EditMode) { // only redirect if we're not editing
+                    if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
+                        PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                        if (mobilePage != null) {
+                            if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
+                                string redirUrl = page.MobilePageUrl;
+                                if (redirUrl.StartsWith("/"))
+                                    redirUrl = Manager.CurrentSite.MakeUrl(redirUrl + queryString);
+#if MVC6
+                                Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
+                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.Headers.Add("Location", redirUrl);
+#else
+                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
+                                Manager.CurrentResponse.AddHeader("Location", redirUrl);
+                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+#endif
+                                return ProcessingStatus.Complete;
+                            }
+#if DEBUG
+                            else
+                                throw new InternalError("Page {0} redirects to mobile page {1}, which redirects to mobile page {2}", page.Url, page.MobilePageUrl, mobilePage.MobilePageUrl);
+#endif
+                        }
                     }
-                    Logging.AddTraceLog("Module {0}", module.ModuleGuid);
-                    return ProcessingStatus.Page;
                 }
+                Manager.CurrentPage = page;// Found It!!
+                if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
+                    // we're going into a popup for this
+                    Manager.IsInPopup = true;
+                }
+                bool usePageSettings = false;
+                switch (Manager.CurrentSite.PageSecurity) {
+                    case PageSecurityType.AsProvided:
+                        usePageSettings = true;
+                        break;
+                    case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
+                        if (!Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
+                            usePageSettings = true;
+                        break;
+                    case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
+                        if (Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
+                            usePageSettings = true;
+                        break;
+                    case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
+                    case PageSecurityType.NoSSLOnly:
+                    case PageSecurityType.SSLOnly:
+                        break;
+                    case PageSecurityType.UsePageModuleSettings:
+                        usePageSettings = true;
+                        break;
+                }
+                if (usePageSettings) {
+                    switch (page.PageSecurity) {
+                        case PageDefinition.PageSecurityType.Any:
+                            break;
+                        case PageDefinition.PageSecurityType.httpsOnly:
+#if MVC6
+                            if (Manager.CurrentRequest.Scheme != "https") {
+#else
+                            if (Manager.CurrentRequest.Url.Scheme != "https") {
+#endif
+                                UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
+                                newUri.Scheme = "https";
+                                newUri.Port = Manager.CurrentSite.PortNumberSSL == -1 ? 443 : Manager.CurrentSite.PortNumberSSL;
+#if MVC6
+                                Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
+#else
+                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                                Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
+                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+#endif
+                                return ProcessingStatus.Complete;
+                            }
+                            break;
+                        case PageDefinition.PageSecurityType.httpOnly:
+#if MVC6
+                            if (Manager.CurrentRequest.Scheme != "http") {
+#else
+                            if (Manager.CurrentRequest.Url.Scheme != "http") {
+#endif
+                                UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
+                                newUri.Scheme = "http";
+                                newUri.Port = Manager.CurrentSite.PortNumber == -1 ? 80 : Manager.CurrentSite.PortNumber;
+#if MVC6
+                                Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
+#else
+                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                                Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
+                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+#endif
+                                return ProcessingStatus.Complete;
+                            }
+                            break;
+                    }
+                }
+                Logging.AddTraceLog("Page {0}", page.PageGuid);
+                return ProcessingStatus.Page;
+            } else {
+                // Send to login page with redirect (IF NOT LOGGED IN)
+                if (!Manager.HaveUser) {
+                    Manager.OriginList.Clear();
+                    Manager.OriginList.Add(new Origin() { Url = url + queryString });
+                    Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
+                    string retUrl = Manager.ReturnToUrl;
+                    Logging.AddLog("Redirect - {0}", retUrl);
+                    Manager.CurrentResponse.Redirect(retUrl);
+                    return ProcessingStatus.Complete;
+                } else {
+#if MVC6
+                    Logging.AddErrorLog("403 Not Authorized");
+                    Manager.CurrentResponse.StatusCode = 403;
+#else
+                    Manager.CurrentResponse.Status = Logging.AddErrorLog("403 Not Authorized");
+                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+#endif
+                    return ProcessingStatus.Complete;
+                }
+            }
+        }
+        private ProcessingStatus CanProcessAsModule(ModuleDefinition module, string url, string queryString) {
+            // direct request for a module without page
+            if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
+                PageDefinition page = PageDefinition.Create();
+                page.AddModule(Globals.MainPane, module);
+                Manager.CurrentPage = page;
+                if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
+                    // we're going into a popup for this
+                    Manager.IsInPopup = true;
+                    page.SelectedPopupSkin = module.SelectedPopupSkin;
+                }
+                Logging.AddTraceLog("Module {0}", module.ModuleGuid);
+                return ProcessingStatus.Page;
             }
             return ProcessingStatus.No;
         }

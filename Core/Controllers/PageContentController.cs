@@ -207,8 +207,19 @@ namespace YetaWF.Core.Controllers {
             // set the unique id prefix so all generated ids start where the main page left off
             Manager.UniqueIdPrefixCounter = dataIn.UniqueIdPrefixCounter;
 
+            // Check if this is a static page
+            // It seems if we can handle a page as a content replacement, that's better than a static page, which reruns all javascript
+            // If it turns out it's not a content page, we'll redirect to the static page
+            //if (CanProcessAsStaticPage(dataIn.Path)) { // if this is a static page, render as complete static page
+            //    PageContentResult cr = new PageContentResult();
+            //    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+            //    return cr;
+            //}
+
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)
             // rewrite it to make it a proper querystring
+            PageDefinition pageFound = null;
+            ModuleDefinition moduleFound = null;
             {
                 string url = dataIn.Path;
                 string[] segments = url.Split(new char[] { '/' });
@@ -221,6 +232,10 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
+                        ModuleDefinition module = ModuleDefinition.FindDesignedModule(dataIn.Path);
+                        if (module == null)
+                            module = ModuleDefinition.LoadByUrl(dataIn.Path);
+                        moduleFound = module;
                     } else {
                         PageContentResult cr = new PageContentResult();
                         cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
@@ -234,6 +249,7 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
+                        pageFound = PageDefinition.LoadFromUrl(url);
                     } else {
                         PageContentResult cr = new PageContentResult();
                         cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
@@ -248,6 +264,7 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
+                        pageFound = page;
                     } else {
                         // direct urls don't participate in unified page sets
                         PageContentResult cr = new PageContentResult();
@@ -259,6 +276,8 @@ namespace YetaWF.Core.Controllers {
 
             // set up all info, like who is logged on, popup, origin list, etc.
             YetaWFController.SetupEnvironmentInfo();
+
+            Logging.AddLog("Page Content");
 
             // redirect current request to two-step authentication setup
             if (Manager.Need2FA) {
@@ -280,21 +299,10 @@ namespace YetaWF.Core.Controllers {
                 //Resource.ResourceAccess.ShowNeed2FA();
             }
 
-            Logging.AddLog("Page Content");
-
-            // Check if this is a static page
-            // It seems if we can handle a page as a content replacement, that's better than a static page, which reruns all javascript
-            // If it turns out it's not a content page, we'll redirect to the static page
-            //if (CanProcessAsStaticPage(dataIn.Path)) { // if this is a static page, render as complete static page
-            //    PageContentResult cr = new PageContentResult();
-            //    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-            //    return cr;
-            //}
-
             // Process the page
-            {
+            if (pageFound != null) {
                 PageContentResult cr = new PageContentResult();
-                switch (CanProcessAsDesignedPage(dataIn, cr)) {
+                switch (CanProcessAsDesignedPage(pageFound, dataIn, cr)) {
                     case ProcessingStatus.Complete:
                         return cr;
                     case ProcessingStatus.Page:
@@ -308,17 +316,18 @@ namespace YetaWF.Core.Controllers {
                         break;
                 }
             }
-            {
+            if (moduleFound != null) {
                 PageContentResult cr = new PageContentResult();
-                switch (CanProcessAsModule(dataIn, cr)) {
+                switch (CanProcessAsModule(moduleFound, dataIn, cr)) {
                     case ProcessingStatus.Complete:
                         return cr;
                     case ProcessingStatus.Page:
 #if MVC6
-                    return new PageContentViewResult(_viewRenderService, ViewData, TempData, dataIn);
+                        return new PageContentViewResult(_viewRenderService, ViewData, TempData, dataIn);
 #else
                         return new PageContentViewResult(ViewData, TempData, dataIn);
 #endif
+                    default:
                     case ProcessingStatus.No:
                         break;
                 }
@@ -343,150 +352,140 @@ namespace YetaWF.Core.Controllers {
         //    }
         //    return false;
         //}
-        private ProcessingStatus CanProcessAsDesignedPage(DataIn dataIn, PageContentResult cr) {
-
+        private ProcessingStatus CanProcessAsDesignedPage(PageDefinition page, DataIn dataIn, PageContentResult cr) {
             // request for a designed page
-            PageDefinition page = PageDefinition.LoadFromUrl(dataIn.Path);
-            if (page != null) {
-                if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                    if (page.UnifiedSetGuid != null) {
-                        // this page is part of another unified page set
+            if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                if (page.UnifiedSetGuid != null) {
+                    // this page is part of another unified page set
+                    string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                    cr.Result.Redirect = redirUrl;
+                    return ProcessingStatus.Complete;
+                }
+                // make sure it's the same skin
+                if (YetaWFController.GoingToPopup()) {
+                    // popups only care about the skin collection, not the file
+                    if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
+                        // this page is part of another skin
                         string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                         cr.Result.Redirect = redirUrl;
                         return ProcessingStatus.Complete;
                     }
-                    // make sure it's the same skin
-                    if (YetaWFController.GoingToPopup()) {
-                        // popups only care about the skin collection, not the file
-                        if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
-                            // this page is part of another skin
-                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                            cr.Result.Redirect = redirUrl;
-                            return ProcessingStatus.Complete;
-                        }
-                    } else {
-                        if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                            page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                        if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                            // this page is part of another skin
-                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                            cr.Result.Redirect = redirUrl;
-                            return ProcessingStatus.Complete;
-                        }
-                    }
                 } else {
-                    if (page.UnifiedSetGuid != new Guid(dataIn.UnifiedSetGuid)) {
-                        // this page isn't part of this unified set (not listed)
+                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
+                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
+                    if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
+                        // this page is part of another skin
                         string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                         cr.Result.Redirect = redirUrl;
                         return ProcessingStatus.Complete;
                     }
                 }
-                if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
-                    if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                        PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
-                        if (redirectPage != null) {
-                            if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
-                                string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
-                                Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                cr.Result.RedirectContent = redirUrl;
-                                return ProcessingStatus.Complete;
-                            } else
-                                throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
-                        }
-                    } else {
-                        // redirect elsewhere
-                        Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                        if (page.RedirectToPageUrl.StartsWith("/"))
-                            cr.Result.RedirectContent = page.RedirectToPageUrl;
-                        else
-                            cr.Result.Redirect = page.RedirectToPageUrl;
-                        return ProcessingStatus.Complete;
-                    }
-                }
-                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
-                    // if the requested page is for desktop but we're on a mobile device, find the correct page to display
-                    if (dataIn.IsMobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                        PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
-                        if (mobilePage != null) {
-                            if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
-                                string redirUrl = page.MobilePageUrl;
-                                Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
-                                redirUrl = QueryHelper.ToUrl(redirUrl, dataIn.QueryString);
-                                cr.Result.RedirectContent = redirUrl;
-                                return ProcessingStatus.Complete;
-                            }
-#if DEBUG
-                            else
-                                throw new InternalError("Page {0} redirects to mobile page {1}, which redirects to mobile page {2}", page.Url, page.MobilePageUrl, mobilePage.MobilePageUrl);
-#endif
-                        }
-                    }
-                    Manager.CurrentPage = page;// Found It!!
-                    if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
-                        // this is a popup request
-                        Manager.IsInPopup = true;
-                    }
-                    Logging.AddTraceLog("Page {0}", page.PageGuid);
-                    return ProcessingStatus.Page;
-                } else {
-                    // Send to login page with redirect (IF NOT LOGGED IN)
-                    if (!Manager.HaveUser) {
-                        Manager.OriginList.Clear();
-                        Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString) });
-                        Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
-                        string retUrl = Manager.ReturnToUrl;
-                        Logging.AddLog("Redirect - {0}", retUrl);
-                        if (retUrl.StartsWith("/"))
-                            cr.Result.RedirectContent = retUrl;
-                        else
-                            cr.Result.Redirect = retUrl;
-                        return ProcessingStatus.Complete;
-                    } else {
-                        cr.Result.Status = Logging.AddErrorLog("403 Not Authorized");
-                        return ProcessingStatus.Complete;
-                    }
+            } else {
+                if (page.UnifiedSetGuid != new Guid(dataIn.UnifiedSetGuid)) {
+                    // this page isn't part of this unified set (not listed)
+                    string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                    cr.Result.Redirect = redirUrl;
+                    return ProcessingStatus.Complete;
                 }
             }
-            return ProcessingStatus.No;
-        }
-        private ProcessingStatus CanProcessAsModule(DataIn dataIn, PageContentResult cr) {
-            // direct request for a module without page
-            ModuleDefinition module = ModuleDefinition.FindDesignedModule(dataIn.Path);
-            if (module == null)
-                module = ModuleDefinition.LoadByUrl(dataIn.Path);
-            if (module != null) {
-                if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
-                    PageDefinition page = PageDefinition.Create();
-                    page.AddModule(Globals.MainPane, module);
-                    Manager.CurrentPage = page;
-                    if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
-                        // we're going into a popup for this
-                        Manager.IsInPopup = true;
-                        page.SelectedPopupSkin = module.SelectedPopupSkin;
-                    }
-                    // make sure it's the same skin
-                    if (YetaWFController.GoingToPopup()) {
-                        // popups only care about the skin collection, not the file
-                        if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
-                            // this page is part of another skin
-                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                            cr.Result.Redirect = redirUrl;
+            if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
+                if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
+                    PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                    if (redirectPage != null) {
+                        if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
+                            string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
+                            Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
+                            cr.Result.RedirectContent = redirUrl;
                             return ProcessingStatus.Complete;
-                        }
-                    } else {
-                        if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                            page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                        if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                            // this page is part of another skin
-                            string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                            cr.Result.Redirect = redirUrl;
-                            return ProcessingStatus.Complete;
-                        }
+                        } else
+                            throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
                     }
-                    Logging.AddTraceLog("Module {0}", module.ModuleGuid);
-                    return ProcessingStatus.Page;
+                } else {
+                    // redirect elsewhere
+                    Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
+                    if (page.RedirectToPageUrl.StartsWith("/"))
+                        cr.Result.RedirectContent = page.RedirectToPageUrl;
+                    else
+                        cr.Result.Redirect = page.RedirectToPageUrl;
+                    return ProcessingStatus.Complete;
                 }
+            }
+            if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
+                // if the requested page is for desktop but we're on a mobile device, find the correct page to display
+                if (dataIn.IsMobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
+                    PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                    if (mobilePage != null) {
+                        if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
+                            string redirUrl = page.MobilePageUrl;
+                            Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
+                            redirUrl = QueryHelper.ToUrl(redirUrl, dataIn.QueryString);
+                            cr.Result.RedirectContent = redirUrl;
+                            return ProcessingStatus.Complete;
+                        }
+#if DEBUG
+                        else
+                            throw new InternalError("Page {0} redirects to mobile page {1}, which redirects to mobile page {2}", page.Url, page.MobilePageUrl, mobilePage.MobilePageUrl);
+#endif
+                    }
+                }
+                Manager.CurrentPage = page;// Found It!!
+                if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
+                    // this is a popup request
+                    Manager.IsInPopup = true;
+                }
+                Logging.AddTraceLog("Page {0}", page.PageGuid);
+                return ProcessingStatus.Page;
+            } else {
+                // Send to login page with redirect (IF NOT LOGGED IN)
+                if (!Manager.HaveUser) {
+                    Manager.OriginList.Clear();
+                    Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString) });
+                    Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
+                    string retUrl = Manager.ReturnToUrl;
+                    Logging.AddLog("Redirect - {0}", retUrl);
+                    if (retUrl.StartsWith("/"))
+                        cr.Result.RedirectContent = retUrl;
+                    else
+                        cr.Result.Redirect = retUrl;
+                    return ProcessingStatus.Complete;
+                } else {
+                    cr.Result.Status = Logging.AddErrorLog("403 Not Authorized");
+                    return ProcessingStatus.Complete;
+                }
+            }
+        }
+        private ProcessingStatus CanProcessAsModule(ModuleDefinition module, DataIn dataIn, PageContentResult cr) {
+            // direct request for a module without page
+            if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
+                PageDefinition page = PageDefinition.Create();
+                page.AddModule(Globals.MainPane, module);
+                Manager.CurrentPage = page;
+                if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
+                    // we're going into a popup for this
+                    Manager.IsInPopup = true;
+                    page.SelectedPopupSkin = module.SelectedPopupSkin;
+                }
+                // make sure it's the same skin
+                if (YetaWFController.GoingToPopup()) {
+                    // popups only care about the skin collection, not the file
+                    if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
+                        // this page is part of another skin
+                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        cr.Result.Redirect = redirUrl;
+                        return ProcessingStatus.Complete;
+                    }
+                } else {
+                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
+                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
+                    if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
+                        // this page is part of another skin
+                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        cr.Result.Redirect = redirUrl;
+                        return ProcessingStatus.Complete;
+                    }
+                }
+                Logging.AddTraceLog("Module {0}", module.ModuleGuid);
+                return ProcessingStatus.Page;
             }
             return ProcessingStatus.No;
         }
