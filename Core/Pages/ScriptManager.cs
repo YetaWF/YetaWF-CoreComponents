@@ -183,6 +183,7 @@ namespace YetaWF.Core.Pages {
                 bool editonly = false;
                 bool last = false;
                 bool async = false, defer = false;
+                bool allowCustom = false;
                 string[] parts = info.Split(new Char[] { ',' });
                 int count = parts.Length;
                 string file;
@@ -208,6 +209,7 @@ namespace YetaWF.Core.Pages {
                             else if (part == "defer") defer = true;
                             else if (part == "cdn") cdn = true;
                             else if (part == "nocdn") cdn = false;
+                            else if (part == "allowcustom") allowCustom = true;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
@@ -223,6 +225,8 @@ namespace YetaWF.Core.Pages {
                         filePathURL = file;
                         if (bundle == true)
                             throw new InternalError("Can't use bundle with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        if (allowCustom)
+                            throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                         bundle = false;
                     } else if (file.StartsWith("\\")) {
                         string f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
@@ -233,6 +237,12 @@ namespace YetaWF.Core.Pages {
                         filePathURL = string.Format("{0}{1}", productUrl, file);
                         if (!File.Exists(YetaWFManager.UrlToPhysical(filePathURL)))
                             throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                    }
+                    if (allowCustom) {
+                        string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
+                        string f = YetaWFManager.UrlToPhysical(customUrl);
+                        if (File.Exists(f))
+                            filePathURL = customUrl;
                     }
                     if (bundle == true || last) {
                         if (async || defer)
@@ -253,18 +263,28 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add a javascript file explicitly. This is rarely used because javascript files are automatically added for modules, templates, etc.
+        /// Add a Javascript file explicitly. This is rarely used because Javascript files are automatically added for modules, templates, etc.
         /// </summary>
         public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
             VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(domainName, productName);
             Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
         }
-
-        private bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
+        /// <summary>
+        /// Add a Javascript file explicitly. This is rarely used because Javascript files are automatically added for modules, templates, etc.
+        /// </summary>
+        /// <param name="fullUrl">The Url of the script file (starting with /).</param>
+        /// <param name="minify">Defines whether the file needs to be minified.</param>
+        /// <param name="bundle">Defines whether the file will be bundled (if bundling is enabled).</param>
+        /// <param name="last">Defines whether the file will be added at the end of the current file list.</param>
+        /// <param name="async">Defines whether async is added to the &lt;script&gt; tag.</param>
+        /// <param name="defer">Defines whether defer is added to the &lt;script&gt; tag.</param>
+        /// <returns></returns>
+        public bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
             string key = fullUrl.ToLower();
 
             if (fullUrl.IsAbsoluteUrl() ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.NugetScriptsUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".js", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 3);
