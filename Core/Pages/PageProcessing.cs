@@ -39,7 +39,7 @@ namespace YetaWF.Core.Pages {
             }
             yetawfMsg = yetawfMsg.Replace("<<YEAR>>", DateTime.Now.Year.ToString());//local time
             // <head>+yetawfMsg replaces <head>
-            pageHtml = reHead.Replace(pageHtml, "<head><!-- " + yetawfMsg + " -->", 1);
+            pageHtml = reHead.Replace(pageHtml, (m) => "<head><!-- " + yetawfMsg + " -->", 1);
 
             // <link rel="alternate">
             string linkAlt = Manager.LinkAltManager.Render().ToString();
@@ -57,7 +57,7 @@ namespace YetaWF.Core.Pages {
                 js = "";
 
             // linkAlt+css+js+</head> replaces </head>
-            pageHtml = reEndHead.Replace(pageHtml, linkAlt + css + js + "</head>", 1);
+            pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + "</head>", 1);
 
             // endofpage-js + </body> replaces </body>
             string endstuff = Manager.ScriptManager.RenderEndofPageScripts();
@@ -67,7 +67,7 @@ namespace YetaWF.Core.Pages {
                 else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Analytics))
                     endstuff += Manager.CurrentSite.Analytics;
             }
-            pageHtml = reEndBody.Replace(pageHtml, endstuff + "</body>", 1);
+            pageHtml = reEndBody.Replace(pageHtml, (m) => endstuff + "</body>", 1);
 
             //DEBUG:  pageHtml has entire page
 
