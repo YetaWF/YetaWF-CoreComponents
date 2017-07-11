@@ -118,7 +118,7 @@ namespace YetaWF.Core.Support {
                     if (value != null)
                         jArea[key] = JToken.FromObject(value);
                     else
-                        jArea[key].Remove();
+                        jArea[key] = null;
                 }
             } else
                 throw new NotSupportedException();
