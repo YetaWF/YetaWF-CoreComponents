@@ -37,6 +37,7 @@ ul.yModuleLinks a.yaction-link {
 }
 .yModuleTitle ul.yModuleLinks a.yaction-link img {
     margin-right:0;
+    margin-left:.5ch;
 }
 .yModuleTitle ul.yModuleLinks a.yaction-link {
     margin-right:0;
