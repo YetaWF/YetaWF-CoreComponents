@@ -1,2 +1,2 @@
-MVC6 \lib\normalize-css\normalize.css,bundle
-MVC5 \Content\normalize.css,bundle
+MVC6 \lib\normalize-css\normalize.css
+MVC5 \Content\normalize.css
