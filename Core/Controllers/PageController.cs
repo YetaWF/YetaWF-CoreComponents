@@ -600,7 +600,10 @@ namespace YetaWF.Core.Controllers {
                 if (!Manager.HaveUser) {
                     Manager.OriginList.Clear();
                     Manager.OriginList.Add(new Origin() { Url = url + queryString });
-                    Manager.OriginList.Add(new Origin() { Url = Manager.CurrentSite.LoginUrl });
+                    string loginUrl;
+                    QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out loginUrl);
+                    qh.Add("__f", "true");// add __f=true to login url so we get a 401
+                    Manager.OriginList.Add(new Origin() { Url = qh.ToUrl(loginUrl) });
                     string retUrl = Manager.ReturnToUrl;
                     Logging.AddLog("Redirect - {0}", retUrl);
                     Manager.CurrentResponse.Redirect(retUrl);
