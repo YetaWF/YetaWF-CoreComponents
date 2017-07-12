@@ -3,6 +3,9 @@
 ol, ul {
     margin-top:0; /*If normalize.css is loaded after bootstrap, this is needed */
 }
+p {
+    margin: 0 0 10px; /*If normalize.css is loaded after bootstrap, this is needed */
+}
 
 div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     clear:both;
