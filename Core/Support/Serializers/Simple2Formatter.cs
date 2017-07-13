@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using YetaWF.Core.DataProvider.Attributes;
@@ -16,92 +16,100 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Serializers {
-    public static class StreamExtender {
-        public static void Write(this Stream stream, string text, params object[] parms) {
-            if (text == null) {
-                int len = -1;
-                byte[] buffer = BitConverter.GetBytes(len);
-                stream.Write(buffer, 0, buffer.Length);
+
+    public class Simple2Formatter {
+
+        public Simple2Formatter() { }
+
+        public const char MARKER1 = 'S';
+        public const char MARKER2 = '2';
+
+        BinaryWriter Output;
+
+        private void WriteString(string s) {
+            if (s == null) {
+                Output.Write(unchecked((byte)((-1 << 2) + 0x3)));
+            } else if (s == "") {
+                Output.Write((byte)(0 + 0x3));
             } else {
-                string s;
-                if (parms == null)
-                    s = text;
-                else
-                    s = string.Format(text, parms);
-                int len = Encoding.UTF8.GetByteCount(s);
-                byte[] buffer = BitConverter.GetBytes(len);
-                stream.Write(buffer, 0, buffer.Length);
-                if (s.Length > 0)
-                    stream.Write(Encoding.UTF8.GetBytes(s), 0, Encoding.UTF8.GetByteCount(s));
+                byte[] btes = Encoding.UTF8.GetBytes(s);
+                int len = btes.Length;
+                //WARNING ASSUMES LITTLE-ENDIAN
+                //WARNING ASSUMES LITTLE-ENDIAN
+                //WARNING ASSUMES LITTLE-ENDIAN
+                if (!BitConverter.IsLittleEndian) throw new InternalError("Little endian only please");
+                // the least significant bits in the least significant byte (which is stored first) holds a special indicator
+                if (len < 256 >> 2) { // use 1 byte for length
+                    Output.Write((byte)((len<<2) + 0x2));
+                } else if (len < (65535 >> 2)) { // use 2 bytes for length
+                    Output.Write((ushort)((len << 2) + 0x1));
+                } else {
+                    Output.Write((len << 2) + 0x0);
+                }
+                Output.Write(btes);
             }
         }
-        public static void Write(this Stream stream, string text) { stream.Write(text, null); }
-
-        public static string Readxx(this Stream stream) {
-            int len = 0;
-            byte[] buffer = BitConverter.GetBytes(len);
-            if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
-                throw new InternalError("Invalid format in input buffer - length marker invalid.");
-            len = BitConverter.ToInt32(buffer, 0);
-
-            if (len == -1) {
-                return null;
-            } else if (len == 0) {
-                return "";
-            } else {
-                buffer = new byte[len];
-                if (stream.Read(buffer, 0, len) != len)
-                    throw new InternalError("Invalid format in input buffer - data invalid.");
-                return Encoding.UTF8.GetString(buffer);
-            }
-        }
-    }
-    public class SimpleFormatter : IFormatter {
-
-        SerializationBinder binder;
-        StreamingContext context;
-        ISurrogateSelector surrogateSelector;
-
-        private string _unread;
-
-        public SimpleFormatter() {
-            context = new StreamingContext(StreamingContextStates.All);
-            _unread = null;
+        private void WriteString(string fmt, params object[] args) {
+            string s = string.Format(fmt, args);
+            WriteString(s);
         }
 
-        private string Read(Stream stream) {
-            if (string.IsNullOrEmpty(_unread))
-                return stream.Readxx();
-            else {
+        byte[] Bytes = null;
+        int Offset = 0;
+
+        private string ReadString() {
+            if (_unread != null) {
                 string s = _unread;
                 _unread = null;
                 return s;
             }
+            int lsb = Bytes[Offset];
+            int len;
+            if (lsb == unchecked((byte)((-1 << 2) + 0x3))) {
+                Offset += 1;
+                return null;
+            } else if ((lsb & 0x3) == 0x3) {
+                if (lsb != 0x03) throw new InternalError("Unexpected");
+                Offset += 1;
+                return "";
+            } else if ((lsb & 0x3) == 0x2) {
+                Offset += 1;
+                len = lsb >> 2;
+            } else if ((lsb & 0x3) == 0x1) {
+                len = ((Bytes[Offset + 1] << 8) + lsb) >> 2;
+                Offset += 2;
+            } else {
+                len = BitConverter.ToInt32(Bytes, Offset) >> 2;
+                Offset += 4;
+            }
+            string text = Encoding.UTF8.GetString(Bytes, Offset, len);
+            Offset += len;
+            return text;
         }
-        private void Unread(string s) {
-            _unread = s;
-        }
+        private string _unread = null;
 
-        public SerializationBinder Binder {
-            get { return binder; }
-            set { binder = value; }
-        }
-        public ISurrogateSelector SurrogateSelector {
-            get { return surrogateSelector; }
-            set { surrogateSelector = value; }
-        }
-        public StreamingContext Context {
-            get { return context; }
-            set { context = value; }
-        }
-
-        public void Serialize(System.IO.Stream serializationStream, object graph) {
-            SerializeObjectProperties(serializationStream, graph);
+        private void UnreadString(string input) {
+#if DEBUG
+            if (_unread != null) throw new InternalError("Unread token {0} while unreading another token {1}", _unread, input);
+#endif
+            _unread = input;
         }
 
         private static Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
 
-        private void SerializeObjectProperties(Stream stream, object obj) {
+        public byte[] Serialize(object graph) {
+            using (MemoryStream ms = new MemoryStream()) {
+                using (BinaryWriter bw = new BinaryWriter(ms)) {
+                    Output = bw;
+                    Output.Write(MARKER1); // Marker
+                    Output.Write(MARKER2);
+                    SerializeObjectProperties(graph);
+                    Output = null;
+                }
+                return ms.GetBuffer();
+            }
+        }
+        private void SerializeObjectProperties(object obj) {
 
             string asmName = obj.GetType().Assembly.GetName().Name;
             string asmFullName = "";// we only save the full name if it's not YetaWF.Core
@@ -113,8 +121,8 @@ namespace YetaWF.Core.Serializers {
             string typeName = obj.GetType().FullName;
             typeName = reVers.Replace(typeName, ",");
 
-            stream.Write("Object:{0}:{1}:{2}", typeName, asmName, asmFullName);
-            stream.Write("P");
+            WriteString("Object:{0}:{1}:{2}", typeName, asmName, asmFullName);
+            WriteString("P");
 
             // we only want properties
             List<PropertyInfo> pi = ObjectSupport.GetProperties(obj.GetType());
@@ -126,12 +134,12 @@ namespace YetaWF.Core.Serializers {
                 if (Attribute.GetCustomAttribute(p, typeof(DontSaveAttribute)) != null || Attribute.GetCustomAttribute(p, typeof(Data_CalculatedProperty)) != null || Attribute.GetCustomAttribute(p, typeof(Data_DontSave)) != null)
                     continue;
 
-                stream.Write("N:{0}", p.Name);
+                WriteString("N:{0}", p.Name);
                 object o = p.GetValue(obj, null);
-                SerializeOneProperty(stream, o);
+                SerializeOneProperty(o);
             }
 
-            stream.Write("E");
+            WriteString("E");
 
             if (obj is Byte[])
 #pragma warning disable 642 // Possible mistaken empty statement
@@ -142,7 +150,7 @@ namespace YetaWF.Core.Serializers {
                 IDictionaryEnumerator denum = idict.GetEnumerator();
                 denum.Reset();
 
-                stream.Write("DICT");
+                WriteString("DICT");
 
                 for ( ; ; ) {
                     if (!denum.MoveNext())
@@ -150,108 +158,106 @@ namespace YetaWF.Core.Serializers {
                     object key = denum.Key;
                     object val = denum.Value;
 
-                    SerializeOneProperty(stream, key);
-                    SerializeOneProperty(stream, val);
+                    SerializeOneProperty(key);
+                    SerializeOneProperty(val);
                 }
 
-                stream.Write("E");
+                WriteString("E");
             } else if (obj is IList) {
                 IList ilist = (IList)obj;
                 IEnumerator lenum = ilist.GetEnumerator();
                 lenum.Reset();
 
-                stream.Write("LIST");
+                WriteString("LIST");
 
                 for ( ; ; ) {
                     if (!lenum.MoveNext())
                         break;
                     object val = lenum.Current;
 
-                    SerializeOneProperty(stream, val);
+                    SerializeOneProperty(val);
                 }
-                stream.Write("E");
+                WriteString("E");
             }
-            stream.Write("E");
+            WriteString("E");
         }
 
-        private void SerializeOneProperty(Stream stream, object o) {
+        private void SerializeOneProperty(object o) {
 
             if (o == null) {
-                stream.Write("V");
-                stream.Write(null);
+                WriteString("V");
+                WriteString(null);
                 return;
             }
             Type tp = o.GetType();
 #if DEBUG
             if (tp.IsAbstract)
-                throw new InternalError("Abstract property??? {0} is not serializable.", tp.FullName);
+                throw new InternalError("Abstract property??? {0} is not serializable", tp.FullName);
             if (tp.IsInterface)
-                throw new InternalError("Interface {0} is not serializable.", tp.FullName);
+                throw new InternalError("Interface {0} is not serializable", tp.FullName);
 #endif
             if (tp == typeof(Byte[])) {
-                stream.Write("V");
+                WriteString("V");
                 if (o != null)
-                    stream.Write(Convert.ToBase64String((byte[]) o));
+                    WriteString(Convert.ToBase64String((byte[]) o));
             } else if (tp.IsArray) {
-                SerializeObjectProperties(stream, o);
+                SerializeObjectProperties(o);
             } else if (tp.IsEnum) {
                 string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
                 if (val != null) {
-                    stream.Write("V");
-                    stream.Write(val);
+                    WriteString("V");
+                    WriteString(val);
                 }
             } else if (tp == typeof(DateTime) || tp == typeof(DateTime?)) {
-                stream.Write("V");
-                stream.Write(((DateTime)o).Ticks.ToString());
+                WriteString("V");
+                WriteString(((DateTime)o).Ticks.ToString());
             } else if (tp == typeof(TimeSpan) || tp == typeof(TimeSpan?)) {
-                stream.Write("V");
-                stream.Write(((TimeSpan)o).Ticks.ToString());
+                WriteString("V");
+                WriteString(((TimeSpan)o).Ticks.ToString());
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
                 if (o != null) {
                     System.Drawing.Image img = (System.Drawing.Image)o;
                     using (MemoryStream ms = new MemoryStream()) {
                         img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        stream.Write("V");
-                        stream.Write(Convert.ToBase64String(ms.ToArray()));
+                        WriteString("V");
+                        WriteString(Convert.ToBase64String(ms.ToArray()));
                     }
                 }
             } else if (tp.IsValueType) {
                 string val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null) {
-                    stream.Write("V");
-                    stream.Write(val);
+                    WriteString("V");
+                    WriteString(val);
                 }
             } else if (tp.IsClass) {
                 IConvertible iconv = (o as IConvertible);
                 if (iconv != null) {
                     // this object can represent itself as a string
                     string s = iconv.ToString(CultureInfo.InvariantCulture);
-                    stream.Write("V");
-                    stream.Write(s);
+                    WriteString("V");
+                    WriteString(s);
                 } else {
-                    SerializeObjectProperties(stream, o);
+                    SerializeObjectProperties(o);
                 }
             } else
-                throw new InternalError("Unexpected type {0} cannot be serialized.", tp.FullName);
+                throw new InternalError("Unexpected type {0} cannot be serialized", tp.FullName);
         }
 
-        public object Deserialize(Stream serializationStream) {
-
-            object obj = null;
-            obj = DeserializeOneObject(serializationStream);
-
-            //if (serializationStream.Position < serializationStream.Length)
-            //    throw new InternalError("Unexpected data beyond end of input.");
-
-            return obj;
+        public object Deserialize(byte[] btes) {
+            Bytes = btes;
+            if (btes[0] != MARKER1 || btes[1] != MARKER2)
+                throw new InternalError("Invalid marker");
+            Offset = 2;// skip marker
+            return DeserializeOneObject();
         }
-
-        public object DeserializeOneObject(Stream stream) {
+        private object DeserializeOneObject() {
             object obj = null;
-            string input = Read(stream);
+            string input = ReadString();
+
+            // Get Object type
             string[] s = input.Split(new char[] { ':' }, 4);
             if (s.Length != 4 || s[0] != "Object")
-                throw new InternalError("Invalid Object encountered - {0}.", input);
+                throw new InternalError("Invalid Object encountered - {0}", input);
 
             string strType = s[1];
             string strAsm = s[2];
@@ -272,39 +278,46 @@ namespace YetaWF.Core.Serializers {
                     throw new InternalError("Invalid object type {0} - {1} - AssemblyFull missing or invalid", input, exc.Message);
                 }
             }
-            input = Read(stream);
+
+            input = ReadString();
             if (input == "E") // end of object (empty)
                 return null;
 
             try {
                 obj = Activator.CreateInstance(t);
             } catch (Exception exc) {
-                throw new InternalError("Unable to create an instance of type {0} - {1}.", strType, exc.Message);
+                throw new InternalError("Unable to create an instance of type {0} - {1}", strType, exc.Message);
             }
+            Type tpObj = obj.GetType();
 
             for ( ; ; ) {
                 if (input == "E")
                     break;
                 if (input == "P") {
-                    DeserializeProperties(stream, obj);
+                    DeserializeProperties(obj, tpObj);
                 } else if (input == "DICT") {
-                    DeserializeDictionary(stream, obj);
+                    DeserializeDictionary(obj, tpObj);
                 } else if (input == "LIST") {
-                    DeserializeList(stream, obj);
+                    DeserializeList(obj, tpObj);
                 } else
-                    throw new InternalError("Unexpected input {0}.", input);
+                    throw new InternalError("Unexpected input {0}", input);
 
-                input = Read(stream);
+                input = ReadString();
             }
             return obj;
         }
 
-        private void DeserializeProperties(Stream stream, object obj) {
-            string input = Read(stream);
+        // Cache last used object type and property info - this way we can avoid passing this around as parameters
+        // This is most used for lists/dictionaries
+        private Type LastObjType = null;
+        private List<PropertyInfo> LastPropInfos;
+
+        private void DeserializeProperties(object obj, Type tpObj) {
+            string input = ReadString();
             if (input == "E")
                 return;
 
-            Type tpObj = obj.GetType();
+            List<PropertyInfo> propInfos = null;
 
             for ( ; ; ) {
                 if (input == "E")
@@ -312,32 +325,42 @@ namespace YetaWF.Core.Serializers {
                 else {
                     string[] s = input.Split(new char[] { ':' }, 2);
                     if (s.Length != 2 || s[0] != "N")
-                        throw new InternalError("Invalid property encountered - {0}.", input);
+                        throw new InternalError("Invalid property encountered - {0}", input);
                     string propName = s[1];
 
-                    DeserializeOneProperty(stream, propName, obj, tpObj);
+                    if (propInfos == null) {
+                        if (LastObjType == tpObj)
+                            propInfos = LastPropInfos;
+                        else {
+                            propInfos = ObjectSupport.GetProperties(tpObj);
+                            LastPropInfos = propInfos;
+                            LastObjType = tpObj;
+                        }
+                    }
+                    DeserializeOneProperty(propName, obj, tpObj, propInfos);
                 }
-                input = Read(stream);
+                input = ReadString();
             }
         }
-
-        private object DeserializeOneProperty(Stream stream, string propName, object obj, Type tpObj, bool set = true) {
-            string input = Read(stream);
+        private object DeserializeOneProperty(string propName, object obj, Type tpObj, List<PropertyInfo> propInfos, bool set = true) {
+            string input = ReadString();
 
             object objVal = null;
             PropertyInfo pi = null;
             if (set) {
-                pi = ObjectSupport.TryGetProperty(tpObj, propName);
+                pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
+                //$$ pi = ObjectSupport.TryGetProperty(tpObj, propName);
                 //if (pi == null) {
-                    //Logging.AddLog("Element found for non-existent property {0}.", propName);
-                    //throw new InternalError("Element found for non-existent property {0}.", propName);
-                    // This is OK as it can happen when data models change
+                //Logging.AddLog("Element found for non-existent property {0}", propName);
+                //throw new InternalError("Element found for non-existent property {0}", propName);
+                // This is OK as it can happen when data models change
                 //}
             }
 
             if (input == "V") {
+
                 // simple value
-                string strVal = Read(stream);
+                string strVal = ReadString();
 
                 if (set && pi != null) {
                     bool fail = false;
@@ -377,78 +400,75 @@ namespace YetaWF.Core.Serializers {
                         // try using a constructor (types like Guid can't simply be assigned)
                         ConstructorInfo ci = pType.GetConstructor(new Type[] { typeof(string) });
                         if (ci == null) {
-                            throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}.", propName, failMsg);
+                            throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}", propName, failMsg);
                         }
                         try {
                             objVal = ci.Invoke(new object[] { strVal });
                             pi.SetValue(obj, objVal, null);
                         } catch (Exception exc) {
-                            throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}.", propName, failMsg, exc.Message);
+                            throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}", propName, failMsg, exc.Message);
                         }
                     }
                 } else {
                     objVal = strVal;
                 }
             } else {
-                Unread(input); // pushback
+                UnreadString(input); // pushback
 
-                objVal = DeserializeOneObject(stream);
+                objVal = DeserializeOneObject();
                 if (set && pi != null) {
                     try {
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
-                        throw new InternalError("Element for property {0} has an invalid value - {1}.", propName, exc.Message);
+                        throw new InternalError("Element for property {0} has an invalid value - {1}", propName, exc.Message);
                     }
                 }
             }
             return objVal;
         }
+        private void DeserializeDictionary(object obj, Type tpObj) {
+            string input = ReadString();
 
-        private void DeserializeDictionary(Stream stream, object obj) {
-            string input = Read(stream);
-
-            Type tpObj = obj.GetType();
             MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
             if (mi == null)
-                throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method.", tpObj.Name);
+                throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
             for ( ; ; ) {
                 if (input == "E")
                     return;
 
-                Unread(input);
-                object objKey = DeserializeOneProperty(stream, null, obj, tpObj, false);
-                object objVal = DeserializeOneProperty(stream, null, obj, tpObj, false);
+                UnreadString(input);
+                object objKey = DeserializeOneProperty(null, obj, tpObj, null, false);
+                object objVal = DeserializeOneProperty(null, obj, tpObj, null, false);
 
                 try {
                     mi.Invoke(obj, new object[] { objKey, objVal });
                 } catch (Exception exc) {
-                    throw new InternalError("Couldn't add new entry to dictionary type {0} - {1}.", tpObj.Name, exc.Message);
+                    throw new InternalError("Couldn't add new entry to dictionary type {0} - {1}", tpObj.Name, exc.Message);
                 }
-                input = Read(stream);
+                input = ReadString();
             }
         }
-        private void DeserializeList(Stream stream, object obj) {
-            string input = Read(stream);
+        private void DeserializeList(object obj, Type tpObj) {
+            string input = ReadString();
 
-            Type tpObj = obj.GetType();
             MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
             if (mi == null)
-                throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method.", tpObj.Name);
+                throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
             for ( ; ; ) {
                 if (input == "E")
                     return;
 
-                Unread(input);
-                object objVal = DeserializeOneProperty(stream, null, obj, tpObj, false);
+                UnreadString(input);
+                object objVal = DeserializeOneProperty(null, obj, tpObj, null, false);
 
                 try {
                     mi.Invoke(obj, new object[] { objVal });
                 } catch (Exception exc) {
-                    throw new InternalError("Couldn't add new entry to list type {0} - {1}.", tpObj.Name, exc.Message);
+                    throw new InternalError("Couldn't add new entry to list type {0} - {1}", tpObj.Name, exc.Message);
                 }
-                input = Read(stream);
+                input = ReadString();
             }
         }
     }

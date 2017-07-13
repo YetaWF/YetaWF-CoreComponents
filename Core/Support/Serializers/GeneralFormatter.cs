@@ -20,9 +20,23 @@ namespace YetaWF.Core.Support.Serializers {
     public class GeneralFormatter {
 
         public enum Style {
+            /// <summary>
+            /// Serialization as XML data.
+            /// </summary>
             Xml = 0,
+            /// <summary>
+            /// Serialization in an internal format. Can be used for large data files, streams.
+            /// </summary>
             Simple = 1,
+            /// <summary>
+            /// Not used.
+            /// </summary>
+            [Obsolete]
             Binary = 2,
+            /// <summary>
+            /// Used for small amounts of data that is in memory (usually cache and small data files)
+            /// </summary>
+            Simple2 = 3,
         };
 
         public GeneralFormatter(Style format) {
@@ -31,9 +45,9 @@ namespace YetaWF.Core.Support.Serializers {
         }
         public GeneralFormatter() {
 #if DEBUG
-            Format = Style.Simple; // the preferred format - change for debugging if desired
+            Format = Style.Simple2; // the preferred format - change for debugging if desired
 #else
-            Format = Style.Simple;
+            Format = Style.Simple2;
 #endif
             FormatExplicit = false;
         }
@@ -46,7 +60,14 @@ namespace YetaWF.Core.Support.Serializers {
             IFormatter fmt;
             if (btes[0] == (char)239 && btes[1] == (char)187)
                 fmt = new TextFormatter();
-            else if (btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b') // looking for object
+            else if (btes[0] == Simple2Formatter.MARKER1 && btes[1] == Simple2Formatter.MARKER2) {
+                Simple2Formatter simpleFmt = new Simple2Formatter();
+                try {
+                    return simpleFmt.Deserialize(btes);
+                } catch (Exception exc) {
+                    throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", exc.Message);
+                }
+            } else if (btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b') // looking for object
                 fmt = new SimpleFormatter();
             else
                 fmt = new BinaryFormatter();// truly binary
@@ -55,7 +76,7 @@ namespace YetaWF.Core.Support.Serializers {
                 try {
                     data = fmt.Deserialize(ms);
                 } catch (Exception exc) {
-                    throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object.", exc.Message);
+                    throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", exc.Message);
                 }
                 return data;
             }
@@ -70,6 +91,8 @@ namespace YetaWF.Core.Support.Serializers {
             IFormatter fmt;
             if (Format == Style.Simple)
                 fmt = new SimpleFormatter();
+            else if (Format == Style.Simple2)
+                throw new InternalError("This format is not supported for file streams");
             else if (Format == Style.Xml)
                 fmt = new TextFormatter();
             else
@@ -78,7 +101,7 @@ namespace YetaWF.Core.Support.Serializers {
             try {
                 data = fmt.Deserialize(fs);
             } catch (Exception exc) {
-                throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object.", exc.Message);
+                throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", exc.Message);
             }
             return data;
         }
@@ -89,6 +112,8 @@ namespace YetaWF.Core.Support.Serializers {
                 fmt = new TextFormatter();
             } else if (Format == Style.Simple) {
                 fmt = new SimpleFormatter();
+            } else if (Format == Style.Simple2) {
+                throw new InternalError("This format is not supported for file streams");
             } else {
                 fmt = new BinaryFormatter { AssemblyFormat = FormatterAssemblyStyle.Simple };
             }
@@ -96,23 +121,19 @@ namespace YetaWF.Core.Support.Serializers {
         }
         public byte[] Serialize(object obj) {
             IFormatter fmt = null;
-            bool simple = false;
             if (Format == Style.Xml) {
                 fmt = new TextFormatter();
+            } else if (Format == Style.Simple2) {
+                Simple2Formatter simpleFmt = new Simple2Formatter();
+                return simpleFmt.Serialize(obj);
             } else if (Format == Style.Simple) {
                 fmt = new SimpleFormatter();
-                simple = true;
             } else {
                 fmt = new BinaryFormatter { AssemblyFormat = FormatterAssemblyStyle.Simple };
             }
             using (MemoryStream ms = new MemoryStream()) {
                 fmt.Serialize(ms, obj);
-                byte[] btes = ms.ToArray();
-                if (simple) {
-                    if (!(btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b'))
-                        throw new InternalError("SimpleFormatter preamble unexpected");
-                }
-                return btes;
+                return ms.ToArray();
             }
         }
     }
