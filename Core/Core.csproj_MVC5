@@ -130,6 +130,7 @@
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
     <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\MimeSection\MimeSection.cs" />
+    <Compile Include="Support\Serializers\Simple2Formatter.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
