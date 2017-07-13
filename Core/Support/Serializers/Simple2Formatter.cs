@@ -17,6 +17,18 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Serializers {
 
+    /// <summary>
+    /// Serializes an object to a byte array.
+    /// </summary>
+    /// <remarks>This should only be used with small-ish objects as they're entirely in memory.
+    ///
+    /// This tolerates version changes to a certain extent (new/deleted properties are not a problem).
+    ///
+    /// It's a shame that .Net makes it so hard to get at raw data. There is a significant performance hit to serialization/deserialization.
+    /// Purists will not like this approach, but this only has to work within the YetaWF framework.
+    /// Lists and dictionaries could probably be optimized further (this is going to be a never ending task).
+    /// The use of (cached) reflection is not really helping (except that it's cached).
+    /// Don't serialize/deserialize if you can avoid it.</remarks>
     public class Simple2Formatter {
 
         public Simple2Formatter() { }
@@ -26,13 +38,12 @@ namespace YetaWF.Core.Serializers {
 
         BinaryWriter Output;
 
-        private void WriteString(string s) {
-            if (s == null) {
+        private void WriteBytes(byte[] btes) {
+            if (btes == null) {
                 Output.Write(unchecked((byte)((-1 << 2) + 0x3)));
-            } else if (s == "") {
+            } else if (btes.Length == 0) {
                 Output.Write((byte)(0 + 0x3));
             } else {
-                byte[] btes = Encoding.UTF8.GetBytes(s);
                 int len = btes.Length;
                 //WARNING ASSUMES LITTLE-ENDIAN
                 //WARNING ASSUMES LITTLE-ENDIAN
@@ -40,13 +51,22 @@ namespace YetaWF.Core.Serializers {
                 if (!BitConverter.IsLittleEndian) throw new InternalError("Little endian only please");
                 // the least significant bits in the least significant byte (which is stored first) holds a special indicator
                 if (len < 256 >> 2) { // use 1 byte for length
-                    Output.Write((byte)((len<<2) + 0x2));
+                    Output.Write((byte)((len << 2) + 0x2));
                 } else if (len < (65535 >> 2)) { // use 2 bytes for length
                     Output.Write((ushort)((len << 2) + 0x1));
                 } else {
                     Output.Write((len << 2) + 0x0);
                 }
                 Output.Write(btes);
+            }
+        }
+        private void WriteString(string s) {
+            if (s == null) {
+                Output.Write(unchecked((byte)((-1 << 2) + 0x3)));
+            } else if (s == "") {
+                Output.Write((byte)(0 + 0x3));
+            } else {
+                WriteBytes(Encoding.UTF8.GetBytes(s));
             }
         }
         private void WriteString(string fmt, params object[] args) {
@@ -57,6 +77,34 @@ namespace YetaWF.Core.Serializers {
         byte[] Bytes = null;
         int Offset = 0;
 
+        private void ReadBytes(Action<byte[], int, int> setBytes, Action setNull, Action setNone) {
+            if (_unread != null)
+                throw new InternalError("Should not happen");
+            int lsb = Bytes[Offset];
+            int len;
+            if (lsb == unchecked((byte)((-1 << 2) + 0x3))) {
+                Offset += 1;
+                setNull();
+                return;
+            } else if ((lsb & 0x3) == 0x3) {
+                if (lsb != 0x03) throw new InternalError("Unexpected");
+                Offset += 1;
+                setNone();
+                return;
+            } else if ((lsb & 0x3) == 0x2) {
+                Offset += 1;
+                len = lsb >> 2;
+            } else if ((lsb & 0x3) == 0x1) {
+                len = ((Bytes[Offset + 1] << 8) + lsb) >> 2;
+                Offset += 2;
+            } else {
+                len = BitConverter.ToInt32(Bytes, Offset) >> 2;
+                Offset += 4;
+            }
+            byte[] btes = new byte[len];
+            setBytes(Bytes, Offset, len);
+            Offset += len;
+        }
         private string ReadString() {
             if (_unread != null) {
                 string s = _unread;
@@ -97,16 +145,25 @@ namespace YetaWF.Core.Serializers {
 
         private static Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
 
-        public byte[] Serialize(object graph) {
+        /// <summary>
+        /// Serialize an object.
+        /// </summary>
+        /// <param name="obj">The object to be serialized.</param>
+        /// <returns>A byte array.</returns>
+        public byte[] Serialize(object obj) {
             using (MemoryStream ms = new MemoryStream()) {
                 using (BinaryWriter bw = new BinaryWriter(ms)) {
                     Output = bw;
                     Output.Write(MARKER1); // Marker
                     Output.Write(MARKER2);
-                    SerializeObjectProperties(graph);
+                    SerializeObjectProperties(obj);
                     Output = null;
                 }
-                return ms.GetBuffer();
+                byte[] btes = ms.GetBuffer();
+                //#if DEBUG
+                //                object o2 = Deserialize(btes);
+                //#endif
+                return btes;
             }
         }
         private void SerializeObjectProperties(object obj) {
@@ -141,18 +198,16 @@ namespace YetaWF.Core.Serializers {
 
             WriteString("E");
 
-            if (obj is Byte[])
-#pragma warning disable 642 // Possible mistaken empty statement
-                ; // byte array are handled as simple properties
-#pragma warning restore 642
-            else if (obj is IDictionary) {
+            if (obj is Byte[]) {
+                // byte arrays are handled as simple properties
+            } else if (obj is IDictionary) {
                 IDictionary idict = (IDictionary)obj;
                 IDictionaryEnumerator denum = idict.GetEnumerator();
                 denum.Reset();
 
                 WriteString("DICT");
 
-                for ( ; ; ) {
+                for (;;) {
                     if (!denum.MoveNext())
                         break;
                     object key = denum.Key;
@@ -170,7 +225,7 @@ namespace YetaWF.Core.Serializers {
 
                 WriteString("LIST");
 
-                for ( ; ; ) {
+                for (;;) {
                     if (!lenum.MoveNext())
                         break;
                     object val = lenum.Current;
@@ -181,7 +236,6 @@ namespace YetaWF.Core.Serializers {
             }
             WriteString("E");
         }
-
         private void SerializeOneProperty(object o) {
 
             if (o == null) {
@@ -198,32 +252,43 @@ namespace YetaWF.Core.Serializers {
 #endif
             if (tp == typeof(Byte[])) {
                 WriteString("V");
-                if (o != null)
-                    WriteString(Convert.ToBase64String((byte[]) o));
+                WriteBytes((byte[])o);
             } else if (tp.IsArray) {
                 SerializeObjectProperties(o);
+            } else if (tp == typeof(int) || tp == typeof(int?)) {
+                WriteString("V");
+                WriteBytes(BitConverter.GetBytes((int)o));
+            } else if (tp == typeof(long) || tp == typeof(long?)) {
+                WriteString("V");
+                WriteBytes(BitConverter.GetBytes((long)o));
+            } else if (tp == typeof(string)) {
+                WriteString("V");
+                WriteString((string)o);
+            } else if (tp == typeof(bool) || tp == typeof(bool?)) {
+                WriteString("V");
+                WriteBytes(BitConverter.GetBytes((bool)o));
             } else if (tp.IsEnum) {
-                string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
-                if (val != null) {
-                    WriteString("V");
-                    WriteString(val);
-                }
+                long val = Convert.ToInt64(o);
+                WriteString("V");
+                WriteBytes(BitConverter.GetBytes(val));
             } else if (tp == typeof(DateTime) || tp == typeof(DateTime?)) {
                 WriteString("V");
-                WriteString(((DateTime)o).Ticks.ToString());
+                WriteBytes(BitConverter.GetBytes(((DateTime)o).Ticks));
             } else if (tp == typeof(TimeSpan) || tp == typeof(TimeSpan?)) {
                 WriteString("V");
-                WriteString(((TimeSpan)o).Ticks.ToString());
+                WriteBytes(BitConverter.GetBytes(((TimeSpan)o).Ticks));
+            } else if (tp == typeof(Guid) || tp == typeof(Guid?)) {
+                WriteString("V");
+                WriteBytes(((Guid)o).ToByteArray());
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
-                if (o != null) {
-                    System.Drawing.Image img = (System.Drawing.Image)o;
-                    using (MemoryStream ms = new MemoryStream()) {
-                        img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        WriteString("V");
-                        WriteString(Convert.ToBase64String(ms.ToArray()));
-                    }
+                System.Drawing.Image img = (System.Drawing.Image)o;
+                using (MemoryStream ms = new MemoryStream()) {
+                    img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    WriteString("V");
+                    WriteBytes(ms.GetBuffer());
                 }
             } else if (tp.IsValueType) {
+                // Occasionally test here that no commonly used types are converted to strings (performance penalty)
                 string val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null) {
                     WriteString("V");
@@ -242,7 +307,11 @@ namespace YetaWF.Core.Serializers {
             } else
                 throw new InternalError("Unexpected type {0} cannot be serialized", tp.FullName);
         }
-
+        /// <summary>
+        /// Deserialized a byte array into an object.
+        /// </summary>
+        /// <param name="btes">The byte array.</param>
+        /// <returns>The object.</returns>
         public object Deserialize(byte[] btes) {
             Bytes = btes;
             if (btes[0] != MARKER1 || btes[1] != MARKER2)
@@ -251,6 +320,9 @@ namespace YetaWF.Core.Serializers {
             return DeserializeOneObject();
         }
         private object DeserializeOneObject() {
+
+            CacheLevel++;
+
             object obj = null;
             string input = ReadString();
 
@@ -280,37 +352,41 @@ namespace YetaWF.Core.Serializers {
             }
 
             input = ReadString();
-            if (input == "E") // end of object (empty)
-                return null;
+            if (input != "E") { // end of object (empty)?
 
-            try {
-                obj = Activator.CreateInstance(t);
-            } catch (Exception exc) {
-                throw new InternalError("Unable to create an instance of type {0} - {1}", strType, exc.Message);
+                try {
+                    obj = Activator.CreateInstance(t);
+                } catch (Exception exc) {
+                    throw new InternalError("Unable to create an instance of type {0} - {1}", strType, exc.Message);
+                }
+                Type tpObj = obj.GetType();
+
+                for (;;) {
+                    if (input == "E")
+                        break;
+                    if (input == "P") {
+                        DeserializeProperties(obj, tpObj);
+                    } else if (input == "DICT") {
+                        DeserializeDictionary(obj, tpObj);
+                    } else if (input == "LIST") {
+                        DeserializeList(obj, tpObj);
+                    } else
+                        throw new InternalError("Unexpected input {0}", input);
+
+                    input = ReadString();
+                }
             }
-            Type tpObj = obj.GetType();
+            CacheLevel--;
 
-            for ( ; ; ) {
-                if (input == "E")
-                    break;
-                if (input == "P") {
-                    DeserializeProperties(obj, tpObj);
-                } else if (input == "DICT") {
-                    DeserializeDictionary(obj, tpObj);
-                } else if (input == "LIST") {
-                    DeserializeList(obj, tpObj);
-                } else
-                    throw new InternalError("Unexpected input {0}", input);
-
-                input = ReadString();
-            }
             return obj;
         }
 
         // Cache last used object type and property info - this way we can avoid passing this around as parameters
-        // This is most used for lists/dictionaries
-        private Type LastObjType = null;
-        private List<PropertyInfo> LastPropInfos;
+        // This is mostly used for lists/dictionaries - Because of the recursion we need to keep a cache stack
+        private const int MaxLevel = 20;
+        private int CacheLevel = -1;
+        private Type[] LastObjType = new Type[MaxLevel];
+        private List<PropertyInfo>[] LastPropInfos = new List<PropertyInfo>[MaxLevel];
 
         private void DeserializeProperties(object obj, Type tpObj) {
             string input = ReadString();
@@ -319,7 +395,7 @@ namespace YetaWF.Core.Serializers {
 
             List<PropertyInfo> propInfos = null;
 
-            for ( ; ; ) {
+            for (;;) {
                 if (input == "E")
                     return;
                 else {
@@ -329,12 +405,12 @@ namespace YetaWF.Core.Serializers {
                     string propName = s[1];
 
                     if (propInfos == null) {
-                        if (LastObjType == tpObj)
-                            propInfos = LastPropInfos;
+                        if (LastObjType[CacheLevel] == tpObj)
+                            propInfos = LastPropInfos[CacheLevel];
                         else {
                             propInfos = ObjectSupport.GetProperties(tpObj);
-                            LastPropInfos = propInfos;
-                            LastObjType = tpObj;
+                            LastPropInfos[CacheLevel] = propInfos;
+                            LastObjType[CacheLevel] = tpObj;
                         }
                     }
                     DeserializeOneProperty(propName, obj, tpObj, propInfos);
@@ -349,7 +425,6 @@ namespace YetaWF.Core.Serializers {
             PropertyInfo pi = null;
             if (set) {
                 pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
-                //$$ pi = ObjectSupport.TryGetProperty(tpObj, propName);
                 //if (pi == null) {
                 //Logging.AddLog("Element found for non-existent property {0}", propName);
                 //throw new InternalError("Element found for non-existent property {0}", propName);
@@ -359,38 +434,63 @@ namespace YetaWF.Core.Serializers {
 
             if (input == "V") {
 
-                // simple value
-                string strVal = ReadString();
-
                 if (set && pi != null) {
-                    bool fail = false;
-                    string failMsg = null;
                     Type pType = pi.PropertyType;
-                    try {
-                        if (pType == typeof(Byte[])) {
-                            if (strVal == null)
-                                objVal = new byte[] { };
-                            else
-                                objVal = Convert.FromBase64String(strVal);
-                        } else if (strVal == null) {
-                            objVal = null;
-                        } else if (pType.IsEnum) {
-                            objVal = Convert.ChangeType(strVal, typeof(long), CultureInfo.InvariantCulture);
-                            objVal = Enum.ToObject(pType, objVal);
-                        } else if (pType == typeof(DateTime) || pType == typeof(DateTime?)) {
-                            long ticks = (long)Convert.ChangeType(strVal, typeof(long), CultureInfo.InvariantCulture);
-                            objVal = new DateTime(ticks);
-                        } else if (pType == typeof(Guid) || pType == typeof(Guid?)) {
-                            objVal = new Guid(strVal);
-                        } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
-                            objVal = new TimeSpan(Convert.ToInt64(strVal));
-                        } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
-                            using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(strVal))) {
+
+                    // simple value
+                    if (pType == typeof(Byte[])) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = new byte[len];
+                            Buffer.BlockCopy(btes, offs, (byte[])objVal, 0, len);
+                        }, () => { objVal = new byte[] { }; }, () => { objVal = new byte[] { }; });
+                    } else if (pType == typeof(int) || pType == typeof(int?)) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = BitConverter.ToInt32(btes, offs);
+                        }, () => { objVal = null; }, () => { objVal = null; });
+                    } else if (pType == typeof(long) || pType == typeof(long?)) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = BitConverter.ToInt64(btes, offs);
+                        }, () => { objVal = null; }, () => { objVal = null; });
+                    } else if (pType == typeof(string)) {
+                        objVal = ReadString();
+                    } else if (pType == typeof(bool) || pType == typeof(bool?)) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = BitConverter.ToBoolean(btes, offs);
+                        }, () => { objVal = null; }, () => { objVal = null; });
+                    } else if (pType.IsEnum) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = Enum.ToObject(pType, BitConverter.ToInt64(btes, offs));
+                        }, () => { objVal = null; }, () => { objVal = null; });
+                    } else if (pType == typeof(DateTime) || pType == typeof(DateTime?)) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = new DateTime(BitConverter.ToInt64(btes, offs));
+                        }, () => { objVal = null; }, () => { objVal = null; });
+                    } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
+                        ReadBytes((btes, offs, len) => {
+                            objVal = new TimeSpan(BitConverter.ToInt64(btes, offs));
+                        }, () => { objVal = null; }, () => { objVal = null; });
+                    } else if (pType == typeof(Guid) || pType == typeof(Guid?)) {
+                        ReadBytes((btes, offs, len) => {
+                            byte[] b = new byte[len];
+                            Buffer.BlockCopy(btes, offs, b, 0, len);
+                            objVal = new Guid(b);
+                        }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
+                    } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
+                        ReadBytes((btes, offs, len) => {
+                            byte[] b = new byte[len];
+                            Buffer.BlockCopy(btes, offs, b, 0, len);
+                            using (MemoryStream ms = new MemoryStream(b)) {
                                 objVal = System.Drawing.Image.FromStream(ms);
                             }
-                        } else {
-                            objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
-                        }
+                        }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
+                    } else {
+                        string strVal = ReadString();
+                        objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
+                    }
+
+                    bool fail = false;
+                    string failMsg = null;
+                    try {
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
                         fail = true;
@@ -403,13 +503,14 @@ namespace YetaWF.Core.Serializers {
                             throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}", propName, failMsg);
                         }
                         try {
-                            objVal = ci.Invoke(new object[] { strVal });
+                            objVal = ci.Invoke(new object[] { objVal });
                             pi.SetValue(obj, objVal, null);
                         } catch (Exception exc) {
                             throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}", propName, failMsg, exc.Message);
                         }
                     }
                 } else {
+                    string strVal = ReadString();
                     objVal = strVal;
                 }
             } else {
@@ -433,7 +534,7 @@ namespace YetaWF.Core.Serializers {
             if (mi == null)
                 throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
-            for ( ; ; ) {
+            for (;;) {
                 if (input == "E")
                     return;
 
@@ -456,7 +557,7 @@ namespace YetaWF.Core.Serializers {
             if (mi == null)
                 throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
-            for ( ; ; ) {
+            for (;;) {
                 if (input == "E")
                     return;
 
