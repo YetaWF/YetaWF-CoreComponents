@@ -682,7 +682,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
         /// <param name="Reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
         /// <returns></returns>
-        protected ActionResult Reload(object model = null, string dummy = null, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page)
+        protected ActionResult Reload(object model = null, int dummy = 0, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page)
         {
             if (Manager.IsPostRequest) {
                 switch (Reload) {
