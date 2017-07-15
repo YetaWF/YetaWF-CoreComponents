@@ -1,25 +1,28 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace YetaWF.Core.Support {
 
-    public class MimeSection : IInitializeApplicationStartup {
-
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-
-        public void InitializeApplicationStartup() {
-            string rootFolder;
+    public class MimeSection
 #if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
 #else
-            rootFolder = YetaWFManager.RootFolder;
+        : IInitializeApplicationStartup 
 #endif
+        {
+
+        // IInitializeApplicationStartup
+        // IInitializeApplicationStartup
+        // IInitializeApplicationStartup
+#if MVC6
+#else
+        public void InitializeApplicationStartup() {
+            string rootFolder = YetaWFManager.RootFolder;
             Init(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
         }
+#endif
 
         // MIME Types
 
@@ -27,8 +30,12 @@ namespace YetaWF.Core.Support {
         public const string ImageUse = "ImageUse";
         public const string FlashUse = "FlashUse";
         public const string PackageUse = "PackageUse";
-
-        private static void Init(string settingsFile) {
+#if MVC6
+        public void Init(string settingsFile)
+#else
+        private static void Init(string settingsFile) 
+#endif
+        {
             if (!File.Exists(settingsFile))
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
@@ -38,14 +45,19 @@ namespace YetaWF.Core.Support {
         private static string SettingsFile;
         private static dynamic Settings;
 
-        //public List<string> GetMimeTypes() {
-        //    dynamic mimeSection = Settings["MimeSection"];
-        //    List<string> list = new List<string>();
-        //    foreach (var t in mimeSection["MimeTypes"]) {
-        //        list.Add(t.Type);
-        //    }
-        //    return list;
-        //}
+        public class MimeEntry {
+            public string Extensions { get; set; }
+            public string Type { get; set; }
+        }
+
+        public List<MimeEntry> GetMimeTypes() {
+            dynamic mimeSection = Settings["MimeSection"];
+            List<MimeEntry> list = new List<MimeEntry>();
+            foreach (var t in mimeSection["MimeTypes"]) {
+                list.Add(new MimeEntry { Extensions = t.Extensions, Type = t.Type });
+            }
+            return list;
+        }
         public string GetContentTypeFromExtension(string extension) {
             dynamic mimeSection = Settings["MimeSection"];
             foreach (var t in mimeSection["MimeTypes"]) {

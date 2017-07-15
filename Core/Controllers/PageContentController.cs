@@ -162,7 +162,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="path">The local Url requested.</param>
         /// <returns></returns>
         [AllowGet]
-        public ActionResult Show(DataIn dataIn) {
+        public ActionResult Show([FromBody] DataIn dataIn) {
 
             dataIn.Path = YetaWFManager.UrlDecodePath(dataIn.Path);
             if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
