@@ -146,24 +146,24 @@ namespace YetaWF.Core.Packages {
                     // find out if this is a source system or bin system (determined by location of YetaWF.Core.dll)
                     if (File.Exists(Path.Combine(YetaWFManager.RootFolderWebProject, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
                         // Published (w/o source by definition)
-                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net46");
+                        string sourceBin = Path.Combine(tempBin, "bin", "Release", Globals.RUNTIME);
                         CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject));
                         CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject, "refs"));
                     } else {
                         // Dev (with or without source code)
                         bool copied = false;
                         string binPath;
-                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", "net46", "win7-x64");
-                        string sourceBin = Path.Combine(tempBin, "bin", "Release", "net46");
+                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", Globals.RUNTIME);
+                        string sourceBin = Path.Combine(tempBin, "bin", "Release", Globals.RUNTIME);
                         if (Directory.Exists(binPath)) {
                             CopyVersionedFiles(sourceBin, binPath);
                             copied = true;
                         }
-                        binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Release", "net46", "win7-x64");
-                        if (Directory.Exists(binPath)) {
-                            CopyVersionedFiles(sourceBin, binPath);
-                            copied = true;
-                        }
+                        //binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Release", Globals.RUNTIME);
+                        //if (Directory.Exists(binPath)) {
+                        //    CopyVersionedFiles(sourceBin, binPath);
+                        //    copied = true;
+                        //}
                         if (!copied) {
                             if (!hasSource)
                                 throw new Error("Package import ({0}) failed because the target location {1} doesn't exist. Packages", serPackage.PackageName, binPath);
