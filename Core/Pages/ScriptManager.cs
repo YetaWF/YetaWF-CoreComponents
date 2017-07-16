@@ -652,9 +652,14 @@ namespace YetaWF.Core.Pages {
                     string opts = "";
                     opts += entry.Async ? " async" : "";
                     opts += entry.Defer ? " defer" : "";
-                    string delim = url.Contains("&") ? "&" : "?";
-                    hb.Append(string.Format("<script type='text/javascript' src='{0}{1}__yVrs={2}'{3}></script>",
-                        YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), delim, YetaWFManager.CacheBuster, opts));
+                    if (url.IsAbsoluteUrl()) {
+                        hb.Append(string.Format("<script type='text/javascript' src='{0}'{1}></script>",
+                            YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), opts));
+                    } else {
+                        string delim = url.Contains("&") ? "&" : "?";
+                        hb.Append(string.Format("<script type='text/javascript' src='{0}{1}__yVrs={2}'{3}></script>",
+                            YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), delim, YetaWFManager.CacheBuster, opts));
+                    }
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(url))
                         cr.ScriptFiles.Add(Manager.GetCDNUrl(url));

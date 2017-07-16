@@ -264,11 +264,15 @@ namespace YetaWF.Core.Pages {
                 if (Manager.CurrentSite.CanUseCDN)
                     url = Manager.GetCDNUrl(url);
                 if (cr == null) {
-                    string sep = url.Contains("?") ? "&amp;" : "?";
-                    if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || url.ContainsIgnoreCase(Globals.NugetContentsUrl))
-                        tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
-                    else
-                        tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));
+                    if (url.IsAbsoluteUrl()) {
+                        tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}'>", YetaWFManager.HtmlAttributeEncode(url)));
+                    } else {
+                        string sep = url.Contains("?") ? "&amp;" : "?";
+                        if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || url.ContainsIgnoreCase(Globals.NugetContentsUrl))
+                            tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
+                        else
+                            tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));
+                    }
                 } else {
                     if (KnownCss == null || !KnownCss.Contains(url))
                         cr.CssFiles.Add(url);
