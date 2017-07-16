@@ -121,15 +121,12 @@ namespace YetaWF.Core.Controllers {
 
             // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.
 #if MVC6
-            //$$context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
-#else
-            context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
-            context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
-#endif
-#if MVC6
+            // gzip encoding is performed by middleware
             byte[] btes = Encoding.ASCII.GetBytes(json);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
+            context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
+            context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
             context.HttpContext.Response.Output.Write(json);
 #endif
         }
