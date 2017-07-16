@@ -488,7 +488,6 @@ namespace YetaWF.Core.Controllers {
                 try {
                     IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
                     viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRender);
-                    //$$$ verify GZIP in grid responses (once we can actually run this again)
                 } catch (Exception) {
                     throw;
                 } finally {
@@ -525,13 +524,13 @@ namespace YetaWF.Core.Controllers {
                     // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
                     // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
 #if MVC6
-                    //$$context.HttpContext.Response.Headers.Add("Content-encoding", "gzip");
 #else
                     context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
                     context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
 #endif
                 }
 #if MVC6
+                // gzip encoding is performed by middleware
                 byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
