@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.0.0-preview2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0-preview2-final" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,7 +37,6 @@
     <PackageReference Include="EcmaScript.Net" Version="1.0.1" />
     <PackageReference Include="NSass.Core" Version="0.0.3" />
     <PackageReference Include="YUICompressor.NET" Version="2.7.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0-preview2-final" />
   </ItemGroup>
 
   <ItemGroup>
