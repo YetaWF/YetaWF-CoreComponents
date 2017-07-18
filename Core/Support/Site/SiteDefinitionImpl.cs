@@ -340,7 +340,7 @@ namespace YetaWF.Core.Site {
         /// </remarks>
         public static void RemoveInitialInstall() {
             WebConfigHelper.SetValue<string>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL", "0");
-                WebConfigHelper.Save();
+            WebConfigHelper.Save();
             _initial_install_ended = true;
         }
         private static bool? _initial_install = null;
