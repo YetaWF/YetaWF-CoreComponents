@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace YetaWF.Core.Pages {
 
+    // TODO: Research use of IPageFilter, IAsyncPageFilter (introduced with ASP.NET Core MVC 2.0 Preview 2)
+
     public class YetaWFRazorView : RazorView {
         public YetaWFRazorView(
             IRazorViewEngine viewEngine,
