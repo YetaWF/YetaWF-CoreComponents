@@ -378,7 +378,7 @@
                             <Name Value="PopupEdit" />
                             <Value Value="PopupEdit" />
                             <Caption Value="Popup Edit" />
-                            <Description Value="Opens page in a popup window (in view and edit mode - generally used for system's modules only) - If a popup window is already active, it opens a new window instead" />
+                            <Description Value="Opens page in a popup window (in view and edit mode - generally used for system modules only) - If a popup window is already active, it opens a new window instead" />
                           </Properties>
                         </Object>
                       </Value>
@@ -408,7 +408,7 @@
                             <Name Value="Nothing" />
                             <Value Value="Nothing" />
                             <Caption Value="Nothing" />
-                            <Description Value="Generates all html but takes no action when clicked (typically used for javascript/client side control)" />
+                            <Description Value="Generates all HTML but takes no action when clicked (typically used for javascript/client side control)" />
                           </Properties>
                         </Object>
                       </Value>
