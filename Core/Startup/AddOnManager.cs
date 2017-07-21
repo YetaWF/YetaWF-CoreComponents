@@ -208,14 +208,26 @@ namespace YetaWF.Core.Addons {
         /// <param name="args"></param>
         public void AddSkinCustomization(string skinCollection, params object[] args) {
             Manager.Verify_NotPostRequest();
+
+            string url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
+            if (File.Exists(YetaWFManager.UrlToPhysical(url))) {
+                Manager.CssManager.AddFile(true, url);
+            } else {
+                url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
+                if (File.Exists(YetaWFManager.UrlToPhysical(url)))
+                    Manager.CssManager.AddFile(true, url);
+            }
+
             string domainName, productName, skinName;
             VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
-            string url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-            if (File.Exists(YetaWFManager.UrlToPhysical(url)))
+            url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
+            if (File.Exists(YetaWFManager.UrlToPhysical(url))) {
                 Manager.CssManager.AddFile(true, url);
-            url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-            if (File.Exists(YetaWFManager.UrlToPhysical(url)))
-                Manager.CssManager.AddFile(true, url);
+            } else {
+                url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
+                if (File.Exists(YetaWFManager.UrlToPhysical(url)))
+                    Manager.CssManager.AddFile(true, url);
+            }
         }
 
         public void AddStandardAddOns() {
