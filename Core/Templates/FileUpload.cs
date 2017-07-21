@@ -4,7 +4,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Addons.Templates {
-    public class FileUploadDanielm : IAddOnSupport {
+    public class FileUpload : IAddOnSupport {
 
         public void AddSupport(YetaWFManager manager) {
 
