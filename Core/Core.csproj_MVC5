@@ -211,8 +211,7 @@
     <Compile Include="Templates\ActionIcons.cs" />
     <Compile Include="Templates\Currency.cs" />
     <Compile Include="Templates\DateTime.cs" />
-    <Compile Include="Templates\FileUploadKendo.cs" />
-    <Compile Include="Templates\FileUploadDanielm.cs" />
+    <Compile Include="Templates\FileUpload.cs" />
     <Compile Include="Templates\GridjqGrid.cs" />
     <Compile Include="Templates\Image.cs" />
     <Compile Include="Templates\Date.cs" />
