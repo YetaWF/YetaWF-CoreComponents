@@ -77,8 +77,9 @@ namespace YetaWF.Core.Site {
             FavIcon_Data = new byte[0];
             FavIconLrg_Data = new byte[0];
             Country = Globals.DefaultCountry;
+            Currency = CurrencyISO4217Helper.Currency.DefaultId;
             CurrencyFormat = Globals.DefaultCurrencyFormat;
-            CurrencyDecimals = 2;
+            CurrencyDecimals = CurrencyISO4217Helper.Currency.DefaultMinorUnit;
 
             AllowCacheUse = true;
             Compression = true;
@@ -303,6 +304,10 @@ namespace YetaWF.Core.Site {
         [Category("Site"), Caption("Country"), Description("The country where you/your company is located")]
         [UIHint("CountryISO3166"), StringLength(MaxCountry), Trim, Required]
         public string Country { get; set; }
+
+        [Category("Site"), Caption("Currency"), Description("The default currency used")]
+        [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217Helper.Currency.MaxId), Trim, Required]
+        public string Currency { get; set; }
 
         [Category("Site"), Caption("Currency Format"), Description("The currency format used on this site - the default is $US if omitted")]
         [UIHint("Text20"), StringLength(20)]

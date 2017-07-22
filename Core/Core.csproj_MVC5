@@ -153,6 +153,7 @@
     <Compile Include="ViewsCode\Shared\TemplateAction.cs" />
     <Compile Include="ViewsCode\Support\ActionHelper.cs" />
     <Compile Include="ViewsCode\Support\BooleanHelper.cs" />
+    <Compile Include="ViewsCode\Support\CurrencyISO4217Helper.cs" />
     <Compile Include="ViewsCode\Support\CurrencyHelper.cs" />
     <Compile Include="ViewsCode\Support\DateHelper.cs" />
     <Compile Include="ViewsCode\Support\DateTimeHelper.cs" />
@@ -412,6 +413,7 @@
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
     <Content Include="Addons\_Templates\ActionIcons\ActionIcons.css" />
     <Content Include="Addons\_Templates\ActionIcons\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
     <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
@@ -656,6 +658,8 @@
     <Content Include="Views\Shared\DisplayTemplates\FileFolderSize.cshtml" />
     <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\CountryISO3166.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\CurrencyISO4217.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\CurrencyISO4217.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

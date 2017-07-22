@@ -399,6 +399,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="Currency" />
+                            <Caption Value="Currency" />
+                            <Description Value="The default currency used" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="CurrencyDecimals" />
                             <Caption Value="Currency Rounding" />
                             <Description Value="The number of decimal places for the currency used on this site" />
