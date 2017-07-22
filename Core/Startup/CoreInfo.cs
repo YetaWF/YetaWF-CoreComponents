@@ -14,7 +14,6 @@ namespace YetaWF.Core.Addons {
         public const string Resource_ModuleLists = "YetaWF_Core-ModuleLists";
 
         public const string Resource_SMTPServer_SendTestEmail = "YetaWF_Core-SMTPServer_SendTestEmail";
-        public const string Resource_CountryISO3166_GetLocationsNew = "YetaWF_Core-CountryISO3166_GetLocationsNew";
 
         public void AddSupport(YetaWFManager manager) { }
     }

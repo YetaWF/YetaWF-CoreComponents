@@ -29,7 +29,6 @@ using YetaWF.PackageAttributes;
 [assembly: PublicPartialViews]
 
 [assembly: Resource(CoreInfo.Resource_BuiltinCommands, "Allow use of built-in commands", Superuser = true)]
-[assembly: Resource(CoreInfo.Resource_CountryISO3166_GetLocationsNew, "Retrieve ISO 3166 country lists (Ajax)", Anonymous = true, User = true, Editor = true, Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_UploadImages, "Allow uploading images", User = true, Editor = true, Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_RemoveImages, "Remove uploaded images", User = true, Editor = true, Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_SkinLists, "Retrieve page/module skin lists (Ajax)", Editor = true, Administrator = true, Superuser = true)]
