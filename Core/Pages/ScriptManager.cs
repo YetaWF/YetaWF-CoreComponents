@@ -696,8 +696,6 @@ namespace YetaWF.Core.Pages {
                 //hb.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 if (cr == null)
                     hb.Append("<script type=\"text/javascript\">");
-                if (sbB.Length > 0)
-                    hb.Append(sbB.ToString());
                 if (_SavedNamedScripts.Count > 0) {
                     foreach (var script in _SavedNamedScripts) {
                         hb.Append(TrimScript(Manager, script.Value));
@@ -710,6 +708,8 @@ namespace YetaWF.Core.Pages {
                     }
                     hb.Append("}});\n");
                 }
+                if (sbB.Length > 0)
+                    hb.Append(sbB.ToString());
                 if (cr == null)
                     hb.Append("</script>");
                 //hb.Append("\n//]]>\n</script>\n");
