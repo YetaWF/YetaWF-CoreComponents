@@ -58,7 +58,7 @@ namespace YetaWF.Core.Support {
             string minPathUrl = fullPathUrl;
             minPathUrl = minPathUrl.Remove(minPathUrl.Length - extension.Length);
             if (minify)
-                minPathUrl = minPathUrl + (MarkNameCompiled ? Globals.Compiled : "");
+                minPathUrl = minPathUrl + (MarkNameCompiled ? Globals.Compiled : ".min");
             string minPathUrlWithCharInfo = minPathUrl;
 
             bool process = false;
