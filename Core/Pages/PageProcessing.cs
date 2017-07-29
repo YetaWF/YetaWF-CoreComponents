@@ -13,9 +13,10 @@ namespace YetaWF.Core.Pages {
 
         protected YetaWFManager Manager { get; private set; }
 
-        private static readonly Regex reHead = new Regex("<\\s*head\\s*>");
-        private static readonly Regex reEndHead = new Regex("</\\s*head\\s*>");
-        private static readonly Regex reEndBody = new Regex("</\\s*body\\s*>");
+        private static readonly Regex reHead = new Regex("<\\s*head\\s*>", RegexOptions.Compiled);
+        private static readonly Regex reEndHead = new Regex("</\\s*head\\s*>", RegexOptions.Compiled);
+        private static readonly Regex reStartBody = new Regex("<\\s*body[^>]*>", RegexOptions.Compiled);
+        private static readonly Regex reEndBody = new Regex("</\\s*body\\s*>", RegexOptions.Compiled);
 
         public string PostProcessHtml(string pageHtml) {
 
@@ -56,8 +57,22 @@ namespace YetaWF.Core.Pages {
             if (string.IsNullOrWhiteSpace(js))
                 js = "";
 
+            string head = "";
+            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraHead))
+                head = Manager.CurrentPage.ExtraHead;
+            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.ExtraHead))
+                head = Manager.CurrentSite.ExtraHead;
+
             // linkAlt+css+js+</head> replaces </head>
-            pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + "</head>", 1);
+            pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + head + "</head>", 1);
+
+            string bodyStart = "";
+            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraBodyTop))
+                bodyStart = Manager.CurrentPage.ExtraBodyTop;
+            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.ExtraBodyTop))
+                bodyStart = Manager.CurrentSite.ExtraBodyTop;
+            if (!string.IsNullOrWhiteSpace(bodyStart))
+                pageHtml = reStartBody.Replace(pageHtml, (m) => m.Value + bodyStart, 1);
 
             // endofpage-js + </body> replaces </body>
             string endstuff = Manager.ScriptManager.RenderEndofPageScripts();
@@ -67,6 +82,11 @@ namespace YetaWF.Core.Pages {
                 else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Analytics))
                     endstuff += Manager.CurrentSite.Analytics;
             }
+            if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraBodyBottom))
+                endstuff += Manager.CurrentPage.ExtraBodyBottom;
+            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.ExtraBodyBottom))
+                endstuff += Manager.CurrentSite.ExtraBodyBottom;
+
             pageHtml = reEndBody.Replace(pageHtml, (m) => endstuff + "</body>", 1);
 
             //DEBUG:  pageHtml has entire page

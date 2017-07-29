@@ -320,6 +320,12 @@ namespace YetaWF.Core.Pages {
         public string Analytics { get; set; }
         [StringLength(SiteDefinition.MaxAnalytics)]
         public string AnalyticsContent { get; set; }
+        [StringLength(SiteDefinition.MaxHead)]
+        public string ExtraHead { get; set; }
+        [StringLength(SiteDefinition.MaxBodyTop)]
+        public string ExtraBodyTop { get; set; }
+        [StringLength(SiteDefinition.MaxBodyBottom)]
+        public string ExtraBodyBottom { get; set; }
 
         [StringLength(SiteDefinition.MaxMeta)]
         public string PageMetaTags { get; set; }

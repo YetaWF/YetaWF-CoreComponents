@@ -57,6 +57,9 @@ namespace YetaWF.Core.Site {
         public const int MaxAnalytics = 1000;
         public const int MaxMeta = 1000;
         public const int MaxCountry = 50;
+        public const int MaxHead = 1000;
+        public const int MaxBodyTop = 1000;
+        public const int MaxBodyBottom = 1000;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -642,6 +645,18 @@ namespace YetaWF.Core.Site {
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
         [HelpLink("http://www.google.com/webmasters/")]
         public string GoogleVerification { get; set; }
+
+        [Category("Addons"), Caption("<HEAD>"), Description("Any tags that should be added to the <HEAD> tag of each page can be added here")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxHead), Trim]
+        public string ExtraHead { get; set; }
+
+        [Category("Addons"), Caption("<BODY> Top"), Description("Any tags that should be added to the top of the <BODY> tag of each page can be added here")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxBodyTop), Trim]
+        public string ExtraBodyTop { get; set; }
+
+        [Category("Addons"), Caption("<BODY> Bottom"), Description("Any tags that should be added to the bottom of the <BODY> tag of each page can be added here")]
+        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxBodyBottom), Trim]
+        public string ExtraBodyBottom { get; set; }
 
         [Category("Addons"), Caption("Geo Location"), Description("Defines whether the site collects geo location information from your visitors based on their IP address (if available)")]
         [UIHint("Boolean")]
