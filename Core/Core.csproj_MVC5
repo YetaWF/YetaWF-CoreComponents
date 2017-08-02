@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>02f3efcd</NuGetPackageImportStamp>
+    <TypeScriptToolsVersion>2.4</TypeScriptToolsVersion>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -433,16 +435,13 @@
     <Content Include="Addons\_Templates\Decimal\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Decimal\filelistJS.txt" />
     <Content Include="Addons\_Templates\Currency\Currency.css" />
-    <Content Include="Addons\_Templates\Currency\Currency.js" />
     <Content Include="Addons\_Templates\Currency\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Currency\filelistJS.txt" />
     <Content Include="Addons\_Templates\DateTime\DateTime.css" />
-    <Content Include="Addons\_Templates\DateTime\DateTime.js" />
     <Content Include="Addons\_Templates\DateTime\filelistCSS.txt" />
     <Content Include="Addons\_Templates\DateTime\filelistJS.txt" />
     <Content Include="Addons\_Templates\Date\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Date\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Date\Date.js" />
     <Content Include="Addons\_Templates\Date\Date.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistCSS.txt" />
     <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
@@ -660,6 +659,7 @@
     <Content Include="Views\Shared\EditorTemplates\CountryISO3166.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\CurrencyISO4217.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\CurrencyISO4217.cshtml" />
+    <None Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -668,6 +668,13 @@
     <Folder Include="Addons\_JS\" />
     <Folder Include="Addons\_Main\Icons\" />
     <Folder Include="Addons\_Templates\PropertyListTabbed\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />
+    <TypeScriptCompile Include="Addons\_Addons\Forms\Forms2.tsx" />
+    <TypeScriptCompile Include="Addons\_Templates\Currency\Currency.tsx" />
+    <TypeScriptCompile Include="Addons\_Templates\DateTime\DateTime.tsx" />
+    <TypeScriptCompile Include="Addons\_Templates\Date\Date.tsx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
