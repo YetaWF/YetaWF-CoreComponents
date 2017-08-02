@@ -64,29 +64,9 @@ namespace YetaWF.Core.Views.Shared {
 
             return hb.ToHtmlString();
         }
-        public static string RenderDateJavascript(string jqElem) {
-
+        public static string RenderDateJavascript(string gridId, string elemVarName) {
             Include();
-
-            ScriptBuilder sb = new ScriptBuilder();
-
-            // Build a kendo date picker
-            // We have to add it next to the jqgrid provided input field
-            // We can't use the jqgrid provided element as a kendodatepicker because jqgrid gets confused and
-            // uses the wrong sorting opion. So we add the datepicker next to the "official" input field (which we hide)
-            TagBuilder tag = new TagBuilder("input");
-            tag.Attributes.Add("name", "dtpicker");
-
-            // add the kendodatepicker after the input field
-            sb.Append("var $dtpick = $('{0}');", tag.ToString(TagRenderMode.Normal));
-            sb.Append("{0}.after($dtpick);", jqElem);
-
-            sb.Append("YetaWF_Date.renderjqGridFilter({0}, $dtpick);", jqElem);
-
-            // Hide the jqgrid provided input element (we update the date in this hidden element)
-            sb.Append("{0}.hide();", jqElem);
-
-            return sb.ToString();
+            return string.Format("(new YetaWF_Core.TemplateDate.TemplateClass()).renderjqGridFilter('{0}', {1});", gridId, elemVarName);
         }
     }
 }

@@ -93,8 +93,7 @@ function Y_UrlEncodePath(s) { //like manager.cs UrlEncodePath()
 }
 
 /* Show alerts, please wait windows */
-function Y_Message(text, onOk)
-{
+function Y_Message(text, onOk) {
     Y_Alert(text, YLocs.Basics.DefaultSuccessTitle, onOk);
 }
 
@@ -102,8 +101,7 @@ function Y_Error(text, onOk) {
     Y_Alert(text, YLocs.Basics.DefaultErrorTitle, onOk);
 }
 
-function Y_Alert(text, title, onOk)
-{
+function Y_Alert(text, title, onOk) {
     'use strict';
     var $body = $("body");
     //if (Y_InPopup()) // This doesn't really work - dragging/positioning/overlay issues, jquery uses 'body'
@@ -134,7 +132,7 @@ function Y_Alert(text, title, onOk)
         draggable: true,
         resizable: false,
         'title': title,
-        buttons: [ {
+        buttons: [{
             text: YLocs.Basics.OKButtonText,
             click: function () {
                 var endFunc = onOk;
@@ -144,11 +142,10 @@ function Y_Alert(text, title, onOk)
                 if (endFunc != undefined)
                     endFunc();
             }
-        } ]
+        }]
     });
 }
-function Y_Confirm(text, title, onOk)
-{
+function Y_Confirm(text, title, onOk) {
     if (title == undefined)
         title = YLocs.Basics.DefaultSuccessTitle;
     Y_Alert(text, title, onOk)
@@ -187,16 +184,16 @@ function Y_AlertYesNo(text, title, onYes, onNo) {
         'title': title,
         buttons: [{
             text: YLocs.Basics.YesButtonText,
-                click: function () {
-                    var endFunc = onYes;
-                    onYes = undefined;// clear this so close function doesn't try do call these
-                    onNo = undefined;
-                    $dialog.dialog("destroy");
-                    $dialog.remove();
-                    if (endFunc != undefined)
-                        endFunc();
-                }
-            },
+            click: function () {
+                var endFunc = onYes;
+                onYes = undefined;// clear this so close function doesn't try do call these
+                onNo = undefined;
+                $dialog.dialog("destroy");
+                $dialog.remove();
+                if (endFunc != undefined)
+                    endFunc();
+            }
+        },
             {
                 text: YLocs.Basics.NoButtonText,
                 click: function () {
@@ -273,8 +270,7 @@ function Y_ClosePopup(forceReload) {
     return false;
 }
 
-function Y_Loading(starting)
-{
+function Y_Loading(starting) {
     if (starting != false) {
         $.prettyLoader.show();
     } else {
@@ -397,7 +393,7 @@ function Y_SetFocus($obj) {
     if ($f != null) {
         try {
             $f[0].focus();
-        } catch (e) {  }
+        } catch (e) { }
     }
 }
 
@@ -428,7 +424,7 @@ YetaWF_Basics.showPaneSet = function (id, editMode, equalHeights) {
             $panes = $panes.not('.y_cleardiv');
             var height = 0;
             // calc height
-            $panes.each(function() {
+            $panes.each(function () {
                 var h = $(this).height();
                 if (h > height)
                     height = h;
@@ -481,7 +477,7 @@ YetaWF_Basics.getModuleGuidFromTag = function (t) {
     return guid;
 };
 
-YetaWF_Basics.refreshModule = function($mod) {
+YetaWF_Basics.refreshModule = function ($mod) {
     for (var entry in YetaWF_Basics.reloadInfo) {
         if (YetaWF_Basics.reloadInfo[entry].module == $mod) {
             YetaWF_Basics.reloadInfo[entry].callback();
@@ -511,19 +507,18 @@ YetaWF_Basics.refreshPage = function () {
 
 // Format a date value
 // fmt is of type Formatting.DateFormatEnum
-YetaWF_Basics.formatDate = function (date, fmt)
-{
+YetaWF_Basics.formatDate = function (date, fmt) {
     'use strict';
     var dt = new Date(date);
     var day = dt.getDate();
     var month = dt.getMonth() + 1;
     var year = dt.getFullYear();
 
-    switch(fmt) {
+    switch (fmt) {
 
         default:
         case 0: //"Month/Day/Year"
-            return "{0}/{1}/{2}".format(YZeroPad(month, 2),YZeroPad(day, 2),YZeroPad(year, 4));
+            return "{0}/{1}/{2}".format(YZeroPad(month, 2), YZeroPad(day, 2), YZeroPad(year, 4));
         case 1: //"Month-Day-Year"
             return "{0}-{1}-{2}".format(YZeroPad(month, 2), YZeroPad(day, 2), YZeroPad(year, 4));
         case 2: //"Day/Month/Year"
@@ -563,7 +558,13 @@ YetaWF_Basics.processAllReady = function ($tag) {
     for (var index in YetaWF_Basics.whenReady) {
         var entry = YetaWF_Basics.whenReady[index];
         try { // catch errors to insure all callbacks are called
-            entry.callback($tag);
+            if (entry.callback !== undefined)
+                entry.callback($tag);
+            else {
+                $tag.each(function () {
+                    entry.callbackTS(this);
+                });
+            }
         } catch (err) {
             console.log(err.message);
         }
@@ -745,7 +746,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
         // Close any open smartmenus
         try {
             $('.YetaWF_Menus').collapse('hide');
-        } catch (e) {}
+        } catch (e) { }
     }
 
     if (YVolatile.Basics.EditModeActive) return false; // edit mode
@@ -904,7 +905,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                     });
                     // turn on all newly active modules (if they were previously loaded)
                     // new referenced modules that were just loaded now are already active and don't need to be called
-                    YVolatile.Basics.UnifiedAddonMods.forEach(function(guid) {
+                    YVolatile.Basics.UnifiedAddonMods.forEach(function (guid) {
                         if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && _YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
                             $(document).trigger('YetaWF_Basics_Addon', [guid, true]);
                         if (_YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) < 0)
@@ -928,7 +929,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                     }
                     try {
                         $.globalEval(result.AnalyticsContent);
-                    } catch (e) {}
+                    } catch (e) { }
                     // done, set focus
                     Y_SetFocus($tags);
                     Y_Loading(false);
@@ -1005,7 +1006,7 @@ $(document).ready(function () {
     var selectors = 'img,label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],span[{2}],li[{1}],div[{1}]';
     var ddsel = '.k-list-container.k-popup li[data-offset-index]';
     $('body').tooltip({
-        items: (selectors+','+ddsel).format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
+        items: (selectors + ',' + ddsel).format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
         content: function (a, b, c) {
             var $this = $(this);
             if ($this.is(ddsel)) {
@@ -1023,7 +1024,7 @@ $(document).ready(function () {
                 if (tip == null) return null;
                 return Y_HtmlEscape(tip);
             }
-            for ( ; ; ) {
+            for (; ;) {
                 if (!$this.is(':hover') && $this.is(':focus'))
                     return null;
                 if ($this.attr("disabled") !== undefined)
@@ -1400,7 +1401,7 @@ YetaWF_Basics.initPage = function () {
 
 $(window).on("popstate", function () {
     var uri = new URI(window.location.href);
-    return ! _YetaWF_Basics.setContent(uri, false);
+    return !_YetaWF_Basics.setContent(uri, false);
 });
 
 // Set rendering mode based on window size
@@ -1408,7 +1409,7 @@ $(window).on("popstate", function () {
 // doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
 // a more condensed appearance.
 
-YetaWF_Basics.setCondense = function($tag, width) {
+YetaWF_Basics.setCondense = function ($tag, width) {
     if (width < YVolatile.Skin.MinWidthForPopups)
         $tag.addClass('yCondense');
     else

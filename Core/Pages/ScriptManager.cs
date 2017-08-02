@@ -282,14 +282,18 @@ namespace YetaWF.Core.Pages {
         public bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
             string key = fullUrl.ToLower();
 
+            // handle file types that are transpiled
+            if (fullUrl.EndsWith(".ts")) fullUrl = fullUrl.Substring(0, key.Length - 3) + ".js";
+            else if (fullUrl.EndsWith(".tsx")) fullUrl = fullUrl.Substring(0, key.Length - 4) + ".js";
+
             if (fullUrl.IsAbsoluteUrl() ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.NugetScriptsUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
-                if (key.EndsWith(".js", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 3);
-                if (key.EndsWith(".min", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 4);
-                if (key.EndsWith(".pack", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
+                if (key.EndsWith(".js")) key = key.Substring(0, key.Length - 3);
+                if (key.EndsWith(".min")) key = key.Substring(0, key.Length - 4);
+                if (key.EndsWith(".pack")) key = key.Substring(0, key.Length - 5);
 
             } else {
                 throw new InternalError("Script name '{0}' is invalid.", fullUrl);

@@ -135,9 +135,9 @@ namespace YetaWF.Core.Views.Shared {
                     } else if (prop.PropInfo.PropertyType == typeof(DateTime) || prop.PropInfo.PropertyType == typeof(DateTime?)) {
                         sb.Append("searchoptions:{sopt:['ge','le'],dataInit: function(elem) {");
                         if (prop.UIHint == "DateTime") {
-                            sb.Append(DateTimeHelper.RenderDateTimeJavascript("$(elem)"));
+                            sb.Append(DateTimeHelper.RenderDateTimeJavascript(gridDef.Id, "elem"));
                         } else if (prop.UIHint == "Date") {
-                            sb.Append(DateHelper.RenderDateJavascript("$(elem)"));
+                            sb.Append(DateHelper.RenderDateJavascript(gridDef.Id, "elem"));
                         } else {
                             throw new InternalError("Need DateTime or Date UIHint for DateTime data");
                         }
