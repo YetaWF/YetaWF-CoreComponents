@@ -3,7 +3,6 @@ var YetaWF_Core;
 (function (YetaWF_Core) {
     var TemplateDateTime;
     (function (TemplateDateTime) {
-        "use strict";
         var TemplateClass = (function () {
             function TemplateClass() {
             }
@@ -33,7 +32,7 @@ var YetaWF_Core;
                 hidden.setAttribute("value", s);
             };
             TemplateClass.prototype.setHiddenText = function (hidden, dateVal) {
-                hidden.setAttribute("value", dateVal);
+                hidden.setAttribute("value", dateVal ? dateVal : "");
             };
             TemplateClass.prototype.getDate = function (ctrl) {
                 var date = ctrl.querySelector("input[name=\"dtpicker\"]");
@@ -63,11 +62,11 @@ var YetaWF_Core;
                     format: YVolatile.Date.DateTimeFormat,
                     min: sd, max: ed,
                     culture: YConfigs.Basics.Language,
-                    change: function () {
-                        var kdPicker = this;
+                    change: function (ev) {
+                        var kdPicker = ev.sender;
                         var val = kdPicker.value();
                         if (val == null)
-                            thisObj.setHiddenText(hidden, this.element[0].value);
+                            thisObj.setHiddenText(hidden, kdPicker.element[0].getAttribute("value"));
                         else
                             thisObj.setHidden(hidden, val);
                         YetaWF_Core.Forms.ValidateElement(hidden);
@@ -97,7 +96,7 @@ var YetaWF_Core;
                 // We have to add it next to the jqgrid provided input field elem
                 // We can't use the jqgrid provided element as a kendoDateTimePicker because jqgrid gets confused and
                 // uses the wrong sorting option. So we add the datepicker next to the "official" input field (which we hide)
-                var dtPick = React.createElement("input", { name: "dtpicker" });
+                var dtPick = YetaWF_Basics.createElement("input", { name: "dtpicker" });
                 elem.insertAdjacentElement("afterend", dtPick);
                 // Hide the jqgrid provided input element (we update the date in this hidden element)
                 elem.style.display = "none";
@@ -107,8 +106,8 @@ var YetaWF_Core;
                     format: YVolatile.Date.DateTimeFormat,
                     //sb.Append("min: sd, max: ed,");
                     culture: YConfigs.Basics.Language,
-                    change: function () {
-                        var kdPicker = this;
+                    change: function (ev) {
+                        var kdPicker = ev.sender;
                         var val = kdPicker.value();
                         var s = "";
                         if (val !== null) {
@@ -122,7 +121,7 @@ var YetaWF_Core;
                  * @param event
                  */
                 function keydownHandler(event) {
-                    if (event.keyCode == 13)
+                    if (event.keyCode === 13)
                         grid.triggerToolbar();
                 }
                 dtPick.addEventListener("keydown", keydownHandler, false);

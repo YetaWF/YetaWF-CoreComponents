@@ -3,7 +3,6 @@ var YetaWF_Core;
 (function (YetaWF_Core) {
     var TemplateCurrency;
     (function (TemplateCurrency) {
-        "use strict";
         var TemplateClass = (function () {
             function TemplateClass() {
             }
@@ -30,11 +29,9 @@ var YetaWF_Core;
             return TemplateClass;
         }());
         TemplateCurrency.TemplateClass = TemplateClass;
-        YetaWF_Basics.whenReady.push({
-            callbackTS: function (section) {
-                var tc = new TemplateClass();
-                tc.initSection(section);
-            }
+        // initializes new currency elements on demand
+        YetaWF_Basics.addWhenReady(function (section) {
+            new TemplateClass().initSection(section);
         });
     })(TemplateCurrency = YetaWF_Core.TemplateCurrency || (YetaWF_Core.TemplateCurrency = {}));
 })(YetaWF_Core || (YetaWF_Core = {}));

@@ -14,6 +14,10 @@ globals.js
 
 !Core/NSass.Wrapper/*.dll
 
+**/@types
+**/*.d.ts
+**/*.js.map
+
 **/Addons/_Addons/**/*.min.js
 **/Addons/_Addons/**/*.min.css
 **/Addons/_Addons/**/*.min.scss
@@ -93,6 +97,7 @@ Core/Addons/_JS/no-margin-for-errors.com/prettyLoader/**/*.min.css
 Core/Addons/_JS/no-margin-for-errors.com/prettyLoader/**/*.min.scss
 
 # telerik.com/Kendo_UI_Core - provides min files
-**/@types
-**/*.d.ts
-**/*.js.map
+
+Core/node_modules/
+
+

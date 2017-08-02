@@ -1,27 +1,38 @@
-﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
-'use strict';
-
-var YetaWF_Decimal = {};
-
-YetaWF_Decimal.init = function ($tag) {
-    $('input.yt_decimal.t_edit', $tag).each(function (index) {
-        var sd = 0.0;
-        var ed = 99999999.99;
-        var $this = $(this);
-        if ($this.attr('data-min') != undefined) {
-            sd = $this.attr('data-min');
-        }
-        if ($this.attr('data-max') != undefined) {
-            ed = $this.attr('data-max');
-        }
-        $this.kendoNumericTextBox({
-            format: "0.00",
-            min: sd, max: ed,
-            culture: YConfigs.Basics.Language
+/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+var YetaWF_Core;
+(function (YetaWF_Core) {
+    var TemplateDecimal;
+    (function (TemplateDecimal) {
+        var TemplateClass = (function () {
+            function TemplateClass() {
+            }
+            /**
+             * Initializes all decimal fields in the specified tag.
+             * @param tag - an element containing Decimal template controls.
+             */
+            TemplateClass.prototype.initSection = function (tag) {
+                var list = tag.querySelectorAll("input.yt_decimal.t_edit");
+                var len = list.length;
+                for (var i = 0; i < len; ++i) {
+                    var el = list[i];
+                    var d = el.getAttribute("data-min");
+                    var sd = d == null ? 0.0 : Number(d);
+                    d = el.getAttribute("data-max");
+                    var ed = d == null ? 99999999.99 : Number(d);
+                    $(el).kendoNumericTextBox({
+                        format: "0.00",
+                        min: sd, max: ed,
+                        culture: YConfigs.Basics.Language
+                    });
+                }
+            };
+            return TemplateClass;
+        }());
+        TemplateDecimal.TemplateClass = TemplateClass;
+        // initializes new decimal elements on demand
+        YetaWF_Basics.addWhenReady(function (section) {
+            new TemplateClass().initSection(section);
         });
-    });
-};
-
-YetaWF_Basics.whenReady.push({
-    callback: YetaWF_Decimal.init
-});
+    })(TemplateDecimal = YetaWF_Core.TemplateDecimal || (YetaWF_Core.TemplateDecimal = {}));
+})(YetaWF_Core || (YetaWF_Core = {}));
+//# sourceMappingURL=Decimal.js.map

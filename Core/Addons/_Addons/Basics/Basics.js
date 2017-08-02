@@ -1,6 +1,5 @@
 /* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-var YetaWF_Basics = {};
 var _YetaWF_Basics = {};
 
 // Extend string type
@@ -447,13 +446,6 @@ YetaWF_Basics.showPaneSet = function (id, editMode, equalHeights) {
 
 YetaWF_Basics.reloadInfo = [];
 
-YetaWF_Basics.getModuleFromId = function (id) {
-    var $id = ('#' + id);
-    if ($id.length != 1) { debugger; throw "Invalid id"; }/*DEBUG*/
-    var $mod = $id.closest('.yModule');
-    if ($mod.length != 1) { debugger; throw "Can't find containing module"; }/*DEBUG*/
-    return $mod;
-};
 YetaWF_Basics.getModuleFromTag_Cond = function (t) {
     var $t = $(t);
     if ($t.length != 1) { debugger; throw "Invalid tag"; }/*DEBUG*/
@@ -492,110 +484,11 @@ YetaWF_Basics.refreshModuleByAnyTag = function (t) {
         }
     }
 };
-YetaWF_Basics.refreshModuleById = function (id) {
-    YetaWF_Basics.refreshModule(YetaWF_Basics.getModuleFromId(id));
-};
 YetaWF_Basics.refreshPage = function () {
     for (var entry in YetaWF_Basics.reloadInfo) {
         YetaWF_Basics.reloadInfo[entry].callback();
     }
 };
-
-// FORMATTING
-// FORMATTING
-// FORMATTING
-
-// Format a date value
-// fmt is of type Formatting.DateFormatEnum
-YetaWF_Basics.formatDate = function (date, fmt) {
-    'use strict';
-    var dt = new Date(date);
-    var day = dt.getDate();
-    var month = dt.getMonth() + 1;
-    var year = dt.getFullYear();
-
-    switch (fmt) {
-
-        default:
-        case 0: //"Month/Day/Year"
-            return "{0}/{1}/{2}".format(YZeroPad(month, 2), YZeroPad(day, 2), YZeroPad(year, 4));
-        case 1: //"Month-Day-Year"
-            return "{0}-{1}-{2}".format(YZeroPad(month, 2), YZeroPad(day, 2), YZeroPad(year, 4));
-        case 2: //"Day/Month/Year"
-            return "{0}/{1}/{2}".format(YZeroPad(day, 2), YZeroPad(month, 2), YZeroPad(year, 4));
-        case 10: //"Day.Month.Year"
-            return "{0}.{1}.{2}".format(YZeroPad(day, 2), YZeroPad(month, 2), YZeroPad(year, 4));
-        case 11: //"Day-Month-Year"
-            return "{0}-{1}-{2}".format(YZeroPad(day, 2), YZeroPad(month, 2), YZeroPad(year, 4));
-        case 12: //"Year/Month/Day"
-            return "{0}/{1}/{2}".format(YZeroPad(year, 4), YZeroPad(month, 2), YZeroPad(day, 2));
-        case 20: //"Year.Month.Day"
-            return "{0}.{1}.{2}".format(YZeroPad(year, 4), YZeroPad(month, 2), YZeroPad(day, 2));
-        case 21: //"Year-Month-Day"
-            return "{0}-{1}-{2}".format(YZeroPad(year, 4), YZeroPad(month, 2), YZeroPad(day, 2));
-        case 22: //"Year.Month.Day"
-            return "{0}.{1}.{2}".format(YZeroPad(year, 4), YZeroPad(month, 2), YZeroPad(day, 2));
-    }
-}
-
-// WHENREADY
-// WHENREADY
-// WHENREADY
-
-YetaWF_Basics.whenReady = [];
-
-// Usage:
-// YetaWF_Basics.whenReady.push({
-//   callback: function($tag) {}    // function to be called
-// });
-// This registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-// or after a partial form is rendered. The callee must honor $tag and only manipulate child objects.
-// Callback functions are registered by whomever needs this type of processing. For example, a grid can
-// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
-// $tag describes the section that is new and needs to be initialized.
-YetaWF_Basics.processAllReady = function ($tag) {
-    if ($tag === undefined) $tag = $('body');
-    for (var index in YetaWF_Basics.whenReady) {
-        var entry = YetaWF_Basics.whenReady[index];
-        try { // catch errors to insure all callbacks are called
-            if (entry.callback !== undefined)
-                entry.callback($tag);
-            else {
-                $tag.each(function () {
-                    entry.callbackTS(this);
-                });
-            }
-        } catch (err) {
-            console.log(err.message);
-        }
-    }
-}
-
-YetaWF_Basics.whenReadyOnce = [];
-
-// Usage:
-// YetaWF_Basics.whenReadyOnce.push({
-//   callback: function($tag) {}    // function to be called
-// });
-// This registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-// or after a partial form is rendered. The callee must honor $tag and only manipulate child objects.
-// Callback functions are registered by whomever needs this type of processing. For example, a grid can
-// process all whenready requests after reloading the grid with data (which doesn't run any javascript).
-// $tag describes the section that is new and needs to be initialized.
-// The callback is called for ONCE. Then the callback is removed.
-// $tag describes the section that is new and needs to be initialized.
-YetaWF_Basics.processAllReadyOnce = function ($tag) {
-    if ($tag === undefined) $tag = $('body');
-    for (var index in YetaWF_Basics.whenReadyOnce) {
-        var entry = YetaWF_Basics.whenReadyOnce[index];
-        try { // catch errors to insure all callbacks are called
-            entry.callback($tag);
-        } catch (err) {
-            console.log(err.message);
-        }
-    }
-    YetaWF_Basics.whenReadyOnce = [];
-}
 
 // BEAUTIFY BUTTONS
 // BEAUTIFY BUTTONS
