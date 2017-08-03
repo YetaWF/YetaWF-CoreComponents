@@ -59,7 +59,7 @@ var YetaWF_Core;
                     ed = new Date(Number(date.getAttribute("data-max-y")), Number(date.getAttribute("data-max-m")) - 1, Number(date.getAttribute("data-max-d")));
                 $(date).kendoDateTimePicker({
                     animation: false,
-                    format: YVolatile.Date.DateTimeFormat,
+                    format: YVolatile.DateTime.DateTimeFormat,
                     min: sd, max: ed,
                     culture: YConfigs.Basics.Language,
                     change: function (ev) {
@@ -103,7 +103,7 @@ var YetaWF_Core;
                 // init date picker
                 $(dtPick).kendoDateTimePicker({
                     animation: false,
-                    format: YVolatile.Date.DateTimeFormat,
+                    format: YVolatile.DateTime.DateTimeFormat,
                     //sb.Append("min: sd, max: ed,");
                     culture: YConfigs.Basics.Language,
                     change: function (ev) {
