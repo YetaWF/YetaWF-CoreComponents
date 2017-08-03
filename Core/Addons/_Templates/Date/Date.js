@@ -67,7 +67,7 @@ var YetaWF_Core;
                         var kdPicker = ev.sender;
                         var val = kdPicker.value();
                         if (val == null)
-                            thisObj.setHiddenText(hidden, kdPicker.element[0].getAttribute("value"));
+                            thisObj.setHiddenText(hidden, kdPicker.element.val());
                         else
                             thisObj.setHidden(hidden, val);
                         YetaWF_Core.Forms.ValidateElement(hidden);
@@ -84,7 +84,6 @@ var YetaWF_Core;
                     YetaWF_Core.Forms.ValidateElement(hidden);
                 }
                 date.addEventListener("change", changeHandler, false);
-                date.addEventListener("keyup", changeHandler, false);
             };
             /**
              * Renders a date picker in the jqGrid filter toolbar.

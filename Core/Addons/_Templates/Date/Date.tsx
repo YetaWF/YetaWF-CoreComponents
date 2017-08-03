@@ -60,7 +60,7 @@ namespace YetaWF_Core.TemplateDate {
                     var kdPicker: kendo.ui.DatePicker = ev.sender;
                     var val: Date = kdPicker.value();
                     if (val == null)
-                        thisObj.setHiddenText(hidden, kdPicker.element[0].getAttribute("value"));
+                        thisObj.setHiddenText(hidden, kdPicker.element.val() as string);
                     else
                         thisObj.setHidden(hidden, val);
                     YetaWF_Core.Forms.ValidateElement(hidden);
@@ -79,7 +79,6 @@ namespace YetaWF_Core.TemplateDate {
             }
 
             date.addEventListener("change", changeHandler, false);
-            date.addEventListener("keyup", changeHandler, false);
         }
 
         /**
