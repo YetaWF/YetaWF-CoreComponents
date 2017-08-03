@@ -49,7 +49,9 @@ namespace YetaWF.Core.Support.Repository {
         public TYPE GetValue<TYPE>() {
             if (Value == null || Value.Equals(default(TYPE))) return default(TYPE);
             if (typeof(TYPE) == typeof(bool)) {
-                return (TYPE)(object)((string)Value == "True");
+                try {
+                    return (TYPE)(object)((string)Value == "True");
+                } catch (Exception) { }
             } else if (typeof(TYPE) == typeof(int)) {
                 return (TYPE)(object) Convert.ToInt32((string) Value);
             }
