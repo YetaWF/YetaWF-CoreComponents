@@ -142,6 +142,30 @@ class YetaWF_BasicsServices {
         }
         this.whenReadyOnce = [];
     }
+
+    // SELECTORS
+    // SELECTORS
+    // SELECTORS
+    // APIs to detach selectors from jQuery so this could be replaced with a smaller library (like sizzle).
+
+    /**
+     * Tests whether the specified element matches the selector.
+     * @param elem - The element to test.
+     * @param selector - The selector to match.
+     */
+    public elementMatches(elem: Element | null, selector: string): boolean {
+        if (elem) return $(elem).is(selector);
+        return false;
+    }
+
+    // CONTENTCHANGE
+    // CONTENTCHANGE
+    // CONTENTCHANGE
+    // APIs to detach custom event handling from jQuery so this could be replaced with a native mechanism
+
+    public RegisterContentChange(callback: (event: Event, addonGuid: string, on: boolean) => void): void {
+        $(document).on("YetaWF_Basics_Addon", function (event: any, addonGuid: string, on: boolean): void { callback(event, addonGuid, on); });
+    }
 }
 
 

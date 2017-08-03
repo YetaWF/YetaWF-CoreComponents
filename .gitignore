@@ -101,3 +101,4 @@ Core/Addons/_JS/no-margin-for-errors.com/prettyLoader/**/*.min.scss
 Core/node_modules/
 
 
+Core/package-lock.json
