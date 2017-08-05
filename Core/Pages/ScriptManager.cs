@@ -282,8 +282,10 @@ namespace YetaWF.Core.Pages {
         public bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
             string key = fullUrl.ToLower();
 
-            if (fullUrl.IsAbsoluteUrl() ||
-                fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+            if (fullUrl.IsAbsoluteUrl()) {
+                // nothing to do
+                bundle = false;
+            } else if (fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.NugetScriptsUrl, StringComparison.InvariantCultureIgnoreCase)) {
 

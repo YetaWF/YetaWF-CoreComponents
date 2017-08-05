@@ -113,8 +113,10 @@ namespace YetaWF.Core.Pages {
 
             string key = fullUrl;
 
-            if (fullUrl.IsAbsoluteUrl() ||
-                fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
+            if (fullUrl.IsAbsoluteUrl()) {
+                // nothing to do
+                bundle = false;
+            } else if (fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultPrivateUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
@@ -175,7 +177,7 @@ namespace YetaWF.Core.Pages {
                     if (CanPreProcess(fullUrl)) {
                         string path = YetaWFManager.UrlToPhysical(fullUrl);
                         if (!File.Exists(path))
-                            throw new InternalError("File {0} not found - can't be minimized", fullUrl);
+                            throw new InternalError("File {0} not found", fullUrl);
                     }
                     return fullUrl;
                 } else {
