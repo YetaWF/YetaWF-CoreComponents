@@ -4,7 +4,7 @@
 MVC6 \lib\bootstrap\less\bootstrap.less,noCDN
 MVC6 \lib\bootstrap\less\theme.less,noCDN
 
-MVC5 \Content\bootstrap\bootstrap.min.less,noCDN
-MVC5 \Content\bootstrap\theme.min.less,noCDN
+MVC5 \Content\bootstrap\bootstrap.less,noCDN
+MVC5 \Content\bootstrap\theme.less,noCDN
 
 Bootstrap.css,bundle
