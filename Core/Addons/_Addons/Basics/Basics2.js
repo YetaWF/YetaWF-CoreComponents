@@ -154,4 +154,5 @@ var YetaWF_BasicsServices = (function () {
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF_BasicsServices();
+
 //# sourceMappingURL=Basics2.js.map

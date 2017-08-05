@@ -35,4 +35,5 @@ var YetaWF_Core;
         });
     })(TemplateDecimal = YetaWF_Core.TemplateDecimal || (YetaWF_Core.TemplateDecimal = {}));
 })(YetaWF_Core || (YetaWF_Core = {}));
+
 //# sourceMappingURL=Decimal.js.map

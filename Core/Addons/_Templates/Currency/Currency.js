@@ -35,4 +35,5 @@ var YetaWF_Core;
         });
     })(TemplateCurrency = YetaWF_Core.TemplateCurrency || (YetaWF_Core.TemplateCurrency = {}));
 })(YetaWF_Core || (YetaWF_Core = {}));
+
 //# sourceMappingURL=Currency.js.map
