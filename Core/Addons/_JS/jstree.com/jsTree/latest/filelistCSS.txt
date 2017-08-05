@@ -1,3 +1,2 @@
 //cdnjs.cloudflare.com/ajax/libs/jstree/3.3.4/themes/default/style.min.css,CDN
-MVC6 \lib\jstree\dist\themes\default\style.min.css,noCDN
-MVC5 \Content\themes\default\style.min.css,noCDN
+\node_modules\jstree\dist\themes\default\style.min.css,noCDN

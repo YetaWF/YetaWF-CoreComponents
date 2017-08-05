@@ -249,7 +249,7 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
                     if (bundle == null) {
-                        if (filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || filePathURL.ContainsIgnoreCase(Globals.NugetScriptsUrl) || filePathURL.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl) || filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {
@@ -285,9 +285,10 @@ namespace YetaWF.Core.Pages {
             if (fullUrl.IsAbsoluteUrl()) {
                 // nothing to do
                 bundle = false;
-            } else if (fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.NugetScriptsUrl, StringComparison.InvariantCultureIgnoreCase)) {
+            } else if (fullUrl.StartsWith(Globals.NodeModulesUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(Globals.BowerComponentsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".js")) key = key.Substring(0, key.Length - 3);
                 if (key.EndsWith(".min")) key = key.Substring(0, key.Length - 4);

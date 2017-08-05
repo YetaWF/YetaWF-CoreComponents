@@ -1,2 +1,0 @@
-styles/kendo.common.min.css
-{0}

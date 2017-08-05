@@ -1,2 +1,0 @@
-js/kendo.all.min.js
-js/kendo.aspnetmvc.min.js

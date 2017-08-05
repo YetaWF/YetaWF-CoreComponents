@@ -1,4 +1,3 @@
 ﻿https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js,CDN
-MVC6 \lib\bootstrap\dist\js\bootstrap.min.js,noCDN
-MVC5 \Scripts\bootstrap.min.js,noCDN
+\node_modules\bootstrap\dist\js\bootstrap.min.js,noCDN
 fixup.js,bundle

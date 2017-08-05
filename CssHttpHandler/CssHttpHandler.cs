@@ -77,7 +77,7 @@ namespace YetaWF.Core.HttpHandler {
 #endif
             file = YetaWFManager.UrlToPhysical(fullUrl);
 
-            if (fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || file.ContainsIgnoreCase(Globals.NugetScriptsUrl)) processCharSize = false;
+            if (fullUrl.ContainsIgnoreCase(Globals.NodeModulesUrl) || fullUrl.ContainsIgnoreCase(Globals.BowerComponentsUrl) || fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) processCharSize = false;
             DateTime lastMod = File.GetLastWriteTimeUtc(file);
 
             // Cache verification?

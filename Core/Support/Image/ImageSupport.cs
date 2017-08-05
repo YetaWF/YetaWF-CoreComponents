@@ -24,7 +24,7 @@ namespace YetaWF.Core.Image {
 
         public void InitializeApplicationStartup() {
             // Delete all temp images
-            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder);
+            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
             YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
             // Create folder for temp images
             YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
@@ -247,7 +247,7 @@ namespace YetaWF.Core.Image {
                 string name = YetaWFManager.UrlDecodeArgs(m.Groups["name"].Value);
                 string rem = m.Groups["rem"].Value;
                 if (string.IsNullOrWhiteSpace(name)) name = "NoImage.png";
-                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}",
+                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}",
                     type, loc.Replace(",", "_"), FileData.MakeValidFileSystemFileName(name)));
                 if (!File.Exists(physFile))
                     physFile = GetImageFromArgs(physFile, type, loc, name);
@@ -266,7 +266,7 @@ namespace YetaWF.Core.Image {
                 int width = Convert.ToInt32(m.Groups["width"].Value);
                 int height = Convert.ToInt32(m.Groups["height"].Value);
                 string rem = m.Groups["rem"].Value;
-                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}_{3}_{4}",
+                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}_{3}_{4}",
                     type, loc.Replace(",", "_"), width, height, FileData.MakeValidFileSystemFileName(name)));
                 if (!File.Exists(physFile))
                     physFile = GetImageFromArgs(physFile, type, loc, name, width, height);
@@ -284,7 +284,7 @@ namespace YetaWF.Core.Image {
                 if (string.IsNullOrWhiteSpace(name)) name = "NoImage.png";
                 int percent = Convert.ToInt32(m.Groups["percent"].Value);
                 string rem = m.Groups["rem"].Value;
-                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.NugetContentsFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}p_{3}",
+                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}p_{3}",
                     type, loc.Replace(",", "_"), percent, FileData.MakeValidFileSystemFileName(name)));
                 if (!File.Exists(physFile))
                     physFile = GetImageFromArgs(physFile, type, loc, name, percent: percent);

@@ -400,11 +400,12 @@ namespace YetaWF.Core.Addons {
         public static string GetCustomUrlFromUrl(string url) {
             if (url.StartsWith(Globals.AddOnsUrl)) {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.AddOnsUrl.Length);
-            }
-            if (url.StartsWith(Globals.NugetContentsUrl)) {
+            } else if (url.StartsWith(Globals.NodeModulesUrl)) {
+                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
+            } else if (url.StartsWith(Globals.BowerComponentsUrl)) {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
             }
-            throw new InternalError("Url {0} doesn't start with {1} or {2}", url, Globals.AddOnsUrl, Globals.NugetContentsUrl);
+            throw new InternalError("Url {0} doesn't start with {1} or {2}", url, Globals.AddOnsUrl, Globals.NodeModulesUrl);
         }
 
         // LOAD
@@ -439,14 +440,6 @@ namespace YetaWF.Core.Addons {
         public static string AddOnsUrl {
             get {
                 return Globals.AddOnsUrl + "/";
-            }
-        }
-        /// <summary>
-        /// Returns the URL of the Nuget scripts folder
-        /// </summary>
-        public static string NugetScriptsUrl {
-            get {
-                return Globals.NugetScriptsUrl;
             }
         }
         /// <summary>

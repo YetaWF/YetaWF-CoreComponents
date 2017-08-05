@@ -118,21 +118,14 @@ namespace YetaWF.Core {
         public const string VaultUrl = "/" + VaultFolder + "/";
         public const string VaultPrivateUrl = "/" + VaultPrivateFolder + "/";
 
-        private const string NugetContentsFolderMVC6 = "lib";
-        private const string NugetContentsFolderMVC5 = "Content";
-        private const string NugetScriptsFolderMVC6 = "lib";
-        private const string NugetScriptsFolderMVC5 = "Scripts";
-        private const string NugetScriptsUrlMVC6 = "/" + NugetScriptsFolder + "/";
-        private const string NugetScriptsUrlMVC5 = "/Scripts/";
-#if MVC6
-        public const string NugetContentsFolder = NugetContentsFolderMVC6;
-        public const string NugetScriptsFolder = NugetScriptsFolderMVC6;
-#else
-        public const string NugetContentsFolder = NugetContentsFolderMVC5;
-        public const string NugetScriptsFolder = NugetScriptsFolderMVC5;
-#endif
-        public const string NugetContentsUrl = "/" + NugetContentsFolder + "/";
-        public const string NugetScriptsUrl = "/" + NugetScriptsFolder + "/";
+        public const string LibUrl = "/lib/";
+        public const string LibFolder = "lib";
+
+        public const string NodeModulesFolder = "node_modules";
+        public const string NodeModulesUrl = "/node_modules/";
+        public const string BowerComponentsFolder = "bower_components";
+        public const string BowerComponentsUrl = "/bower_components/";
+
         public const string TempImagesFolder = "_img_";
 
         public const string Addons_JSFileList = "filelistJS.txt";

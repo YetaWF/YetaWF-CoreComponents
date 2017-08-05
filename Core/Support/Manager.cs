@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
-using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Menus;
 using YetaWF.Core.Models;
@@ -1629,10 +1628,10 @@ namespace YetaWF.Core.Support {
             if (url.StartsWith("/")) {
                 bool useCDN = Manager.CurrentSite.CanUseCDN;
                 if (useCDN) {
-                    if (url.StartsWith(Globals.NugetScriptsUrl))
-                        useCDN = CurrentSite.CDNScripts;
-                    else if (url.StartsWith(Globals.NugetContentsUrl))
-                        useCDN = CurrentSite.CDNContent;
+                    if (url.StartsWith(Globals.NodeModulesUrl))
+                        useCDN = CurrentSite.CDNScriptsContent;
+                    else if (url.StartsWith(Globals.BowerComponentsUrl))
+                        useCDN = CurrentSite.CDNScriptsContent;
                     else if (url.StartsWith(Globals.SiteFilesUrl))
                         useCDN = CurrentSite.CDNSiteFiles;
                     else if (url.StartsWith(Globals.VaultUrl))

@@ -1,2 +1,1 @@
-MVC6 \lib\normalize-css\normalize.css,bundle
-MVC5 \Content\normalize.css,bundle
+\node_modules\normalize-css\normalize.css,bundle

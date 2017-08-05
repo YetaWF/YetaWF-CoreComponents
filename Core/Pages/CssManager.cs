@@ -96,7 +96,7 @@ namespace YetaWF.Core.Pages {
                             filePathURL = customUrl;
                     }
                     if (bundle == null) {
-                        if (filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || filePathURL.ContainsIgnoreCase(Globals.NugetScriptsUrl) || filePathURL.ContainsIgnoreCase(Globals.NugetContentsUrl)) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl) || filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {
@@ -116,12 +116,13 @@ namespace YetaWF.Core.Pages {
             if (fullUrl.IsAbsoluteUrl()) {
                 // nothing to do
                 bundle = false;
-            } else if (fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
+            } else if (fullUrl.StartsWith(Globals.NodeModulesUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(Globals.BowerComponentsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultPrivateUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(Globals.NugetContentsUrl, StringComparison.InvariantCultureIgnoreCase)) {
+                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".css", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 4);
                 else if (key.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
@@ -323,7 +324,7 @@ namespace YetaWF.Core.Pages {
                         tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}'>", YetaWFManager.HtmlAttributeEncode(url)));
                     } else {
                         string sep = url.Contains("?") ? "&amp;" : "?";
-                        if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || url.ContainsIgnoreCase(Globals.NugetContentsUrl))
+                        if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase(Globals.NodeModulesUrl) || url.ContainsIgnoreCase(Globals.BowerComponentsUrl) || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/"))
                             tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
                         else
                             tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));

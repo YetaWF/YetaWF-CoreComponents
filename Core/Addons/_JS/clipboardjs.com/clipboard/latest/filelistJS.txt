@@ -1,2 +1,2 @@
-MVC6 \lib\clipboard\dist\clipboard.min.js,nobundle
-MVC5 clipboard.min.js,nobundle
+\node_modules\clipboard\dist\clipboard.min.js,nobundle
+

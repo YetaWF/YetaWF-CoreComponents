@@ -126,8 +126,7 @@ namespace YetaWF.Core.Site {
             OriginalCDNUrl = CDNUrl = null;
             OriginalCDNSiteFiles = CDNSiteFiles = false;
             OriginalCDNVault = CDNVault = false;
-            OriginalCDNContent = CDNContent = false;
-            OriginalCDNScripts = CDNScripts = false;
+            OriginalCDNScriptsContent = CDNScriptsContent = false;
             OriginalCDNAddons = CDNAddons = false;
             OriginalCDNAddonsCustom = CDNAddonsCustom = false;
             OriginalCDNAddonsBundles = CDNAddonsBundles = false;
@@ -369,15 +368,15 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool BundleCSSFilesContent { get; set; }
 
-        [Category("Pages"), Caption("Compress Javascript Files"), Description("Defines whether Javascript files are automatically compressed and saved the first time they are used (Yes). Otherwise, javascript files are not compressed (No)")]
+        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether JavaScript files are automatically compressed and saved the first time they are used (Yes). Otherwise, JavaScript files are not compressed (No)")]
         [UIHint("Boolean")]
         public bool CompressJSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle Javascript Files"), Description("Defines whether Javascript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
+        [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
         [UIHint("Boolean")]
         public bool BundleJSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle Javascript Files (UPS)"), Description("Defines whether Javascript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set")]
+        [Category("Pages"), Caption("Bundle JavaScript Files (UPS)"), Description("Defines whether JavaScript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         public bool BundleJSFilesContent { get; set; }
@@ -402,12 +401,12 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN (Javascript Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Use CDN (JavaScript Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         public bool UseCDNComponents { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the \"Use CDN (Javascript Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the \"Use CDN (JavaScript Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDNComponents { get { return Manager.CanUseCDNComponents && UseCDNComponents; } }
 
@@ -444,15 +443,11 @@ namespace YetaWF.Core.Site {
         [ProcessIf("UseCDN", true)]
         public bool CDNVault { get; set; }
 
-        [Category("CDN"), Caption("CSS"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Content/ folder (typically used for 3rd party CSS files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
+        [Category("CDN"), Caption("CSS/JavaScript"), Description("Defines whether you want to use a Content Delivery Network for CSS/JavaScript files located in your site's /bower_components and /node_modules folders (typically used for 3rd party files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
         [ProcessIf("UseCDN", true)]
-        public bool CDNContent { get; set; }
-
-        [Category("CDN"), Caption("Javascript"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Scripts/ folder (typically used for 3rd party Javascript files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNScripts { get; set; }
+        [Data_NewValue("(0)")]
+        public bool CDNScriptsContent { get; set; }
 
         [Category("CDN"), Caption("Addons"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Addons/ folder (typically used for YetaWF files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
@@ -464,7 +459,7 @@ namespace YetaWF.Core.Site {
         [ProcessIf("UseCDN", true)]
         public bool CDNAddonsCustom { get; set; }
 
-        [Category("CDN"), Caption("AddonsBundles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for javascript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
+        [Category("CDN"), Caption("AddonsBundles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
         [ProcessIf("UseCDN", true)]
         public bool CDNAddonsBundles { get; set; }
@@ -491,10 +486,7 @@ namespace YetaWF.Core.Site {
         public bool OriginalCDNVault { get; set; }
         [UIHint("Hidden")]
         [DontSave]
-        public bool OriginalCDNContent { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNScripts { get; set; }
+        public bool OriginalCDNScriptsContent { get; set; }
         [UIHint("Hidden")]
         [DontSave]
         public bool OriginalCDNAddons { get; set; }
@@ -633,11 +625,11 @@ namespace YetaWF.Core.Site {
         // ADDONS
         // ADDONS
 
-        [Category("Addons"), Caption("Analytics"), Description("Add analytics Javascript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including <script></script> tags - Pages can override this setting")]
+        [Category("Addons"), Caption("Analytics"), Description("Add analytics JavaScript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including <script></script> tags - Pages can override this setting")]
         [TextAbove("Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
         public string Analytics { get; set; }
-        [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics Javascript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual Url - Pages can override this setting")]
+        [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual Url - Pages can override this setting")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
         public string AnalyticsContent { get; set; }
 

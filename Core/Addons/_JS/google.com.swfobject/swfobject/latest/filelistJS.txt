@@ -1,2 +1,1 @@
-MVC6 \lib\swfobject\swfobject\src\swfobject.js,bundle
-MVC5 swfobject.js,bundle
+\node_modules\swfobject-npm\swfobject.js,nominify,bundle

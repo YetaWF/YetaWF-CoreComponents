@@ -1,2 +1,1 @@
-MVC6 \lib\jquery-color\jquery.color.js,bundle
-MVC5 jquery.color-2.1.2.min.js,bundle
+jquery.color-2.1.2.min.js,bundle

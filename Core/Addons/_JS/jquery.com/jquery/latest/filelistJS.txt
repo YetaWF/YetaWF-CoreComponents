@@ -1,4 +1,3 @@
-https://code.jquery.com/jquery-3.1.1.min.js,CDN
-MVC6 \lib\jquery\dist\jquery.min.js,noCDN
-MVC5 \Scripts\jquery-3.1.1.min.js,noCDN
+https://code.jquery.com/jquery-3.2.1.min.js,CDN
+\node_modules\jquery\dist\jquery.min.js,noCDN
 

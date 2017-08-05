@@ -1,2 +1,1 @@
-MVC6 \lib\ui-contextmenu\jquery.ui-contextmenu.min.js,bundle
-MVC5 jquery.ui-contextmenu.js,bundle
+\node_modules\ui-contextmenu\jquery.ui-contextmenu.min.js,bundle
