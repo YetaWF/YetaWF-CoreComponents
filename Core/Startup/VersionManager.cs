@@ -17,14 +17,6 @@ namespace YetaWF.Core.Addons {
 
     public class VersionManagerStartup : IInitializeApplicationStartup {
         public void InitializeApplicationStartup() {
-#if DEBUG
-            Logging.AddLog("Removing all compiled files");
-            RemoveFolderContents(YetaWFManager.RootFolder, new List<string> {
-                "*" + Globals.Compiled + ".*",
-                "*._ci_*"
-            });
-            Logging.AddLog("Completed removing all compiled files");
-#endif
             VersionManager.RegisterAllAddOns();
         }
         private static void RemoveFolderContents(string targetPath, List<string> RemovePatterns = null) {

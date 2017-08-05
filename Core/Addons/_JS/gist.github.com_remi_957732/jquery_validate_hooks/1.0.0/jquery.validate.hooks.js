@@ -1,4 +1,4 @@
-﻿// https://gist.github.com/remi/957732
+// https://gist.github.com/remi/957732
 // jQuery Validate Hooks
 // To intercept jquerty.validate.unobtrusive
 

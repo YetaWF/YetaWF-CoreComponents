@@ -5,9 +5,7 @@ using System.IO;
 using System.Text;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
-using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-using System.Globalization;
 #if MVC6
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Http;
@@ -78,10 +76,6 @@ namespace YetaWF.Core.HttpHandler {
 #else
 #endif
             file = YetaWFManager.UrlToPhysical(fullUrl);
-            // we only process scss files here in debug mode, otherwise they're compiled once in CssManager
-            bool processNsass = manager.CurrentSite.DEBUGMODE && file.EndsWith(".scss", StringComparison.OrdinalIgnoreCase);
-            // we only process scss files here in debug mode, otherwise they're compiled once in CssManager
-            bool processLess = manager.CurrentSite.DEBUGMODE && file.EndsWith(".less", StringComparison.OrdinalIgnoreCase);
 
             if (fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/") || file.ContainsIgnoreCase(Globals.NugetScriptsUrl)) processCharSize = false;
             DateTime lastMod = File.GetLastWriteTimeUtc(file);
@@ -137,13 +131,8 @@ namespace YetaWF.Core.HttpHandler {
                 if (processCharSize) {
                     // process css - replace nn ch with pixel value, derived from avg char width
                     try {
-                        Packer packer = new Packer();
-                        text = packer.ProcessCss(text, charWidth, charHeight);
+                        text = manager.CssManager.ProcessCss(text, charWidth, charHeight);
                     } catch (Exception) { }// this can fail for *.css requests without !CI= in which case we use the text as-is
-                    if (processNsass)
-                        text = CssManager.CompileNSass(file, text);
-                    if (processLess)
-                        text = CssManager.CompileLess(file, text);
                     bytes = Encoding.ASCII.GetBytes(text);
                     if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
 #if MVC6
@@ -154,10 +143,6 @@ namespace YetaWF.Core.HttpHandler {
 #endif
                     }
                 } else {
-                    if (processNsass)
-                        text = CssManager.CompileNSass(file, text);
-                    if (processLess)
-                        text = CssManager.CompileLess(file, text);
                     bytes = Encoding.ASCII.GetBytes(text);
                 }
             }

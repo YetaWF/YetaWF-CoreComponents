@@ -1,0 +1,19 @@
+@charset "UTF-8";
+/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+div.yt_url.t_edit {
+  display: inline-block; }
+  div.yt_url.t_edit .t_select {
+    margin-right: 1ch; }
+  div.yt_url.t_edit .t_link {
+    margin-left: .5ch; }
+  div.yt_url.t_edit .t_local,
+  div.yt_url.t_edit .t_remote,
+  div.yt_url.t_edit .t_link {
+    display: inline-block; }
+  div.yt_url.t_edit input[type="text"] {
+    width: 50ch; }
+
+div.yt_url.t_display {
+  display: inline; }
+  div.yt_url.t_display a img {
+    margin-left: .5ch; }

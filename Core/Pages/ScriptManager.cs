@@ -282,10 +282,6 @@ namespace YetaWF.Core.Pages {
         public bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
             string key = fullUrl.ToLower();
 
-            // handle file types that are transpiled
-            if (fullUrl.EndsWith(".ts")) fullUrl = fullUrl.Substring(0, key.Length - 3) + ".js";
-            else if (fullUrl.EndsWith(".tsx")) fullUrl = fullUrl.Substring(0, key.Length - 4) + ".js";
-
             if (fullUrl.IsAbsoluteUrl() ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
@@ -295,32 +291,37 @@ namespace YetaWF.Core.Pages {
                 if (key.EndsWith(".min")) key = key.Substring(0, key.Length - 4);
                 if (key.EndsWith(".pack")) key = key.Substring(0, key.Length - 5);
 
+                // handle file types that are transpiled
+                if (fullUrl.EndsWith(".ts")) fullUrl = fullUrl.Substring(0, key.Length - 3) + ".js";
+                else if (fullUrl.EndsWith(".tsx")) fullUrl = fullUrl.Substring(0, key.Length - 4) + ".js";
+
+                if (fullUrl.EndsWith(".min.js") || fullUrl.EndsWith(".pack.js"))
+                    minify = false;
+
+                // get the compiled file name
+                if (fullUrl.EndsWith(".js") && !fullUrl.EndsWith(".min.js"))
+                    fullUrl = fullUrl.Substring(0, fullUrl.Length - 3) + ".js";
+                if (minify) {
+                    if (!fullUrl.EndsWith(".js"))
+                        throw new InternalError("Unsupported extension for {0}", fullUrl);
+                    if (Manager.Deployed && Manager.CurrentSite.CompressCSSFiles) {
+                        fullUrl = fullUrl.Substring(0, fullUrl.Length - 3) + ".min.js";
+                    }
+                }
             } else {
                 throw new InternalError("Script name '{0}' is invalid.", fullUrl);
             }
 
             if (!_ScriptFiles.Contains(key)) {
-                string file = minify ? JsCompress(fullUrl) : fullUrl;
-                if (file == null)
-                    return false; // empty file
-                _ScriptFiles.Add(key);
-                _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = file, Bundle = bundle, Last = last, Async = async, Defer = defer });
-            }
-            return true;
-        }
-
-        private string JsCompress(string fullUrl) {
-            Packer packer = new Packer();
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.CompressJSFiles) {
-                return packer.ProcessFile(fullUrl, Packer.PackMode.JS, true, false);
-            } else {
-                if (packer.CanCompress(fullUrl, Packer.PackMode.JS)) {
+                if (!fullUrl.IsAbsoluteUrl()) {
                     string path = YetaWFManager.UrlToPhysical(fullUrl);
                     if (!File.Exists(path))
-                        throw new InternalError("File {0} not found - can't be minimized", fullUrl);
+                        throw new InternalError("File {0} not found", fullUrl);
                 }
-                return packer.ProcessFile(fullUrl, Packer.PackMode.JS, false, false);
+                _ScriptFiles.Add(key);
+                _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = fullUrl, Bundle = bundle, Last = last, Async = async, Defer = defer });
             }
+            return true;
         }
 
         // ADD SUPPORT

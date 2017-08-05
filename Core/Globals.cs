@@ -133,7 +133,6 @@ namespace YetaWF.Core {
 #endif
         public const string NugetContentsUrl = "/" + NugetContentsFolder + "/";
         public const string NugetScriptsUrl = "/" + NugetScriptsFolder + "/";
-        public const string Compiled = "._cmpld_";
         public const string TempImagesFolder = "_img_";
 
         public const string Addons_JSFileList = "filelistJS.txt";

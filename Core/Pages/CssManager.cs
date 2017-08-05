@@ -1,12 +1,10 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using dotless.Core;
-using dotless.Core.configuration;
-using dotless.Core.Loggers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
@@ -29,8 +27,6 @@ namespace YetaWF.Core.Pages {
             public bool Bundle { get; set; }
             public bool Last { get; set; } // after all addons
         }
-
-        private const bool _renderImmediately = true;  // delaying style steets causes significant FOUC (flash of unformatted content)
 
         private readonly List<string> _CssFileKeys = new List<string>(); // already processed script files (not necessarily added to page yet)
         private readonly List<CssEntry> _CssFiles = new List<CssEntry>(); // css files to include (already minified, etc.) using <link...> tags
@@ -126,17 +122,34 @@ namespace YetaWF.Core.Pages {
                 fullUrl.StartsWith(Globals.NugetContentsUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".css", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 4);
-                if (key.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
-                if (key.EndsWith(".less", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
+                else if (key.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
+                else if (key.EndsWith(".less", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
                 if (key.EndsWith(".min", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 4);
                 if (key.EndsWith(".pack", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
 
+                if (fullUrl.EndsWith(".min.css") || fullUrl.EndsWith(".pack.css") ||
+                        fullUrl.EndsWith(".min.less") || fullUrl.EndsWith(".pack.less") ||
+                        fullUrl.EndsWith(".min.scss") || fullUrl.EndsWith(".pack.scss"))
+                    minify = false;
+
+                // get the compiled file name
+                if (fullUrl.EndsWith(".scss") && !fullUrl.EndsWith(".min.scss"))
+                    fullUrl = fullUrl.Substring(0, fullUrl.Length - 5) + ".css";
+                else if (fullUrl.EndsWith(".less") && !fullUrl.EndsWith(".min.less"))
+                    fullUrl = fullUrl.Substring(0, fullUrl.Length - 5) + ".css";
+                if (minify) {
+                    if (!fullUrl.EndsWith(".css"))
+                        throw new InternalError("Unsupported extension for {0}", fullUrl);
+                    if (Manager.Deployed && Manager.CurrentSite.CompressCSSFiles) {
+                        fullUrl = fullUrl.Substring(0, fullUrl.Length - 4) + ".min.css";
+                    }
+                }
             } else {
                 throw new InternalError("Css filename '{0}' is invalid.", fullUrl);
             }
 
             if (!_CssFileKeys.Contains(key)) {
-                string file = minify ? CssCompress(fullUrl) : fullUrl;
+                string file = CssPreProcess(fullUrl);
                 if (file == null)
                     return false; // empty file
                 _CssFileKeys.Add(key);
@@ -145,82 +158,122 @@ namespace YetaWF.Core.Pages {
             return true;
         }
 
-        private string CssCompress(string fullUrl) {
-            Packer packer = new Packer();
+        private bool CanPreProcess(string fullPathUrl) {
+            if (fullPathUrl.IsAbsoluteUrl())
+                return false;
+            return true;
+        }
+
+
+        private string CssPreProcess(string fullUrl) {
             if (!Manager.CurrentSite.DEBUGMODE) {
                 // release mode, compile, compress, minimize
-                return packer.ProcessFile(fullUrl, Packer.PackMode.CSS, Manager.CurrentSite.CompressCSSFiles, !Manager.CurrentSite.UseHttpHandler);
+                return ProcessFile(fullUrl, !Manager.CurrentSite.UseHttpHandler);
             } else {
                 // debug mode, compile only
                 if (Manager.CurrentSite.UseHttpHandler) {
-                    if (packer.CanCompress(fullUrl, Packer.PackMode.CSS)) {
+                    if (CanPreProcess(fullUrl)) {
                         string path = YetaWFManager.UrlToPhysical(fullUrl);
                         if (!File.Exists(path))
                             throw new InternalError("File {0} not found - can't be minimized", fullUrl);
                     }
                     return fullUrl;
                 } else {
-                    return packer.ProcessFile(fullUrl, Packer.PackMode.CSS, false, true);
+                    return ProcessFile(fullUrl, true);
                 }
             }
         }
-        public static string CompileNSass(string fullScssPath, string text) {
 
-            // create a compiled .css file if it doesn't exist or is older than .scss
-            if (!File.Exists(fullScssPath))
-                throw new InternalError("File {0} not found - can't be compiled to css", fullScssPath);
-            string fullCssPath = Path.ChangeExtension(fullScssPath, Globals.Compiled + ".css");
+        private string ProcessFile(string fullPathUrl, bool processCharSize) {
+
+            if (!CanPreProcess(fullPathUrl))
+                return fullPathUrl;
+            if (!fullPathUrl.EndsWith(".css"))
+                return fullPathUrl;
+
+            if (!processCharSize || (!fullPathUrl.ContainsIgnoreCase(Globals.AddOnsUrl) && !fullPathUrl.ContainsIgnoreCase(Globals.AddOnsCustomUrl)))
+                return fullPathUrl;
+
+            // process css with charsize
+            string fullPath = YetaWFManager.UrlToPhysical(fullPathUrl);
+            if (!File.Exists(fullPath))
+                throw new InternalError("File {0} not found - can't be processed", fullPath);
+
+            string extension = Path.GetExtension(fullPath);
+            string minPathUrl = fullPath.Remove(fullPathUrl.Length - extension.Length);
+            string minPathUrlWithCharInfo = minPathUrl;
+
+            // add character size to css
+            if (extension != ".css") {
+                minPathUrl += extension;
+                minPathUrlWithCharInfo += extension;
+            }
+            minPathUrlWithCharInfo += string.Format("._ci_{0}_{1}", Manager.CharWidthAvg, Manager.CharHeight);
+            minPathUrlWithCharInfo += ".css";
+            minPathUrl += ".css";
+
+            string minPath = YetaWFManager.UrlToPhysical(minPathUrl);
+            string minPathWithCharInfo = YetaWFManager.UrlToPhysical(minPathUrlWithCharInfo);
+
+            if (File.Exists(minPathWithCharInfo)) {
+                if (File.GetLastWriteTimeUtc(minPathWithCharInfo) >= File.GetLastWriteTimeUtc(fullPath)) {
+                    minPathUrl = minPathUrlWithCharInfo;
+                    return minPathUrl;
+                }
+            }
+            if (File.Exists(minPath)) {
+                if (File.GetLastWriteTimeUtc(minPath) >= File.GetLastWriteTimeUtc(fullPath))
+                    return minPathUrl;
+            }
+            Logging.AddLog("Processing {0}", minPath);
 
             // Make sure we don't have multiple threads processing the same file
-            StringLocks.DoAction(string.Format("{0}_{1}_{2}", AreaRegistration.CurrentPackage.AreaName, nameof(CssManager), fullCssPath.ToLower()), () => {
-                if (File.Exists(fullCssPath)) {
-                    if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullScssPath)) {
-                        text = File.ReadAllText(fullCssPath);
-                        return;
-                    }
-                }
-                try {
-                    NSass.SassCompiler nsass = new NSass.SassCompiler();
-                    text = nsass.Compile(text);
-                    File.WriteAllText(fullCssPath, text);
-                } catch (Exception exc) {
-                    throw new InternalError(Logging.AddErrorLog("Sass compile error in file {0}: {1}", fullScssPath, exc.Message));
-                }
+            StringLocks.DoAction("YetaWF##Packer_" + fullPath, () => {
+                minPath = ProcessOneFileCharSize(fullPath, minPath, minPathWithCharInfo);
+                if (minPath == null) {// empty file
+                    Logging.AddLog("Processed and discarded {0}, because it's empty", fullPath);
+                    minPathUrl = null;
+                } else
+                    minPathUrl = YetaWFManager.PhysicalToUrl(minPath);
             });
-            return text;
+            return minPathUrl;
         }
 
-        public static string CompileLess(string fullLessPath, string text) {
-            // http://stackoverflow.com/questions/4798154/how-can-i-output-errors-when-using-less-programmatically
-            // create a compiled .css file if it doesn't exist or is older than .less
-            if (!File.Exists(fullLessPath))
-                throw new InternalError("File {0} not found - can't be compiled to css", fullLessPath);
-            string fullCssPath = Path.ChangeExtension(fullLessPath, Globals.Compiled + ".css");
-
-            // Make sure we don't have multiple threads processing the same file
-            StringLocks.DoAction(string.Format("{0}_{1}_{2}", AreaRegistration.CurrentPackage.AreaName, nameof(CssManager), fullCssPath.ToLower()), () => {
-                if (File.Exists(fullCssPath)) {
-                    if (File.GetLastWriteTimeUtc(fullCssPath) >= File.GetLastWriteTimeUtc(fullLessPath)) {
-                        text = File.ReadAllText(fullCssPath);
-                        return;
-                    }
+        private string ProcessOneFileCharSize(string fullPath, string minPath, string minPathWithCharInfo) {
+            string text = File.ReadAllText(minPath);
+            if (!string.IsNullOrWhiteSpace(text)) {
+                string newText = ProcessCss(text, Manager.CharWidthAvg, Manager.CharHeight);
+                if (newText != text) {
+                    text = newText;
+                    minPath = minPathWithCharInfo;
                 }
-                try {
-                    ILessEngine lessEngine = new EngineFactory(new DotlessConfiguration {
-                        CacheEnabled = false,
-                        DisableParameters = true,
-                        LogLevel = LogLevel.Error,
-                        MinifyOutput = true
-                    }).GetEngine();
+                File.WriteAllText(minPath, text);
+            } else {
+                // this was an empty file, discard it
+                File.Delete(minPath);
+                minPath = null;
+            }
+            return minPath;
+        }
 
-                    lessEngine.CurrentDirectory = Path.GetDirectoryName(fullCssPath);
-                    text = lessEngine.TransformToCss(text, null);
-                    File.WriteAllText(fullCssPath, text);
-                } catch (Exception exc) {
-                    throw new InternalError(Logging.AddErrorLog("Less compile error in file {0}: {1}", fullLessPath, exc.Message));
-                }
-            });
+        private static readonly Regex varChRegex = new Regex("(?'num'[0-9\\.]+)\\s*ch(?'delim'(\\s*|;|\\}))", RegexOptions.Compiled | RegexOptions.Multiline);
+
+        public string ProcessCss(string text, int avgCharWidth, int charHeight) {
+            // replace all instances of nn ch with pixels
+            text = varChRegex.Replace(text, match => ProcessChMatch(match, avgCharWidth));
             return text;
+        }
+        private string ProcessChMatch(Match match, int avgCharWidth) {
+            string num = match.Groups["num"].Value;
+            string delim = match.Groups["delim"].Value;
+            string pix = match.ToString();
+            if (num != ".") {
+                try {
+                    double f = Convert.ToDouble(num);
+                    pix = string.Format("{0}px{1}", Math.Round(f * avgCharWidth, 0), delim);
+                } catch (Exception) { }
+            }
+            return pix;
         }
 
         // RENDER
