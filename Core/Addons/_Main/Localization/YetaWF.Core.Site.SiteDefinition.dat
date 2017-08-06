@@ -101,7 +101,7 @@
                           <Properties>
                             <Name Value="Analytics" />
                             <Caption Value="Analytics" />
-                            <Description Value="Add analytics Javascript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including &lt;script&gt;&lt;/script&gt; tags - Pages can override this setting" />
+                            <Description Value="Add analytics JavaScript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including &lt;script&gt;&lt;/script&gt; tags - Pages can override this setting" />
                             <HelpLink />
                             <TextAbove Value="Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed)." />
                             <TextBelow />
@@ -113,7 +113,7 @@
                           <Properties>
                             <Name Value="AnalyticsContent" />
                             <Caption Value="Analytics (Content)" />
-                            <Description Value="Add analytics Javascript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include &lt;script&gt;&lt;/script&gt; tags - Use &lt;&lt;Url&gt;&gt; to substitute the actual Url - Pages can override this setting" />
+                            <Description Value="Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include &lt;script&gt;&lt;/script&gt; tags - Use &lt;&lt;Url&gt;&gt; to substitute the actual Url - Pages can override this setting" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -148,8 +148,8 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="BundleJSFiles" />
-                            <Caption Value="Bundle Javascript Files" />
-                            <Description Value="Defines whether Javascript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
+                            <Caption Value="Bundle JavaScript Files" />
+                            <Description Value="Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -160,8 +160,8 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="BundleJSFilesContent" />
-                            <Caption Value="Bundle Javascript Files (UPS)" />
-                            <Description Value="Defines whether Javascript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set" />
+                            <Caption Value="Bundle JavaScript Files (UPS)" />
+                            <Description Value="Defines whether JavaScript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -185,7 +185,7 @@
                           <Properties>
                             <Name Value="CanUseCDNComponents" />
                             <Caption Value="Current Status" />
-                            <Description Value="Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the &quot;Use CDN (Javascript Addons)&quot; setting to be honored, otherwise a CDN is not used for 3rd party packages" />
+                            <Description Value="Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the &quot;Use CDN (JavaScript Addons)&quot; setting to be honored, otherwise a CDN is not used for 3rd party packages" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -209,7 +209,7 @@
                           <Properties>
                             <Name Value="CDNAddonsBundles" />
                             <Caption Value="AddonsBundles" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for javascript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
+                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -231,18 +231,6 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="CDNContent" />
-                            <Caption Value="CSS" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /Content/ folder (typically used for 3rd party CSS files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
                             <Name Value="CDNFileImage" />
                             <Caption Value="FileImage" />
                             <Description Value="Defines whether you want to use a Content Delivery Network for images that use the Urls /File.image /FileHndlr.image - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
@@ -255,9 +243,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="CDNScripts" />
-                            <Caption Value="Javascript" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /Scripts/ folder (typically used for 3rd party Javascript files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
+                            <Name Value="CDNScriptsContent" />
+                            <Caption Value="CSS/JavaScript" />
+                            <Description Value="Defines whether you want to use a Content Delivery Network for CSS/JavaScript files located in your site's /bower_components and /node_modules folders (typically used for 3rd party files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -340,8 +328,8 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="CompressJSFiles" />
-                            <Caption Value="Compress Javascript Files" />
-                            <Description Value="Defines whether Javascript files are automatically compressed and saved the first time they are used (Yes). Otherwise, javascript files are not compressed (No)" />
+                            <Caption Value="Compress JavaScript Files" />
+                            <Description Value="Defines whether JavaScript files are automatically compressed and saved the first time they are used (Yes). Otherwise, JavaScript files are not compressed (No)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -510,6 +498,42 @@
                             <Name Value="ExternalAccountSetupUrl" />
                             <Caption Value="External Account Setup Url" />
                             <Description Value="The Url where the user is redirected to provide local information when using an external login provider" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="ExtraBodyBottom" />
+                            <Caption Value="&lt;BODY&gt; Bottom" />
+                            <Description Value="Any tags that should be added to the bottom of the &lt;BODY&gt; tag of each page can be added here" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="ExtraBodyTop" />
+                            <Caption Value="&lt;BODY&gt; Top" />
+                            <Description Value="Any tags that should be added to the top of the &lt;BODY&gt; tag of each page can be added here" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="ExtraHead" />
+                            <Caption Value="&lt;HEAD&gt;" />
+                            <Description Value="Any tags that should be added to the &lt;HEAD&gt; tag of each page can be added here" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -988,7 +1012,7 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="UseCDNComponents" />
-                            <Caption Value="Use CDN (Javascript Addons)" />
+                            <Caption Value="Use CDN (JavaScript Addons)" />
                             <Description Value="Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages" />
                             <HelpLink />
                             <TextAbove />
