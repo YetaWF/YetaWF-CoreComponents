@@ -48,17 +48,6 @@ namespace YetaWF.Core.Skins {
                 if (s.Length < 2)
                     throw new InternalError("Invalid jQuery-ui theme entry: {0}", line);
                 string file = s[1].Trim();
-                if (file.StartsWith("\\")) {
-                    string f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                    if (!File.Exists(f))
-                        if (!File.Exists(f))
-                            throw new InternalError("jQuery-ui theme file not found: {0} - {1}", line, f);
-                } else {
-                    string f = Path.Combine(path, file);
-                    if (!File.Exists(f))
-                        if (!File.Exists(f))
-                            throw new InternalError("jQuery-ui theme file not found: {0} - {1}", line, f);
-                }
                 string description = null;
                 if (s.Length > 2)
                     description = s[2].Trim();
