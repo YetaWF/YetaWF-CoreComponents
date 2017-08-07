@@ -7,9 +7,9 @@ using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
 #if MVC6
-using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using System.Globalization;
 using System.Threading.Tasks;
 #else
 using System.Web;

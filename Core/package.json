@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "YetaWF Core Support",
   "main": "",
-  "scripts": { },
+  "scripts": {},
   "author": "",
   "license": "GPL-3.0",
   "dependencies": {

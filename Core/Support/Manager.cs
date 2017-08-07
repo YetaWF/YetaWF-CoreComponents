@@ -409,7 +409,11 @@ namespace YetaWF.Core.Support {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
 #if MVC6
             string path;
-            if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
+            if (url.StartsWith(Globals.NodeModulesUrl, StringComparison.OrdinalIgnoreCase)) {
+                path = YetaWFManager.RootFolderWebProject + YetaWFManager.UrlToPhysicalRaw(url);
+            } else if (url.StartsWith(Globals.BowerComponentsUrl, StringComparison.OrdinalIgnoreCase)) {
+                path = YetaWFManager.RootFolderWebProject + YetaWFManager.UrlToPhysicalRaw(url);
+            } else if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + YetaWFManager.UrlToPhysicalRaw(url);
             } else {
                 path = RootFolder + UrlToPhysicalRaw(url);

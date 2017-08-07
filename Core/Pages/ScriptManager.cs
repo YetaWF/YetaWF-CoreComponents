@@ -229,7 +229,15 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                         bundle = false;
                     } else if (file.StartsWith("\\")) {
-                        string f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                        string f;
+#if MVC6
+                        if (file.StartsWith("\\" + Globals.NodeModulesFolder + "\\"))
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                        else if (file.StartsWith("\\" + Globals.BowerComponentsFolder + "\\"))
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                        else
+#endif
+                            f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
                         if (!File.Exists(f))
                             throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                         filePathURL = YetaWFManager.PhysicalToUrl(f);
