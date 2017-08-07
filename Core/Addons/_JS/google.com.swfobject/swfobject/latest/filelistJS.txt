@@ -1,1 +1,1 @@
-\node_modules\swfobject-npm\swfobject.js,nominify,bundle
+\node_modules\swfobject-npm\swfobject\swfobject.js,nominify,bundle
