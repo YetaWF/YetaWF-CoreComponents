@@ -434,8 +434,8 @@ namespace YetaWF.Core.DataProvider {
         protected int SiteIdentity { get; set; }
 
         public static readonly string DefaultString = "Default";
-        protected const string IOModeString = "IOMode";
-        protected const string SQLDboString = "SQLDbo";
+        public const string IOModeString = "IOMode";
+        public const string SQLDboString = "SQLDbo";
 
         protected string AreaName { get; set; }
         protected string SQLConn { get; private set; }
