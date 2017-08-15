@@ -5,6 +5,7 @@
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
@@ -18,7 +19,9 @@ namespace YetaWF.Core.Pages {
             IRazorPageActivator pageActivator,
             IReadOnlyList<IRazorPage> viewStartPages,
             IRazorPage razorPage,
-            HtmlEncoder htmlEncoder) : base(viewEngine, pageActivator, viewStartPages, razorPage, htmlEncoder) { }
+            HtmlEncoder htmlEncoder,
+            DiagnosticSource diagnosticSource) : base(viewEngine, pageActivator, viewStartPages, razorPage, htmlEncoder, diagnosticSource) { }
+
 
         public override async Task RenderAsync(ViewContext context)
         {
