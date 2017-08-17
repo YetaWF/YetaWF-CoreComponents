@@ -31,9 +31,9 @@ if (YVolatile.Basics.IsInPopup) {
     var $popWindow = $popupwin.closest('.k-widget.k-window');
     if ($popWindow.length == 0) throw "Couldn't find enclosing popup window";/*DEBUG*/
     if (YVolatile.Skin.PopupMaximize)
-        $('.k-window-action.k-button', $popWindow).eq(0).show();// show the maximize button
+        $('.k-window-action.k-button,.k-window-action.k-link', $popWindow).eq(0).show();// show the maximize button
     else
-        $('.k-window-action.k-button', $popWindow).eq(0).hide();// hide the maximize button
+        $('.k-window-action.k-button,.k-window-action.k-link', $popWindow).eq(0).hide();// hide the maximize button
 }
 
 // Close the popup - this can only be used by code that is running within the popup (not the parent document/page)
