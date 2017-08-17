@@ -11,8 +11,6 @@ using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Support;
 
-// Why do we put js at the top of the page?
-
 // https://developer.yahoo.com/performance/rules.html
 // YetaWF satisfies most of these suggestions (except *)
 // Minimize HTTP Requests
@@ -33,8 +31,9 @@ using YetaWF.Core.Support;
 // Put Stylesheets at the Top
 //   YetaWF places style sheets at the top
 // Put Scripts at the Bottom
-//   (*) No. We prefer avoiding FOUC (flash of unformatted content)
-//          see http://demianlabs.com/lab/post/top-or-bottom-of-the-page-where-should-you-load-your-javascript/
+//   This is available as a configurable option (Admin > Site Settings, Page tab, JavaScript Location field)
+//   However, YetaWF prefers avoiding FOUC (flash of unformatted content)
+//     see this opinion: http://demianlabs.com/lab/post/top-or-bottom-of-the-page-where-should-you-load-your-javascript/
 // Avoid CSS Expressions
 //   Not used by YetaWF
 // Make JavaScript and CSS External
@@ -81,7 +80,7 @@ using YetaWF.Core.Support;
 // Develop Smart Event Handlers
 //   Always considered when creating new templates, modules, etc.
 // Choose <link> over @import
-//   YetaWF makes no use of @import
+//   YetaWF makes no use of client-side @import
 // Avoid Filters
 //   YetaWF makes no use of filters
 // Optimize Images

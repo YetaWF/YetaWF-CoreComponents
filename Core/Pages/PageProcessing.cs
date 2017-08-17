@@ -52,11 +52,6 @@ namespace YetaWF.Core.Pages {
             if (string.IsNullOrWhiteSpace(css))
                 css = "";
 
-            // <script ..>
-            string js = Manager.ScriptManager.Render().ToString();
-            if (string.IsNullOrWhiteSpace(js))
-                js = "";
-
             string head = "";
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraHead))
                 head = Manager.CurrentPage.ExtraHead;
@@ -64,6 +59,9 @@ namespace YetaWF.Core.Pages {
                 head = Manager.CurrentSite.ExtraHead;
 
             // linkAlt+css+js+</head> replaces </head>
+            string js = "";
+            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top)
+                js = Manager.ScriptManager.Render().ToString();
             pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + head + "</head>", 1);
 
             string bodyStart = "";
@@ -74,8 +72,14 @@ namespace YetaWF.Core.Pages {
             if (!string.IsNullOrWhiteSpace(bodyStart))
                 pageHtml = reStartBody.Replace(pageHtml, (m) => m.Value + bodyStart, 1);
 
-            // endofpage-js + </body> replaces </body>
-            string endstuff = Manager.ScriptManager.RenderEndofPageScripts();
+            // js + endofpage-js + </body> replaces </body>
+            // <script ..>
+            js = "";
+            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
+                js = Manager.ScriptManager.Render().ToString();
+
+            string endstuff = js;
+            endstuff += Manager.ScriptManager.RenderEndofPageScripts();
             if (Manager.Deployed) {
                 if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
                     endstuff += Manager.CurrentPage.Analytics;

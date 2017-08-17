@@ -154,7 +154,13 @@ namespace YetaWF.Core.Views.Shared {
                 sb.Append("}).data('kendoTabStrip');\n");
             } else
                 throw new InternalError("Unknown tab control style");
-            return Manager.ScriptManager.AddNow(sb.ToString()).ToHtmlString();
+
+            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top)
+                return Manager.ScriptManager.AddNow(sb.ToString()).ToHtmlString();
+            else {
+                Manager.ScriptManager.AddLast(sb.ToString());
+                return new HtmlString("");
+            }
         }
 
         // Returns all categories implemented by this object - these are decorated with the [CategoryAttribute]

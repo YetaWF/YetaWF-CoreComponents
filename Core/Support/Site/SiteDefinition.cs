@@ -44,6 +44,12 @@ namespace YetaWF.Core.Site {
         [EnumDescription("http:// (Anonymous) - https:// (Logged on)", "http:// for anonymous users - https:// for logged on users")]
         NoSSLOnlyAnonymous_LoggedOnhttps = 14,
     }
+    public enum JSLocationEnum {
+        [EnumDescription("Top of Page", "All JavaScript files are included at the top of the page (in the <HEAD> section) - This reduces the \"Flash of Unformatted Content\" effect - This is the preferred setting")]
+        Top = 0,
+        [EnumDescription("Bottom of Page", "All JavaScript files are included at the bottom of the page (right in front of the </BODY> tag) - This may increase the \"Flash of Unformatted Content\" effect")]
+        Bottom = 1,
+    }
 
     [Trim]
     public partial class SiteDefinition {
@@ -92,6 +98,7 @@ namespace YetaWF.Core.Site {
             CompressJSFiles = true;
             BundleJSFiles = true;
             BundleJSFilesContent = false;
+            JSLocation = JSLocationEnum.Top;
             Copyright = "YetaWF.com - © Copyright <<Year>> Softel vdm, Inc.";
 
             EmailDebug = false;
@@ -347,7 +354,7 @@ namespace YetaWF.Core.Site {
             return (bool)debugMode;
         }
 
-        [Category("Pages"), Caption("Allow Cache Use"), Description("Defines whether data caching is enabled (for example, client-side Css file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build")]
+        [Category("Pages"), Caption("Allow Cache Use"), Description("Defines whether data caching is enabled (for example, client-side CSS file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build")]
         [UIHint("Boolean")]
         public bool AllowCacheUse { get; set; }
 
@@ -355,7 +362,7 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         public bool Compression { get; set; }
 
-        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether stylesheets (CSS files) are automatically compressed and saved the first time they are used (Yes). Otherwise, stylesheets are not compressed and remain unchanged (No)")]
+        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether minified stylesheets (CSS files) are used (Yes). Otherwise, stylesheets are not minified (No)")]
         [UIHint("Boolean")]
         public bool CompressCSSFiles { get; set; }
 
@@ -368,7 +375,7 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool BundleCSSFilesContent { get; set; }
 
-        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether JavaScript files are automatically compressed and saved the first time they are used (Yes). Otherwise, JavaScript files are not compressed (No)")]
+        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes). Otherwise, JavaScript files are not minified (No)")]
         [UIHint("Boolean")]
         public bool CompressJSFiles { get; set; }
 
@@ -381,7 +388,12 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool BundleJSFilesContent { get; set; }
 
-        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and css/scss/less use an HttpHandler (can only be set using Appsettings.json)")]
+        [Category("Pages"), Caption("JavaScript Location"), Description("Defines whether JavaScript files are included at the top or bottom of the page")]
+        [UIHint("Enum")]
+        [Data_NewValue("(0)")]
+        public JSLocationEnum JSLocation { get; set; }
+
+        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and CSS files use an HttpHandler (can only be set using Appsettings.json)")]
         [UIHint("Boolean")]
         public bool UseHttpHandler {
             get {
@@ -459,7 +471,7 @@ namespace YetaWF.Core.Site {
         [ProcessIf("UseCDN", true)]
         public bool CDNAddonsCustom { get; set; }
 
-        [Category("CDN"), Caption("AddonsBundles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
+        [Category("CDN"), Caption("AddonsBundles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and CSS bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Boolean")]
         [ProcessIf("UseCDN", true)]
         public bool CDNAddonsBundles { get; set; }

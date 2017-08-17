@@ -8,6 +8,7 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Modules;
+using System.Text.RegularExpressions;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -132,7 +133,6 @@ namespace YetaWF.Core.Controllers {
             Manager.AddOnManager.AddSkin(skinCollection);
 
             Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Basics");
-            Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
             if (Manager.IsInPopup)
                 Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Popups");
 
@@ -147,6 +147,10 @@ namespace YetaWF.Core.Controllers {
                 pageHtml = writer.ToString();
             }
 #endif
+            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
+                pageHtml = ProcessInlineScripts(pageHtml);
+            Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
+
             Manager.AddOnManager.AddSkinCustomization(skinCollection);
             Manager.PopCharSize();
 
@@ -180,6 +184,18 @@ namespace YetaWF.Core.Controllers {
             context.HttpContext.Response.Output.Write(pageHtml);
 #endif
         }
+
+        private string ProcessInlineScripts(string viewHtml) {
+            viewHtml = _scriptTagsRe.Replace(viewHtml, new MatchEvaluator(SubstScriptTag));
+            return viewHtml;
+        }
+        private string SubstScriptTag(Match match) {
+            string code = match.Groups["code"].Value;
+            Manager.ScriptManager.AddLast(code);
+            return "";
+        }
+        // code snippets in cshtml must use <script></script> (without any attributes)
+        static Regex _scriptTagsRe = new Regex(@"<script>(?'code'.*?)</script>", RegexOptions.Compiled | RegexOptions.Singleline);
     }
 
 #if MVC6
