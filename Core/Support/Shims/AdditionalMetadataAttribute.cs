@@ -9,8 +9,6 @@ namespace YetaWF.Core.Support {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class AdditionalMetadataAttribute : Attribute {
 
-        private object _typeId = new object();
-
         public AdditionalMetadataAttribute(string name, object value) {
             if (name == null) {
                 throw new ArgumentNullException("name");
