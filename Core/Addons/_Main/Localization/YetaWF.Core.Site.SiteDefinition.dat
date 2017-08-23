@@ -77,7 +77,7 @@
                           <Properties>
                             <Name Value="AllowCacheUse" />
                             <Caption Value="Allow Cache Use" />
-                            <Description Value="Defines whether data caching is enabled (for example, client-side Css file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build" />
+                            <Description Value="Defines whether data caching is enabled (for example, client-side CSS file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -209,7 +209,7 @@
                           <Properties>
                             <Name Value="CDNAddonsBundles" />
                             <Caption Value="AddonsBundles" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and css bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
+                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and CSS bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -305,7 +305,7 @@
                           <Properties>
                             <Name Value="CompressCSSFiles" />
                             <Caption Value="Compress CSS Files" />
-                            <Description Value="Defines whether stylesheets (CSS files) are automatically compressed and saved the first time they are used (Yes). Otherwise, stylesheets are not compressed and remain unchanged (No)" />
+                            <Description Value="Defines whether minified stylesheets (CSS files) are used (Yes). Otherwise, stylesheets are not minified (No)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -329,7 +329,7 @@
                           <Properties>
                             <Name Value="CompressJSFiles" />
                             <Caption Value="Compress JavaScript Files" />
-                            <Description Value="Defines whether JavaScript files are automatically compressed and saved the first time they are used (Yes). Otherwise, JavaScript files are not compressed (No)" />
+                            <Description Value="Defines whether minified JavaScript files are used (Yes). Otherwise, JavaScript files are not minified (No)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -643,6 +643,18 @@
                             <Caption Value="Default jQuery UI Skin" />
                             <Description Value="The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin" />
                             <HelpLink Value="http://jqueryui.com/themeroller/" />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="JSLocation" />
+                            <Caption Value="JavaScript Location" />
+                            <Description Value="Defines whether JavaScript files are included at the top or bottom of the page" />
+                            <HelpLink />
                             <TextAbove />
                             <TextBelow />
                           </Properties>
@@ -1037,7 +1049,7 @@
                           <Properties>
                             <Name Value="UseHttpHandler" />
                             <Caption Value="Use HttpHandler" />
-                            <Description Value="Defines whether images and css/scss/less use an HttpHandler (can only be set using Appsettings.json)" />
+                            <Description Value="Defines whether images and CSS files use an HttpHandler (can only be set using Appsettings.json)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
