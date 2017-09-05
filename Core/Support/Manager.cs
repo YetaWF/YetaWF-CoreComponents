@@ -303,7 +303,7 @@ namespace YetaWF.Core.Support {
         private static string _cacheBuster;
 
         /// <summary>
-        /// Web site root folder (physical, wwwroot on ASP.NET MVC)
+        /// Web site root folder (physical, wwwroot on ASP.NET Core MVC)
         /// </summary>
         public static string RootFolder { get; set; }
 
