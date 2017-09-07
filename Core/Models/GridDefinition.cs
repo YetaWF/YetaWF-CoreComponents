@@ -86,6 +86,7 @@ namespace YetaWF.Core.Models {
         public bool SizeToFit { get; set; } // resizes all columns to fit available width
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool HandleLocalInput { get; set; } // store input in local datasource for submit
+        public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
 
         // other settings
         public string Id { get; set; } // html id of the grid
@@ -116,6 +117,7 @@ namespace YetaWF.Core.Models {
             SizeToFit = false;
             NoRecordsText = this.__ResStr("noRecs", "(None)");
             HandleLocalInput = true;
+            ShowFilter = null;
 
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };

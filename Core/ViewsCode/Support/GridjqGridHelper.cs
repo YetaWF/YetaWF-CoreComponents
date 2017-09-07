@@ -121,7 +121,7 @@ namespace YetaWF.Core.Views.Shared {
                     sb.Append("hidden:true,");
                 if (!gridCol.Locked)
                     sb.Append("resizable:true,");
-                if (gridCol.FilterOptions.Count > 0) {
+                if (gridCol.FilterOptions.Count > 0 && gridDef.ShowFilter != false) {
                     hasFilters = true;
                     sb.Append("search:true,");
                     if (prop.PropInfo.PropertyType == typeof(Boolean) || prop.PropInfo.PropertyType == typeof(Boolean?)) {
