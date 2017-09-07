@@ -108,6 +108,7 @@ namespace YetaWF.Core.Views.Shared {
                         } else {
                             output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, propName).AsString();
                         }
+                        output = output.Trim(new char[] { '\r', '\n' }); // templates generate a lot of extra \r\n which breaks filtering
                         if (string.IsNullOrWhiteSpace(output)) { output = "&nbsp;"; }
 
                         if (!readOnly && prop.Editable && hiddenProps != null) {
