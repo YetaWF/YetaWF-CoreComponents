@@ -22,8 +22,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0" />
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.1.0" />
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.2.0" />
     <PackageReference Include="DotNetZip" Version="1.10.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.7.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,7 +35,8 @@
     <!-- TODO: Review for final release - this is a workaround for slow solution load -->
     <Compile Remove="node_modules\**" />
     <Content Remove="node_modules\**" />
-    <None Remove="node_modules\**" /><EmbeddedResource Remove="node_modules\**" />
+    <None Remove="node_modules\**" />
+    <EmbeddedResource Remove="node_modules\**" />
   </ItemGroup>
 
 </Project>
