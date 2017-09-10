@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Dynamic;
+using System.Linq.Dynamic.Core;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;

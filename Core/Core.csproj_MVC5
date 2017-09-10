@@ -52,7 +52,14 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Linq.Dynamic.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0f07ec44de6ac832, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Linq.Dynamic.Core.1.0.7.7\lib\net46\System.Linq.Dynamic.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -258,7 +265,6 @@
     <Compile Include="Models\Attributes\EmailValidationAttribute.cs" />
     <Compile Include="Models\Attributes\SuppressIfEqualAttribute.cs" />
     <Compile Include="Models\Attributes\ValidationAttributes.cs" />
-    <Compile Include="Models\Dynamic.cs" />
     <Compile Include="Models\GridDefinition.cs" />
     <Compile Include="Models\Attributes\Attributes.cs" />
     <Compile Include="Models\MultiString.cs" />
