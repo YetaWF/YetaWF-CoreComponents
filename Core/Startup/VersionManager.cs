@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Microsoft.VisualBasic.CompilerServices;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,26 +17,6 @@ namespace YetaWF.Core.Addons {
     public class VersionManagerStartup : IInitializeApplicationStartup {
         public void InitializeApplicationStartup() {
             VersionManager.RegisterAllAddOns();
-        }
-        private static void RemoveFolderContents(string targetPath, List<string> RemovePatterns = null) {
-            string[] files;
-            try {
-                files = Directory.GetFiles(targetPath);
-            } catch (Exception) {// fails for symlinks
-                return;
-            }
-            foreach (string file in files) {
-                foreach (string remPatt in RemovePatterns) {
-                    if (Operators.LikeString(file, remPatt, Microsoft.VisualBasic.CompareMethod.Text)) {
-                        Logging.AddLog("Removing file {0}", file);
-                        File.Delete(file);
-                        break;
-                    }
-                }
-            }
-            string[] dirs = Directory.GetDirectories(targetPath);
-            foreach (string dir in dirs)
-                RemoveFolderContents(dir, RemovePatterns);
         }
     }
 

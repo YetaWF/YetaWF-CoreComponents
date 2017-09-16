@@ -5,5 +5,5 @@
   <package id="Microsoft.AspNet.Razor" version="3.2.3" targetFramework="net46" />
   <package id="Microsoft.AspNet.WebPages" version="3.2.3" targetFramework="net46" />
   <package id="Newtonsoft.Json" version="10.0.3" targetFramework="net46" />
-  <package id="System.Linq.Dynamic.Core" version="1.0.7.7" targetFramework="net46" />
+  <package id="System.Linq.Dynamic.Core" version="1.0.7.9" targetFramework="net46" />
 </packages>
