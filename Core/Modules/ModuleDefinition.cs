@@ -130,10 +130,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [UIHint("MultiString80"), StringLength(ModuleDefinition.MaxTitle), Trim]
         public MultiString Title { get; set; }
 
-        [Category("General"), Caption("Temporary") ,Description("Defines whether the module is a temporary (generated) module", Order = -99)]
-        [ReadOnly, DontSave]
-        public bool Temporary { get; set; }
-
         [Category("General"), Caption("Visible"), Description("Defines whether the module is visible", Order = -98)]
         [UIHint("Boolean")]
         public bool Visible { get; set; }
@@ -215,6 +211,10 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             }
         }
         private string _moduleHtmlId;
+
+        [Category("Variables"), Caption("Temporary"), Description("Defines whether the module is a temporary (generated) module", Order = -92)]
+        [ReadOnly, DontSave]
+        public bool Temporary { get; set; }
 
         // SKIN
         // SKIN
