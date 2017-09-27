@@ -287,7 +287,7 @@ YetaWF_Forms.submitTemplate = function (obj, useValidation, templateName, templa
         qs += "&{0}={1}".format(YConfigs.Basics.TemplateAction, encodeURIComponent(templateAction));
     if (templateExtraData != undefined)
         qs += "&{0}={1}".format(YConfigs.Basics.TemplateExtraData, encodeURIComponent(templateExtraData));
-    YetaWF_Forms.submit(YetaWF_Forms.getForm($(obj)), true, qs);
+    YetaWF_Forms.submit(YetaWF_Forms.getForm($(obj)), useValidation, qs);
 };
 
 YetaWF_Forms.getForm = function (obj) {
