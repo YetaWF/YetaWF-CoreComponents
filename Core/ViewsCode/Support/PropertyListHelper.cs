@@ -291,7 +291,7 @@ namespace YetaWF.Core.Views.Shared {
             // property table
             HtmlBuilder hbProps = new HtmlBuilder();
             string divId = string.IsNullOrWhiteSpace(id) ? Manager.UniqueId() : id;
-            hbProps.Append("<div id='{0}' class='yt_propertylist t_table t_edit'>", divId);
+            hbProps.Append("<div id='{0}' class='yt_propertylist t_table {1}'>", divId, ReadOnly ? "t_display" : "t_edit");
             hbProps.Append(RenderList(htmlHelper, model, null, showVariables, ReadOnly));
             hbProps.Append("</div>");
 
@@ -513,7 +513,7 @@ namespace YetaWF.Core.Views.Shared {
             RenderHeader(hb, classData);
 
             string divId = string.IsNullOrWhiteSpace(id) ? Manager.UniqueId() : id;
-            hb.Append("<div id='{0}' class='yt_propertylisttabbed t_edit'>", divId);
+            hb.Append("<div id='{0}' class='yt_propertylisttabbed {1}'>", divId, ReadOnly ? "t_display" : "t_edit");
 
             hb.Append(RenderHidden(htmlHelper, model));
             bool showVariables = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowVariables");

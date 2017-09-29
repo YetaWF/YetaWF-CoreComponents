@@ -2,6 +2,6 @@
 
 namespace YetaWF.Core.Views.Shared {
     public interface ITemplateAction {
-        void ExecuteAction(int action, object extrData);
+        bool ExecuteAction(int action, bool modelIsValid, object extrData);
     }
 }

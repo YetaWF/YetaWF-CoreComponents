@@ -348,27 +348,27 @@ namespace YetaWF.Core.Controllers {
                         ReplaceJSONParms(parms);
 
                     // if we have a template action, search parameters for templates with actions and execute it
-                    if (modelState.IsValid) {
 #if MVC6
-                        if (HttpContext.Request.HasFormContentType) {
+                    if (HttpContext.Request.HasFormContentType) {
 #else
 #endif
-                            string templateName = HttpContext.Request.Form[Basics.TemplateName];
-                            if (!string.IsNullOrWhiteSpace(templateName)) {
-                                string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
-                                string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
-                                foreach (var parm in parms) {
-                                    if (SearchTemplate(templateName, actionValStr, actionExtraStr, parm))
-                                        break;
+                        string templateName = HttpContext.Request.Form[Basics.TemplateName];
+                        if (!string.IsNullOrWhiteSpace(templateName)) {
+                            string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                            string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                            foreach (var parm in parms) {
+                                if (SearchTemplate(templateName, modelState.IsValid, actionValStr, actionExtraStr, parm)) {
+                                    modelState.Clear();
+                                    break;
                                 }
                             }
-#if MVC6
                         }
+#if MVC6
+                    }
 #else
 #endif
                     }
                 }
-            }
 
             // origin list (we already do this in global.asax.cs for GET, maybe move it there)
             //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
@@ -507,10 +507,10 @@ namespace YetaWF.Core.Controllers {
         }
 
         // search for templates
-        private static bool SearchTemplate(string templateName, string actionValStr, string actionExtraStr, KeyValuePair<string, object> pair) {
-            return SearchTemplateArgument(templateName, actionValStr, actionExtraStr, pair.Value);
+        private static bool SearchTemplate(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, KeyValuePair<string, object> pair) {
+            return SearchTemplateArgument(templateName, modelIsValid, actionValStr, actionExtraStr, pair.Value);
         }
-        private static bool SearchTemplateArgument(string templateName, string actionValStr, string actionExtraStr, object parm) {
+        private static bool SearchTemplateArgument(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, object parm) {
             if (parm == null) return false;
             Type tpParm = parm.GetType();
             List<PropertyData> props = ObjectSupport.GetPropertyData(tpParm);
@@ -527,8 +527,9 @@ namespace YetaWF.Core.Controllers {
                                 int actionVal = 0;
                                 if (!string.IsNullOrWhiteSpace(actionValStr))
                                     actionVal = Convert.ToInt32(actionValStr);
-                                act.ExecuteAction(actionVal, actionExtraStr);
-                                return true;
+                                if (act.ExecuteAction(actionVal, modelIsValid, actionExtraStr))
+                                    return true;
+                                return false;
                             }
                         }
                         object o;
@@ -538,7 +539,7 @@ namespace YetaWF.Core.Controllers {
                             o = null;
                         }
                         if (o != null)
-                            SearchTemplateArgument(templateName, actionValStr, actionExtraStr, o);  // handle nested types
+                            return SearchTemplateArgument(templateName, modelIsValid, actionValStr, actionExtraStr, o);  // handle nested types
                     }
                 }
             }
@@ -1269,14 +1270,13 @@ namespace YetaWF.Core.Controllers {
                 //if (ViewData.ModelState.IsValid)
                 //    ReplaceJSONParms(filterContext.ActionParameters);
 
-                // if we have a template action, search parameters for templates with actions and execute it
-                if (ViewData.ModelState.IsValid) {
-                    string templateName = HttpContext.Request.Form[Basics.TemplateName];
-                    if (!string.IsNullOrWhiteSpace(templateName)) {
-                        string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
-                        string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
-                        SearchTemplateArgument(templateName, actionValStr, actionExtraStr, obj);
-                    }
+                // Search parameters for templates with actions and execute the action
+                string templateName = HttpContext.Request.Form[Basics.TemplateName];
+                if (!string.IsNullOrWhiteSpace(templateName)) {
+                    string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                    string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                    if (SearchTemplateArgument(templateName, ViewData.ModelState.IsValid, actionValStr, actionExtraStr, obj))
+                        ViewData.ModelState.Clear();
                 }
             }
             return obj;
