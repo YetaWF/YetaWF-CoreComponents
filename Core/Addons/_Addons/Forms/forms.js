@@ -295,6 +295,11 @@ YetaWF_Forms.getForm = function (obj) {
     if ($form.length == 0) throw "Can't locate enclosing form";/*DEBUG*/
     return $form;
 };
+YetaWF_Forms.getFormCond = function (obj) {
+    var $form = $(obj).closest('form');
+    if ($form.length == 0) return null;
+    return $form;
+};
 
 // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid (usually for ajax requests)
 YetaWF_Forms.getFormInfo = function (obj) {
@@ -322,7 +327,8 @@ YetaWF_Forms.updateValidation = function ($div) {
     $('input,select,textarea', $div).has("[data-val=true]").trigger('focusout');
 };
 YetaWF_Forms.validateElement = function ($ctrl) {
-    var $form = YetaWF_Forms.getForm($ctrl);
+    var $form = YetaWF_Forms.getFormCond($ctrl);
+    if ($form === null) return;
     $form.validate().element($ctrl);
 }
 
