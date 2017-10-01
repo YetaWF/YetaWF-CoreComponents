@@ -989,11 +989,17 @@ namespace YetaWF.Core.Support {
             return UniqueIdPrefix + "_" + name + _uniqueIdCounter;
         }
         private int _uniqueIdCounter = 0;
+        private int _uniqueIdPrefixCounter = 0;
 
         public string UniqueIdPrefix { get; set; } = "u0";
 
-        public void NextUniqueIdPrefix() { UniqueIdPrefix = string.Format("u{0}", ++UniqueIdPrefixCounter); }
-        internal int UniqueIdPrefixCounter = 0;
+        public void NextUniqueIdPrefix() {
+            UniqueIdPrefix = string.Format("u{0}", ++UniqueIdPrefixCounter);
+        }
+        public int UniqueIdPrefixCounter {
+            get { return _uniqueIdPrefixCounter; }
+            set { _uniqueIdPrefixCounter = value; UniqueIdPrefix = string.Format("u{0}", UniqueIdPrefixCounter); }
+        }
 
         // HTTPCONTEXT
         // HTTPCONTEXT
