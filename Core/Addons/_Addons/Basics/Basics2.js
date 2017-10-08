@@ -141,6 +141,20 @@ var YetaWF_BasicsServices = (function () {
             return $(elem).is(selector);
         return false;
     };
+    /**
+     * Tests whether the specified element has the given css class.
+     * @param elem The element to test.
+     * @param css - The css class being tested.
+     */
+    YetaWF_BasicsServices.prototype.elementHasClass = function (elem, css) {
+        css = css.trim();
+        if (!elem)
+            return false;
+        if (elem.classList)
+            return elem.classList.contains(css);
+        else
+            return new RegExp('(^| )' + css + '( |$)', 'gi').test(elem.className);
+    };
     // CONTENTCHANGE
     // CONTENTCHANGE
     // CONTENTCHANGE
@@ -148,11 +162,17 @@ var YetaWF_BasicsServices = (function () {
     YetaWF_BasicsServices.prototype.RegisterContentChange = function (callback) {
         $(document).on("YetaWF_Basics_Addon", function (event, addonGuid, on) { callback(event, addonGuid, on); });
     };
+    // NEWPAGE
+    // NEWPAGE
+    // NEWPAGE
+    // APIs to detach custom event handling from jQuery so this could be replaced with a native mechanism
+    YetaWF_BasicsServices.prototype.RegisterNewPage = function (callback) {
+        $(document).on("YetaWF_Basics_NewPage", function (event, url) { callback(event, url); });
+    };
     return YetaWF_BasicsServices;
 }());
 /**
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF_BasicsServices();
-
 //# sourceMappingURL=Basics2.js.map

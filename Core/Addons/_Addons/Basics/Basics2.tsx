@@ -157,6 +157,19 @@ class YetaWF_BasicsServices {
         if (elem) return $(elem).is(selector);
         return false;
     }
+    /**
+     * Tests whether the specified element has the given css class.
+     * @param elem The element to test.
+     * @param css - The css class being tested.
+     */
+    public elementHasClass(elem: Element | null, css: string): boolean {
+        css = css.trim();
+        if (!elem) return false;
+        if (elem.classList)
+            return elem.classList.contains(css);
+        else
+            return new RegExp('(^| )' + css + '( |$)', 'gi').test(elem.className);
+    }
 
     // CONTENTCHANGE
     // CONTENTCHANGE
@@ -165,6 +178,15 @@ class YetaWF_BasicsServices {
 
     public RegisterContentChange(callback: (event: Event, addonGuid: string, on: boolean) => void): void {
         $(document).on("YetaWF_Basics_Addon", function (event: any, addonGuid: string, on: boolean): void { callback(event, addonGuid, on); });
+    }
+
+    // NEWPAGE
+    // NEWPAGE
+    // NEWPAGE
+    // APIs to detach custom event handling from jQuery so this could be replaced with a native mechanism
+
+    public RegisterNewPage(callback: (event: Event, url: string) => void): void {
+        $(document).on("YetaWF_Basics_NewPage", function (event: any, url: string): void { callback(event, url); });
     }
 }
 

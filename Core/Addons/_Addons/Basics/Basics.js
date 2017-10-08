@@ -823,6 +823,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                     try {
                         $.globalEval(result.AnalyticsContent);
                     } catch (e) { }
+                    $(document).trigger('YetaWF_Basics_NewPage', [uri.toString()]);// notify listeners that there is a new page
                     // done, set focus
                     Y_SetFocus($tags);
                     Y_Loading(false);
