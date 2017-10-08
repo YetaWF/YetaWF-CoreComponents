@@ -153,7 +153,7 @@ var YetaWF_BasicsServices = (function () {
         if (elem.classList)
             return elem.classList.contains(css);
         else
-            return new RegExp('(^| )' + css + '( |$)', 'gi').test(elem.className);
+            return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
     };
     // CONTENTCHANGE
     // CONTENTCHANGE
@@ -175,4 +175,5 @@ var YetaWF_BasicsServices = (function () {
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF_BasicsServices();
+
 //# sourceMappingURL=Basics2.js.map

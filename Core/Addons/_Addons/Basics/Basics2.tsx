@@ -168,7 +168,7 @@ class YetaWF_BasicsServices {
         if (elem.classList)
             return elem.classList.contains(css);
         else
-            return new RegExp('(^| )' + css + '( |$)', 'gi').test(elem.className);
+            return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
     }
 
     // CONTENTCHANGE

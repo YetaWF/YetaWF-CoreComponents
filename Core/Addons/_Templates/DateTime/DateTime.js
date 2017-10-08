@@ -130,4 +130,5 @@ var YetaWF_Core;
         TemplateDateTime.TemplateClass = TemplateClass;
     })(TemplateDateTime = YetaWF_Core.TemplateDateTime || (YetaWF_Core.TemplateDateTime = {}));
 })(YetaWF_Core || (YetaWF_Core = {}));
+
 //# sourceMappingURL=DateTime.js.map

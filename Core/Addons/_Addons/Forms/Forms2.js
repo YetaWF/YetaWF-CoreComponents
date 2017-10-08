@@ -12,4 +12,5 @@ var YetaWF_Core;
     }());
     YetaWF_Core.Forms = Forms;
 })(YetaWF_Core || (YetaWF_Core = {}));
+
 //# sourceMappingURL=Forms2.js.map
