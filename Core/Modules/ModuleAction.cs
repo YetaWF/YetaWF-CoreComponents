@@ -140,7 +140,7 @@ namespace YetaWF.Core.Modules {
         public MenuEntryType EntryType {
             get {
                 if (Separator) return MenuEntryType.Separator;
-                if (string.IsNullOrWhiteSpace(Url)) return MenuEntryType.Parent;
+                if (string.IsNullOrWhiteSpace(Url) && SubModule == null) return MenuEntryType.Parent;
                 return MenuEntryType.Entry;
             }
             set {
@@ -198,12 +198,12 @@ namespace YetaWF.Core.Modules {
 
         [Caption("Url"), Description("The Url")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote)]
-        [StringLength(Globals.MaxUrl), RequiredIfAttribute("EntryType", (int) MenuEntryType.Entry), Trim]
+        [StringLength(Globals.MaxUrl), Trim]
         public string Url { get; set; } // The Url to cause this action
 
         [Caption("SubModule"),
             Description("The submodule is displayed as a complete submenu - " +
-            "If a submodule is defined it replaces the entire submenu and supersedes the Url. " +
+            "If a submodule is defined it replaces the entire submenu. " +
             "Submodules should not display forms as any popup message due to invalid input would close the submenu. " +
             "This is best used to display formatted links or images, etc. with a Text module. " +
             "Submodules are only supported with Bootstrap skins and are ignored on non-Bootstrap skins")]

@@ -283,7 +283,7 @@ namespace YetaWF.Core.Menus {
                 action = new ModuleAction();
                 Insert(0, action);
             }
-            if (string.IsNullOrWhiteSpace(newAction.Url)) {
+            if (string.IsNullOrWhiteSpace(newAction.Url) && newAction.SubModule == null) {
                 // parent item without real action
                 action.Separator = false;
                 action.Url = null;
@@ -394,7 +394,7 @@ namespace YetaWF.Core.Menus {
             foreach (ModuleAction action in actions) {
                 if (action.SubModule == Guid.Empty)
                     action.SubModule = null;
-                if (string.IsNullOrWhiteSpace(action.Url)) {
+                if (string.IsNullOrWhiteSpace(action.Url) && action.SubModule == null) {
                     // parent item without real action
                     action.SubModule = null;
                     action.Separator = false;
