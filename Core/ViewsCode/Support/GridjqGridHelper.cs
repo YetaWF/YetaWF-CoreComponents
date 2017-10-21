@@ -7,6 +7,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -81,10 +82,16 @@ namespace YetaWF.Core.Views.Shared {
                 int width = 0;
                 if (gridCol.Icons > 0) {
                     gridCol.Sortable = false;
-                    if (gridCol.Icons == 1)
-                        gridCol.Alignment = GridHAlignmentEnum.Center;
+                    GridHelper.GridActionsEnum actionStyle = GridHelper.GridActionsEnum.Icons;
+                    if (gridCol.Icons > 1)
+                        actionStyle = UserSettings.GetProperty<GridHelper.GridActionsEnum>("GridActions");
                     gridCol.ChWidth = gridCol.PixWidth = 0;
-                    width = Manager.CharWidthAvg + (gridCol.Icons * (16 + Manager.CharWidthAvg / 2 + 2) + Manager.CharWidthAvg);
+                    gridCol.Alignment = GridHAlignmentEnum.Center;
+                    if (actionStyle == GridHelper.GridActionsEnum.DropdownMenu) {
+                        width = Manager.CharWidthAvg * 12;
+                    } else {
+                        width = Manager.CharWidthAvg + (gridCol.Icons * (16 + Manager.CharWidthAvg / 2 + 2) + Manager.CharWidthAvg);
+                    }
                 }
                 if (gridCol.ChWidth != 0)
                     width = gridCol.ChWidth * Manager.CharWidthAvg + Manager.CharWidthAvg / 2;

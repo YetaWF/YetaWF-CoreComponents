@@ -375,8 +375,8 @@
     <Content Include="Addons\_Addons\Forms\forms.css" />
     <Content Include="Addons\_Addons\Forms\forms.js" />
     <Content Include="Addons\_Addons\Forms\validation.js" />
-    <Content Include="Addons\_Addons\kendoMenu\filelistJS.txt" />
-    <Content Include="Addons\_Addons\kendoMenu\kendoMenu.js" />
+    <Content Include="Addons\_Addons\ModuleMenu\filelistJS.txt" />
+    <Content Include="Addons\_Addons\ModuleMenu\ModuleMenu.js" />
     <Content Include="Addons\_Addons\Modules\filelistJS.txt" />
     <Content Include="Addons\_Addons\Modules\images\ModuleMenuEditIcon.png" />
     <Content Include="Addons\_Addons\Modules\modules.js" />
@@ -406,6 +406,8 @@
     <Content Include="Addons\_Templates\ActionIcons\filelistCSS.txt" />
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
+    <Content Include="Addons\_Templates\ActionIcons\ActionIcons.js" />
+    <Content Include="Addons\_Templates\ActionIcons\filelistJS.txt" />
     <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
     <Content Include="Addons\_Templates\DropDownList\DropDownList.js" />

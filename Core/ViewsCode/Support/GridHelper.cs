@@ -12,6 +12,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Repository;
+using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -34,7 +35,16 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class GridHelper {
 
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(GridHelper), name, defaultValue, parms); }
+
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
+        public enum GridActionsEnum {
+            [EnumDescription("Icons", "Actions in grids are displayed as icons")]
+            Icons = 0,
+            [EnumDescription("Dropdown Menu", "If more than one action is available they are displayed as a dropdown menu, accessible through a button - Otherwise a single icon is displayed")]
+            DropdownMenu = 1,
+        }
 
         public class GridSavedSettings {
             public GridDefinition.ColumnDictionary Columns { get; set; }

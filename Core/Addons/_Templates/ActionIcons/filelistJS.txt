@@ -1,0 +1,4 @@
+﻿# kendo.popup.min.js,kendoUICore   is now a prereq of kendo.window (2017.2.621)
+kendo.button.min.js,kendoUICore
+kendo.menu.min.js,kendoUICore
+ActionIcons.js

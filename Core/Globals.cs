@@ -149,6 +149,8 @@ namespace YetaWF.Core {
         // CSS classes
         // Pane
         public const string CssPaneTag = "yPaneTag";
+        // Action Menu
+        public const string CssGridActionMenu = "yGridActionMenu";
         // Modules (generic)
         public const string CssModule = "yModule";
         public const string CssModuleCurrent = "yModule-current";

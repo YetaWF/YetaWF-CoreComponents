@@ -627,8 +627,8 @@ _YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
 _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
     'use strict';
 
-    // Close open bootstrap nav menus (if any) by clicking on the page
     function closemenus() {
+        // Close open bootstrap nav menus (if any) by clicking on the page
         $('body').trigger('click');
         // Close any open kendo menus (if any)
         var $menus = $(".k-menu");

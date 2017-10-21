@@ -4,6 +4,9 @@ using YetaWF.Core.Addons.Templates;
 using YetaWF.Core.Menus;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using YetaWF.Core.Modules;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,6 +21,8 @@ namespace YetaWF.Core.Views.Shared {
 
     public static class ActionHelper {
 
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
 #if MVC6
         public static HtmlString RenderActionIcons(this IHtmlHelper htmlHelper, string name, MenuList actions) {
 #else
@@ -25,7 +30,32 @@ namespace YetaWF.Core.Views.Shared {
 #endif
             if (!string.IsNullOrEmpty(name))
                 throw new InternalError("Field name not supported for ActionIcons");
-            return actions.Render(htmlHelper, null, ActionIcons.CssActionIcons);
+            GridHelper.GridActionsEnum actionStyle = GridHelper.GridActionsEnum.Icons;
+            if (actions.Count > 1) {
+                actionStyle = UserSettings.GetProperty<GridHelper.GridActionsEnum>("GridActions");
+            }
+            switch (actionStyle) {
+                default:
+                case GridHelper.GridActionsEnum.Icons:
+                    return actions.Render(htmlHelper, null, ActionIcons.CssActionIcons);
+                case GridHelper.GridActionsEnum.DropdownMenu: {
+                    MenuList menuActions = actions;
+                    menuActions.RenderMode = ModuleAction.RenderModeEnum.NormalMenu;
+
+                    HtmlBuilder hb = new HtmlBuilder();
+                    string id = Manager.UniqueId();
+                    string idButton = id + "_btn";
+                    string idMenu = id + "_menu";
+                    hb.Append("<button id=\"{0}\" type=\"button\">Manage<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton);
+                    hb.Append(menuActions.Render(htmlHelper, idMenu, Globals.CssGridActionMenu));
+
+                    ScriptBuilder sb = new ScriptBuilder();
+                    sb.Append("YetaWF_TemplateActionIcons.initMenu('{0}', $('#{1}'), $('#{2}'));", id, idButton, idMenu);
+
+                    hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToString());
+                    return hb.ToHtmlString();
+                }
+            }
         }
     }
 }
