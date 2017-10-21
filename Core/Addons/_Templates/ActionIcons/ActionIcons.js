@@ -28,8 +28,8 @@ _YetaWF_TemplateActionIcons.closeMenus = function () {
         $menu.hide();
         var idButton = $menu.attr('id').replace('_menu', '_btn');
         var $idButton = $('#' + idButton);
-        if ($idButton.length == 0) throw "button not found";/*DEBUG*/
-        $menu.appendTo($idButton.parent());
+        if ($idButton.length > 0) // there can be a case without button if we switched to a new page
+            $menu.appendTo($idButton.parent());
     });
 };
 
@@ -56,7 +56,12 @@ $(document).on('click mousedown', function (ev) {
         }, 300);
     }
 });
+// Handle Escape key to close any open menus
 $(document).on('keydown', function (ev) {
     if (ev.which != 27) return;
+    _YetaWF_TemplateActionIcons.closeMenus();
+});
+// last chance - handle a new page (UPS) and close open menus
+$(document).on("YetaWF_Basics_NewPage", function (ev, url) {
     _YetaWF_TemplateActionIcons.closeMenus();
 });
