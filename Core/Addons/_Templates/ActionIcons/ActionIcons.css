@@ -7,6 +7,9 @@
     font-size:11px;
     position:absolute;
 }
+.ui-jqgrid button {
+    margin: 1px;
+}
 
 /* one action link should never break into two lines */
 .yaction-link {
