@@ -50,6 +50,12 @@ namespace YetaWF.Core.Site {
         [EnumDescription("Bottom of Page", "All JavaScript files are included at the bottom of the page (right in front of the </BODY> tag) - This may increase the \"Flash of Unformatted Content\" effect")]
         Bottom = 1,
     }
+    public enum CssLocationEnum {
+        [EnumDescription("Top of Page", "All Css files are included at the top of the page (in the <HEAD> section)")]
+        Top = 0,
+        [EnumDescription("Bottom of Page", "All Css files are included at the bottom of the page (right in front of the </BODY> tag)")]
+        Bottom = 1,
+    }
 
     [Trim]
     public partial class SiteDefinition {
@@ -99,6 +105,8 @@ namespace YetaWF.Core.Site {
             BundleJSFiles = true;
             BundleJSFilesContent = false;
             JSLocation = JSLocationEnum.Top;
+            CssLocation = CssLocationEnum.Top;
+
             Copyright = "YetaWF.com - © Copyright <<Year>> Softel vdm, Inc.";
 
             EmailDebug = false;
@@ -375,6 +383,11 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool BundleCSSFilesContent { get; set; }
 
+        [Category("Pages"), Caption("Css Location"), Description("Defines whether CSS files are included at the top or bottom of the page")]
+        [UIHint("Enum")]
+        [Data_NewValue("(0)")]
+        public CssLocationEnum CssLocation { get; set; }
+
         [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes). Otherwise, JavaScript files are not minified (No)")]
         [UIHint("Boolean")]
         public bool CompressJSFiles { get; set; }
@@ -392,6 +405,11 @@ namespace YetaWF.Core.Site {
         [UIHint("Enum")]
         [Data_NewValue("(0)")]
         public JSLocationEnum JSLocation { get; set; }
+
+        [Category("Pages"), Caption("Disable Minimize FOUC"), Description("Normally CSS is injected to minimize the Flash Of Unstyled Content (FUOC) which can occur when JavaScript and/or CSS files are included at the bottom of the page - This feature can be disabled - Your mileage may vary (IE/Edge require this option to stay enabled)")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool DisableMinimizeFUOC { get; set; }
 
         [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and CSS files use an HttpHandler (can only be set using Appsettings.json)")]
         [UIHint("Boolean")]

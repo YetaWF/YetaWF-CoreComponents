@@ -3,6 +3,7 @@
 using System;
 using System.Text.RegularExpressions;
 using YetaWF.Core.Image;
+using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
@@ -26,8 +27,10 @@ namespace YetaWF.Core.Pages {
             // complete page html in pageHtml
             pageHtml = ProcessImages(pageHtml);
 
+            SiteDefinition currentSite = Manager.CurrentSite;
+
             string yetawfMsg;
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression) {
+            if (!currentSite.DEBUGMODE && currentSite.Compression) {
                 yetawfMsg = "/**** Powered by Yet Another Web Framework - https://YetaWF.com - (c) Copyright <<YEAR>> Softel vdm, Inc. */";
             } else {
                 yetawfMsg = "\n" +
@@ -48,48 +51,56 @@ namespace YetaWF.Core.Pages {
                 linkAlt = "";
 
             // <link rel="stylesheet">
-            string css = Manager.CssManager.Render().ToString();
-            if (string.IsNullOrWhiteSpace(css))
-                css = "";
+            string css = "";
+            if (currentSite.CssLocation == Site.CssLocationEnum.Top)
+                css = Manager.CssManager.Render().ToString();
 
             string head = "";
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraHead))
                 head = Manager.CurrentPage.ExtraHead;
-            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.ExtraHead))
-                head = Manager.CurrentSite.ExtraHead;
+            else if (!string.IsNullOrWhiteSpace(currentSite.ExtraHead))
+                head = currentSite.ExtraHead;
+
+            if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))
+                head += "<style>body { display: none;}</style>";
 
             // linkAlt+css+js+</head> replaces </head>
             string js = "";
-            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top)
+            if (currentSite.JSLocation == Site.JSLocationEnum.Top)
                 js = Manager.ScriptManager.Render().ToString();
             pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + head + "</head>", 1);
 
             string bodyStart = "";
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraBodyTop))
                 bodyStart = Manager.CurrentPage.ExtraBodyTop;
-            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.ExtraBodyTop))
-                bodyStart = Manager.CurrentSite.ExtraBodyTop;
+            else if (!string.IsNullOrWhiteSpace(currentSite.ExtraBodyTop))
+                bodyStart = currentSite.ExtraBodyTop;
             if (!string.IsNullOrWhiteSpace(bodyStart))
                 pageHtml = reStartBody.Replace(pageHtml, (m) => m.Value + bodyStart, 1);
 
-            // js + endofpage-js + </body> replaces </body>
+            // css + js + endofpage-js + </body> replaces </body>
             // <script ..>
             js = "";
-            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
+            if (currentSite.JSLocation == Site.JSLocationEnum.Bottom)
                 js = Manager.ScriptManager.Render().ToString();
+            if (currentSite.CssLocation == Site.CssLocationEnum.Bottom)
+                css = Manager.CssManager.Render().ToString();
 
-            string endstuff = js;
+            string endstuff = css;
+            if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))
+                endstuff += "<style>body { display: block !important;}</style>";
+            endstuff += js;
             endstuff += Manager.ScriptManager.RenderEndofPageScripts();
             if (Manager.Deployed) {
                 if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
                     endstuff += Manager.CurrentPage.Analytics;
-                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Analytics))
-                    endstuff += Manager.CurrentSite.Analytics;
+                else if (!string.IsNullOrWhiteSpace(currentSite.Analytics))
+                    endstuff += currentSite.Analytics;
             }
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraBodyBottom))
                 endstuff += Manager.CurrentPage.ExtraBodyBottom;
-            else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.ExtraBodyBottom))
-                endstuff += Manager.CurrentSite.ExtraBodyBottom;
+            else if (!string.IsNullOrWhiteSpace(currentSite.ExtraBodyBottom))
+                endstuff += currentSite.ExtraBodyBottom;
 
             pageHtml = reEndBody.Replace(pageHtml, (m) => endstuff + "</body>", 1);
 
