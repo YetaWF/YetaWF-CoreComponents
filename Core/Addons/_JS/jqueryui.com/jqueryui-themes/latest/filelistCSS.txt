@@ -1,5 +1,3 @@
-﻿//code.jquery.com/ui/1.12.1/jquery-ui.min.css,CDN
-//code.jquery.com/ui/1.12.1/themes/{0}/jquery-ui.min.css,CDN
+﻿//code.jquery.com/ui/1.12.1/themes/{0}/jquery-ui.min.css,CDN
 
-\node_modules\jquery-ui-themes\jquery-ui.min.css,noCDN
 \node_modules\jquery-ui-themes\themes\{0}\jquery-ui.min.css,noCDN
