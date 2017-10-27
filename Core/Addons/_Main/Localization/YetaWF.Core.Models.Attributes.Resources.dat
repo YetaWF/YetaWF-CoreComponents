@@ -326,6 +326,30 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
+                <Name Value="valDomain" />
+                <Text Value="The domain is invalid" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="valDomain2" />
+                <Text Value="The domain (field '{0}') is invalid" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="valDomain3" />
+                <Text Value="The domain '{0}' is invalid" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
                 <Name Value="valEmail" />
                 <Text Value="The email address is invalid - it should be in the format 'user@domain.com'" />
               </Properties>

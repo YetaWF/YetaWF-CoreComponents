@@ -384,7 +384,7 @@ namespace YetaWF.Core.Pages {
                 string key = segs[seglen - 2];
 
                 newUrl = "/" + string.Join("/", segs, 0, seglen - 2);
-                newQs = newQs.AddQSSeparator();
+                newQs += string.IsNullOrWhiteSpace(newQs) ? "" : "&";
                 newQs += string.Format("{0}={1}", YetaWFManager.UrlEncodeArgs(key), YetaWFManager.UrlEncodeArgs(val));
             }
             return page;
@@ -403,7 +403,7 @@ namespace YetaWF.Core.Pages {
                 }
                 if (((args.Length - urlSegments) % 2) == 0) { // we need key/value pairs
                     for (int i = urlSegments ; i < args.Length ; i += 2) {
-                        newQs = newQs.AddQSSeparator();
+                        newQs += newQs.AddQSSeparator();
                         newQs += string.Format("{0}={1}", args[i], args[i + 1]);
                     }
                     newUrl = url;

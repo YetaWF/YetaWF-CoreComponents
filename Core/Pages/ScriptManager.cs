@@ -29,7 +29,7 @@ using YetaWF.Core.Support;
 //   In IIS dynamic & static compression can be enabled outside of YetaWF (which is fully supported by YetaWF and its CDN support)
 //   YetaWF (non-Gzip) compresses html, js and css by eliminating unnecessary comments, spaces, new lines, etc.
 // Put Stylesheets at the Top
-//   YetaWF places style sheets at the top
+//   YetaWF places style sheets at the top - It is possible to place them at the bottom (Site Settings)
 // Put Scripts at the Bottom
 //   This is available as a configurable option (Admin > Site Settings, Page tab, JavaScript Location field)
 //   However, YetaWF prefers avoiding FOUC (flash of unformatted content)
@@ -65,7 +65,7 @@ using YetaWF.Core.Support;
 // Reduce the Number of DOM Elements
 //   Always considered when creating new templates, modules, etc.
 // Split Components Across Domains
-//   (*) Appears to be a maintenance issue, but could be considered for the future
+//   YetaWF supports an alternate domain/url for all static content
 // Minimize the Number of iframes
 //   YetaWF makes little use of iframes, except for popups.
 //   When using Unified Page Sets (Single Page Site) and popups are enabled for the page set, no iframes are used.
@@ -74,7 +74,7 @@ using YetaWF.Core.Support;
 // Reduce Cookie Size
 //   YetaWF makes no use of cookies except for authentication
 // Use Cookie-free Domains for Components
-//   That's almost identical to Split "Components Across Domains"
+//   YetaWF supports an alternate domain/url for all static content which is cookie-free
 // Minimize DOM Access
 //   Always considered when creating new templates, modules, etc.
 // Develop Smart Event Handlers
@@ -90,7 +90,7 @@ using YetaWF.Core.Support;
 // Don't Scale Images in HTML
 //   YetaWF dynamically re-renders images server-side if requested at other than the natural size
 // Make favicon.ico Small and Cacheable
-//   favicon.ico is user-provided
+//   favicon.ico is user-provided and always cacheable
 // Keep Components under 25K
 //   (*) pass on this one - not worth the trouble - if more than 25K is needed, there is probably a reason
 // Pack Components into a Multipart Document
@@ -98,6 +98,27 @@ using YetaWF.Core.Support;
 // Avoid Empty Image src
 //    No empty img src used by YetaWF
 
+// https://developers.google.com/speed/pagespeed/
+// YetaWF sites will generally have a desktop speed rating of around 90. The only penalties are due to "Leverage browser caching" when external
+// JavaScript is used, like addthis.com, google-analytics.com (oh the irony) and some CDNs which may have an expiration interval of less than 7 days.
+// Google is looking for more than 7 days.
+// The other penalty is due to "Eliminate render-blocking JavaScript and CSS in above-the-fold content". Even with JavaScript/Css located at the bottom
+// of the page, a certain percentage of the above-the-fold content cannot be rendered without waiting for the resources to load.
+// We can't provide a general solution to this as this is content dependent. On the other hand, pretty much any menu (JavaScript dependent) and
+// layout (Css dependent) will cause this penalty. Unless you prefer a "Flash Of Unformatted Content" to avoid the "penalty" there is probably not
+// all that much that can be done about that.
+// The mobile speed rating is generally lower due to the same penalties. There are no additional, mobile specific penalties.
+
+// https://tools.pingdom.com
+// YetaWF sites rate A in all categories except one. There is a slight penalty for "Leverage browser caching", all related to Urls linking to other sites,
+// like addthis.com, google-analytics.com, etc.
+// For an A rating, a static domain must be defined in YetaWF so static files can be served from this static, cookie-less domain.
+// The one category where YetaWF will not achieve an A rating is "Remove query strings from static resources". Their explanation:
+// Resources with a "?" in the URL are not cached by some proxy caching servers. Remove the query string and encode the parameters into the URL.
+// The reasoning behind this recommendation seems antiquated and no longer valid:
+// https://webmasters.stackexchange.com/questions/86274/tradeoffs-around-using-a-query-string-vs-embedding-version-number-in-the-css-js/86277#86277
+// https://webmasters.stackexchange.com/questions/109042/resources-with-a-in-the-url-are-not-cached-by-some-proxy-caching-servers
+// So for now YetaWF will not address this as it seems unnecessary.
 
 namespace YetaWF.Core.Pages {
     public partial class ScriptManager {
@@ -675,17 +696,12 @@ namespace YetaWF.Core.Pages {
                     string opts = "";
                     opts += entry.Async ? " async" : "";
                     opts += entry.Defer ? " defer" : "";
-                    if (url.IsAbsoluteUrl()) {
-                        hb.Append(string.Format("<script type='text/javascript' src='{0}'{1}></script>",
-                            YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), opts));
-                    } else {
-                        string delim = url.Contains("&") ? "&" : "?";
-                        hb.Append(string.Format("<script type='text/javascript' src='{0}{1}__yVrs={2}'{3}></script>",
-                            YetaWFManager.UrlEncodePath(Manager.GetCDNUrl(url)), delim, YetaWFManager.CacheBuster, opts));
-                    }
+                    url = Manager.GetCDNUrl(url);
+                    hb.Append(string.Format("<script type='text/javascript' src='{0}'{1}></script>",
+                        YetaWFManager.UrlEncodePath(url), opts));
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(url))
-                        cr.ScriptFiles.Add(Manager.GetCDNUrl(url));
+                        cr.ScriptFiles.Add(url);
                 }
             }
             return hb;

@@ -76,8 +76,25 @@ namespace YetaWF.Core.Extensions {
         public static string AddQSSeparator(this string text) {
             if (string.IsNullOrWhiteSpace(text))
                 return "?";
+            if (text.Contains("?"))
+                return "&";
             else
-                return text + "&";
+                return "?";
+        }
+        public static string AddUrlCacheBuster(this string text, string cacheBuster) {
+            if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
+            if (text == null) return "";
+            if (text.Contains("__yVrs=")|| text.Contains("/__yVrs/")) return "";
+            if (text.Contains("?"))
+                return string.Format("&__yVrs={0}", cacheBuster);
+            else
+                return string.Format("?__yVrs={0}", cacheBuster);
+        }
+        public static string AddUrlCacheBusterSegment(this string text, string cacheBuster) {
+            if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
+            if (text == null) return "";
+            if (text.Contains("/__yVrs/")) return "";
+            return string.Format("/__yVrs/{0}", cacheBuster);
         }
     }
 }

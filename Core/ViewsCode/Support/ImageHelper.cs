@@ -45,7 +45,7 @@ namespace YetaWF.Core.Views.Shared {
                     //System.Drawing.Image img = System.Drawing.Image.FromFile(file);
                     //tImg.MergeAttribute("width", img.Width.ToString());
                     //tImg.MergeAttribute("height", img.Height.ToString());
-                    url += "?__yVrs=" + (File.GetLastWriteTime(file).Ticks / TimeSpan.TicksPerSecond).ToString();
+                    url += url.AddUrlCacheBuster((File.GetLastWriteTime(file).Ticks / TimeSpan.TicksPerSecond).ToString());
                 } catch { }
             }
             tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
@@ -104,7 +104,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (linkToImage) {
                     TagBuilder link = new TagBuilder("a");
                     string imgUrl = FormatUrl(imageType, null, model, CacheBuster: CacheBuster, ForceHttpHandler: ForceHttpHandler);
-                    link.MergeAttribute("href", Manager.GetCDNUrl(imgUrl));
+                    link.MergeAttribute("href", imgUrl);
                     link.MergeAttribute("target", "_blank");
                     link.SetInnerHtml(imgTag);
                     return link.ToHtmlString(TagRenderMode.Normal);
@@ -117,7 +117,7 @@ namespace YetaWF.Core.Views.Shared {
             string url = FormatUrl(imageType, null, model, width, height, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
             TagBuilder img = new TagBuilder("img");
             img.AddCssClass("t_preview");
-            img.Attributes.Add("src", Manager.GetCDNUrl(url));
+            img.Attributes.Add("src", url);
             img.Attributes.Add("alt", Alt??"Image");
             return img.ToString(TagRenderMode.StartTag);
         }
@@ -137,7 +137,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderImageDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
 #endif
-            return htmlHelper.RenderImage(name, model, CacheBuster: CacheBuster, Alt: Alt, ForceHttpHandler: ForceHttpHandler);
+            return htmlHelper.RenderImage(name, model, Alt: Alt, ForceHttpHandler: ForceHttpHandler);
         }
         public static string FormatUrl(string imageType, string location, string name, int width = 0, int height = 0,
                 string CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
@@ -157,16 +157,13 @@ namespace YetaWF.Core.Views.Shared {
                 else
                     url = string.Format(Addons.Templates.Image.FormatUrl, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
             }
+            if (!string.IsNullOrWhiteSpace(CacheBuster))
+                url += url.AddUrlCacheBuster(CacheBuster);
+            url = Manager.GetCDNUrl(url);
             if (ExternalUrl) {
                 // This is a local url, make the final url an external url, i.e., http(s)://
-                if (url.StartsWith("/File.image") || url.StartsWith("/FileHndlr.image"))
-                    url = Manager.GetCDNUrl(url);
                 if (url.StartsWith("/"))
                     url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: SecurityType);
-            }
-            if (!string.IsNullOrWhiteSpace(CacheBuster)) {
-                url += url.Contains("?") ? "&" : "?";
-                url += string.Format("__yVrs={0}", CacheBuster);
             }
             return url;
         }

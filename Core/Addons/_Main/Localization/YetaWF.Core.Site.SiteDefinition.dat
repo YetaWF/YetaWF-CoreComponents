@@ -173,7 +173,7 @@
                           <Properties>
                             <Name Value="CanUseCDN" />
                             <Caption Value="Current Status" />
-                            <Description Value="Shows whether a Content Delivery Network is currently used for the site's pages and files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the &quot;Use CDN (Site Content)&quot; setting to be honored, otherwise a CDN is not used for site content" />
+                            <Description Value="Shows whether a Content Delivery Network is currently used for the site's static files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the &quot;Use CDN (Site Content)&quot; setting to be honored, otherwise a CDN is not used for site content" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -185,7 +185,7 @@
                           <Properties>
                             <Name Value="CanUseCDNComponents" />
                             <Caption Value="Current Status" />
-                            <Description Value="Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the &quot;Use CDN (JavaScript Addons)&quot; setting to be honored, otherwise a CDN is not used for 3rd party packages" />
+                            <Description Value="Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the &quot;Use CDN (Global Addons)&quot; setting to be honored, otherwise a CDN is not used for 3rd party packages" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -195,69 +195,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="CDNAddons" />
-                            <Caption Value="Addons" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /Addons/ folder (typically used for YetaWF files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="CDNAddonsBundles" />
-                            <Caption Value="AddonsBundles" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and CSS bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="CDNAddonsCustom" />
-                            <Caption Value="AddonsCustom" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsCustom/ folder (typically used for your YetaWF file customizations) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="CDNFileImage" />
-                            <Caption Value="FileImage" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for images that use the Urls /File.image /FileHndlr.image - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="CDNScriptsContent" />
-                            <Caption Value="CSS/JavaScript" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for CSS/JavaScript files located in your site's /bower_components and /node_modules folders (typically used for 3rd party files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="CDNSiteFiles" />
-                            <Caption Value="SiteFiles" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /SiteFiles/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
+                            <Name Value="CanUseStaticDomain" />
+                            <Caption Value="Current Status" />
+                            <Description Value="Shows whether a separate Url is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the &quot;Static Files Url&quot; setting to be honored, otherwise it is not used" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -269,7 +209,7 @@
                           <Properties>
                             <Name Value="CDNUrl" />
                             <Caption Value="CDN Url" />
-                            <Description Value="If you are using a Content Delivery Network for files located in your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
+                            <Description Value="If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -281,19 +221,7 @@
                           <Properties>
                             <Name Value="CDNUrlSecure" />
                             <Caption Value="CDN Url (Secure)" />
-                            <Description Value="If you are using a Content Delivery Network for files located in your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="CDNVault" />
-                            <Caption Value="Vault" />
-                            <Description Value="Defines whether you want to use a Content Delivery Network for the files located in your site's /Vault/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted" />
+                            <Description Value="If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -485,7 +413,7 @@
                           <Properties>
                             <Name Value="DisableMinimizeFUOC" />
                             <Caption Value="Disable Minimize FOUC" />
-                            <Description Value="Normally CSS is injected to minimize the Flash Of Unstyled Content (FUOC) which can occur when JavaScript and/or CSS files are included at the bottom of the page - This feature can be disabled - Your mileage may vary" />
+                            <Description Value="Normally CSS is injected to minimize the Flash Of Unstyled Content (FUOC) which can occur when JavaScript and/or CSS files are included at the bottom of the page - This feature can be disabled - Your mileage may vary (IE/Edge require this option to stay enabled)" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -999,6 +927,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="StaticDomain" />
+                            <Caption Value="Static Files Domain" />
+                            <Description Value="You can optionally serve static files from an alternate domain which can improve your site's performance - Enter the domain name here (without http:// or https://)" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="StaticPages" />
                             <Caption Value="Allow Static Pages" />
                             <Description Value="Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't changed can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property) - Only a deployed site uses static pages" />
@@ -1037,7 +977,7 @@
                           <Properties>
                             <Name Value="UseCDN" />
                             <Caption Value="Use CDN (Site Content)" />
-                            <Description Value="Defines whether the Content Delivery Network Url is used for the site's pages and files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content" />
+                            <Description Value="Defines whether the Content Delivery Network Url is used for the site's static files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -1048,8 +988,8 @@
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
                             <Name Value="UseCDNComponents" />
-                            <Caption Value="Use CDN (JavaScript Addons)" />
-                            <Description Value="Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages" />
+                            <Caption Value="Use CDN (Global Addons)" />
+                            <Description Value="Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

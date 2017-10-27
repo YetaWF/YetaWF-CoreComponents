@@ -53,7 +53,6 @@ namespace YetaWF.Core.Support {
                     Entries.Add(new Entry { Key = k, Value = o.ToString(), });
             }
         }
-
         public static QueryHelper FromUrl(string url, out string urlOnly) {
             QueryHelper query;
             string anchor = null;

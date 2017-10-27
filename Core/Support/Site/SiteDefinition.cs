@@ -139,13 +139,8 @@ namespace YetaWF.Core.Site {
 
             OriginalUseCDN = UseCDN = false;
             OriginalCDNUrl = CDNUrl = null;
-            OriginalCDNSiteFiles = CDNSiteFiles = false;
-            OriginalCDNVault = CDNVault = false;
-            OriginalCDNScriptsContent = CDNScriptsContent = false;
-            OriginalCDNAddons = CDNAddons = false;
-            OriginalCDNAddonsCustom = CDNAddonsCustom = false;
-            OriginalCDNAddonsBundles = CDNAddonsBundles = false;
-            OriginalCDNFileImage = CDNFileImage = false;
+            OriginalCDNUrlSecure = CDNUrlSecure = null;
+            OriginalStaticDomain = StaticDomain = null;
         }
 
         [Data_Identity]
@@ -158,7 +153,7 @@ namespace YetaWF.Core.Site {
 
         [Data_PrimaryKey]
         [Category("Site"), Caption("Site Domain"), Description("The domain name of your site (e.g., yourcompany.com, yetawf.com)")]
-        [UIHint("Text80"), StringLength(MaxSiteDomain), Required, Trim]
+        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Required, Trim]
         public string SiteDomain { get; set; }
 
         [Category("Variables"), Caption("Default Site Domain"), Description("The domain name of the default site for this instance of YetaWF")]
@@ -431,73 +426,49 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN (JavaScript Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         public bool UseCDNComponents { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages (e.g., jQuery, jQuery-UI, KendoUI, etc.) where a CDN is available - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the \"Use CDN (JavaScript Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDNComponents { get { return Manager.CanUseCDNComponents && UseCDNComponents; } }
 
-        [Category("CDN"), Caption("Use CDN (Site Content)"), Description("Defines whether the Content Delivery Network Url is used for the site's pages and files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content")]
+        //-----
+
+        [Category("CDN"), Caption("Use CDN (Site Content)"), Description("Defines whether the Content Delivery Network Url is used for the site's static files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content")]
         [UIHint("Boolean")]
         public bool UseCDN { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for the site's pages and files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the \"Use CDN (Site Content)\" setting to be honored, otherwise a CDN is not used for site content")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for the site's static files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the \"Use CDN (Site Content)\" setting to be honored, otherwise a CDN is not used for site content")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDN { get { return Manager.CanUseCDN && UseCDN && HaveCDNUrl; } }
 
-        public bool HaveCDNUrl { get { return !string.IsNullOrWhiteSpace(CDNUrl); } }
-
-        [Category("CDN"), Caption("CDN Url"), Description("If you are using a Content Delivery Network for files located in your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
+        [Category("CDN"), Caption("CDN Url"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         [RequiredIf("UseCDN", true)]
-        public string CDNUrl{ get; set; }
+        public string CDNUrl { get; set; }
 
-        [Category("CDN"), Caption("CDN Url (Secure)"), Description("If you are using a Content Delivery Network for files located in your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead")]
+        public bool HaveCDNUrl { get { return !string.IsNullOrWhiteSpace(CDNUrl); } }
+
+        [Category("CDN"), Caption("CDN Url (Secure)"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         public string CDNUrlSecure { get; set; }
 
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
-        [Category("CDN"), Caption("SiteFiles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /SiteFiles/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNSiteFiles { get; set; }
+        [Category("CDN"), Caption("Static Files Domain"), Description("You can optionally serve static files from an alternate domain which can improve your site's performance - Enter the domain name here (without http:// or https://)")]
+        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Trim]
+        public string StaticDomain { get; set; }
 
-        [Category("CDN"), Caption("Vault"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Vault/[[Site,SiteDomain]]/ folder - You can use the variable { { Site,CDNUrl } } in Text modules to reference the site's root Url - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNVault { get; set; }
+        public bool HaveStaticDomain { get { return !string.IsNullOrWhiteSpace(StaticDomain); } }
 
-        [Category("CDN"), Caption("CSS/JavaScript"), Description("Defines whether you want to use a Content Delivery Network for CSS/JavaScript files located in your site's /bower_components and /node_modules folders (typically used for 3rd party files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        [Data_NewValue("(0)")]
-        public bool CDNScriptsContent { get; set; }
-
-        [Category("CDN"), Caption("Addons"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /Addons/ folder (typically used for YetaWF files) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNAddons { get; set; }
-
-        [Category("CDN"), Caption("AddonsCustom"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsCustom/ folder (typically used for your YetaWF file customizations) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNAddonsCustom { get; set; }
-
-        [Category("CDN"), Caption("AddonsBundles"), Description("Defines whether you want to use a Content Delivery Network for the files located in your site's /AddonsBundles/ folder (typically used for JavaScript and CSS bundles YetaWF creates) - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNAddonsBundles { get; set; }
-
-        [Category("CDN"), Caption("FileImage"), Description("Defines whether you want to use a Content Delivery Network for images that use the Urls /File.image /FileHndlr.image - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted")]
-        [UIHint("Boolean")]
-        [ProcessIf("UseCDN", true)]
-        public bool CDNFileImage { get; set; }
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate Url is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files Url\" setting to be honored, otherwise it is not used")]
+        [UIHint("Boolean"), ReadOnly]
+        public bool CanUseStaticDomain { get { return Manager.CanUseStaticDomain && HaveStaticDomain; } }
 
         [UIHint("Hidden")]
         [DontSave]
@@ -510,25 +481,7 @@ namespace YetaWF.Core.Site {
         public string OriginalCDNUrlSecure { get; set; }
         [UIHint("Hidden")]
         [DontSave]
-        public bool OriginalCDNSiteFiles { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNVault { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNScriptsContent { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNAddons { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNAddonsCustom { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNAddonsBundles { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalCDNFileImage { get; set; }
+        public string OriginalStaticDomain { get; set; }
 
         // EMAIL
         // EMAIL

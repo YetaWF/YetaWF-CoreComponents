@@ -1304,10 +1304,13 @@ $(window).on("popstate", function () {
 // a more condensed appearance.
 
 YetaWF_Basics.setCondense = function ($tag, width) {
-    if (width < YVolatile.Skin.MinWidthForPopups)
+    if (width < YVolatile.Skin.MinWidthForPopups) {
         $tag.addClass('yCondense');
-    else
+        $tag.removeClass('yNoCondense');
+    } else {
+        $tag.addClass('yNoCondense');
         $tag.removeClass('yCondense');
+    }
 }
 
 $(window).on('resize', function () {

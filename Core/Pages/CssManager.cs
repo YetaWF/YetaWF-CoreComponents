@@ -325,21 +325,21 @@ namespace YetaWF.Core.Pages {
 
             foreach (CssEntry entry in externalList) {
                 string url = entry.Url;
-                if (Manager.CurrentSite.CanUseCDN)
-                    url = Manager.GetCDNUrl(url);
                 if (cr == null) {
-                    if (url.IsAbsoluteUrl()) {
-                        tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}'>", YetaWFManager.HtmlAttributeEncode(url)));
-                    } else {
-                        string sep = url.Contains("?") ? "&amp;" : "?";
-                        if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase(Globals.NodeModulesUrl) || url.ContainsIgnoreCase(Globals.BowerComponentsUrl) || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/"))
-                            tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}'>", YetaWFManager.HtmlAttributeEncode(url), sep, YetaWFManager.CacheBuster));
-                        else
-                            tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}{1}{2}={3},{4}&amp;__yVrs={5}'>", YetaWFManager.HtmlAttributeEncode(url), sep, Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight, YetaWFManager.CacheBuster));
+                    if (!url.IsAbsoluteUrl()) {
+                        if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase(Globals.NodeModulesUrl) || url.ContainsIgnoreCase(Globals.BowerComponentsUrl) || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
+                            // nothing
+                        } else {
+                            url += url.AddQSSeparator() + string.Format("{0}={1},{2}", Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight);
+                        }
                     }
+                    url = Manager.GetCDNUrl(url);
+                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}'>", YetaWFManager.HtmlAttributeEncode(url)));
                 } else {
-                    if (KnownCss == null || !KnownCss.Contains(url))
+                    if (KnownCss == null || !KnownCss.Contains(url)) {
+                        url = Manager.GetCDNUrl(url);
                         cr.CssFiles.Add(url);
+                    }
                 }
             }
             return tag;

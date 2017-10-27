@@ -293,7 +293,7 @@ namespace YetaWF.Core.Image {
             return retString;
         }
 
-        static Regex _imgCDNRe = new Regex(@"(?'kwd'\s+(src|href)=)(?'quot'(""|'))(?'url'/File(|Hndlr)\.image\?Type=)", RegexOptions.Compiled | RegexOptions.Singleline);
+        static Regex _imgCDNRe = new Regex(@"(?'kwd'\s+(src|href)=)(?'quot'(""|'))(?'url'/File(|Hndlr)\.image\?Type=[^\'\""]*)", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Replace all ..href="/File.image..." and ..src="/File.image..." with CDN Url
