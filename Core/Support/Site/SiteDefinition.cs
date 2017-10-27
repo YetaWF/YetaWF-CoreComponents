@@ -461,13 +461,13 @@ namespace YetaWF.Core.Site {
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
         [Category("CDN"), Caption("Static Files Domain"), Description("You can optionally serve static files from an alternate domain which can improve your site's performance - Enter the domain name here (without http:// or https://)")]
-        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Trim]
+        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), ProcessIf("UseCDN", false), Trim]
         public string StaticDomain { get; set; }
 
         public bool HaveStaticDomain { get { return !string.IsNullOrWhiteSpace(StaticDomain); } }
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate Url is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files Url\" setting to be honored, otherwise it is not used")]
-        [UIHint("Boolean"), ReadOnly]
+        [UIHint("Boolean"), ProcessIf("UseCDN", false), ReadOnly]
         public bool CanUseStaticDomain { get { return Manager.CanUseStaticDomain && HaveStaticDomain; } }
 
         [UIHint("Hidden")]
