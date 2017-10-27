@@ -53,8 +53,8 @@ namespace YetaWF.Core.Addons {
         public const string DefaultTooltipPosition = "top";
 
         public const string AjaxJavascriptReturn = "JS:";
-        public const string AjaxJavascriptReloadPage = "JSRelodPage:";
-        public const string AjaxJavascriptReloadModule = "JSRelodModule:";
+        public const string AjaxJavascriptReloadPage = "JSReloadPage:";
+        public const string AjaxJavascriptReloadModule = "JSReloadModule:";
         public const string AjaxJavascriptReloadModuleParts = "JSReloadModuleParts:";
 
         public const string AjaxJavascriptErrorReturn = "JSERROR:";
