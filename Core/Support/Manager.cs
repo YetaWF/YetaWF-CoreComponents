@@ -1178,28 +1178,22 @@ namespace YetaWF.Core.Support {
 #endif
             }
         }
-        public Uri CurrentRequestUri {
-            get {
-                return Manager.CurrentRequest.Url;
-            }
-        }
-
         public void RestartSite(string url = null) {
 #if MVC6
             IApplicationLifetime applicationLifetime = (IApplicationLifetime)ServiceProvider.GetService(typeof(IApplicationLifetime));
             applicationLifetime.StopApplication();
 
             if (!string.IsNullOrWhiteSpace(url)) {
-# if DEBUG
+#if DEBUG
                 // with Kestrel/IIS Express we shut down so provide some feedback
                 try {
                     byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site has stopped - Please close your browser and restart the application.<strong></body></html>");
                     Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length);
                     Manager.CurrentResponse.Body.FlushAsync();
                 } catch (Exception) { }
-# else
+#else
                 CurrentResponse.Redirect(url);
-# endif
+#endif
             }
 #else
             HttpRuntime.UnloadAppDomain();

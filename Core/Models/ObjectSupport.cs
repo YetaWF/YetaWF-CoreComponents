@@ -232,7 +232,7 @@ namespace YetaWF.Core.Models {
             if (readOnly != null) ReadOnly = true;
             Caption = caption;
             Description = description;
-            HelpLink = HelpLink;
+            HelpLink = helpLink;
             TextAbove = textAbove;
             TextBelow = textBelow;
             CategoryAttribute cats = TryGetAttribute<CategoryAttribute>();
