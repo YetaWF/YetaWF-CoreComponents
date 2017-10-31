@@ -38,16 +38,6 @@ namespace YetaWF.Core.Views.Shared {
                 tImg.MergeAttribute("title", title);
             if (!string.IsNullOrWhiteSpace(id))
                 tImg.Attributes.Add("id", id);
-            if (!url.IsAbsoluteUrl()) {
-                string file = YetaWFManager.UrlToPhysical(url);
-                try {
-                    //PERFORMANCE: This is a significant hit on performance
-                    //System.Drawing.Image img = System.Drawing.Image.FromFile(file);
-                    //tImg.MergeAttribute("width", img.Width.ToString());
-                    //tImg.MergeAttribute("height", img.Height.ToString());
-                    url += url.AddUrlCacheBuster((File.GetLastWriteTime(file).Ticks / TimeSpan.TicksPerSecond).ToString());
-                } catch { }
-            }
             tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
             return tImg;
         }
