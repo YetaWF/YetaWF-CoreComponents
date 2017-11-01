@@ -61,9 +61,6 @@ namespace YetaWF.Core.Pages {
             else if (!string.IsNullOrWhiteSpace(currentSite.ExtraHead))
                 head = currentSite.ExtraHead;
 
-            if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))
-                head += "<style>body { display: none;}</style>";
-
             // linkAlt+css+js+</head> replaces </head>
             string js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Top)
@@ -71,10 +68,12 @@ namespace YetaWF.Core.Pages {
             pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + head + "</head>", 1);
 
             string bodyStart = "";
+            if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))
+                bodyStart += "<script>document.body.style.display='none';</script>";
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraBodyTop))
-                bodyStart = Manager.CurrentPage.ExtraBodyTop;
+                bodyStart += Manager.CurrentPage.ExtraBodyTop;
             else if (!string.IsNullOrWhiteSpace(currentSite.ExtraBodyTop))
-                bodyStart = currentSite.ExtraBodyTop;
+                bodyStart += currentSite.ExtraBodyTop;
             if (!string.IsNullOrWhiteSpace(bodyStart))
                 pageHtml = reStartBody.Replace(pageHtml, (m) => m.Value + bodyStart, 1);
 
@@ -88,7 +87,7 @@ namespace YetaWF.Core.Pages {
 
             string endstuff = css;
             if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))
-                endstuff += "<style>body { display: block !important;}</style>";
+                endstuff += "<script>document.body.style.display='block';</script>";
             endstuff += js;
             endstuff += Manager.ScriptManager.RenderEndofPageScripts();
             if (Manager.Deployed) {
