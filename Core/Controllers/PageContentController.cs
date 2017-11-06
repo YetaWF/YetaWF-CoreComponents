@@ -205,7 +205,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // set the unique id prefix so all generated ids start where the main page left off
-            Manager.UniqueIdPrefixCounter = dataIn.UniqueIdPrefixCounter;
+            Manager.UniqueIdPrefixCounter = YetaWFController.GoingToPopup() ? dataIn.UniqueIdPrefixCounter + 1 : dataIn.UniqueIdPrefixCounter;
 
             // Check if this is a static page
             // It seems if we can handle a page as a content replacement, that's better than a static page, which reruns all javascript
