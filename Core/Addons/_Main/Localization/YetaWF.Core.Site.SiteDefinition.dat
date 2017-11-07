@@ -759,9 +759,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="PortNumber" />
+                            <Name Value="PortNumberEval" />
                             <Caption Value="Port Number (Normal)" />
-                            <Description Value="The port number used to access this site using http. The default is 80 which can be specified using -1" />
+                            <Description Value="The port number used to access this site using http." />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -771,7 +771,7 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="PortNumberSSL" />
+                            <Name Value="PortNumberSSLEval" />
                             <Caption Value="Port Number (SSL)" />
                             <Description Value="The port number used to access this site using https (SSL - Secure Sockets Layer). The default is 443 which can be specified using -1" />
                             <HelpLink />

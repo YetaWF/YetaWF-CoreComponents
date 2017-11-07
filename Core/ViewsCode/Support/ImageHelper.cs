@@ -78,7 +78,7 @@ namespace YetaWF.Core.Views.Shared {
 
                 TagBuilder img = new TagBuilder("img");
                 img.Attributes.Add("src", model);
-                img.Attributes.Add("alt", __ResStr("altImage", Alt??"Image"));
+                img.Attributes.Add("alt", __ResStr("altImage", "{0}", Alt??"Image"));
                 return img.ToHtmlString(TagRenderMode.Normal);
 
             } else {
