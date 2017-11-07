@@ -80,7 +80,7 @@ namespace YetaWF.Core.Views.Shared {
                 sb.Append("name:{0},index:{0},", YetaWFManager.JsonSerialize(prop.Name));
 
                 int width = 0;
-                if (gridCol.Icons > 0) {
+                if (gridCol.Icons != 0) {
                     gridCol.Sortable = false;
                     GridHelper.GridActionsEnum actionStyle = GridHelper.GridActionsEnum.Icons;
                     if (gridCol.Icons > 1)
@@ -90,7 +90,7 @@ namespace YetaWF.Core.Views.Shared {
                     if (actionStyle == GridHelper.GridActionsEnum.DropdownMenu) {
                         width = Manager.CharWidthAvg * 12;
                     } else {
-                        width = Manager.CharWidthAvg + (gridCol.Icons * (16 + Manager.CharWidthAvg / 2 + 2) + Manager.CharWidthAvg);
+                        width = Manager.CharWidthAvg + (Math.Abs(gridCol.Icons) * (16 + Manager.CharWidthAvg / 2 + 2) + Manager.CharWidthAvg);
                     }
                 }
                 if (gridCol.ChWidth != 0)

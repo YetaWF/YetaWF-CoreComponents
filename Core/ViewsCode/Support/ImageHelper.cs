@@ -72,7 +72,7 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.TryGetControlInfo<int>(name, "Width", out width);
             htmlHelper.TryGetControlInfo<int>(name, "Height", out height);
 
-            if (string.IsNullOrWhiteSpace(imageType) && model != null && model.IsAbsoluteUrl()) {
+            if (string.IsNullOrWhiteSpace(imageType) && model != null && model.IsAbsoluteUrl() || model.StartsWith("/")) {
 
                 if (width != 0 || height != 0) throw new InternalError("Can't use Width or Height with external Urls");
 

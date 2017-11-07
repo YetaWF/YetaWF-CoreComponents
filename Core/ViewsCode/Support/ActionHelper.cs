@@ -32,7 +32,11 @@ namespace YetaWF.Core.Views.Shared {
                 throw new InternalError("Field name not supported for ActionIcons");
             GridHelper.GridActionsEnum actionStyle = GridHelper.GridActionsEnum.Icons;
             if (actions.Count > 1) {
-                actionStyle = UserSettings.GetProperty<GridHelper.GridActionsEnum>("GridActions");
+                GridHelper.GridActionsEnum gridActionStyle;
+                if (htmlHelper.TryGetControlInfo<GridHelper.GridActionsEnum>("", "GridActionsEnum", out gridActionStyle))
+                    actionStyle = gridActionStyle;
+                else
+                    actionStyle = UserSettings.GetProperty<GridHelper.GridActionsEnum>("GridActions");
             }
             switch (actionStyle) {
                 default:

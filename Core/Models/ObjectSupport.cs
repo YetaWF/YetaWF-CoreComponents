@@ -771,6 +771,10 @@ namespace YetaWF.Core.Models {
                             if (n < 1) throw new InternalError("Icons must be >= 1 for column {0} in {1}", name, file);
                             gridCol.Icons = n;
                             ++i;
+                        } else if (string.Compare(part, "forceicons", true) == 0) {
+                            if (gridCol.Icons == 0) throw new InternalError("Invalid forceicons option in {0} for {1}", file, name);
+                            if (gridCol.Icons < 0) throw new InternalError("Duplicate forceicons option in {0} for {1}", file, name);
+                            gridCol.Icons = -gridCol.Icons;
                         } else if (string.Compare(part, "defaultSort", true) == 0) {
                             sortCol = name;
                             part = GetNextPart(parts, i, part, file, name);
