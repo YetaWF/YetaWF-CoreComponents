@@ -190,7 +190,7 @@ namespace YetaWF.Core.Controllers {
                     if (uri.Scheme == "https") {
                         UriBuilder newUri = new UriBuilder(uri);
                         newUri.Scheme = "http";
-                        newUri.Port = Manager.CurrentSite.PortNumber == -1 ? 80 : Manager.CurrentSite.PortNumber;
+                        newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
@@ -208,7 +208,7 @@ namespace YetaWF.Core.Controllers {
                     if (!Manager.HaveUser && uri.Scheme == "https") {
                         UriBuilder newUri = new UriBuilder(uri);
                         newUri.Scheme = "http";
-                        newUri.Port = Manager.CurrentSite.PortNumber == -1 ? 80 : Manager.CurrentSite.PortNumber;
+                        newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
@@ -222,7 +222,7 @@ namespace YetaWF.Core.Controllers {
                     } else if (Manager.HaveUser && uri.Scheme != "https") {
                         UriBuilder newUri = new UriBuilder(uri);
                         newUri.Scheme = "https";
-                        newUri.Port = Manager.CurrentSite.PortNumberSSL == -1 ? 443 : Manager.CurrentSite.PortNumberSSL;
+                        newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
@@ -245,7 +245,7 @@ namespace YetaWF.Core.Controllers {
                     if (uri.Scheme != "https") {
                         UriBuilder newUri = new UriBuilder(uri);
                         newUri.Scheme = "https";
-                        newUri.Port = Manager.CurrentSite.PortNumberSSL == -1 ? 443 : Manager.CurrentSite.PortNumberSSL;
+                        newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
@@ -557,7 +557,7 @@ namespace YetaWF.Core.Controllers {
 #endif
                                 UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
                                 newUri.Scheme = "https";
-                                newUri.Port = Manager.CurrentSite.PortNumberSSL == -1 ? 443 : Manager.CurrentSite.PortNumberSSL;
+                                newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
                                 Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                                 Manager.CurrentResponse.StatusCode = 302;
@@ -578,7 +578,7 @@ namespace YetaWF.Core.Controllers {
 #endif
                                 UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
                                 newUri.Scheme = "http";
-                                newUri.Port = Manager.CurrentSite.PortNumber == -1 ? 80 : Manager.CurrentSite.PortNumber;
+                                newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
                                 Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                                 Manager.CurrentResponse.StatusCode = 302;

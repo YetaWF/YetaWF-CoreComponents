@@ -148,15 +148,15 @@ namespace YetaWF.Core.Site {
                         host = Manager.HostUsed;
                         if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
-                    } else if (Manager.CurrentSite.PortNumberSSL != 443 && Manager.CurrentSite.PortNumberSSL != -1)
-                        port = Manager.CurrentSite.PortNumberSSL;
+                    } else if (Manager.CurrentSite.PortNumberSSLEval != 443)
+                        port = Manager.CurrentSite.PortNumberSSLEval;
                 } else {
                     if (Manager.IsLocalHost) {
                         host = Manager.HostUsed;
                         if (Manager.HostPortUsed != 80)
                             port = Manager.HostPortUsed;
-                    } else if (Manager.CurrentSite.PortNumber != 80 && Manager.CurrentSite.PortNumber != -1)
-                        port = Manager.CurrentSite.PortNumber;
+                    } else if (Manager.CurrentSite.PortNumberEval != 80)
+                        port = Manager.CurrentSite.PortNumberEval;
                     else {
                         // the only time we preserve the user provided domain name is when we don't switch http/https and the port number wasn't specified/forced
                         // this is mostly a "just in case" measure to allow access to a site even if its domain name doesn't match
@@ -210,7 +210,7 @@ namespace YetaWF.Core.Site {
                     secure = true;
                     break;
             }
-            UriBuilder uri = new UriBuilder(secure ? "https" : "http", Manager.CurrentSite.SiteDomain, secure ? Manager.CurrentSite.PortNumberSSL : Manager.CurrentSite.PortNumber);
+            UriBuilder uri = new UriBuilder(secure ? "https" : "http", Manager.CurrentSite.SiteDomain, secure ? Manager.CurrentSite.PortNumberSSLEval : Manager.CurrentSite.PortNumberEval);
             return uri.ToString();
         }
 

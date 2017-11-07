@@ -79,7 +79,8 @@ namespace YetaWF.Core.Site {
             SiteDomain = "(yourdomain.com)";
             OriginalSiteDomain = null;
             SiteName = "(Your Site Name)";
-            PortNumber = PortNumberSSL = -1;
+            PortNumber = 80;
+            PortNumberSSL = 443;
             Localization = true;
             DefaultLanguageId = MultiString.DefaultLanguage;
             AllowAnonymousUsers = true;
@@ -188,12 +189,30 @@ namespace YetaWF.Core.Site {
         [UIHint("Text80"), StringLength(MaxSiteName), Required, Trim]
         public string SiteName { get; set; }
 
-        [Category("Site"), Caption("Port Number (Normal)"), Description("The port number used to access this site using http. The default is 80 which can be specified using -1")]
-        [UIHint("IntValue6"), Range(-1, 65535), Required]
+        [Category("Site"), Caption("Port Number (Normal)"), Description("The port number used to access this site using http.")]
+        [UIHint("IntValue6"), Range(1, 65535), Required]
+        [Data_DontSave]
+        public int PortNumberEval {
+            get {
+                return PortNumber < 0 ? 80 : PortNumber;
+            }
+            set {
+                PortNumber = value;
+            }
+        }
         public int PortNumber { get; set; }
 
         [Category("Site"), Caption("Port Number (SSL)"), Description("The port number used to access this site using https (SSL - Secure Sockets Layer). The default is 443 which can be specified using -1")]
-        [UIHint("IntValue6"), Range(-1, 65535), Required]
+        [UIHint("IntValue6"), Range(1, 65535), Required]
+        [Data_DontSave]
+        public int PortNumberSSLEval {
+            get {
+                return PortNumberSSL < 0 ? 443 : PortNumberSSL;
+            }
+            set {
+                PortNumberSSL = value;
+            }
+        }
         public int PortNumberSSL { get; set; }
 
         [Category("Variables"), Caption("Site Url With http"), Description("The site Url including http:")]
