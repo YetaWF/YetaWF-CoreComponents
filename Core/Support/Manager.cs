@@ -1534,11 +1534,13 @@ namespace YetaWF.Core.Support {
         public string UserLanguage { get; private set; }
         public string GetUserLanguage() {
             string userLang = UserSettings.GetProperty<string>("LanguageId");
-            return MultiString.NormalizeLanguageId(userLang);
+            UserLanguage = MultiString.NormalizeLanguageId(userLang);
+            return UserLanguage;
         }
         public void SetUserLanguage(string language) {
             language = MultiString.NormalizeLanguageId(language);
             UserSettings.SetProperty<string>("LanguageId", language);
+            UserLanguage = language;
         }
         public bool HaveUser { get { return UserId != 0; } }
         public void NeedUser() { if (!HaveUser) throw new Error(this.__ResStr("noUser", "You must be logged in to perform this action")); }
