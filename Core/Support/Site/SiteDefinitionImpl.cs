@@ -64,7 +64,14 @@ namespace YetaWF.Core.Site {
         /// </remarks>
         public string MakeUrl(string pathAndQs = null, PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any,
                 string RealDomain = null, string ForceDomain = null) {
-
+            return MakeFullUrl(pathAndQs, DetermineSchema(PagePageSecurity), RealDomain: RealDomain, ForceDomain: ForceDomain);
+        }
+        /// <summary>
+        /// Determine schema used based on page and site settings.
+        /// </summary>
+        /// <param name="PagePageSecurity">The current page's security settings.</param>
+        /// <returns>Security settings.</returns>
+        public PageDefinition.PageSecurityType DetermineSchema(PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any) {
             PageDefinition.PageSecurityType securityType = PagePageSecurity;// assume the page decides the security type
             switch (PageSecurity) {
                 case PageSecurityType.AsProvided:
@@ -98,7 +105,7 @@ namespace YetaWF.Core.Site {
                     securityType = PageDefinition.PageSecurityType.httpsOnly;
                     break;
             }
-            return MakeFullUrl(pathAndQs, securityType, RealDomain: RealDomain, ForceDomain: ForceDomain);
+            return securityType;
         }
         /// <summary>
         /// Turns a local Url into a fully qualified Url.

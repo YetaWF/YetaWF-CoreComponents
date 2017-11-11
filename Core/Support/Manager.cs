@@ -1652,8 +1652,8 @@ namespace YetaWF.Core.Support {
             if (!url.IsAbsoluteUrl()) {
                 url += url.AddUrlCacheBuster(CacheBuster);
                 bool useCDN = Manager.CurrentSite.CanUseCDN;
-                bool useAlt = useCDN || Manager.CurrentSite.CanUseStaticDomain;
-                if (useAlt) {
+                bool useAlt = Manager.CurrentSite.CanUseStaticDomain;
+                if (useCDN || useAlt) {
                     if (url.StartsWith(Globals.NodeModulesUrl) ||
                             url.StartsWith(Globals.BowerComponentsUrl) ||
                             url.StartsWith(Globals.SiteFilesUrl) ||
@@ -1663,47 +1663,44 @@ namespace YetaWF.Core.Support {
                             url.StartsWith(Globals.AddOnsCustomUrl) ||
                             url.StartsWith(Globals.AddonsBundlesUrl) ||
                             url.StartsWith("/FileHndlr.image") ||
-                            url.StartsWith("/File.image"))
-                        useAlt = true;
-                    else
+                            url.StartsWith("/File.image")) { 
+                        // leave useAlt as is
+                    } else
                         useAlt = false;
                 }
-                if (useAlt) {
-                    // TODO: Clean up use of https vs. http with static domain
-                    if (Manager.CurrentPage != null) {
-                        switch (Manager.CurrentPage.PageSecurity) {
-                            case PageDefinition.PageSecurityType.httpOnly:
-                                url = (useCDN ? CurrentSite.CDNUrl : "http://" + CurrentSite.StaticDomain) + url;
-                                url = url.TruncateStart("http:");
-                                break;
-                            case PageDefinition.PageSecurityType.Any: // Using Any is really discouraged, but supported
-                                if (CurrentSite.PageSecurity == PageSecurityType.NoSSLOnly) {
-                                    url = (useCDN ? CurrentSite.CDNUrl : "http://" + CurrentSite.StaticDomain) + url;
-                                    url = url.TruncateStart("http:");
-                                } else {
-                                    if ((useCDN && CurrentSite.HaveCDNUrlSecure) || CurrentSite.HaveStaticDomain)
-                                        // we err on the side of using https when page security is Any
-                                        url = (useCDN ? CurrentSite.CDNUrlSecure : "https://" + CurrentSite.StaticDomain) + url;
-                                    else
-                                        url = (useCDN ? CurrentSite.CDNUrl : "http://" + CurrentSite.StaticDomain) + url;
-                                }
-                                break;
-                            case PageDefinition.PageSecurityType.httpsOnly:
-                                if ((useCDN && CurrentSite.HaveCDNUrlSecure) || CurrentSite.HaveStaticDomain) {
-                                    url = (useCDN ? CurrentSite.CDNUrlSecure : "https://" + CurrentSite.StaticDomain) + url;
-                                    url = url.TruncateStart("https:");
-                                } else {
-                                    url = (useCDN ? CurrentSite.CDNUrl : "http://" + CurrentSite.StaticDomain) + url;
-                                    url = url.TruncateStart("http:");
-                                }
-                                break;
-                        }
-                    } else {
-                        // TODO: Clean up use of https vs. http with static domain
-                        if ((useCDN && CurrentSite.HaveCDNUrlSecure) || CurrentSite.HaveStaticDomain) // if we don't have a page, assume https
-                            url = (useCDN ? CurrentSite.CDNUrlSecure : "https://" + CurrentSite.StaticDomain) + url;
-                        else
-                            url = (useCDN ? CurrentSite.CDNUrl : "http://" + CurrentSite.StaticDomain) + url;
+                if (useCDN || useAlt) {
+                    PageDefinition.PageSecurityType pageSecurity;
+                    if (Manager.CurrentPage != null)
+                        pageSecurity = Manager.CurrentSite.DetermineSchema(Manager.CurrentPage.PageSecurity);
+                    else
+                        pageSecurity = Manager.CurrentSite.DetermineSchema();
+                    switch (pageSecurity) {
+                        default:
+                        case PageDefinition.PageSecurityType.Any:
+                            if (useCDN) {
+                                if (CurrentSite.HaveCDNUrlSecure)
+                                    url = CurrentSite.CDNUrlSecure + url;
+                                else
+                                    url = CurrentSite.CDNUrl + url;
+                            } else if (useAlt)
+                                url = "https://" + CurrentSite.StaticDomain + url;
+                            url = url.TruncateStart("http:");
+                            url = url.TruncateStart("https:");
+                            break;
+                        case PageDefinition.PageSecurityType.httpOnly:
+                            if (useCDN)
+                                url = CurrentSite.CDNUrl + url;
+                            else if (useAlt)
+                                url = "http://" + CurrentSite.StaticDomain + url;
+                            url = url.TruncateStart("http:");
+                            break;
+                        case PageDefinition.PageSecurityType.httpsOnly:
+                            if (useCDN && CurrentSite.HaveCDNUrlSecure)
+                                url = CurrentSite.CDNUrlSecure + url;
+                            else if (useAlt)
+                                url = "https://" + CurrentSite.StaticDomain + url;
+                            url = url.TruncateStart("https:");
+                            break;
                     }
                 }
             }
