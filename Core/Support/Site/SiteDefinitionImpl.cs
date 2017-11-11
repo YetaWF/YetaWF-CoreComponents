@@ -217,7 +217,18 @@ namespace YetaWF.Core.Site {
                     secure = true;
                     break;
             }
-            UriBuilder uri = new UriBuilder(secure ? "https" : "http", Manager.CurrentSite.SiteDomain, secure ? Manager.CurrentSite.PortNumberSSLEval : Manager.CurrentSite.PortNumberEval);
+            UriBuilder uri;
+            if (secure) {
+                if (Manager.CurrentSite.PortNumberSSLEval == 443)
+                    uri = new UriBuilder("https", Manager.CurrentSite.SiteDomain);
+                else
+                    uri = new UriBuilder("https", Manager.CurrentSite.SiteDomain, Manager.CurrentSite.PortNumberSSLEval);
+            } else {
+                if (Manager.CurrentSite.PortNumberEval == 80)
+                    uri = new UriBuilder("http", Manager.CurrentSite.SiteDomain);
+                else
+                    uri = new UriBuilder("http", Manager.CurrentSite.SiteDomain, Manager.CurrentSite.PortNumberEval);
+            }
             return uri.ToString();
         }
 
