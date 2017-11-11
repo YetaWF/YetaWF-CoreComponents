@@ -692,15 +692,16 @@ namespace YetaWF.Core.Pages {
 
             foreach (ScriptEntry entry in externalList) {
                 string url = entry.Url;
+                url = Manager.GetCDNUrl(url);
                 if (cr == null) {
                     string opts = "";
                     opts += entry.Async ? " async" : "";
                     opts += entry.Defer ? " defer" : "";
-                    url = Manager.GetCDNUrl(url);
                     hb.Append(string.Format("<script type='text/javascript' src='{0}'{1}></script>",
                         YetaWFManager.UrlEncodePath(url), opts));
                 } else {
-                    if (KnownScripts == null || !KnownScripts.Contains(url))
+                    string u = url.RemoveStartingAt('?');
+                    if (KnownScripts == null || !KnownScripts.Contains(u))
                         cr.ScriptFiles.Add(url);
                 }
             }

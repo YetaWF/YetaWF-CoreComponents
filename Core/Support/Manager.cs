@@ -1669,6 +1669,7 @@ namespace YetaWF.Core.Support {
                         useAlt = false;
                 }
                 if (useAlt) {
+                    // TODO: Clean up use of https vs. http with static domain
                     if (Manager.CurrentPage != null) {
                         switch (Manager.CurrentPage.PageSecurity) {
                             case PageDefinition.PageSecurityType.httpOnly:
@@ -1698,6 +1699,7 @@ namespace YetaWF.Core.Support {
                                 break;
                         }
                     } else {
+                        // TODO: Clean up use of https vs. http with static domain
                         if ((useCDN && CurrentSite.HaveCDNUrlSecure) || CurrentSite.HaveStaticDomain) // if we don't have a page, assume https
                             url = (useCDN ? CurrentSite.CDNUrlSecure : "https://" + CurrentSite.StaticDomain) + url;
                         else

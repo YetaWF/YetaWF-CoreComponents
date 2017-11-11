@@ -513,7 +513,7 @@ _YetaWF_Basics.initButtons = function ($tag) {
         $("button.y_bootstrap", $tag).addClass('btn')
         $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_bootstrap", $tag).addClass('btn btn-default') // action link as a button
     }
-}
+};
 
 // AJAX RETURN
 // AJAX RETURN
@@ -658,6 +658,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
         var $divs = $('.yUnified[data-pane]');
         // build data context (like scripts, css files we have)
         var data = {};
+        data.CacheVersion = YVolatile.Basics.CacheVersion;
         data.Path = path;
         data.QueryString = uri.query();
         data.UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;

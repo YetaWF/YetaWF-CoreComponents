@@ -133,6 +133,7 @@ namespace YetaWF.Core.Controllers {
         /// Data received from client side for the requested page.
         /// </summary>
         public class DataIn {
+            public string CacheVersion { get; set; }
             public string Path { get; set; }
             public string QueryString { get; set; }
             public string UnifiedSetGuid { get; set; }
@@ -196,7 +197,8 @@ namespace YetaWF.Core.Controllers {
 #else
             string lang = Manager.CurrentRequest[Globals.Link_Language];
 #endif
-            if (!string.IsNullOrWhiteSpace(lang)) {
+            if (dataIn.CacheVersion != YetaWFManager.CacheBuster || !string.IsNullOrWhiteSpace(lang)) {
+                // If the cache version doesn't match, client is using an "old" site which was restarted, so we need to redirect to reload the entire page
                 // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page
                 // we need the entire page, content is not sufficient
                 PageContentResult cr = new PageContentResult();

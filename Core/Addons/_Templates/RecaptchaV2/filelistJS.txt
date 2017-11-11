@@ -1,2 +1,2 @@
-﻿https://www.google.com/recaptcha/api.js?render=explicit
+﻿https://www.google.com/recaptcha/api.js,async,defer
 recaptchav2.js
