@@ -48,13 +48,13 @@ namespace YetaWF.Core.Models.Attributes {
         }
 #if MVC6
         public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled {0} is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
+            ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-email", ErrorMessage);
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled {0} is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(metadata));
+            ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(metadata));
             yield return new ModelClientValidationRule {
                 ErrorMessage = ErrorMessage,
                 ValidationType = "email",
