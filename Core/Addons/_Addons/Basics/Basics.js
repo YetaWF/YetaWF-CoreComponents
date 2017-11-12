@@ -677,13 +677,13 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
         data.KnownCss = [];
         var $css = $('link[rel="stylesheet"]');
         $css.each(function () {
-            data.KnownCss.push($(this).attr('href').split('?')[0]); // remove ?+querystring
+            data.KnownCss.push($(this).attr('href'));
         });
         data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
         data.KnownScripts = [];
         var $scripts = $('script[type="text/javascript"][src]');
         $scripts.each(function () {
-            data.KnownScripts.push($(this).attr('src').split('?')[0]); // remove ?+querystring
+            data.KnownScripts.push($(this).attr('src'));
         });
         data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic);// known javascript files that were added by content pages
         data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
@@ -728,7 +728,6 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                 var cssLength = result.CssFiles.length;
                 for (var i = 0; i < cssLength; i++) {
                     var sUrl = result.CssFiles[i];
-                    var sUrl = '{0}{1}{2}={3},{4}'.format(sUrl, sUrl.indexOf("?") < 0 ? "?" : "&", YGlobals.Link_CharInfo, YVolatile.Basics.CharWidthAvg, YVolatile.Basics.CharHeight);
                     $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', sUrl));
                 }
                 if (result.CssBundleFiles != null) {

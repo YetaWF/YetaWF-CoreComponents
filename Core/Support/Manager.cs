@@ -287,7 +287,7 @@ namespace YetaWF.Core.Support {
         }
 
         // The date the site was started
-        public static DateTime SiteStart = DateTime.UtcNow;
+        public static readonly DateTime SiteStart = DateTime.UtcNow;
 
         public static string CacheBuster {
             get {

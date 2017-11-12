@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using YetaWF.Core.Support;
+
 namespace YetaWF.Core.Extensions {
 
     public static class Extensions {
@@ -95,6 +97,19 @@ namespace YetaWF.Core.Extensions {
             if (text == null) return "";
             if (text.Contains("/__yVrs/")) return "";
             return string.Format("/__yVrs/{0}", cacheBuster);
+        }
+        public static string AddUrlCharInfo(this string url) {
+            if (!url.IsAbsoluteUrl()) {
+                YetaWFManager manager = YetaWFManager.Manager;
+                if (!url.Contains(Globals.Link_CharInfo + "=") && !url.Contains("/" + Globals.Link_CharInfo + "/")) {
+                    if (!manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase(Globals.NodeModulesUrl) || url.ContainsIgnoreCase(Globals.BowerComponentsUrl) || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
+                        // nothing
+                    } else {
+                        url += url.AddQSSeparator() + string.Format("{0}={1},{2}", Globals.Link_CharInfo, manager.CharWidthAvg, manager.CharHeight);
+                    }
+                }
+            }
+            return url;
         }
     }
 }

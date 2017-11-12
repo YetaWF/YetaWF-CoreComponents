@@ -324,22 +324,12 @@ namespace YetaWF.Core.Pages {
             }
 
             foreach (CssEntry entry in externalList) {
-                string url = entry.Url;
+                string url = MakeCssUrl(entry.Url);
                 if (cr == null) {
-                    if (!url.IsAbsoluteUrl()) {
-                        if (!Manager.CurrentSite.UseHttpHandler || url.ContainsIgnoreCase(Globals.NodeModulesUrl) || url.ContainsIgnoreCase(Globals.BowerComponentsUrl) || url.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
-                            // nothing
-                        } else {
-                            url += url.AddQSSeparator() + string.Format("{0}={1},{2}", Globals.Link_CharInfo, Manager.CharWidthAvg, Manager.CharHeight);
-                        }
-                    }
-                    url = Manager.GetCDNUrl(url);
                     tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}'>", YetaWFManager.HtmlAttributeEncode(url)));
                 } else {
-                    if (KnownCss == null || !KnownCss.Contains(url)) {
-                        url = Manager.GetCDNUrl(url);
+                    if (KnownCss == null || !KnownCss.Contains(url))
                         cr.CssFiles.Add(url);
-                    }
                 }
             }
             return tag;
@@ -350,11 +340,17 @@ namespace YetaWF.Core.Pages {
         /// <returns></returns>
         internal List<string> GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
-                List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
+                List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select MakeCssUrl(s.Url)).ToList();
                 if (bundleList.Count > 1)
                     return bundleList;
             }
             return null;
+        }
+
+        private string MakeCssUrl(string url) {
+            url = url.AddUrlCharInfo();
+            url = Manager.GetCDNUrl(url);
+            return url;
         }
     }
 }

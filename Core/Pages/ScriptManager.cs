@@ -700,8 +700,7 @@ namespace YetaWF.Core.Pages {
                     hb.Append(string.Format("<script type='text/javascript' src='{0}'{1}></script>",
                         YetaWFManager.UrlEncodePath(url), opts));
                 } else {
-                    string u = url.RemoveStartingAt('?');
-                    if (KnownScripts == null || !KnownScripts.Contains(u))
+                    if (KnownScripts == null || !KnownScripts.Contains(url))
                         cr.ScriptFiles.Add(url);
                 }
             }
@@ -709,7 +708,7 @@ namespace YetaWF.Core.Pages {
         }
         internal List<string> GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
-                List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
+                List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select Manager.GetCDNUrl(s.Url)).ToList();
                 if (bundleList.Count > 1)
                     return bundleList;
             }
