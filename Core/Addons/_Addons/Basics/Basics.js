@@ -577,45 +577,54 @@ function Y_KillTooltips() {
 // CONTENT
 
 // loads all scripts - we need to preserve the order of initialization hence the recursion
-_YetaWF_Basics.loadScripts = function (scripts, run) {
-    if (!YVolatile.Basics.hasOwnProperty('KnownScriptsDynamic')) YVolatile.Basics.KnownScriptsDynamic = [];
+_YetaWF_Basics.loadScripts = function (scripts, payload, run) {
+    YVolatile.Basics.KnownScriptsDynamic = YVolatile.Basics.KnownScriptsDynamic || [];
     var total = scripts.length;
     if (total == 0) {
         run();
         return;
     }
-    _YetaWF_Basics.loadNextScript(scripts, total, 0, run);
+    _YetaWF_Basics.loadNextScript(scripts, payload, total, 0, run);
 };
 
-_YetaWF_Basics.loadNextScript = function (scripts, total, ix, run) {
-    var name = scripts[ix];
+_YetaWF_Basics.loadNextScript = function (scripts, payload, total, ix, run) {
+    var urlEntry = scripts[ix];
+    var name = urlEntry.Name;
 
     function process() {
         if (ix >= total - 1) {
-            // adding <script> to <head> and using $.getScript may be sync but the scripts don't necessarily RUN...
-            // We just loaded all scripts. By setting a timeout we try to make sure they actually run... smh
-            // this is all voodoo bullshit... Just give me a method to load scripts in the correct order and let me know when
-            // they're done (emphasis) running
-            setTimeout(function () {
-                run();// we're all done
-            }, 50);
+            run();// we're all done
         } else {
-            _YetaWF_Basics.loadNextScript(scripts, total, ix + 1, run);
+            _YetaWF_Basics.loadNextScript(scripts, payload, total, ix + 1, run);
         }
     }
-    if (name.startsWith('//') || name.startsWith('http://') || name.startsWith('https://')) {
-        // cross-site
+    var found = payload.filter(function (elem) { return elem.Name == name; });
+    if (found.length > 0) {
+        $.globalEval(found[0].Text);
         YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
-        $.getScript(name).done(function (script, textStatus) {
-            process();
-        }).fail(function (jqxhr, settings, exception) {
-            console.log("Couldn't load script " + name);
-            process();
-        });
-    } else {
-        // same site
-        $('head').append('<script type="text/javascript" src="{0}"></script>'.format(name));
         process();
+    } else {
+        var loaded;
+        var js = document.createElement('script');
+        js.type = 'text/javascript';
+        js.async = false; // need to preserve execution order
+        js.src = urlEntry.Url;
+        var dataName = document.createAttribute("data-name");
+        dataName.value = name;
+        js.setAttributeNode(dataName);
+        js.onload = js.onerror = js['onreadystatechange'] = function () {
+            if ((js['readyState'] && !(/^c|loade/.test(js['readyState']))) || loaded) return;
+            js.onload = js['onreadystatechange'] = null;
+            loaded = true;
+            process();
+        };
+        if (YVolatile.Basics.JSLocation) {// location doesn't really matter, but done for consistency
+            var head = document.getElementsByTagName('head')[0];
+            head.insertBefore(js, head.lastChild)
+        } else {
+            var body = document.getElementsByTagName('body')[0];
+            body.insertBefore(js, body.lastChild)
+        }
     }
 };
 
@@ -675,15 +684,19 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
             data.Panes.push($(this).attr('data-pane'));
         });
         data.KnownCss = [];
-        var $css = $('link[rel="stylesheet"]');
+        var $css = $('link[rel="stylesheet"][data-name]');
         $css.each(function () {
-            data.KnownCss.push($(this).attr('href'));
+            data.KnownCss.push($(this).attr('data-name'));
+        });
+        $css = $('style[type="text/css"][data-name]');
+        $css.each(function () {
+            data.KnownCss.push($(this).attr('data-name'));
         });
         data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
         data.KnownScripts = [];
-        var $scripts = $('script[type="text/javascript"][src]');
+        var $scripts = $('script[type="text/javascript"][src][data-name]');
         $scripts.each(function () {
-            data.KnownScripts.push($(this).attr('src'));
+            data.KnownScripts.push($(this).attr('data-name'));
         });
         data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic);// known javascript files that were added by content pages
         data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
@@ -727,23 +740,30 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                 // add all new css files
                 var cssLength = result.CssFiles.length;
                 for (var i = 0; i < cssLength; i++) {
-                    var sUrl = result.CssFiles[i];
-                    $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', sUrl));
+                    var urlEntry = result.CssFiles[i];
+                    var found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
+                    if (found.length > 0) {
+                        if (YVolatile.Basics.CssLocation) {
+                            $('head').append($('<style />').attr('type', 'text/css').attr('data-name', found[0].Name).html(found[0].Text));
+                        } else {
+                            $('body').append($('<style />').attr('type', 'text/css').attr('data-name', found[0].Name).html(found[0].Text));
+                        }
+                    } else {
+                        if (YVolatile.Basics.CssLocation) {
+                            $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('data-name', urlEntry.Name).attr('href', urlEntry.Url));
+                        } else {
+                            $('body').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('data-name', urlEntry.Name).attr('href', urlEntry.Url));
+                        }
+                    }
                 }
                 if (result.CssBundleFiles != null) {
-                    if (YVolatile.Basics.UnifiedCssBundleFiles != null)
-                        YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles);
-                    else
-                        YVolatile.Basics.UnifiedCssBundleFiles = result.CssBundleFiles
+                    YVolatile.Basics.UnifiedCssBundleFiles = YVolatile.Basics.UnifiedCssBundleFiles || [];
+                    YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles);
                 }
                 // add all new script files
-                _YetaWF_Basics.loadScripts(result.ScriptFiles, function () {
-                    if (result.ScriptBundleFiles != null) {
-                        if (YVolatile.Basics.UnifiedScriptBundleFiles != null)
-                            YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
-                        else
-                            YVolatile.Basics.UnifiedScriptBundleFiles = result.ScriptBundleFiles;
-                    }
+                _YetaWF_Basics.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, function () {
+                    YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
+                    YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
                     if (!popupCB) {
                         // Update the browser page title
                         document.title = result.PageTitle;
@@ -787,8 +807,8 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                     }
                     // add addons
                     $('body').append(result.Addons);
-                    if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonModsPrevious')) YVolatile.Basics.UnifiedAddonModsPrevious = [];
-                    if (!YVolatile.Basics.hasOwnProperty('UnifiedAddonMods')) YVolatile.Basics.UnifiedAddonMods = [];
+                    YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonModsPrevious || [];
+                    YVolatile.Basics.UnifiedAddonMods = YVolatile.Basics.UnifiedAddonMods || [];
                     // end of page scripts
                     $.globalEval(result.EndOfPageScripts);
                     // turn off all previously active modules that are no longer active

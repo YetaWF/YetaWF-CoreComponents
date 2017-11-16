@@ -293,7 +293,7 @@ namespace YetaWF.Core.Pages {
 
         private bool WantBundle(PageContentController.PageContentData cr) {
             if (cr != null)
-                return Manager.CurrentSite.BundleCSSFilesContent;
+                return false;
             else
                 return Manager.CurrentSite.BundleCSSFiles;
         }
@@ -326,10 +326,23 @@ namespace YetaWF.Core.Pages {
             foreach (CssEntry entry in externalList) {
                 string url = MakeCssUrl(entry.Url);
                 if (cr == null) {
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' href='{0}'>", YetaWFManager.HtmlAttributeEncode(url)));
+                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", YetaWFManager.HtmlAttributeEncode(entry.Url), YetaWFManager.HtmlAttributeEncode(url)));
                 } else {
-                    if (KnownCss == null || !KnownCss.Contains(url))
-                        cr.CssFiles.Add(url);
+                    if (KnownCss == null || !KnownCss.Contains(entry.Url)) {
+                        cr.CssFiles.Add(new Controllers.PageContentController.UrlEntry {
+                            Name = entry.Url,
+                            Url = url,
+                        });
+                        if (entry.Bundle) {
+                            string file = YetaWFManager.UrlToPhysical(entry.Url);
+                            string contents = File.ReadAllText(file);
+                            contents = FileBundles.ProcessIncludedFiles(contents, entry.Url);
+                            cr.CssFilesPayload.Add(new PageContentController.Payload {
+                                Name = entry.Url,
+                                Text = contents,
+                            });
+                        }
+                    }
                 }
             }
             return tag;
@@ -340,7 +353,7 @@ namespace YetaWF.Core.Pages {
         /// <returns></returns>
         internal List<string> GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
-                List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select MakeCssUrl(s.Url)).ToList();
+                List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
                 if (bundleList.Count > 1)
                     return bundleList;
             }

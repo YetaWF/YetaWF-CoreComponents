@@ -101,10 +101,8 @@ namespace YetaWF.Core.Site {
             Compression = true;
             CompressCSSFiles = true;
             BundleCSSFiles = true;
-            BundleCSSFilesContent = false;
             CompressJSFiles = true;
             BundleJSFiles = true;
-            BundleJSFilesContent = false;
             JSLocation = JSLocationEnum.Top;
             CssLocation = CssLocationEnum.Top;
 
@@ -392,11 +390,6 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         public bool BundleCSSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle CSS Files (UPS)"), Description("Defines whether stylesheets (CSS files) are bundled into one single file while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set")]
-        [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
-        public bool BundleCSSFilesContent { get; set; }
-
         [Category("Pages"), Caption("Css Location"), Description("Defines whether CSS files are included at the top or bottom of the page")]
         [UIHint("Enum")]
         [Data_NewValue("(0)")]
@@ -409,11 +402,6 @@ namespace YetaWF.Core.Site {
         [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
         [UIHint("Boolean")]
         public bool BundleJSFiles { get; set; }
-
-        [Category("Pages"), Caption("Bundle JavaScript Files (UPS)"), Description("Defines whether JavaScript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set")]
-        [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
-        public bool BundleJSFilesContent { get; set; }
 
         [Category("Pages"), Caption("JavaScript Location"), Description("Defines whether JavaScript files are included at the top or bottom of the page")]
         [UIHint("Enum")]

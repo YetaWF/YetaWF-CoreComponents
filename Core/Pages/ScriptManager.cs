@@ -569,7 +569,7 @@ namespace YetaWF.Core.Pages {
                     foreach (var groupEntry in _SavedVolatileOptionsGroups) {
 
                         string groupName = groupEntry.Key;
-                        sb.Append("if (!YVolatile.hasOwnProperty('{0}')) YVolatile.{0}={{}};", groupName);
+                        sb.Append("YVolatile.{0}=YVolatile.{0}||{{}};", groupName);
                         Dictionary <string, object> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries)
                             sb.Append("YVolatile.{0}.{1}={2};", groupName, confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
@@ -611,7 +611,7 @@ namespace YetaWF.Core.Pages {
                 } else {
                     foreach (var groupEntry in _SavedConfigOptionsGroups.OrderBy(kvp => kvp.Key)) {
                         string groupName = groupEntry.Key;
-                        sb.Append("if (!YConfigs.hasOwnProperty('{0}')) YConfigs.{0}={{}};", groupName);
+                        sb.Append("YConfigs.{0}=YConfigs.{0}||{{}};", groupName);
                         Dictionary<string, object> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
                             sb.Append("YConfigs.{0}.{1}={2};", groupName, confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
@@ -643,7 +643,7 @@ namespace YetaWF.Core.Pages {
                 } else {
                     foreach (var groupEntry in _SavedLocalizationsGroups.OrderBy(kvp => kvp.Key)) {
                         string groupName = groupEntry.Key;
-                        sb.Append("if (!YLocs.hasOwnProperty('{0}')) YLocs.{0}={{}};", groupName);
+                        sb.Append("YLocs.{0}=YLocs.{0}||{{}};", groupName);
                         Dictionary<string, object> locEntries = groupEntry.Value;
                         foreach (var locEntry in locEntries.OrderBy(kvp => kvp.Key)) {
                             var loc = locEntry;
@@ -657,7 +657,7 @@ namespace YetaWF.Core.Pages {
 
         private bool WantBundle(PageContentController.PageContentData cr) {
             if (cr != null)
-                return Manager.CurrentSite.BundleJSFilesContent;
+                return false;
             else
                 return Manager.CurrentSite.BundleJSFiles;
         }
@@ -697,18 +697,30 @@ namespace YetaWF.Core.Pages {
                     string opts = "";
                     opts += entry.Async ? " async" : "";
                     opts += entry.Defer ? " defer" : "";
-                    hb.Append(string.Format("<script type='text/javascript' src='{0}'{1}></script>",
-                        YetaWFManager.UrlEncodePath(url), opts));
+                    hb.Append(string.Format("<script type='text/javascript' data-name='{0}' src='{1}'{2}></script>",
+                        YetaWFManager.UrlEncodePath(entry.Url), YetaWFManager.UrlEncodePath(url), opts));
                 } else {
-                    if (KnownScripts == null || !KnownScripts.Contains(url))
-                        cr.ScriptFiles.Add(url);
+                    if (KnownScripts == null || !KnownScripts.Contains(entry.Url)) {
+                        cr.ScriptFiles.Add(new Controllers.PageContentController.UrlEntry {
+                            Name = entry.Url,
+                            Url = url,
+                        });
+                        if (entry.Bundle) {
+                            string file = YetaWFManager.UrlToPhysical(entry.Url);
+                            string contents = File.ReadAllText(file);
+                            cr.ScriptFilesPayload.Add(new PageContentController.Payload {
+                                Name = entry.Url,
+                                Text = contents,
+                            });
+                        }
+                    }
                 }
             }
             return hb;
         }
         internal List<string> GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
-                List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select Manager.GetCDNUrl(s.Url)).ToList();
+                List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
                 if (bundleList.Count > 1)
                     return bundleList;
             }

@@ -133,7 +133,7 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Process all url() definitions so we access the files in the correct location (the bundle is in a different location)
         /// </summary>
-        private static string ProcessIncludedFiles(string fileText, string file) {
+        public static string ProcessIncludedFiles(string fileText, string file) {
             // replace all instances of url( with the correct path
             int ix = file.LastIndexOf('/');
             if (ix < 0) throw new InternalError("{0} is not a url");

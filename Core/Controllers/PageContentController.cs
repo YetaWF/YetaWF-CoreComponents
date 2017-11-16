@@ -47,8 +47,10 @@ namespace YetaWF.Core.Controllers {
         public class PageContentData {
             public PageContentData() {
                 Content = new List<PaneContent>();
-                ScriptFiles = new List<string>();
-                CssFiles = new List<string>();
+                ScriptFiles = new List<UrlEntry>();
+                ScriptFilesPayload = new List<Controllers.PageContentController.Payload>();
+                CssFiles = new List<UrlEntry>();
+                CssFilesPayload = new List<Payload>();
                 ScriptBundleFiles = new List<string>();
                 CssBundleFiles = new List<string>();
             }
@@ -104,11 +106,19 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// Script files to include for this page.
             /// </summary>
-            public List<string> ScriptFiles { get; internal set; }
+            public List<UrlEntry> ScriptFiles { get; internal set; }
+            /// <summary>
+            /// Script file payload (inline script) to include for this page.
+            /// </summary>
+            public List<Payload> ScriptFilesPayload { get; internal set; }
             /// <summary>
             /// Css files to include for this page.
             /// </summary>
-            public List<string> CssFiles { get; internal set; }
+            public List<UrlEntry> CssFiles { get; internal set; }
+            /// <summary>
+            /// Css files (inline) to include for this page.
+            /// </summary>
+            public List<Payload> CssFilesPayload { get; internal set; }
             /// <summary>
             /// Javascript files that are included in this page with a bundled Javascript file.
             /// </summary>
@@ -127,6 +137,14 @@ namespace YetaWF.Core.Controllers {
         public class PaneContent {
             public string Pane { get; set; }
             public string HTML { get; set; }
+        }
+        public class Payload {
+            public string Name { get; set; }
+            public string Text { get; set; }
+        }
+        public class UrlEntry {
+            public string Name { get; set; }
+            public string Url { get; set; }
         }
 
         /// <summary>

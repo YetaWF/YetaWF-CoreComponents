@@ -65,7 +65,9 @@ namespace YetaWF.Core.Addons {
 
             manager.AddOnManager.AddAddOnGlobal("no-margin-for-errors.com", "prettyLoader");
 
-            // User language
+            // Site settings
+            scripts.AddVolatileOption("Basics", "JSLocation", manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top);
+            scripts.AddVolatileOption("Basics", "CssLocation", manager.CurrentSite.CssLocation == Site.CssLocationEnum.Top);
             scripts.AddVolatileOption("Basics", "CacheVersion", YetaWFManager.CacheBuster);
 
             // User language
