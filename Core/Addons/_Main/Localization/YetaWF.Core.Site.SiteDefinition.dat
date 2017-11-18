@@ -135,33 +135,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="BundleCSSFilesContent" />
-                            <Caption Value="Bundle CSS Files (UPS)" />
-                            <Description Value="Defines whether stylesheets (CSS files) are bundled into one single file while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
                             <Name Value="BundleJSFiles" />
                             <Caption Value="Bundle JavaScript Files" />
                             <Description Value="Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="BundleJSFilesContent" />
-                            <Caption Value="Bundle JavaScript Files (UPS)" />
-                            <Description Value="Defines whether JavaScript files are bundled into one single file  while processing a Unified Page Set (excluding large non-YetaWF files like jQuery, jQuery UI, etc.) - This setting applies to bundling an Ajax response while navigating to another page within a Unified Page Set" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
