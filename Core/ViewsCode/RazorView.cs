@@ -115,7 +115,7 @@ namespace YetaWF.Core.Views {
                 if (_module == null) {
                     _module = ViewData[Globals.RVD_ModuleDefinition] as TModule;
                     if (_module == null)
-                        throw new InternalError("No ModuleDefinition available in view {0} {1}.", GetType().FullName);
+                        throw new InternalError("No ModuleDefinition available in view {0}.", GetType().FullName);
                 }
                 return (TModule)_module;
             }
