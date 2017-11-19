@@ -1,1 +1,2 @@
 [Var,Message]
+From [Site,SiteDomain]

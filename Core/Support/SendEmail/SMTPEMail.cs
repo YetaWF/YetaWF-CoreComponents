@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using YetaWF.Core.Controllers.Shared;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -66,7 +67,7 @@ namespace YetaWF.Core.SendEmail {
                 if (!manager.HaveUser) return null;
                 string userName = manager.UserEmail;
                 return new ModuleAction {
-                    Url = YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.SMTPEmailController), "SendTestEmail"),
+                    Url = YetaWFManager.UrlFor(typeof(SMTPEmailController), nameof(SMTPEmailController.SendTestEmail)),
                     LinkText = this.__ResStr("send", "Send"),
                     Category = ModuleAction.ActionCategoryEnum.Update,
                     ConfirmationText = this.__ResStr("confirmSend", "Are you sure you want to send a test email to {0} using the provided server information?", userName),
