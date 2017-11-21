@@ -69,6 +69,17 @@ namespace YetaWF.Core.Pages {
                         StringBuilder sb = new StringBuilder();
                         if (!string.IsNullOrWhiteSpace(start))
                             sb.Append(start);
+#if DEBUG
+                        sb.Append("/* File Map: ----------------------------------------\n");
+                        long total = 0;
+                        foreach (string file in fileList) {
+                            long len = new FileInfo(YetaWFManager.UrlToPhysical(file)).Length;
+                            total += len;
+                            sb.Append($"{len:##,#}\t{file}\n");
+                        }
+                        sb.Append($"{total:##,#}\tTotal\n");
+                        sb.Append("--------------------------------------------------*/\n");
+#endif
                         foreach (var file in fileList) {
                             string fileText = File.ReadAllText(YetaWFManager.UrlToPhysical(file));
                             if (!string.IsNullOrWhiteSpace(fileText)) {
