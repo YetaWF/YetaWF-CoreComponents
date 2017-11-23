@@ -27,5 +27,15 @@ namespace YetaWF_Core.TemplateDecimal {
     YetaWF_Basics.addWhenReady(function (section: HTMLElement): void {
         new TemplateClass().initSection(section);
     });
+    // A <div> is being emptied. Destroy all kendoNumericTextBox the <div> may contain.
+    YetaWF_Basics.addClearDiv(function (tag: HTMLElement): void {
+        var list: NodeListOf<Element> = tag.querySelectorAll("input.yt_decimal.t_edit");
+        var len: number = list.length;
+        for (var i: number = 0; i < len; ++i) {
+            var el: HTMLElement = list[i] as HTMLElement;
+            var numTextBox = $(el).data("kendoNumericTextBox");
+            if (numTextBox) numTextBox.destroy();
+        }
+    });
 }
 

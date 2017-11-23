@@ -105,13 +105,23 @@ YetaWF_TemplateDropDownList.AjaxUpdate = function ($control, data, ajaxurl, onSu
 
 // We need to delay initialization until a panel becomes visible so we can calculate the dropdown width
 $(document).on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
-    var $ctls = $('select.yt_dropdownlist[data-needinit],select.yt_dropdownlist_base[data-needinit],select.yt_enum[data-needinit]');
+    var $ctls = $('select.yt_dropdownlist_base[data-needinit]');
     $ctls.each(function (index) {
         YetaWF_TemplateDropDownList.initOne($(this));
     });
 });
-$(document).on('change', 'select.yt_dropdownlist[data-val=true],select.yt_dropdownlist_base[data-val=true],select.yt_enum[data-val=true]', function () {
+$(document).on('change', 'select.yt_dropdownlist_base[data-val=true]', function () {
     if (typeof YetaWF_Forms !== 'undefined' && YetaWF_Forms != undefined) YetaWF_Forms.validateElement($(this));
 });
 
+// A <div> is being emptied. Destroy all date/time pickers the <div> may contain.
+YetaWF_Basics.addClearDiv(function (tag) {
+    var list = tag.querySelectorAll(".yt_dropdownlist_base select");
+    var len = list.length;
+    for (var i = 0; i < len; ++i) {
+        var el = list[i];
+        var dropdownlist = $(el).data("kendoDropDownList");
+        if (dropdownlist) dropdownlist.destroy();
+    }
+});
 

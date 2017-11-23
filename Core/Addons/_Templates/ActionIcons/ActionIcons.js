@@ -65,3 +65,22 @@ $(document).on('keydown', function (ev) {
 $(document).on("YetaWF_Basics_NewPage", function (ev, url) {
     _YetaWF_TemplateActionIcons.closeMenus();
 });
+// A <div> is being emptied. Destroy all actionicons the <div> may contain.
+YetaWF_Basics.addClearDiv(function (tag) {
+    //var list = tag.querySelectorAll("button.yt_actionicons");
+    //var len = list.length;
+    //for (var i = 0; i < len; ++i) {
+    //    var el = list[i];
+    //    var button = $(el).data("kendoButton");
+    //    if (!button) throw "No kendo object found";/*DEBUG*/
+    //    button.destroy();
+    //}
+    var list = tag.querySelectorAll("ul.yGridActionMenu");
+    var len = list.length;
+    for (var i = 0; i < len; ++i) {
+        var el = list[i];
+        var menu = $(el).data("kendoMenu");
+        if (!menu) throw "No kendo object found";/*DEBUG*/
+        menu.destroy();
+    }
+});

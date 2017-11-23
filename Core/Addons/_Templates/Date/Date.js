@@ -130,6 +130,18 @@ var YetaWF_Core;
             return TemplateClass;
         }());
         TemplateDate.TemplateClass = TemplateClass;
+        // A <div> is being emptied. Destroy all date/time pickers the <div> may contain.
+        YetaWF_Basics.addClearDiv(function (tag) {
+            var list = tag.querySelectorAll(".yt_date.t_edit input[name=\"dtpicker\"]");
+            var len = list.length;
+            for (var i = 0; i < len; ++i) {
+                var el = list[i];
+                var datepicker = $(el).data("kendoDatePicker");
+                if (!datepicker)
+                    throw "No kendo object found"; /*DEBUG*/
+                datepicker.destroy();
+            }
+        });
     })(TemplateDate = YetaWF_Core.TemplateDate || (YetaWF_Core.TemplateDate = {}));
 })(YetaWF_Core || (YetaWF_Core = {}));
 

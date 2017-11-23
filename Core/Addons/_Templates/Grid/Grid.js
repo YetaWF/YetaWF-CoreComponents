@@ -637,3 +637,13 @@ $(document).on('click', '.yt_grid_addordelete input[name="btnAdd"]', function ()
     });
 });
 
+YetaWF_Basics.addClearDiv(function (tag) {
+    var list = tag.querySelectorAll("table.yt_grid");
+    var len = list.length;
+    for (var i = 0; i < len; ++i) {
+        var el = list[i];
+        var grid = $(el);
+        if (!grid) throw "No grid object found";/*DEBUG*/
+        grid.jqGrid('GridUnload');    }
+});
+

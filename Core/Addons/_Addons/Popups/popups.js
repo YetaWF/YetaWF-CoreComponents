@@ -110,8 +110,12 @@ YetaWF_Popup.handlePopupLink = function ($this) {
 _YetaWF_Popup.openDynamicPopup = function(result) {
 
     function closePopup() {
-        var popup = $("#ypopup").data("kendoWindow");
-        popup.destroy();
+        var $popup = $("#ypopup");
+        if ($popup.length > 0) {
+            YetaWF_Basics.processClearDiv($popup[0]);
+            var popup = $popup.data("kendoWindow");
+            popup.destroy();
+        }
         popup = null;
         document.YPopupWindowActive = null;
         YVolatile.Basics.IsInPopup = false; // we're no longer in a popup

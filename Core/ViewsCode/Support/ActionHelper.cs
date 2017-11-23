@@ -23,6 +23,7 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ActionHelper), name, defaultValue, parms); }
 #if MVC6
         public static HtmlString RenderActionIcons(this IHtmlHelper htmlHelper, string name, MenuList actions) {
 #else
@@ -50,7 +51,7 @@ namespace YetaWF.Core.Views.Shared {
                     string id = Manager.UniqueId();
                     string idButton = id + "_btn";
                     string idMenu = id + "_menu";
-                    hb.Append("<button id=\"{0}\" type=\"button\">Manage<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton);
+                    hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, __ResStr("manage", "Manage"));
                     hb.Append(menuActions.Render(htmlHelper, idMenu, Globals.CssGridActionMenu));
 
                     ScriptBuilder sb = new ScriptBuilder();

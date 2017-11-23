@@ -125,5 +125,17 @@ namespace YetaWF_Core.TemplateDate {
             dtPick.addEventListener("keydown", keydownHandler, false);
         }
     }
+
+    // A <div> is being emptied. Destroy all date/time pickers the <div> may contain.
+    YetaWF_Basics.addClearDiv(function (tag: HTMLElement): void {
+        var list: NodeListOf<Element> = tag.querySelectorAll(".yt_date.t_edit input[name=\"dtpicker\"]");
+        var len: number = list.length;
+        for (var i: number = 0; i < len; ++i) {
+            var el: HTMLElement = list[i] as HTMLElement;
+            var datepicker = $(el).data("kendoDatePicker");
+            if (!datepicker) throw "No kendo object found";/*DEBUG*/
+            datepicker.destroy();
+        }
+    });
 }
 

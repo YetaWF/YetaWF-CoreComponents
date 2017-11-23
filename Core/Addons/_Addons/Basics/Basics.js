@@ -776,6 +776,7 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
                         }
                         // remove all pane contents
                         $divs.each(function () {
+                            YetaWF_Basics.processClearDiv(this);
                             var $div = $(this);
                             $div.empty();
                             if ($div.attr("data-conditional") !== undefined)

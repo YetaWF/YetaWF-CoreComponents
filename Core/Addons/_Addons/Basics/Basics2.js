@@ -33,6 +33,10 @@ var YetaWF_BasicsServices = (function () {
         //   callbackTS: function(elem) {}    // function to be called
         // });
         this.whenReadyOnce = [];
+        // CLEARDIV
+        // CLEARDIV
+        // CLEARDIV
+        this.clearDiv = [];
     }
     /**
      * React-like createElement function so we can use JSX in our TypeScript/JavaScript code.
@@ -126,6 +130,29 @@ var YetaWF_BasicsServices = (function () {
             }
         }
         this.whenReadyOnce = [];
+    };
+    /**
+     * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
+     * callback so elements can be destroyed when a div is emptied (used by UPS).
+     */
+    YetaWF_BasicsServices.prototype.addClearDiv = function (callback) {
+        this.clearDiv.push({ callback: callback });
+    };
+    /**
+     * Process all callbacks for the specified element being cleared. This is used by YetaWF.Core only.
+     * @param elem The element being cleared.
+     */
+    YetaWF_BasicsServices.prototype.processClearDiv = function (tag) {
+        for (var _i = 0, _a = this.clearDiv; _i < _a.length; _i++) {
+            var entry = _a[_i];
+            try {
+                if (entry.callback != null)
+                    entry.callback(tag);
+            }
+            catch (err) {
+                console.log(err.message);
+            }
+        }
     };
     // SELECTORS
     // SELECTORS

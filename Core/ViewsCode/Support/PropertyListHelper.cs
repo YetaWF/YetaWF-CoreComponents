@@ -126,32 +126,11 @@ namespace YetaWF.Core.Views.Shared {
                 }
             }
             if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.JQuery) {
-                sb.Append("$('#{0}').tabs({{\n", controlId);
-                sb.Append("active: {0},", activeTab);
-                sb.Append("activate: function(ev,ui) { if (ui.newPanel!=undefined) {");
-                sb.Append("$('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', ui.newPanel);\n", controlId);
-                if (!string.IsNullOrWhiteSpace(activeTabId))
-                    sb.Append("$('#{0}').val((ui.newTab.length > 0) ? ui.newTab.attr('data-tab') : -1);", activeTabId);
-                sb.Append("}}\n");
-                sb.Append("})");
-                sb.Append(";\n");
+                sb.Append($"YetaWF_PropertyList.tabInitjQuery('{controlId}', {activeTab}, '{activeTabId}');\n");
             } else if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.Kendo) {
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.tabstrip.min.js");
-                // mark the active tab with .k-state-active before initializing the tabstrip
-                sb.Append("var $tabs = $('#{0}>ul>li');", controlId);
-                sb.Append("$tabs.removeClass('k-state-active');");
-                sb.Append("$tabs.eq({0}).addClass('k-state-active');", activeTab);
-                // init tab control
-                sb.Append("var $ts = $('#{0}');", controlId);
-                sb.Append("var tabStrip = $ts.kendoTabStrip({{\n", controlId);
-                sb.Append("animation: false,\n");
-                sb.Append("activate: function(ev) { if (ev.contentElement!=undefined) {");
-                sb.Append("$('#{0}').trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement));", controlId);
-                if (!string.IsNullOrWhiteSpace(activeTabId))
-                    sb.Append("$('#{0}').val($(ev.item).attr('data-tab'));", activeTabId);
-                sb.Append("}}\n");
-                sb.Append("}).data('kendoTabStrip');\n");
+                sb.Append($"YetaWF_PropertyList.tabInitKendo('{controlId}', {activeTab}, '{activeTabId}');\n");
             } else
                 throw new InternalError("Unknown tab control style");
 

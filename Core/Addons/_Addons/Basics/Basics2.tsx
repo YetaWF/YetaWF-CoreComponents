@@ -11,6 +11,9 @@ interface IWhenReady {
 
     callbackTS?(elem: HTMLElement): void;
 }
+interface IClearDiv {
+    callback?(elem: HTMLElement): void;
+}
 
 /**
  * Class implementing basic services throughout YetaWF.
@@ -141,6 +144,35 @@ class YetaWF_BasicsServices {
             }
         }
         this.whenReadyOnce = [];
+    }
+
+    // CLEARDIV
+    // CLEARDIV
+    // CLEARDIV
+
+    private clearDiv: IClearDiv[] = [];
+
+    /**
+     * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
+     * callback so elements can be destroyed when a div is emptied (used by UPS).
+     */
+    public addClearDiv(callback: (section: HTMLElement) => void): void {
+        this.clearDiv.push({ callback: callback });
+    }
+
+    /**
+     * Process all callbacks for the specified element being cleared. This is used by YetaWF.Core only.
+     * @param elem The element being cleared.
+     */
+    public processClearDiv(tag: HTMLElement): void {
+        for (var entry of this.clearDiv) {
+            try { // catch errors to insure all callbacks are called
+                if (entry.callback != null)
+                    entry.callback(tag);
+            } catch (err) {
+                console.log(err.message);
+            }
+        }
     }
 
     // SELECTORS

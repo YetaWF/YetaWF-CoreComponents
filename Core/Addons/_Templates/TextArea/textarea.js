@@ -39,3 +39,14 @@ $(document).on('YetaWF_PropertyList_PanelSwitched', function (event, $panel) {
         ckEd.resize('100%', $cked.attr('data-height'), true);
     });
 });
+
+// A <div> is being emptied. Destroy all ckeditors the <div> may contain.
+YetaWF_Basics.addClearDiv(function (tag) {
+    var list = tag.querySelectorAll("textarea.yt_textarea");
+    var len = list.length;
+    for (var i = 0; i < len; ++i) {
+        var el = list[i];
+        if (CKEDITOR.instances[el.id])
+            CKEDITOR.instances[el.id].destroy();
+    }
+});

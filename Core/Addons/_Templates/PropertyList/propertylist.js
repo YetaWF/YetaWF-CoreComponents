@@ -66,6 +66,59 @@ YetaWF_PropertyList.init = function (divId, controlData, inPartialView) {
     });
 };
 
+YetaWF_PropertyList.tabInitjQuery = function (id, activeTab, activeTabId) {
+    var $ctl = $('#{0}'.format(id));
+    $ctl.addClass("t_jquery");
+    $ctl.tabs({
+        active: activeTab,
+        activate: function(ev,ui) {
+            if (ui.newPanel != undefined) {
+                $ctl.trigger('YetaWF_PropertyList_PanelSwitched', ui.newPanel);
+                if (activeTabId)
+                    $('#{0}'.format(activeTabId)).val((ui.newTab.length > 0) ? ui.newTab.attr('data-tab') : -1);
+            }
+        }
+    });
+};
+YetaWF_PropertyList.tabInitKendo = function (id, activeTab, activeTabId) {
+    // mark the active tab with .k-state-active before initializing the tabstrip
+    var $tabs = $('#{0}>ul>li'.format(id));
+    $tabs.removeClass('k-state-active');
+    $tabs.eq(activeTab).addClass('k-state-active');
+
+    // init tab control
+    var $ts = $('#{0}'.format(id));
+    $ts.addClass("t_kendo");
+    var tabStrip = $ts.kendoTabStrip({
+        animation: false,
+        activate: function(ev) {
+            if (ev.contentElement != undefined) {
+                $ts.trigger('YetaWF_PropertyList_PanelSwitched', $(ev.contentElement));
+                if (activeTabId)
+                    $('#{0}'.format(activeTabId)).val($(ev.item).attr('data-tab'));
+            }
+        }
+    }).data('kendoTabStrip');
+};
+
+YetaWF_Basics.addClearDiv(function (tag) {
+    var list = tag.querySelectorAll(".yt_propertylisttabbed.t_jquery");
+    var len = list.length;
+    for (var i = 0; i < len; ++i) {
+        var el = list[i];
+        var tabs = $(el);
+        if (!tabs) throw "No jquery ui object found";/*DEBUG*/
+        tabs.tabs("destroy");
+    }
+    var list = tag.querySelectorAll(".yt_propertylisttabbed.t_kendo");
+    var len = list.length;
+    for (var i = 0; i < len; ++i) {
+        var el = list[i];
+        var tabs = $(el).data('kendoTabStrip');
+        if (!tabs) throw "No kendo object found";/*DEBUG*/
+        tabs.destroy();
+    }
+});
 
 // The property list needs a bit of special love when it's made visible. Because panels have no width/height
 // while the propertylist is not visible (jquery implementation), when a propertylist is made visible using show(),
