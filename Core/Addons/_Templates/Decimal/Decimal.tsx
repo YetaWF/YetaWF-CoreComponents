@@ -33,7 +33,7 @@ namespace YetaWF_Core.TemplateDecimal {
         var len: number = list.length;
         for (var i: number = 0; i < len; ++i) {
             var el: HTMLElement = list[i] as HTMLElement;
-            var numTextBox = $(el).data("kendoNumericTextBox");
+            var numTextBox : kendo.ui.NumericTextBox = $(el).data("kendoNumericTextBox");
             if (numTextBox) numTextBox.destroy();
         }
     });

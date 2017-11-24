@@ -130,7 +130,7 @@ namespace YetaWF_Core.TemplateDateTime {
         var len: number = list.length;
         for (var i: number = 0; i < len; ++i) {
             var el: HTMLElement = list[i] as HTMLElement;
-            var datepicker = $(el).data("kendoDateTimePicker");
+            var datepicker : kendo.ui.DateTimePicker = $(el).data("kendoDateTimePicker");
             if (!datepicker) throw "No kendo object found";/*DEBUG*/
             datepicker.destroy();
         }
