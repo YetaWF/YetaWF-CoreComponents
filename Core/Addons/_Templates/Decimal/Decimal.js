@@ -3,7 +3,7 @@ var YetaWF_Core;
 (function (YetaWF_Core) {
     var TemplateDecimal;
     (function (TemplateDecimal) {
-        var TemplateClass = (function () {
+        var TemplateClass = /** @class */ (function () {
             function TemplateClass() {
             }
             /**

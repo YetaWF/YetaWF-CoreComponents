@@ -2,7 +2,7 @@
 /**
  * Class implementing basic services throughout YetaWF.
  */
-var YetaWF_BasicsServices = (function () {
+var YetaWF_BasicsServices = /** @class */ (function () {
     function YetaWF_BasicsServices() {
         // JSX
         // JSX

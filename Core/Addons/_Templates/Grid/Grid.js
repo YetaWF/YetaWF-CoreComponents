@@ -8,6 +8,7 @@ jQuery.extend(jQuery.jgrid.defaults, {
     hoverrows: false,
     sortable: false, // no column reordering
     height: '100%',
+    autoencode: false,
     // Localization message for pager
     // http://www.trirand.com/jqgridwiki/doku.php?id=wiki:pager
     recordtext: YLocs.Grid.recordtext,

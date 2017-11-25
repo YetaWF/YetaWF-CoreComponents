@@ -3,7 +3,7 @@ var YetaWF_Core;
 (function (YetaWF_Core) {
     var TemplateCurrency;
     (function (TemplateCurrency) {
-        var TemplateClass = (function () {
+        var TemplateClass = /** @class */ (function () {
             function TemplateClass() {
             }
             /**

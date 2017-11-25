@@ -1,7 +1,7 @@
 /* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF_Core;
 (function (YetaWF_Core) {
-    var Forms = (function () {
+    var Forms = /** @class */ (function () {
         function Forms() {
         }
         Forms.ValidateElement = function (elem) {
