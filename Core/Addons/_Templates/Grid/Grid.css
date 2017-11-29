@@ -38,6 +38,9 @@
 	margin-left: 0px;
 }
 
+/* starting around jqgrid 4.14.x, search/filter input fields are centered - change it back to left aligned */
+.ui-search-input { text-align: left; }
+
 /* Grid add/delete sub-template */
 .yt_grid_addordelete .t_newvalue {
     margin-top:0.5em;
