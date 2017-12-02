@@ -246,7 +246,7 @@ namespace YetaWF.Core.Views {
         private object _model = null;
 
         // PartialForm rendering called during regular form processing (not ajax)
-        public HtmlString PartialForm(string partialViewName = null, bool UseAreaViewName = true)
+        public HtmlString PartialForm(string partialViewName = null, bool UseAreaViewName = true, bool UsePartialFormCss = true)
         {
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
@@ -276,9 +276,9 @@ namespace YetaWF.Core.Views {
 
             Manager.InPartialView = false;
 #if MVC6
-            viewHtml = RazorViewExtensions.PostProcessViewHtml(GetHtml(), Module, viewHtml);
+            viewHtml = RazorViewExtensions.PostProcessViewHtml(GetHtml(), Module, viewHtml, UsePartialFormCss: UsePartialFormCss);
 #else
-            viewHtml = RazorViewExtensions.PostProcessViewHtml(Html, Module, viewHtml);
+            viewHtml = RazorViewExtensions.PostProcessViewHtml(Html, Module, viewHtml, UsePartialFormCss: UsePartialFormCss);
 #endif
             return new HtmlString(viewHtml);
         }
@@ -303,9 +303,9 @@ namespace YetaWF.Core.Views {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        internal static string PostProcessViewHtml(IHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml) {
+        internal static string PostProcessViewHtml(IHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
 #else
-        internal static string PostProcessViewHtml(HtmlHelper htmlHelper, ModuleDefinition module, string viewHtml) {
+        internal static string PostProcessViewHtml(HtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -316,7 +316,7 @@ namespace YetaWF.Core.Views {
                 divId = Manager.UniqueId();
                 tag.Attributes.Add("id", divId);
             } else {
-                if (!Manager.IsInPopup && !string.IsNullOrWhiteSpace(Manager.SkinInfo.PartialFormCss) && module.UsePartialFormCss)
+                if (UsePartialFormCss && !Manager.IsInPopup && !string.IsNullOrWhiteSpace(Manager.SkinInfo.PartialFormCss) && module.UsePartialFormCss)
                     tag.AddCssClass(Manager.SkinInfo.PartialFormCss);
             }
             hb.Append(tag.ToString(TagRenderMode.StartTag));
