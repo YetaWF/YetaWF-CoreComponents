@@ -337,6 +337,7 @@ namespace YetaWF.Core.Pages {
                             string file = YetaWFManager.UrlToPhysical(entry.Url);
                             string contents = File.ReadAllText(file);
                             contents = FileBundles.ProcessIncludedFiles(contents, entry.Url);
+                            contents = ProcessCss(contents, Manager.CharWidthAvg, Manager.CharHeight);
                             cr.CssFilesPayload.Add(new PageContentController.Payload {
                                 Name = entry.Url,
                                 Text = contents,
