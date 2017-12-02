@@ -1,0 +1,17 @@
+Bootstrap Default,
+Cerulean,cerulean
+Cosmo,cosmo
+Cyborg,cyborg
+Darkly,darkly
+Flatly,flatly
+Journal,journal
+Lumen,lumen
+Paper,paper
+Readable,readable
+Sandstone,sandstone
+Simplex,simplex
+Slate,slate
+Spacelab,spacelab
+Superhero,superhero
+United,united
+Yeti,yeti

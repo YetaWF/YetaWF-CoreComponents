@@ -315,6 +315,9 @@ namespace YetaWF.Core.Views {
             if (Manager.IsPostRequest) {
                 divId = Manager.UniqueId();
                 tag.Attributes.Add("id", divId);
+            } else {
+                if (!Manager.IsInPopup && !string.IsNullOrWhiteSpace(Manager.SkinInfo.PartialFormCss) && module.UsePartialFormCss)
+                    tag.AddCssClass(Manager.SkinInfo.PartialFormCss);
             }
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 

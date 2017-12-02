@@ -1461,25 +1461,47 @@ namespace YetaWF.Core.Support {
         internal void SetSkinOptions() {
             SkinAccess skinAccess = new SkinAccess();
             SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
-            this.UsingBootstrap = info.UsingBootstrap;
-            if (UsingBootstrap) {
-                this.UsingBootstrapButtons = info.UsingBootstrapButtons;
-                ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
-                ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", UsingBootstrapButtons);
-                if (info.UseDefaultBootstrap)
-                    AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
-            }
-            ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", info.MinWidthForPopups);
+            SkinInfo = info;
 
-            if (!string.IsNullOrWhiteSpace(info.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
-                CurrentPage.jQueryUISkin = info.JQuerySkin;
-            if (!string.IsNullOrWhiteSpace(info.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
-                CurrentPage.KendoUISkin = info.KendoSkin;
+            if (SkinInfo.UsingBootstrap) {
+                ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
+                ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", SkinInfo.UsingBootstrapButtons);
+                if (SkinInfo.UseDefaultBootstrap) {
+                    // Find the bootstrap theme
+                    string skin = Manager.CurrentPage.BootstrapSkin;
+                    if (string.IsNullOrWhiteSpace(skin))
+                        skin = Manager.CurrentSite.BootstrapSkin;
+                    string themeFolder = skinAccess.FindBootstrapSkin(skin);
+                    if (string.IsNullOrWhiteSpace(themeFolder))
+                        AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
+                    else
+                        AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootswatch", themeFolder);
+                }
+            }
+            ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
+
+            if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
+                CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
+            if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
+                CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
             AddOnManager.AddSkinBasedAddOns();
         }
 
-        public bool UsingBootstrap { get; set; }
-        public bool UsingBootstrapButtons { get; set; }
+        /// <summary>
+        /// Define options for the current page or popup skin (UPS).
+        /// </summary>
+        internal void SetSkinOptionsContent() {
+            SkinAccess skinAccess = new SkinAccess();
+            SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
+            SkinInfo = info;
+
+            if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
+                CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
+            if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
+                CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
+        }
+
+        public SkinCollectionInfo SkinInfo { get; set; }
 
         /// <summary>
         /// Adds the page's or popup's css classes (the current edit mode, the current page's defined css and other page css).
@@ -1509,6 +1531,15 @@ namespace YetaWF.Core.Support {
                 case PageDefinition.UnifiedModeEnum.SkinDynamicContent:
                     s = CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
+            }
+            if (Manager.SkinInfo.UsingBootstrap) {
+                string skin = Manager.CurrentPage.BootstrapSkin;
+                if (string.IsNullOrWhiteSpace(skin))
+                    skin = Manager.CurrentSite.BootstrapSkin;
+                if (!string.IsNullOrWhiteSpace(skin)) {
+                    skin = skin.ToLower().Replace(' ', '-');
+                    s = CombineCss(s, $"ySkin-bs-{skin}");
+                }
             }
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
             if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
@@ -1663,7 +1694,7 @@ namespace YetaWF.Core.Support {
                             url.StartsWith(Globals.AddOnsCustomUrl) ||
                             url.StartsWith(Globals.AddonsBundlesUrl) ||
                             url.StartsWith("/FileHndlr.image") ||
-                            url.StartsWith("/File.image")) { 
+                            url.StartsWith("/File.image")) {
                         // leave useAlt as is
                     } else
                         useAlt = false;

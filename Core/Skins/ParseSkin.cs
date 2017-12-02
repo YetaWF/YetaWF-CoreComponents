@@ -32,12 +32,14 @@ namespace YetaWF.Core.Skins {
             info.CollectionDescription = line;
             if (string.IsNullOrWhiteSpace(info.CollectionDescription)) throw new InternalError("Collection description expected - line {0}: {1}", lineCount, line);
 
-            info.JQuerySkin = GetOptionalString(fileName, lines, totalLines, ref lineCount, "JQuerySkin");
-            info.KendoSkin = GetOptionalString(fileName, lines, totalLines, ref lineCount, "KendoSkin");
-            info.UsingBootstrap = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrap");
-            info.UseDefaultBootstrap = GetBool(fileName, lines, totalLines, ref lineCount, "UseDefaultBootstrap");
-            info.UsingBootstrapButtons = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrapButtons");
-            info.MinWidthForPopups = GetInt(fileName, lines, totalLines, ref lineCount, "MinWidthForPopups");
+            // optional data, but must appear in the specified order
+            info.JQuerySkin = GetOptionalString(fileName, lines, totalLines, ref lineCount, "JQuerySkin", "");
+            info.KendoSkin = GetOptionalString(fileName, lines, totalLines, ref lineCount, "KendoSkin", "");
+            info.UsingBootstrap = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrap", false);
+            info.UseDefaultBootstrap = GetBool(fileName, lines, totalLines, ref lineCount, "UseDefaultBootstrap", false);
+            info.UsingBootstrapButtons = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrapButtons", false);
+            info.PartialFormCss = GetOptionalString(fileName, lines, totalLines, ref lineCount, "PartialFormCss", "");
+            info.MinWidthForPopups = GetInt(fileName, lines, totalLines, ref lineCount, "MinWidthForPopups", 970);
 
             // ::Pages::
             if (lineCount >= totalLines) throw new InternalError("::Pages:: section missing - line {0}", lineCount);
@@ -77,33 +79,39 @@ namespace YetaWF.Core.Skins {
             return info;
         }
 
-        private int GetInt(string fileName, string[] lines, int totalLines, ref int lineCount, string name) {
+        private int GetInt(string fileName, string[] lines, int totalLines, ref int lineCount, string name, int dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
-            string line = lines[lineCount++].Trim();
+            string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);
-            if (s.Length != 2 || s[0] != name) throw new InternalError("{0} expected with true/false - line {1} ({2})", name, lineCount, fileName);
+            if (s.Length != 2 || s[0] != name)
+                return dflt;
             int val;
             try {
                 val = Convert.ToInt32(s[1]);
             } catch (Exception) {
-                throw new InternalError("Invalid value specified for {0} - line {1} ({2})", name, lineCount, fileName);
+                throw new InternalError("Invalid value specified for {0} - line {1} ({2})", name, lineCount+1, fileName);
             }
+            lineCount++;
             return val;
         }
 
-        private bool GetBool(string fileName, string[] lines, int totalLines, ref int lineCount, string name) {
+        private bool GetBool(string fileName, string[] lines, int totalLines, ref int lineCount, string name, bool dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
-            string line = lines[lineCount++].Trim();
+            string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);
-            if (s.Length != 2 || s[0] != name) throw new InternalError("{0} expected with true/false - line {1} ({2})", name, lineCount, fileName);
+            if (s.Length != 2 || s[0] != name)
+                return dflt;
+            lineCount++;
             return s[1] == "true" || s[1] == "1";
         }
 
-        private string GetOptionalString(string fileName, string[] lines, int totalLines, ref int lineCount, string name) {
+        private string GetOptionalString(string fileName, string[] lines, int totalLines, ref int lineCount, string name, string dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
-            string line = lines[lineCount++].Trim();
+            string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);
-            if (s.Length < 1 || s[0] != name) throw new InternalError("{0} expected - line {1} ({2})", name, lineCount, fileName);
+            if (s.Length < 1 || s[0] != name)
+                return dflt;
+            lineCount++;
             return s.Length > 1 ? s[1] : null;
         }
 

@@ -1,0 +1,3 @@
+﻿//maxcdn.bootstrapcdn.com/bootswatch/3.3.7/{0}/bootstrap.min.css,CDN
+
+\node_modules\bootswatch\{0}\bootstrap.min.css,noCDN

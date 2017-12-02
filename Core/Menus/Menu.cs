@@ -8,6 +8,7 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+using YetaWF.Core.DataProvider.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -66,6 +67,9 @@ namespace YetaWF.Core.Menus {
         public MenuList(SerializableList<ModuleAction> val) : base(val) { }
         public MenuList(List<ModuleAction> val) : base(val) { }
 
+        [Data_DontSave]
+        public string LICssClass { get; set; }
+
         public void New(ModuleAction action, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
             if (action != null) {
                 if ((location & ModuleAction.ActionLocationEnum.Explicit) != 0) // grid links are always explicit calls
@@ -121,9 +125,9 @@ namespace YetaWF.Core.Menus {
             return hb.ToHtmlString();
         }
 #if MVC6
-        private static string Render(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private string Render(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #else
-        private static string Render(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private string Render(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -152,9 +156,9 @@ namespace YetaWF.Core.Menus {
             return hb.ToString();
         }
 #if MVC6
-        private static string RenderLI(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private string RenderLI(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #else
-        private static string RenderLI(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private string RenderLI(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -165,6 +169,7 @@ namespace YetaWF.Core.Menus {
                 // <li>
                 TagBuilder tag = new TagBuilder("li");
                 tag.AddCssClass("t_megamenu_content");
+                if (!string.IsNullOrWhiteSpace(LICssClass)) tag.AddCssClass(LICssClass);
                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
                 ModuleDefinition subMod = ModuleDefinition.Load((Guid)subGuid, AllowNone: true);
@@ -197,6 +202,7 @@ namespace YetaWF.Core.Menus {
                                     tag.AddCssClass("dropdown");
                                 if (subModGuid != null)
                                     tag.AddCssClass("t_megamenu_hassub");
+                                if (!string.IsNullOrWhiteSpace(LICssClass)) tag.AddCssClass(LICssClass);
                                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
                                 HtmlString menuContents =  menuEntry.Render(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
@@ -215,6 +221,7 @@ namespace YetaWF.Core.Menus {
                             TagBuilder tag = new TagBuilder("li");
                             //if (!menuEntry.Enabled)
                             //    tag.MergeAttribute("disabled", "disabled");
+                            if (!string.IsNullOrWhiteSpace(LICssClass)) tag.AddCssClass(LICssClass);
                             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
                             HtmlString menuContents = menuEntry.Render(renderMode, RenderEngine: renderEngine);

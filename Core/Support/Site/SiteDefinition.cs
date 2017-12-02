@@ -132,6 +132,7 @@ namespace YetaWF.Core.Site {
                 Collection = SkinAccess.FallbackPopupSkinCollectionName,
                 FileName = SkinAccess.FallbackPopupFileName,
             };
+            BootstrapSkin = null;
             jQueryUISkin = null;
             KendoUISkin = null;
             TabStyle = TabStyleEnum.JQuery;
@@ -584,6 +585,11 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         public bool FormErrorsImmed { get; set; }
+
+        [Category("Skin"), Caption("Default Bootstrap Skin"), Description("The default skin for overall page appearance and Bootstrap elements - individual pages can override the default skin")]
+        [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
+        [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        public string BootstrapSkin { get; set; }
 
         [Category("Skin"), Caption("Default jQuery UI Skin"), Description("The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://jqueryui.com/themeroller/")]

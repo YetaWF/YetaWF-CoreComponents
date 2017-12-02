@@ -254,6 +254,17 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [Data_NewValue("(0)")]
         public BootstrapContainerEnum BootstrapContainer { get; set; }
 
+        /// <summary>
+        /// Defines whether the skin's partial form Css is added to partial forms.
+        /// </summary>
+        [Category("Skin"), Caption("Bootstrap Form \"well\""), Description("Defines whether the skin's partial form Css is added to partial forms - Partial form Css is never used in popup windows", Order = -91)]
+        [UIHint("Boolean")]
+        [Data_DontSave]
+        public bool UsePartialFormCss { get { return !_SuppressPartialFormCss; } set { _SuppressPartialFormCss = !value; } }
+        [Data_NewValue("(0)")]
+        public bool _SuppressPartialFormCss { get; set; }
+
+
         [Category("Skin"), Caption("Show Title"), Description("Defines whether the module title is shown", Order = -90)]
         [UIHint("Boolean")]
         public bool ShowTitle { get; set; }

@@ -353,6 +353,5 @@ namespace YetaWF.Core.Skins {
             VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
             return addon.SkinInfo.ModuleSkins;
         }
-
     }
 }

@@ -121,6 +121,8 @@ namespace YetaWF.Core.Views.Shared {
             string id = htmlHelper.MakeId(tag);
             if (useKendo)
                 tag.Attributes.Add("data-needinit", "");
+            else
+                tag.AddCssClass("t_native");
 
             HtmlBuilder tagHtml = new HtmlBuilder();
             ScriptBuilder sb = new ScriptBuilder();

@@ -4,6 +4,7 @@ KendoSkin
 UsingBootstrap false
 UseDefaultBootstrap true
 UsingBootstrapButtons false
+PartialFormCss
 MinWidthForPopups 0
 ::Pages::
 Main (Default);Default.cshtml;Standard page with a header, footer and a main pane;pageSkinDefault;12;16

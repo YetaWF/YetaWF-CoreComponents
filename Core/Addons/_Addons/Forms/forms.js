@@ -232,7 +232,14 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
                 Y_Loading(false);
                 YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $form, undefined, function () {
                     _YetaWF_Forms.YPreSubmitHandler1 = [];
-                    $('.' + YConfigs.Forms.CssFormPartial, $form).replaceWith(result);
+                    var $partForm = $('.' + YConfigs.Forms.CssFormPartial, $form);
+                    if ($partForm.length > 0) {
+                        // preserve the original css classes on the partial form (PartialFormCss)
+                        var cls = $partForm[0].className;
+                        $partForm.replaceWith(result);
+                        $partForm = $('.' + YConfigs.Forms.CssFormPartial, $form);
+                        $partForm[0].className = cls;
+                    }
                 });
                 _YetaWF_Forms.callPostSubmitHandler($form);
                 _YetaWF_Forms.YPostSubmitHandler1 = [];

@@ -238,8 +238,9 @@ namespace YetaWF.Core.Addons {
         }
 
         public void AddSkinBasedAddOns() {
-            // Find the jquery theme
             SkinAccess skinAccess = new SkinAccess();
+
+            // Find the jquery theme
             string skin = Manager.CurrentPage.jQueryUISkin;
             if (string.IsNullOrWhiteSpace(skin))
                 skin = Manager.CurrentSite.jQueryUISkin;
