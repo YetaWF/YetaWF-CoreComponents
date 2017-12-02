@@ -257,7 +257,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// <summary>
         /// Defines whether the skin's partial form Css is added to partial forms.
         /// </summary>
-        [Category("Skin"), Caption("Bootstrap Form \"well\""), Description("Defines whether the skin's partial form Css is added to partial forms - Partial form Css is never used in popup windows", Order = -91)]
+        [Category("Skin"), Caption("Partial Form Css"), Description("Defines whether the skin's partial form Css is added to partial forms within this module - Partial form Css is never used in popup windows", Order = -91)]
         [UIHint("Boolean")]
         [Data_DontSave]
         public bool UsePartialFormCss { get { return !_SuppressPartialFormCss; } set { _SuppressPartialFormCss = !value; } }
