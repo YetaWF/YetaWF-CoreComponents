@@ -120,6 +120,7 @@
     <Compile Include="Pages\ViewServiceRender.cs" />
     <Compile Include="Pages\YetaWFRazorView.cs" />
     <Compile Include="Search\Search.cs" />
+    <Compile Include="Skins\BootstrapSkins.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
     <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\MimeSection\MimeSection.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="ViewsCode\Support\ImageHelper.cs" />
     <Compile Include="ViewsCode\Support\IntValueHelper.cs" />
     <Compile Include="ViewsCode\Support\IPAddressHelper.cs" />
+    <Compile Include="ViewsCode\Support\BootstrapSkinsHelper.cs" />
     <Compile Include="ViewsCode\Support\JQueryUISkinsHelper.cs" />
     <Compile Include="ViewsCode\Support\KendoUISkinsHelper.cs" />
     <Compile Include="ViewsCode\Support\CountryISO3166Helper.cs" />
@@ -646,6 +648,8 @@
     <Content Include="Views\Shared\DisplayTemplates\CurrencyISO4217.cshtml" />
     <None Include="tsconfig.json" />
     <None Include="tslint.json" />
+    <Content Include="Views\Shared\DisplayTemplates\BootstrapSkin.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\BootstrapSkin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

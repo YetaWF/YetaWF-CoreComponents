@@ -266,7 +266,7 @@ namespace YetaWF.Core.Addons {
         public static AddOnProduct FindPackageVersion(string domainName, string productName) {
             AddOnProduct version = TryFindPackageVersion(domainName, productName);
             if (version == null)
-                throw new InternalError("Module not registered for {1}.{2}.", domainName, productName);
+                throw new InternalError("Module not registered for {0}.{1}.", domainName, productName);
             return version;
         }
         /// <summary>
