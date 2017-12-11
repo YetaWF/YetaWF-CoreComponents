@@ -918,7 +918,7 @@ $(document).ready(function () {
     // TOOLTIPS
     // TOOLTIPS
 
-    var selectors = 'img,label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],span[{2}],li[{1}],div[{1}]';
+    var selectors = 'img:not("{0}"),label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],span[{2}],li[{1}],div[{1}]';
     var ddsel = '.k-list-container.k-popup li[data-offset-index]';
     $('body').tooltip({
         items: (selectors + ',' + ddsel).format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),

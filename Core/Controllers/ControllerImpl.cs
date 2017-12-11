@@ -902,7 +902,7 @@ namespace YetaWF.Core.Controllers {
                 string url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
-                url = AddUrlPayload(url, false);
+                url = AddUrlPayload(url, false, false);
                 if (ForceRedirect)
                     url = QueryHelper.AddRando(url);
                 url = YetaWFManager.JsonSerialize(url);
@@ -1102,7 +1102,7 @@ namespace YetaWF.Core.Controllers {
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool ForceRedirect = false, string ExtraJavascript = null) {
+        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string ExtraJavascript = null) {
 
             if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
             if (!string.IsNullOrWhiteSpace(ExtraJavascript) && !Manager.IsPostRequest) throw new InternalError("ExtraJavascript is only supported with POST requests");
@@ -1110,7 +1110,7 @@ namespace YetaWF.Core.Controllers {
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
 
-            url = AddUrlPayload(url, SetCurrentEditMode);
+            url = AddUrlPayload(url, SetCurrentEditMode, SetCurrentControlPanelMode);
             if (ForceRedirect)
                 url = QueryHelper.AddRando(url);
 
@@ -1175,7 +1175,7 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        private static string AddUrlPayload(string url, bool SetCurrentEditMode) {
+        private static string AddUrlPayload(string url, bool SetCurrentEditMode, bool SetCurrentControlPanelMode) {
 
             string urlOnly;
             QueryHelper qhUrl = QueryHelper.FromUrl(url, out urlOnly);
@@ -1203,10 +1203,19 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
             }
-            // check whether control panel should be open
-            if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {
+            if (SetCurrentControlPanelMode) {
+                qhUrl.Remove(Globals.Link_PageControl);
+                qhUrl.Remove(Globals.Link_NoPageControl);
                 if (Manager.PageControlShown)
                     qhUrl.Add(Globals.Link_PageControl, "y");
+                else
+                    qhUrl.Add(Globals.Link_NoPageControl, "y");                
+            } else {
+                // check whether control panel should be open
+                if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {
+                    if (Manager.PageControlShown)
+                        qhUrl.Add(Globals.Link_PageControl, "y");
+                }
             }
             url = qhUrl.ToUrl(urlOnly);
             return url;

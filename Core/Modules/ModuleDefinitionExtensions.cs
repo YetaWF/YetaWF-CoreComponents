@@ -40,36 +40,38 @@ namespace YetaWF.Core.Modules {
             if (Manager.IsInPopup) return HtmlStringExtender.Empty;
             if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
 
-            if (Manager.CurrentPage.IsAuthorized_Edit()) {
+#if DEBUG
+            // allow in debug mode without checking unless marked deployed
+            if (Manager.Deployed && !Manager.CurrentPage.IsAuthorized_Edit()) return HtmlStringExtender.Empty;
+#else
+            if (!Manager.CurrentPage.IsAuthorized_Edit()) return HtmlStringExtender.Empty;
+#endif
+            ModuleDefinition mod = ModuleDefinition.Load(moduleGuid);
 
-                ModuleDefinition mod = ModuleDefinition.Load(moduleGuid);
+            ModuleAction action = new ModuleAction(mod) {
+                Category = ModuleAction.ActionCategoryEnum.Significant,
+                CssClass = "",
+                Image = "PageEdit.png",
+                Location = ModuleAction.ActionLocationEnum.Any,
+                Mode = ModuleAction.ActionModeEnum.Any,
+                Style = ModuleAction.ActionStyleEnum.Nothing,
+                LinkText = __ResStr("pageControlLink", "Control Panel"),
+                MenuText = __ResStr("pageControlMenu", "Control Panel"),
+                Tooltip = __ResStr("pageControlTT", "Control Panel - Add new or existing modules, add new pages, switch to edit mode, access page settings and other site management tasks"),
+                Legend = __ResStr("pageControlLeg", "Control Panel - Adds new or existing modules, adds new pages, switches to edit mode, accesses page settings and other site management tasks"),
+            };
 
-                ModuleAction action = new ModuleAction(mod) {
-                    Category = ModuleAction.ActionCategoryEnum.Significant,
-                    CssClass = "",
-                    Image = "PageEdit.png",
-                    Location = ModuleAction.ActionLocationEnum.Any,
-                    Mode = ModuleAction.ActionModeEnum.Any,
-                    Style = ModuleAction.ActionStyleEnum.Nothing,
-                    LinkText = __ResStr("pageControlLink", "Control Panel"),
-                    MenuText = __ResStr("pageControlMenu", "Control Panel"),
-                    Tooltip = __ResStr("pageControlTT", "Control Panel - Add new or existing modules, add new pages, switch to edit mode and access page settings"),
-                    Legend = __ResStr("pageControlLeg", "Control Panel - Adds new or existing modules, adds new pages, switches to edit mode and accesses page settings"),
-                };
+            // <div id=IdPageControlDiv>
+            //  action button (with id CssPageControlButton)
+            //  module html...
+            // </div>
+            TagBuilder tag = new TagBuilder("div");
+            tag.Attributes.Add("id", Globals.IdPageControlDiv);
 
-                // <div id=IdPageControlDiv>
-                //  action button (with id CssPageControlButton)
-                //  module html...
-                // </div>
-                TagBuilder tag = new TagBuilder("div");
-                tag.Attributes.Add("id", Globals.IdPageControlDiv);
-
-                Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
-                tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.IdPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());
-                Manager.ForceModuleActionLinks = false;
-                return tag.ToHtmlString(TagRenderMode.Normal);
-            } else
-                return HtmlStringExtender.Empty;
+            Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
+            tag.SetInnerHtml(action.RenderAsButtonIcon(Globals.IdPageControlButton).ToString() + mod.RenderModule(htmlHelper).ToString());
+            Manager.ForceModuleActionLinks = false;
+            return tag.ToHtmlString(TagRenderMode.Normal);
         }
 
 #if MVC6

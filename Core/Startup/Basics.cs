@@ -13,6 +13,7 @@ namespace YetaWF.Core.Addons {
         // Action (part of Basics)
         public const string CssActionLink = "yaction-link";// every ModuleAction has this class
         public const string CssPopupLink = "ypopup-link";// every popup link has this class
+        public const string CssNoTooltip = "yNoToolTip";
         public const string CssTooltip = "data-tooltip";// a tooltip in a specific location (with other classes or container)
         public const string CssTooltipSpan = "data-tooltipspan";// a tooltip in a <span>
         public const string CssActionTrack = "yTrack";// added to <a> tag tracks clicks in Visitors log (use with static files)
@@ -112,10 +113,10 @@ namespace YetaWF.Core.Addons {
             // volatile css
             // add classes that don't use tooltips (cvt simple class names to jquery selector)
             {
+                string css = "." + CssNoTooltip;
                 string[] s = manager.CurrentSite.CssNoTooltips.Split(new char[] { ' ' });
-                string css = "";
                 if (s.Length > 0)
-                    css = ".yNoToolTip,." + string.Join(",.", s);
+                    css += ",." + string.Join(",.", s);
                 scripts.AddVolatileOption("Basics", "CssNoTooltips", css);
             }
 

@@ -231,6 +231,7 @@ namespace YetaWF.Core.Modules {
             string innerHtml = "";
             if (mode != RenderModeEnum.LinksOnly && !string.IsNullOrWhiteSpace(ImageUrlFinal)) {
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(GetImageUrlFinal(), alt: mode == RenderModeEnum.NormalMenu ? MenuText : LinkText);
+                tagImg.AddCssClass(Basics.CssNoTooltip);
                 innerHtml += tagImg.ToString(TagRenderMode.StartTag);
                 hasImg = true;
             }
