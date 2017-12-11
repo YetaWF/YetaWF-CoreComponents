@@ -1679,9 +1679,10 @@ namespace YetaWF.Core.Support {
         // CDN
         // CDN
 
-        public string GetCDNUrl(string url) {
+        public string GetCDNUrl(string url, bool WithCacheBuster = true) {
             if (!url.IsAbsoluteUrl()) {
-                url += url.AddUrlCacheBuster(CacheBuster);
+                if (WithCacheBuster)
+                    url += url.AddUrlCacheBuster(CacheBuster);
                 bool useCDN = Manager.CurrentSite.CanUseCDN;
                 bool useAlt = Manager.CurrentSite.CanUseStaticDomain;
                 if (useCDN || useAlt) {
