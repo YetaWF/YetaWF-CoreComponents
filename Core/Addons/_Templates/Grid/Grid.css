@@ -39,7 +39,7 @@
 }
 
 /* starting around jqgrid 4.14.x, search/filter input fields are centered - change it back to left aligned */
-.ui-search-input { text-align: left; }
+.ui-search-table td.ui-search-input { text-align: left; }
 
 /* some bootstrap themes underline table a:not(.btn) */
 table a.soptclass,
