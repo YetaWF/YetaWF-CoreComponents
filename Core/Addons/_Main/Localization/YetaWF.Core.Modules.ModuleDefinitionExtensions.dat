@@ -39,7 +39,7 @@
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="pageControlLeg" />
-                <Text Value="Control Panel - Adds new or existing modules, adds new pages, switches to edit mode and accesses page settings" />
+                <Text Value="Control Panel - Adds new or existing modules, adds new pages, switches to edit mode, accesses page settings and other site management tasks" />
               </Properties>
             </Object>
           </Value>
@@ -63,7 +63,7 @@
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="pageControlTT" />
-                <Text Value="Control Panel - Add new or existing modules, add new pages, switch to edit mode and access page settings" />
+                <Text Value="Control Panel - Add new or existing modules, add new pages, switch to edit mode, access page settings and other site management tasks" />
               </Properties>
             </Object>
           </Value>
