@@ -6,23 +6,19 @@ using System.Linq;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Support;
 
-namespace YetaWF.Core.Skins
-{
+namespace YetaWF.Core.Skins {
 
-    public partial class SkinAccess
-    {
+    public partial class SkinAccess {
 
         private const string BootstrapThemeFile = "Themelist.txt";
 
-        public class BootstrapTheme
-        {
+        public class BootstrapTheme {
             public string Name { get; set; }
             public string File { get; set; }
             public string Description { get; set; }
         }
 
-        public List<BootstrapTheme> GetBootstrapThemeList()
-        {
+        public List<BootstrapTheme> GetBootstrapThemeList() {
             if (_BootstrapThemeList == null)
                 LoadBootstrapThemes();
             return _BootstrapThemeList;
@@ -30,8 +26,7 @@ namespace YetaWF.Core.Skins
         private static List<BootstrapTheme> _BootstrapThemeList;
         private static BootstrapTheme _BootstrapThemeDefault;
 
-        private List<BootstrapTheme> LoadBootstrapThemes()
-        {
+        private List<BootstrapTheme> LoadBootstrapThemes() {
             string url = AddOnManager.GetAddOnGlobalUrl("getbootstrap.com", "bootswatch", AddOnManager.UrlType.Base);
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
@@ -45,8 +40,7 @@ namespace YetaWF.Core.Skins
             string[] lines = File.ReadAllLines(filename);
             List<BootstrapTheme> bsList = new List<BootstrapTheme>();
 
-            foreach (string line in lines)
-            {
+            foreach (string line in lines) {
                 if (string.IsNullOrWhiteSpace(line)) continue;
                 string[] s = line.Split(new char[] { ',' }, 3);
                 string name = s[0].Trim();
@@ -59,8 +53,7 @@ namespace YetaWF.Core.Skins
                     description = s[2].Trim();
                 if (string.IsNullOrWhiteSpace(description))
                     description = null;
-                bsList.Add(new BootstrapTheme
-                {
+                bsList.Add(new BootstrapTheme {
                     Name = name,
                     Description = description,
                     File = file,
@@ -74,15 +67,13 @@ namespace YetaWF.Core.Skins
             return _BootstrapThemeList;
         }
 
-        internal string FindBootstrapSkin(string themeName)
-        {
+        internal string FindBootstrapSkin(string themeName) {
             string folder = (from th in GetBootstrapThemeList() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(folder))
                 return folder;
             return _BootstrapThemeDefault.File;
         }
-        public static string GetBootstrapDefaultSkin()
-        {
+        public static string GetBootstrapDefaultSkin() {
             SkinAccess skinAccess = new SkinAccess();
             skinAccess.GetBootstrapThemeList();
             return _BootstrapThemeDefault.Name;

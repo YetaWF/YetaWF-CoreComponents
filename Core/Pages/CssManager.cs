@@ -50,7 +50,10 @@ namespace YetaWF.Core.Pages {
                 string file;
                 if (count > 0) {
                     // at least a file name is present
-                    file = string.Format(parts[0].Trim(), args);
+                    file = parts[0].Trim();
+                    if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.BootstrapSkin))
+                        file = file.Replace("{BootstrapSkin}", Manager.CurrentSite.BootstrapSkin);
+                    file = string.Format(file, args);
                     if (count > 1) {
                         // there are some keywords
                         for (int i = 1; i < count; ++i) {
