@@ -9,6 +9,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -41,10 +42,17 @@ namespace YetaWF.Core.Menus {
             return string.Format("{0}_MenuCache_{1}_{2}", package.AreaName, Manager.CurrentSite.Identity, moduleGuid);
         }
         public static SavedCacheInfo GetCache(Guid moduleGuid) {
-            return Manager.CurrentSession.GetObject<SavedCacheInfo>(GetCacheName(moduleGuid));
+            SessionStateIO<SavedCacheInfo> session = new SessionStateIO<SavedCacheInfo> {
+                Key = GetCacheName(moduleGuid)
+            };
+            return session.Load();
         }
         public static void SetCache(Guid moduleGuid, SavedCacheInfo cacheInfo) {
-            Manager.CurrentSession.SetObject<SavedCacheInfo>(GetCacheName(moduleGuid), cacheInfo);
+            SessionStateIO<SavedCacheInfo> session = new SessionStateIO<SavedCacheInfo> {
+                Key = GetCacheName(moduleGuid),
+                Data = cacheInfo,
+            };
+            session.Save();
         }
         public static void ClearCachedMenus() {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
