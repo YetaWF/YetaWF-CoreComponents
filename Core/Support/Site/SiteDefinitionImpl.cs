@@ -146,29 +146,35 @@ namespace YetaWF.Core.Site {
                 // if we're not using localhost, we can simply access the other domain
                 uri = new UriBuilder(SecurityType == PageDefinition.PageSecurityType.httpsOnly ? "https" : "http", RealDomain);
             } else {
-                string host = Manager.CurrentSite.SiteDomain;
+                SiteDefinition currentSite = Manager.CurrentSite;
+                string host = Manager.HostUsed;
                 int port = -1;
                 string scheme = "http";
                 if (SecurityType == PageDefinition.PageSecurityType.httpsOnly) {
                     scheme = "https";
                     if (Manager.IsLocalHost) {
-                        host = Manager.HostUsed;
-                        if (Manager.HostPortUsed != 443)
+                        if (currentSite.EnforceSitePort && Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
-                    } else if (Manager.CurrentSite.PortNumberSSLEval != 443)
-                        port = Manager.CurrentSite.PortNumberSSLEval;
+                    } else {
+                        if (currentSite.EnforceSiteUrl)
+                            host = currentSite.SiteDomain;
+                        if (currentSite.EnforceSitePort) {
+                            if (currentSite.PortNumberSSLEval != 443)
+                                port = currentSite.PortNumberSSLEval;
+                        } else
+                            port = Manager.HostPortUsed;
+                    }
                 } else {
                     if (Manager.IsLocalHost) {
-                        host = Manager.HostUsed;
-                        if (Manager.HostPortUsed != 80)
+                        if (currentSite.EnforceSitePort && Manager.HostPortUsed != 80)
                             port = Manager.HostPortUsed;
-                    } else if (Manager.CurrentSite.PortNumberEval != 80)
-                        port = Manager.CurrentSite.PortNumberEval;
-                    else {
-                        // the only time we preserve the user provided domain name is when we don't switch http/https and the port number wasn't specified/forced
-                        // this is mostly a "just in case" measure to allow access to a site even if its domain name doesn't match
-                        host = Manager.HostUsed;
-                        if (Manager.HostPortUsed != 80 && Manager.HostSchemeUsed == "http")
+                    } else {
+                        if (currentSite.EnforceSiteUrl)
+                            host = currentSite.SiteDomain;
+                        if (currentSite.EnforceSitePort) {
+                            if (currentSite.PortNumberEval != 80)
+                                port = currentSite.PortNumberEval;
+                        } else
                             port = Manager.HostPortUsed;
                     }
                 }

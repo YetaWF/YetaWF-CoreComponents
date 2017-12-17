@@ -423,9 +423,21 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="EnforceSitePort" />
+                            <Caption Value="Enforce Port" />
+                            <Description Value="Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost', this property is ignored" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="EnforceSiteUrl" />
-                            <Caption Value="Enforce Url" />
-                            <Description Value="Defines whether incoming requests for the site will be redirected to the defined site Url. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost', this property is ignored" />
+                            <Caption Value="Enforce Domain Name" />
+                            <Description Value="Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost', this property is ignored" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

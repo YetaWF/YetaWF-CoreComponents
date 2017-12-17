@@ -114,6 +114,7 @@ namespace YetaWF.Core.Site {
 
             HomePageUrl = "/";
             EnforceSiteUrl = false;
+            EnforceSitePort = false;
             PageSecurity = PageSecurityType.AsProvided;
             UnsupportedBrowserUrl = "/Maintenance/Unsupported Browser.html";
             LoginUrl = "/";
@@ -187,6 +188,19 @@ namespace YetaWF.Core.Site {
         [Caption("Site Name")]
         [UIHint("Text80"), StringLength(MaxSiteName), Required, Trim]
         public string SiteName { get; set; }
+
+        [Category("Site"), Caption("Enforce Domain Name"), Description("Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost', this property is ignored")]
+        [UIHint("Boolean")]
+        public bool EnforceSiteUrl { get; set; }
+
+        [Category("Site"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced")]
+        [UIHint("Enum")]
+        public PageSecurityType PageSecurity { get; set; }
+
+        [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost', this property is ignored")]
+        [UIHint("Boolean")]
+        [Data_NewValue("(0)")]
+        public bool EnforceSitePort { get; set; }
 
         [Category("Site"), Caption("Port Number (Normal)"), Description("The port number used to access this site using http.")]
         [UIHint("IntValue6"), Range(1, 65535), Required]
@@ -526,14 +540,6 @@ namespace YetaWF.Core.Site {
             }
         }
         private string _homePageUrl = null;
-
-        [Category("Urls"), Caption("Enforce Url"), Description("Defines whether incoming requests for the site will be redirected to the defined site Url. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost', this property is ignored")]
-        [UIHint("Boolean")]
-        public bool EnforceSiteUrl { get; set; }
-
-        [Category("Urls"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced")]
-        [UIHint("Enum")]
-        public PageSecurityType PageSecurity { get; set; }
 
         [Category("Urls"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this Url")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local)]
