@@ -153,7 +153,7 @@ namespace YetaWF.Core.Site {
                 if (SecurityType == PageDefinition.PageSecurityType.httpsOnly) {
                     scheme = "https";
                     if (Manager.IsLocalHost) {
-                        if (currentSite.EnforceSitePort && Manager.HostPortUsed != 443)
+                        if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
                     } else {
                         if (currentSite.EnforceSiteUrl)
@@ -166,7 +166,7 @@ namespace YetaWF.Core.Site {
                     }
                 } else {
                     if (Manager.IsLocalHost) {
-                        if (currentSite.EnforceSitePort && Manager.HostPortUsed != 80)
+                        if (Manager.HostPortUsed != 80)
                             port = Manager.HostPortUsed;
                     } else {
                         if (currentSite.EnforceSiteUrl)
