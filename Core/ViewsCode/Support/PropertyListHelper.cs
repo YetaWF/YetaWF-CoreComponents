@@ -108,6 +108,8 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static HtmlString RenderTabInit(this HtmlHelper htmlHelper, string controlId, object model = null) {
 #endif
+            Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript as the regular propertylist template */
+
             ScriptBuilder sb = new ScriptBuilder();
             // About tab switching and YetaWF_PropertyList_PanelSwitched
             // This event occurs even for the first tab, but event handlers may not yet be attached.
