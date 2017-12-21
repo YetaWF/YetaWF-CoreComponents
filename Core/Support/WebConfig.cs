@@ -106,23 +106,26 @@ namespace YetaWF.Core.Support {
         }
 
         public static void SetValue<TYPE>(string areaName, string key, TYPE value, bool Package = true) {
-            if (Package) {
-                JObject jObj = (JObject)Settings["Application"]["P"];
-                JObject jArea = (JObject)jObj[areaName];
-                if (jArea == null)
-                    jObj.Add(areaName, new JObject());
-                JToken jKey = jArea[key];
-                if (jKey == null) {
-                    if (value != null)
-                        jArea.Add(key, JToken.FromObject(value));
-                } else {
-                    if (value != null)
-                        jArea[key] = JToken.FromObject(value);
-                    else
-                        jArea[key] = null;
-                }
-            } else
-                throw new NotSupportedException();
+            JObject jObj;
+            if (Package)
+                jObj = (JObject)Settings["Application"]["P"];
+            else
+                jObj = (JObject)Settings["Application"];
+            JObject jArea = (JObject)jObj[areaName];
+            if (jArea == null) {
+                jObj.Add(areaName, new JObject());
+                jArea = (JObject)jObj[areaName];
+            }
+            JToken jKey = jArea[key];
+            if (jKey == null) {
+                if (value != null)
+                    jArea.Add(key, JToken.FromObject(value));
+            } else {
+                if (value != null)
+                    jArea[key] = JToken.FromObject(value);
+                else
+                    jArea[key] = null;
+            }
         }
         public static void SetValue(string totalKey, string value, bool Package = true) {
             // This is not currently used (except ::WEBCONFIG-SECTION:: which is not yet present in site templates)
