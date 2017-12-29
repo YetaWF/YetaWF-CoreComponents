@@ -220,8 +220,44 @@ class YetaWF_BasicsServices {
     public RegisterNewPage(callback: (event: Event, url: string) => void): void {
         $(document).on("YetaWF_Basics_NewPage", function (event: any, url: string): void { callback(event, url); });
     }
-}
 
+    // EXPAND/COLLAPSE SUPPORT
+    // EXPAND/COLLAPSE SUPPORT
+    // EXPAND/COLLAPSE SUPPORT
+
+    /**
+     * Expand/collapse support using 2 action links (Name=Expand/Collapse) which make 2 divs hidden/visible  (alternating)
+     * @param divId The <div> containing the 2 action links.
+     * @param collapsedId - The <div> to hide/show.
+     * @param expandedId - The <div> to show/hide.
+     */
+    public ExpandCollapse(divId: string, collapsedId: string, expandedId: string) {
+        var div: HTMLElement = document.querySelector(`#${divId}`) as HTMLElement;
+        if (!div) throw `#${divId} not found`;/*DEBUG*/
+        var collapsedDiv: HTMLElement = document.querySelector(`#${collapsedId}`) as HTMLElement;
+        if (!collapsedDiv) throw `#${collapsedId} not found`;/*DEBUG*/
+        var expandedDiv: HTMLElement = document.querySelector(`#${expandedId}`) as HTMLElement;
+        if (!expandedDiv) throw `#${expandedId} not found`;/*DEBUG*/
+
+        var expLink: HTMLElement = div.querySelector('a[data-name="Expand"]') as HTMLElement;
+        if (!expLink) throw "a[data-name=\"Expand\"] not found";/*DEBUG*/
+        var collLink: HTMLElement = div.querySelector('a[data-name="Collapse"]') as HTMLElement;
+        if (!collLink) throw "a[data-name=\"Expand\"] not found";/*DEBUG*/
+
+        function expandHandler(event: Event): void {
+            collapsedDiv.style.display = 'none';
+            expandedDiv.style.display = '';
+            // init any controls that just became visible
+            $(document).trigger('YetaWF_PropertyList_PanelSwitched', $(expandedDiv));
+        }
+        function collapseHandler(event: Event): void {
+            collapsedDiv.style.display = '';
+            expandedDiv.style.display = 'none';
+        }
+        expLink.addEventListener("click", expandHandler, false);
+        collLink.addEventListener("click", collapseHandler, false);
+    }
+}
 
 /**
  * Basic services available throughout YetaWF.

@@ -150,7 +150,7 @@ namespace YetaWF.Core.Packages {
 #if MVC6
                 assemblies = AppDomain.CurrentDomain.GetAssemblies();
 #else
-                if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE) {
+                if (!YetaWFManager.HaveManager || YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE) {
                     // this will only work in ASP.NET apps
                     assemblies = BuildManager.GetReferencedAssemblies();
                 } else {

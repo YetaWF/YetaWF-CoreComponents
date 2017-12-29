@@ -47,9 +47,9 @@ namespace YetaWF.Core.Modules {
             PopupEdit = 3,
             [EnumDescription("Force Popup", "Opens page in a popup window (in view mode only) - If a popup window is already active, the current popup window is replaced by this new popup window")]
             ForcePopup = 4,
-            [EnumDescription("Post", "Requires non-page response (javascript) suitable for display in a popup (success/fail)")]
+            [EnumDescription("Post", "Requires non-page response (JavaScript) suitable for display in a popup (success/fail)")]
             Post = 5,
-            [EnumDescription("Nothing", "Generates all HTML but takes no action when clicked (typically used for javascript/client side control)")]
+            [EnumDescription("Nothing", "Generates all HTML but takes no action when clicked (typically used for JavaScript/client side control)")]
             Nothing = 6,
             [EnumDescription("Outer Window", "Used in a popup so the action affects the parent (main) window")]
             OuterWindow = 7,

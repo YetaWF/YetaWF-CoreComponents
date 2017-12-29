@@ -48,6 +48,10 @@ namespace YetaWF.Core.Modules {
         public HtmlString RenderAsLink(string id = null) {
             return Render(RenderModeEnum.LinksOnly, Id: id);
         }
+        // Render an action as normal link with icon
+        public HtmlString RenderAsNormalLink(string id = null) {
+            return Render(RenderModeEnum.NormalLinks, Id: id);
+        }
 
         /// <summary>
         /// Check if this action renders anything (based on authorization)

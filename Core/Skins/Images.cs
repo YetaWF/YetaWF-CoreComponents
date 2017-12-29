@@ -19,9 +19,11 @@ namespace YetaWF.Core.Skins {
         public static Dictionary<string, string> PredefIcons = new Dictionary<string,string> {
            { "#Add", "Add.png" },
            { "#Browse", "Browse.png" },
+           { "#Collapse", "Collapse.png" },
            { "#Config", "Config.png" },
            { "#Display", "Display.png" },
            { "#Edit", "Edit.png" },
+           { "#Expand", "Expand.png" },
            { "#Generic", "Generic.png" },
            { "#Help", "Help.png" },
            { "#ModuleMenu", "ModuleMenu.png" },
