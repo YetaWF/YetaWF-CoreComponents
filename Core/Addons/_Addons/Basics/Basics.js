@@ -113,7 +113,7 @@ function Y_Alert(text, title, onOk, options) {
         $dialog.dialog("close");
         $dialog.dialog("destroy");
         $dialog.remove();
-        if (endFunc != undefined)
+        if (endFunc)
             endFunc();
     }
 
@@ -205,7 +205,7 @@ function Y_AlertYesNo(text, title, onYes, onNo) {
                     onNo = undefined;
                     $dialog.dialog("destroy");
                     $dialog.remove();
-                    if (endFunc != undefined)
+                    if (endFunc)
                         endFunc();
                 }
             },
@@ -217,7 +217,7 @@ function Y_AlertYesNo(text, title, onYes, onNo) {
                     onNo = undefined;
                     $dialog.dialog("destroy");
                     $dialog.remove();
-                    if (endFunc != undefined)
+                    if (endFunc)
                         endFunc();
                 }
             }
