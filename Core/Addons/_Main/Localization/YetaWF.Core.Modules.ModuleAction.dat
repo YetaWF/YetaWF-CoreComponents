@@ -398,7 +398,7 @@
                             <Name Value="Post" />
                             <Value Value="Post" />
                             <Caption Value="Post" />
-                            <Description Value="Requires non-page response (javascript) suitable for display in a popup (success/fail)" />
+                            <Description Value="Requires non-page response (JavaScript) suitable for display in a popup (success/fail)" />
                           </Properties>
                         </Object>
                       </Value>
@@ -408,7 +408,7 @@
                             <Name Value="Nothing" />
                             <Value Value="Nothing" />
                             <Caption Value="Nothing" />
-                            <Description Value="Generates all HTML but takes no action when clicked (typically used for javascript/client side control)" />
+                            <Description Value="Generates all HTML but takes no action when clicked (typically used for JavaScript/client side control)" />
                           </Properties>
                         </Object>
                       </Value>

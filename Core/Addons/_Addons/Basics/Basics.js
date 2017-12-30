@@ -92,27 +92,48 @@ function Y_UrlEncodePath(s) { //like manager.cs UrlEncodePath()
 }
 
 /* Show alerts, please wait windows */
-function Y_Message(text, onOk) {
-    Y_Alert(text, YLocs.Basics.DefaultSuccessTitle, onOk);
+function Y_Message(text, onOk, options) {
+    Y_Alert(text, YLocs.Basics.DefaultSuccessTitle, onOk, options);
 }
 
 function Y_Error(text, onOk) {
     Y_Alert(text, YLocs.Basics.DefaultErrorTitle, onOk);
 }
 
-function Y_Alert(text, title, onOk) {
+function Y_Alert(text, title, onOk, options) {
     'use strict';
-    var $body = $("body");
-    //if (Y_InPopup()) // This doesn't really work - dragging/positioning/overlay issues, jquery uses 'body'
-    //    $body = $(window.parent.document.body);
-    $body.prepend("<div id='yalert'></div>");
-    var $dialog = $("#yalert", $body);
 
-    // change \n to <br/>
-    $dialog.text(text);
-    var s = $dialog.html();
-    s = s.replace(/\(\+nl\)/g, '<br/>');
-    $dialog.html(s);
+    function closeDialog() {
+        var $dialog = $("#yalert");
+        if ($dialog.length == 0) return;
+        if ($dialog.attr('data-closing')) return;
+        $dialog.attr('data-closing', true);
+        var endFunc = onOk;
+        onOk = undefined; // clear this so close function doesn't call onOK handler also
+        $dialog.dialog("close");
+        $dialog.dialog("destroy");
+        $dialog.remove();
+        if (endFunc != undefined)
+            endFunc();
+    }
+
+    // check if we already have a popup (and close it)
+    closeDialog();
+
+    $("body").prepend("<div id='yalert'></div>");
+    var $dialog = $("#yalert");
+
+    options = options || {};
+
+    if (!options.encoded) {
+        // change \n to <br/>
+        $dialog.text(text);
+        var s = $dialog.html();
+        s = s.replace(/\(\+nl\)/g, '<br/>');
+        $dialog.html(s);
+    } else {
+        $dialog.html(text);
+    }
 
     if (title == undefined)
         title = YLocs.Basics.DefaultAlertTitle;
@@ -125,8 +146,7 @@ function Y_Alert(text, title, onOk) {
         closeOnEscape: true,
         closeText: YLocs.Basics.CloseButtonText,
         close: function (event, ui) {
-            if (onOk != undefined)
-                onOk();
+            closeDialog();
         },
         draggable: true,
         resizable: false,
@@ -134,12 +154,7 @@ function Y_Alert(text, title, onOk) {
         buttons: [{
             text: YLocs.Basics.OKButtonText,
             click: function () {
-                var endFunc = onOk;
-                onOk = undefined; // clear this so close function doesn't call onOK handler also
-                $dialog.dialog("close").dialog("destroy");
-                $dialog.remove();
-                if (endFunc != undefined)
-                    endFunc();
+                $dialog.dialog("close");
             }
         }]
     });
@@ -181,18 +196,19 @@ function Y_AlertYesNo(text, title, onYes, onNo) {
         draggable: true,
         resizable: false,
         'title': title,
-        buttons: [{
-            text: YLocs.Basics.YesButtonText,
-            click: function () {
-                var endFunc = onYes;
-                onYes = undefined;// clear this so close function doesn't try do call these
-                onNo = undefined;
-                $dialog.dialog("destroy");
-                $dialog.remove();
-                if (endFunc != undefined)
-                    endFunc();
-            }
-        },
+        buttons: [
+            {
+                text: YLocs.Basics.YesButtonText,
+                click: function () {
+                    var endFunc = onYes;
+                    onYes = undefined;// clear this so close function doesn't try do call these
+                    onNo = undefined;
+                    $dialog.dialog("destroy");
+                    $dialog.remove();
+                    if (endFunc != undefined)
+                        endFunc();
+                }
+            },
             {
                 text: YLocs.Basics.NoButtonText,
                 click: function () {

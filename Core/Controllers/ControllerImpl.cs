@@ -860,7 +860,7 @@ namespace YetaWF.Core.Controllers {
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
-                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false) {
+                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false, string PopupOptions = null) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -871,6 +871,7 @@ namespace YetaWF.Core.Controllers {
 
             popupText = popupText != null ? YetaWFManager.JsonSerialize(popupText) : null;
             popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
+            PopupOptions = PopupOptions != null ? PopupOptions : "null";
 
             bool isApply = Manager.RequestForm[Globals.Link_SubmitIsApply] != null;
             if (isApply) {
@@ -913,7 +914,7 @@ namespace YetaWF.Core.Controllers {
                             sb.Append("Y_Loading();window.parent.location.assign({0});", url);
                         } else {
                             sb.Append(
-                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.parent.location.assign({2}); }});", popupText, popupTitle, url);
+                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.parent.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
@@ -927,7 +928,7 @@ namespace YetaWF.Core.Controllers {
                                 "Y_Loading();" +
                                 "if (!window.parent._YetaWF_Basics.setContent(new URI({2}), true))" +
                                 "window.parent.location.assign({2});" +
-                            "}});", popupText, popupTitle, url);
+                            "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
                 } else {
                     if (ForceRedirect) {
@@ -935,7 +936,7 @@ namespace YetaWF.Core.Controllers {
                             sb.Append("Y_Loading();window.location.assign({0});", url);
                         } else {
                             sb.Append(
-                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.location.assign({2}); }});", popupText, popupTitle, url);
+                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
@@ -949,7 +950,7 @@ namespace YetaWF.Core.Controllers {
                              "Y_Loading();" +
                              "if (!_YetaWF_Basics.setContent(new URI({2}), true))" +
                                "window.location.assign({2});" +
-                           "}});", popupText, popupTitle, url);
+                           "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
                 }
             } else {
@@ -982,21 +983,21 @@ namespace YetaWF.Core.Controllers {
                             case OnPopupCloseEnum.GotoNewPage:
                                 throw new InternalError("No next page");
                             case OnPopupCloseEnum.Nothing:
-                                sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.ReloadNothing:
-                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ClosePopup(false); }});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ClosePopup(false); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.ReloadParentPage:
-                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ClosePopup(true); }});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ClosePopup(true); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.UpdateInPlace:
-                                sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                                 isApply = true;
                                 break;
                             case OnPopupCloseEnum.ReloadModule:
                                 // reload page, which reloads all modules (that are registered)
-                                sb.Append("Y_Alert({0}, {1}, function() {{ window.parent.YetaWF_Basics.refreshPage(); Y_ClosePopup(false); }});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, function() {{ window.parent.YetaWF_Basics.refreshPage(); Y_ClosePopup(false); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             default:
                                 throw new InternalError("Invalid OnPopupClose value {0}", OnPopupClose);
@@ -1009,11 +1010,11 @@ namespace YetaWF.Core.Controllers {
                             throw new InternalError("No next page");
                         case OnCloseEnum.Nothing:
                             if (!string.IsNullOrWhiteSpace(popupText))
-                                sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         case OnCloseEnum.UpdateInPlace:
                             if (!isApply && !string.IsNullOrWhiteSpace(popupText)) {
-                                sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
                                 OnApply = OnApplyEnum.ReloadModule;
                             }
                             isApply = true;
@@ -1023,7 +1024,7 @@ namespace YetaWF.Core.Controllers {
                                 if (string.IsNullOrWhiteSpace(popupText))
                                     sb.Append("window.close();");
                                 else
-                                    sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }});", popupText, popupTitle);
+                                    sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
                             } else {
                                 url = YetaWFManager.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
@@ -1033,7 +1034,7 @@ namespace YetaWF.Core.Controllers {
                                     sb.Append("Y_Alert({0}, {1}, function() {{" +
                                         "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
                                           "window.location.assign({2});" +
-                                      "}});", popupText, popupTitle, url);
+                                      "}}, {3});", popupText, popupTitle, url, PopupOptions);
                                 }
                             }
                             break;
@@ -1041,13 +1042,13 @@ namespace YetaWF.Core.Controllers {
                             if (string.IsNullOrWhiteSpace(popupText))
                                 sb.Append("window.close();");
                             else
-                                sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         case OnCloseEnum.ReloadPage:
                             if (string.IsNullOrWhiteSpace(popupText))
                                 sb.Append("Y_ReloadPage(true);");
                             else
-                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }});", popupText, popupTitle);
+                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         default:
                             throw new InternalError("Invalid OnClose value {0}", OnClose);
@@ -1058,7 +1059,7 @@ namespace YetaWF.Core.Controllers {
                         if (string.IsNullOrWhiteSpace(popupText))
                             sb.Append("Y_ReloadPage(true);");
                         else
-                            sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }});", popupText, popupTitle);
+                            sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                     } else {
                         if (sb.Length == Basics.AjaxJavascriptReturn.Length)
                             return PartialView(model);// no javascript after all
