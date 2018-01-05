@@ -299,6 +299,9 @@ namespace YetaWF.Core.Addons {
             // make a copy in case the invoked modules try to register additional modules (which are then ignored)
             return (from a in _AddedInvokedCssModules select a).ToList();
         }
+        public bool HasModuleReference(Guid guid) {
+            return (from m in _AddedInvokedCssModules where guid == m.ModuleGuid select m).FirstOrDefault() != null;
+        }
 
         /// <summary>
         /// Read a file

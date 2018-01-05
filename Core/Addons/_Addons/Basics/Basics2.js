@@ -154,6 +154,38 @@ var YetaWF_BasicsServices = /** @class */ (function () {
             }
         }
     };
+    /**
+     * Adds an object to a tag. Used for cleanup when a parent div is removed.
+     * Typically used by templates.
+     * Objects attached to divs are terminated by processClearDiv which calls any handlers that registered a
+     * template class using addClearDivForObjects.
+     * @param templateClass - The template css class (without leading .)
+     * @param divId - The div id (DOM) that where the object is attached
+     * @param obj - the object to attach
+     */
+    YetaWF_BasicsServices.prototype.addObjectDataById = function (templateClass, divId, obj) {
+        var $el = $("#" + divId);
+        if (!$el.hasClass(templateClass))
+            throw "addObjectDataById called with class " + templateClass + " - tag with id " + divId + " does not have that css class"; /*DEBUG*/
+        $el.data("__Y_Data", obj);
+    };
+    /**
+     * Register a cleanup (typically used by templates) to terminate any objects that may be
+     * attached to the template tag.
+     * @param templateClass - The template css class (without leading .)
+     */
+    YetaWF_BasicsServices.prototype.addClearDivForObjects = function (templateClass) {
+        YetaWF_Basics.addClearDiv(function (tag) {
+            var list = tag.querySelectorAll("." + templateClass);
+            var len = list.length;
+            for (var i = 0; i < len; ++i) {
+                var el = list[i];
+                var obj = $(el).data("__Y_Data");
+                if (obj)
+                    obj.term();
+            }
+        });
+    };
     // SELECTORS
     // SELECTORS
     // SELECTORS

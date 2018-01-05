@@ -473,7 +473,8 @@ namespace YetaWF.Core.Pages {
                 configOptions = new Dictionary<string, object>();
                 _SavedConfigOptionsGroups.Add(group, configOptions);
             }
-            configOptions.Add(name, value);
+            if (!configOptions.ContainsKey(name))
+                configOptions.Add(name, value);
         }
 
         public void AddVolatileOption(string group, string name, object value) {

@@ -234,6 +234,8 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
                     _YetaWF_Forms.YPreSubmitHandler1 = [];
                     var $partForm = $('.' + YConfigs.Forms.CssFormPartial, $form);
                     if ($partForm.length > 0) {
+                        // clean up everything that's about to be removed
+                        YetaWF_Basics.processClearDiv($partForm[0]);
                         // preserve the original css classes on the partial form (PartialFormCss)
                         var cls = $partForm[0].className;
                         $partForm.replaceWith(result);

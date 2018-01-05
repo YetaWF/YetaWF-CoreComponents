@@ -5,6 +5,9 @@
 
 using Microsoft.AspNet.SignalR;
 using Owin;
+using System.Web;
+using YetaWF.Core.Controllers;
+using YetaWF.Core.Site;
 
 namespace YetaWF.Core.Support {
 
@@ -25,8 +28,18 @@ namespace YetaWF.Core.Support {
             hubConfig.EnableJavaScriptProxies = false;
             app.MapSignalR(SignalRUrl, hubConfig);
         }
-    }
 
+        public static YetaWFManager SetupEnvironment() {
+            if (YetaWFManager.HaveManager) return YetaWFManager.Manager;
+            HttpRequest httpReq = HttpContext.Current.Request;
+            string host = httpReq.Url.Host;
+            YetaWFManager manager = YetaWFManager.MakeInstance(host);
+            manager.CurrentSite = SiteDefinition.LoadSiteDefinition(host);
+            if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
+            YetaWFController.SetupEnvironmentInfo();
+            return manager;
+        }
+    }
 }
 
 #endif
