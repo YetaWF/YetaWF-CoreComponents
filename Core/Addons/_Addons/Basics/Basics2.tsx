@@ -176,7 +176,7 @@ class YetaWF_BasicsServices {
     }
 
     /**
-     * Adds an object to a tag. Used for cleanup when a parent div is removed.
+     * Adds an object (a Typescript class) to a tag. Used for cleanup when a parent div is removed.
      * Typically used by templates.
      * Objects attached to divs are terminated by processClearDiv which calls any handlers that registered a
      * template class using addClearDivForObjects.
@@ -187,7 +187,32 @@ class YetaWF_BasicsServices {
     public addObjectDataById(templateClass: string, divId: string, obj: any): void {
         var $el = $(`#${divId}`);
         if (!$el.hasClass(templateClass)) throw `addObjectDataById called with class ${templateClass} - tag with id ${divId} does not have that css class`;/*DEBUG*/
+        var data: any = $el.data("__Y_Data");
+        if (data) throw `addObjectDataById - tag with id ${divId} already has data`;/*DEBUG*/
         $el.data("__Y_Data", obj);
+        this.addClearDivForObjects(templateClass);
+    }
+    /**
+     * Retrieves a data object (a Typescript class) from a tag
+     * @param divId - The div id (DOM) that where the object is attached
+     */
+    public getObjectDataById(divId: string): any {
+        var $el = $(`#${divId}`);
+        if ($el.length == 0) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
+        var data: any = $el.data("__Y_Data");
+        if (!data) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
+        return data;
+    }
+    /**
+     * Removes a data object (a Typescript class) from a tag.
+     * @param divId - The div id (DOM) that where the object is attached
+    */
+    public removeObjectDataById(divId: string): void {
+        var $el = $(`#${divId}`);
+        if ($el.length == 0) throw `removeObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
+        var data: any = $el.data("__Y_Data");
+        if (data) data.term();
+        $el.data("__Y_Data", null);
     }
     /**
      * Register a cleanup (typically used by templates) to terminate any objects that may be

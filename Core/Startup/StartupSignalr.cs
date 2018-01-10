@@ -29,6 +29,9 @@ namespace YetaWF.Core.Support {
             app.MapSignalR(SignalRUrl, hubConfig);
         }
 
+        /// <summary>
+        /// Set up environment info for signalr requests.
+        /// </summary>
         public static YetaWFManager SetupEnvironment() {
             if (YetaWFManager.HaveManager) return YetaWFManager.Manager;
             HttpRequest httpReq = HttpContext.Current.Request;
