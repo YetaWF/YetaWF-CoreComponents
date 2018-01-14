@@ -28,6 +28,11 @@ namespace YetaWF.Core.DataProvider {
         }
     }
 
+    public interface IDataProviderTransactions {
+        DataProviderTransaction StartTransaction();
+        void CommitTransaction();
+        void AbortTransaction();
+    }
 
     public interface IDataProvider<KEYTYPE, OBJTYPE> {
 

@@ -11,13 +11,13 @@ namespace YetaWF.Core.Support {
 
         public enum IOModeEnum {
             [EnumDescription("Mixed file/SQL database (Appsettings.json ConnectionStrings)")]
-            Determine = 0,      // determines I/O mode based on presence/absence of connectionstring
+            Determine = 0,      // determines I/O mode based on presence/absence of connectionstring $$$$$
             [EnumDescription("Use file system")]
             File = 1,           // Use file system
             [EnumDescription("Use SQL database")]
             Sql = 2,            // Use SQL tables
-            //RFFU - expect additional I/O methods - don't assume we just have File/Sql
-            //RFFU - It's up to the individual dataprovider to support what they want/can.
+            [EnumDescription("External data provider")]
+            External = 3,      // External
         }
 
         public static void Init(string settingsFile) {
