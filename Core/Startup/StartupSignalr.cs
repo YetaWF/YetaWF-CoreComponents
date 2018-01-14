@@ -2,11 +2,11 @@
 
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Site;
-using Microsoft.Extensions.DependencyInjection;
 #if MVC6
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 #else
 using Microsoft.AspNet.SignalR;
 using Owin;
