@@ -117,6 +117,10 @@
     <Compile Include="Controllers\Shared\ControllerErrorHandlingFilterAttribute.cs" />
     <Compile Include="Controllers\Shared\ModuleSelectionHelper.cs" />
     <Compile Include="Controllers\YetaWFApplicationModelProvider.cs" />
+    <Compile Include="DataProvider\DataProviderImpl.cs" />
+    <Compile Include="DataProvider\ExternalDataProviders.cs" />
+    <Compile Include="DataProvider\ISQLTableInfo.cs" />
+    <Compile Include="DataProvider\SortsFilters.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Extensions\HtmlString.cs" />
     <Compile Include="Identity\Setup.cs" />
@@ -258,7 +262,6 @@
     <Compile Include="Controllers\Shared\SMTPEmail.cs" />
     <Compile Include="Controllers\Shared\ImageHelper.cs" />
     <Compile Include="Controllers\Shared\GridSaveSettings.cs" />
-    <Compile Include="DataProvider\DataProviderImpl.cs" />
     <Compile Include="DataProvider\IDataProvider.cs" />
     <Compile Include="DataProvider\DataAttributes.cs" />
     <Compile Include="Identity\Role.cs" />

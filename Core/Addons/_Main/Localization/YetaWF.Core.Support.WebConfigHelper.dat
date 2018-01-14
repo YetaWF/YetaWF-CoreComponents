@@ -51,6 +51,16 @@
                           </Properties>
                         </Object>
                       </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
+                            <Name Value="External" />
+                            <Value Value="External" />
+                            <Caption Value="External data provider" />
+                            <Description />
+                          </Properties>
+                        </Object>
+                      </Value>
                     </List>
                   </Object>
                 </Entries>
