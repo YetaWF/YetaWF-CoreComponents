@@ -48,7 +48,7 @@ namespace YetaWF.Core.DataProvider {
         }
 
         /// <summary>
-        /// Loads an external assembly-based data provider.
+        /// Creates an external assembly-based data provider.
         /// </summary>
         /// <returns>A data provider object of a type suitable for the data provider.</returns>
         protected dynamic MakeExternalDataProvider(object options) {
@@ -61,6 +61,11 @@ namespace YetaWF.Core.DataProvider {
 
         private static Dictionary<Type, ExternalDataProviderInfo> RegisteredExternalDataProviders = new Dictionary<Type, ExternalDataProviderInfo>();
 
+        /// <summary>
+        /// Registers an external data provider, typically called during startup in a class implementing the IExternalDataProvider interface.
+        /// </summary>
+        /// <param name="type">The implemented data provider type.</param>
+        /// <param name="getDP">A method that will create a data provider of the requested type.</param>
         public static void RegisterExternalDataProvider(Type type, Func<object, dynamic> getDP) {
             if (RegisteredExternalDataProviders.ContainsKey(type)) throw new InternalError($"Data provider for type {type.FullName} already registered");
             RegisteredExternalDataProviders.Add(type, new ExternalDataProviderInfo {
