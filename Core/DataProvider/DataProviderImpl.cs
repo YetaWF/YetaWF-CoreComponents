@@ -63,10 +63,11 @@ namespace YetaWF.Core.DataProvider {
             if (string.IsNullOrWhiteSpace(ioMode))
                 ioMode = _defaultIOMode;
 
+            ExternalIOMode = null;
+
             switch (ioMode.ToLower()) {
                 default:
-                    throw new InternalError($"Invalid IOMode {ioMode}");
-                case "ext":
+                    ExternalIOMode = ioMode;
                     return IOMode = WebConfigHelper.IOModeEnum.External;
                 case "file":
                     return IOMode = WebConfigHelper.IOModeEnum.File;

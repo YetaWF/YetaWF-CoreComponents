@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
@@ -43,7 +44,11 @@ namespace YetaWF.Core.DataProvider {
 
     public abstract partial class DataProviderImpl {
 
+        private string ExternalIOMode { get; set; }
+
         public class ExternalDataProviderInfo {
+            public Type Type { get; set; }
+            public string IOModeName { get; set; }
             public Func<object, dynamic> NewFunc { get; set; }
         }
 
@@ -52,23 +57,27 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         /// <returns>A data provider object of a type suitable for the data provider.</returns>
         protected dynamic MakeExternalDataProvider(object options) {
-            Type requestedType = GetType();
-            ExternalDataProviderInfo info;
-            if (!RegisteredExternalDataProviders.TryGetValue(GetType(), out info))
-                throw new InternalError($"No registered external data provider for type {requestedType.FullName}");
-            return info.NewFunc(options);
+            Type type = GetType();
+            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
+            if (ext == null)
+                throw new InternalError($"No external data provider for type {type.FullName} and IOMode {ExternalIOMode} found");
+            return ext.NewFunc(options);
         }
 
-        private static Dictionary<Type, ExternalDataProviderInfo> RegisteredExternalDataProviders = new Dictionary<Type, ExternalDataProviderInfo>();
+        private static List<ExternalDataProviderInfo> RegisteredExternalDataProviders = new List<ExternalDataProviderInfo>();
 
         /// <summary>
         /// Registers an external data provider, typically called during startup in a class implementing the IExternalDataProvider interface.
         /// </summary>
         /// <param name="type">The implemented data provider type.</param>
         /// <param name="getDP">A method that will create a data provider of the requested type.</param>
-        public static void RegisterExternalDataProvider(Type type, Func<object, dynamic> getDP) {
-            if (RegisteredExternalDataProviders.ContainsKey(type)) throw new InternalError($"Data provider for type {type.FullName} already registered");
-            RegisteredExternalDataProviders.Add(type, new ExternalDataProviderInfo {
+        public static void RegisterExternalDataProvider(string ioModeName, Type type, Func<object, dynamic> getDP) {
+            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ioModeName select r).FirstOrDefault();
+            if (ext != null)
+                throw new InternalError($"External data provider for type {type.FullName} and IOMode {ioModeName} already registered");
+            RegisteredExternalDataProviders.Add(new ExternalDataProviderInfo {
+                Type = type,
+                IOModeName = ioModeName,
                 NewFunc = getDP,
             });
         }
