@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using YetaWF.Core.IO;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -38,7 +37,8 @@ namespace YetaWF.Core.DataProvider {
         protected bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
         protected int SiteIdentity { get; set; }
-        protected string AreaName { get; set; }
+        protected Package Package { get; set; }
+        protected string Dataset { get; set; }
         protected WebConfigHelper.IOModeEnum IOMode { get; private set; }
 
         public const string DefaultString = "Default";
@@ -59,10 +59,12 @@ namespace YetaWF.Core.DataProvider {
                 if (_defaultIOMode == null)
                     throw new InternalError("Default IOMode is missing");
             }
-            string ioMode = WebConfigHelper.GetValue<string>(AreaName, IOModeString);
-            if (string.IsNullOrWhiteSpace(ioMode))
-                ioMode = _defaultIOMode;
-
+            string ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
+            if (string.IsNullOrWhiteSpace(ioMode)) {
+                ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
+                if (string.IsNullOrWhiteSpace(ioMode))
+                    ioMode = _defaultIOMode;
+            }
             ExternalIOMode = null;
 
             switch (ioMode.ToLower()) {
@@ -78,18 +80,24 @@ namespace YetaWF.Core.DataProvider {
         private static string _defaultIOMode = null;
 
         protected string GetSqlConnectionString() {
-            if (AreaName == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
-            string connString = WebConfigHelper.GetValue<string>(AreaName, SQLConnectString);
-            if (string.IsNullOrWhiteSpace(connString))
-                connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
+            if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
+            string connString = WebConfigHelper.GetValue<string>(Dataset, SQLConnectString);
+            if (string.IsNullOrWhiteSpace(connString)) {
+                connString = WebConfigHelper.GetValue<string>(Package.AreaName, SQLConnectString);
+                if (string.IsNullOrWhiteSpace(connString))
+                    connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
+            }
             if (string.IsNullOrWhiteSpace(connString)) throw new InternalError($"No SQL connection string provided (also no default)");
             return connString;
         }
         protected string GetSqlDbo() {
-            if (AreaName == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
-            string dbo = WebConfigHelper.GetValue<string>(AreaName, SQLDboString);
-            if (string.IsNullOrWhiteSpace(dbo))
-                dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
+            if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
+            string dbo = WebConfigHelper.GetValue<string>(Dataset, SQLDboString);
+            if (string.IsNullOrWhiteSpace(dbo)) {
+                dbo = WebConfigHelper.GetValue<string>(Package.AreaName, SQLDboString);
+                if (string.IsNullOrWhiteSpace(dbo))
+                    dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
+            }
             if (string.IsNullOrWhiteSpace(dbo)) throw new InternalError($"No SQL dbo provided (also no default)");
             return dbo;
         }
@@ -98,8 +106,9 @@ namespace YetaWF.Core.DataProvider {
             dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
         }
 
-        protected dynamic MakeDataProvider(string areaName, Func<dynamic> newFileDP, Func<string, string, dynamic> newSqlDP, Func<dynamic> newExtDP) {
-            AreaName = areaName;
+        protected dynamic MakeDataProvider(Package package, string datasetName, Func<dynamic> newFileDP, Func<string, string, dynamic> newSqlDP, Func<dynamic> newExtDP) {
+            Package = package;
+            Dataset = datasetName;
             switch (GetIOMode()) {
                 case WebConfigHelper.IOModeEnum.File:
                     return newFileDP();
