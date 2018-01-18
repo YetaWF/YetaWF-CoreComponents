@@ -59,7 +59,7 @@ namespace YetaWF.Core.Image {
             if (evnt.EventName != EventRemoveTempFiles)
                 throw new Error(this.__ResStr("eventNameErr", "Unknown scheduler event {0}."), evnt.EventName);
             FileUpload fileUpload = new FileUpload();
-            fileUpload.RemoveAllExpiredTempFiles(evnt.Frequency.GetTimeSpan());
+            fileUpload.RemoveAllExpiredTempFiles(evnt.Frequency.TimeSpan);
         }
     }
 

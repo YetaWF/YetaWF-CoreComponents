@@ -2,14 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Packages;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
+using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Packages;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Scheduler {
 
@@ -63,7 +63,7 @@ namespace YetaWF.Core.Scheduler {
         }
     }
 
-    public class SchedulerFrequency : IComparable {
+    public class SchedulerFrequency {
 
         public enum TimeUnitEnum {
             [EnumDescription("Second(s)")]
@@ -85,32 +85,24 @@ namespace YetaWF.Core.Scheduler {
         [UIHint("IntValue4"), Range(1, 999)]
         public int Value { get; set; }
 
-        public int CompareTo(object obj) {
-            SchedulerFrequency sf = obj as SchedulerFrequency;
-            if (sf == null) return -1;
-            if ((int) TimeUnits < (int) sf.TimeUnits) return -1;
-            if ((int) TimeUnits > (int) sf.TimeUnits) return 1;
-            if (Value < sf.Value) return -1;
-            if (Value > sf.Value) return 1;
-            return 0;
-        }
-
-        public TimeSpan GetTimeSpan() {
-
-            TimeSpan t;
-            switch (TimeUnits) {
-                case TimeUnitEnum.Weeks: t = new TimeSpan(7 * Value, 0, 0, 0, 0); break;
-                case TimeUnitEnum.Days: t = new TimeSpan(Value, 0, 0, 0, 0); break;
-                case TimeUnitEnum.Hours: t = new TimeSpan(Value, 0, 0); break;
-                default:
-                case TimeUnitEnum.Minutes: t = new TimeSpan(0, Value, 0); break;
-                case TimeUnitEnum.Seconds: t = new TimeSpan(0, 0, Value); break;
+        [DontSave]
+        public TimeSpan TimeSpan {
+            get {
+                TimeSpan t;
+                switch (TimeUnits) {
+                    case TimeUnitEnum.Weeks: t = new TimeSpan(7 * Value, 0, 0, 0, 0); break;
+                    case TimeUnitEnum.Days: t = new TimeSpan(Value, 0, 0, 0, 0); break;
+                    case TimeUnitEnum.Hours: t = new TimeSpan(Value, 0, 0); break;
+                    default:
+                    case TimeUnitEnum.Minutes: t = new TimeSpan(0, Value, 0); break;
+                    case TimeUnitEnum.Seconds: t = new TimeSpan(0, 0, Value); break;
+                }
+                return t;
             }
-            return t;
         }
     }
 
-    public class SchedulerEvent : IComparable {
+    public class SchedulerEvent {
 
         public const int MaxName = 100;
         public const int MaxImplementingAssembly = 150;
@@ -131,16 +123,5 @@ namespace YetaWF.Core.Scheduler {
         [DontSave]// only used for UI purposes
         [Caption("Event Action"), Description("The action this event takes")]
         public string EventBuiltinDescription { get; set; }
-
-        public int CompareTo(object obj) {
-            SchedulerEvent se = obj as SchedulerEvent;
-            if (se == null) return -1;
-            int rc = se.Name.CompareTo(Name);
-            if (rc != 0) return rc;
-            rc = se.ImplementingAssembly.CompareTo(ImplementingAssembly);
-            if (rc != 0) return rc;
-            rc = se.ImplementingType.CompareTo(ImplementingType);
-            return 0;
-        }
     }
 }
