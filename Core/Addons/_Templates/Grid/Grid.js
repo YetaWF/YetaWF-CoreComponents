@@ -1,4 +1,4 @@
-/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 var YetaWF_Grid = {};
 var _YetaWF_Grid = {};
@@ -645,6 +645,7 @@ YetaWF_Basics.addClearDiv(function (tag) {
         var el = list[i];
         var grid = $(el);
         if (!grid) throw "No grid object found";/*DEBUG*/
-        grid.jqGrid('GridUnload');    }
+        grid.jqGrid('GridUnload');
+    }
 });
 

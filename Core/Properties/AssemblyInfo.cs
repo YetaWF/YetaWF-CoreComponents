@@ -1,4 +1,4 @@
-﻿/* Copyright © 2017 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -11,12 +11,12 @@ using YetaWF.PackageAttributes;
 [assembly: AssemblyDescription("YetaWF Core Support")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Softel vdm, Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2017 - Softel vdm, Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2018 - Softel vdm, Inc.")]
 [assembly: AssemblyProduct("Core")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("2.7.0.0")]
+[assembly: AssemblyVersion("2.8.0.0")]
 
 [assembly: Package(PackageTypeEnum.Core, "YetaWF")]
 
