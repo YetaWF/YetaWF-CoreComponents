@@ -1,4 +1,4 @@
-/* Copyright © 2016 Softel vdm, Inc. - http://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 // We're saving some bootstrap functions that collide with jquery-ui
 
