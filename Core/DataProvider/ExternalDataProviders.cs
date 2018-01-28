@@ -6,6 +6,7 @@ using System.Linq;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
+using YetaWF.Core.Views;
 
 namespace YetaWF.Core.DataProvider {
 
@@ -44,24 +45,39 @@ namespace YetaWF.Core.DataProvider {
 
     public abstract partial class DataProviderImpl {
 
+        private const string NoIOMode = "None";
+
         private string ExternalIOMode { get; set; }
 
         public class ExternalDataProviderInfo {
             public Type Type { get; set; }
             public string IOModeName { get; set; }
-            public Func<object, dynamic> NewFunc { get; set; }
+            public Type TypeImpl { get; set; }
         }
 
         /// <summary>
         /// Creates an external assembly-based data provider.
         /// </summary>
         /// <returns>A data provider object of a type suitable for the data provider.</returns>
+        protected dynamic MakeExternalDataProvider2(Dictionary<string, object> options) {
+            if (ExternalIOMode == NoIOMode) return null;
+            Type type = GetType();
+            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
+            if (ext == null)
+                throw new InternalError($"No external data provider for type {type.FullName} and IOMode {ExternalIOMode} found");
+            return Activator.CreateInstance(ext.TypeImpl, options);
+        }
+        /// <summary>
+        /// Creates an external assembly-based data provider.
+        /// </summary>
+        /// <returns>A data provider object of a type suitable for the data provider.</returns>
+        //$$$ remove
         protected dynamic MakeExternalDataProvider(object options) {
             Type type = GetType();
             ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
             if (ext == null)
                 throw new InternalError($"No external data provider for type {type.FullName} and IOMode {ExternalIOMode} found");
-            return ext.NewFunc(options);
+            return Activator.CreateInstance(ext.TypeImpl, new Dictionary<string, object>(FieldHelper.AnonymousObjectToHtmlAttributes(options)));
         }
 
         private static List<ExternalDataProviderInfo> RegisteredExternalDataProviders = new List<ExternalDataProviderInfo>();
@@ -71,14 +87,14 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         /// <param name="type">The implemented data provider type.</param>
         /// <param name="getDP">A method that will create a data provider of the requested type.</param>
-        public static void RegisterExternalDataProvider(string ioModeName, Type type, Func<object, dynamic> getDP) {
-            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ioModeName select r).FirstOrDefault();
+        public static void RegisterExternalDataProvider(string ioModeName, Type type, Type typeImpl) {
+            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.IOModeName == ioModeName && r.Type == type select r).FirstOrDefault();
             if (ext != null)
                 throw new InternalError($"External data provider for type {type.FullName} and IOMode {ioModeName} already registered");
             RegisteredExternalDataProviders.Add(new ExternalDataProviderInfo {
-                Type = type,
                 IOModeName = ioModeName,
-                NewFunc = getDP,
+                Type = type,
+                TypeImpl = typeImpl,
             });
         }
     }

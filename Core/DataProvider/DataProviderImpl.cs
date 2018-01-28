@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
@@ -36,15 +37,18 @@ namespace YetaWF.Core.DataProvider {
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
+        protected Dictionary<string, object> Options { get; set; }
         protected int SiteIdentity { get; set; }
         protected Package Package { get; set; }
         protected string Dataset { get; set; }
-        protected WebConfigHelper.IOModeEnum IOMode { get; private set; }
+        protected WebConfigHelper.IOModeEnum IOMode { get; private set; } //$$$remove
 
         public const string DefaultString = "Default";
         public const string SQLConnectString = "SQLConnect";
         public const string IOModeString = "IOMode";
         private const string SQLDboString = "SQLDbo";
+
+        public const int IDENTITY_SEED = 1000;
 
         protected void SetDataProvider(dynamic dp) {
             _dataProvider = dp;
@@ -79,7 +83,7 @@ namespace YetaWF.Core.DataProvider {
         }
         private static string _defaultIOMode = null;
 
-        protected string GetSqlConnectionString() {
+        protected string GetSqlConnectionString() {//$$$$remove 
             if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
             string connString = WebConfigHelper.GetValue<string>(Dataset, SQLConnectString);
             if (string.IsNullOrWhiteSpace(connString)) {
@@ -90,7 +94,7 @@ namespace YetaWF.Core.DataProvider {
             if (string.IsNullOrWhiteSpace(connString)) throw new InternalError($"No SQL connection string provided (also no default)");
             return connString;
         }
-        protected string GetSqlDbo() {
+        protected string GetSqlDbo() {//$$$$remove 
             if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
             string dbo = WebConfigHelper.GetValue<string>(Dataset, SQLDboString);
             if (string.IsNullOrWhiteSpace(dbo)) {
@@ -101,11 +105,46 @@ namespace YetaWF.Core.DataProvider {
             if (string.IsNullOrWhiteSpace(dbo)) throw new InternalError($"No SQL dbo provided (also no default)");
             return dbo;
         }
-        public static void GetSQLInfo(out string dbo, out string connString) {
+        public static void GetSQLInfo(out string dbo, out string connString) {//$$$$remove 
             connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
             dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
         }
 
+        protected dynamic MakeDataProvider2(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
+            Package = package;
+            Dataset = dataset;
+
+            if (_defaultIOMode == null) {
+                _defaultIOMode = WebConfigHelper.GetValue<string>(DefaultString, IOModeString);
+                if (_defaultIOMode == null)
+                    throw new InternalError("Default IOMode is missing");
+            }
+            string ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
+            if (string.IsNullOrWhiteSpace(ioMode)) {
+                ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
+                if (string.IsNullOrWhiteSpace(ioMode))
+                    ioMode = _defaultIOMode;
+            }
+            ExternalIOMode = ioMode;
+            IOMode = WebConfigHelper.IOModeEnum.External;//$$ remove
+
+            Options = new Dictionary<string, object>();
+            if (Parms != null) {
+                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(Parms)) {
+                    object val = property.GetValue(Parms);
+                    Options.Add(property.Name, val);
+                }
+            }
+            Options.Add(nameof(Package), Package);
+            Options.Add(nameof(Dataset), Dataset);
+            Options.Add(nameof(SiteIdentity), SiteIdentity);
+            Options.Add("CurrentSiteIdentity", SiteIdentity);//$$remove
+            Options.Add(nameof(Cacheable), Cacheable);
+
+            return MakeExternalDataProvider2(Options);
+        }
+
+        //$$remove
         protected dynamic MakeDataProvider(Package package, string datasetName, Func<dynamic> newFileDP, Func<string, string, dynamic> newSqlDP, Func<dynamic> newExtDP) {
             Package = package;
             Dataset = datasetName;
@@ -170,7 +209,7 @@ namespace YetaWF.Core.DataProvider {
             GetDataProvider().ImportChunk(chunk, fileList, obj);
         }
 
-        // ISQLTableInfo
+        // ISQLTableInfo //$$$$remove 
         // ISQLTableInfo
         // ISQLTableInfo
 
