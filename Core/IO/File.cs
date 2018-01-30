@@ -139,7 +139,7 @@ namespace YetaWF.Core.IO {
         /// Load a file, returns a new instance of the object.
         /// </summary>
         /// <returns></returns>
-        public TObj Load(bool SpecificType = false) {
+        public TObj Load() {
             object data = null;
             if (!GetObjectFromCache(CacheKey, out data)) {
                 FileIO<TObj> io = new FileIO<TObj> {
@@ -155,12 +155,6 @@ namespace YetaWF.Core.IO {
                         AddObjectToCache(CacheKey, data);
                 });
                 Date = (data!=null) ? io.Date : null;
-            }
-            if (SpecificType) {
-                if (typeof(TObj) == data.GetType())
-                    return (TObj)data;
-                else
-                    return default(TObj);
             }
             return (TObj)data;
         }

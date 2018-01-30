@@ -204,7 +204,7 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        [Data_Identity] // needed for ModuleDefinitions which creates a subtable //$$$ could remove with SQL2
+        [Data_Identity] // needed for ModuleDefinitions which create a subtable //$$$ could remove with SQL2
         public int Identity { get; set; }
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit the property
