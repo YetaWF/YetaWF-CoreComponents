@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 namespace YetaWF.Core.DataProvider {
+
     public class JoinData {
 
         public enum JoinTypeEnum {

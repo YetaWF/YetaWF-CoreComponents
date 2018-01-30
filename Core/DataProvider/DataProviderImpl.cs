@@ -41,76 +41,31 @@ namespace YetaWF.Core.DataProvider {
         protected int SiteIdentity { get; set; }
         protected Package Package { get; set; }
         protected string Dataset { get; set; }
-        protected WebConfigHelper.IOModeEnum IOMode { get; private set; } //$$$remove
 
         public const string DefaultString = "Default";
-        public const string SQLConnectString = "SQLConnect";
         public const string IOModeString = "IOMode";
-        private const string SQLDboString = "SQLDbo";
+        private const string NoIOMode = "None";
 
         public const int IDENTITY_SEED = 1000;
 
-        protected void SetDataProvider(dynamic dp) {
-            _dataProvider = dp;
-        }
         public dynamic GetDataProvider() {
             return _dataProvider;
         }
-
-        private WebConfigHelper.IOModeEnum GetIOMode() {
-            if (_defaultIOMode == null) {
-                _defaultIOMode = WebConfigHelper.GetValue<string>(DefaultString, IOModeString);
-                if (_defaultIOMode == null)
-                    throw new InternalError("Default IOMode is missing");
-            }
-            string ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
-            if (string.IsNullOrWhiteSpace(ioMode)) {
-                ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
-                if (string.IsNullOrWhiteSpace(ioMode))
-                    ioMode = _defaultIOMode;
-            }
-            ExternalIOMode = null;
-
-            switch (ioMode.ToLower()) {
-                default:
-                    ExternalIOMode = ioMode;
-                    return IOMode = WebConfigHelper.IOModeEnum.External;
-                case "file":
-                    return IOMode = WebConfigHelper.IOModeEnum.File;
-                case "sql":
-                    return IOMode = WebConfigHelper.IOModeEnum.Sql;
-            }
-        }
-        private static string _defaultIOMode = null;
-
-        protected string GetSqlConnectionString() {//$$$$remove 
-            if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
-            string connString = WebConfigHelper.GetValue<string>(Dataset, SQLConnectString);
-            if (string.IsNullOrWhiteSpace(connString)) {
-                connString = WebConfigHelper.GetValue<string>(Package.AreaName, SQLConnectString);
-                if (string.IsNullOrWhiteSpace(connString))
-                    connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
-            }
-            if (string.IsNullOrWhiteSpace(connString)) throw new InternalError($"No SQL connection string provided (also no default)");
-            return connString;
-        }
-        protected string GetSqlDbo() {//$$$$remove 
-            if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
-            string dbo = WebConfigHelper.GetValue<string>(Dataset, SQLDboString);
-            if (string.IsNullOrWhiteSpace(dbo)) {
-                dbo = WebConfigHelper.GetValue<string>(Package.AreaName, SQLDboString);
-                if (string.IsNullOrWhiteSpace(dbo))
-                    dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
-            }
-            if (string.IsNullOrWhiteSpace(dbo)) throw new InternalError($"No SQL dbo provided (also no default)");
-            return dbo;
-        }
-        public static void GetSQLInfo(out string dbo, out string connString) {//$$$$remove 
-            connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
-            dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
+        protected void SetDataProvider(dynamic dp) {
+            _dataProvider = dp;
         }
 
-        protected dynamic MakeDataProvider2(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
+        protected dynamic MakeDataProvider(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
+            BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms);
+            return MakeExternalDataProvider(Options);
+        }
+        protected dynamic CreateDataProviderIOMode(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null,
+                Func<string, Dictionary<string, object>, dynamic> Callback = null) {
+            if (Callback == null) throw new InternalError("No callback provided");
+            BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms);
+            return Callback(ExternalIOMode, Options);
+        }
+        protected void BuildOptions(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
             Package = package;
             Dataset = dataset;
 
@@ -126,7 +81,6 @@ namespace YetaWF.Core.DataProvider {
                     ioMode = _defaultIOMode;
             }
             ExternalIOMode = ioMode;
-            IOMode = WebConfigHelper.IOModeEnum.External;//$$ remove
 
             Options = new Dictionary<string, object>();
             if (Parms != null) {
@@ -138,27 +92,9 @@ namespace YetaWF.Core.DataProvider {
             Options.Add(nameof(Package), Package);
             Options.Add(nameof(Dataset), Dataset);
             Options.Add(nameof(SiteIdentity), SiteIdentity);
-            Options.Add("CurrentSiteIdentity", SiteIdentity);//$$remove
             Options.Add(nameof(Cacheable), Cacheable);
-
-            return MakeExternalDataProvider2(Options);
         }
-
-        //$$remove
-        protected dynamic MakeDataProvider(Package package, string datasetName, Func<dynamic> newFileDP, Func<string, string, dynamic> newSqlDP, Func<dynamic> newExtDP) {
-            Package = package;
-            Dataset = datasetName;
-            switch (GetIOMode()) {
-                case WebConfigHelper.IOModeEnum.File:
-                    return newFileDP();
-                case WebConfigHelper.IOModeEnum.Sql:
-                    return newSqlDP(GetSqlDbo(), GetSqlConnectionString());
-                case WebConfigHelper.IOModeEnum.External:
-                    return newExtDP();
-                default:
-                    throw new InternalError("Unsupported IOMode");
-            }
-        }
+        private static string _defaultIOMode = null;
 
         // TRANSACTIONS
         // TRANSACTIONS
@@ -207,34 +143,6 @@ namespace YetaWF.Core.DataProvider {
         }
         public void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj) {
             GetDataProvider().ImportChunk(chunk, fileList, obj);
-        }
-
-        // ISQLTableInfo //$$$$remove 
-        // ISQLTableInfo
-        // ISQLTableInfo
-
-        private ISQLTableInfo GetISQLTableInfo() {
-            ISQLTableInfo sqlDP = GetDataProvider() as ISQLTableInfo;
-            if (sqlDP == null) throw new InternalError($"Data provider {GetType().FullName} has no ISQLTableInfo interface");
-            return sqlDP;
-        }
-        public string GetConnectionString() {
-            return GetISQLTableInfo().GetConnectionString();
-        }
-        public string GetDbOwner() {
-            return GetISQLTableInfo().GetDbOwner();
-        }
-        public string GetTableName() {
-            return GetISQLTableInfo().GetTableName();
-        }
-        public string ReplaceWithTableName(string text, string searchText) {
-            return GetISQLTableInfo().ReplaceWithTableName(text, searchText);
-        }
-        public string ReplaceWithLanguage(string text, string searchText) {
-            return GetISQLTableInfo().ReplaceWithLanguage(text, searchText);
-        }
-        public string GetDatabaseName() {
-            return GetISQLTableInfo().GetDatabaseName();
         }
 
         // IMAGE HANDLING

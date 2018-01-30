@@ -648,8 +648,10 @@ namespace YetaWF.Core.Modules {
                     }
                     // if the title is still not available, simply use the very first module (any pane)
                     if (string.IsNullOrWhiteSpace(title)) {
-                        if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == Manager.CurrentPage.ModuleDefinitions[0].Module)
-                            title = Title;
+                        try { // the module could be damaged
+                            if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == Manager.CurrentPage.ModuleDefinitions[0].Module)
+                                title = Title;
+                        } catch (Exception) { }
                     }
                     Manager.PageTitle = title;
                 }

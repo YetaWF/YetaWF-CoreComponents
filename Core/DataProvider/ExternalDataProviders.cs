@@ -6,7 +6,6 @@ using System.Linq;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views;
 
 namespace YetaWF.Core.DataProvider {
 
@@ -45,8 +44,6 @@ namespace YetaWF.Core.DataProvider {
 
     public abstract partial class DataProviderImpl {
 
-        private const string NoIOMode = "None";
-
         private string ExternalIOMode { get; set; }
 
         public class ExternalDataProviderInfo {
@@ -59,25 +56,13 @@ namespace YetaWF.Core.DataProvider {
         /// Creates an external assembly-based data provider.
         /// </summary>
         /// <returns>A data provider object of a type suitable for the data provider.</returns>
-        protected dynamic MakeExternalDataProvider2(Dictionary<string, object> options) {
+        protected dynamic MakeExternalDataProvider(Dictionary<string, object> options) {
             if (ExternalIOMode == NoIOMode) return null;
             Type type = GetType();
             ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
             if (ext == null)
                 throw new InternalError($"No external data provider for type {type.FullName} and IOMode {ExternalIOMode} found");
             return Activator.CreateInstance(ext.TypeImpl, options);
-        }
-        /// <summary>
-        /// Creates an external assembly-based data provider.
-        /// </summary>
-        /// <returns>A data provider object of a type suitable for the data provider.</returns>
-        //$$$ remove
-        protected dynamic MakeExternalDataProvider(object options) {
-            Type type = GetType();
-            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
-            if (ext == null)
-                throw new InternalError($"No external data provider for type {type.FullName} and IOMode {ExternalIOMode} found");
-            return Activator.CreateInstance(ext.TypeImpl, new Dictionary<string, object>(FieldHelper.AnonymousObjectToHtmlAttributes(options)));
         }
 
         private static List<ExternalDataProviderInfo> RegisteredExternalDataProviders = new List<ExternalDataProviderInfo>();

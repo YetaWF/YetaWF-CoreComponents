@@ -63,7 +63,7 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         public SortDirection Order { get; set; }
 
-        public string GetOrder() {//$$$REMOVE SQL SPECIFIC
+        private string GetOrder() {
             switch (Order) {
                 case SortDirection.Ascending:
                     return "asc";

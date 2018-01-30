@@ -36,11 +36,6 @@ namespace YetaWF.Core.DataProvider {
 
     public interface IDataProvider<KEYTYPE, OBJTYPE> {
 
-        string ReplaceWithTableName(string text, string searchText);
-        string ReplaceWithLanguage(string text, string searchText);
-        string GetTableName();
-        string GetDatabaseName();
-
         DataProviderTransaction StartTransaction();
         void CommitTransaction();
         void AbortTransaction();
@@ -54,7 +49,6 @@ namespace YetaWF.Core.DataProvider {
         OBJTYPE GetOneRecord(List<DataProviderFilterInfo> filters, List<JoinData> Joins = null); // returns null if not found
         List<OBJTYPE> GetRecords(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, out int total, List<JoinData> Joins = null, bool SpecificType = false);
         // There is an inherent maximum that can be retrieved with this - use wisely
-        List<KEYTYPE> GetKeyList(); //$$$ remove
 
         bool IsInstalled();
         bool InstallModel(List<string> errorList);
@@ -64,12 +58,7 @@ namespace YetaWF.Core.DataProvider {
         bool ExportChunk(int chunk, SerializableList<SerializableFile> fileList, out object obj, bool SpecificType = false);
         void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj);
     }
-    public interface IDataProviderIdentity<KEYTYPE, KEY2TYPE, IDENTITYTYPE, OBJTYPE> { //$$$ remove identitytype
-
-        string ReplaceWithTableName(string text, string searchText);
-        string ReplaceWithLanguage(string text, string searchText);
-        string GetTableName();
-        string GetDatabaseName();
+    public interface IDataProviderIdentity<KEYTYPE, KEY2TYPE, OBJTYPE> {
 
         DataProviderTransaction StartTransaction();
         void CommitTransaction();
@@ -77,13 +66,13 @@ namespace YetaWF.Core.DataProvider {
 
         bool Add(OBJTYPE obj); // returns false if key already exists
         UpdateStatusEnum Update(KEYTYPE origKey, KEY2TYPE origKey2, KEYTYPE newKey, KEY2TYPE newKey2, OBJTYPE obj);
-        UpdateStatusEnum UpdateByIdentity(IDENTITYTYPE id, OBJTYPE obj);
+        UpdateStatusEnum UpdateByIdentity(int id, OBJTYPE obj);
         bool Remove(KEYTYPE key, KEY2TYPE key2);// returns false if not found
-        bool RemoveByIdentity(IDENTITYTYPE id);// returns false if not found
+        bool RemoveByIdentity(int id);// returns false if not found
         int RemoveRecords(List<DataProviderFilterInfo> filters); // returns # of records removed
 
         OBJTYPE Get(KEYTYPE key, KEY2TYPE key2); // returns null if not found
-        OBJTYPE GetByIdentity(IDENTITYTYPE id); // returns null if not found
+        OBJTYPE GetByIdentity(int id); // returns null if not found
         OBJTYPE GetOneRecord(List<DataProviderFilterInfo> filters, List<JoinData> Joins = null); // returns null if not found
         List<OBJTYPE> GetRecords(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, out int total, List<JoinData> Joins = null, bool SpecificType = false);
 

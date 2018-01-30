@@ -1436,7 +1436,6 @@ namespace YetaWF.Core.Support {
         /// Defines whether non-site specific data is also imported when importing packages
         /// </summary>
         /// <remarks>Site specific data is always imported</remarks>
-        //$$ should eliminate, dataprovider should not use Manager at all
         public bool ImportChunksNonSiteSpecifics { get; set; }
 
         // CONTROLINFOOVERRIDE
