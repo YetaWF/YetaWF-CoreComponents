@@ -119,7 +119,6 @@
     <Compile Include="Controllers\YetaWFApplicationModelProvider.cs" />
     <Compile Include="DataProvider\DataProviderImpl.cs" />
     <Compile Include="DataProvider\ExternalDataProviders.cs" />
-    <Compile Include="DataProvider\ISQLTableInfo.cs" />
     <Compile Include="DataProvider\SortsFilters.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Extensions\HtmlString.cs" />
@@ -368,6 +367,7 @@
     <Compile Include="ActionResults\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
     <Compile Include="Models\Attributes\RecaptchaAttribute.cs" />
+    <Compile Include="ViewsCode\YetaWFDefaultHtmlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
