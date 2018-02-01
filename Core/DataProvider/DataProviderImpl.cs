@@ -62,10 +62,10 @@ namespace YetaWF.Core.DataProvider {
         protected dynamic CreateDataProviderIOMode(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null,
                 Func<string, Dictionary<string, object>, dynamic> Callback = null) {
             if (Callback == null) throw new InternalError("No callback provided");
-            BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms);
+            BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms, UsePackageIOMode: false);
             return Callback(ExternalIOMode, Options);
         }
-        protected void BuildOptions(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
+        protected void BuildOptions(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null, bool UsePackageIOMode = true) {
             Package = package;
             Dataset = dataset;
 
@@ -76,7 +76,8 @@ namespace YetaWF.Core.DataProvider {
             }
             string ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
             if (string.IsNullOrWhiteSpace(ioMode)) {
-                ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
+                if (UsePackageIOMode)
+                    ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
                 if (string.IsNullOrWhiteSpace(ioMode))
                     ioMode = _defaultIOMode;
             }
