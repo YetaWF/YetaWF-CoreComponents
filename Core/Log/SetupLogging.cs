@@ -21,6 +21,7 @@ namespace YetaWF.Core.Log {
         public static LevelEnum MinLevel { get; private set; }
         private static List<ILogging> Loggers { get; set; }
         private static ILogging DefaultLogger { get; set; }
+        public static Type DefaultLoggerType { get; private set; }
 
         private static object _lockObject = new object();
 
@@ -64,6 +65,7 @@ namespace YetaWF.Core.Log {
             if (log != null) {
                 if (log.IsInstalled()) {
                     DefaultLogger = log;
+                    DefaultLoggerType = tp;
                     RegisterLogging(log);
                     log.Clear();
                 }

@@ -3,20 +3,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
-using YetaWF.Core.Support;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization
 

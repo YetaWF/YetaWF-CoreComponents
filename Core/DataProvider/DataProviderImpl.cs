@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
@@ -36,24 +37,38 @@ namespace YetaWF.Core.DataProvider {
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
+        protected Dictionary<string, object> Options { get; set; }
         protected int SiteIdentity { get; set; }
         protected Package Package { get; set; }
         protected string Dataset { get; set; }
-        protected WebConfigHelper.IOModeEnum IOMode { get; private set; }
 
         public const string DefaultString = "Default";
-        public const string SQLConnectString = "SQLConnect";
         public const string IOModeString = "IOMode";
-        private const string SQLDboString = "SQLDbo";
+        private const string NoIOMode = "None";
 
-        protected void SetDataProvider(dynamic dp) {
-            _dataProvider = dp;
-        }
+        public const int IDENTITY_SEED = 1000;
+
         public dynamic GetDataProvider() {
             return _dataProvider;
         }
+        protected void SetDataProvider(dynamic dp) {
+            _dataProvider = dp;
+        }
 
-        private WebConfigHelper.IOModeEnum GetIOMode() {
+        protected dynamic MakeDataProvider(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
+            BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms);
+            return MakeExternalDataProvider(Options);
+        }
+        protected dynamic CreateDataProviderIOMode(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null,
+                Func<string, Dictionary<string, object>, dynamic> Callback = null) {
+            if (Callback == null) throw new InternalError("No callback provided");
+            BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms, UsePackageIOMode: false);
+            return Callback(ExternalIOMode, Options);
+        }
+        protected void BuildOptions(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null, bool UsePackageIOMode = true) {
+            Package = package;
+            Dataset = dataset;
+
             if (_defaultIOMode == null) {
                 _defaultIOMode = WebConfigHelper.GetValue<string>(DefaultString, IOModeString);
                 if (_defaultIOMode == null)
@@ -61,65 +76,26 @@ namespace YetaWF.Core.DataProvider {
             }
             string ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
             if (string.IsNullOrWhiteSpace(ioMode)) {
-                ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
+                if (UsePackageIOMode)
+                    ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
                 if (string.IsNullOrWhiteSpace(ioMode))
                     ioMode = _defaultIOMode;
             }
-            ExternalIOMode = null;
+            ExternalIOMode = ioMode;
 
-            switch (ioMode.ToLower()) {
-                default:
-                    ExternalIOMode = ioMode;
-                    return IOMode = WebConfigHelper.IOModeEnum.External;
-                case "file":
-                    return IOMode = WebConfigHelper.IOModeEnum.File;
-                case "sql":
-                    return IOMode = WebConfigHelper.IOModeEnum.Sql;
+            Options = new Dictionary<string, object>();
+            if (Parms != null) {
+                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(Parms)) {
+                    object val = property.GetValue(Parms);
+                    Options.Add(property.Name, val);
+                }
             }
+            Options.Add(nameof(Package), Package);
+            Options.Add(nameof(Dataset), Dataset);
+            Options.Add(nameof(SiteIdentity), SiteIdentity);
+            Options.Add(nameof(Cacheable), Cacheable);
         }
         private static string _defaultIOMode = null;
-
-        protected string GetSqlConnectionString() {
-            if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
-            string connString = WebConfigHelper.GetValue<string>(Dataset, SQLConnectString);
-            if (string.IsNullOrWhiteSpace(connString)) {
-                connString = WebConfigHelper.GetValue<string>(Package.AreaName, SQLConnectString);
-                if (string.IsNullOrWhiteSpace(connString))
-                    connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
-            }
-            if (string.IsNullOrWhiteSpace(connString)) throw new InternalError($"No SQL connection string provided (also no default)");
-            return connString;
-        }
-        protected string GetSqlDbo() {
-            if (Dataset == null || IOMode == WebConfigHelper.IOModeEnum.Determine) throw new InternalError($"Must call {nameof(GetIOMode)} first");
-            string dbo = WebConfigHelper.GetValue<string>(Dataset, SQLDboString);
-            if (string.IsNullOrWhiteSpace(dbo)) {
-                dbo = WebConfigHelper.GetValue<string>(Package.AreaName, SQLDboString);
-                if (string.IsNullOrWhiteSpace(dbo))
-                    dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
-            }
-            if (string.IsNullOrWhiteSpace(dbo)) throw new InternalError($"No SQL dbo provided (also no default)");
-            return dbo;
-        }
-        public static void GetSQLInfo(out string dbo, out string connString) {
-            connString = WebConfigHelper.GetValue<string>(DefaultString, SQLConnectString);
-            dbo = WebConfigHelper.GetValue<string>(DefaultString, SQLDboString);
-        }
-
-        protected dynamic MakeDataProvider(Package package, string datasetName, Func<dynamic> newFileDP, Func<string, string, dynamic> newSqlDP, Func<dynamic> newExtDP) {
-            Package = package;
-            Dataset = datasetName;
-            switch (GetIOMode()) {
-                case WebConfigHelper.IOModeEnum.File:
-                    return newFileDP();
-                case WebConfigHelper.IOModeEnum.Sql:
-                    return newSqlDP(GetSqlDbo(), GetSqlConnectionString());
-                case WebConfigHelper.IOModeEnum.External:
-                    return newExtDP();
-                default:
-                    throw new InternalError("Unsupported IOMode");
-            }
-        }
 
         // TRANSACTIONS
         // TRANSACTIONS
@@ -168,34 +144,6 @@ namespace YetaWF.Core.DataProvider {
         }
         public void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj) {
             GetDataProvider().ImportChunk(chunk, fileList, obj);
-        }
-
-        // ISQLTableInfo
-        // ISQLTableInfo
-        // ISQLTableInfo
-
-        private ISQLTableInfo GetISQLTableInfo() {
-            ISQLTableInfo sqlDP = GetDataProvider() as ISQLTableInfo;
-            if (sqlDP == null) throw new InternalError($"Data provider {GetType().FullName} has no ISQLTableInfo interface");
-            return sqlDP;
-        }
-        public string GetConnectionString() {
-            return GetISQLTableInfo().GetConnectionString();
-        }
-        public string GetDbOwner() {
-            return GetISQLTableInfo().GetDbOwner();
-        }
-        public string GetTableName() {
-            return GetISQLTableInfo().GetTableName();
-        }
-        public string ReplaceWithTableName(string text, string searchText) {
-            return GetISQLTableInfo().ReplaceWithTableName(text, searchText);
-        }
-        public string ReplaceWithLanguage(string text, string searchText) {
-            return GetISQLTableInfo().ReplaceWithLanguage(text, searchText);
-        }
-        public string GetDatabaseName() {
-            return GetISQLTableInfo().GetDatabaseName();
         }
 
         // IMAGE HANDLING
