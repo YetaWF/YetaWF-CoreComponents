@@ -65,7 +65,7 @@ namespace YetaWF.Core.DataProvider {
             return Activator.CreateInstance(ext.TypeImpl, options);
         }
 
-        private static List<ExternalDataProviderInfo> RegisteredExternalDataProviders = new List<ExternalDataProviderInfo>();
+        public static List<ExternalDataProviderInfo> RegisteredExternalDataProviders = new List<ExternalDataProviderInfo>();
 
         /// <summary>
         /// Registers an external data provider, typically called during startup in a class implementing the IExternalDataProvider interface.
