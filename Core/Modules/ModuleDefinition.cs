@@ -13,6 +13,7 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Views.Shared;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
+using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
 #endif
