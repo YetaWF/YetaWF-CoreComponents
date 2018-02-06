@@ -22,6 +22,7 @@ namespace YetaWF.Core.Log {
         private static List<ILogging> Loggers { get; set; }
         private static ILogging DefaultLogger { get; set; }
         public static Type DefaultLoggerType { get; private set; }
+        public static Type DefinedLoggerType { get; private set; }
 
         private static object _lockObject = new object();
 
@@ -54,6 +55,7 @@ namespace YetaWF.Core.Log {
             try {
                 Assembly asm = Assemblies.Load(assembly);
                 tp = asm.GetType(type);
+                DefinedLoggerType = tp;
             } catch (Exception) { }
 
             // create an instance of the class implementing logging

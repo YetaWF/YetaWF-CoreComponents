@@ -27,7 +27,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Lightbox",
             "YetaWF.Logging",
             "YetaWF.Menus",
-            "YetaWF.Messenger",
+            //"YetaWF.Messenger",
             "YetaWF.ModuleEdit",
             "YetaWF.Modules",
             "YetaWF.Packages",
