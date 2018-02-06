@@ -179,7 +179,7 @@ var YetaWF_BasicsServices = /** @class */ (function () {
      */
     YetaWF_BasicsServices.prototype.getObjectDataById = function (divId) {
         var $el = $("#" + divId);
-        if ($el.length == 0)
+        if ($el.length === 0)
             throw "getObjectDataById - tag with id " + divId + " has no data"; /*DEBUG*/
         var data = $el.data("__Y_Data");
         if (!data)
@@ -189,10 +189,10 @@ var YetaWF_BasicsServices = /** @class */ (function () {
     /**
      * Removes a data object (a Typescript class) from a tag.
      * @param divId - The div id (DOM) that where the object is attached
-    */
+     */
     YetaWF_BasicsServices.prototype.removeObjectDataById = function (divId) {
         var $el = $("#" + divId);
-        if ($el.length == 0)
+        if ($el.length === 0)
             throw "removeObjectDataById - tag with id " + divId + " has no data"; /*DEBUG*/
         var data = $el.data("__Y_Data");
         if (data)
@@ -277,21 +277,21 @@ var YetaWF_BasicsServices = /** @class */ (function () {
         var expandedDiv = document.querySelector("#" + expandedId);
         if (!expandedDiv)
             throw "#" + expandedId + " not found"; /*DEBUG*/
-        var expLink = div.querySelector('a[data-name="Expand"]');
+        var expLink = div.querySelector("a[data-name='Expand']");
         if (!expLink)
             throw "a[data-name=\"Expand\"] not found"; /*DEBUG*/
-        var collLink = div.querySelector('a[data-name="Collapse"]');
+        var collLink = div.querySelector("a[data-name='Collapse']");
         if (!collLink)
             throw "a[data-name=\"Expand\"] not found"; /*DEBUG*/
         function expandHandler(event) {
-            collapsedDiv.style.display = 'none';
-            expandedDiv.style.display = '';
+            collapsedDiv.style.display = "none";
+            expandedDiv.style.display = "";
             // init any controls that just became visible
-            $(document).trigger('YetaWF_PropertyList_PanelSwitched', $(expandedDiv));
+            $(document).trigger("YetaWF_PropertyList_PanelSwitched", $(expandedDiv));
         }
         function collapseHandler(event) {
-            collapsedDiv.style.display = '';
-            expandedDiv.style.display = 'none';
+            collapsedDiv.style.display = "";
+            expandedDiv.style.display = "none";
         }
         expLink.addEventListener("click", expandHandler, false);
         collLink.addEventListener("click", collapseHandler, false);

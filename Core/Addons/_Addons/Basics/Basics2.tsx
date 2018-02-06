@@ -185,7 +185,7 @@ class YetaWF_BasicsServices {
      * @param obj - the object to attach
      */
     public addObjectDataById(templateClass: string, divId: string, obj: any): void {
-        var $el = $(`#${divId}`);
+        var $el : JQuery<HTMLElement> = $(`#${divId}`);
         if (!$el.hasClass(templateClass)) throw `addObjectDataById called with class ${templateClass} - tag with id ${divId} does not have that css class`;/*DEBUG*/
         var data: any = $el.data("__Y_Data");
         if (data) throw `addObjectDataById - tag with id ${divId} already has data`;/*DEBUG*/
@@ -197,8 +197,8 @@ class YetaWF_BasicsServices {
      * @param divId - The div id (DOM) that where the object is attached
      */
     public getObjectDataById(divId: string): any {
-        var $el = $(`#${divId}`);
-        if ($el.length == 0) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
+        var $el: JQuery<HTMLElement> = $(`#${divId}`);
+        if ($el.length === 0) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
         var data: any = $el.data("__Y_Data");
         if (!data) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
         return data;
@@ -206,10 +206,10 @@ class YetaWF_BasicsServices {
     /**
      * Removes a data object (a Typescript class) from a tag.
      * @param divId - The div id (DOM) that where the object is attached
-    */
+     */
     public removeObjectDataById(divId: string): void {
-        var $el = $(`#${divId}`);
-        if ($el.length == 0) throw `removeObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
+        var $el : JQuery<HTMLElement> = $(`#${divId}`);
+        if ($el.length === 0) throw `removeObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
         var data: any = $el.data("__Y_Data");
         if (data) data.term();
         $el.data("__Y_Data", null);
@@ -287,7 +287,7 @@ class YetaWF_BasicsServices {
      * @param collapsedId - The <div> to hide/show.
      * @param expandedId - The <div> to show/hide.
      */
-    public ExpandCollapse(divId: string, collapsedId: string, expandedId: string) {
+    public ExpandCollapse(divId: string, collapsedId: string, expandedId: string): void {
         var div: HTMLElement = document.querySelector(`#${divId}`) as HTMLElement;
         if (!div) throw `#${divId} not found`;/*DEBUG*/
         var collapsedDiv: HTMLElement = document.querySelector(`#${collapsedId}`) as HTMLElement;
@@ -295,20 +295,20 @@ class YetaWF_BasicsServices {
         var expandedDiv: HTMLElement = document.querySelector(`#${expandedId}`) as HTMLElement;
         if (!expandedDiv) throw `#${expandedId} not found`;/*DEBUG*/
 
-        var expLink: HTMLElement = div.querySelector('a[data-name="Expand"]') as HTMLElement;
+        var expLink: HTMLElement = div.querySelector("a[data-name='Expand']") as HTMLElement;
         if (!expLink) throw "a[data-name=\"Expand\"] not found";/*DEBUG*/
-        var collLink: HTMLElement = div.querySelector('a[data-name="Collapse"]') as HTMLElement;
+        var collLink: HTMLElement = div.querySelector("a[data-name='Collapse']") as HTMLElement;
         if (!collLink) throw "a[data-name=\"Expand\"] not found";/*DEBUG*/
 
         function expandHandler(event: Event): void {
-            collapsedDiv.style.display = 'none';
-            expandedDiv.style.display = '';
+            collapsedDiv.style.display = "none";
+            expandedDiv.style.display = "";
             // init any controls that just became visible
-            $(document).trigger('YetaWF_PropertyList_PanelSwitched', $(expandedDiv));
+            $(document).trigger("YetaWF_PropertyList_PanelSwitched", $(expandedDiv));
         }
         function collapseHandler(event: Event): void {
-            collapsedDiv.style.display = '';
-            expandedDiv.style.display = 'none';
+            collapsedDiv.style.display = "";
+            expandedDiv.style.display = "none";
         }
         expLink.addEventListener("click", expandHandler, false);
         collLink.addEventListener("click", collapseHandler, false);
