@@ -654,7 +654,7 @@ namespace YetaWF.Core.Site {
 
         [Category("Addons"), Caption("Geo Location"), Description("Defines whether the site collects geo location information from your visitors based on their IP address (if available)")]
         [UIHint("Boolean")]
-        [TextBelow(@"-<a href=""http://www.geoplugin.com/geolocation/"" target=""_blank"">IP Geolocation</a> by <a href=""http://www.geoplugin.com/"" target=""_blank"">geoPlugin</a> - By enabling geo location, you are accepting third parties&apos; terms and conditions")]
+        [TextBelow(@"-<a href=""http://www.geoplugin.com/geolocation/"" target=""_blank"" rel=""noopener noreferrer"">IP Geolocation</a> by <a href=""http://www.geoplugin.com/"" target=""_blank"">geoPlugin</a> - By enabling geo location, you are accepting third parties&apos; terms and conditions")]
         [HelpLink("http://www.geoplugin.com/geolocation/")]
         public bool UseGeoLocation { get; set; }
 

@@ -96,6 +96,7 @@ namespace YetaWF.Core.Views.Shared {
                     string imgUrl = FormatUrl(imageType, null, model, CacheBuster: CacheBuster, ForceHttpHandler: ForceHttpHandler);
                     link.MergeAttribute("href", imgUrl);
                     link.MergeAttribute("target", "_blank");
+                    link.MergeAttribute("rel", "noopener noreferrer");
                     link.SetInnerHtml(imgTag);
                     return link.ToHtmlString(TagRenderMode.Normal);
                 } else

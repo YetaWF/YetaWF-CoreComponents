@@ -88,6 +88,7 @@ namespace YetaWF.Core.Views.Shared {
                 TagBuilder tagA = new TagBuilder("a");
                 tagA.Attributes.Add("href", YetaWFManager.UrlEncodePath(helpLink));
                 tagA.Attributes.Add("target", "_blank");
+                tagA.MergeAttribute("rel", "noopener noreferrer");
                 tagA.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yt_extlabel_img"));
                 Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                 SkinImages skinImages = new SkinImages();

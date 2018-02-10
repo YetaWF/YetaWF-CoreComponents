@@ -215,14 +215,18 @@ namespace YetaWF.Core.Modules {
 
             if (Post)
                 tag.Attributes.Add(Basics.PostAttr, "");
-            if (DontFollow || CookieAsDoneSignal || Post || Nothing)
-                tag.Attributes.Add("rel", "nofollow"); // this is so bots don't follow this assuming it's a simple page (Post actions can't be retrieved with GET/HEAD anyway)
+            if (DontFollow || CookieAsDoneSignal || Post || Nothing) {
+                if (!NewWindow)
+                    tag.Attributes.Add("rel", "nofollow"); // this is so bots don't follow this assuming it's a simple page (Post actions can't be retrieved with GET/HEAD anyway)
+            }
             if (OuterWindow)
                 tag.Attributes.Add(Basics.CssOuterWindow, "");
             if (!Nothing)
                 tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Basics.CssActionLink));
-            if (NewWindow)
+            if (NewWindow) {
                 tag.MergeAttribute("target", "_blank");
+                tag.MergeAttribute("rel", "noopener noreferrer");
+            }
             if (Popup) {
                 tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Basics.CssPopupLink));
                 if (PopupEdit)
