@@ -73,6 +73,7 @@ namespace YetaWF.Core.DataProvider {
         /// <param name="type">The implemented data provider type.</param>
         /// <param name="getDP">A method that will create a data provider of the requested type.</param>
         public static void RegisterExternalDataProvider(string ioModeName, Type type, Type typeImpl) {
+            ioModeName = ioModeName.ToLower();
             ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.IOModeName == ioModeName && r.Type == type select r).FirstOrDefault();
             if (ext != null)
                 throw new InternalError($"External data provider for type {type.FullName} and IOMode {ioModeName} already registered");

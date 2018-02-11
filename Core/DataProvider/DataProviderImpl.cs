@@ -44,7 +44,7 @@ namespace YetaWF.Core.DataProvider {
 
         public const string DefaultString = "Default";
         public const string IOModeString = "IOMode";
-        private const string NoIOMode = "None";
+        private const string NoIOMode = "none";
 
         public const int IDENTITY_SEED = 1000;
 
@@ -81,7 +81,7 @@ namespace YetaWF.Core.DataProvider {
                 if (string.IsNullOrWhiteSpace(ioMode))
                     ioMode = _defaultIOMode;
             }
-            ExternalIOMode = ioMode;
+            ExternalIOMode = ioMode.ToLower();
 
             Options = new Dictionary<string, object>();
             if (Parms != null) {
