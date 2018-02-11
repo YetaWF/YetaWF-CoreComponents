@@ -1004,7 +1004,7 @@
                             <Description Value="Defines whether the site collects geo location information from your visitors based on their IP address (if available)" />
                             <HelpLink Value="http://www.geoplugin.com/geolocation/" />
                             <TextAbove />
-                            <TextBelow Value="-&lt;a href=&quot;http://www.geoplugin.com/geolocation/&quot; target=&quot;_blank&quot;&gt;IP Geolocation&lt;/a&gt; by &lt;a href=&quot;http://www.geoplugin.com/&quot; target=&quot;_blank&quot;&gt;geoPlugin&lt;/a&gt; - By enabling geo location, you are accepting third parties&amp;apos; terms and conditions" />
+                            <TextBelow Value="-&lt;a href=&quot;http://www.geoplugin.com/geolocation/&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;IP Geolocation&lt;/a&gt; by &lt;a href=&quot;http://www.geoplugin.com/&quot; target=&quot;_blank&quot;&gt;geoPlugin&lt;/a&gt; - By enabling geo location, you are accepting third parties&amp;apos; terms and conditions" />
                           </Properties>
                         </Object>
                       </Value>
