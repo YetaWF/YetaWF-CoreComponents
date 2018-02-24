@@ -2,22 +2,20 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
-using System.IO.Compression;
 #if MVC6
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using System.Text;
 using System.Threading.Tasks;
 #else
+using System.IO.Compression;
 using System.Web.Mvc;
 #endif
 

@@ -13,8 +13,6 @@ using YetaWF.Core.Identity;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
 #else
 using System.Web;
 using System.Web.Mvc;

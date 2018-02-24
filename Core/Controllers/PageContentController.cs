@@ -8,15 +8,11 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using System.Collections.Generic;
-using System.Linq;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Modules;
 #if MVC6
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
 #else
 using System.Web;
 using System.Web.Mvc;
