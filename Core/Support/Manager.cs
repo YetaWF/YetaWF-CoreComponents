@@ -1021,6 +1021,8 @@ namespace YetaWF.Core.Support {
         public string UserHostAddress {
             get {
                 if (!HaveCurrentRequest) return "";
+                string ip = CurrentRequest.Headers["X-Forwarded-For"];
+                if (!string.IsNullOrWhiteSpace(ip)) return ip;
 #if MVC6
                 IHttpConnectionFeature connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
                 if (connectionFeature != null)

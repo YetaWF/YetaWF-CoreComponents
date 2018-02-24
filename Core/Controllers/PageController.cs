@@ -61,6 +61,9 @@ namespace YetaWF.Core.Controllers {
             SiteDefinition site = Manager.CurrentSite;
             Uri uri = new Uri(Manager.CurrentRequestUrl);
 
+            // process logging type callbacks
+            PageLogging.HandleCallbacks(Manager.CurrentRequestUrl, false);
+
             // Mobile detection
             bool isMobile;
 #if MVC6

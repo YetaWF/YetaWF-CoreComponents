@@ -27,13 +27,9 @@ namespace YetaWF.Core.Support {
         }
 
         public UserInfo GetCurrentUserInfo() {
-            string ipAddress = Manager.UserHostAddress;
-#if DEBUG //REMOVE
-            // ipAddress = "123.125.71.33";
-#endif
-
             UserInfo info = Manager.SessionSettings.SiteSettings.GetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo");
             if (info == null) {
+                string ipAddress = Manager.UserHostAddress;
                 info = GetUserInfo(ipAddress);
                 // save what we got in session storage so we don't need to retrieve it again
                 Manager.SessionSettings.SiteSettings.SetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo", info);

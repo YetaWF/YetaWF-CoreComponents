@@ -191,11 +191,14 @@ namespace YetaWF.Core.Controllers {
                 throw new HttpException(404, string.Format("Url {0} not found", dataIn.Path));
 #endif
             }
-            if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
 
             Uri uri = new Uri(Manager.CurrentRequestUrl);
-
             SiteDefinition site = Manager.CurrentSite;
+
+            // process logging type callbacks
+            PageLogging.HandleCallbacks(dataIn.Path, false);
+
+            if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
 
             if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
                     Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
