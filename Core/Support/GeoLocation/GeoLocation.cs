@@ -8,6 +8,8 @@ namespace YetaWF.Core.Support {
     public class GeoLocation {
 
         public GeoLocation(YetaWFManager manager) { Manager = manager; }
+        public GeoLocation() { Manager = null; }
+
         protected YetaWFManager Manager { get; private set; }
 
         public class UserInfo {
@@ -27,6 +29,7 @@ namespace YetaWF.Core.Support {
         }
 
         public UserInfo GetCurrentUserInfo() {
+            if (Manager == null) throw new InternalError("Must initialize with Manager instance");
             UserInfo info = Manager.SessionSettings.SiteSettings.GetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo");
             if (info == null) {
                 string ipAddress = Manager.UserHostAddress;
