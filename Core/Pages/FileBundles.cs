@@ -139,7 +139,7 @@ namespace YetaWF.Core.Pages {
             return string.Format("/{0}/bundle{1}_{2}{3}", Globals.AddonsBundlesFolder, index, startLength, extension);
         }
 
-        private static readonly Regex varUrlRegex = new Regex("(?'pre'[ :]url\\()(?'path'[^\\)]+)", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex varUrlRegex = new Regex("(?'pre'[ :\\,]url\\()(?'path'[^\\)]+)", RegexOptions.Compiled | RegexOptions.Multiline);
 
         /// <summary>
         /// Process all url() definitions so we access the files in the correct location (the bundle is in a different location)
@@ -156,7 +156,7 @@ namespace YetaWF.Core.Pages {
             string pre = match.Groups["pre"].Value;
             string path = match.Groups["path"].Value;
             string pathStart = path.TrimStart();
-            if (pathStart.StartsWith("/") || pathStart.StartsWith("http"))
+            if (pathStart.StartsWith("/") || pathStart.StartsWith("http") || pathStart.StartsWith("https"))
                 return string.Format("{0}{1}", pre, path);
             if (pathStart.StartsWith("'") || pathStart.StartsWith("\""))
                 return string.Format("{0}{1}{2}/{3}", pre, pathStart.Substring(0, 1), filePath, pathStart.Substring(1));
