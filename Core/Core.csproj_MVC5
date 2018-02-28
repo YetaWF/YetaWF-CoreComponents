@@ -112,6 +112,7 @@
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Controllers\PageContentController.cs" />
     <Compile Include="Controllers\PageContentViewResult.cs" />
+    <Compile Include="Controllers\PageLogging.cs" />
     <Compile Include="Controllers\PageViewResult.cs" />
     <Compile Include="Controllers\Shared\ActionHelper.cs" />
     <Compile Include="Controllers\Shared\ControllerErrorHandlingFilterAttribute.cs" />
