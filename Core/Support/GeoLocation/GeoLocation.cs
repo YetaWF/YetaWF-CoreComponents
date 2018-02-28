@@ -51,6 +51,10 @@ namespace YetaWF.Core.Support {
             //    hostName = hostEntry.HostName;
             //} catch { }
 
+            // extract just IP address in case there is a port #
+            string[] s = ipAddress.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            ipAddress = s[0];
+
             info.IPAddress = ipAddress;
             //info.HostName = hostName;
 

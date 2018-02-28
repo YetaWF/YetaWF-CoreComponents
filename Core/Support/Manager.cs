@@ -1022,6 +1022,11 @@ namespace YetaWF.Core.Support {
             get {
                 if (!HaveCurrentRequest) return "";
                 string ip = CurrentRequest.Headers["X-Forwarded-For"];
+                // extract just IP address in case there is a port #
+                if (!string.IsNullOrWhiteSpace(ip)) {
+                    string[] s = ip.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    ip = s[0];
+                }
                 if (!string.IsNullOrWhiteSpace(ip)) return ip;
 #if MVC6
                 IHttpConnectionFeature connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
