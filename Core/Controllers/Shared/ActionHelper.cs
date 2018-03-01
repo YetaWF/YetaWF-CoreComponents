@@ -3,16 +3,13 @@
 #if MVC6
 
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
