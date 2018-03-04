@@ -9,7 +9,7 @@ namespace YetaWF.Core.Addons.Templates {
 
         public void AddSupport(YetaWFManager manager) {
 
-            RecaptchaV2Config config = RecaptchaV2Config.LoadRecaptchaV2Config().Result;
+            RecaptchaV2Config config = RecaptchaV2Config.LoadRecaptchaV2Config().Result;//$$$
             if (string.IsNullOrWhiteSpace(config.PublicKey))
                 throw new InternalError("The Recaptcha configuration settings are missing - no public key found");
 

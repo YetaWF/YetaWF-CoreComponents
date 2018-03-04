@@ -1758,8 +1758,38 @@ namespace YetaWF.Core.Support {
 
 #if MVC6
         public bool Sync { get { return false; } }
+
+        public class NeedSync : IDisposable {
+            private YetaWFManager Manager;
+            public NeedSync(YetaWFManager manager) {
+                Manager = manager;
+                DisposableTracker.AddObject(this);
+            }
+            public void Dispose() { Dispose(true); }
+            protected virtual void Dispose(bool disposing) {
+                if (disposing) DisposableTracker.RemoveObject(this);
+            }
+            //~NeedSync() { Dispose(false); }
+        }
 #else
-        public bool Sync { get { return true; } }
+        public bool Sync { get { return _syncCount > 0; } }
+
+        private int _syncCount = 0;
+
+        public class NeedSync : IDisposable {
+            private YetaWFManager Manager;
+            public NeedSync(YetaWFManager manager) {
+                Manager = manager;
+                Manager._syncCount++;
+                DisposableTracker.AddObject(this);
+            }
+            public void Dispose() { Dispose(true); }
+            protected virtual void Dispose(bool disposing) {
+                if (--Manager._syncCount < 0) Manager._syncCount = 0;
+                if (disposing) DisposableTracker.RemoveObject(this);
+            }
+            //~NeedSync() { Dispose(false); }
+        }
 #endif
     }
 }

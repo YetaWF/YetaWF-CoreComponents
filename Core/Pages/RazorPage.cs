@@ -159,7 +159,9 @@ namespace YetaWF.Core.Pages {
 #if MVC6
             CurrentPage.RenderPaneContents((IHtmlHelper<object>)GetHtml(), dataIn, model);
 #else
-            CurrentPage.RenderPaneContents((HtmlHelper<object>)GetHtml(), dataIn, model);
+            using (new YetaWFManager.NeedSync(Manager)) {
+                CurrentPage.RenderPaneContents((HtmlHelper<object>)GetHtml(), dataIn, model);
+            }
 #endif
             return null;
         }

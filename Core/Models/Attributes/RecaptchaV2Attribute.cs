@@ -45,11 +45,14 @@ namespace YetaWF.Core.Models.Attributes {
             if (string.IsNullOrWhiteSpace(response))
                 return new ValidationResult(ErrorMessage);
 
-            RecaptchaV2Config config = RecaptchaV2Config.LoadRecaptchaV2Config().Result;
+            RecaptchaV2Config config;
+            using (new YetaWFManager.NeedSync(Manager)) {
+                config = RecaptchaV2Config.LoadRecaptchaV2Config().Result;
+            }
             if (string.IsNullOrWhiteSpace(config.PublicKey) || string.IsNullOrWhiteSpace(config.PrivateKey))
                 throw new Error(__ResStr("errPrivateKey", "The RecaptchaV2 configuration settings are missing - no public/private key found"));
 
-            if (ValidateCaptcha(response, Manager.UserHostAddress))
+            if (ValidateCaptcha(config, response, Manager.UserHostAddress))
                 return ValidationResult.Success;
 
             return new ValidationResult(ErrorMessage);
@@ -59,9 +62,8 @@ namespace YetaWF.Core.Models.Attributes {
             public bool Success { get; set; }
             public List<string> ErrorCodes { get; set; }
         }
-        private bool ValidateCaptcha(string response, string ipAddress) {
+        private bool ValidateCaptcha(RecaptchaV2Config config, string response, string ipAddress) {
             using (WebClient client = new WebClient()) {
-                RecaptchaV2Config config = RecaptchaV2Config.LoadRecaptchaV2Config().Result;
                 if (string.IsNullOrWhiteSpace(config.PublicKey) || string.IsNullOrWhiteSpace(config.PrivateKey))
                     throw new InternalError("The public and/or private keys have not been configured for RecaptchaV2 handling");
                 string resp = client.DownloadString(string.Format("https://www.google.com/recaptcha/api/siteverify?secret={0}&response={1}&remoteIp={2}",

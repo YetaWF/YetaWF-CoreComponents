@@ -13,13 +13,13 @@ namespace YetaWF.Core.Pages {
         /// Used by Search to extract keywords from dynamically generated pages.
         /// </summary>
         /// <param name="addTermsForPage"></param>
-        void KeywordsForDynamicUrlsAsync(ISearchWords searchWords);
+        void KeywordsForDynamicUrls(ISearchWords searchWords);
     }
     public interface ISiteMapDynamicUrls {
         /// <summary>
         ///  Used to discover dynamic Urls to build a site map.
         /// </summary>
-        void FindDynamicUrlsAsync(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum, object> addDynamicUrl,
+        void FindDynamicUrls(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum, object> addDynamicUrl,
                 Func<PageDefinition, bool> validForSiteMap);
     }
 

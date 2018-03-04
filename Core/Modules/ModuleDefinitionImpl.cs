@@ -598,9 +598,11 @@ namespace YetaWF.Core.Modules {
                 else
                     moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
 #else
-                if (!string.IsNullOrEmpty(Area))
-                    rvd.Add("Area", Area);
-                moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+                using (new YetaWFManager.NeedSync(Manager)) {
+                    if (!string.IsNullOrEmpty(Area))
+                        rvd.Add("Area", Area);
+                    moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+                }
 #endif
             } catch (Exception exc) {
                 // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
@@ -692,9 +694,11 @@ namespace YetaWF.Core.Modules {
             else
                 moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
 #else
-            if (!string.IsNullOrEmpty(Area))
-                rvd.Add("Area", Area);
-            moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+            using (new YetaWFManager.NeedSync(Manager)) {
+                if (!string.IsNullOrEmpty(Area))
+                    rvd.Add("Area", Area);
+                moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+            }
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
