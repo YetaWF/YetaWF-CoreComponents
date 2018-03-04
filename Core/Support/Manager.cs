@@ -1751,5 +1751,15 @@ namespace YetaWF.Core.Support {
         // SITE TEMPLATES
 
         public bool SiteCreationTemplateActive { get; set; }
+
+        // ASYNC
+        // ASYNC
+        // ASYNC
+
+#if MVC6
+        public bool Sync { get { return false; } }
+#else
+        public bool Sync { get { return true; } }
+#endif
     }
 }
