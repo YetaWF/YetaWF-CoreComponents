@@ -118,4 +118,30 @@ namespace YetaWF.Core.DataProvider {
         Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
         Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList);
     }
+    public interface IDataProviderIdentityAsync<KEYTYPE, KEY2TYPE, OBJTYPE> {
+
+        DataProviderTransaction StartTransaction();
+        void CommitTransaction();
+        void AbortTransaction();
+
+        Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
+        Task<UpdateStatusEnum> UpdateAsync(KEYTYPE origKey, KEY2TYPE origKey2, KEYTYPE newKey, KEY2TYPE newKey2, OBJTYPE obj);
+        Task<UpdateStatusEnum> UpdateByIdentityAsync(int id, OBJTYPE obj);
+        Task<bool> RemoveAsync(KEYTYPE key, KEY2TYPE key2);// returns false if not found
+        Task<bool> RemoveByIdentityAsync(int id);// returns false if not found
+        Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo> filters); // returns # of records removed
+
+        Task<OBJTYPE> GetAsync(KEYTYPE key, KEY2TYPE key2); // returns null if not found
+        Task<OBJTYPE> GetByIdentityAsync(int id); // returns null if not found
+        Task<OBJTYPE> GetOneRecordAsync(List<DataProviderFilterInfo> filters, List<JoinData> Joins = null); // returns null if not found
+        Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, List<JoinData> Joins = null);
+
+        Task<bool> IsInstalledAsync();
+        Task<bool> InstallModelAsync(List<string> errorList);
+        Task<bool> UninstallModelAsync(List<string> errorList);
+        Task AddSiteDataAsync();
+        Task RemoveSiteDataAsync();
+        Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
+        Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList);
+    }
 }

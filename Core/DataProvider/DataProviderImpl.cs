@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -144,6 +145,32 @@ namespace YetaWF.Core.DataProvider {
         }
         public void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj) {
             GetDataProvider().ImportChunk(chunk, fileList, obj);
+        }
+
+        // IINSTALLABLEMODELASYNC
+        // IINSTALLABLEMODELASYNC
+        // IINSTALLABLEMODELASYNC
+
+        public Task<bool> IsInstalledAsync() {
+            return GetDataProvider().IsInstalledAsync();
+        }
+        public Task<bool> InstallModelAsync(List<string> errorList) {
+            return GetDataProvider().InstallModelAsync(errorList);
+        }
+        public Task AddSiteDataAsync() {
+            return GetDataProvider().AddSiteDataAsync();
+        }
+        public Task RemoveSiteDataAsync() {
+            return GetDataProvider().RemoveSiteDataAsync();
+        }
+        public Task<bool> UninstallModelAsync(List<string> errorList) {
+            return GetDataProvider().UninstallModelAsync(errorList);
+        }
+        public Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList) {
+            return GetDataProvider().ExportChunkAsync(chunk, fileList);
+        }
+        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj) {
+            return GetDataProvider().ImportChunk(chunk, fileList, obj);
         }
 
         // IMAGE HANDLING
