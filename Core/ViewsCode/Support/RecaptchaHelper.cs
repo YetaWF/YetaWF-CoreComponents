@@ -5,6 +5,7 @@ using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -64,8 +65,8 @@ namespace YetaWF.Core.Views.Shared {
         }
 
         // These must be provided during app startup
-        public static Func<RecaptchaConfig> LoadRecaptchaConfig { get; set; }
-        public static Action<RecaptchaConfig> SaveRecaptchaConfig { get; set; }
+        public static Func<Task<RecaptchaConfig>> LoadRecaptchaConfig { get; set; }
+        public static Func<RecaptchaConfig, Task> SaveRecaptchaConfig { get; set; }
     }
 
     public class Recaptcha<TModel> : RazorTemplate<TModel> { }
