@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Menus;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
@@ -20,7 +21,7 @@ namespace YetaWF.Core.Modules {
 
     public partial class ModuleDefinition {
 
-        public virtual MenuList GetModuleMenuList(ModuleAction.RenderModeEnum renderMode, ModuleAction.ActionLocationEnum location) {
+        public virtual Task<MenuList> GetModuleMenuListAsync(ModuleAction.RenderModeEnum renderMode, ModuleAction.ActionLocationEnum location) {
 
             MenuList moduleMenu = new MenuList() { RenderMode = renderMode };
 
@@ -89,7 +90,6 @@ namespace YetaWF.Core.Modules {
                         moduleMenu.New(action, location);
                     }
                 }
-
             }
 
             if (!this.Temporary) {
@@ -111,14 +111,16 @@ namespace YetaWF.Core.Modules {
                     if (!Manager.IsInPopup || (action.Location & ModuleAction.ActionLocationEnum.InPopup) != 0)
                         moduleMenu.New(action, location);
             }
-            return moduleMenu;
+            return Task.FromResult(moduleMenu);
         }
 
         public HtmlString RenderModuleMenu() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            MenuList moduleMenu = GetModuleMenuList(ModuleAction.RenderModeEnum.NormalMenu, ModuleAction.ActionLocationEnum.ModuleMenu);
+            MenuList moduleMenu = Manager.Syncify(async () =>
+                await GetModuleMenuListAsync(ModuleAction.RenderModeEnum.NormalMenu, ModuleAction.ActionLocationEnum.ModuleMenu)
+            );
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleMenu).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
@@ -163,7 +165,9 @@ namespace YetaWF.Core.Modules {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            MenuList moduleMenu = GetModuleMenuList(renderMode, ModuleAction.ActionLocationEnum.ModuleLinks);
+            MenuList moduleMenu = Manager.Syncify(async () =>
+                await GetModuleMenuListAsync(renderMode, ModuleAction.ActionLocationEnum.ModuleLinks)
+            );
 
             string menuContents = moduleMenu.Render(null, null, Globals.CssModuleLinks).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))

@@ -96,7 +96,7 @@ namespace YetaWF.Core.Identity {
         int GetRoleId(string roleName);
 
         ModuleAction GetSelectTwoStepAction(int userId, string userName, string email);
-        ModuleAction GetForceTwoStepActionSetup(string url);
+        Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url);
         void ShowNeed2FA();
 
         //$$List<string> GetEnabledTwoStepAuthentications(int userId);

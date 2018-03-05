@@ -364,7 +364,7 @@ namespace YetaWF.Core.Controllers {
             if (Manager.Need2FA) {
                 if (Manager.Need2FARedirect) {
                     Logging.AddLog("Two-step authentication setup required");
-                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null);
+                    ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null);
                     Manager.Need2FARedirect = false;
                     Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
                     Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup

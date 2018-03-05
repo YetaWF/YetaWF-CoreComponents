@@ -247,7 +247,9 @@ namespace YetaWF.Core.Pages {
 #else
         public override void ExecutePageHierarchy() {
             BeginRender(null);
-            base.ExecutePageHierarchy();
+            using (new YetaWFManager.NeedSync(Manager)) { // rendering needs to be sync (for templates)
+                base.ExecutePageHierarchy();
+            }
             EndRender(null);
         }
 #endif
