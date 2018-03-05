@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.IO {
@@ -16,14 +17,21 @@ namespace YetaWF.Core.IO {
         class LockedObject {
             public string Name;
             public int UseCount;
+            public AsyncLock Lock;
+            public LockedObject() {
+                Lock = new AsyncLock();
+            }
         };
 
         private static readonly Dictionary<string, LockedObject> _locks = new Dictionary<string, LockedObject>();
+        private static AsyncLock _lockObject = new AsyncLock();
 
         public static void DoAction(string s, Action action) {
+
             LockedObject obj = null;
+
             // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
-            lock (_locks) {
+            using (_lockObject.Lock()) {
                 if (!_locks.TryGetValue(s, out obj)) {
                     obj = new LockedObject { Name=s, UseCount=1 };
                     _locks.Add(s, obj);
@@ -31,11 +39,39 @@ namespace YetaWF.Core.IO {
                     obj.UseCount++;
                 }
             }
-            lock (obj) {
+            using (obj.Lock.Lock()) {
                 action();
             }
             // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
-            lock (_locks) {
+            using (_lockObject.Lock()) {
+                obj = null;
+                if (!_locks.TryGetValue(s, out obj))
+                    throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
+                --obj.UseCount;
+                if (obj.UseCount <= 0) {
+                    _locks.Remove(s);
+                }
+            }
+        }
+
+        public static async Task DoActionAsync(string s, Action action) {
+
+            LockedObject obj = null;
+
+            // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
+            using (await _lockObject.LockAsync()) {
+                if (!_locks.TryGetValue(s, out obj)) {
+                    obj = new LockedObject { Name = s, UseCount = 1 };
+                    _locks.Add(s, obj);
+                } else {
+                    obj.UseCount++;
+                }
+            }
+            using (await obj.Lock.LockAsync()) {
+                action();
+            }
+            // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
+            using (await _lockObject.LockAsync()) {
                 obj = null;
                 if (!_locks.TryGetValue(s, out obj))
                     throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -20,9 +21,9 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Menus {
 
-    public interface IModuleMenu {
-        MenuList GetMenu();
-        void SaveMenu(MenuList newMenu);
+    public interface IModuleMenuAsync {
+        Task<MenuList> GetMenuAsync();
+        Task SaveMenuAsync(MenuList newMenu);
     }
 
     [Serializable]

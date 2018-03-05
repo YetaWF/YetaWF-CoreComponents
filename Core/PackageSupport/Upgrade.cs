@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
@@ -62,7 +63,7 @@ namespace YetaWF.Core.Packages {
         ///
         /// A log file recording all upgrade activity is saved at .\Website\Data\UpgradeLogFile.txt
         /// </remarks>
-        public static void UpgradeToNewPackages() {
+        public static async Task UpgradeToNewPackagesAsync() {
 
             if (SiteDefinition.INITIAL_INSTALL) return;
             if (YetaWFManager.Manager.Deployed && !MustUpgrade()) return;
@@ -80,7 +81,7 @@ namespace YetaWF.Core.Packages {
             YetaWFManager.Manager.CurrentSite = site;
 
             try {
-                UpgradePackages();
+                await UpgradePackagesAsync();
             } catch (Exception) {
                 throw;
             } finally {
@@ -121,7 +122,7 @@ namespace YetaWF.Core.Packages {
             return Path.Combine(rootFolder, Globals.UpdateIndicatorFile);
         }
 
-        private static void UpgradePackages() {
+        private static async Task UpgradePackagesAsync() {
 
             Logging.AddLog("Upgrading to new packages");
 
@@ -180,12 +181,12 @@ namespace YetaWF.Core.Packages {
                 PackageInfo info = (from p in list where p.Name == package.Name select p).FirstOrDefault();
                 if (info == null) {
                     // new package
-                    InstallSiteTemplate(package, null);
+                    await InstallSiteTemplateAsync(package, null);
                 } else {
                     int cmp = Package.CompareVersion(info.Version, package.Version);
                     if (cmp < 0) {
                         // upgraded package
-                        InstallSiteTemplate(package, info.Version);
+                        await InstallSiteTemplateAsync(package, info.Version);
                     } else if (cmp > 0) {
                         // Woah, you can't downgrade
                         throw new InternalError("Found package {0},{1} which is a lower version than the previous version {2}", package.Name, package.Version, info.Version);
@@ -271,7 +272,7 @@ namespace YetaWF.Core.Packages {
         /// For new packages all templates for the package are run. For packages that where previously seen (with an older version),
         /// all templates with a newer version are executed.
         /// </remarks>
-        private static void InstallSiteTemplate(Package package, string lastSeenVersion) {
+        private static async Task InstallSiteTemplateAsync(Package package, string lastSeenVersion) {
             string rootFolder;
 #if MVC6
             rootFolder = YetaWFManager.RootFolderWebProject;
@@ -301,13 +302,13 @@ namespace YetaWF.Core.Packages {
                 if (installTemplate) {
                     // execute this template via built-in command (implemented by the YetaWF.Package package)
                     Logging.AddLog("Executing site template {0}", template);
-                    Action<QueryHelper> action = BuiltinCommands.Find("/$processtemplate", checkAuthorization: false);
+                    Func<QueryHelper, Task> action = BuiltinCommands.Find("/$processtemplate", checkAuthorization: false);
                     if (action == null)
                         throw new InternalError("Built-in command /$processtemplate not found");
                     QueryHelper qs = new QueryHelper();
                     qs["Template"] = template + ".txt";
                     try {
-                        action(qs);
+                        await action(qs);
                     } catch (Exception exc) {
                         // errors in site templates are logged but will not end the upgrade process
                         Logging.AddErrorLog("An error occurred executing site template {0}", template, exc);
