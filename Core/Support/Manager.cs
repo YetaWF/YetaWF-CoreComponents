@@ -20,6 +20,7 @@ using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Skins;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -1791,5 +1792,15 @@ namespace YetaWF.Core.Support {
             //~NeedSync() { Dispose(false); }
         }
 #endif
+        public TYPE Syncify<TYPE>(Func<Task<TYPE>> func) {
+            using (new NeedSync(this)) {
+                return func().Result;
+            }
+        }
+        public void Syncify(Func<Task> func) {
+            using (new NeedSync(this)) {
+                func().Wait();
+            }
+        }
     }
 }

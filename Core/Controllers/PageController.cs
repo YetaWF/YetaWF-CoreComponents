@@ -10,6 +10,7 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Identity;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,8 +46,8 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="__path">The local Url requested.</param>
         /// <returns></returns>
-        [AllowHttp("GET","HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
-        public ActionResult Show(string __path) {
+        [AllowHttp("GET", "HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
+        public async Task<ActionResult> Show(string __path) {
             // We come here for ANY page request (GET, HEAD only)
 
             if (!YetaWFManager.HaveManager) {
@@ -265,7 +266,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // set up all info, like who is logged on, popup, origin list, etc.
-            YetaWFController.SetupEnvironmentInfo();
+            await YetaWFController.SetupEnvironmentInfoAsync();
 
             Logging.AddLog("Page");
 

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
@@ -167,7 +168,9 @@ namespace YetaWF.Core.Controllers {
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
-            SetupEnvironmentInfo();
+            using (new YetaWFManager.NeedSync(Manager)) {
+                SetupEnvironmentInfoAsync().Wait();
+            }
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {
                 MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
@@ -206,11 +209,13 @@ namespace YetaWF.Core.Controllers {
         // This is handled in ResourceAuthorizeHandler
 #else
         protected override void OnAuthentication(AuthenticationContext filterContext) {
-            SetupEnvironmentInfo();
+            using (new YetaWFManager.NeedSync(Manager)) {
+                SetupEnvironmentInfoAsync().Wait();
+            }
             base.OnAuthentication(filterContext);
         }
 #endif
-        public static void SetupEnvironmentInfo() {
+        public static async Task SetupEnvironmentInfoAsync() {
 
             if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled
                 GetCharSize();
@@ -220,7 +225,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.EditMode = GetTempEditMode();
 
                 // determine user identity - authentication provider updates Manager with user information
-                Resource.ResourceAccess.ResolveUser();
+                await Resource.ResourceAccess.ResolveUserAsync();
                 // get user's default language
                 Manager.GetUserLanguage();
                 // only now can we enable resource loading

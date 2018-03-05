@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
@@ -69,20 +70,20 @@ namespace YetaWF.Core.Identity {
 
         bool IsBackDoorWideOpen();
         void ShutTheBackDoor();
-        void ResolveUser();
-        void Logoff();
-        void LoginAs(int userId);
+        Task ResolveUserAsync();
+        Task LogoffAsync();
+        Task LoginAsAsync(int userId);
 
         bool IsResourceAuthorized(string resourceName);
 
-        void AddRole(string roleName, string description);
-        void RemoveRole(string roleName);
-        void AddRoleToUser(int userId, string roleName);
-        void RemoveRoleFromUser(int userId, string roleName);
+        //$$Task AddRoleAsync(string roleName, string description);
+        //$$void RemoveRole(string roleName);
+        Task AddRoleToUserAsync(int userId, string roleName);
+        Task RemoveRoleFromUserAsync(int userId, string roleName);
 
-        int GetUserId(string userName);
-        string GetUserName(int userId);
-        string GetUserEmail(int userId);
+        Task<int> GetUserIdAsync(string userName);
+        Task<string> GetUserNameAsync(int userId);
+        Task<string> GetUserEmailAsync(int userId);
         int GetSuperuserId();
         List<RoleInfo> GetDefaultRoleList(bool Exclude2FA = false);
         List<User> GetDefaultUserList();
@@ -98,13 +99,13 @@ namespace YetaWF.Core.Identity {
         ModuleAction GetForceTwoStepActionSetup(string url);
         void ShowNeed2FA();
 
-        List<string> GetEnabledTwoStepAuthentications(int userId);
-        void SetEnabledTwoStepAuthentications(int userId, List<string> auths);
-        void AddEnabledTwoStepAuthentication(int userId, string auth);
-        void RemoveEnabledTwoStepAuthentication(int userId, string auth);
-        bool HasEnabledTwoStepAuthentication(int userId, string auth);
-        void AddTwoStepLoginFailure();
-        bool GetTwoStepLoginFailuresExceeded();
+        //$$List<string> GetEnabledTwoStepAuthentications(int userId);
+        //$$$void SetEnabledTwoStepAuthenticationsAsync(int userId, List<string> auths);
+        Task AddEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task RemoveEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task AddTwoStepLoginFailureAsync();
+        Task<bool> GetTwoStepLoginFailuresExceededAsync();
     }
 
     public static class Resource {

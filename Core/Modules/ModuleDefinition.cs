@@ -521,7 +521,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             public void SetUser(int userId) {
                 DisplayUserId = UserId = userId;
                 View = AllowedEnum.Yes;
-                DisplayUserName = Resource.ResourceAccess.GetUserName(userId);
+                DisplayUserName = Manager.Syncify<string>(() => Resource.ResourceAccess.GetUserNameAsync(userId));//$$$what to do
             }
             public GridAllowedUser() { }
         }

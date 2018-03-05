@@ -8,6 +8,7 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Modules;
@@ -177,7 +178,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="path">The local Url requested.</param>
         /// <returns></returns>
         [AllowGet]
-        public ActionResult Show([FromBody] DataIn dataIn) {
+        public async Task<ActionResult> Show([FromBody] DataIn dataIn) {
 
             dataIn.Path = YetaWFManager.UrlDecodePath(dataIn.Path);
             if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
@@ -294,7 +295,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // set up all info, like who is logged on, popup, origin list, etc.
-            YetaWFController.SetupEnvironmentInfo();
+            await YetaWFController.SetupEnvironmentInfoAsync();
 
             Logging.AddLog("Page Content");
 

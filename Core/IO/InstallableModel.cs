@@ -93,6 +93,6 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Upgrades all required files/folders/SQL data from lastSeenVersion to current package version.
         /// </summary>
-        Task<bool> UpgradeModel(List<string> errorList, string lastSeenVersion);
+        Task<bool> UpgradeModelAsync(List<string> errorList, string lastSeenVersion);
     }
 }
