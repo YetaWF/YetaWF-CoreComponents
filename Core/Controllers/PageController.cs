@@ -324,19 +324,20 @@ namespace YetaWF.Core.Controllers {
                         return new EmptyResult();
 #endif
                     }
-                    pageFound = PageDefinition.LoadFromUrl(url);
+                    pageFound = await PageDefinition.LoadFromUrlAsync(url);
                 } else {
-                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, uri.Query, out newUrl, out newQs);
+                    PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, uri.Query);
+                    PageDefinition page = pageInfo.Page;
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
-                        if (newUrl != url) {
-                            Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
+                        if (pageInfo.NewUrl != url) {
+                            Logging.AddTraceLog("Server.TransferRequest - {0}", pageInfo.NewUrl);
 #if MVC6
                             HttpContext.Request.Path = newUrl;
                             HttpContext.Request.QueryString = new QueryString(newQs);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                            Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
+                            Server.TransferRequest(QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS));
                             return new EmptyResult();
 #endif
                         }
@@ -373,7 +374,7 @@ namespace YetaWF.Core.Controllers {
                 Resource.ResourceAccess.ShowNeed2FA();
             }
             if (pageFound != null) {
-                switch (CanProcessAsDesignedPage(pageFound, uri.LocalPath, uri.Query)) {
+                switch (await CanProcessAsDesignedPageAsync(pageFound, uri.LocalPath, uri.Query)) {
                     case ProcessingStatus.Complete:
                         return new EmptyResult();
                     case ProcessingStatus.Page:
@@ -409,7 +410,7 @@ namespace YetaWF.Core.Controllers {
 
             // display 404 error page if one is defined
             if (!string.IsNullOrWhiteSpace(site.NotFoundUrl)) {
-                PageDefinition page = PageDefinition.LoadFromUrl(site.NotFoundUrl);
+                PageDefinition page = await PageDefinition.LoadFromUrlAsync(site.NotFoundUrl);
                 if (page != null) {
                     Manager.CurrentPage = page;// Found It!!
                     if (Manager.IsHeadRequest) {
@@ -457,12 +458,12 @@ namespace YetaWF.Core.Controllers {
             }
             return false;
         }
-        private ProcessingStatus CanProcessAsDesignedPage(PageDefinition page, string url, string queryString) {
+        private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, string url, string queryString) {
             // request for a designed page
             if (!Manager.EditMode) { // only redirect if we're not editing
                 if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                     if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                        PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                        PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                         if (redirectPage != null) {
                             if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                                 string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
@@ -497,7 +498,7 @@ namespace YetaWF.Core.Controllers {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                 if (!Manager.EditMode) { // only redirect if we're not editing
                     if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                        PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                        PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                         if (mobilePage != null) {
                             if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                                 string redirUrl = page.MobilePageUrl;

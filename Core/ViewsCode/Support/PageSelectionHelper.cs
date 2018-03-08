@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
@@ -41,9 +42,9 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static HtmlString RenderPageSelectionLink(this IHtmlHelper htmlHelper, Guid? pageGuid) {
+        public static async Task<HtmlString> HtmlString RenderPageSelectionLinkAsync(this IHtmlHelper htmlHelper, Guid? pageGuid) {
 #else
-        public static HtmlString RenderPageSelectionLink(this HtmlHelper htmlHelper, Guid? pageGuid) {
+        public static async Task<HtmlString> RenderPageSelectionLinkAsync(this HtmlHelper htmlHelper, Guid? pageGuid) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -52,7 +53,7 @@ namespace YetaWF.Core.Views.Shared {
 
             PageDefinition page = null;
             if (pageGuid != null)
-                page = PageDefinition.Load((Guid)pageGuid);
+                page = await PageDefinition.LoadAsync((Guid)pageGuid);
 
             tag.MergeAttribute("href", (page != null ? page.EvaluatedCanonicalUrl : ""));
             tag.MergeAttribute("target", "_blank");

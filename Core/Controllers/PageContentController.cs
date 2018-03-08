@@ -269,19 +269,20 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
-                        pageFound = PageDefinition.LoadFromUrl(url);
+                        pageFound = await PageDefinition.LoadFromUrlAsync(url);
                     } else {
                         PageContentResult cr = new PageContentResult();
                         cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                         return cr;
                     }
                 } else {
-                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, dataIn.QueryString, out newUrl, out newQs);
+                    PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, dataIn.QueryString);
+                    PageDefinition page = pageInfo.Page;
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
-                        if (newUrl != url) {
+                        if (pageInfo.NewUrl != url) {
                             PageContentResult cr = new PageContentResult();
-                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
+                            cr.Result.RedirectContent = QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS);
                             return cr;
                         }
                         pageFound = page;
@@ -322,7 +323,7 @@ namespace YetaWF.Core.Controllers {
             // Process the page
             if (pageFound != null) {
                 PageContentResult cr = new PageContentResult();
-                switch (CanProcessAsDesignedPage(pageFound, dataIn, cr)) {
+                switch (await CanProcessAsDesignedPageAsync(pageFound, dataIn, cr)) {
                     case ProcessingStatus.Complete:
                         return cr;
                     case ProcessingStatus.Page:
@@ -372,7 +373,7 @@ namespace YetaWF.Core.Controllers {
         //    }
         //    return false;
         //}
-        private ProcessingStatus CanProcessAsDesignedPage(PageDefinition page, DataIn dataIn, PageContentResult cr) {
+        private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, DataIn dataIn, PageContentResult cr) {
             // request for a designed page
             if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                 if (page.UnifiedSetGuid != null) {
@@ -410,7 +411,7 @@ namespace YetaWF.Core.Controllers {
             }
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                 if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                    PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                    PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                     if (redirectPage != null) {
                         if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                             string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
@@ -433,7 +434,7 @@ namespace YetaWF.Core.Controllers {
             if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                 if (dataIn.IsMobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                    PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                    PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                     if (mobilePage != null) {
                         if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                             string redirUrl = page.MobilePageUrl;

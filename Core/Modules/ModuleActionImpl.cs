@@ -338,7 +338,7 @@ namespace YetaWF.Core.Modules {
                 if (url.StartsWith("/")) {
                     if (Manager.UserAuthorizedUrls != null && Manager.UserAuthorizedUrls.Contains(url)) return true;
                     if (Manager.UserNotAuthorizedUrls != null && Manager.UserNotAuthorizedUrls.Contains(url)) return false;
-                    PageDefinition page = PageDefinition.LoadFromUrl(url);
+                    PageDefinition page = await PageDefinition.LoadFromUrlAsync(url);
                     if (page != null) {
                         PageSecurity = page.PageSecurity;
                         if (Manager.EditMode)

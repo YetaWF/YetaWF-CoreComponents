@@ -5,7 +5,7 @@
         @Html.RenderPageSelectionDD("", Model)
     </div>
     <div class="t_link">
-        @Html.RenderPageSelectionLink(Model)
+        @Html.RenderPageSelectionLinkAsync(Model).Result
     </div>
     <div class="t_description">
     </div>

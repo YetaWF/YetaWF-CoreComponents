@@ -376,7 +376,7 @@ namespace YetaWF.Core.Modules {
         public async Task SaveAsync() {
             if (Temporary) throw new InternalError("Temporary modules cannot be saved");
             await SaveModuleDefinitionAsync(this, DataProvider);
-            List<PageDefinition> pages = PageDefinition.GetPagesFromModule(ModuleGuid);
+            List<PageDefinition> pages = await PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
             YetaWFManager.Manager.StaticPageManager.RemovePages(pages);
         }
         // Used to update properties before a module is saved
@@ -1010,7 +1010,7 @@ namespace YetaWF.Core.Modules {
         public List<PageDefinition> Pages {
             get {
                 if (_pages == null)
-                    _pages = PageDefinition.GetPagesFromModule(ModuleGuid);
+                    _pages = PageDefinition.GetPagesFromModuleAsync(ModuleGuid).Result;
                 return _pages;
             }
         }
