@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Threading.Tasks;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 
@@ -19,7 +20,7 @@ namespace YetaWF.Core.Search {
         /// Prepares to add new search terms for the specified Url.
         /// </summary>
         /// <returns>true if the Url is eligible, false otherwise.</returns>
-        bool SetUrl(string url, PageDefinition.PageSecurityType pageSecurity, MultiString title, MultiString summary, DateTime dateCreated, DateTime? dateUpdated, bool allowAnonymous, bool allowUser);
+        Task<bool> SetUrlAsync(string url, PageDefinition.PageSecurityType pageSecurity, MultiString title, MultiString summary, DateTime dateCreated, DateTime? dateUpdated, bool allowAnonymous, bool allowUser);
         /// <summary>
         /// Adds the specified data as search terms for the current Url.
         /// </summary>
@@ -41,6 +42,6 @@ namespace YetaWF.Core.Search {
         /// Saves the search terms processed for the current Url.
         /// </summary>
         /// <remarks>Once Save() is called, a new Url can be processed after calls to WantPage/SetUrl.</remarks>
-        void Save();
+        Task SaveAsync();
     }
 }
