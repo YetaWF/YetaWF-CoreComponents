@@ -291,7 +291,7 @@ namespace YetaWF.Core.Views {
             if (Module.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
                 foreach (FormButton button in buttons) {
-                    hb.Append(button.Render());
+                    hb.Append(button.RenderAsync().Result);//$$$$
                 }
                 hb.Append("</div>");
             }

@@ -2,6 +2,6 @@
 @inherits YetaWF.Core.Views.Shared.IPAddress<System.String>
 @if (!string.IsNullOrWhiteSpace(Model)) {
     <div class="yt_ipaddress t_display">
-        @Html.RenderIPAddressDisplay("", Model)
+        @Html.RenderIPAddressDisplayAsync("", Model).Result
     </div>
 }

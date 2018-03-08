@@ -111,7 +111,7 @@ namespace YetaWF.Core.Support {
         //}
 
         public async Task<IDisposable> LockAsync() {
-            if (YetaWFManager.Manager.Sync) {
+            if (YetaWFManager.IsSync()) {
                 return IntLock();
             } else {
                 return await IntLockAsync();

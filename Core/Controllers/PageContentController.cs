@@ -252,9 +252,9 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
-                        ModuleDefinition module = ModuleDefinition.FindDesignedModule(dataIn.Path);
+                        ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
                         if (module == null)
-                            module = ModuleDefinition.LoadByUrl(dataIn.Path);
+                            module = await ModuleDefinition.LoadByUrlAsync(dataIn.Path);
                         moduleFound = module;
                     } else {
                         PageContentResult cr = new PageContentResult();

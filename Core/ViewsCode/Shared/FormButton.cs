@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
@@ -44,14 +45,14 @@ namespace YetaWF.Core.Views.Shared {
             Action = action;
             RenderAs = renderAs;
         }
-        public HtmlString Render() {
+        public async Task<HtmlString> RenderAsync() {
             if (ButtonType == ButtonTypeEnum.Empty)
                 return HtmlStringExtender.Empty;
             if (Action != null) {
                 if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
-                    return Action.RenderAsIcon();
+                    return await Action.RenderAsIconAsync();
                 else
-                    return Action.RenderAsButton();
+                    return await Action.RenderAsButtonAsync();
             } else {
                 TagBuilder tag = new TagBuilder("input");
 

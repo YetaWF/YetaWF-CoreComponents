@@ -1758,7 +1758,7 @@ namespace YetaWF.Core.Support {
         // ASYNC
 
 #if MVC6
-        public bool Sync { get { return false; } }
+        public static bool IsSync() { return false; }
 
         public class NeedSync : IDisposable {
             private YetaWFManager Manager;
@@ -1773,8 +1773,10 @@ namespace YetaWF.Core.Support {
             //~NeedSync() { Dispose(false); }
         }
 #else
-        public bool Sync { get { return _syncCount > 0; } }
-
+        public static bool IsSync() {
+            if (YetaWFManager.HaveManager) return YetaWFManager.Manager._syncCount > 0;
+            return false;
+        }
         private int _syncCount = 0;
 
         public class NeedSync : IDisposable {

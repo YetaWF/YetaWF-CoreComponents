@@ -10,7 +10,7 @@
     if (Model != null && Model.Count > 0) {
         <div class="yt_moduleactions t_display">
             @foreach (YetaWF.Core.Modules.ModuleAction a in Model) {
-                @a.Render(render)
+                @a.RenderAsync(render).Result
             }
         </div>
     }

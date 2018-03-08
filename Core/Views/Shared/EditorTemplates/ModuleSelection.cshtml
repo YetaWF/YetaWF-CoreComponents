@@ -12,11 +12,11 @@
     }
     <div class="t_packages">
         @Html.RenderExtLabel(__ResStr("lblPackages", "Packages"), ToolTip: __ResStr("lblPackagesTT", "Select one of the installed packages to list all available modules for the package"))
-        @Html.RenderModuleSelectionPackages("Packages", newMods, Model)
+        @Html.RenderModuleSelectionPackagesAsync("Packages", newMods, Model).Result
     </div>
     <div class="t_select">
         @Html.RenderExtLabel(__ResStr("lblModule", "Module"), ToolTip: __ResStr("lblModuleTT", "Select one of the available modules"))
-        @Html.RenderModuleSelection("", newMods, Model)
+        @Html.RenderModuleSelectionAsync("", newMods, Model).Result
     </div>
     <div class="t_link">
         @Html.RenderModuleSelectionLink(Model)

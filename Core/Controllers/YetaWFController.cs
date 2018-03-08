@@ -522,7 +522,9 @@ namespace YetaWF.Core.Controllers {
                     } finally {
                         Manager.InPartialView = inPartialView;
                     }
-                    viewHtml = PostRender(htmlHelper, context, viewHtml);
+                    using (new YetaWFManager.NeedSync(Manager)) {
+                        viewHtml = PostRenderAsync(htmlHelper, context, viewHtml).Result;
+                    }
                 }
 #endif
                 if (Gzip) {
@@ -553,9 +555,9 @@ namespace YetaWF.Core.Controllers {
 #endif
 
 #if MVC6
-            private string PostRender(IHtmlHelper htmlHelper, ActionContext context, string viewHtml)
+            private async Task<string> PostRenderAsync(IHtmlHelper htmlHelper, ActionContext context, string viewHtml)
 #else
-            private string PostRender(HtmlHelper htmlHelper, ControllerContext context, string viewHtml)
+            private async Task<string> PostRenderAsync(HtmlHelper htmlHelper, ControllerContext context, string viewHtml)
 #endif
             {
 #if MVC6
@@ -576,7 +578,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Module.ReferencedModules);
-                    viewHtml = viewHtml + htmlHelper.RenderReferencedModule_Ajax().ToString();
+                    viewHtml = viewHtml + (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
                     viewHtml = YetaWF.Core.Views.RazorViewExtensions.PostProcessViewHtml(htmlHelper, Module, viewHtml);
 
                     Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };

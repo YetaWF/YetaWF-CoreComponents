@@ -54,30 +54,37 @@ namespace YetaWF.Core.IO {
             }
         }
 
-        public static async Task DoActionAsync(string s, Action action) {
+        public static async Task DoActionAsync(string s, Func<Task> action) {
 
-            LockedObject obj = null;
+            if (YetaWFManager.IsSync()) {
+                DoAction(s, () => {
+                    action().Wait();
+                });
+            } else {
 
-            // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
-            using (await _lockObject.LockAsync()) {
-                if (!_locks.TryGetValue(s, out obj)) {
-                    obj = new LockedObject { Name = s, UseCount = 1 };
-                    _locks.Add(s, obj);
-                } else {
-                    obj.UseCount++;
+                LockedObject obj = null;
+
+                // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
+                using (await _lockObject.LockAsync()) {
+                    if (!_locks.TryGetValue(s, out obj)) {
+                        obj = new LockedObject { Name = s, UseCount = 1 };
+                        _locks.Add(s, obj);
+                    } else {
+                        obj.UseCount++;
+                    }
                 }
-            }
-            using (await obj.Lock.LockAsync()) {
-                action();
-            }
-            // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
-            using (await _lockObject.LockAsync()) {
-                obj = null;
-                if (!_locks.TryGetValue(s, out obj))
-                    throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
-                --obj.UseCount;
-                if (obj.UseCount <= 0) {
-                    _locks.Remove(s);
+                using (await obj.Lock.LockAsync()) {
+                    await action();
+                }
+                // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
+                using (await _lockObject.LockAsync()) {
+                    obj = null;
+                    if (!_locks.TryGetValue(s, out obj))
+                        throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
+                    --obj.UseCount;
+                    if (obj.UseCount <= 0) {
+                        _locks.Remove(s);
+                    }
                 }
             }
         }

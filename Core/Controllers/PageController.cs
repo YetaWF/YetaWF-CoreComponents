@@ -307,9 +307,9 @@ namespace YetaWF.Core.Controllers {
                         return new EmptyResult();
 #endif
                     }
-                    ModuleDefinition module = ModuleDefinition.FindDesignedModule(url);
+                    ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
                     if (module == null)
-                        module = ModuleDefinition.LoadByUrl(url);
+                        module = await ModuleDefinition.LoadByUrlAsync(url);
                     moduleFound = module;
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);

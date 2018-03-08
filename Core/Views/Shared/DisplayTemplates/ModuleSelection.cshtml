@@ -1,5 +1,5 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.ModuleSelection<Guid?>
 <div class="yt_moduleselection t_display">
-    @Html.RenderModuleSelectionDisplay("", Model)
+    @Html.RenderModuleSelectionDisplayAsync("", Model).Result
 </div>

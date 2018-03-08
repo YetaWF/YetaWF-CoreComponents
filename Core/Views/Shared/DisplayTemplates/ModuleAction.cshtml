@@ -9,7 +9,7 @@
         render = ModuleAction.RenderModeEnum.Button;
     }
     <div class="yt_moduleaction t_display">
-        @Model.Render(render)
+        @Model.RenderAsync(render).Result
     </div>
 }
  

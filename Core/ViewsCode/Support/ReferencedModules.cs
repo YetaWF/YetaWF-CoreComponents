@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
@@ -55,15 +56,15 @@ namespace YetaWF.Core.Views.Shared {
             public Guid ModuleGuid { get; set; } // this name must match the name used in the class ReferencedModule
         }
 
-        public static DataSourceResult GetDataSourceResult(SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static async Task<DataSourceResult> GetDataSourceResultAsync(SerializableList<ModuleDefinition.ReferencedModule> model) {
 
             List<AddOnManager.Module> allMods = Manager.AddOnManager.GetUniqueInvokedCssModules();
 
             List<GridEdit> mods = new List<GridEdit>();
             foreach (AddOnManager.Module allMod in allMods) {
-                ModuleDefinition modDef = ModuleDefinition.CreateUniqueModule(allMod.ModuleType);
+                ModuleDefinition modDef = await ModuleDefinition.CreateUniqueModuleAsync(allMod.ModuleType);
                 if (modDef != null) {
-                    mods.Add( new GridEdit{
+                    mods.Add(new GridEdit {
                         Name = modDef.Name,
                         Description = modDef.Description,
                         PermanentName = modDef.PermanentModuleName,
@@ -79,9 +80,9 @@ namespace YetaWF.Core.Views.Shared {
             return data;
         }
 #if MVC6
-        public static HtmlString RenderReferencedModules<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static async Task<HtmlString> RenderReferencedModulesAsync<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #else
-        public static HtmlString RenderReferencedModules<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static async Task<HtmlString> RenderReferencedModulesAsync<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #endif
             bool header;
             if (!htmlHelper.TryGetControlInfo<bool>("", "Header", out header))
@@ -89,7 +90,7 @@ namespace YetaWF.Core.Views.Shared {
             GridModel grid = new GridModel() {
                 GridDef = new GridDefinition() {
                     RecordType = typeof(GridEdit),
-                    Data = GetDataSourceResult(model),
+                    Data = await GetDataSourceResultAsync(model),
                     SupportReload = false,
                     PageSizes = new List<int>(),
                     InitialPageSize = 10,
@@ -119,14 +120,14 @@ namespace YetaWF.Core.Views.Shared {
             public string PermanentName { get; set; }
         }
 
-        public static DataSourceResult GetDataSourceResultDisplay(SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static async Task<DataSourceResult> GetDataSourceResultDisplayAsync(SerializableList<ModuleDefinition.ReferencedModule> model) {
 
             List<AddOnManager.Module> allMods = Manager.AddOnManager.GetUniqueInvokedCssModules();
 
             List<GridDisplay> mods = new List<GridDisplay>();
             foreach (AddOnManager.Module allMod in allMods) {
                 if ((from m in model where m.ModuleGuid == allMod.ModuleGuid select m).FirstOrDefault() != null) {
-                    ModuleDefinition modDef = ModuleDefinition.CreateUniqueModule(allMod.ModuleType);
+                    ModuleDefinition modDef = await ModuleDefinition.CreateUniqueModuleAsync(allMod.ModuleType);
                     if (modDef != null) {
                         mods.Add(new GridDisplay {
                             Name = modDef.Name,
@@ -143,9 +144,9 @@ namespace YetaWF.Core.Views.Shared {
             return data;
         }
 #if MVC6
-        public static HtmlString RenderReferencedModulesDisplay<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static async Task<HtmlString> RenderReferencedModulesDisplayAsync<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #else
-        public static HtmlString RenderReferencedModulesDisplay<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
+        public static async Task<HtmlString> RenderReferencedModulesDisplayAsync<TModel>(this HtmlHelper<TModel> htmlHelper, string name, SerializableList<ModuleDefinition.ReferencedModule> model) {
 #endif
             bool header;
             if (!htmlHelper.TryGetControlInfo<bool>("", "Header", out header))
@@ -153,7 +154,7 @@ namespace YetaWF.Core.Views.Shared {
             GridModel grid = new GridModel() {
                 GridDef = new GridDefinition() {
                     RecordType = typeof(GridDisplay),
-                    Data = GetDataSourceResult(model),
+                    Data = await GetDataSourceResultAsync(model),
                     SupportReload = false,
                     PageSizes = new List<int>(),
                     InitialPageSize = 10,

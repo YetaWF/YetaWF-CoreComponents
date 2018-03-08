@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Identity;
@@ -34,8 +35,8 @@ namespace YetaWF.Core.Modules {
 
     // Interface to derived module type dataprovider
     public interface IModuleDefinitionIO : IDisposable {
-        void SaveModuleDefinition(ModuleDefinition mod);
-        ModuleDefinition LoadModuleDefinition(Guid key);
+        Task SaveModuleDefinitionAsync(ModuleDefinition mod);
+        Task<ModuleDefinition> LoadModuleDefinitionAsync(Guid key);
     }
 
     public partial class ModuleDefinition {
@@ -257,11 +258,11 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="url"></param>
         /// <returns>Module or null if not found</returns>
-        public static ModuleDefinition FindDesignedModule(string url) {
+        public static async Task<ModuleDefinition> FindDesignedModuleAsync(string url) {
             Guid guid = GetGuidFromUrl(url);
             if (guid == Guid.Empty) return null;
             try {
-                return ModuleDefinition.Load(guid, AllowNone: true);
+                return await LoadAsync(guid, AllowNone: true);
             } catch (Exception) {
                 return null;
             }
@@ -289,13 +290,13 @@ namespace YetaWF.Core.Modules {
 
         // this must be provided by a dataprovider during app startup (this loads module information (including derived types))
         [DontSave]
-        public static Func<Guid, ModuleDefinition> LoadModuleDefinition { get; set; }
+        public static Func<Guid, Task<ModuleDefinition>> LoadModuleDefinitionAsync { get; set; }
         [DontSave]
-        public static Action<ModuleDefinition, IModuleDefinitionIO> SaveModuleDefinition { get; set; }
+        public static Func<ModuleDefinition, IModuleDefinitionIO, Task> SaveModuleDefinitionAsync { get; set; }
         [DontSave]
-        public static Func<Guid, bool> RemoveModuleDefinition { get; set; }
+        public static Func<Guid, Task<bool>> RemoveModuleDefinitionAsync { get; set; }
         [DontSave]
-        public static Action<ModuleBrowseInfo> GetModules { get; set; }
+        public static Func<ModuleBrowseInfo, Task> GetModulesAsync { get; set; }
         public class ModuleBrowseInfo {
             public int Skip { get; set; }
             public int Take { get; set; }
@@ -331,11 +332,11 @@ namespace YetaWF.Core.Modules {
         /// Modules can always be loaded even if they haven't been saved yet, as long as the guid exists.
         /// If a perm guid is used for a non-unique module a new TEMPORARY module is created
         /// </summary>
-        public static ModuleDefinition Load(Guid moduleGuid, bool AllowNone = false) {
+        public static async Task<ModuleDefinition> LoadAsync(Guid moduleGuid, bool AllowNone = false) {
             // load it as an already saved module
             ModuleDefinition mod = null;
             try {
-                mod = LoadModuleDefinition(moduleGuid);
+                mod = await LoadModuleDefinitionAsync(moduleGuid);
             } catch (Exception) {
                 mod = null;
                 if (!AllowNone)
@@ -362,19 +363,19 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static ModuleDefinition LoadByUrl(string url) {
+        public static async Task<ModuleDefinition> LoadByUrlAsync(string url) {
             Guid guid = GetGuidFromUrl(url);
             if (guid == Guid.Empty) return null;
-            return ModuleDefinition.Load(guid, AllowNone: true);
+            return await ModuleDefinition.LoadAsync(guid, AllowNone: true);
         }
 
         /// <summary>
         /// Saves a module definition.
         /// This saves unique and non-unique, designed and installed modules
         /// </summary>
-        public void Save() {
+        public async Task SaveAsync() {
             if (Temporary) throw new InternalError("Temporary modules cannot be saved");
-            SaveModuleDefinition(this, DataProvider);
+            await SaveModuleDefinitionAsync(this, DataProvider);
             List<PageDefinition> pages = PageDefinition.GetPagesFromModule(ModuleGuid);
             YetaWFManager.Manager.StaticPageManager.RemovePages(pages);
         }
@@ -404,12 +405,12 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="modType"></param>
         /// <returns></returns>
-        public static ModuleDefinition CreateUniqueModule(Type modType) {
+        public static async Task<ModuleDefinition> CreateUniqueModuleAsync(Type modType) {
             ModuleDefinition mod = ModuleDefinition.Create(modType);
             if (!mod.IsModuleUnique)
                 throw new InternalError("Non-unique module type {0} requested in CreateUniqueModule", modType.FullName);
 
-            ModuleDefinition existingMod = ModuleDefinition.Load(mod.PermanentGuid, AllowNone: true);
+            ModuleDefinition existingMod = await ModuleDefinition.LoadAsync(mod.PermanentGuid, AllowNone: true);
             if (existingMod != null)
                 return existingMod;
 
@@ -421,8 +422,8 @@ namespace YetaWF.Core.Modules {
         /// Removes a module definition.
         /// </summary>
         /// <param name="moduleGuid"></param>
-        public static bool TryRemove(Guid moduleGuid) {
-            return RemoveModuleDefinition(moduleGuid);
+        public static async Task<bool> TryRemoveAsync(Guid moduleGuid) {
+            return await RemoveModuleDefinitionAsync(moduleGuid);
         }
 
         /// <summary>
@@ -480,12 +481,10 @@ namespace YetaWF.Core.Modules {
         // ACTIONS
         // ACTIONS
 
-        public virtual List<ModuleAction> ModuleActions {
-            get {
-                if (_moduleActions == null)
-                    _moduleActions = GetAllModuleActions();
-                return (from a in _moduleActions select a).ToList();// return a copy
-            }
+        public virtual async Task<List<ModuleAction>> RetrieveModuleActionsAsync() {
+            if (_moduleActions == null)
+                _moduleActions = await GetAllModuleActionsAsync();
+            return (from a in _moduleActions select a).ToList();// return a copy
         }
         private List<ModuleAction> _moduleActions;
 
@@ -495,17 +494,26 @@ namespace YetaWF.Core.Modules {
         /// <param name="name">The name of the action.</param>
         /// <param name="parms">Parameters (action dependent).</param>
         /// <returns>An action. May be null if not authorized.</returns>
-        public ModuleAction GetModuleAction(string name, params object[] parms) {
+        public async Task<ModuleAction> GetModuleActionAsync(string name, params object[] parms) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new InternalError("Missing action name");
-            MethodInfo mi = GetType().GetMethod("GetAction_" + name);
-            if (mi == null)
-                throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
-            ModuleAction action = (ModuleAction) mi.Invoke(this, parms);
-            if (action == null)
-                return null;
+            MethodInfo mi = GetType().GetMethod($"GetAction_{name}");
+            ModuleAction action = null;
+            if (mi != null) {
+                action = (ModuleAction)mi.Invoke(this, parms);
+                if (action == null)
+                    return null;
+            }
+            if (action == null) {
+                mi = GetType().GetMethod($"GetAction_{name}Async");
+                if (mi == null)
+                    throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
+                action = await ((Task<ModuleAction>)mi.Invoke(this, parms));
+                if (action == null)
+                    return null;
+            }
             if (string.IsNullOrWhiteSpace(action.Url))
-                action.Url = "/" + Area + "/" + Controller + "/" + name;
+                action.Url = $"/{Area}/{Controller}/{name}";
             return action;
         }
 
@@ -516,18 +524,27 @@ namespace YetaWF.Core.Modules {
         /// <param name="parms">Parameters (action dependent).</param>
         /// <returns>A list of actions.</returns>
         /// <returns>An action. May be null if not authorized.</returns>
-        public List<ModuleAction> GetModuleActions(string name, params object[] parms) {
+        public async Task<List<ModuleAction>> GetModuleActionsAsync(string name, params object[] parms) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new InternalError("Missing action name");
-            MethodInfo mi = GetType().GetMethod("GetAction_" + name);
-            if (mi == null)
-                throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
-            List<ModuleAction> actions = (List<ModuleAction>)mi.Invoke(this, parms);
-            if (actions == null)
-                return null;
+            MethodInfo mi = GetType().GetMethod($"GetAction_{name}");
+            List<ModuleAction> actions = null;
+            if (mi != null) {
+                actions = (List<ModuleAction>)mi.Invoke(this, parms);
+                if (actions == null)
+                    return null;
+            }
+            if (actions == null) {
+                mi = GetType().GetMethod($"GetAction_{name}Async");
+                if (mi == null)
+                    throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
+                actions = await ((Task<List<ModuleAction>>)mi.Invoke(this, parms));
+                if (actions == null)
+                    return null;
+            }
             foreach (ModuleAction action in actions) {
                 if (string.IsNullOrWhiteSpace(action.Url))
-                    action.Url = "/" + Area + "/" + Controller + "/" + name;
+                    action.Url = $"/{Area}/{Controller}/{name}";
             }
             return actions;
         }
@@ -535,28 +552,28 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Populates the module actions
         /// </summary>
-        protected List<ModuleAction> GetAllModuleActions()
-        {
+        protected async Task<List<ModuleAction>> GetAllModuleActionsAsync() {
             List<ModuleAction> moduleActions = new List<ModuleAction>();
 
             MethodInfo[] mi = GetType().GetMethods(BindingFlags.Public|BindingFlags.Instance);
             foreach (var m in mi) {
-                if (m.ReturnType != typeof(ModuleAction))
-                    continue;
                 string name = m.Name;
                 if (!name.StartsWith("GetAction_"))
                     continue;
                 name = name.Substring(10);
-
                 ParameterInfo[] parms = m.GetParameters();
                 if (parms != null && parms.Length > 0)
                     continue;
 
-                ModuleAction action;
-                action = (ModuleAction)m.Invoke(this, new object[] {});
+                ModuleAction action = null;
+                if (m.ReturnType == typeof(ModuleAction)) {
+                    action = (ModuleAction)m.Invoke(this, new object[] { });
+                } else if (m.ReturnType == typeof(Task<ModuleAction>)) {
+                    action = await (Task<ModuleAction>)m.Invoke(this, new object[] { });
+                }
                 if (action != null) {
                     if (string.IsNullOrWhiteSpace(action.Url))
-                        action.Url = "/" + Area + "/" + Controller + "/" + name;
+                        action.Url = $"/{Area}/{Controller}/{name}";
                     moduleActions.Add(action);
                 }
             }
@@ -569,9 +586,9 @@ namespace YetaWF.Core.Modules {
 
 
 #if MVC6
-        public HtmlString RenderModule(IHtmlHelper htmlHelper)
+        public async Task<HtmlString> RenderModuleAsync(IHtmlHelper htmlHelper)
 #else
-        public HtmlString RenderModule(HtmlHelper htmlHelper)
+        public async Task<HtmlString> RenderModuleAsync(HtmlHelper htmlHelper)
 #endif
         {
             if (!Visible && !Manager.EditMode) return HtmlStringExtender.Empty;
@@ -636,7 +653,7 @@ namespace YetaWF.Core.Modules {
                 }
             }
 
-            string containerHtml = skinAccess.MakeModuleContainer(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction).ToString();
+            string containerHtml = (await skinAccess.MakeModuleContainerAsync(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction)).ToString();
 
             if (!Manager.RenderingUniqueModuleAddons) {
                 string title = Manager.PageTitle;
@@ -645,13 +662,13 @@ namespace YetaWF.Core.Modules {
                     PageDefinition.ModuleList mods = Manager.CurrentPage.ModuleDefinitions.GetModulesForPane(Globals.MainPane);
                     if (mods.Count > 0) {
                         try { // the module could be damaged
-                            title = mods[0].Module.Title;
+                            title = (await mods[0].GetModuleAsync()).Title;
                         } catch (Exception) { }
                     }
                     // if the title is still not available, simply use the very first module (any pane)
                     if (string.IsNullOrWhiteSpace(title)) {
                         try { // the module could be damaged
-                            if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == Manager.CurrentPage.ModuleDefinitions[0].Module)
+                            if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == await Manager.CurrentPage.ModuleDefinitions[0].GetModuleAsync())
                                 title = Title;
                         } catch (Exception) { }
                     }
@@ -738,34 +755,24 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        //[Category("Variables"), Description("The module menu as Html"), Caption("Module Menu")]
-        //[UIHint("String")]
-        public string ModuleMenuHtml {
-            get {
-                if (ShowModuleMenu)
-                    return RenderModuleMenu().ToString();
-                else
-                    return "";
-            }
+        public async Task<string> GetModuleMenuHtmlAsync() {
+            if (ShowModuleMenu)
+                return (await RenderModuleMenuAsync()).ToString();
+            else
+                return "";
         }
 
-        //[Category("Variables"),  Caption("Module Links"), Description("The module's action menu as Html")]
-        //[UIHint("String")]
-        public string ActionMenuHtml {
-            get {
-                if (ShowActionMenu)
-                    return RenderModuleLinks(ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer).ToString();
-                else
-                    return "";
-            }
+        public async Task<string> GetActionMenuHtmlAsync() {
+            if (ShowActionMenu)
+                return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)).ToString();
+            else
+                return "";
         }
-        public string ActionTopMenuHtml {
-            get {
-                if (ShowTitle && ShowTitleActions)
-                    return RenderModuleLinks(ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer).ToString();
-                else
-                    return "";
-            }
+        public async Task<string> GetActionTopMenuHtml() {
+            if (ShowTitle && ShowTitleActions)
+                return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer)).ToString();
+            else
+                return "";
         }
 
         [Category("Variables"), Caption("Show Module Menu"), Description("Displays whether the module menu is shown for this module")]

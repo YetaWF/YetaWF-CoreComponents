@@ -58,7 +58,7 @@ namespace YetaWF.Core.Controllers {
                             if (string.IsNullOrWhiteSpace(moduleGuid))
                                 throw new InternalError("Missing QueryString[{0}] value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
                             Guid guid = new Guid(moduleGuid);
-                            _module = (TMod)ModuleDefinition.Load(guid);
+                            _module = (TMod)ModuleDefinition.LoadAsync(guid).Result;//$$$$
                         }
                     } else if (Manager.IsPostRequest) {
                         _module = (TMod)RouteData.Values[Globals.RVD_ModuleDefinition];
@@ -69,7 +69,7 @@ namespace YetaWF.Core.Controllers {
                             if (string.IsNullOrWhiteSpace(moduleGuid))
                                 throw new InternalError("Missing {0} value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
                             Guid guid = new Guid(moduleGuid);
-                            _module = (TMod)ModuleDefinition.Load(guid);
+                            _module = (TMod)ModuleDefinition.LoadAsync(guid).Result;//$$$$$
                         }
                     }
                     if (_module == default(TMod))

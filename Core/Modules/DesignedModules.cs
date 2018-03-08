@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Models;
 
 namespace YetaWF.Core.Modules {
@@ -50,6 +51,6 @@ namespace YetaWF.Core.Modules {
         /// Loads and caches all designed modules.
         /// </summary>
         /// <remarks>This method is implemented by a data provider, set at application startup.</remarks>
-        public static Func<List<DesignedModule>> LoadDesignedModules { get; set; }
+        public static Func<Task<List<DesignedModule>>> LoadDesignedModulesAsync { get; set; }
     }
 }

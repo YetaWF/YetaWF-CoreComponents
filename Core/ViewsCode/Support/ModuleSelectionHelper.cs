@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
@@ -26,8 +27,8 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleSelectionHelper), name, defaultValue, parms); }
 
-        public static bool ExistingModulesExist() {
-            return DesignedModules.LoadDesignedModules().Count > 0;
+        public static async Task<bool> ExistingModulesExistAsync() {
+            return (await DesignedModules.LoadDesignedModulesAsync()).Count() > 0;
         }
         /// <summary>
         /// Renders a dropdownlist of all packages implementing modules.
@@ -38,11 +39,11 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="HtmlAttributes">Optional HTML attributes.</param>
         /// <returns></returns>
 #if MVC6
-        public static HtmlString RenderModuleSelectionPackages(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderModuleSelectionPackagesAsync(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderModuleSelectionPackages(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderModuleSelectionPackagesAsync(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #endif
-            string areaName = GetAreaNameFromGuid(newMods, moduleGuid);
+            string areaName = await GetAreaNameFromGuidAsync(newMods, moduleGuid);
             List<SelectionItem<string>> list = (
                 from p in InstalledModules.Packages orderby p.Name select
                     new SelectionItem<string> {
@@ -55,11 +56,11 @@ namespace YetaWF.Core.Views.Shared {
             return htmlHelper.RenderDropDownSelectionList<string>("Packages", areaName, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static HtmlString RenderModuleSelection(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderModuleSelectionAsync(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderModuleSelection(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderModuleSelectionAsync(this HtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
 #endif
-            string areaName = GetAreaNameFromGuid(newMods, moduleGuid);
+            string areaName = await GetAreaNameFromGuidAsync(newMods, moduleGuid);
             List<SelectionItem<Guid?>> list = new List<SelectionItem<Guid?>>();
             if (!string.IsNullOrWhiteSpace(areaName)) {
                 if (newMods) {
@@ -74,7 +75,7 @@ namespace YetaWF.Core.Views.Shared {
                             }).ToList<SelectionItem<Guid?>>();
                 } else {
                     list = (
-                        from module in DesignedModules.LoadDesignedModules()
+                        from module in await DesignedModules.LoadDesignedModulesAsync()
                         where module.AreaName == areaName
                         orderby module.Name select
                             new SelectionItem<Guid?> {
@@ -87,7 +88,7 @@ namespace YetaWF.Core.Views.Shared {
             list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
             return htmlHelper.RenderDropDownSelectionList<Guid?>(name, moduleGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
-        private static string GetAreaNameFromGuid(bool newMods, Guid? moduleGuid) {
+        private static async Task<string> GetAreaNameFromGuidAsync(bool newMods, Guid? moduleGuid) {
             if (moduleGuid != null) {
                 if (newMods) {
                     InstalledModules.ModuleTypeEntry modEntry = InstalledModules.TryFindModuleEntry((Guid)moduleGuid);
@@ -96,7 +97,7 @@ namespace YetaWF.Core.Views.Shared {
                     else
                         moduleGuid = null;
                 } else {
-                    return (from m in DesignedModules.LoadDesignedModules() where m.ModuleGuid == (Guid)moduleGuid select m.AreaName).FirstOrDefault();
+                    return (from m in await DesignedModules.LoadDesignedModulesAsync() where m.ModuleGuid == (Guid)moduleGuid select m.AreaName).FirstOrDefault();
                 }
             }
             return null;
@@ -114,9 +115,9 @@ namespace YetaWF.Core.Views.Shared {
             list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
-        public static HtmlString RenderReplacementPackageModulesDesigned(string areaName) {
+        public static async Task<HtmlString> RenderReplacementPackageModulesDesignedAsync(string areaName) {
             List<SelectionItem<Guid?>> list = (
-                from module in DesignedModules.LoadDesignedModules()
+                from module in await DesignedModules.LoadDesignedModulesAsync()
                 where module.AreaName == areaName
                 orderby module.Name select
                     new SelectionItem<Guid?> {
@@ -127,9 +128,9 @@ namespace YetaWF.Core.Views.Shared {
             list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
             return DropDownHelper.RenderDataSource(areaName, list);
         }
-        public static HtmlString RenderReplacementPackageModulesDesigned(Guid modGuid) {
-            List<DesignedModule> designedMods = DesignedModules.LoadDesignedModules();
-            string areaName = GetAreaNameFromGuid(false, modGuid);
+        public static async Task<HtmlString> RenderReplacementPackageModulesDesignedAsync(Guid modGuid) {
+            List<DesignedModule> designedMods = await DesignedModules.LoadDesignedModulesAsync();
+            string areaName = await GetAreaNameFromGuidAsync(false, modGuid);
             List<SelectionItem<Guid?>> list = (
                 from module in designedMods
                 where module.AreaName == areaName
@@ -169,16 +170,16 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToHtmlString();
         }
 #if MVC6
-        public static HtmlString RenderModuleSelectionDisplay(this IHtmlHelper htmlHelper, string name, Guid? modGuid) {
+        public static async Task<HtmlString> RenderModuleSelectionDisplayAsync(this IHtmlHelper htmlHelper, string name, Guid? modGuid) {
 #else
-        public static HtmlString RenderModuleSelectionDisplay(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
+        public static async Task<HtmlString> RenderModuleSelectionDisplayAsync(this HtmlHelper htmlHelper, string name, Guid? modGuid) {
 #endif
-        HtmlBuilder hb = new HtmlBuilder();
+            HtmlBuilder hb = new HtmlBuilder();
             bool newMods = htmlHelper.GetControlInfo<bool>("", "New", false);
 
             ModuleDefinition mod = null;
             if (modGuid != null)
-                mod = ModuleDefinition.Load((Guid)modGuid, AllowNone: true);
+                mod = await ModuleDefinition.LoadAsync((Guid)modGuid, AllowNone: true);
 
             //<div class="t_select">
             //    .name

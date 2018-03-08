@@ -98,9 +98,9 @@ namespace YetaWF.Core.Menus {
 
         public ModuleAction.RenderModeEnum RenderMode { get; set; }
 #if MVC6
-        public HtmlString Render(IHtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
+        public async Task<HtmlString> RenderAsync(IHtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
 #else
-        public HtmlString Render(HtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
+        public async Task<HtmlString> RenderAsync(HtmlHelper htmlHelper = null, string id = null, string cssClass = null, ModuleAction.RenderEngineEnum RenderEngine = ModuleAction.RenderEngineEnum.JqueryMenu) {
 #endif
 
             HtmlBuilder hb = new HtmlBuilder();
@@ -108,7 +108,7 @@ namespace YetaWF.Core.Menus {
 
             if (this.Count == 0)
                 return HtmlStringExtender.Empty;
-            string menuContents = RenderLI(htmlHelper, this, null, RenderMode, RenderEngine, level);
+            string menuContents = await RenderLIAsync(htmlHelper, this, null, RenderMode, RenderEngine, level);
             if (string.IsNullOrWhiteSpace(menuContents))
                 return HtmlStringExtender.Empty;
 
@@ -134,13 +134,13 @@ namespace YetaWF.Core.Menus {
             return hb.ToHtmlString();
         }
 #if MVC6
-        private string Render(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private async Task<string> RenderAsync(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #else
-        private string Render(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private async Task<string> RenderAsync(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, string cssClass, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
-            string menuContents = RenderLI(htmlHelper, subMenu, subGuid, renderMode, renderEngine, level);
+            string menuContents = await RenderLIAsync(htmlHelper, subMenu, subGuid, renderMode, renderEngine, level);
             if (string.IsNullOrWhiteSpace(menuContents)) return "";
 
             // <ul>
@@ -165,9 +165,9 @@ namespace YetaWF.Core.Menus {
             return hb.ToString();
         }
 #if MVC6
-        private string RenderLI(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private async Task<string> RenderLIAsync(IHtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #else
-        private string RenderLI(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
+        private async Task<string> RenderLIAsync(HtmlHelper htmlHelper, List<ModuleAction> subMenu, Guid? subGuid, ModuleAction.RenderModeEnum renderMode, ModuleAction.RenderEngineEnum renderEngine, int level) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -181,15 +181,15 @@ namespace YetaWF.Core.Menus {
                 if (!string.IsNullOrWhiteSpace(LICssClass)) tag.AddCssClass(LICssClass);
                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-                ModuleDefinition subMod = ModuleDefinition.Load((Guid)subGuid, AllowNone: true);
+                ModuleDefinition subMod = await ModuleDefinition.LoadAsync((Guid)subGuid, AllowNone: true);
                 if (subMod != null)
-                    hb.Append(subMod.RenderModule(htmlHelper));
+                    hb.Append(await subMod.RenderModuleAsync(htmlHelper));
 
                 hb.Append("</li>\n");
             } else {
                 foreach (var menuEntry in subMenu) {
 
-                    if (menuEntry.Enabled && menuEntry.RendersSomething) {
+                    if (menuEntry.Enabled && await menuEntry.RendersSomethingAsync()) {
 
                         bool rendered = false;
                         string subMenuContents = null;
@@ -203,7 +203,7 @@ namespace YetaWF.Core.Menus {
 
                         if (subModGuid != null || (menuEntry.SubMenu != null && menuEntry.SubMenu.Count > 0)) {
 
-                            subMenuContents = Render(htmlHelper, menuEntry.SubMenu, subModGuid, menuEntry.CssClass, renderMode, renderEngine, level);
+                            subMenuContents = await RenderAsync(htmlHelper, menuEntry.SubMenu, subModGuid, menuEntry.CssClass, renderMode, renderEngine, level);
                             if (!string.IsNullOrWhiteSpace(subMenuContents)) {
                                 // <li>
                                 TagBuilder tag = new TagBuilder("li");
@@ -214,7 +214,7 @@ namespace YetaWF.Core.Menus {
                                 if (!string.IsNullOrWhiteSpace(LICssClass)) tag.AddCssClass(LICssClass);
                                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-                                HtmlString menuContents =  menuEntry.Render(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
+                                HtmlString menuContents = await menuEntry.RenderAsync(renderMode, RenderEngine: renderEngine, HasSubmenu: true);
                                 hb.Append(menuContents);
 
                                 hb.Append("\n");
@@ -233,7 +233,7 @@ namespace YetaWF.Core.Menus {
                             if (!string.IsNullOrWhiteSpace(LICssClass)) tag.AddCssClass(LICssClass);
                             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
-                            HtmlString menuContents = menuEntry.Render(renderMode, RenderEngine: renderEngine);
+                            HtmlString menuContents = await menuEntry.RenderAsync(renderMode, RenderEngine: renderEngine);
                             hb.Append(menuContents);
 
                             hb.Append("</li>\n");
@@ -458,12 +458,12 @@ namespace YetaWF.Core.Menus {
         }
 
         // Evaluate the menu and return an updated (copied) list based on the user's permissions
-        public MenuList GetUserMenu() {
+        public async Task<MenuList> GetUserMenuAsync() {
             MenuList menu = new MenuList();
             menu.RenderMode = RenderMode;
 
             foreach (ModuleAction m in this) {
-                ModuleAction newAction = EvaluateAction(m);
+                ModuleAction newAction = await EvaluateActionAsync(m);
                 if (newAction != null)
                     menu.Add(newAction);
             }
@@ -481,8 +481,8 @@ namespace YetaWF.Core.Menus {
                  where m.EntryType != ModuleAction.MenuEntryType.Parent || (m.SubMenu != null && m.SubMenu.Count() > 0) select m).ToList()
             );
         }
-        private ModuleAction EvaluateAction(ModuleAction origAction) {
-            if (!origAction.IsAuthorized)
+        private async Task<ModuleAction> EvaluateActionAsync(ModuleAction origAction) {
+            if (!await origAction.IsAuthorizedAsync())
                 return null;
 
             // make a copy of the original entry
@@ -491,16 +491,16 @@ namespace YetaWF.Core.Menus {
             newAction._AuthorizationEvaluated = true;
             newAction.SubMenu = null;
 
-            EvaluateSubMenu(origAction, newAction);
+            await EvaluateSubMenu(origAction, newAction);
             //if ((newAction.SubMenu == null || newAction.SubMenu.Count == 0) && string.IsNullOrWhiteSpace(newAction.Url))
             //    return null;
             return newAction;
         }
-        private void EvaluateSubMenu(ModuleAction origAction, ModuleAction newAction) {
+        private async Task EvaluateSubMenu(ModuleAction origAction, ModuleAction newAction) {
             // now evaluate all submenus
             if (origAction.SubMenu != null && origAction.SubMenu.Count > 0) {
                 foreach (ModuleAction m in origAction.SubMenu) {
-                    ModuleAction subAction = EvaluateAction(m);
+                    ModuleAction subAction = await EvaluateActionAsync(m);
                     if (subAction != null) {
                         if (newAction.SubMenu == null)
                             newAction.SubMenu = new SerializableList<ModuleAction>();

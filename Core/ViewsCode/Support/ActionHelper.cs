@@ -7,6 +7,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -25,9 +26,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ActionHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderActionIcons(this IHtmlHelper htmlHelper, string name, MenuList actions) {
+        public static async Task<HtmlString> RenderActionIconsAsync(this IHtmlHelper htmlHelper, string name, MenuList actions) {
 #else
-        public static HtmlString RenderActionIcons(this HtmlHelper<object> htmlHelper, string name, MenuList actions) {
+        public static async Task<HtmlString> RenderActionIconsAsync(this HtmlHelper<object> htmlHelper, string name, MenuList actions) {
 #endif
             if (!string.IsNullOrEmpty(name))
                 throw new InternalError("Field name not supported for ActionIcons");
@@ -42,24 +43,24 @@ namespace YetaWF.Core.Views.Shared {
             switch (actionStyle) {
                 default:
                 case GridHelper.GridActionsEnum.Icons:
-                    return actions.Render(htmlHelper, null, ActionIcons.CssActionIcons);
+                    return await actions.RenderAsync(htmlHelper, null, ActionIcons.CssActionIcons);
                 case GridHelper.GridActionsEnum.DropdownMenu: {
-                    MenuList menuActions = actions;
-                    menuActions.RenderMode = ModuleAction.RenderModeEnum.NormalMenu;
+                        MenuList menuActions = actions;
+                        menuActions.RenderMode = ModuleAction.RenderModeEnum.NormalMenu;
 
-                    HtmlBuilder hb = new HtmlBuilder();
-                    string id = Manager.UniqueId();
-                    string idButton = id + "_btn";
-                    string idMenu = id + "_menu";
-                    hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, __ResStr("manage", "Manage"));
-                    hb.Append(menuActions.Render(htmlHelper, idMenu, Globals.CssGridActionMenu));
+                        HtmlBuilder hb = new HtmlBuilder();
+                        string id = Manager.UniqueId();
+                        string idButton = id + "_btn";
+                        string idMenu = id + "_menu";
+                        hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, __ResStr("manage", "Manage"));
+                        hb.Append(await menuActions.RenderAsync(htmlHelper, idMenu, Globals.CssGridActionMenu));
 
-                    ScriptBuilder sb = new ScriptBuilder();
-                    sb.Append("YetaWF_TemplateActionIcons.initMenu('{0}', $('#{1}'), $('#{2}'));", id, idButton, idMenu);
+                        ScriptBuilder sb = new ScriptBuilder();
+                        sb.Append("YetaWF_TemplateActionIcons.initMenu('{0}', $('#{1}'), $('#{2}'));", id, idButton, idMenu);
 
-                    hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToString());
-                    return hb.ToHtmlString();
-                }
+                        hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToString());
+                        return hb.ToHtmlString();
+                    }
             }
         }
     }

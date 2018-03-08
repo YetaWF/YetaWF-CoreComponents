@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
@@ -87,14 +88,14 @@ namespace YetaWF.Core.Pages {
             [StringLength(PageDefinition.MaxPane)]
             public string Pane { get; set; }// if blank, use first pane
             public Guid ModuleGuid { get; set; }
-            [DontSave]
-            public ModuleDefinition Module { get { return GetModule(); } set { _module = value; } }// we're caching module definition here
 
-            private ModuleDefinition GetModule()
-            {
+            public async Task<ModuleDefinition> GetModuleAsync() {
                 if (_module == null)
-                    _module = ModuleDefinition.Load(ModuleGuid);
+                    _module = await ModuleDefinition.LoadAsync(ModuleGuid);
                 return _module;
+            }
+            public void SetModule(ModuleDefinition mod) {
+                _module = mod;
             }
             ModuleDefinition _module = null;
         }
@@ -193,8 +194,8 @@ namespace YetaWF.Core.Pages {
             PageDefinition.ModuleEntry modEntry = new PageDefinition.ModuleEntry {
                 Pane = pane,
                 ModuleGuid = module.ModuleGuid,
-                Module = module,
             };
+            modEntry.SetModule(module);
             if (top)
                 ModuleDefinitions.Insert(0, modEntry);
             else
@@ -280,13 +281,14 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Saves a page definition.
         /// </summary>
-        public void Save() {
+        public async Task SaveAsync() {
             if (Temporary)
                 throw new InternalError("Temporary pages cannot be saved");
             foreach (var moduleEntry in ModuleDefinitions) {
                 try {
-                    moduleEntry.Module.Temporary = false;
-                    moduleEntry.Module.Save();
+                    ModuleDefinition mod = await moduleEntry.GetModuleAsync();
+                    mod.Temporary = false;
+                    await mod.SaveAsync();
                 } catch (Exception) { }// this can fail when modules no longer exist
             }
             PageDefinition.SavePageDefinition(this);
@@ -428,9 +430,9 @@ namespace YetaWF.Core.Pages {
         // RENDERING
 
 #if MVC6
-        public HtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+        public async Task<HtmlString> RenderPaneAsync(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 #else
-        public HtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+        public async Task<HtmlString> RenderPaneAsync(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 #endif
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
@@ -458,16 +460,16 @@ namespace YetaWF.Core.Pages {
                     empty = false;
                     ModuleDefinition module = null;
                     try {
-                        module = modEntry.Module;
+                        module = await modEntry.GetModuleAsync();
                         if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                            sb.Append(module.RenderModule(htmlHelper).ToString());
+                            sb.Append((await module.RenderModuleAsync(htmlHelper)).ToString());
                     } catch (Exception exc) {
                         sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
-                        ModuleDefinition modServices = ModuleDefinition.Load(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
+                        ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                         if (modServices != null) {
-                            ModuleAction action = modServices.GetModuleAction("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
+                            ModuleAction action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
                             if (action != null) {
-                                HtmlString act = action.Render(ModuleAction.RenderModeEnum.NormalLinks);
+                                HtmlString act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
                                 if (act != HtmlStringExtender.Empty) { // only render if the action actually is available
                                     sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
                                     sb.Append("<li>");
@@ -529,7 +531,7 @@ namespace YetaWF.Core.Pages {
                 leftOver = (from l in leftOver where !Manager.CurrentPage.Panes.Contains(l) select l).ToList();
                 // now render what's left
                 foreach (string p in leftOver) {
-                    sb.Append(RenderPane(htmlHelper, p, "yGeneratedPane"));
+                    sb.Append(await RenderPaneAsync(htmlHelper, p, "yGeneratedPane"));
                 }
             }
             return new HtmlString(sb.ToString());
@@ -594,16 +596,16 @@ namespace YetaWF.Core.Pages {
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>
 #if MVC6
-        public void RenderPaneContents(IHtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+        public async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #else
-        public void RenderPaneContents(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+        public async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #endif
         {
             Manager.SetSkinOptionsContent();
             if (dataIn.Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
             foreach (string pane in dataIn.Panes) {
 
-                string paneHtml = RenderPane(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false).ToString();
+                string paneHtml = (await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false)).ToString();
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
@@ -615,7 +617,7 @@ namespace YetaWF.Core.Pages {
                     });
                 }
             }
-            model.Addons = htmlHelper.RenderUniqueModuleAddOns(ExcludedGuids: dataIn.UnifiedAddonMods).ToString();
+            model.Addons = (await htmlHelper.RenderUniqueModuleAddOnsAsync(ExcludedGuids: dataIn.UnifiedAddonMods)).ToString();
 
             // clear any http errors that may have occurred if a module failed (otherwise our ajax request will fail)
             Manager.CurrentResponse.StatusCode = 200;
