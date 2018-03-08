@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
@@ -55,11 +56,12 @@ namespace YetaWF.Core.Image {
             };
         }
 
-        public void RunItem(SchedulerItemBase evnt) {
+        public Task RunItemAsync(SchedulerItemBase evnt) {
             if (evnt.EventName != EventRemoveTempFiles)
                 throw new Error(this.__ResStr("eventNameErr", "Unknown scheduler event {0}."), evnt.EventName);
             FileUpload fileUpload = new FileUpload();
             fileUpload.RemoveAllExpiredTempFiles(evnt.Frequency.TimeSpan);
+            return Task.CompletedTask;
         }
     }
 

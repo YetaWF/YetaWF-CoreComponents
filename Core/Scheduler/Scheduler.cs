@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 #if MVC6
@@ -14,33 +15,33 @@ using System.Web.Mvc;
 namespace YetaWF.Core.Scheduler {
 
     public interface IScheduling {
-        void RunItem(SchedulerItemBase evnt);
+        Task RunItemAsync(SchedulerItemBase evnt);
         SchedulerItemBase[] GetItems();
     }
 
     public static class SchedulerSupport {
 
-        public static Action<Package> Install { get; set; }
-        public static Action<Package> Uninstall { get; set; }
-        public static Action<string> RunItem { get; set; }
+        public static Func<Package, Task> InstallAsync { get; set; }
+        public static Func<Package, Task> UninstallAsync { get; set; }
+        public static Func<string, Task> RunItemAsync { get; set; }
         public static bool Enabled { get; set; }
 
         static SchedulerSupport() {
-            Install = DefaultInstaller;
-            Uninstall = DefaultUninstaller;
-            RunItem = DefaultRunItem;
+            InstallAsync = DefaultInstallerAsync;
+            UninstallAsync = DefaultUninstallerAsync;
+            RunItemAsync = DefaultRunItemAsync;
             Enabled = false;
         }
 
-        private static void DefaultInstaller(Package obj) {
+        private static Task DefaultInstallerAsync(Package obj) {
             throw new NotImplementedException();
         }
 
-        private static void DefaultUninstaller(Package obj) {
+        private static Task DefaultUninstallerAsync(Package obj) {
             throw new NotImplementedException();
         }
 
-        private static void DefaultRunItem(string name) {
+        private static Task DefaultRunItemAsync(string name) {
             throw new NotImplementedException();
         }
     }

@@ -141,7 +141,7 @@ namespace YetaWF.Core.Packages {
             // update/create all models
             if (dropIndexes || MustUpgrade()) {
                 Logging.AddLog("Updating all packages");
-                UpdateAll();
+                await UpdateAllAsync();
                 Logging.AddLog("Updating models for all packages completed");
             } else {
                 // update models
@@ -161,10 +161,10 @@ namespace YetaWF.Core.Packages {
                         // upgraded package
                         if (string.IsNullOrWhiteSpace(lastSeenVersion)) {
                             Logging.AddLog("Installing package {0} {1}", package.Name, package.Version);
-                            InstallPackage(package);
+                            await InstallPackageAsync(package);
                         } else {
                             Logging.AddLog("Upgrading package {0} from {1} to {2}", package.Name, lastSeenVersion, package.Version);
-                            InstallPackage(package, lastSeenVersion);
+                            await InstallPackageAsync(package, lastSeenVersion);
                         }
                     } else if (cmp > 0) {
                         // Woah, you can't downgrade
@@ -238,22 +238,22 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Updates all models for all packages.
         /// </summary>
-        private static void UpdateAll() {
+        private static async Task UpdateAllAsync() {
             // create models for each package
             // order all available packages by service level so we start them up in the correct order
             List<Package> packages = (from p in Package.GetAvailablePackages() orderby (int)p.ServiceLevel select p).ToList();
             foreach (Package package in packages) {
-                InstallPackage(package);
+                await InstallPackageAsync(package);
             }
         }
         /// <summary>
         /// Creates/updates models for one package
         /// </summary>
         /// <param name="package"></param>
-        private static void InstallPackage(Package package, string lastSeenVersion = null) {
+        private static async Task InstallPackageAsync(Package package, string lastSeenVersion = null) {
             Logging.AddLog("Creating/updating {0}", package.Name);
             List<string> errorList = new List<string>();
-            if (!package.InstallModels(errorList, lastSeenVersion)) {
+            if (!await package.InstallModelsAsync(errorList, lastSeenVersion)) {
                 ScriptBuilder sb = new ScriptBuilder();
                 sb.Append(__ResStr("cantInstallModels", "Can't install models for package {0}:(+nl)"), package.Name);
                 sb.Append(errorList, LeadingNL: true);

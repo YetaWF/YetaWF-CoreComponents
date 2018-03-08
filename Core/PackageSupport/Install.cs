@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Scheduler;
 
@@ -13,7 +14,7 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        public bool InstallModels(List<string> errorList, string lastSeenVersion = null) {
+        public async Task<bool> InstallModelsAsync(List<string> errorList, string lastSeenVersion = null) {
 
             bool success = true;
 
@@ -44,7 +45,7 @@ namespace YetaWF.Core.Packages {
 
             // Install all scheduler items
             try {
-                SchedulerSupport.Install(this);
+                await SchedulerSupport.InstallAsync(this);
             } catch (Exception exc) {
                 errorList.Add(exc.Message);
             }
@@ -79,7 +80,7 @@ namespace YetaWF.Core.Packages {
             }
         }
 
-        public bool UninstallModels(List<string> errorList) {
+        public async Task<bool> UninstallModelsAsync(List<string> errorList) {
 
             bool success = true;
 
@@ -97,7 +98,7 @@ namespace YetaWF.Core.Packages {
             }
             // Uninstall all scheduler items
             try {
-                SchedulerSupport.Uninstall(this);
+                await SchedulerSupport.UninstallAsync(this);
             } catch (Exception exc) {
                 errorList.Add(exc.Message);
             }
