@@ -1569,16 +1569,16 @@ namespace YetaWF.Core.Support {
         public int UserId { get; set; }
         public List<int> UserRoles { get; set; }
         public object UserObject { get; set; }// data saved by Authentication provider
-        public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider
+        public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider IUserSettings
         public string UserLanguage { get; private set; }
         public string GetUserLanguage() {
             string userLang = UserSettings.GetProperty<string>("LanguageId");
             UserLanguage = MultiString.NormalizeLanguageId(userLang);
             return UserLanguage;
         }
-        public void SetUserLanguage(string language) {
+        public async Task SetUserLanguageAsync(string language) {
             language = MultiString.NormalizeLanguageId(language);
-            UserSettings.SetProperty<string>("LanguageId", language);
+            await UserSettings.SetPropertyAsync<string>("LanguageId", language);
             UserLanguage = language;
         }
         public bool HaveUser { get { return UserId != 0; } }

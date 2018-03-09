@@ -163,7 +163,7 @@ namespace YetaWF.Core.Controllers {
             string lang = Manager.CurrentRequest[Globals.Link_Language];
 #endif
             if (!string.IsNullOrWhiteSpace(lang))
-                Manager.SetUserLanguage(lang);
+                await Manager.SetUserLanguageAsync(lang);//$$$$ do we really need to do this?
 
             // Check if home URL is requested and matches site's desired home URL
             if (uri.AbsolutePath == "/") {
