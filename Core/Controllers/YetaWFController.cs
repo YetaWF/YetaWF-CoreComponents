@@ -168,9 +168,9 @@ namespace YetaWF.Core.Controllers {
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
-            using (new YetaWFManager.NeedSync(Manager)) {
-                SetupEnvironmentInfoAsync().Wait();
-            }
+            YetaWFManager.Syncify(async () => {
+                await YetaWFController.SetupEnvironmentInfoAsync();
+            });
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {
                 MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
@@ -209,9 +209,9 @@ namespace YetaWF.Core.Controllers {
         // This is handled in ResourceAuthorizeHandler
 #else
         protected override void OnAuthentication(AuthenticationContext filterContext) {
-            using (new YetaWFManager.NeedSync(Manager)) {
-                SetupEnvironmentInfoAsync().Wait();
-            }
+            YetaWFManager.Syncify(async () => {
+                await YetaWFController.SetupEnvironmentInfoAsync();
+            });
             base.OnAuthentication(filterContext);
         }
 #endif
@@ -522,9 +522,9 @@ namespace YetaWF.Core.Controllers {
                     } finally {
                         Manager.InPartialView = inPartialView;
                     }
-                    using (new YetaWFManager.NeedSync(Manager)) {
-                        viewHtml = PostRenderAsync(htmlHelper, context, viewHtml).Result;
-                    }
+                    YetaWFManager.Syncify(async () => {
+                        viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
+                    });
                 }
 #endif
                 if (Gzip) {

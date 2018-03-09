@@ -71,11 +71,11 @@ namespace YetaWF.Core.Support {
             host = httpReq.Url.Host;
             manager = YetaWFManager.MakeInstance(host);
 #endif
-            using (new YetaWFManager.NeedSync(manager)) {//$$$asyncify
-                manager.CurrentSite = SiteDefinition.LoadSiteDefinition(host);
+            YetaWFManager.Syncify(async () => {
+                manager.CurrentSite = SiteDefinition.LoadSiteDefinitionAsync(host).Result;
                 if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
-                YetaWFController.SetupEnvironmentInfoAsync().Wait();
-            }
+                await YetaWFController.SetupEnvironmentInfoAsync();
+            });
             return manager;
         }
     }

@@ -48,7 +48,7 @@ namespace YetaWF.Core.Controllers {
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
         public override void ExecuteResult(ControllerContext context) {
-            Manager.Syncify(async () => {
+            YetaWFManager.Syncify(async () => {
 #endif
                 if (context == null)
                     throw new ArgumentNullException("context");

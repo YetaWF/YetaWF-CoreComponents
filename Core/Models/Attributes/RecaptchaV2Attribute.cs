@@ -45,10 +45,9 @@ namespace YetaWF.Core.Models.Attributes {
             if (string.IsNullOrWhiteSpace(response))
                 return new ValidationResult(ErrorMessage);
 
-            RecaptchaV2Config config;
-            using (new YetaWFManager.NeedSync(Manager)) {
-                config = RecaptchaV2Config.LoadRecaptchaV2Config().Result;
-            }
+            RecaptchaV2Config config = YetaWFManager.Syncify(async () =>
+                await RecaptchaV2Config.LoadRecaptchaV2ConfigAsync()
+            );
             if (string.IsNullOrWhiteSpace(config.PublicKey) || string.IsNullOrWhiteSpace(config.PrivateKey))
                 throw new Error(__ResStr("errPrivateKey", "The RecaptchaV2 configuration settings are missing - no public/private key found"));
 

@@ -118,9 +118,7 @@ namespace YetaWF.Core.Modules {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            MenuList moduleMenu = Manager.Syncify(async () =>
-                await GetModuleMenuListAsync(ModuleAction.RenderModeEnum.NormalMenu, ModuleAction.ActionLocationEnum.ModuleMenu)
-            );
+            MenuList moduleMenu = await GetModuleMenuListAsync(ModuleAction.RenderModeEnum.NormalMenu, ModuleAction.ActionLocationEnum.ModuleMenu);
 
             string menuContents = (await moduleMenu.RenderAsync(null, null, Globals.CssModuleMenu)).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))

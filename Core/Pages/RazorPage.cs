@@ -154,17 +154,22 @@ namespace YetaWF.Core.Pages {
         /// Used to render page contents for unified pages with dynamic content.
         /// </summary>
         /// <returns></returns>
-        public async Task<HtmlString> RenderPageContentAsync() {
+        public
+#if MVC6
+            async 
+#endif
+                Task<HtmlString> RenderPageContentAsync() {
             PageContentController.PageContentData model = (PageContentController.PageContentData)(object)ViewData.Model;
             PageContentController.DataIn dataIn = (PageContentController.DataIn)ViewData["DataIn"];
 #if MVC6
             await CurrentPage.RenderPaneContentsAsync((IHtmlHelper<object>)GetHtml(), dataIn, model);
-#else
-            using (new YetaWFManager.NeedSync(Manager)) {
-                await CurrentPage.RenderPaneContentsAsync((HtmlHelper<object>)GetHtml(), dataIn, model);
-            }
-#endif
             return null;
+#else
+            YetaWFManager.Syncify(async () => {
+                await CurrentPage.RenderPaneContentsAsync((HtmlHelper<object>)GetHtml(), dataIn, model);
+            });
+            return Task.FromResult<HtmlString>(new HtmlString(""));
+#endif
         }
 
         // used by templates
@@ -248,7 +253,7 @@ namespace YetaWF.Core.Pages {
 #else
         public override void ExecutePageHierarchy() {
             BeginRender(null);
-            using (new YetaWFManager.NeedSync(Manager)) { // rendering needs to be sync (for templates)
+            using (new YetaWFManager.NeedSync()) { // rendering needs to be sync (for templates)
                 base.ExecutePageHierarchy();
             }
             EndRender(null);

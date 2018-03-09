@@ -168,8 +168,8 @@ namespace YetaWF.Core.Support {
             } else {
                 manager = new YetaWFManager(null);
                 manager.UserLanguage = MultiString.DefaultLanguage;
-                if (SiteDefinition.LoadSiteDefinition != null) {
-                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomain();
+                if (SiteDefinition.LoadSiteDefinitionAsync != null) {
+                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // this will not run async as we don't have a Manager
                     manager.HostPortUsed = 80;
                     manager.HostSchemeUsed = "http";
                 } else {
@@ -1757,50 +1757,48 @@ namespace YetaWF.Core.Support {
         // ASYNC
         // ASYNC
 
-#if MVC6
-        public static bool IsSync() { return false; }
-
-        public class NeedSync : IDisposable {
-            private YetaWFManager Manager;
-            public NeedSync(YetaWFManager manager) {
-                Manager = manager;
-                DisposableTracker.AddObject(this);
-            }
-            public void Dispose() { Dispose(true); }
-            protected virtual void Dispose(bool disposing) {
-                if (disposing) DisposableTracker.RemoveObject(this);
-            }
-            //~NeedSync() { Dispose(false); }
-        }
-#else
         public static bool IsSync() {
             if (YetaWFManager.HaveManager) return YetaWFManager.Manager._syncCount > 0;
-            return false;
+            return true;// if there is no manager, we can't async (and it's probably no advantage to be async in this case)
         }
         private int _syncCount = 0;
 
+        /// <summary>
+        /// Used to mark all methods within its scope as synchronous. 
+        /// Only synchronous data providers are used. 
+        /// Async code will run synchronously on all platforms.
+        /// </summary>
         public class NeedSync : IDisposable {
             private YetaWFManager Manager;
-            public NeedSync(YetaWFManager manager) {
-                Manager = manager;
-                Manager._syncCount++;
+            public NeedSync() {
+                if (YetaWFManager.HaveManager) { // if no manager is available, code is synchronous by definition
+                    Manager = YetaWFManager.Manager;
+                    Manager._syncCount++;
+                }
                 DisposableTracker.AddObject(this);
             }
             public void Dispose() { Dispose(true); }
             protected virtual void Dispose(bool disposing) {
-                if (--Manager._syncCount < 0) Manager._syncCount = 0;
+                if (Manager != null && --Manager._syncCount < 0) Manager._syncCount = 0;
                 if (disposing) DisposableTracker.RemoveObject(this);
             }
             //~NeedSync() { Dispose(false); }
         }
-#endif
-        public TYPE Syncify<TYPE>(Func<Task<TYPE>> func) {
-            using (new NeedSync(this)) {
+
+        /// <summary>
+        /// Runs synchronously and returns the return value of the async body within its scope.
+        /// </summary>
+        public static TYPE Syncify<TYPE>(Func<Task<TYPE>> func) {
+            using (new NeedSync()) {
                 return func().Result;
             }
         }
-        public void Syncify(Func<Task> func) {
-            using (new NeedSync(this)) {
+        /// <summary>
+        /// Waits for the async body within its scope and runs synchronously.
+        /// </summary>
+        /// <param name="func"></param>
+        public static void Syncify(Func<Task> func) {
+            using (new NeedSync()) {
                 func().Wait();
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
@@ -24,7 +25,7 @@ namespace YetaWF.Core.Site {
             content = null;
             if (!string.IsNullOrWhiteSpace(location)) return false;
             if (string.IsNullOrWhiteSpace(name)) return false;
-            SiteDefinition site = SiteDefinition.LoadSiteDefinition(name);
+            SiteDefinition site = SiteDefinition.LoadSiteDefinitionAsync(name).Result;//$$$$$
             if (site == null) return false;
             if (site.FavIcon_Data == null || site.FavIcon_Data.Length == 0) return false;
             content = site.FavIcon_Data;
@@ -34,7 +35,7 @@ namespace YetaWF.Core.Site {
             content = null;
             if (!string.IsNullOrWhiteSpace(location)) return false;
             if (string.IsNullOrWhiteSpace(name)) return false;
-            SiteDefinition site = SiteDefinition.LoadSiteDefinition(name);
+            SiteDefinition site = SiteDefinition.LoadSiteDefinitionAsync(name).Result;//$$$$
             if (site == null) return false;
             if (site.FavIconLrg_Data == null || site.FavIconLrg_Data.Length == 0) return false;
             content = site.FavIconLrg_Data;
@@ -309,23 +310,26 @@ namespace YetaWF.Core.Site {
         // LOAD/SAVE
 
         // these must be provided during app startup
-        public static Func<string, SiteDefinition> LoadSiteDefinition { get; set; }
-        public static Func<SiteDefinition, bool> SaveSiteDefinition { get; set; }
-        public static Action RemoveSiteDefinition { get; set; }
-        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, SitesInfo> GetSites { get; set; }
-        public static Func<string, SiteDefinition> LoadStaticSiteDefinition { get; set; }
+        public static Func<string, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; }
+        public static Func<SiteDefinition, Task<bool>> SaveSiteDefinitionAsync { get; set; }
+        public static Func<Task> RemoveSiteDefinitionAsync { get; set; }
+        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; }
+        public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; }
 
-        public class SitesInfo {
-            public List<SiteDefinition> Sites { get; set; }
-            public int Total { get; set; }
+        public class SaveResult {
+            public bool RestartRequired { get; set; }
         }
 
-        public void Save(out bool restart) {
-            restart = SiteDefinition.SaveSiteDefinition(this);
+        public async Task<SaveResult> SaveAsync() {
+            bool restart;
+            restart = await SiteDefinition.SaveSiteDefinitionAsync(this);
+            return new SaveResult {
+                RestartRequired = restart,
+            };
         }
-        public void AddNew() {
+        public async Task AddNewAsync() {
             // Add a new site
-            if (SiteDefinition.SaveSiteDefinition(this))
+            if (await SiteDefinition.SaveSiteDefinitionAsync(this))
                 throw new InternalError("SaveSiteDefinition implementation error - restart required");
             // we also have to create all site specific data - data providers expect the current site to be active so we have to switch temporarily
             SiteDefinition origSite = Manager.CurrentSite;
@@ -335,8 +339,8 @@ namespace YetaWF.Core.Site {
             // restore original site
             Manager.CurrentSite = origSite;
         }
-        public void Remove() {
-            SiteDefinition.RemoveSiteDefinition();
+        public async Task RemoveAsync() {
+            await SiteDefinition.RemoveSiteDefinitionAsync();
         }
 
         // INITIAL INSTALL

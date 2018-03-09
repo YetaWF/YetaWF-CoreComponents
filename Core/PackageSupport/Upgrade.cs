@@ -74,7 +74,7 @@ namespace YetaWF.Core.Packages {
             UpgradeLogging log = new UpgradeLogging();
             Logging.RegisterLogging(log);
 
-            SiteDefinition site = SiteDefinition.LoadSiteDefinition(null);// get the default site
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(null);// get the default site
             if (site == null)
                 throw new InternalError("Couldn't obtain default site");
             SiteDefinition origSite = YetaWFManager.Manager.CurrentSite;

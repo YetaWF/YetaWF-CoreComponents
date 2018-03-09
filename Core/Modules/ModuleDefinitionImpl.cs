@@ -615,7 +615,7 @@ namespace YetaWF.Core.Modules {
                 else
                     moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
 #else
-                using (new YetaWFManager.NeedSync(Manager)) {
+                using (new YetaWFManager.NeedSync()) { 
                     if (!string.IsNullOrEmpty(Area))
                         rvd.Add("Area", Area);
                     moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
@@ -711,7 +711,7 @@ namespace YetaWF.Core.Modules {
             else
                 moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
 #else
-            using (new YetaWFManager.NeedSync(Manager)) {
+            using (new YetaWFManager.NeedSync()) {
                 if (!string.IsNullOrEmpty(Area))
                     rvd.Add("Area", Area);
                 moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();

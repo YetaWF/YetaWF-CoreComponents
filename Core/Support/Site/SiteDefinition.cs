@@ -2,11 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Language;
 using YetaWF.Core.Localize;
@@ -19,6 +15,11 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Site {
 
@@ -160,12 +161,14 @@ namespace YetaWF.Core.Site {
         [Category("Variables"), Caption("Default Site Domain"), Description("The domain name of the default site for this instance of YetaWF")]
         public string DefaultSiteDomain {
             get {
-                return SiteDefinition.GetDefaultSiteDomain();
+                return YetaWFManager.Syncify(async () => { // this is cached anyway so no harm done
+                    return await SiteDefinition.GetDefaultSiteDomainAsync();
+                });
             }
         }
-        public static string GetDefaultSiteDomain() {
+        public static async Task<string> GetDefaultSiteDomainAsync() {
             if (_defaultSiteDomain == null) {
-                SiteDefinition defaultSite = LoadSiteDefinition(null);
+                SiteDefinition defaultSite = await LoadSiteDefinitionAsync(null);
                 _defaultSiteDomain = defaultSite.SiteDomain;
             }
             return _defaultSiteDomain;
