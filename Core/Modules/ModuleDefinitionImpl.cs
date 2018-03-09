@@ -408,7 +408,7 @@ namespace YetaWF.Core.Modules {
         public static async Task<ModuleDefinition> CreateUniqueModuleAsync(Type modType) {
             ModuleDefinition mod = ModuleDefinition.Create(modType);
             if (!mod.IsModuleUnique)
-                throw new InternalError("Non-unique module type {0} requested in CreateUniqueModule", modType.FullName);
+                throw new InternalError($"Non-unique module type {modType.FullName} requested in {nameof(CreateUniqueModuleAsync)}");
 
             ModuleDefinition existingMod = await ModuleDefinition.LoadAsync(mod.PermanentGuid, AllowNone: true);
             if (existingMod != null)

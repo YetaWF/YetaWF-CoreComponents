@@ -540,7 +540,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// Defines the class that causes this module to be injected at the end of the page.
         /// </summary>
         /// <remarks>Certain controls/templates use css that can be handled by skin modules. By defining InvokingCss, a module will automatically be
-        /// injected to implemented the control/template - typically this is a javascript/client side implementation</remarks>
+        /// injected to implement the control/template - typically this is a javascript/client side implementation.</remarks>
         [Category("Variables"), Caption("Invoking Css"), Description("Defines the Css that causes this module to be injected into the page, when the Css is used by a template - only supported for unique modules")]
         [UIHint("String"), ReadOnly]
         [DontSave]
