@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
@@ -19,7 +20,7 @@ namespace YetaWF.Core.Support.SendSMS {
         /// <param name="toNumber">The receiving number of the SMS message.</param>
         /// <param name="text">The text of the SMS message.</param>
         /// <param name="FromNumber">Optional sending number. If not specified, the SMS Settings are used to provide the default number.</param>
-        void SendSMS(string toNumber, string text, string FromNumber = null);
+        Task SendSMSAsync(string toNumber, string text, string FromNumber = null);
         /// <summary>
         /// The name of the SMS provider.
         /// </summary>
@@ -28,12 +29,12 @@ namespace YetaWF.Core.Support.SendSMS {
         /// Returns whether the SMS provider is available.
         /// </summary>
         /// <returns>True if it is available, false otherwise.</returns>
-        bool IsAvailable();
+        Task<bool> IsAvailableAsync();
         /// <summary>
         /// Returns whether the SMS provider is in test mode.
         /// </summary>
         /// <returns>True if it is in test mode, false otherwise.</returns>
-        bool IsTestMode();
+        Task<bool> IsTestModeAsync();
     }
 
     public class SendSMS {
@@ -49,18 +50,33 @@ namespace YetaWF.Core.Support.SendSMS {
             Logging.AddLog("Registering SMS processor named {0}", iproc.Name);
             RegisteredProcessors.Add(iproc);
         }
-        public static ISendSMS GetSMSProcessor() {
-            List<ISendSMS> procs = (from r in RegisteredProcessors where r.IsAvailable() select r).ToList();
+        public static async Task<ISendSMS> GetSMSProcessorAsync() {
+            List<ISendSMS> procs = new List<ISendSMS>();
+            foreach (ISendSMS r in procs) {
+                if (await r.IsAvailableAsync())
+                    procs.Add(r);
+            }
             if (procs.Count() > 1)
                 Logging.AddErrorLog("Multiple SMS processors are available - only the first one registered is used - {0}", procs.First().Name);
             else if (procs.Count() == 0)
                 throw new InternalError("No SMS processor available");
             return procs.First();
         }
-        public static ISendSMS GetSMSProcessorCond(out int count) {
-            List<ISendSMS> procs = (from r in RegisteredProcessors where r.IsAvailable() select r).ToList();
-            count = procs.Count();
-            return count > 0 && procs != null ? procs.First() : null;
+        public class GetSMSProcessorCondInfo {
+            public ISendSMS Processor { get; set; }
+            public int Count { get; set; }
+        }
+        public static async Task<GetSMSProcessorCondInfo> GetSMSProcessorCondAsync() {
+            List<ISendSMS> procs = new List<ISendSMS>();
+            foreach (ISendSMS r in procs) {
+                if (await r.IsAvailableAsync())
+                    procs.Add(r);
+            }
+            int count = procs.Count();
+            return new GetSMSProcessorCondInfo {
+                Processor = count > 0 && procs != null ? procs.First() : null,
+                Count = count,
+            };
         }
 
         /// <summary>
@@ -76,7 +92,7 @@ namespace YetaWF.Core.Support.SendSMS {
         ///
         /// In order to use a phone number as <i>toNumber</i>, an SMS provider has to be installed. SMS providers offering SMS services are generally not free.
         /// </remarks>
-        public void SendMessage(string toNumber, string text, string FromNumber = null, bool ThrowError = true) {
+        public async Task SendMessageAsync(string toNumber, string text, string FromNumber = null, bool ThrowError = true) {
             if (toNumber.Contains("@")) {
                 // send email
                 SendEmail.SendEmail sendEmail = new SendEmail.SendEmail();
@@ -87,7 +103,7 @@ namespace YetaWF.Core.Support.SendSMS {
                 sendEmail.Send(ThrowError);
             } else {
                 // send using SMS provider
-                ISendSMS sendSMS = GetSMSProcessor();
+                ISendSMS sendSMS = await GetSMSProcessorAsync();
                 if (sendSMS == null) {
                     if (ThrowError)
                         throw new InternalError("No SMS provider installed");
@@ -95,7 +111,7 @@ namespace YetaWF.Core.Support.SendSMS {
                         return;
                 }
                 try {
-                    sendSMS.SendSMS(toNumber, text, FromNumber: FromNumber);
+                    await sendSMS.SendSMSAsync(toNumber, text, FromNumber: FromNumber);
                 } catch (Exception) {
                     if (ThrowError)
                         throw;

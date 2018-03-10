@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
 using YetaWF.Core.Modules;
@@ -20,7 +21,7 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
         /// Returns whether the TwoStepAuthorization provider is available.
         /// </summary>
         /// <returns>True if it is available, false otherwise.</returns>
-        bool IsAvailable();
+        Task<bool> IsAvailableAsync();
         /// <summary>
         /// Returns a ModuleAction to complete login by showing a form to enter two-step authorization info.
         /// </summary>
@@ -28,12 +29,12 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
         /// <param name="userName">The user name of the user logging in.</param>
         /// <param name="email">The email address of the user logging in.</param>
         /// <returns>A ModuleAction which shows a form to enter two-step authorization info.</returns>
-        ModuleAction GetLoginAction(int userId, string userName, string email);
+        Task<ModuleAction> GetLoginActionAsync(int userId, string userName, string email);
         /// <summary>
         /// Returns a ModuleAction to set up two-step authorization for the current user.
         /// </summary>
         /// <returns>A ModuleAction which shows a form to set up two-step authorization info.</returns>
-        ModuleAction GetSetupAction();
+        Task<ModuleAction> GetSetupActionAsync();
         /// <summary>
         /// Verifies that the specified user has just been verified by the TwoStepAuthorization provider.
         /// </summary>
@@ -65,14 +66,25 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
             RegisteredProcessors.Add(iproc);
         }
 
-        public List<ITwoStepAuth> GetTwoStepAuthProcessors() {
-            return (from r in RegisteredProcessors where r.IsAvailable() select r).ToList();
+        public async Task<List<ITwoStepAuth>> GetTwoStepAuthProcessorsAsync() {
+            List<ITwoStepAuth> list = new List<ITwoStepAuth>();
+            foreach (ITwoStepAuth r in RegisteredProcessors) {
+                if (await r.IsAvailableAsync())
+                    list.Add(r);
+            }
+            return list;
         }
-        public ITwoStepAuth GetTwoStepAuthProcessorByName(string name) {
-            return (from p in GetTwoStepAuthProcessors() where p.IsAvailable() && p.Name == name select p).FirstOrDefault();
+        public async Task<ITwoStepAuth> GetTwoStepAuthProcessorByNameAsync(string name) {
+            List<ITwoStepAuth> list = await GetTwoStepAuthProcessorsAsync();
+            foreach (ITwoStepAuth r in RegisteredProcessors) {
+                if (await r.IsAvailableAsync() && r.Name == name)
+                    return r;
+            }
+            return null;
         }
-        public ModuleAction GetLoginAction(List<string> enabledTwoStepAuthentications, int userId, string userName, string email) {
-            List<string> procs = (from p in GetTwoStepAuthProcessors() where p.IsAvailable() select p.Name).ToList();
+        public async Task<ModuleAction> GetLoginActionAsync(List<string> enabledTwoStepAuthentications, int userId, string userName, string email) {
+            List<ITwoStepAuth> list = await GetTwoStepAuthProcessorsAsync();
+            List<string> procs = (from p in list select p.Name).ToList();
             procs = procs.Intersect(enabledTwoStepAuthentications).ToList();
             if (procs.Count == 0)
                 return null;
@@ -82,22 +94,22 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
             } else {
                 // call two-step method
                 string procName = procs.First();
-                ITwoStepAuth auth = GetTwoStepAuthProcessorByName(procs.First());
+                ITwoStepAuth auth = await GetTwoStepAuthProcessorByNameAsync(procs.First());
                 if (auth == null)
                     throw new InternalError("TwoStepAuthorization provider {0} not found", procName);
-                return auth.GetLoginAction(userId, userName, email);
+                return await auth.GetLoginActionAsync(userId, userName, email);
             }
         }
-        public bool VerifyTwoStepAutheticationDone(int userId) {
-            List<ITwoStepAuth> procs = (from p in GetTwoStepAuthProcessors() where p.IsAvailable() select p).ToList();
+        public async Task<bool> VerifyTwoStepAutheticationDoneAsync(int userId) {
+            List<ITwoStepAuth> procs = await GetTwoStepAuthProcessorsAsync();
             foreach (ITwoStepAuth auth in procs) {
                 if (auth.CheckVerifiedUser(userId))
                     return true;
             }
             return false;
         }
-        public bool ClearTwoStepAuthetication(int userId) {
-            List<ITwoStepAuth> procs = (from p in GetTwoStepAuthProcessors() where p.IsAvailable() select p).ToList();
+        public async Task<bool> ClearTwoStepAutheticationAsync(int userId) {
+            List<ITwoStepAuth> procs = await GetTwoStepAuthProcessorsAsync();
             foreach (ITwoStepAuth auth in procs)
                 auth.ClearVerifiedUser(userId);
             return false;
