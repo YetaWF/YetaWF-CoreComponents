@@ -10,6 +10,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -104,11 +105,11 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToHtmlString();
         }
 #if MVC6
-        public static HtmlString RenderTabInit(this IHtmlHelper htmlHelper, string controlId, object model = null) {
+        public static async Task<HtmlString> RenderTabInitAsync(this IHtmlHelper htmlHelper, string controlId, object model = null) {
 #else
-        public static HtmlString RenderTabInit(this HtmlHelper htmlHelper, string controlId, object model = null) {
+        public static async Task<HtmlString> RenderTabInitAsync(this HtmlHelper htmlHelper, string controlId, object model = null) {
 #endif
-            Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript as the regular propertylist template */
+            await Manager.AddOnManager.AddTemplateAsync("PropertyList"); /*we're using the same javascript as the regular propertylist template */
 
             ScriptBuilder sb = new ScriptBuilder();
             // About tab switching and YetaWF_PropertyList_PanelSwitched
@@ -470,18 +471,18 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToHtmlString();
         }
 #if MVC6
-        public static HtmlString RenderPropertyListTabbedDisplay(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListTabbedDisplayAsync(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static HtmlString RenderPropertyListTabbedDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListTabbedDisplayAsync(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #endif
-            return htmlHelper.RenderPropertyListTabbed(name, model, null, ReadOnly: true);
+            return await htmlHelper.RenderPropertyListTabbedAsync(name, model, null, ReadOnly: true);
         }
 #if MVC6
-        public static HtmlString RenderPropertyListTabbed(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListTabbedAsync(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static HtmlString RenderPropertyListTabbed(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListTabbedAsync(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #endif
-            Manager.AddOnManager.AddTemplate("PropertyList"); /*we're using the same javascript as the regular propertylist template */
+            await Manager.AddOnManager.AddTemplateAsync("PropertyList"); /*we're using the same javascript as the regular propertylist template */
 
             List<string> categories = PropertyListSupport.GetCategories(model);
             if (categories.Count <= 1) // if there is only one tab, show as regular property list
@@ -521,7 +522,7 @@ namespace YetaWF.Core.Views.Shared {
             }
 
             hb.Append("</div>");
-            hb.Append(htmlHelper.RenderTabInit(divId));
+            hb.Append(await htmlHelper.RenderTabInitAsync(divId));
 
             RenderFooter(hb, classData);
 

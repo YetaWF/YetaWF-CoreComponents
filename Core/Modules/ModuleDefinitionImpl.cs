@@ -632,7 +632,7 @@ namespace YetaWF.Core.Modules {
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
                 return HtmlStringExtender.Empty; // if the module contents are empty, we bail
 
-            Manager.AddOnManager.AddModule(this);
+            await Manager.AddOnManager.AddModuleAsync(this);
 
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
                 return HtmlStringExtender.Empty; // if the module contents are empty, we bail
@@ -692,9 +692,9 @@ namespace YetaWF.Core.Modules {
         /// </summary>
 
 #if MVC6
-        public HtmlString RenderReferencedModule_Ajax(IHtmlHelper htmlHelper)
+        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(IHtmlHelper htmlHelper)
 #else
-        public HtmlString RenderReferencedModule_Ajax(HtmlHelper htmlHelper)
+        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(HtmlHelper htmlHelper)
 #endif
         {
             // execute action
@@ -721,7 +721,7 @@ namespace YetaWF.Core.Modules {
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
                 return HtmlStringExtender.Empty; // if the module contents are empty, we bail
 
-            Manager.AddOnManager.AddModule(this);
+            await Manager.AddOnManager.AddModuleAsync(this);
 
             return new HtmlString(moduleHtml);
         }

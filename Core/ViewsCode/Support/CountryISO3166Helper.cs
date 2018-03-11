@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
@@ -42,9 +43,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static HtmlString RenderCountryISO3166(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderCountryISO3166Async(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderCountryISO3166(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderCountryISO3166Async(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             bool includeSiteCountry;
             if (!htmlHelper.TryGetParentModelSupportProperty<bool>(name, "SiteCountry", out includeSiteCountry))
@@ -59,7 +60,7 @@ namespace YetaWF.Core.Views.Shared {
                 Text = __ResStr("default", "(select)"),
                 Value = "",
             });
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
         /// <summary>
         /// Convert a country name to an ISO 3166 two character Id.

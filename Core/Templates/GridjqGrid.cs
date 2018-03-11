@@ -1,14 +1,16 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Addons.Templates {
+
     public class Grid : IAddOnSupport {
 
-        public void AddSupport(YetaWFManager manager) {
+        public Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
             string areaName = "Grid";
@@ -44,6 +46,8 @@ namespace YetaWF.Core.Addons.Templates {
             scripts.AddLocalization(areaName, "nc", this.__ResStr("nc", "Does not contain"));
             scripts.AddLocalization(areaName, "nu", this.__ResStr("nu", "Is null"));
             scripts.AddLocalization(areaName, "nn", this.__ResStr("nn", "Is not null"));
+
+            return Task.CompletedTask;
         }
     }
 }

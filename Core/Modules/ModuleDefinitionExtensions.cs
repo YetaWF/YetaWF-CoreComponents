@@ -189,7 +189,7 @@ namespace YetaWF.Core.Modules {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToHtmlString();
             }
-            return mod.RenderReferencedModule_Ajax(htmlHelper);
+            return await mod.RenderReferencedModule_AjaxAsync(htmlHelper);
         }
 
         // non-unique, possibly new, typically used in skin to create non-unique non-pane modules

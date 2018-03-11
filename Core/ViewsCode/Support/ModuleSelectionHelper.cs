@@ -53,7 +53,7 @@ namespace YetaWF.Core.Views.Shared {
                     }).ToList<SelectionItem<string>>();
             list = (from l in list orderby l.Text select l).ToList();
             list.Insert(0, new SelectionItem<string> { Text = __ResStr("selectPackage", "(select)"), Value = null });
-            return htmlHelper.RenderDropDownSelectionList<string>("Packages", areaName, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync<string>("Packages", areaName, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
         public static async Task<HtmlString> RenderModuleSelectionAsync(this IHtmlHelper htmlHelper, string name, bool newMods, Guid? moduleGuid, object HtmlAttributes = null) {
@@ -86,7 +86,7 @@ namespace YetaWF.Core.Views.Shared {
                 }
             }
             list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("none", "(none)"), Value = null });
-            return htmlHelper.RenderDropDownSelectionList<Guid?>(name, moduleGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync<Guid?>(name, moduleGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
         private static async Task<string> GetAreaNameFromGuidAsync(bool newMods, Guid? moduleGuid) {
             if (moduleGuid != null) {

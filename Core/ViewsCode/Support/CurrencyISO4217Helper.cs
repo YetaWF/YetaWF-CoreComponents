@@ -9,6 +9,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -51,9 +52,9 @@ namespace YetaWF.Core.Views.Shared {
         }
 
 #if MVC6
-        public static HtmlString RenderCurrencyISO4217(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderCurrencyISO4217Async(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderCurrencyISO4217(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderCurrencyISO4217Async(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             bool includeSiteCurrency;
             if (!htmlHelper.TryGetParentModelSupportProperty<bool>(name, "SiteCurrency", out includeSiteCurrency))
@@ -68,7 +69,7 @@ namespace YetaWF.Core.Views.Shared {
                 Text = __ResStr("default", "(select)"),
                 Value = "",
             });
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
         /// <summary>
         /// Convert a currency name to an ISO 4217 three character Id.

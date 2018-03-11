@@ -9,6 +9,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -25,9 +26,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(USStateHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderUSState(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderUSStateAsync(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderUSState(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderUSStateAsync(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             List<SelectionItem<string>> states = ReadStatesList();
 
@@ -40,7 +41,7 @@ namespace YetaWF.Core.Views.Shared {
                     Value = "",
                 });
             }
-            return htmlHelper.RenderDropDownSelectionList<string>(name, model, states, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync<string>(name, model, states, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
         public static HtmlString RenderUSStateDisplay(this IHtmlHelper htmlHelper, string name, string model) {

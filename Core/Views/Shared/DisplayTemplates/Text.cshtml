@@ -1,3 +1,3 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.Text<System.String>
-@Html.RenderTextBoxDisplay("", Model, HtmlAttributes: new { @class = "yt_text t_display", disabled = "disabled" })
+@Html.RenderTextBoxDisplayAsync("", Model, HtmlAttributes: new { @class = "yt_text t_display", disabled = "disabled" }).Result

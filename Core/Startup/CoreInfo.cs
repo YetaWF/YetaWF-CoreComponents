@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Addons {
@@ -15,6 +16,8 @@ namespace YetaWF.Core.Addons {
 
         public const string Resource_SMTPServer_SendTestEmail = "YetaWF_Core-SMTPServer_SendTestEmail";
 
-        public void AddSupport(YetaWFManager manager) { }
+        public Task AddSupportAsync(YetaWFManager manager) {
+            return Task.CompletedTask;
+        }
     }
 }

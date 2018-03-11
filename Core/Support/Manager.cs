@@ -1466,7 +1466,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Define options for the current page or popup skin.
         /// </summary>
-        internal void SetSkinOptions() {
+        internal async Task SetSkinOptions() {
             SkinAccess skinAccess = new SkinAccess();
             SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
             SkinInfo = info;
@@ -1481,9 +1481,9 @@ namespace YetaWF.Core.Support {
                         skin = Manager.CurrentSite.BootstrapSkin;
                     string themeFolder = skinAccess.FindBootstrapSkin(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
-                        AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
+                        await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootstrap-less");
                     else
-                        AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootswatch", themeFolder);
+                        await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootswatch", themeFolder);
                 }
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
@@ -1492,7 +1492,7 @@ namespace YetaWF.Core.Support {
                 CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
             if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
                 CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
-            AddOnManager.AddSkinBasedAddOns();
+            await AddOnManager.AddSkinBasedAddOnsAsync();
         }
 
         /// <summary>

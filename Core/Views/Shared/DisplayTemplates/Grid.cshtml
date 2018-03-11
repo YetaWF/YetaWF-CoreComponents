@@ -1,9 +1,10 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.Grid<YetaWF.Core.Models.GridDefinition>
 @using YetaWF.Core.Addons
+@using YetaWF.Core.Views.Shared
 
 @{
-    Manager.AddOnManager.AddAddOnGlobal("github.com.free-jqgrid", "jqgrid");
+    Manager.AddOnManager.AddAddOnGlobalAsync("github.com.free-jqgrid", "jqgrid").Wait();
 
     string dataDelete = "", dataDisplay = "";
     string dataExtra = "";
@@ -36,7 +37,7 @@
     if (!isAjax && Model.Data == null) { throw new YetaWF.Core.Support.InternalError("Neither AjaxUrl nor local Data specified"); }
 
     string dataId = @UniqueId("griddata");
-    bool hasFilters = false;
+    GridjqGridHelper.GetColModelInfo colModelInfo = Html.GetColModelAsync(gridSavedSettings, Model).Result;
 <script>
     function InitGrid_@Model.Id () {
         @if (!isAjax) {
@@ -48,7 +49,7 @@
         var emptyDiv = "<div id='@idEmpty' class='t_emptydiv'>@Model.NoRecordsText</div>";
         var options = {
             colNames: [ @Html.RenderColNames(Model) ],
-            colModel: [ @Html.RenderColModel(gridSavedSettings, Model, out hasFilters) ],
+            colModel: [ @colModelInfo.Data ],
             shrinkToFit: @JSEncode(Model.SizeToFit),
             @if (pageSize > 0 && (isAjax || Model.CanAddOrDelete || pageSize < Model.Data.Data.Count)) {
                 @: pager : '#@(Model.Id)_Pager',
@@ -117,7 +118,7 @@
         }
 
         // http://www.trirand.com/blog/?page_id=393/help/search-toolbar-hide-by-default
-        @if (hasFilters) {
+        @if (colModelInfo.HasFilters) {
             @: $grid.jqGrid('navButtonAdd', '#@(Model.Id)_Pager', {
             @:     caption: "",
             @:     title: YLocs.Grid.pgsearchTB,

@@ -2,6 +2,7 @@
 
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,11 +19,11 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static HtmlString RenderTextArea(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderTextAreaAsync(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextArea(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderTextAreaAsync(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
-            Manager.AddOnManager.AddAddOnGlobal("ckeditor.com", "ckeditor");
+            await Manager.AddOnManager.AddAddOnGlobalAsync("ckeditor.com", "ckeditor");
 
             TagBuilder tag = new TagBuilder("textarea");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes);

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
@@ -23,9 +24,9 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static HtmlString RenderMultiStringEdit(this IHtmlHelper htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderMultiStringEditAsync(this IHtmlHelper htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderMultiStringEdit(this HtmlHelper<object> htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderMultiStringEditAsync(this HtmlHelper<object> htmlHelper, string name, MultiString ms, string divId, string cls, object HtmlAttributes = null) {
 #endif
             string fullName = htmlHelper.FieldName(name);
 
@@ -66,7 +67,7 @@ namespace YetaWF.Core.Views.Shared {
                 selectLang = MultiString.DefaultLanguage;
 
             // generate a textbox for the currently selected language
-            hb.Append(htmlHelper.RenderTextBox("", ms[selectLang], HtmlAttributes: new { @class = cls + " yt_multistring_text yt_text_base " + Forms.CssFormNoSubmit }));
+            hb.Append(await htmlHelper.RenderTextBoxAsync("", ms[selectLang], HtmlAttributes: new { @class = cls + " yt_multistring_text yt_text_base " + Forms.CssFormNoSubmit }));
 
             // generate a dropdownlist for the available languages
             List<SelectionItem<string>> selectLangList = new List<SelectionItem<string>>();
@@ -74,17 +75,17 @@ namespace YetaWF.Core.Views.Shared {
                 selectLangList.Add(new SelectionItem<string> { Text = lang.ShortName, Value = lang.Id, Tooltip = lang.Description });
             }
             string idDD = Manager.UniqueId("lng");
-            hb.Append(htmlHelper.RenderDropDownSelectionList<string>(
+            hb.Append(await htmlHelper.RenderDropDownSelectionListAsync<string>(
                 "Language",
                 selectLang,
                 selectLangList,
                 HtmlAttributes:
                     Manager.CurrentSite.Localization ?
-                        (object) new {
+                        (object)new {
                             Id = idDD,
                             @class = Forms.CssFormNoSubmit
                         } :
-                        (object) new {
+                        (object)new {
                             disabled = "disabled", Id = idDD,
                             @class = Forms.CssFormNoSubmit
                         }

@@ -256,7 +256,7 @@ namespace YetaWF.Core.Pages {
             using (new YetaWFManager.NeedSync()) { // rendering needs to be sync (for templates)
                 base.ExecutePageHierarchy();
             }
-            EndRender(null);
+            EndRenderAsync(null).Wait();
         }
 #endif
         public void BeginRender(ViewContext context) {
@@ -304,11 +304,11 @@ namespace YetaWF.Core.Pages {
         private string _domain { get; set; }
         private string _templateName { get; set; }
 
-        public void EndRender(ViewContext context) {
+        public async Task EndRenderAsync(ViewContext context) {
             if (IsTemplate) {
                 Manager.PopModel();
                 if (!string.IsNullOrWhiteSpace(_domain) && !string.IsNullOrWhiteSpace(_product))
-                    Manager.AddOnManager.AddTemplate(_domain, _product, _templateName);
+                    await Manager.AddOnManager.AddTemplateAsync(_domain, _product, _templateName);
             } else {
                 Manager.PopModel();
             }

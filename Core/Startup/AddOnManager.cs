@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
@@ -18,7 +19,7 @@ using System.Web;
 namespace YetaWF.Core.Addons {
 
     public interface IAddOnSupport {
-        void AddSupport(YetaWFManager manager);
+        Task AddSupportAsync(YetaWFManager manager);
     }
 
     public class AddOnManager {
@@ -52,12 +53,12 @@ namespace YetaWF.Core.Addons {
         /// <param name="args">Any optional arguments supported by the addon.</param>
         /// <param name="name">The name of the addon.</param>
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
-        public void AddAddOnNamed(string domainName, string productName, string name, params object[] args) {
+        public async Task AddAddOnNamedAsync(string domainName, string productName, string name, params object[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(domainName, productName, name);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
-            Manager.ScriptManager.AddAddOn(version, args);
+            await Manager.ScriptManager.AddAddOnAsync(version, args);
             Manager.CssManager.AddAddOn(version, args);
         }
         /// <summary>
@@ -67,12 +68,12 @@ namespace YetaWF.Core.Addons {
         /// <param name="productName">The product name of the addon.</param>
         /// <param name="args">Any optional arguments supported by the addon.</param>
         /// <remarks>Global addons are located in the Core package folder ./Addons/_JS/domainname/productname.</remarks>
-        public void AddAddOnGlobal(string domainName, string productName, params object[] args) {
+        public async Task AddAddOnGlobalAsync(string domainName, string productName, params object[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnGlobalVersion(domainName, productName);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
-            Manager.ScriptManager.AddAddOn(version, args);
+            await Manager.ScriptManager.AddAddOnAsync(version, args);
             Manager.CssManager.AddAddOn(version, args);
         }
 
@@ -104,7 +105,7 @@ namespace YetaWF.Core.Addons {
         /// If the template name ends in a number, it could be a template with ending numeric variations (like Text20, Text40, Text80)
         /// which are all the same template. However, if we find an installed addon template that ends in the exact name (including number) we use that first.
         /// </remarks>
-        public void AddTemplate(string domainName, string productName, string templateName) {
+        public async Task AddTemplateAsync(string domainName, string productName, string templateName) {
             if (Manager.IsPostRequest) return;
             string templateNameBasic = templateName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
             VersionManager.AddOnProduct version;
@@ -114,7 +115,7 @@ namespace YetaWF.Core.Addons {
                 if (version != null) {
                     if (_AddedProducts.Contains(version)) return;
                     _AddedProducts.Add(version);
-                    Manager.ScriptManager.AddAddOn(version);
+                    await Manager.ScriptManager.AddAddOnAsync(version);
                     Manager.CssManager.AddAddOn(version);
                     return;
                 }
@@ -123,7 +124,7 @@ namespace YetaWF.Core.Addons {
             if (version != null) {
                 if (_AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
-                Manager.ScriptManager.AddAddOn(version);
+                await Manager.ScriptManager.AddAddOnAsync(version);
                 Manager.CssManager.AddAddOn(version);
             }
         }
@@ -131,15 +132,15 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Add a core template - ignores non-existent templates
         /// </summary>
-        public void AddTemplate(string templateName) {
-            AddTemplate(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Domain, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Product, templateName);
+        public async Task AddTemplateAsync(string templateName) {
+            await AddTemplateAsync(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Domain, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Product, templateName);
         }
 
         /// <summary>
         /// Add a template given a uihint - ignores non-existent templates
         /// </summary>
         /// <param name="uiHintTemplate"></param>
-        public void AddTemplateFromUIHint(string uiHintTemplate) {
+        public async Task AddTemplateFromUIHintAsync(string uiHintTemplate) {
             if (Manager.IsPostRequest) return;
             if (string.IsNullOrWhiteSpace(uiHintTemplate)) return;
 
@@ -148,12 +149,12 @@ namespace YetaWF.Core.Addons {
             int firstIndex = uiHintTemplate.IndexOf("_");
             if (firstIndex < 0) {
                 // standard template
-                AddTemplate(uiHintTemplate);
+                await AddTemplateAsync(uiHintTemplate);
             } else {
                 // domain_product_name template
                 string[] parts = uiHintTemplate.Split(new char[] { '_' }, 3);
                 if (parts.Length != 3) throw new InternalError("Unexpected error");
-                AddTemplate(parts[0], parts[1], parts[2]);
+                await AddTemplateAsync(parts[0], parts[1], parts[2]);
             }
         }
 
@@ -162,12 +163,12 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="module">The module.</param>
         /// <remarks>Adds the the associated Javascript/Css for the module's package and all required packages.</remarks>
-        public void AddModule(ModuleDefinition module) {
+        public async Task AddModuleAsync(ModuleDefinition module) {
             if (Manager.IsPostRequest) return;
             Package modPackage = Package.GetCurrentPackage(module);
-            AddPackage(modPackage, new List<Package>());
+            await AddPackageAsync(modPackage, new List<Package>());
         }
-        private void AddPackage(Package modPackage, List<Package> packagesFound) {
+        private async Task AddPackageAsync(Package modPackage, List<Package> packagesFound) {
             string domain = modPackage.Domain;
             string product = modPackage.Product;
             // Add the package
@@ -176,13 +177,13 @@ namespace YetaWF.Core.Addons {
                 VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(domain, product);
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
-                Manager.ScriptManager.AddAddOn(version);
+                await Manager.ScriptManager.AddAddOnAsync(version);
                 Manager.CssManager.AddAddOn(version);
                 // Also add all packages this module requires
                 List<string> packageNames = modPackage.GetRequiredPackages();
                 foreach (var name in packageNames) {
                     Package package = Package.GetPackageFromPackageName(name);
-                    AddPackage(package, packagesFound);
+                    await AddPackageAsync(package, packagesFound);
                 }
             }
         }
@@ -192,12 +193,12 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <param name="args"></param>
-        public void AddSkin(string skinCollection, params object[] args) {
+        public async Task AddSkinAsync(string skinCollection, params object[] args) {
             Manager.Verify_NotPostRequest();
             VersionManager.AddOnProduct version = VersionManager.FindSkinVersion(skinCollection);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
-            Manager.ScriptManager.AddAddOn(version, args);
+            await Manager.ScriptManager.AddAddOnAsync(version, args);
             Manager.CssManager.AddAddOn(version, args);
         }
 
@@ -230,14 +231,14 @@ namespace YetaWF.Core.Addons {
             }
         }
 
-        public void AddStandardAddOns() {
-            AddAddOnGlobal("jquery.com", "jquery");
-            AddAddOnGlobal("jqueryui.com", "jqueryui");
-            AddAddOnGlobal("medialize.github.io", "URI.js");// for client-side Url manipulation
-            AddAddOnGlobal("necolas.github.io", "normalize");
+        public async Task AddStandardAddOnsAsync() {
+            await AddAddOnGlobalAsync("jquery.com", "jquery");
+            await AddAddOnGlobalAsync("jqueryui.com", "jqueryui");
+            await AddAddOnGlobalAsync("medialize.github.io", "URI.js");// for client-side Url manipulation
+            await AddAddOnGlobalAsync("necolas.github.io", "normalize");
         }
 
-        public void AddSkinBasedAddOns() {
+        public async Task AddSkinBasedAddOnsAsync() {
             SkinAccess skinAccess = new SkinAccess();
 
             // Find the jquery theme
@@ -245,14 +246,14 @@ namespace YetaWF.Core.Addons {
             if (string.IsNullOrWhiteSpace(skin))
                 skin = Manager.CurrentSite.jQueryUISkin;
             string themeFolder = skinAccess.FindJQueryUISkin(skin);
-            AddAddOnGlobal("jqueryui.com", "jqueryui-themes", themeFolder);
+            await AddAddOnGlobalAsync("jqueryui.com", "jqueryui-themes", themeFolder);
 
             // Find Kendo UI theme
             skin = Manager.CurrentPage.KendoUISkin;
             if (string.IsNullOrWhiteSpace(skin))
                 skin = Manager.CurrentSite.KendoUISkin;
             string internalTheme = skinAccess.FindKendoUISkin(skin);
-            Manager.ScriptManager.AddAddOn(VersionManager.KendoAddon, internalTheme);
+            await Manager.ScriptManager.AddAddOnAsync(VersionManager.KendoAddon, internalTheme);
             Manager.CssManager.AddAddOn(VersionManager.KendoAddon, internalTheme);
         }
 

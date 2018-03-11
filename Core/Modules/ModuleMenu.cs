@@ -152,9 +152,9 @@ namespace YetaWF.Core.Modules {
             //Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.menu.min.js");
 
-            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "ModuleMenu");
-            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Modules");// various module support
-            Manager.AddOnManager.AddAddOnGlobal("jquery.com", "jquery-color");// for color change when entering module edit menu
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "ModuleMenu");
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Modules");// various module support
+            await Manager.AddOnManager.AddAddOnGlobalAsync("jquery.com", "jquery-color");// for color change when entering module edit menu
 
             return hb.ToHtmlString();
         }

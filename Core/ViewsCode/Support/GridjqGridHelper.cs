@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
@@ -53,10 +54,14 @@ namespace YetaWF.Core.Views.Shared {
             sb.RemoveLast(); // remove last comma
             return sb.ToHtmlString();
         }
+        public class GetColModelInfo {
+            public HtmlString Data { get; set; }
+            public bool HasFilters { get; set; }
+        }
 #if MVC6
-        public static HtmlString RenderColModel(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
+        public static async Task<GetColModelInfo> GetColModelAsync(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #else
-        public static HtmlString RenderColModel(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
+        public static async Task<GetColModelInfo> GetColModelAsync(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -64,7 +69,7 @@ namespace YetaWF.Core.Views.Shared {
             GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
             Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
 
-            hasFilters = false;
+            bool hasFilters = false;
 
             foreach (var d in dict) {
                 string propName = d.Key;
@@ -172,10 +177,13 @@ namespace YetaWF.Core.Views.Shared {
 
                 // get the uihint to add the template
                 if (prop.UIHint != null)
-                    Manager.AddOnManager.AddTemplateFromUIHint(prop.UIHint);
+                    await Manager.AddOnManager.AddTemplateFromUIHintAsync(prop.UIHint);
             }
             sb.RemoveLast(); // remove last comma
-            return sb.ToHtmlString();
+            return new GetColModelInfo {
+                HasFilters = hasFilters,
+                Data = sb.ToHtmlString()
+            };
         }
 
         private static void AddFilterOptions(ScriptBuilder sb, GridColumnInfo gridCol) {

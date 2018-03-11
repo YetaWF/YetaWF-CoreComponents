@@ -7,6 +7,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,11 +24,11 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(LanguageIdHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderLanguageId(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderLanguageIdAsync(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderLanguageId(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderLanguageIdAsync(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
-            bool useDefault = ! htmlHelper.GetControlInfo<bool>("", "NoDefault");
+            bool useDefault = !htmlHelper.GetControlInfo<bool>("", "NoDefault");
             bool allLanguages = htmlHelper.GetControlInfo<bool>("", "AllLanguages");
 
             List<SelectionItem<string>> list;
@@ -55,7 +56,7 @@ namespace YetaWF.Core.Views.Shared {
                     selection = MultiString.ActiveLanguage;
             }
             // display the languages in a drop down
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
     }
 }

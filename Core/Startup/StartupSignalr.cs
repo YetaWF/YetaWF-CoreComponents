@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Site;
 #if MVC6
@@ -23,8 +24,8 @@ namespace YetaWF.Core.Support {
     {
         public static readonly string SignalRUrl = "/__signalr";
 
-        public static void Use() {
-            YetaWFManager.Manager.AddOnManager.AddAddOnGlobal("github.com.signalr", "signalr");
+        public static async Task UseAsync() {
+            await YetaWFManager.Manager.AddOnManager.AddAddOnGlobalAsync("github.com.signalr", "signalr");
             YetaWFManager.Manager.ScriptManager.AddConfigOption("Basics", "SignalRUrl", SignalRUrl);
         }
 

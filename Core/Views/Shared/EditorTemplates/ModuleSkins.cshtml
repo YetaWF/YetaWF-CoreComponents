@@ -11,7 +11,7 @@
             @Html.RenderExtLabel(skinDef.CollectionDescription, ToolTip: skinDef.CollectionDescription)
             @Html.Hidden(string.Format("[{0}].Popup", index), true)
             @Html.Hidden(string.Format("[{0}].Collection", index), skinDef.CollectionName)
-            @Html.RenderModuleSkinsForCollection(string.Format("[{0}].FileName", index), Model, skinDef.CollectionName)
+            @Html.RenderModuleSkinsForCollectionAsync(string.Format("[{0}].FileName", index), Model, skinDef.CollectionName).Result
             @Html.ValidationMessage(string.Format("[{0}].Skin", index))
         </div>
         index++;

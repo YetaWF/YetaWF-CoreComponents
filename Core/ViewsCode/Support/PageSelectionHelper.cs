@@ -26,9 +26,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageSelectionHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderPageSelectionDD(this IHtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPageSelectionDDAsync(this IHtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPageSelectionDDAsync(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #endif
             List<SelectionItem<Guid?>> list;
             list = (
@@ -39,7 +39,7 @@ namespace YetaWF.Core.Views.Shared {
                     }).ToList<SelectionItem<Guid?>>();
             list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("select", "(select)"), Value = null });
 
-            return htmlHelper.RenderDropDownSelectionList<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
         public static async Task<HtmlString> HtmlString RenderPageSelectionLinkAsync(this IHtmlHelper htmlHelper, Guid? pageGuid) {

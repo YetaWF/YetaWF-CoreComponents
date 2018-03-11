@@ -8,6 +8,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -104,9 +105,9 @@ namespace YetaWF.Core.Views.Shared {
             return tag.ToHtmlString(TagRenderMode.Normal);
         }
 #if MVC6
-        public static HtmlString RenderSkinCollection(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderSkinCollectionAsync(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderSkinCollection(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderSkinCollectionAsync(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             // get all available skins
             SkinAccess skinAccess = new SkinAccess();
@@ -122,32 +123,32 @@ namespace YetaWF.Core.Views.Shared {
                     Value = "",
                 });
             // display the skins in a drop down
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
         public static HtmlString RenderPageSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderPageSkinsForCollection(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPageSkinsForCollectionAsync(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #endif
-        // get all available page skins for this collection
-        SkinAccess skinAccess = new SkinAccess();
+            // get all available page skins for this collection
+            SkinAccess skinAccess = new SkinAccess();
             PageSkinList skinList = skinAccess.GetAllPageSkins(collection);
-            return RenderSkinsForCollection(htmlHelper, name, selection, skinList, HtmlAttributes);
+            return await RenderSkinsForCollectionAsync(htmlHelper, name, selection, skinList, HtmlAttributes);
         }
 #if MVC6
-        public static HtmlString RenderPopupSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPopupSkinsForCollectionAsync(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderPopupSkinsForCollection(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPopupSkinsForCollectionAsync(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #endif
             // get all available popup skins for this collection
             SkinAccess skinAccess = new SkinAccess();
             PageSkinList skinList = skinAccess.GetAllPopupSkins(collection);
-            return RenderSkinsForCollection(htmlHelper, name, selection, skinList, HtmlAttributes);
+            return await RenderSkinsForCollectionAsync(htmlHelper, name, selection, skinList, HtmlAttributes);
         }
 #if MVC6
-        private static HtmlString RenderSkinsForCollection(IHtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
+        private static async Task<HtmlString> RenderSkinsForCollectionAsync(IHtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
 #else
-        private static HtmlString RenderSkinsForCollection(HtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
+        private static async Task<HtmlString> RenderSkinsForCollectionAsync(HtmlHelper htmlHelper, string name, string selection, PageSkinList skinList, object HtmlAttributes)
 #endif
         {
             List<SelectionItem<string>> list = (from skin in skinList orderby skin.Description select new SelectionItem<string>() {
@@ -156,7 +157,7 @@ namespace YetaWF.Core.Views.Shared {
                 Value = skin.FileName,
             }).ToList();
             // display the skins in a drop down
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
         public static HtmlString RenderReplacementSkinsForCollection(PageSkinList skinList) {
             List<SelectionItem<string>> list = (from skin in skinList orderby skin.Description select new SelectionItem<string>() {
@@ -168,9 +169,9 @@ namespace YetaWF.Core.Views.Shared {
             return DropDownHelper.RenderDataSource(null, list);
         }
 #if MVC6
-        public static HtmlString RenderModuleSkinsForCollection(this IHtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderModuleSkinsForCollectionAsync(this IHtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderModuleSkinsForCollection(this HtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderModuleSkinsForCollectionAsync(this HtmlHelper htmlHelper, string name, SerializableList<SkinDefinition> model, string collection, object HtmlAttributes = null) {
 #endif
             // get all available module skins for this collection
             SkinAccess skinAccess = new SkinAccess();
@@ -183,7 +184,7 @@ namespace YetaWF.Core.Views.Shared {
                 Value = skin.CssClass,
             }).ToList();
             // display the skins in a drop down
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
     }
 }

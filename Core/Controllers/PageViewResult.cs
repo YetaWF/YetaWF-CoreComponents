@@ -130,13 +130,13 @@ namespace YetaWF.Core.Controllers {
                 }
                 Manager.LastUpdated = requestedPage.Updated;
 
-                Manager.AddOnManager.AddStandardAddOns();
-                Manager.SetSkinOptions();
-                Manager.AddOnManager.AddSkin(skinCollection);
+                await Manager.AddOnManager.AddStandardAddOnsAsync();
+                await Manager.SetSkinOptions();
+                await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
-                Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Basics");
+                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");
                 if (Manager.IsInPopup)
-                    Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Popups");
+                    await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");
 
                 string pageHtml;
 #if MVC6

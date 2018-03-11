@@ -10,6 +10,7 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -219,14 +220,14 @@ namespace YetaWF.Core.Views {
 
         protected MvcForm Form(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
             Manager.NextUniqueIdPrefix();
-            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Forms");
+            Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms").Wait(); // it's only done once and would complicate things a lot //TODO:$$$ move/remove
 
             _viewName = viewName;
             if (string.IsNullOrWhiteSpace(ActionName))
                 ActionName = viewName;
             _model = Model;
 
-            IDictionary<string,object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
+            IDictionary<string, object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
             if (SaveReturnUrl)
                 rvd.Add(Basics.CssSaveReturnUrl, "");
             string css = null;

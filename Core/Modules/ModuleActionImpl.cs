@@ -89,7 +89,7 @@ namespace YetaWF.Core.Modules {
             if (CookieAsDoneSignal && Style != ActionStyleEnum.Normal)
                 throw new InternalError("When using CookieAsDoneSignal, the Style property must be set to Normal");
 
-            Manager.AddOnManager.AddTemplate("ActionIcons");// this is needed because we're not always used by templates
+            await Manager.AddOnManager.AddTemplateAsync("ActionIcons");// this is needed because we're not always used by templates
 
             ActionStyleEnum style = Style;
             if (style == ActionStyleEnum.OuterWindow)
@@ -101,7 +101,7 @@ namespace YetaWF.Core.Modules {
                     style = ActionStyleEnum.NewWindow;
 
             if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit || style == ActionStyleEnum.ForcePopup)
-                Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Popups");// this is needed for popup support
+                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");// this is needed for popup support
 
             TagBuilder tag = null;
             switch (style) {

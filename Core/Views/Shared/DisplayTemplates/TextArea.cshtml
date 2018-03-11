@@ -22,7 +22,7 @@
         if (sourceOnly) {
             url = addonUrl + "sourceonly_ro_config.js";
         }
-        @Html.RenderTextArea("", text, HtmlAttributes: new { @class = "yt_textarea t_edit t_readonly", id = ControlId, data_height = pixHeight })
+        @Html.RenderTextAreaAsync("", text, HtmlAttributes: new { @class = "yt_textarea t_edit t_readonly", id = ControlId, data_height = pixHeight }).Result
         <script>
             CKEDITOR.replace('@ControlId', {
                 customConfig: '@Manager.GetCDNUrl(url)',

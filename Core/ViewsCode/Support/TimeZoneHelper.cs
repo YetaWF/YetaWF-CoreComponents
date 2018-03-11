@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,9 +23,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(TimeZoneHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderTimeZoneDD(this IHtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderTimeZoneDDAsync(this IHtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTimeZoneDD(this HtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderTimeZoneDDAsync(this HtmlHelper htmlHelper, string name, string model, object HtmlAttributes = null) {
 #endif
             List<TimeZoneInfo> tzis = TimeZoneInfo.GetSystemTimeZones().ToList();
             DateTime dt = DateTime.Now;// Need local time
@@ -34,19 +35,19 @@ namespace YetaWF.Core.Views.Shared {
             List<SelectionItem<string>> list;
             list = (
                 from tzi in tzis orderby tzi.DisplayName
-                    orderby tzi.DisplayName
-                    select
-                        new SelectionItem<string> {
-                            Text = tzi.DisplayName,
-                            Value = tzi.Id,
-                            Tooltip = tzi.IsDaylightSavingTime(dt) ? tzi.DaylightName : tzi.StandardName,
-                        }).ToList<SelectionItem<string>>();
+                orderby tzi.DisplayName
+                select
+                    new SelectionItem<string> {
+                        Text = tzi.DisplayName,
+                        Value = tzi.Id,
+                        Tooltip = tzi.IsDaylightSavingTime(dt) ? tzi.DaylightName : tzi.StandardName,
+                    }).ToList<SelectionItem<string>>();
             if (showDefault) {
                 if (string.IsNullOrWhiteSpace(model))
                     model = TimeZoneInfo.Local.Id;
             } else
                 list.Insert(0, new SelectionItem<string> { Text = __ResStr("select", "(select)"), Value = "" });
-            return htmlHelper.RenderDropDownSelectionList<string>(name, model, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync<string>(name, model, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
         public static HtmlString RenderTimeZoneDisplay(this IHtmlHelper htmlHelper, string name, string model) {

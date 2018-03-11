@@ -5,11 +5,11 @@
     @Html.RenderHidden("AjaxUrl", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.SkinHelperController), "GetPageSkins"))
     <div class="t_collection">
         @Html.ExtLabelFor(m => Model.Collection)
-        @Html.RenderSkinCollection("Collection", Model.Collection)
+        @Html.RenderSkinCollectionAsync("Collection", Model.Collection).Result
     </div>
     <div class="t_skin">
         @Html.ExtLabelFor(m => Model.FileName)
-        @Html.RenderPageSkinsForCollection("FileName", Model.FileName, Model.Collection)
+        @Html.RenderPageSkinsForCollectionAsync("FileName", Model.FileName, Model.Collection).Result
     </div>
 </div>
 <script>
