@@ -335,7 +335,7 @@ namespace YetaWF.Core.Site {
             SiteDefinition origSite = Manager.CurrentSite;
             Manager.CurrentSite = this;// new site
             // create all site specific data
-            Package.AddSiteData();
+            await Package.AddSiteDataAsync();
             // restore original site
             Manager.CurrentSite = origSite;
         }

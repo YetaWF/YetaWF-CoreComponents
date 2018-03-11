@@ -8,21 +8,6 @@ using YetaWF.Core.Search;
 
 namespace YetaWF.Core.Pages {
 
-    public interface ISearchDynamicUrls {
-        /// <summary>
-        /// Used by Search to extract keywords from dynamically generated pages.
-        /// </summary>
-        /// <param name="addTermsForPage"></param>
-        void KeywordsForDynamicUrls(ISearchWords searchWords);
-    }
-    public interface ISiteMapDynamicUrls {
-        /// <summary>
-        ///  Used to discover dynamic Urls to build a site map.
-        /// </summary>
-        void FindDynamicUrls(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum, object> addDynamicUrl,
-                Func<PageDefinition, bool> validForSiteMap);
-    }
-
     public class DynamicUrlsImpl {
 
         public List<Type> GetDynamicUrlTypes() {
@@ -30,7 +15,7 @@ namespace YetaWF.Core.Pages {
         }
     }
 
-    public interface ISearchDynamicUrlsAsync
+    public interface ISearchDynamicUrls
     {
         /// <summary>
         /// Used by Search to extract keywords from dynamically generated pages.
@@ -38,7 +23,7 @@ namespace YetaWF.Core.Pages {
         /// <param name="addTermsForPage"></param>
         Task KeywordsForDynamicUrlsAsync(ISearchWords searchWords);
     }
-    public interface ISiteMapDynamicUrlsAsync
+    public interface ISiteMapDynamicUrls
     {
         /// <summary>
         ///  Used to discover dynamic Urls to build a site map.

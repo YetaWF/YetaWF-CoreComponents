@@ -9,7 +9,7 @@ using YetaWF.Core.Packages;
 namespace YetaWF.Core.Support {
 
     public interface IInitializeApplicationStartup { // any class defining this interface is called during application startup
-        void InitializeApplicationStartup();
+        void InitializeApplicationStartup(); //$$$asyncify for convenience
     }
 
     public static class Startup {

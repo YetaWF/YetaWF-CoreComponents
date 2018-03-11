@@ -55,7 +55,7 @@ namespace YetaWF.Core.Models.Attributes {
                 return new ValidationResult(ErrorMessage);
 
             RecaptchaConfig config = YetaWFManager.Syncify(() =>
-                RecaptchaConfig.LoadRecaptchaConfig()
+                RecaptchaConfig.LoadRecaptchaConfigAsync()
             );
             if (string.IsNullOrWhiteSpace(config.PrivateKey))
                 throw new Error(__ResStr("errPrivateKeyV2", "The Recaptcha configuration settings are missing - no private key found"));

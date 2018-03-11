@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -16,7 +17,7 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        public static bool ImportData(string zipFileName, List<string> errorList) {
+        public static async Task<bool> ImportDataAsync(string zipFileName, List<string> errorList) {
 
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedDataFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
@@ -39,7 +40,7 @@ namespace YetaWF.Core.Packages {
                 fs.Close();
 
                 fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                SerializableData serData = (SerializableData) new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
+                SerializableData serData = (SerializableData)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
                 fs.Close();
 
                 File.Delete(xmlFile);
@@ -56,11 +57,11 @@ namespace YetaWF.Core.Packages {
                             serData.PackageVersion, realPackage.Name, realPackage.Version));
                     return false;
                 }
-                return realPackage.ImportData(zip, displayFileName, serData, errorList);
+                return await realPackage.ImportDataAsync(zip, displayFileName, serData, errorList);
             }
         }
 
-        private bool ImportData(ZipFile zip, string displayFileName, SerializableData serData, List<string> errorList) {
+        private async Task<bool> ImportDataAsync(ZipFile zip, string displayFileName, SerializableData serData, List<string> errorList) {
 
             // unzip all files/data
             foreach (var modelType in this.InstallableModels) {
@@ -68,7 +69,7 @@ namespace YetaWF.Core.Packages {
                     object instMod = Activator.CreateInstance(modelType);
                     using ((IDisposable)instMod) {
                         IInstallableModel model = (IInstallableModel)instMod;
-                        model.RemoveSiteData();// remove site specific data so we can import the new data
+                        await model.RemoveSiteDataAsync();// remove site specific data so we can import the new data
 
                         // find the model data
                         SerializableModelData serModel = (from sd in serData.Data where sd.Class == modelType.Name select sd).FirstOrDefault();
@@ -91,7 +92,7 @@ namespace YetaWF.Core.Packages {
                             }
                         }
 
-                        for (int chunk = 0 ; chunk < serModel.Chunks ; ++chunk) {
+                        for (int chunk = 0; chunk < serModel.Chunks; ++chunk) {
 
                             // unzip data
                             {
@@ -118,7 +119,7 @@ namespace YetaWF.Core.Packages {
                                     File.Delete(xmlFile);
                                 }
 
-                                model.ImportChunk(chunk, null, obj);
+                                await model.ImportChunkAsync(chunk, null, obj);
                             }
                         }
                     }
@@ -133,7 +134,7 @@ namespace YetaWF.Core.Packages {
                 string s = "";
                 foreach (string reqPackage in reqPackages)
                     s += " " + reqPackage;
-                errorList.Add(__ResStr("warnReqPckages", "This package requires additional packages - These should be imported at the same time:{0}",s ));
+                errorList.Add(__ResStr("warnReqPckages", "This package requires additional packages - These should be imported at the same time:{0}", s));
             }
             return true;
         }

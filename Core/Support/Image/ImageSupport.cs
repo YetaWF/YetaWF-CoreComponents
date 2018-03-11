@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.DataProvider;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
@@ -101,19 +102,19 @@ namespace YetaWF.Core.Image {
         // IINSTALLABLEMODEL
         // IINSTALLABLEMODEL
 
-        public bool IsInstalled() {
-            return true;
+        public Task<bool> IsInstalledAsync() {
+            return Task.FromResult(true);
         }
-        public bool InstallModel(List<string> errorList) {
-            return true;
+        public Task<bool> InstallModelAsync(List<string> errorList) {
+            return Task.FromResult(true);
         }
-        public bool UninstallModel(List<string> errorList) {
-            return true;
+        public Task<bool> UninstallModelAsync(List<string> errorList) {
+            return Task.FromResult(true);
         }
-        public void AddSiteData() { }
-        public void RemoveSiteData() { }
-        public bool ExportChunk(int chunk, SerializableList<SerializableFile> fileList, out object obj) { obj = null; return false; }
-        public void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj) { }
+        public Task AddSiteDataAsync() { return Task.CompletedTask;  }
+        public Task RemoveSiteDataAsync() { return Task.CompletedTask; }
+        public Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList) { return Task.FromResult(new DataProviderExportChunk()); }
+        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj) { return Task.CompletedTask; }
 
         // IMAGE SUPPORT
         // IMAGE SUPPORT

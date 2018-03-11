@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Log {
@@ -13,7 +14,7 @@ namespace YetaWF.Core.Log {
         void Flush();
         void WriteToLogFile(Logging.LevelEnum level, int relStack, string text);
         Logging.LevelEnum GetLevel();
-        bool IsInstalled();
+        Task<bool> IsInstalledAsync();
     }
 
     public static partial class Logging {
@@ -43,7 +44,7 @@ namespace YetaWF.Core.Log {
         /// <summary>
         /// Set up default log provider.
         /// </summary>
-        public static void SetupLogging() {
+        public static async Task SetupLoggingAsync() {
 
             TerminateLogging();
 
@@ -65,7 +66,7 @@ namespace YetaWF.Core.Log {
             } catch (Exception) { }
 
             if (log != null) {
-                if (log.IsInstalled()) {
+                if (await log.IsInstalledAsync()) {
                     DefaultLogger = log;
                     DefaultLoggerType = tp;
                     RegisterLogging(log);

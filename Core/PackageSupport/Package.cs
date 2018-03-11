@@ -134,11 +134,11 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Returns all packages referenced by this YetaWF instance, i.e., the website (this excludes templates, utilities)
         /// </summary>
-        public static List<Package> GetAvailablePackages(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, out int total) {
+        public static DataProviderGetRecords<Package> GetAvailablePackages(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters) {
             List<Package> packages = (from p in GetAvailablePackages() select p).ToList();// copy
             //packages.AddRange(GetTemplatePackages());
             //packages.AddRange(GetUtilityPackages());
-            return DataProviderImpl<Package>.GetRecords(packages, skip, take, sort, filters, out total);
+            return DataProviderImpl<Package>.GetRecords(packages, skip, take, sort, filters);
         }
 
         /// <summary>

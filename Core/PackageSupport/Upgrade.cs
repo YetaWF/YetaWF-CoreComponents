@@ -94,7 +94,7 @@ namespace YetaWF.Core.Packages {
             public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Info; }
             public void Clear() { }
             public void Flush() { }
-            public bool IsInstalled() { return true; }
+            public Task<bool> IsInstalledAsync() { return Task.FromResult(true); }
             public void WriteToLogFile(Logging.LevelEnum level, int relStack, string text) {
                 string rootFolder;
 #if MVC6

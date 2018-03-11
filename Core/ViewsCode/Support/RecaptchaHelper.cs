@@ -65,8 +65,8 @@ namespace YetaWF.Core.Views.Shared {
         }
 
         // These must be provided during app startup
-        public static Func<Task<RecaptchaConfig>> LoadRecaptchaConfig { get; set; }
-        public static Func<RecaptchaConfig, Task> SaveRecaptchaConfig { get; set; }
+        public static Func<Task<RecaptchaConfig>> LoadRecaptchaConfigAsync { get; set; }
+        public static Func<RecaptchaConfig, Task> SaveRecaptchaConfigAsync { get; set; }
     }
 
     public class Recaptcha<TModel> : RazorTemplate<TModel> { }

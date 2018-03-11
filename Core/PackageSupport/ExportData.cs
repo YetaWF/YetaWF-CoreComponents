@@ -3,6 +3,8 @@
 using Ionic.Zip;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using YetaWF.Core.DataProvider;
 using YetaWF.Core.IO;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
@@ -14,7 +16,7 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        public YetaWFZipFile ExportData(bool takingBackup = false) {
+        public async Task<YetaWFZipFile> ExportDataAsync(bool takingBackup = false) {
 
             if (!IsModulePackage && !IsCorePackage)
                 throw new InternalError("This package type has no associated data to export");
@@ -34,16 +36,16 @@ namespace YetaWF.Core.Packages {
                 try {
                     object instMod = Activator.CreateInstance(modelType);
                     using ((IDisposable)instMod) {
-                        IInstallableModel model = (IInstallableModel) instMod;
-                        if (!takingBackup || model.IsInstalled()) {
+                        IInstallableModel model = (IInstallableModel)instMod;
+                        if (!takingBackup || await model.IsInstalledAsync()) {
                             SerializableModelData serModel = new SerializableModelData();
 
                             bool more = true;
                             int chunk = 0;
-                            for (; more ; ++chunk) {
+                            for (; more; ++chunk) {
                                 SerializableList<SerializableFile> fileList = new SerializableList<SerializableFile>();
-                                object obj = null;
-                                more = model.ExportChunk(chunk, fileList, out obj);
+                                DataProviderExportChunk expChunk = await model.ExportChunkAsync(chunk, fileList);
+                                more = expChunk.More;
 
                                 if (fileList != null && fileList.Count > 0) {
                                     serModel.Files.AddRange(fileList);
@@ -52,14 +54,14 @@ namespace YetaWF.Core.Packages {
                                         ze.FileName = file.FileName;
                                     }
                                 }
-                                if (!more && obj == null)
+                                if (!more && expChunk.ObjectList == null)
                                     break;
 
                                 fileName = Path.GetTempFileName();
                                 zipFile.TempFiles.Add(fileName);
 
                                 fs = new FileStream(fileName, FileMode.Create);
-                                new GeneralFormatter(Package.ExportFormat).Serialize(fs, obj);
+                                new GeneralFormatter(Package.ExportFormat).Serialize(fs, expChunk.ObjectList);
                                 fs.Close();
 
                                 ze = zipFile.Zip.AddFile(fileName);

@@ -24,13 +24,13 @@ namespace YetaWF.Core.Packages {
             List<Type> ordered = GetInstallOrder();
             while (ordered.Count > 0) {
                 Type type = ordered.First();
-                if (!InstallOneType(errorList, type))
+                if (!await InstallOneTypeAsync(errorList, type))
                     success = false;
                 models.Remove(type);
                 ordered.RemoveAt(0);
             }
             foreach (Type type in models) {
-                if (!InstallOneType(errorList, type))
+                if (!await InstallOneTypeAsync(errorList, type))
                     success = false;
             }
 
@@ -38,7 +38,7 @@ namespace YetaWF.Core.Packages {
             if (!string.IsNullOrWhiteSpace(lastSeenVersion)) {
                 models = InstallableModels;
                 foreach (Type type in models) {
-                    if (!UpgradeOneType(errorList, type, lastSeenVersion))
+                    if (!await UpgradeOneTypeAsync(errorList, type, lastSeenVersion))
                         success = false;
                 }
             }
@@ -52,14 +52,14 @@ namespace YetaWF.Core.Packages {
             return success;
         }
 
-        private static bool UpgradeOneType(List<string> errorList, Type type, string lastSeenVersion) {
+        private static async Task<bool> UpgradeOneTypeAsync(List<string> errorList, Type type, string lastSeenVersion) {
             bool success = true;
             object instMod = Activator.CreateInstance(type);
             using ((IDisposable)instMod) {
                 if (instMod as IInstallableModel2 != null) {
                     IInstallableModel2 model = (IInstallableModel2)instMod;
                     List<string> list = new List<string>();
-                    if (!model.UpgradeModel(list, lastSeenVersion))
+                    if (!await model.UpgradeModelAsync(list, lastSeenVersion))
                         success = false;
                     errorList.AddRange(list);
                 }
@@ -67,13 +67,13 @@ namespace YetaWF.Core.Packages {
             }
         }
 
-        private static bool InstallOneType(List<string> errorList, Type type) {
+        private static async Task<bool> InstallOneTypeAsync(List<string> errorList, Type type) {
             bool success = true;
             object instMod = Activator.CreateInstance(type);
             using ((IDisposable)instMod) {
                 IInstallableModel model = (IInstallableModel)instMod;
                 List<string> list = new List<string>();
-                if (!model.InstallModel(list))
+                if (!await model.InstallModelAsync(list))
                     success = false;
                 errorList.AddRange(list);
                 return success;
@@ -91,7 +91,7 @@ namespace YetaWF.Core.Packages {
                 using ((IDisposable)instMod) {
                     IInstallableModel model = (IInstallableModel)instMod;
                     List<string> list = new List<string>();
-                    if (!model.UninstallModel(list))
+                    if (!await model.UninstallModelAsync(list))
                         success = false;
                     errorList.AddRange(list);
                 }
@@ -105,7 +105,7 @@ namespace YetaWF.Core.Packages {
             return success;
         }
 
-        public static void AddSiteData() {
+        public static async Task AddSiteDataAsync() {
             // Add site specific data for the current (usually new) site
             List<Package> packages = Package.GetAvailablePackages();
             foreach (Package package in packages) {
@@ -114,12 +114,12 @@ namespace YetaWF.Core.Packages {
                     object instMod = Activator.CreateInstance(type);
                     using ((IDisposable)instMod) {
                         IInstallableModel model = (IInstallableModel)instMod;
-                        model.AddSiteData();
+                        await model.AddSiteDataAsync();
                     }
                 }
             }
         }
-        public static void RemoveSiteData(string siteFolder) {
+        public static async Task RemoveSiteDataAsync(string siteFolder) {
             // remove site specific data for the current site
             List<Package> packages = Package.GetAvailablePackages();
             foreach (Package package in packages) {
@@ -128,7 +128,7 @@ namespace YetaWF.Core.Packages {
                     object instMod = Activator.CreateInstance(type);
                     using ((IDisposable)instMod) {
                         IInstallableModel model = (IInstallableModel)instMod;
-                        model.RemoveSiteData();
+                        await model.RemoveSiteDataAsync();
                     }
                 }
             }
