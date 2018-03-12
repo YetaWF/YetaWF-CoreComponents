@@ -61,7 +61,7 @@ namespace YetaWF.Core.Controllers {
             Uri uri = new Uri(Manager.CurrentRequestUrl);
 
             // process logging type callbacks
-            PageLogging.HandleCallbacks(Manager.CurrentRequestUrl, false);
+            await PageLogging.HandleCallbacksAsync(Manager.CurrentRequestUrl, false);
 
             // Mobile detection
             bool isMobile;
@@ -163,7 +163,7 @@ namespace YetaWF.Core.Controllers {
             string lang = Manager.CurrentRequest[Globals.Link_Language];
 #endif
             if (!string.IsNullOrWhiteSpace(lang))
-                await Manager.SetUserLanguageAsync(lang);//$$$$ do we really need to do this?
+                await Manager.SetUserLanguageAsync(lang);
 
             // Check if home URL is requested and matches site's desired home URL
             if (uri.AbsolutePath == "/") {

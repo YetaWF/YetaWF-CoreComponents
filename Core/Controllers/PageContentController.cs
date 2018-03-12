@@ -193,7 +193,7 @@ namespace YetaWF.Core.Controllers {
             SiteDefinition site = Manager.CurrentSite;
 
             // process logging type callbacks
-            PageLogging.HandleCallbacks(dataIn.Path, false);
+            await PageLogging.HandleCallbacksAsync(dataIn.Path, false);
 
             if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
 

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace YetaWF.Core.Controllers {
 
@@ -10,20 +11,20 @@ namespace YetaWF.Core.Controllers {
 
         private static object _lockObject = new object();
 
-        private static List<Action<string, bool>> Callbacks { get; set; }
+        private static List<Func<string, bool, Task>> Callbacks { get; set; }
 
-        public static void RegisterCallback(Action<string, bool> callback) {
+        public static void RegisterCallback(Func<string, bool, Task> callback) {
             lock (_lockObject) {
-                if (Callbacks == null) Callbacks = new List<Action<string, bool>>();
+                if (Callbacks == null) Callbacks = new List<Func<string, bool, Task>>();
                 if (!Callbacks.Contains(callback))
                     Callbacks.Add(callback);
             }
         }
 
-        internal static void HandleCallbacks(string url, bool full) {
+        internal static async Task HandleCallbacksAsync(string url, bool full) {
             if (Callbacks != null) {
-                foreach (Action<string, bool> callback in Callbacks.ToList()) {
-                    callback(url, full);
+                foreach (Func<string, bool, Task> callback in Callbacks.ToList()) {
+                    await callback(url, full);
                 }
             }
         }
