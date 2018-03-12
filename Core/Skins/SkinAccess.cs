@@ -202,7 +202,7 @@ namespace YetaWF.Core.Skins {
 
             // add an inner div with css classes to modules that can't be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") &&
-                                    Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
+                                    await Resource.ResourceAccess.IsResourceAuthorizedAsync(CoreInfo.Resource_ViewOwnership);
             if (showOwnership) {
                 bool anon = mod.IsAuthorized_View_Anonymous();
                 bool user = mod.IsAuthorized_View_AnyUser();

@@ -34,18 +34,20 @@ namespace YetaWF.Core.Pages {
         // IInitializeApplicationStartup
         public const string ImageType = "YetaWF_Core_PageFavIcon";
 
-        public void InitializeApplicationStartup() {
-            ImageSupport.AddHandler(ImageType, GetBytes: RetrieveImage);
+        public Task InitializeApplicationStartupAsync() {
+            ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            return Task.CompletedTask;
         }
-        private bool RetrieveImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            PageDefinition page = PageDefinition.LoadAsync(new Guid(name)).Result;//$$$$
-            if (page == null) return false;
-            if (page.FavIcon_Data == null || page.FavIcon_Data.Length == 0) return false;
-            content = page.FavIcon_Data;
-            return true;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
+            if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
+            PageDefinition page = await PageDefinition.LoadAsync(new Guid(name));
+            if (page == null) return new ImageSupport.GetImageInBytesInfo();
+            if (page.FavIcon_Data == null || page.FavIcon_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
+            return new ImageSupport.GetImageInBytesInfo() {
+                Content = page.FavIcon_Data,
+                Success = true,
+            };
         }
 
         public class DesignedPage {

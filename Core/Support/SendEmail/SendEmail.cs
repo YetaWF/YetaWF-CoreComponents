@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
@@ -196,9 +197,9 @@ namespace YetaWF.Core.SendEmail {
                 MailMessage.Bcc.Add(new MailAddress(ccEmail));
         }
 
-        public void Send(bool fThrowError = true) {
+        public async Task SendAsync(bool fThrowError = true) {
             try {
-                SmtpClient.Send(MailMessage);//$$ASYNCIFY
+                await SmtpClient.SendMailAsync(MailMessage);
             } catch (Exception exc) {
                 Logging.AddErrorLog("Server={0}, SSL={1}, Auth={2}", SmtpClient.Host, SmtpClient.EnableSsl.ToString(), SmtpClient.UseDefaultCredentials.ToString(), exc);
                 if (fThrowError)

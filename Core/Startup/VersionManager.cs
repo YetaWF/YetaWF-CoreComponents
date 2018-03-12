@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
@@ -15,8 +16,9 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons {
 
     public class VersionManagerStartup : IInitializeApplicationStartup {
-        public void InitializeApplicationStartup() {
+        public Task InitializeApplicationStartupAsync() {
             VersionManager.RegisterAllAddOns();
+            return Task.CompletedTask;
         }
     }
 

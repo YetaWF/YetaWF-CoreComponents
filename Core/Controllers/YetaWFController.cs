@@ -317,7 +317,8 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="dataSrc">The data source.</param>
         /// <returns>Used in conjunction with the Grid template.</returns>
-        protected PartialViewResult GridPartialView(DataSourceResult dataSrc) {
+        protected async Task<PartialViewResult> GridPartialViewAsync(DataSourceResult dataSrc) {
+            await HandlePropertiesAsync(dataSrc.Data);
             string partialView = "GridData";
             return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
         }
@@ -326,9 +327,30 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="entryDef">The definition of the grid record.</param>
         /// <returns>Used in conjunction with the Grid template.</returns>
-        protected PartialViewResult GridPartialView(GridDefinition.GridEntryDefinition entryDef) {
+        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition.GridEntryDefinition entryDef) {
+            await HandlePropertiesAsync(entryDef.Model);
             string partialView = "GridEntry";
             return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
+        }
+        private async Task HandlePropertiesAsync(List<object> data) {
+            foreach (object model in data)
+                await HandlePropertiesAsync(model);
+        }
+        private async Task HandlePropertiesAsync(object model) {
+            await HandlePropertyAsync<Menus.MenuList>("Commands", "__GetCommandsAsync", model);
+        }
+        /// <summary>
+        /// Retrieve the async method named asyncName and put the return value into the property named syncName.
+        /// </summary>
+        private async Task HandlePropertyAsync<TYPE>(string syncName, string asyncName, object model) {
+            Type modelType = model.GetType();
+            MethodInfo miAsync = modelType.GetMethod(asyncName, BindingFlags.Instance | BindingFlags.Public);
+            if (miAsync == null) return;
+            PropertyInfo piSync = ObjectSupport.TryGetProperty(modelType, syncName);
+            if (piSync == null) return;
+            Task<TYPE> methRetvalTask = (Task<TYPE>)miAsync.Invoke(model, null);
+            object methRetval = await methRetvalTask;
+            piSync.SetValue(model, methRetval);
         }
 
         // PARTIAL VIEW

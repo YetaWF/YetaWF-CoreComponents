@@ -12,6 +12,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using YetaWF.Core.Support;
@@ -519,10 +520,10 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("Raw"), ReadOnly]
             public string DisplayUserName { get; set; }
 
-            public void SetUser(int userId) {
+            public async Task SetUserAsync(int userId) {
                 DisplayUserId = UserId = userId;
                 View = AllowedEnum.Yes;
-                DisplayUserName = YetaWFManager.Syncify<string>(() => Resource.ResourceAccess.GetUserNameAsync(userId));//$$$what to do
+                DisplayUserName = await Resource.ResourceAccess.GetUserNameAsync(userId);
             }
             public GridAllowedUser() { }
         }

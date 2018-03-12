@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
@@ -87,10 +88,11 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Initialization executed during application startup.
         /// </summary>
-        public void InitializeApplicationStartup() {
+        public Task InitializeApplicationStartupAsync() {
             Packages = new List<Package>();
             Modules = new ModuleTypesDictionary();
             AddInstalledModules();
+            return Task.CompletedTask;
         }
 
         // LOCATE ALL INSTALLED MODULES

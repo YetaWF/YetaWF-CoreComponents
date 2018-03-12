@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -61,7 +62,7 @@ namespace YetaWF.Core.Identity {
         // This is using AttributeAuthorizationHandler
 #else
         protected override bool AuthorizeCore(HttpContextBase httpContext) {
-            return Resource.ResourceAccess.IsResourceAuthorized(Name);
+            return YetaWFManager.Syncify<bool>(() => Resource.ResourceAccess.IsResourceAuthorizedAsync(Name)); // Must sync, no async attributes in mvc5
         }
 #endif
     }
@@ -74,10 +75,10 @@ namespace YetaWF.Core.Identity {
         Task LogoffAsync();
         Task LoginAsAsync(int userId);
 
-        bool IsResourceAuthorized(string resourceName);
+        Task<bool> IsResourceAuthorizedAsync(string resourceName);
 
-        //$$Task AddRoleAsync(string roleName, string description);
-        //$$void RemoveRole(string roleName);
+        Task AddRoleAsync(string roleName, string description);
+        Task RemoveRoleAsync(string roleName);
         Task AddRoleToUserAsync(int userId, string roleName);
         Task RemoveRoleFromUserAsync(int userId, string roleName);
 
@@ -99,8 +100,6 @@ namespace YetaWF.Core.Identity {
         Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url);
         void ShowNeed2FA();
 
-        //$$List<string> GetEnabledTwoStepAuthentications(int userId);
-        //$$$void SetEnabledTwoStepAuthenticationsAsync(int userId, List<string> auths);
         Task AddEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task RemoveEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth);

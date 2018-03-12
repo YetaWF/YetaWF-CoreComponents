@@ -20,15 +20,18 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Used by Search to extract keywords from dynamically generated pages.
         /// </summary>
-        /// <param name="addTermsForPage"></param>
         Task KeywordsForDynamicUrlsAsync(ISearchWords searchWords);
     }
+
+    public delegate Task AddDynamicUrlAsync(PageDefinition page, string url, DateTime? dateUpdated, 
+        PageDefinition.SiteMapPriorityEnum priority, PageDefinition.ChangeFrequencyEnum changeFrequency, object obj);
+
     public interface ISiteMapDynamicUrls
     {
+
         /// <summary>
         ///  Used to discover dynamic Urls to build a site map.
         /// </summary>
-        Task FindDynamicUrlsAsync(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum, object> addDynamicUrl,
-                Func<PageDefinition, bool> validForSiteMap);
+        Task FindDynamicUrlsAsync(AddDynamicUrlAsync addDynamicUrlAsync, Func<PageDefinition, bool> validForSiteMap);
     }
 }

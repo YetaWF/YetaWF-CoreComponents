@@ -271,7 +271,7 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog("Page");
 
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
-            Func<QueryHelper, Task> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
+            Func<QueryHelper, Task> action = await BuiltinCommands.FindAsync(uri.LocalPath, checkAuthorization: true);
             if (action != null) {
                 if (Manager.IsHeadRequest)
                     return new EmptyResult();

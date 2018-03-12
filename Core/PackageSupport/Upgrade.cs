@@ -302,7 +302,7 @@ namespace YetaWF.Core.Packages {
                 if (installTemplate) {
                     // execute this template via built-in command (implemented by the YetaWF.Package package)
                     Logging.AddLog("Executing site template {0}", template);
-                    Func<QueryHelper, Task> action = BuiltinCommands.Find("/$processtemplate", checkAuthorization: false);
+                    Func<QueryHelper, Task> action = await BuiltinCommands.FindAsync("/$processtemplate", checkAuthorization: false);
                     if (action == null)
                         throw new InternalError("Built-in command /$processtemplate not found");
                     QueryHelper qs = new QueryHelper();

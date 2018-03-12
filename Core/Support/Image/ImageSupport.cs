@@ -24,12 +24,13 @@ namespace YetaWF.Core.Image {
         // IInitializeApplicationStartup
         // IInitializeApplicationStartup
 
-        public void InitializeApplicationStartup() {
+        public Task InitializeApplicationStartupAsync() {
             // Delete all temp images
             string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
             YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
             // Create folder for temp images
             YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
+            return Task.CompletedTask;
         }
 
     }
@@ -76,21 +77,30 @@ namespace YetaWF.Core.Image {
         // # was mistakenly used for a while in urls which caused a rewrite for css,js,etc. - stupid
         // # is only used to encode a cache buster WITHIN the image name (not used by YetaWF itself)
 
-        public delegate bool GetImageInBytes(string name, string location, out byte[] content);
-        public delegate bool GetImageAsFile(string name, string location, out string file);
+        public class GetImageAsFileInfo {
+            public bool Success { get; set; }
+            public string File { get; set; }
+        }
+        public class GetImageInBytesInfo {
+            public bool Success { get; set; }
+            public byte[] Content { get; set; }
+        }
+
+        public delegate Task<GetImageInBytesInfo> GetImageInBytesAsync(string name, string location);
+        public delegate Task<GetImageAsFileInfo> GetImageAsFileAsync(string name, string location);
 
         public class ImageHandlerEntry {
             public string Type { get; set; }
-            public GetImageInBytes GetBytes { get; set; }
-            public GetImageAsFile GetFilePath { get; set; }
+            public GetImageInBytesAsync GetImageInBytesAsync { get; set; }
+            public GetImageAsFileAsync GetImageAsFileAsync { get; set; }
         }
 
         public ImageSupport() {
             DisposableTracker.AddObject(this);
         }
 
-        public static void AddHandler(string type, GetImageInBytes GetBytes = null, GetImageAsFile GetAsFile = null) {
-            HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetBytes = GetBytes, GetFilePath = GetAsFile });
+        public static void AddHandler(string type, GetImageInBytesAsync GetBytesAsync = null, GetImageAsFileAsync GetAsFileAsync = null) {
+            HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetImageInBytesAsync = GetBytesAsync, GetImageAsFileAsync = GetAsFileAsync });
         }
 
         public static List<ImageHandlerEntry> HandlerEntries = new List<ImageHandlerEntry>();
@@ -252,8 +262,11 @@ namespace YetaWF.Core.Image {
                 if (string.IsNullOrWhiteSpace(name)) name = "NoImage.png";
                 string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}",
                     type, loc.Replace(",", "_"), FileData.MakeValidFileSystemFileName(name)));
-                if (!File.Exists(physFile))
-                    physFile = GetImageFromArgs(physFile, type, loc, name);
+                //$$ASYNCIFY
+                YetaWFManager.Syncify(async () => {
+                    if (!File.Exists(physFile))
+                        physFile = await GetImageFromArgsAsync(physFile, type, loc, name);
+                });
                 return string.Format(@"{0}""{1}{2}", m.Groups["kwd"].Value, YetaWFManager.PhysicalToUrl(physFile), rem);
             } catch { }
             return retString;
@@ -271,8 +284,11 @@ namespace YetaWF.Core.Image {
                 string rem = m.Groups["rem"].Value;
                 string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}_{3}_{4}",
                     type, loc.Replace(",", "_"), width, height, FileData.MakeValidFileSystemFileName(name)));
-                if (!File.Exists(physFile))
-                    physFile = GetImageFromArgs(physFile, type, loc, name, width, height);
+                //$$ASYNCIFY
+                YetaWFManager.Syncify(async () => {
+                    if (!File.Exists(physFile))
+                        physFile = await GetImageFromArgsAsync(physFile, type, loc, name, width, height);
+                });
                 return string.Format(@"{0}""{1}{2}", m.Groups["kwd"].Value, YetaWFManager.PhysicalToUrl(physFile), rem);
             } catch { }
             return retString;
@@ -289,8 +305,11 @@ namespace YetaWF.Core.Image {
                 string rem = m.Groups["rem"].Value;
                 string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}p_{3}",
                     type, loc.Replace(",", "_"), percent, FileData.MakeValidFileSystemFileName(name)));
-                if (!File.Exists(physFile))
-                    physFile = GetImageFromArgs(physFile, type, loc, name, percent: percent);
+                //$$ASYNCIFY
+                YetaWFManager.Syncify(async () => {
+                    if (!File.Exists(physFile))
+                        physFile = await GetImageFromArgsAsync(physFile, type, loc, name, percent: percent);
+                });
                 return string.Format(@"{0}""{1}{2}", m.Groups["kwd"].Value, YetaWFManager.PhysicalToUrl(physFile), rem);
             } catch { }
             return retString;
@@ -319,7 +338,7 @@ namespace YetaWF.Core.Image {
             } catch { }
             return retString;
         }
-        private static string GetImageFromArgs(string physFile, string typeVal, string locationVal, string nameVal, int width = -1, int height = -1, bool stretch = false, int percent = -1) {
+        private static async Task<string> GetImageFromArgsAsync(string physFile, string typeVal, string locationVal, string nameVal, int width = -1, int height = -1, bool stretch = false, int percent = -1) {
 
             if (!string.IsNullOrWhiteSpace(typeVal)) {
                 ImageHandlerEntry entry = (from h in HandlerEntries where h.Type == typeVal select h).FirstOrDefault();
@@ -335,18 +354,20 @@ namespace YetaWF.Core.Image {
                     string filePath = fileUpload.GetTempFilePathFromName(nameVal, locationVal);
 
                     // if we don't have an image yet, try to get the file from the registered type
-                    if (string.IsNullOrWhiteSpace(filePath) && entry.GetFilePath != null) {
-                        string file;
-                        if (entry.GetFilePath(nameVal, locationVal, out file))
-                            if (File.Exists(file))
-                                filePath = file;
+                    if (string.IsNullOrWhiteSpace(filePath) && entry.GetImageAsFileAsync != null) {
+                        GetImageAsFileInfo info = await entry.GetImageAsFileAsync(nameVal, locationVal);
+                        if (info.Success)
+                            if (File.Exists(info.File))
+                                filePath = info.File;
                     }
                     // if we don't have an image yet, try to get the raw bytes from the registered type
                     System.Drawing.Image img = null;
                     byte[] bytes = null;
-                    if (string.IsNullOrWhiteSpace(filePath) && entry.GetBytes != null) {
-                        if (entry.GetBytes(nameVal, locationVal, out bytes)) {
-                            using (MemoryStream ms = new MemoryStream(bytes)) {
+                    if (string.IsNullOrWhiteSpace(filePath) && entry.GetImageInBytesAsync != null) {
+                        GetImageInBytesInfo info = await entry.GetImageInBytesAsync(nameVal, locationVal);
+                        bytes = info.Content;
+                        if (info.Success) {
+                            using (MemoryStream ms = new MemoryStream(info.Content)) {
                                 img = System.Drawing.Image.FromStream(ms);
                             }
                         }

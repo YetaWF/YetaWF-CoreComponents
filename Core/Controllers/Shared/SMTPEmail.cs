@@ -33,14 +33,14 @@ namespace YetaWF.Core.Controllers.Shared {
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_SMTPServer_SendTestEmail)]
         [ExcludeDemoMode]
-        public ActionResult SendTestEmail(string server, int port, SMTPServer.AuthEnum authentication, string username, string password, bool ssl) {
+        public async System.Threading.Tasks.Task<ActionResult> SendTestEmail(string server, int port, SMTPServer.AuthEnum authentication, string username, string password, bool ssl) {
             SendEmail.SendEmail sendEmail = new SendEmail.SendEmail();
             string subject = this.__ResStr("emailSubj", "Test Message");
             object parms = new {
                 Message = this.__ResStr("emailMessage", "Test Message - Site Settings / Email")
             };
             sendEmail.PrepareEmailMessage(server, port, ssl, authentication, username, password, null, Manager.UserEmail, subject, sendEmail.GetEmailFile(AreaRegistration.CurrentPackage, "SMTPServer Test Message.txt"), parms);
-            sendEmail.Send();
+            await sendEmail.SendAsync();
             string msg = this.__ResStr("emailSent", "A test email has just been sent to {0}", Manager.UserEmail);
             ContentResult cr = Content(
                 string.Format(Basics.AjaxJavascriptReturn + "Y_Message('{0}');", YetaWFManager.JserEncode(msg))

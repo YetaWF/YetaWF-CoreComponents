@@ -236,7 +236,15 @@ namespace YetaWF.Core.Pages {
         public string GetCssClass() {
             // add a class whether page can be seen by anonymous users and logged on users
             string s = string.IsNullOrWhiteSpace(CssClass) ? "yDefaultPage" : CssClass; // get the page specific Css class, if none add yDefaultPage instead
-            bool showOwnership = UserSettings.GetProperty<bool>("ShowPageOwnership") && Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
+            bool showOwnership = false;
+            if (UserSettings.GetProperty<bool>("ShowPageOwnership")) {
+                showOwnership = YetaWFManager.Syncify(async () => { // Yeah, not much point in making async
+                    if (await Resource.ResourceAccess.IsResourceAuthorizedAsync(CoreInfo.Resource_ViewOwnership))
+                        return true;
+                    else
+                        return false;
+                });
+            }
             if (showOwnership) {
                 PageDefinition page = Manager.CurrentPage;
                 bool anon = page.IsAuthorized_View_Anonymous();

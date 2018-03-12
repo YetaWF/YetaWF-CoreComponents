@@ -17,29 +17,32 @@ namespace YetaWF.Core.Site {
         public const string ImageType = "YetaWF_Core_FavIcon";
         public const string LargeImageType = "YetaWF_Core_FavIconLrg";
 
-        public void InitializeApplicationStartup() {
-            ImageSupport.AddHandler(ImageType, GetBytes: RetrieveImage);
-            ImageSupport.AddHandler(LargeImageType, GetBytes: RetrieveLargeImage);
+        public Task InitializeApplicationStartupAsync() {
+            ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            ImageSupport.AddHandler(LargeImageType, GetBytesAsync: RetrieveLargeImageAsync);
+            return Task.CompletedTask;
         }
-        private bool RetrieveImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            SiteDefinition site = SiteDefinition.LoadSiteDefinitionAsync(name).Result;//$$$$$
-            if (site == null) return false;
-            if (site.FavIcon_Data == null || site.FavIcon_Data.Length == 0) return false;
-            content = site.FavIcon_Data;
-            return true;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
+            if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
+            if (site == null) return new ImageSupport.GetImageInBytesInfo();
+            if (site.FavIcon_Data == null || site.FavIcon_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
+            return new ImageSupport.GetImageInBytesInfo {
+                Content = site.FavIcon_Data,
+                Success = true,
+            };
         }
-        private bool RetrieveLargeImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            SiteDefinition site = SiteDefinition.LoadSiteDefinitionAsync(name).Result;//$$$$
-            if (site == null) return false;
-            if (site.FavIconLrg_Data == null || site.FavIconLrg_Data.Length == 0) return false;
-            content = site.FavIconLrg_Data;
-            return true;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveLargeImageAsync(string name, string location) {
+            if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
+            if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
+            if (site == null) return new ImageSupport.GetImageInBytesInfo();
+            if (site.FavIconLrg_Data == null || site.FavIconLrg_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
+            return new ImageSupport.GetImageInBytesInfo {
+                Content = site.FavIconLrg_Data,
+                Success = true,
+            };
         }
 
         // URLS

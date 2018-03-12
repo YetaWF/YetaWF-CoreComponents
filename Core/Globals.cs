@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Support;
 
@@ -42,10 +43,11 @@ namespace YetaWF.Core {
         public const int ChIPAddressWithLookup = 20;
         public const int ChTimeZone = 20;
 
-        public void InitializeApplicationStartup() {
+        public Task InitializeApplicationStartupAsync() {
             // Generate globals javascript equivalent
             string outputUrl = VersionManager.GetAddOnNamedUrl("YetaWF", "Core", "Basics") + "Globals.js";
             ConvertGlobalsToJavascript.Convert(YetaWFManager.UrlToPhysical(outputUrl), this, "YGlobals");
+            return Task.CompletedTask;
         }
 
         // Data Folder

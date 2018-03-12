@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace YetaWF.Core.Support {
 
@@ -18,9 +19,10 @@ namespace YetaWF.Core.Support {
         // IInitializeApplicationStartup
 #if MVC6
 #else
-        public void InitializeApplicationStartup() {
+        public Task InitializeApplicationStartupAsync() {
             string rootFolder = YetaWFManager.RootFolder;
             Init(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
+            return Task.CompletedTask;
         }
 #endif
 

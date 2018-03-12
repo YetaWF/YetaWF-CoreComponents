@@ -118,38 +118,9 @@ namespace YetaWF.Core.DataProvider {
             GetIDataProviderTransactions().AbortTransaction();
         }
 
-        // IINSTALLABLEMODEL //$$$DELETE
-        // IINSTALLABLEMODEL
-        // IINSTALLABLEMODEL
-
-        private dynamic GetIInstallableModel() {
-            return GetDataProvider();
-        }
-        public bool IsInstalled() {
-            return GetDataProvider().IsInstalled();
-        }
-        public bool InstallModel(List<string> errorList) {
-            return GetDataProvider().InstallModel(errorList);
-        }
-        public void AddSiteData() {
-            GetDataProvider().AddSiteData();
-        }
-        public void RemoveSiteData() {
-            GetDataProvider().RemoveSiteData();
-        }
-        public bool UninstallModel(List<string> errorList) {
-            return GetDataProvider().UninstallModel(errorList);
-        }
-        public bool ExportChunk(int chunk, SerializableList<SerializableFile> fileList, out object obj) {
-            return GetDataProvider().ExportChunk(chunk, fileList, out obj);
-        }
-        public void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj) {
-            GetDataProvider().ImportChunk(chunk, fileList, obj);
-        }
-
-        // IINSTALLABLEMODELASYNC
-        // IINSTALLABLEMODELASYNC
-        // IINSTALLABLEMODELASYNC
+        // IINSTALLABLEMODEL ASYNC
+        // IINSTALLABLEMODEL ASYNC
+        // IINSTALLABLEMODEL ASYNC
 
         public Task<bool> IsInstalledAsync() {
             return GetDataProvider().IsInstalledAsync();

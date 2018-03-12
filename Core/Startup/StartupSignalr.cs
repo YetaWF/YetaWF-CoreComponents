@@ -58,7 +58,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Set up environment info for SignalR requests.
         /// </summary>
-        public static YetaWFManager SetupEnvironment() {//$$$asyncify
+        public static async Task<YetaWFManager> SetupEnvironmentAsync() {
             if (YetaWFManager.HaveManager) return YetaWFManager.Manager;
             YetaWFManager manager;
             string host;
@@ -72,11 +72,10 @@ namespace YetaWF.Core.Support {
             host = httpReq.Url.Host;
             manager = YetaWFManager.MakeInstance(host);
 #endif
-            YetaWFManager.Syncify(async () => {
-                manager.CurrentSite = SiteDefinition.LoadSiteDefinitionAsync(host).Result;
-                if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
-                await YetaWFController.SetupEnvironmentInfoAsync();
-            });
+            manager.CurrentSite = SiteDefinition.LoadSiteDefinitionAsync(host).Result;
+            if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
+            await YetaWFController.SetupEnvironmentInfoAsync();
+
             return manager;
         }
     }

@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
+using YetaWF.Core.Image;
 
 namespace YetaWF.Core.Support.Image {
 
@@ -10,22 +12,25 @@ namespace YetaWF.Core.Support.Image {
 
         public const string ImageType = "YetaWF_Core_File";
 
-        public void InitializeApplicationStartup() {
-            YetaWF.Core.Image.ImageSupport.AddHandler(ImageType, GetBytes: RetrieveImage);
+        public Task InitializeApplicationStartupAsync() {
+            YetaWF.Core.Image.ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            return Task.CompletedTask;
         }
 
-        private bool RetrieveImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
+        private Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            Task<ImageSupport.GetImageInBytesInfo> fail = Task.FromResult(new ImageSupport.GetImageInBytesInfo());
+            if (!string.IsNullOrWhiteSpace(location)) return fail;
+            if (string.IsNullOrWhiteSpace(name)) return fail;
 
             if (!name.StartsWith(Globals.VaultUrl) && !name.StartsWith(Globals.VaultPrivateUrl)) // only allow vault files, otherwise this would be a huge security hole
-                return false;
+                return fail;
             string file = YetaWFManager.UrlToPhysical(name);
             if (!File.Exists(file))
-                return false;
-            content = File.ReadAllBytes(file);
-            return true;
+                return fail;
+            return Task.FromResult(new ImageSupport.GetImageInBytesInfo() {
+                Content = File.ReadAllBytes(file),
+                Success = true,
+            });
         }
     }
 }
