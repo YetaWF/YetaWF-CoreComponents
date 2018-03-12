@@ -73,9 +73,11 @@ namespace YetaWF.Core.Views {
 #if MVC6
             // NOTE: the page has not been activated when using MVC6 so all data has to be extracted from context.
             // context is null with MVC5
+            //$$$ update to match mvc5
             ModuleDefinition module = (ModuleDefinition)context.ViewData[Globals.RVD_ModuleDefinition];
             TModel model = (TModel) context.ViewData.Model;
 #else
+            ViewData[Globals.RVD_ModuleDefinition] = ViewContext.RouteData.Values[Globals.RVD_ModuleDefinition];
             ModuleDefinition module = Module;
             TModel model = (TModel) Model;
 #endif

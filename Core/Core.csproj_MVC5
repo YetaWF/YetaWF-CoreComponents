@@ -82,6 +82,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
@@ -110,9 +111,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
+    <Compile Include="Controllers\PageLogging.cs" />
     <Compile Include="Controllers\PageContentController.cs" />
     <Compile Include="Controllers\PageContentViewResult.cs" />
-    <Compile Include="Controllers\PageLogging.cs" />
     <Compile Include="Controllers\PageViewResult.cs" />
     <Compile Include="Controllers\Shared\ActionHelper.cs" />
     <Compile Include="Controllers\Shared\ControllerErrorHandlingFilterAttribute.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Startup\StartupOwin.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
     <Compile Include="Support\Language\LanguageSection.cs" />
+    <Compile Include="Support\Lock\AsyncLock.cs" />
     <Compile Include="Support\MimeSection\MimeSection.cs" />
     <Compile Include="Support\Serializers\Simple2Formatter.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
@@ -385,7 +387,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="package.json" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

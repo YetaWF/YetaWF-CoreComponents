@@ -768,7 +768,7 @@ namespace YetaWF.Core.Modules {
             else
                 return "";
         }
-        public async Task<string> GetActionTopMenuHtml() {
+        public async Task<string> GetActionTopMenuHtmlAsync() {
             if (ShowTitle && ShowTitleActions)
                 return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer)).ToString();
             else

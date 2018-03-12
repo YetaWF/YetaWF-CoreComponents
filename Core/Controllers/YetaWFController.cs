@@ -77,8 +77,19 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller (if any). Can be used with a base class to get the derived module's module definitions.
         /// </summary>
-        protected virtual ModuleDefinition GetModule() { return null; }
+        protected virtual Task<ModuleDefinition> GetModuleAsync() { return null; }
+        protected ModuleDefinition CurrentModule {
+            get {
+                if (_currentModule == null) throw new InternalError("No saved module");
+                return _currentModule;
+            }
+            set {
+                _currentModule = value;
+            }
 
+        }
+        protected bool HaveCurrentModule { get { return _currentModule != null; } }
+        ModuleDefinition _currentModule = null;
 #if MVC6
         // Handled identically in ErrorHandlingMiddleware
 #else
@@ -419,7 +430,7 @@ namespace YetaWF.Core.Controllers {
 #else
                 ViewEngineCollection = ViewEngineCollection,
 #endif
-                Module = GetModule(),
+                Module = CurrentModule,
                 Script = Script,
                 ContentType = ContentType,
                 PureContent = PureContent,
@@ -534,6 +545,7 @@ namespace YetaWF.Core.Controllers {
                     ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
                     IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
                     HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
 
                     bool inPartialView = Manager.InPartialView;
                     Manager.InPartialView = true;

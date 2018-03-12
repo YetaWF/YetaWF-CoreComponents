@@ -220,7 +220,7 @@ namespace YetaWF.Core.Skins {
                 inner.Append(await mod.GetModuleMenuHtmlAsync());
             if (ShowTitle) {
                 if (mod.ShowTitleActions) {
-                    string actions = await mod.GetActionMenuHtmlAsync();
+                    string actions = await mod.GetActionTopMenuHtmlAsync();
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         inner.Append("<div class='yModuleTitle'>");
                         inner.Append(mod.TitleHtml);
