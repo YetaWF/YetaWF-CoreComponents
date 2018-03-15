@@ -23,8 +23,7 @@ namespace YetaWF.Core.Pages {
             DiagnosticSource diagnosticSource) : base(viewEngine, pageActivator, viewStartPages, razorPage, htmlEncoder, diagnosticSource) { }
 
 
-        public override async Task RenderAsync(ViewContext context)
-        {
+        public override async Task RenderAsync(ViewContext context) {
             BeginRender();
             IRazorPageLifetime pageLifetime = RazorPage as IRazorPageLifetime;
             // Ideally the page would be activated before we call BeginRender, but that would
@@ -34,7 +33,7 @@ namespace YetaWF.Core.Pages {
                 pageLifetime.BeginRender(context);
             await base.RenderAsync(context);
             if (pageLifetime != null)
-                pageLifetime.EndRender(context);
+                await pageLifetime.EndRenderAsync(context);
             EndRender();
         }
         public virtual void BeginRender() { }

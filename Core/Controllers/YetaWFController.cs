@@ -14,16 +14,13 @@ using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Models;
 using System.Text.RegularExpressions;
 using System.Text;
-using System.IO;
 using YetaWF.Core.ResponseFilter;
-using Ionic.Zlib;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Threading.Tasks;
 using YetaWF.Core.Pages;
 #else
 using System.Web;
@@ -33,7 +30,8 @@ using System.Web.Mvc.Html;
 using YetaWF.Core.Addons;
 #endif
 
-namespace YetaWF.Core.Controllers {
+namespace YetaWF.Core.Controllers
+{
 
     /// <summary>
     /// Base class for all controllers used by YetaWF (including "plain old" MVC controllers).
@@ -155,26 +153,24 @@ namespace YetaWF.Core.Controllers {
 #endif
 
 #if MVC6
-        public override void OnActionExecuting(ActionExecutingContext filterContext) {
+        public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
-            SetupEnvironmentInfo();
+            await SetupEnvironmentInfoAsync();
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {
                 Type ctrlType;
                 string actionName;
-#if MVC6
+
                 ctrlType = filterContext.Controller.GetType();
                 actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
-#else
-                filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
-                actionName = filterContext.ActionDescriptor.ActionName;
-#endif
+
                 MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
                 ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
                 if (exclDemoAttr != null)
                     throw new Error("This action is not available in Demo mode.");
             }
             base.OnActionExecuting(filterContext);
+            await next();
         }
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
@@ -344,24 +340,11 @@ namespace YetaWF.Core.Controllers {
             return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
         }
         private async Task HandlePropertiesAsync(List<object> data) {
-            foreach (object model in data)
-                await HandlePropertiesAsync(model);
+            foreach (object item in data)
+                await HandlePropertiesAsync(item);
         }
-        private async Task HandlePropertiesAsync(object model) {
-            await HandlePropertyAsync<Menus.MenuList>("Commands", "__GetCommandsAsync", model);
-        }
-        /// <summary>
-        /// Retrieve the async method named asyncName and put the return value into the property named syncName.
-        /// </summary>
-        private async Task HandlePropertyAsync<TYPE>(string syncName, string asyncName, object model) {
-            Type modelType = model.GetType();
-            MethodInfo miAsync = modelType.GetMethod(asyncName, BindingFlags.Instance | BindingFlags.Public);
-            if (miAsync == null) return;
-            PropertyInfo piSync = ObjectSupport.TryGetProperty(modelType, syncName);
-            if (piSync == null) return;
-            Task<TYPE> methRetvalTask = (Task<TYPE>)miAsync.Invoke(model, null);
-            object methRetval = await methRetvalTask;
-            piSync.SetValue(model, methRetval);
+        private async Task HandlePropertiesAsync(object data) {
+            await ObjectSupport.HandlePropertyAsync<Menus.MenuList>("Commands", "__GetCommandsAsync", data);
         }
 
         // PARTIAL VIEW
@@ -525,7 +508,8 @@ namespace YetaWF.Core.Controllers {
                 Manager.InPartialView = true;
                 try {
                     IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
-                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRender);
+                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
+                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRenderAsync);
                 } catch (Exception) {
                     throw;
                 } finally {

@@ -333,8 +333,8 @@ namespace YetaWF.Core.Controllers {
                         if (pageInfo.NewUrl != url) {
                             Logging.AddTraceLog("Server.TransferRequest - {0}", pageInfo.NewUrl);
 #if MVC6
-                            HttpContext.Request.Path = newUrl;
-                            HttpContext.Request.QueryString = new QueryString(newQs);
+                            HttpContext.Request.Path = pageInfo.NewUrl;
+                            HttpContext.Request.QueryString = new QueryString(pageInfo.NewQS);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
                             Server.TransferRequest(QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS));

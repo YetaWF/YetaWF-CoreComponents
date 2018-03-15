@@ -13,15 +13,13 @@ using YetaWF.Core.Upload;
 using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Headers;
-using Microsoft.Extensions.FileProviders;
-using System.Threading.Tasks;
 #else
 using System.Web;
 using System.Web.SessionState;
 #endif
 
-namespace YetaWF.Core.HttpHandler {
+namespace YetaWF.Core.HttpHandler
+{
 
 
 #if MVC6
@@ -36,10 +34,9 @@ namespace YetaWF.Core.HttpHandler {
             Handler = new ImageHttpHandler();
         }
 
-        public async Task Invoke(HttpContext context) {
-
+        public async Task InvokeAsync(HttpContext context) {
             await Handler.ProcessRequest(context);
-            //await _next.Invoke(context);
+            //await _next(context);
         }
     }
 
@@ -53,15 +50,15 @@ namespace YetaWF.Core.HttpHandler {
         // IHttpHandler (Async)
 
 #if MVC6
-        public async Task ProcessRequest(HttpContext context)
+        public async Task ProcessRequest(HttpContext context) {
+            await StartupRequest.StartRequestAsync(context, true);
 #else
         public override bool IsReusable {
             get { return true; }
         }
 
-        public override async Task ProcessRequestAsync(HttpContext context)
+        public override async Task ProcessRequestAsync(HttpContext context) {
 #endif
-        {
             YetaWFManager manager = YetaWFManager.Manager;
 
             string typeVal = manager.RequestQueryString["type"];

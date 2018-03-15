@@ -29,10 +29,9 @@ namespace YetaWF.Core.HttpHandler {
             Handler = new CssHttpHandler();
         }
 
-        public async Task Invoke(HttpContext context) {
-
+        public async Task InvokeAsync(HttpContext context) {
             await Handler.ProcessRequest(context);
-            //await _next.Invoke(context);
+            //await _next(context);
         }
     }
 
@@ -47,15 +46,15 @@ namespace YetaWF.Core.HttpHandler {
         // IHttpHandler
 
 #if MVC6
-        public async Task ProcessRequest(HttpContext context)
+        public async Task ProcessRequest(HttpContext context) {
+            await StartupRequest.StartRequestAsync(context, true);
 #else
         public bool IsReusable {
             get { return true; }
         }
 
-        public void ProcessRequest(HttpContext context)
+        public void ProcessRequest(HttpContext context) {
 #endif
-        {
             YetaWFManager manager = YetaWFManager.Manager;
 
             int charWidth, charHeight;

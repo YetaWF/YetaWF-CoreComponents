@@ -17,9 +17,9 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Search;
+using YetaWF.Core.DataProvider.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -611,9 +611,9 @@ namespace YetaWF.Core.Modules {
             try {
 #if MVC6
                 if (!string.IsNullOrEmpty(Area))
-                    moduleHtml = htmlHelper.Action(this, Action, Controller, Area, rvd).ToString();
+                    moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
                 else
-                    moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
+                    moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
                 using (new YetaWFManager.NeedSync()) { 
                     if (!string.IsNullOrEmpty(Area))
@@ -707,9 +707,9 @@ namespace YetaWF.Core.Modules {
             string moduleHtml;
 #if MVC6
             if (!string.IsNullOrEmpty(Area))
-                moduleHtml = htmlHelper.Action(this, Action, Controller, Area, rvd).ToString();
+                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
             else
-                moduleHtml = htmlHelper.Action(this, Action, Controller, rvd).ToString();
+                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
             using (new YetaWFManager.NeedSync()) {
                 if (!string.IsNullOrEmpty(Area))
@@ -1005,16 +1005,20 @@ namespace YetaWF.Core.Modules {
         // MODULE USAGE
         // MODULE USAGE
 
+        /// <remarks>
+        /// This property is not populated. It must be explicitly set using __GetPagesAsync() if the data is needed (use
+        /// ObjectSupport.HandlePropertyAsync).
+        /// </remarks>
         [Category("Pages"), Caption("Pages"), Description("The pages where this module is used")]
         [UIHint("PageDefinitions"), ReadOnly]
-        public List<PageDefinition> Pages {
-            get {
-                if (_pages == null)
-                    _pages = PageDefinition.GetPagesFromModuleAsync(ModuleGuid).Result;
-                return _pages;
-            }
+        [DontSave][Data_DontSave]
+        public List<PageDefinition> Pages { get; set; }
+
+        public async Task<List<PageDefinition>> __GetPagesAsync() {
+            if (Pages == null)
+                Pages = await PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
+            return Pages;
         }
-        private List<PageDefinition> _pages;
 
 
         // SEARCH

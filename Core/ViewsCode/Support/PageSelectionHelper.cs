@@ -42,7 +42,7 @@ namespace YetaWF.Core.Views.Shared {
             return await htmlHelper.RenderDropDownSelectionListAsync<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static async Task<HtmlString> HtmlString RenderPageSelectionLinkAsync(this IHtmlHelper htmlHelper, Guid? pageGuid) {
+        public static async Task<HtmlString> RenderPageSelectionLinkAsync(this IHtmlHelper htmlHelper, Guid? pageGuid) {
 #else
         public static async Task<HtmlString> RenderPageSelectionLinkAsync(this HtmlHelper htmlHelper, Guid? pageGuid) {
 #endif

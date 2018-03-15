@@ -3,12 +3,13 @@
 #if MVC6
 
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace YetaWF.Core.Pages {
 
     public interface IRazorPageLifetime {
         void BeginRender(ViewContext context);
-        void EndRender(ViewContext context);
+        Task EndRenderAsync(ViewContext context);
     }
 }
 #else

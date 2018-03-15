@@ -58,7 +58,7 @@ namespace YetaWF.Core.IO {
 
             if (YetaWFManager.IsSync()) {
                 DoAction(s, () => {
-                    action().Wait();
+                    action().Wait(); // sync Wait because we in sync mode
                 });
             } else {
 

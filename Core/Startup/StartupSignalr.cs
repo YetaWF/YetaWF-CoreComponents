@@ -72,7 +72,7 @@ namespace YetaWF.Core.Support {
             host = httpReq.Url.Host;
             manager = YetaWFManager.MakeInstance(host);
 #endif
-            manager.CurrentSite = SiteDefinition.LoadSiteDefinitionAsync(host).Result;
+            manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(host);
             if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
             await YetaWFController.SetupEnvironmentInfoAsync();
 

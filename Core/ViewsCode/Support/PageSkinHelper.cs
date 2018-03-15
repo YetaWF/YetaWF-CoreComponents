@@ -126,7 +126,7 @@ namespace YetaWF.Core.Views.Shared {
             return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static HtmlString RenderPageSkinsForCollection(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPageSkinsForCollectionAsync(this IHtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #else
         public static async Task<HtmlString> RenderPageSkinsForCollectionAsync(this HtmlHelper htmlHelper, string name, string selection, string collection, object HtmlAttributes = null) {
 #endif
@@ -177,7 +177,7 @@ namespace YetaWF.Core.Views.Shared {
             SkinAccess skinAccess = new SkinAccess();
             ModuleSkinList skinList = skinAccess.GetAllModuleSkins(collection);
             SkinDefinition skinDef = (from s in model where s.Collection == collection select s).FirstOrDefault();
-            string selection = (skinDef != null) ? skinDef.FileName : null;
+            string selection = skinDef?.FileName;
             List<SelectionItem<string>> list = (from skin in skinList select new SelectionItem<string>() {
                 Text = skin.Name,
                 Tooltip = skin.Description,

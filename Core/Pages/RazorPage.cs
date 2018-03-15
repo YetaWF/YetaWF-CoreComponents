@@ -5,20 +5,18 @@ using System.Text;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
-using System.Threading.Tasks;
 #else
 using System.Web;
 using System.Web.Mvc;
 using System.Web.WebPages;
 #endif
 
-namespace YetaWF.Core.Pages {
+namespace YetaWF.Core.Pages
+{
 
 #if MVC6
     public static class HtmlStringExtension {
@@ -107,7 +105,6 @@ namespace YetaWF.Core.Pages {
             ExecutePageHierarchy(wpc, viewContext.Writer, this);
         }
 #endif
-
         public async Task<HtmlString> RenderPaneAsync(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
             if (IsTemplate)
                 throw new InternalError("Can't use RenderPane in templates");
@@ -256,7 +253,7 @@ namespace YetaWF.Core.Pages {
             using (new YetaWFManager.NeedSync()) { // rendering needs to be sync (for templates)
                 base.ExecutePageHierarchy();
             }
-            EndRenderAsync(null).Wait();
+            EndRenderAsync(null).Wait(); // Sorry, no async for you, MVC5
         }
 #endif
         public void BeginRender(ViewContext context) {

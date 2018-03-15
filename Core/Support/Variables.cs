@@ -225,7 +225,7 @@ namespace YetaWF.Core.Support {
                         string fullName = loc.Substring("Unique-".Length);
                         Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
                         if (modType != null) {
-                            ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModuleAsync(modType).Result;//$$$$$
+                            ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModuleAsync(modType).Result;//$$$$$ This is no good
                             if (dataMod != null) {
                                 if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
                                     if (!string.IsNullOrWhiteSpace(ret))

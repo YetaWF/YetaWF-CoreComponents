@@ -169,7 +169,7 @@ namespace YetaWF.Core.Support {
                 manager = new YetaWFManager(null);
                 manager.UserLanguage = MultiString.DefaultLanguage;
                 if (SiteDefinition.LoadSiteDefinitionAsync != null) {
-                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // this will not run async as we don't have a Manager
+                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // sync OK as it's cached - this will not run async as we don't have a Manager
                     manager.HostPortUsed = 80;
                     manager.HostSchemeUsed = "http";
                 } else {
@@ -1790,7 +1790,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public static TYPE Syncify<TYPE>(Func<Task<TYPE>> func) {
             using (new NeedSync()) {
-                return func().Result;
+                return func().Result; // sync OK as we requested sync mode
             }
         }
         /// <summary>
@@ -1799,7 +1799,7 @@ namespace YetaWF.Core.Support {
         /// <param name="func"></param>
         public static void Syncify(Func<Task> func) {
             using (new NeedSync()) {
-                func().Wait();
+                func().Wait(); // Sync wait because we're in sync mode
             }
         }
     }

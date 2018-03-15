@@ -13,6 +13,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -949,6 +950,26 @@ namespace YetaWF.Core.Models {
                     }
                 }
             }
+        }
+        /// <summary>
+        /// Retrieve the async method named asyncName and put the return value into the property named syncName.
+        /// </summary>
+        public static async Task HandlePropertyAsync<TYPE>(string syncName, string asyncName, object data) {
+            Type modelType = data.GetType();
+            MethodInfo miAsync = modelType.GetMethod(asyncName, BindingFlags.Instance | BindingFlags.Public);
+            if (miAsync == null) return;
+            PropertyInfo piSync = ObjectSupport.TryGetProperty(modelType, syncName);
+            if (piSync == null) return;
+            Task<TYPE> methRetvalTask = (Task<TYPE>)miAsync.Invoke(data, null);
+            object methRetval = await methRetvalTask;
+            piSync.SetValue(data, methRetval);
+        }
+        /// <summary>
+        /// Retrieve the async method named asyncName and put the return value into the property named syncName for each item in the provided list.
+        /// </summary>
+        public static async Task HandlePropertiesAsync<TYPE>(string syncName, string asyncName, List<object> data) {
+            foreach (object item in data)
+                await HandlePropertyAsync<TYPE>(syncName, asyncName, item);
         }
     }
 }

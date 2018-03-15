@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Models;
@@ -10,17 +11,15 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
+using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
-using YetaWF.Core.Support;
-using System.Threading.Tasks;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
-using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization
+namespace YetaWF.Core.Modules
+{  // This namespace breaks naming standards so it can properly return module company/name for localization
 
     [ModuleGuidAttribute("00000000-0000-0000-0000-000000000000")]
     [Trim]

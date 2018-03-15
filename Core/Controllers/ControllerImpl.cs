@@ -16,16 +16,10 @@ using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Linq;
-using System.Threading.Tasks;
-using YetaWF.Core.Pages;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -33,7 +27,8 @@ using System.Web.Routing;
 using YetaWF.Core.Log;
 #endif
 
-namespace YetaWF.Core.Controllers {
+namespace YetaWF.Core.Controllers
+{
 
     /// <summary>
     /// The base class for any module-based controller. Modules within YetaWF that implement controllers derive from this class so controllers have access to module definitions.
@@ -64,7 +59,7 @@ namespace YetaWF.Core.Controllers {
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             throw new InternalError("Missing QueryString[{0}] value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
                         Guid guid = new Guid(moduleGuid);
-                        return await ModuleDefinition.LoadAsync(guid);
+                        mod = await ModuleDefinition.LoadAsync(guid);
                     }
                 } else if (Manager.IsPostRequest) {
                     mod = (TMod)RouteData.Values[Globals.RVD_ModuleDefinition];
@@ -263,11 +258,12 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="filterContext">Information about the current request and action.</param>
 #if MVC6
-        public override void OnActionExecuting(ActionExecutingContext filterContext) { //$$$asyncify
+        public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) { 
             YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
 #endif
+                await SetupEnvironmentInfoAsync();
                 base.OnActionExecuting(filterContext);
 
                 if (Manager.IsPostRequest) {
@@ -384,6 +380,7 @@ namespace YetaWF.Core.Controllers {
                     ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
                 }
 #if MVC6
+                await next();
 #else
             }); // End of Syncify
 #endif
@@ -876,7 +873,7 @@ namespace YetaWF.Core.Controllers {
 
             popupText = popupText != null ? YetaWFManager.JsonSerialize(popupText) : null;
             popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
-            PopupOptions = PopupOptions != null ? PopupOptions : "null";
+            PopupOptions = PopupOptions ?? "null";
 
             bool isApply = Manager.RequestForm[Globals.Link_SubmitIsApply] != null;
             if (isApply) {
@@ -1249,13 +1246,18 @@ namespace YetaWF.Core.Controllers {
         /// <param name="objType">The module type (the derived type).</param>
         /// <param name="modelName">The model name (always "Module").</param>
         /// <returns>The bound object of the specified type.</returns>
-        protected object GetObjectFromModel(Type objType, string modelName) {
+#if MVC6
+        protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName)
+#else
+        protected Task<object> GetObjectFromModelAsync(Type objType, string modelName)
+#endif
+        {
             object obj;
 #if MVC6
             obj = Activator.CreateInstance(objType);
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
-            bool result = TryUpdateModelAsync(obj, objType, modelName).Result;
+            bool result = await TryUpdateModelAsync(obj, objType, modelName);
             if (!result)
                 throw new InternalError("Model with type {0} cannot be updated", objType.FullName);
 #else
@@ -1294,7 +1296,11 @@ namespace YetaWF.Core.Controllers {
                         ViewData.ModelState.Clear();
                 }
             }
+#if MVC6
             return obj;
+#else
+            return Task.FromResult<object>(obj);
+#endif
         }
     }
 }

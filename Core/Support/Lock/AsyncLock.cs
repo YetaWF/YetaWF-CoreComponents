@@ -55,7 +55,7 @@ namespace YetaWF.Core.Support {
             internal void ObtainLock() {
                 while (!TryEnter()) {
                     //we need to wait for someone to leave the lock before trying again
-                    _parent._retry.Wait();
+                    _parent._retry.Wait(); // Sync wait because a sync Lock was requested
                 }
             }
 
