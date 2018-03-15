@@ -142,6 +142,7 @@
     <Compile Include="Pages\YetaWFRazorView.cs" />
     <Compile Include="Search\Search.cs" />
     <Compile Include="Skins\BootstrapSkins.cs" />
+    <Compile Include="Startup\StartupRequest.cs" />
     <Compile Include="Startup\StartupSignalr.cs" />
     <Compile Include="Startup\StartupOwin.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />

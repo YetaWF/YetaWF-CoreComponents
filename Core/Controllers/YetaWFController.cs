@@ -1,8 +1,11 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Ionic.Zlib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
@@ -12,8 +15,6 @@ using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Models;
-using System.Text.RegularExpressions;
-using System.Text;
 using YetaWF.Core.ResponseFilter;
 #if MVC6
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using YetaWF.Core.Pages;
 #else
+using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Filters;
