@@ -36,8 +36,11 @@ namespace YetaWF.Core.Support {
             // Determine which Site folder to use based on URL provided
             bool forcedHost = false, newSwitch = false;
             bool staticHost = false;
-
+#if MVC6
+            string host = YetaWFManager.GetRequestedDomain(uri, httpReq.Query[Globals.Link_ForceSite], out forcedHost, out newSwitch);
+#else
             string host = YetaWFManager.GetRequestedDomain(uri, httpReq.QueryString[Globals.Link_ForceSite], out forcedHost, out newSwitch);
+#endif
             string host2 = null;
 
             SiteDefinition site = null;
