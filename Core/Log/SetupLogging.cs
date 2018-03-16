@@ -126,10 +126,9 @@ namespace YetaWF.Core.Log {
         /// Write a message to all loggers.
         /// </summary>
         public static void WriteToAllLogFiles(string category, LevelEnum level, int relStack, string message) {
-            string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);//$$$ time needed?
             foreach (ILogging log in GetLoggers()) {
                 if (log.GetLevel() <= level)
-                    log.WriteToLogFile(category, level, relStack, text);
+                    log.WriteToLogFile(category, level, relStack, message);
             }
         }
         /// <summary>
