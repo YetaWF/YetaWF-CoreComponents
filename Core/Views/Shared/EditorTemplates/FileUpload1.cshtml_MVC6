@@ -1,0 +1,13 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Pages.RazorTemplate<FileUpload1>
+@{  Manager.AddOnManager.AddAddOnGlobalAsync("github.com.danielm", "uploader").Wait(); }
+<div class="yt_fileupload1 yt_fileuploaddanielm1 " id="@ControlId" data-saveurl="@Model.SaveURL" data-removeurl="@Model.RemoveURL">
+    <input type="button" class="t_upload" value="@Model.SelectButtonText" title="@Model.SelectButtonTooltip" />
+    <div class="t_drop">@Model.DropFilesText</div>
+    <div class="t_progressbar"></div>
+    <input type="file" name="__filename" class="t_filename" style="display:none" />
+</div>
+
+<script>
+    YetaWF_FileUpload1.init('@ControlId', @JSEncode(Model.SerializeForm));
+</script>

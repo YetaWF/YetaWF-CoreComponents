@@ -1,0 +1,8 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
+@Html.ValidationSummary()
+@{
+    YetaWF.Core.Models.GridDefinition gridDef = ((dynamic)Model).GridDef;
+    // we have to supply the template because we can't reference the property in the model itself
+}
+@Html.DisplayFor(m => gridDef, "Grid")

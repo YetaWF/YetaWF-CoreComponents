@@ -1,0 +1,5 @@
+@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.RazorView<string>
+@if (!string.IsNullOrWhiteSpace(Model)) {
+    <div class="@YetaWF.Core.Globals.CssDivAlert">@Model</div>
+}

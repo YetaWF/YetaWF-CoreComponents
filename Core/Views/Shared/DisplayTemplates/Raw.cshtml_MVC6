@@ -1,0 +1,2 @@
+﻿@inherits YetaWF.Core.Pages.RazorTemplate<System.String>
+@Html.Raw(Model)

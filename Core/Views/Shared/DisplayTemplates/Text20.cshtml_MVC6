@@ -1,0 +1,4 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.Text<System.String>
+@Html.RenderTextBoxDisplayAsync("", Model, HtmlAttributes: new { @class = "yt_text20 t_display" }).Result
+
