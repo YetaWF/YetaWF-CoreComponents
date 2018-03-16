@@ -10,6 +10,8 @@ namespace YetaWF.Core.Log {
 
     public static partial class Logging {
 
+        public const string YetaWFEvent = "YetaWF";
+
         public enum LevelEnum {
             [EnumDescription("Trace", "Tracing/Debug Information")]
             Trace = 0,

@@ -12,7 +12,7 @@ namespace YetaWF.Core.Log {
     public interface ILogging {
         void Clear();
         void Flush();
-        void WriteToLogFile(Logging.LevelEnum level, int relStack, string text);
+        void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text);
         Logging.LevelEnum GetLevel();
         Task<bool> IsInstalledAsync();
     }
@@ -119,11 +119,17 @@ namespace YetaWF.Core.Log {
         /// <summary>
         /// Write a message to all loggers.
         /// </summary>
-        public static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
-            string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);
+        private static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
+            WriteToAllLogFiles(YetaWFEvent, level, relStack, message);
+        }
+        /// <summary>
+        /// Write a message to all loggers.
+        /// </summary>
+        public static void WriteToAllLogFiles(string category, LevelEnum level, int relStack, string message) {
+            string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);//$$$ time needed?
             foreach (ILogging log in GetLoggers()) {
                 if (log.GetLevel() <= level)
-                    log.WriteToLogFile(level, relStack, text);
+                    log.WriteToLogFile(category, level, relStack, text);
             }
         }
         /// <summary>
