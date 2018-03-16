@@ -49,7 +49,7 @@ namespace YetaWF.Core.Support {
         internal static string HandleCallbacks(string message) {
             if (Callbacks != null) {
                 foreach (Action<string> callback in Callbacks.ToList()) {
-                    callback(message);
+                    callback(message);// no await, as in fire and forget
                 }
             }
             return message;
