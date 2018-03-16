@@ -44,9 +44,8 @@ namespace YetaWF.Core.Support {
             string host2 = null;
 
             SiteDefinition site = null;
-            if (isStaticHost != true)
+            if (isStaticHost != false)
                 site = await SiteDefinition.LoadStaticSiteDefinitionAsync(host);
-
             if (site != null) {
                 if (forcedHost || newSwitch) throw new InternalError("Static item for forced or new host");
                 staticHost = true;
