@@ -4,7 +4,7 @@
 @using YetaWF.Core.Views.Shared
 
 @{
-    Manager.AddOnManager.AddAddOnGlobalAsync("github.com.free-jqgrid", "jqgrid").Wait();
+    await Manager.AddOnManager.AddAddOnGlobalAsync("github.com.free-jqgrid", "jqgrid");
 
     string dataDelete = "", dataDisplay = "";
     string dataExtra = "";
@@ -37,7 +37,7 @@
     if (!isAjax && Model.Data == null) { throw new YetaWF.Core.Support.InternalError("Neither AjaxUrl nor local Data specified"); }
 
     string dataId = @UniqueId("griddata");
-    GridjqGridHelper.GetColModelInfo colModelInfo = Html.GetColModelAsync(gridSavedSettings, Model).Result;
+    GridjqGridHelper.GetColModelInfo colModelInfo = await Html.GetColModelAsync(gridSavedSettings, Model);
 <script>
     function InitGrid_@Model.Id () {
         @if (!isAjax) {

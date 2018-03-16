@@ -60,7 +60,7 @@
     }
 }
 
-@Html.RenderTextAreaAsync("", text, HtmlAttributes: new { @class = "yt_textarea t_edit", id = ControlId, data_height=pixHeight }).Result
+@await Html.RenderTextAreaAsync("", text, HtmlAttributes: new { @class = "yt_textarea t_edit", id = ControlId, data_height=pixHeight })
 
 <script>
     CKEDITOR.replace('@ControlId', {

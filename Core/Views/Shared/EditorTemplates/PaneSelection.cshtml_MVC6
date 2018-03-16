@@ -1,4 +1,4 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Pages.RazorTemplate<string>
-@Html.RenderDropDownListAsync("", Model, HtmlAttributes: new { @class = "yt_paneselection t_edit" }).Result
+@await Html.RenderDropDownListAsync("", Model, HtmlAttributes: new { @class = "yt_paneselection t_edit" })
 

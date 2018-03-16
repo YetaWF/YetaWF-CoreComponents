@@ -9,6 +9,6 @@
     <title></title>
 </head>
 <body class="@Manager.PageCss()">
-    @RenderPaneAsync("", "MainPane AnyPane").Result
+    @await RenderPaneAsync("", "MainPane AnyPane")
 </body>
 </html>

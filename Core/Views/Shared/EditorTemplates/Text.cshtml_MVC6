@@ -1,4 +1,4 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.Text<System.String>
-@Html.RenderTextBoxAsync("", Model, HtmlAttributes: new { @class="yt_text t_edit" }).Result
+@await Html.RenderTextBoxAsync("", Model, HtmlAttributes: new { @class="yt_text t_edit" })
 

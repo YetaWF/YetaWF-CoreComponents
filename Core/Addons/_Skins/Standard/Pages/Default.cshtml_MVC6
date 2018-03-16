@@ -11,15 +11,15 @@
 <body class="@Manager.PageCss()">
     <noscript><div class="yDivWarning" style="height:100px;text-align:center;vertical-align:middle">This site requires Javascript</div></noscript>
     <div class="pageOuterWrapper">
-        @(Html.RenderModuleAsync<global::YetaWF.Modules.TinyLogin.Modules.TinyLoginModule>().Result)
-        @(Html.RenderModuleAsync<global::YetaWF.Modules.Menus.Modules.MainMenuModule>().Result)
+        @(await Html.RenderModuleAsync<global::YetaWF.Modules.TinyLogin.Modules.TinyLoginModule>())
+        @(await Html.RenderModuleAsync<global::YetaWF.Modules.Menus.Modules.MainMenuModule>())
 
-        @RenderPaneAsync("", "MainPane AnyPane").Result
+        @await RenderPaneAsync("", "MainPane AnyPane")
 
         <div class="pageFooter">[[PageOrSite,CopyrightEvaluated]]</div>
 
-        @(Html.RenderPageControlAsync<global::YetaWF.Modules.PageEdit.Modules.PageControlModule>().Result)
+        @(await Html.RenderPageControlAsync<global::YetaWF.Modules.PageEdit.Modules.PageControlModule>())
     </div>
-    @(Html.RenderUniqueModuleAddOnsAsync().Result)
+    @(await Html.RenderUniqueModuleAddOnsAsync())
 </body>
 </html>
