@@ -68,7 +68,6 @@ jQuery.extend(jQuery.jgrid.nav, {
 // translate column widths given in char width to pixels
 YetaWF_Grid.setColumnWidths = function ($grid, options) {
     var colModel = options.colModel;
-    debugger;
     var w = $grid.attr("data-charavgw");
     if (!w) throw "No data-charavgw attribute on grid";/*DEBUG*/
     for (var i = 0; i < colModel.length; i++) {

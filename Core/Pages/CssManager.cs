@@ -163,7 +163,7 @@ namespace YetaWF.Core.Pages {
             }
 
             if (!_CssFileKeys.Contains(key)) {
-                if (!CssPreProcess(fullUrl))
+                if (!UrlHasContent(fullUrl))
                     return false; // empty file
                 _CssFileKeys.Add(key);
                 _CssFiles.Add(new Pages.CssManager.CssEntry { Url = fullUrl, Bundle = bundle, Last = skinRelated });
@@ -171,49 +171,19 @@ namespace YetaWF.Core.Pages {
             return true;
         }
 
-        private bool CssPreProcess(string fullUrl) {
-            if (!Manager.CurrentSite.DEBUGMODE) {
-                // release mode, compile, compress, minimize
-                return FileHasContent(fullUrl);
-            } else {
-                // debug mode, compile only
-                if (Manager.CurrentSite.UseHttpHandler) {
-                    if (FileHasContent(fullUrl)) {
-#if DEBUG
-                        string path = YetaWFManager.UrlToPhysical(fullUrl);
-                        if (!File.Exists(path))
-                            throw new InternalError("File {0} not found", fullUrl);
-#endif
-                        return true;
-                    }
-                    return false;
-                } else {
-                    return FileHasContent(fullUrl);
-                }
-            }
-        }
-        private bool FileHasContent(string fullPathUrl) {
-
-            if (!CanPreProcess(fullPathUrl))
+        private bool UrlHasContent(string fullUrl) {
+            if (fullUrl.IsAbsoluteUrl())
                 return true;
-            if (!fullPathUrl.EndsWith(".css"))
+            if (!fullUrl.EndsWith(".css"))
                 return true;
-
-            if (!fullPathUrl.ContainsIgnoreCase(Globals.AddOnsUrl) && !fullPathUrl.ContainsIgnoreCase(Globals.AddOnsCustomUrl))
+            if (!fullUrl.ContainsIgnoreCase($"{Globals.AddOnsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddOnsCustomUrl}/"))
                 return true;
-
-            // process css with charsize
-            string fullPath = YetaWFManager.UrlToPhysical(fullPathUrl);
+            string fullPath = YetaWFManager.UrlToPhysical(fullUrl);
             if (!File.Exists(fullPath))
                 throw new InternalError("File {0} not found - can't be processed", fullPath);
 
             string text = File.ReadAllText(fullPath);
             if (string.IsNullOrWhiteSpace(text))
-                return false;
-            return true;
-        }
-        private bool CanPreProcess(string fullPathUrl) {
-            if (fullPathUrl.IsAbsoluteUrl())
                 return false;
             return true;
         }
