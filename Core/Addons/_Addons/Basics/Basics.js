@@ -588,6 +588,21 @@ function Y_KillTooltips() {
     $('.ui-tooltip').remove();
 }
 
+// CHARSIZE (from module or page/YVolatile)
+
+YetaWF_Basics.getCharSizeFromTag = function ($t) {
+    var width, height;
+    var $mod = YetaWF_Basics.getModuleFromTag_Cond($t);
+    if ($mod != null) {
+        width = $mod.attr('data-charwidthavg');
+        height = $mod.attr('data-charheight');
+    } else {
+        width = YVolatile.Basics.CharWidthAvg;
+        height = YVolatile.Basics.CharHeight;
+    }
+    return { width: width, height: height };
+}
+
 // CONTENT
 // CONTENT
 // CONTENT
@@ -1049,6 +1064,13 @@ $(document).ready(function () {
                 var guid = YetaWF_Basics.getModuleGuidFromTag($t);
                 uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
             }
+        }
+
+        // pass along the charsize
+        {
+            var charSize = YetaWF_Basics.getCharSizeFromTag($t);
+            uri.removeSearch(YGlobals.Link_CharInfo);
+            uri.addSearch(YGlobals.Link_CharInfo, charSize.width + ',' + charSize.height);
         }
 
         // fix the url to include where we came from
