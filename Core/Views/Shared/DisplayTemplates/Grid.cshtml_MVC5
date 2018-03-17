@@ -5,6 +5,7 @@
 
 @{
     Manager.AddOnManager.AddAddOnGlobalAsync("github.com.free-jqgrid", "jqgrid").Wait();
+    Model.FinalizeSettingsAsync().Wait();
 
     string dataDelete = "", dataDisplay = "";
     string dataExtra = "";
@@ -139,7 +140,7 @@
             @:         }
             @:     }
             @: });
-            @: YetaWF_Grid.toggleSearchToolbar($grid, @JSEncode(YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowGridSearchToolbar") || Model.ShowFilter == true));
+            @: YetaWF_Grid.toggleSearchToolbar($grid, Model.ShowFilter == true);
         }
         @if (Model.SupportReload) {
             @:     var $mod = $grid.closest('.yModule');
