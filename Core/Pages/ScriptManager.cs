@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
@@ -155,9 +156,9 @@ namespace YetaWF.Core.Pages {
         // ADDON
         // ADDON
 
-        internal void AddAddOn(VersionManager.AddOnProduct version, params object[] args) {
+        internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
             string productUrl = version.GetAddOnUrl();
-            AddFromSupportTypes(version);
+            await AddFromSupportTypesAsync(version);
             AddFromFileList(version, productUrl, args);
         }
 
@@ -178,7 +179,7 @@ namespace YetaWF.Core.Pages {
         }
 
         // Add localizations and configurations
-        private void AddFromSupportTypes(VersionManager.AddOnProduct version) {
+        private async Task AddFromSupportTypesAsync(VersionManager.AddOnProduct version) {
             foreach (var type in version.SupportTypes) {
                 object o = Activator.CreateInstance(type);
                 if (o == null)
@@ -186,7 +187,7 @@ namespace YetaWF.Core.Pages {
                 IAddOnSupport addSupport = o as IAddOnSupport;
                 if (addSupport == null)
                     throw new InternalError("No IAddOnSupport interface found on type {0} for {1}/{2}", type.Name, version.Domain, version.Product);
-                addSupport.AddSupport(Manager);
+                await addSupport.AddSupportAsync(Manager);
             }
         }
 
@@ -355,7 +356,7 @@ namespace YetaWF.Core.Pages {
                 if (!fullUrl.IsAbsoluteUrl()) {
                     string path = YetaWFManager.UrlToPhysical(fullUrl);
                     if (!File.Exists(path))
-                        throw new InternalError("File {0} not found", fullUrl);
+                        throw new InternalError($"File {path} not found for {fullUrl}");
                 }
                 _ScriptFiles.Add(key);
                 _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = fullUrl, Bundle = bundle, Last = last, Async = async, Defer = defer });

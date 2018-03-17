@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
@@ -60,11 +61,11 @@ namespace YetaWF.Core.Addons {
 
         public const string AjaxJavascriptErrorReturn = "JSERROR:";
 
-        public void AddSupport(YetaWFManager manager) {
+        public async Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
 
-            manager.AddOnManager.AddAddOnGlobal("no-margin-for-errors.com", "prettyLoader");
+            await manager.AddOnManager.AddAddOnGlobalAsync("no-margin-for-errors.com", "prettyLoader");
 
             // Site settings
             scripts.AddVolatileOption("Basics", "JSLocation", manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top);

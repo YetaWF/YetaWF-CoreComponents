@@ -5,6 +5,7 @@ using System.Linq;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,9 +22,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(KendoUISkinsHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderKendoUISkins(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderKendoUISkinsAsync(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderKendoUISkins(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderKendoUISkinsAsync(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
             // get all available skins
             SkinAccess skinAccess = new SkinAccess();
@@ -33,7 +34,7 @@ namespace YetaWF.Core.Views.Shared {
                 Value = theme.Name,
             }).ToList();
 
-            bool useDefault = ! htmlHelper.GetControlInfo<bool>("", "NoDefault");
+            bool useDefault = !htmlHelper.GetControlInfo<bool>("", "NoDefault");
             if (useDefault)
                 list.Insert(0, new SelectionItem<string> {
                     Text = __ResStr("default", "(Site Default)"),
@@ -44,7 +45,7 @@ namespace YetaWF.Core.Views.Shared {
                 selection = SkinAccess.GetKendoUIDefaultSkin();
 
             // display the skins in a drop down
-            return htmlHelper.RenderDropDownSelectionList(name, selection, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);
         }
     }
 }

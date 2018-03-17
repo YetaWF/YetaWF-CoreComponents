@@ -163,131 +163,29 @@ namespace YetaWF.Core.Pages {
             }
 
             if (!_CssFileKeys.Contains(key)) {
-                string file = CssPreProcess(fullUrl);
-                if (file == null)
+                if (!UrlHasContent(fullUrl))
                     return false; // empty file
                 _CssFileKeys.Add(key);
-                _CssFiles.Add(new Pages.CssManager.CssEntry { Url = file, Bundle = bundle, Last = skinRelated });
+                _CssFiles.Add(new Pages.CssManager.CssEntry { Url = fullUrl, Bundle = bundle, Last = skinRelated });
             }
             return true;
         }
 
-        private bool CanPreProcess(string fullPathUrl) {
-            if (fullPathUrl.IsAbsoluteUrl())
-                return false;
-            return true;
-        }
-
-
-        private string CssPreProcess(string fullUrl) {
-            if (!Manager.CurrentSite.DEBUGMODE) {
-                // release mode, compile, compress, minimize
-                return ProcessFile(fullUrl, !Manager.CurrentSite.UseHttpHandler);
-            } else {
-                // debug mode, compile only
-                if (Manager.CurrentSite.UseHttpHandler) {
-                    if (CanPreProcess(fullUrl)) {
-                        string path = YetaWFManager.UrlToPhysical(fullUrl);
-                        if (!File.Exists(path))
-                            throw new InternalError("File {0} not found", fullUrl);
-                    }
-                    return fullUrl;
-                } else {
-                    return ProcessFile(fullUrl, true);
-                }
-            }
-        }
-
-        private string ProcessFile(string fullPathUrl, bool processCharSize) {
-
-            if (!CanPreProcess(fullPathUrl))
-                return fullPathUrl;
-            if (!fullPathUrl.EndsWith(".css"))
-                return fullPathUrl;
-
-            if (!processCharSize || (!fullPathUrl.ContainsIgnoreCase(Globals.AddOnsUrl) && !fullPathUrl.ContainsIgnoreCase(Globals.AddOnsCustomUrl)))
-                return fullPathUrl;
-
-            // process css with charsize
-            string fullPath = YetaWFManager.UrlToPhysical(fullPathUrl);
+        private bool UrlHasContent(string fullUrl) {
+            if (fullUrl.IsAbsoluteUrl())
+                return true;
+            if (!fullUrl.EndsWith(".css"))
+                return true;
+            if (!fullUrl.ContainsIgnoreCase($"{Globals.AddOnsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddOnsCustomUrl}/"))
+                return true;
+            string fullPath = YetaWFManager.UrlToPhysical(fullUrl);
             if (!File.Exists(fullPath))
                 throw new InternalError("File {0} not found - can't be processed", fullPath);
 
-            string extension = Path.GetExtension(fullPath);
-            string minPathUrl = fullPath.Remove(fullPathUrl.Length - extension.Length);
-            string minPathUrlWithCharInfo = minPathUrl;
-
-            // add character size to css
-            if (extension != ".css") {
-                minPathUrl += extension;
-                minPathUrlWithCharInfo += extension;
-            }
-            minPathUrlWithCharInfo += string.Format("._ci_{0}_{1}", Manager.CharWidthAvg, Manager.CharHeight);
-            minPathUrlWithCharInfo += ".css";
-            minPathUrl += ".css";
-
-            string minPath = YetaWFManager.UrlToPhysical(minPathUrl);
-            string minPathWithCharInfo = YetaWFManager.UrlToPhysical(minPathUrlWithCharInfo);
-
-            if (File.Exists(minPathWithCharInfo)) {
-                if (File.GetLastWriteTimeUtc(minPathWithCharInfo) >= File.GetLastWriteTimeUtc(fullPath)) {
-                    minPathUrl = minPathUrlWithCharInfo;
-                    return minPathUrl;
-                }
-            }
-            if (File.Exists(minPath)) {
-                if (File.GetLastWriteTimeUtc(minPath) >= File.GetLastWriteTimeUtc(fullPath))
-                    return minPathUrl;
-            }
-            Logging.AddLog("Processing {0}", minPath);
-
-            // Make sure we don't have multiple threads processing the same file
-            StringLocks.DoAction("YetaWF##Packer_" + fullPath, () => {
-                minPath = ProcessOneFileCharSize(fullPath, minPath, minPathWithCharInfo);
-                if (minPath == null) {// empty file
-                    Logging.AddLog("Processed and discarded {0}, because it's empty", fullPath);
-                    minPathUrl = null;
-                } else
-                    minPathUrl = YetaWFManager.PhysicalToUrl(minPath);
-            });
-            return minPathUrl;
-        }
-
-        private string ProcessOneFileCharSize(string fullPath, string minPath, string minPathWithCharInfo) {
-            string text = File.ReadAllText(minPath);
-            if (!string.IsNullOrWhiteSpace(text)) {
-                string newText = ProcessCss(text, Manager.CharWidthAvg, Manager.CharHeight);
-                if (newText != text) {
-                    text = newText;
-                    minPath = minPathWithCharInfo;
-                }
-                File.WriteAllText(minPath, text);
-            } else {
-                // this was an empty file, discard it
-                File.Delete(minPath);
-                minPath = null;
-            }
-            return minPath;
-        }
-
-        private static readonly Regex varChRegex = new Regex("(?'num'[0-9\\.]+)\\s*ch(?'delim'(\\s*|;|\\}))", RegexOptions.Compiled | RegexOptions.Multiline);
-
-        public string ProcessCss(string text, int avgCharWidth, int charHeight) {
-            // replace all instances of nn ch with pixels
-            text = varChRegex.Replace(text, match => ProcessChMatch(match, avgCharWidth));
-            return text;
-        }
-        private string ProcessChMatch(Match match, int avgCharWidth) {
-            string num = match.Groups["num"].Value;
-            string delim = match.Groups["delim"].Value;
-            string pix = match.ToString();
-            if (num != ".") {
-                try {
-                    double f = Convert.ToDouble(num);
-                    pix = string.Format("{0}px{1}", Math.Round(f * avgCharWidth, 0), delim);
-                } catch (Exception) { }
-            }
-            return pix;
+            string text = File.ReadAllText(fullPath);
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+            return true;
         }
 
         // RENDER
@@ -327,20 +225,18 @@ namespace YetaWF.Core.Pages {
             }
 
             foreach (CssEntry entry in externalList) {
-                string url = MakeCssUrl(entry.Url);
                 if (cr == null) {
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", YetaWFManager.HtmlAttributeEncode(entry.Url), YetaWFManager.HtmlAttributeEncode(url)));
+                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", YetaWFManager.HtmlAttributeEncode(entry.Url), YetaWFManager.HtmlAttributeEncode(entry.Url)));
                 } else {
                     if (KnownCss == null || !KnownCss.Contains(entry.Url)) {
                         cr.CssFiles.Add(new Controllers.PageContentController.UrlEntry {
                             Name = entry.Url,
-                            Url = url,
+                            Url = entry.Url,
                         });
                         if (entry.Bundle) {
                             string file = YetaWFManager.UrlToPhysical(entry.Url);
                             string contents = File.ReadAllText(file);
                             contents = FileBundles.ProcessIncludedFiles(contents, entry.Url);
-                            contents = ProcessCss(contents, Manager.CharWidthAvg, Manager.CharHeight);
                             cr.CssFilesPayload.Add(new PageContentController.Payload {
                                 Name = entry.Url,
                                 Text = contents,
@@ -362,12 +258,6 @@ namespace YetaWF.Core.Pages {
                     return bundleList;
             }
             return null;
-        }
-
-        private string MakeCssUrl(string url) {
-            url = url.AddUrlCharInfo();
-            url = Manager.GetCDNUrl(url);
-            return url;
         }
     }
 }

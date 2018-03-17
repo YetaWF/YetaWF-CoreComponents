@@ -48,140 +48,144 @@ namespace YetaWF.Core.Controllers {
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
         public override void ExecuteResult(ControllerContext context) {
+            YetaWFManager.Syncify(async () => {
 #endif
-            if (context == null)
-                throw new ArgumentNullException("context");
+                if (context == null)
+                    throw new ArgumentNullException("context");
 
-            PageDefinition requestedPage = Manager.CurrentPage;
-            PageDefinition masterPage = Manager.CurrentPage;
-            Manager.PageTitle = requestedPage.Title;
+                PageDefinition requestedPage = Manager.CurrentPage;
+                PageDefinition masterPage = Manager.CurrentPage;
+                Manager.PageTitle = requestedPage.Title;
 
-            // Unified pages
-            Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
-            if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfo != null && !requestedPage.Temporary) {
-                // Load all unified pages that this page is part of
-                PageDefinition.UnifiedInfo info = PageDefinition.GetUnifiedPageInfo(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
-                if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None) {
-                    // Load the master page for this set
-                    masterPage = PageDefinition.Load(info.MasterPageGuid);
-                    if (masterPage != null) {
-                        // get pages that are part of unified set
-                        Manager.UnifiedPages = new List<PageDefinition>();
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                            Manager.UnifiedPages.Add(requestedPage);
-                        } else {
-                            if (info.PageGuids != null && info.PageGuids.Count > 0) {
-                                foreach (Guid guid in info.PageGuids) {
-                                    PageDefinition page = PageDefinition.Load(guid);
-                                    if (page != null) {
-                                        Manager.UnifiedPages.Add(page);
-                                        Manager.AddOnManager.AddExplicitlyInvokedModules(page.ReferencedModules);
-                                    }
-                                };
+                // Unified pages
+                Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
+                if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfoAsync != null && !requestedPage.Temporary) {
+                    // Load all unified pages that this page is part of
+                    PageDefinition.UnifiedInfo info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
+                    if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None) {
+                        // Load the master page for this set
+                        masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
+                        if (masterPage != null) {
+                            // get pages that are part of unified set
+                            Manager.UnifiedPages = new List<PageDefinition>();
+                            if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                                Manager.UnifiedPages.Add(requestedPage);
+                            } else {
+                                if (info.PageGuids != null && info.PageGuids.Count > 0) {
+                                    foreach (Guid guid in info.PageGuids) {
+
+                                        PageDefinition page = await PageDefinition.LoadAsync(guid);
+                                        if (page != null) {
+                                            Manager.UnifiedPages.Add(page);
+                                            Manager.AddOnManager.AddExplicitlyInvokedModules(page.ReferencedModules);
+                                        }
+                                    };
+                                }
                             }
+                            Manager.UnifiedMode = info.Mode;
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
+                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
+                            if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
+                                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
+                                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
+                            } else if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
+                            } else
+                                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", false);
+                        } else {
+                            // master page was not found, probably deleted, just ignore
+                            masterPage = Manager.CurrentPage;
                         }
-                        Manager.UnifiedMode = info.Mode;
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
-                        } else if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent) {
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
-                        } else
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", false);
-                    } else {
-                        // master page was not found, probably deleted, just ignore
-                        masterPage = Manager.CurrentPage;
                     }
                 }
-            }
-            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
-            Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
+                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
+                Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
 
-            bool staticPage = false;
-            if (Manager.Deployed)
-                staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
-            Manager.RenderStaticPage = staticPage;
+                bool staticPage = false;
+                if (Manager.Deployed)
+                    staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
+                Manager.RenderStaticPage = staticPage;
 
-            SkinAccess skinAccess = new SkinAccess();
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(masterPage, Manager.IsInPopup);
-            string skinCollection = skin.Collection;
+                SkinAccess skinAccess = new SkinAccess();
+                SkinDefinition skin = SkinDefinition.EvaluatedSkin(masterPage, Manager.IsInPopup);
+                string skinCollection = skin.Collection;
 
-            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
-            Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);
+                Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+                Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);
 
-            string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
-            if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
-                throw new InternalError("No page skin available - file {0} not found", virtPath);
+                string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
+                if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
+                    throw new InternalError("No page skin available - file {0} not found", virtPath);
 
-            // set new character dimensions and popup info
-            PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
-            Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
-            Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", pageSkin.CharWidthAvg);
-            Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", pageSkin.CharHeight);
-            if (Manager.IsInPopup) {
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
-            }
-            Manager.LastUpdated = requestedPage.Updated;
+                // set new character dimensions and popup info
+                PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
+                Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
+                Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", pageSkin.CharWidthAvg);
+                Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", pageSkin.CharHeight);
+                if (Manager.IsInPopup) {
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
+                }
+                Manager.LastUpdated = requestedPage.Updated;
 
-            Manager.AddOnManager.AddStandardAddOns();
-            Manager.SetSkinOptions();
-            Manager.AddOnManager.AddSkin(skinCollection);
+                await Manager.AddOnManager.AddStandardAddOnsAsync();
+                await Manager.SetSkinOptions();
+                await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
-            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Basics");
-            if (Manager.IsInPopup)
-                Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Popups");
+                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");
+                if (Manager.IsInPopup)
+                    await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");
 
-            string pageHtml;
+                string pageHtml;
 #if MVC6
-            pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
+                pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
 #else
-            View = new PageView(virtPath);
-            using (StringWriter writer = new StringWriter()) {
-                ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
-                View.Render(viewContext, writer);
-                pageHtml = writer.ToString();
-            }
+                View = new PageView(virtPath);
+                using (StringWriter writer = new StringWriter()) {
+                    ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
+                    View.Render(viewContext, writer);
+                    pageHtml = writer.ToString();
+                }
 #endif
-            if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
-                pageHtml = ProcessInlineScripts(pageHtml);
-            Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
+                if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
+                    pageHtml = ProcessInlineScripts(pageHtml);
+                Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
 
-            Manager.AddOnManager.AddSkinCustomization(skinCollection);
-            Manager.PopCharSize();
+                Manager.AddOnManager.AddSkinCustomization(skinCollection);
+                Manager.PopCharSize();
 
-            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
-                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdPrefixCounter", Manager.UniqueIdPrefixCounter);
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
-            }
-            ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious:true);
+                if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                    Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdPrefixCounter", Manager.UniqueIdPrefixCounter);
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
+                }
+                ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious: true);
 
-            PageProcessing pageProc = new PageProcessing(Manager);
-            pageHtml = pageProc.PostProcessHtml(pageHtml);
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
-                pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
+                PageProcessing pageProc = new PageProcessing(Manager);
+                pageHtml = pageProc.PostProcessHtml(pageHtml);
+                if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
+                    pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
 
-            if (staticPage) {
-                Manager.StaticPageManager.AddPage(requestedPage.Url, requestedPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
-                // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
-                // so is only helpful for static pages and can't be used for dynamic pages
-                context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
-            } else if (Manager.HaveUser && requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
-                // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any previously
-                // served page to the then anonymous user before he/she logged on.
-                context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
-            }
+                if (staticPage) {
+                    Manager.StaticPageManager.AddPage(requestedPage.Url, requestedPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
+                    // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
+                    // so is only helpful for static pages and can't be used for dynamic pages
+                    context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
+                } else if (Manager.HaveUser && requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
+                    // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any previously
+                    // served page to the then anonymous user before he/she logged on.
+                    context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
+                }
 #if MVC6
-            byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
-            await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
+                byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
+                await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
-            context.HttpContext.Response.Output.Write(pageHtml);
+                context.HttpContext.Response.Output.Write(pageHtml);
+
+            });
 #endif
         }
 

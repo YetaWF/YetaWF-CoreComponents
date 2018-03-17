@@ -4,6 +4,7 @@ using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
@@ -13,7 +14,7 @@ using YetaWF.Core.Upload;
 namespace YetaWF.Core.Modules {
     public partial class ModuleDefinition {
 
-        public static bool Import(string zipFileName, Guid pageGuid, bool newModule, string pane, bool top, List<string> errorList) {
+        public static async Task<bool> ImportAsync(string zipFileName, Guid pageGuid, bool newModule, string pane, bool top, List<string> errorList) {
 
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
@@ -43,11 +44,11 @@ namespace YetaWF.Core.Modules {
                     errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
-                return Import(zip, displayFileName, serModule, pageGuid, newModule, pane, top, errorList);
+                return await ImportAsync(zip, displayFileName, serModule, pageGuid, newModule, pane, top, errorList);
             }
         }
 
-        private static bool Import(ZipFile zip, string displayFileName, SerializableModule serModule, Guid pageGuid, bool newModule, string pane, bool top, List<string> errorList) {
+        private static async Task<bool> ImportAsync(ZipFile zip, string displayFileName, SerializableModule serModule, Guid pageGuid, bool newModule, string pane, bool top, List<string> errorList) {
             // unzip all files/data
             try {
                 ModuleDefinition modDef = serModule.ModDef;
@@ -57,16 +58,16 @@ namespace YetaWF.Core.Modules {
                     if (serModule.ModDef.IsModuleUnique)
                         throw new Error(__ResStr("unique", "Module {0} is a unique module and can't be imported as a new module", serModule.ModDef.Name));
 
-                    PageDefinition page = PageDefinition.Load(pageGuid);
+                    PageDefinition page = await PageDefinition.LoadAsync(pageGuid);
                     if (page == null)
                         throw new Error(__ResStr("pageNotFound", "Page with id {0} doesn't exist", pageGuid));
 
                     modDef.ModuleGuid = Guid.NewGuid();
                     modDef.Temporary = false;
-                    serModule.ModDef.Save(); // save as new module
+                    await serModule.ModDef.SaveAsync(); // save as new module
 
                     page.AddModule(pane, modDef, top);
-                    page.Save();
+                    await page.SaveAsync();
                 } else {
                     // replace existing
                     //RESEARCH: do we really need this?

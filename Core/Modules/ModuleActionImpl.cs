@@ -1,8 +1,8 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -34,55 +34,53 @@ namespace YetaWF.Core.Modules {
         }
 
         // Render an action as button
-        public HtmlString RenderAsButton(string id = null) {
-            return Render(RenderModeEnum.Button, Id: id);
+        public async Task<HtmlString> RenderAsButtonAsync(string id = null) {
+            return await RenderAsync(RenderModeEnum.Button, Id: id);
         }
-        public HtmlString RenderAsButtonIcon(string id = null) {
-            return Render(RenderModeEnum.ButtonIcon, Id: id);
+        public async Task<HtmlString> RenderAsButtonIconAsync(string id = null) {
+            return await RenderAsync(RenderModeEnum.ButtonIcon, Id: id);
         }
         // Render an action as icon
-        public HtmlString RenderAsIcon(string id = null) {
-            return Render(RenderModeEnum.IconsOnly, Id: id);
+        public async Task<HtmlString> RenderAsIconAsync(string id = null) {
+            return await RenderAsync(RenderModeEnum.IconsOnly, Id: id);
         }
         // Render an action as link
-        public HtmlString RenderAsLink(string id = null) {
-            return Render(RenderModeEnum.LinksOnly, Id: id);
+        public async Task<HtmlString> RenderAsLinkAsync(string id = null) {
+            return await RenderAsync(RenderModeEnum.LinksOnly, Id: id);
         }
         // Render an action as normal link with icon
-        public HtmlString RenderAsNormalLink(string id = null) {
-            return Render(RenderModeEnum.NormalLinks, Id: id);
+        public async Task<HtmlString> RenderAsNormalLinkAsync(string id = null) {
+            return await RenderAsync(RenderModeEnum.NormalLinks, Id: id);
         }
 
         /// <summary>
         /// Check if this action renders anything (based on authorization)
         /// </summary>
-        public bool RendersSomething {
-            get {
-                // check if we're in the right mode
-                if (!DontCheckAuthorization && !_AuthorizationEvaluated) {
-                    if (!IsAuthorized)
-                        return false;
-                }
-                if (this.Mode == ActionModeEnum.Edit) {
-                    if (!Manager.EditMode)
-                        return false;
-                } else if (this.Mode == ActionModeEnum.View) {
-                    if (Manager.EditMode)
-                        return false;
-                }
-                return true;
+        public async Task<bool> RendersSomethingAsync() {
+            // check if we're in the right mode
+            if (!DontCheckAuthorization && !_AuthorizationEvaluated) {
+                if (!await IsAuthorizedAsync())
+                    return false;
             }
+            if (this.Mode == ActionModeEnum.Edit) {
+                if (!Manager.EditMode)
+                    return false;
+            } else if (this.Mode == ActionModeEnum.View) {
+                if (Manager.EditMode)
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
         /// Render an action
         /// </summary>
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
-        public HtmlString Render(RenderModeEnum mode, int dummy = 0, string Id = null, RenderEngineEnum RenderEngine = RenderEngineEnum.JqueryMenu,
+        public async Task<HtmlString> RenderAsync(RenderModeEnum mode, int dummy = 0, string Id = null, RenderEngineEnum RenderEngine = RenderEngineEnum.JqueryMenu,
                 bool HasSubmenu = false) {
 
             // check if we're in the right mode
-            if (!RendersSomething) return HtmlStringExtender.Empty;
+            if (!await RendersSomethingAsync()) return HtmlStringExtender.Empty;
 
             if (!string.IsNullOrWhiteSpace(ConfirmationText) && (Style != ActionStyleEnum.Post && Style != ActionStyleEnum.Nothing))
                 throw new InternalError("When using ConfirmationText, the Style property must be set to Post");
@@ -91,7 +89,7 @@ namespace YetaWF.Core.Modules {
             if (CookieAsDoneSignal && Style != ActionStyleEnum.Normal)
                 throw new InternalError("When using CookieAsDoneSignal, the Style property must be set to Normal");
 
-            Manager.AddOnManager.AddTemplate("ActionIcons");// this is needed because we're not always used by templates
+            await Manager.AddOnManager.AddTemplateAsync("ActionIcons");// this is needed because we're not always used by templates
 
             ActionStyleEnum style = Style;
             if (style == ActionStyleEnum.OuterWindow)
@@ -103,7 +101,7 @@ namespace YetaWF.Core.Modules {
                     style = ActionStyleEnum.NewWindow;
 
             if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit || style == ActionStyleEnum.ForcePopup)
-                Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Popups");// this is needed for popup support
+                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");// this is needed for popup support
 
             TagBuilder tag = null;
             switch (style) {
@@ -302,72 +300,69 @@ namespace YetaWF.Core.Modules {
         // AUTHORIZATION
         // AUTHORIZATION
 
-        [JsonIgnoreAttribute]
-        public bool IsAuthorized {
-            get {
-                if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
-                if (AuthorizationIgnore)
-                    return true;
-                if (LimitToRole != 0 && !Manager.HasSuperUserRole) {
-                    // action is limited to one role
-                    if (Manager.HaveUser) {
-                        // we have a user - check if it's limited to something other than users
-                        if (LimitToRole != Resource.ResourceAccess.GetUserRoleId()) {
-                            if (Manager.UserRoles == null || !Manager.UserRoles.Contains(LimitToRole))
-                                return false;
-                        }
-                    } else {
-                        // we don't have a user - check if it's limited to something other than anonymous users
-                        if (LimitToRole != Resource.ResourceAccess.GetAnonymousRoleId())
+        public async Task<bool> IsAuthorizedAsync() {
+            if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
+            if (AuthorizationIgnore)
+                return true;
+            if (LimitToRole != 0 && !Manager.HasSuperUserRole) {
+                // action is limited to one role
+                if (Manager.HaveUser) {
+                    // we have a user - check if it's limited to something other than users
+                    if (LimitToRole != Resource.ResourceAccess.GetUserRoleId()) {
+                        if (Manager.UserRoles == null || !Manager.UserRoles.Contains(LimitToRole))
                             return false;
                     }
-                }
-                // validate SubModule
-                if (SubModule != null && SubModule != Guid.Empty) {
-                    ModuleDefinition mod = ModuleDefinition.Load((Guid)SubModule, AllowNone: true);
-                    if (mod == null) return false;// can't find module, not authorized
-                    if (!mod.IsAuthorized(ModuleDefinition.RoleDefinition.View))
+                } else {
+                    // we don't have a user - check if it's limited to something other than anonymous users
+                    if (LimitToRole != Resource.ResourceAccess.GetAnonymousRoleId())
                         return false;
-                    return true;
                 }
-
-                // validate by Url
-                if (!string.IsNullOrEmpty(Url)) {
-                    string url = Url;
-                    // the url could start with http://ourdomain or https://ourdomain
-                    if (url.StartsWith(Manager.CurrentSite.SiteUrlHttp, System.StringComparison.OrdinalIgnoreCase))
-                        url = url.Substring(Manager.CurrentSite.SiteUrlHttp.Length-1);
-                    else if (url.StartsWith(Manager.CurrentSite.SiteUrlHttps, System.StringComparison.OrdinalIgnoreCase))
-                        url = url.Substring(Manager.CurrentSite.SiteUrlHttps.Length-1);
-                    if (url.StartsWith("/")) {
-                        if (Manager.UserAuthorizedUrls != null && Manager.UserAuthorizedUrls.Contains(url)) return true;
-                        if (Manager.UserNotAuthorizedUrls != null && Manager.UserNotAuthorizedUrls.Contains(url)) return false;
-                        PageDefinition page = PageDefinition.LoadFromUrl(url);
-                        if (page != null) {
-                            PageSecurity = page.PageSecurity;
-                            if (Manager.EditMode)
-                                return AddUserUrl(url, page.IsAuthorized_Edit());
-                            else
-                                return AddUserUrl(url, page.IsAuthorized_View());
-                        }
-                        ModuleDefinition module = ModuleDefinition.FindDesignedModule(url);
-                        if (module == null)
-                            module = ModuleDefinition.LoadByUrl(url);
-                        if (module != null) {
-                            PageSecurity = module.ModuleSecurity;
-                            if (Manager.EditMode)
-                                return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit));
-                            else
-                                return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.View));
-                        }
-                        AddUserUrl(url, true);
-                    }
-                    // not a url for us, so we'll allow it
-                    return true;
-                }
-                // no url
+            }
+            // validate SubModule
+            if (SubModule != null && SubModule != Guid.Empty) {
+                ModuleDefinition mod = await ModuleDefinition.LoadAsync((Guid)SubModule, AllowNone: true);
+                if (mod == null) return false;// can't find module, not authorized
+                if (!mod.IsAuthorized(ModuleDefinition.RoleDefinition.View))
+                    return false;
                 return true;
             }
+
+            // validate by Url
+            if (!string.IsNullOrEmpty(Url)) {
+                string url = Url;
+                // the url could start with http://ourdomain or https://ourdomain
+                if (url.StartsWith(Manager.CurrentSite.SiteUrlHttp, System.StringComparison.OrdinalIgnoreCase))
+                    url = url.Substring(Manager.CurrentSite.SiteUrlHttp.Length - 1);
+                else if (url.StartsWith(Manager.CurrentSite.SiteUrlHttps, System.StringComparison.OrdinalIgnoreCase))
+                    url = url.Substring(Manager.CurrentSite.SiteUrlHttps.Length - 1);
+                if (url.StartsWith("/")) {
+                    if (Manager.UserAuthorizedUrls != null && Manager.UserAuthorizedUrls.Contains(url)) return true;
+                    if (Manager.UserNotAuthorizedUrls != null && Manager.UserNotAuthorizedUrls.Contains(url)) return false;
+                    PageDefinition page = await PageDefinition.LoadFromUrlAsync(url);
+                    if (page != null) {
+                        PageSecurity = page.PageSecurity;
+                        if (Manager.EditMode)
+                            return AddUserUrl(url, page.IsAuthorized_Edit());
+                        else
+                            return AddUserUrl(url, page.IsAuthorized_View());
+                    }
+                    ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
+                    if (module == null)
+                        module = await ModuleDefinition.LoadByUrlAsync(url);
+                    if (module != null) {
+                        PageSecurity = module.ModuleSecurity;
+                        if (Manager.EditMode)
+                            return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit));
+                        else
+                            return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.View));
+                    }
+                    AddUserUrl(url, true);
+                }
+                // not a url for us, so we'll allow it
+                return true;
+            }
+            // no url
+            return true;
         }
 
         private bool AddUserUrl(string url, bool authorized) {

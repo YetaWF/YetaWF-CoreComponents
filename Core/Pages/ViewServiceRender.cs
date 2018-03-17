@@ -19,7 +19,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Pages {
 
     public interface IViewRenderService {
-        Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, string> postRender = null);
+        Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, Task<string>> postRenderAsync = null);
     }
 
     public class ViewRenderService : IViewRenderService {
@@ -35,7 +35,7 @@ namespace YetaWF.Core.Pages {
             _modelMetaDataProvider = modelMetaDataProvider;
         }
 
-        public async Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, string> postRender = null) {
+        public async Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, Task<string>> postRenderAsync = null) {
 
             using (var sw = new StringWriter()) {
                 ViewEngineResult viewResult;
@@ -55,11 +55,11 @@ namespace YetaWF.Core.Pages {
                     new HtmlHelperOptions()
                 );
                 await viewResult.View.RenderAsync(viewContext);
-                if (postRender != null) {
+                if (postRenderAsync != null) {
                     YetaWFRazorView razorView = viewResult.View as YetaWFRazorView;
                     if (razorView != null) {
                         dynamic page = razorView.RazorPage;// we can't access Html directly because the page/template is derived from YetaWF.Core.Views.RazorView<,>
-                        return postRender(page.Html, actionContext, sw.ToString());
+                        return await postRenderAsync(page.Html, actionContext, sw.ToString());
                     }
                 }
                 return sw.ToString();

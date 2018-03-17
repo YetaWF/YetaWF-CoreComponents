@@ -1,15 +1,16 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Threading.Tasks;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Support;
+using YetaWF.Core.Views.Shared;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
 using System.Web.Mvc;
 #endif
-using YetaWF.Core.Addons;
-using YetaWF.Core.Identity;
-using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Controllers.Shared {
 
@@ -40,9 +41,9 @@ namespace YetaWF.Core.Controllers.Shared {
         /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
-        public ActionResult GetPackageModulesDesigned(string areaName) {
+        public async Task<ActionResult> GetPackageModulesDesigned(string areaName) {
             ScriptBuilder sb = new ScriptBuilder();
-            sb.Append(ModuleSelectionHelper.RenderReplacementPackageModulesDesigned(areaName));
+            sb.Append(await ModuleSelectionHelper.RenderReplacementPackageModulesDesignedAsync(areaName));
             return new YJsonResult { Data = sb.ToString() };
         }
         /// <summary>
@@ -54,9 +55,9 @@ namespace YetaWF.Core.Controllers.Shared {
         /// Used in conjunction with client-side code and the ModuleSelection template.</returns>
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_ModuleLists)]
-        public ActionResult GetPackageModulesDesignedFromGuid(Guid modGuid) {
+        public async Task<ActionResult> GetPackageModulesDesignedFromGuid(Guid modGuid) {
             ScriptBuilder sb = new ScriptBuilder();
-            sb.Append(ModuleSelectionHelper.RenderReplacementPackageModulesDesigned(modGuid));
+            sb.Append(await ModuleSelectionHelper.RenderReplacementPackageModulesDesignedAsync(modGuid));
             return new YJsonResult { Data = sb.ToString() };
         }
     }

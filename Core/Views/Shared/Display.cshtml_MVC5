@@ -1,0 +1,8 @@
+@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
+@using (CreateFormAsync("Display_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial").Result) {
+    @PartialForm(UseAreaViewName: false)
+    @FormButtonsAsync(new FormButton[] {
+        new FormButton() { ButtonType = ButtonTypeEnum.Cancel, Text= Manager.IsInPopup ? this.__ResStr("btnClose", "Close") : this.__ResStr("btnReturn", "Return") },
+    }).Result;
+}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -95,7 +96,7 @@ namespace YetaWF.Core.Skins {
                 throw new InternalError("No panes defined in {0}", fileName);
             return panes;
         }
-        private const string regexRazorRenderPane = "[\\@ ]RenderPane \\( \"([^\"]*)\"[^\\)]*\\)";
+        private const string regexRazorRenderPane = "[\\@ ]RenderPaneAsync \\( \"([^\"]*)\"[^\\)]*\\)";
 
         private static string MakeRegexPattern(string strPatt) {
             strPatt = strPatt.Replace("  ", "\\s+");
@@ -162,13 +163,14 @@ namespace YetaWF.Core.Skins {
         // a module looks like this - we build this dynamically
         // <div class='[Globals,CssModule] [ThisModule,Area] [ThisModule,CssClass]' id='[ThisModule,ModuleHtmlId]'
         //      data-moduleguid='[ThisModule,ModuleGuid]' data-charwidth='..' data-charheightavg='..' >
+        //      data-moduleguid='[ThisModule,ModuleGuid]'>
         //    [ThisModule,ModuleMenu]
         //    [ThisModule,TitleHtml]
         //    [[CONTENTS]]
         //    [ThisModule,ActionMenu]
         // </div>
         // Depending on the BootstrapContainer property <div class="container"> and <div class="row"> may be added.
-        internal HtmlString MakeModuleContainer(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
+        internal async Task<HtmlString> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
 
@@ -201,7 +203,7 @@ namespace YetaWF.Core.Skins {
 
             // add an inner div with css classes to modules that can't be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") &&
-                                    Resource.ResourceAccess.IsResourceAuthorized(CoreInfo.Resource_ViewOwnership);
+                                    await Resource.ResourceAccess.IsResourceAuthorizedAsync(CoreInfo.Resource_ViewOwnership);
             if (showOwnership) {
                 bool anon = mod.IsAuthorized_View_Anonymous();
                 bool user = mod.IsAuthorized_View_AnyUser();
@@ -216,10 +218,10 @@ namespace YetaWF.Core.Skins {
             }
 
             if (ShowMenu)
-                inner.Append(mod.ModuleMenuHtml);
+                inner.Append(await mod.GetModuleMenuHtmlAsync());
             if (ShowTitle) {
                 if (mod.ShowTitleActions) {
-                    string actions = mod.ActionTopMenuHtml;
+                    string actions = await mod.GetActionTopMenuHtmlAsync();
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         inner.Append("<div class='yModuleTitle'>");
                         inner.Append(mod.TitleHtml);
@@ -235,7 +237,7 @@ namespace YetaWF.Core.Skins {
             }
             inner.Append(htmlContents);
             if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) // only show action menus in a pane
-                inner.Append(mod.ActionMenuHtml);
+                inner.Append(await mod.GetActionMenuHtmlAsync());
 
             if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
                 inner.Append("</div></div>");

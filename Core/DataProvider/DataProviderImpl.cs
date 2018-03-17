@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -117,33 +118,30 @@ namespace YetaWF.Core.DataProvider {
             GetIDataProviderTransactions().AbortTransaction();
         }
 
-        // IINSTALLABLEMODEL
-        // IINSTALLABLEMODEL
-        // IINSTALLABLEMODEL
+        // IINSTALLABLEMODEL ASYNC
+        // IINSTALLABLEMODEL ASYNC
+        // IINSTALLABLEMODEL ASYNC
 
-        private dynamic GetIInstallableModel() {
-            return GetDataProvider();
+        public Task<bool> IsInstalledAsync() {
+            return GetDataProvider().IsInstalledAsync();
         }
-        public bool IsInstalled() {
-            return GetDataProvider().IsInstalled();
+        public Task<bool> InstallModelAsync(List<string> errorList) {
+            return GetDataProvider().InstallModelAsync(errorList);
         }
-        public bool InstallModel(List<string> errorList) {
-            return GetDataProvider().InstallModel(errorList);
+        public Task AddSiteDataAsync() {
+            return GetDataProvider().AddSiteDataAsync();
         }
-        public void AddSiteData() {
-            GetDataProvider().AddSiteData();
+        public Task RemoveSiteDataAsync() {
+            return GetDataProvider().RemoveSiteDataAsync();
         }
-        public void RemoveSiteData() {
-            GetDataProvider().RemoveSiteData();
+        public Task<bool> UninstallModelAsync(List<string> errorList) {
+            return GetDataProvider().UninstallModelAsync(errorList);
         }
-        public bool UninstallModel(List<string> errorList) {
-            return GetDataProvider().UninstallModel(errorList);
+        public Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList) {
+            return GetDataProvider().ExportChunkAsync(chunk, fileList);
         }
-        public bool ExportChunk(int chunk, SerializableList<SerializableFile> fileList, out object obj) {
-            return GetDataProvider().ExportChunk(chunk, fileList, out obj);
-        }
-        public void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj) {
-            GetDataProvider().ImportChunk(chunk, fileList, obj);
+        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj) {
+            return GetDataProvider().ImportChunk(chunk, fileList, obj);
         }
 
         // IMAGE HANDLING

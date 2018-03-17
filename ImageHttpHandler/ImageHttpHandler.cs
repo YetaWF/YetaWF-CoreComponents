@@ -10,17 +10,16 @@ using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Headers;
-using Microsoft.Extensions.FileProviders;
-using System.Threading.Tasks;
 #else
 using System.Web;
 using System.Web.SessionState;
 #endif
 
-namespace YetaWF.Core.HttpHandler {
+namespace YetaWF.Core.HttpHandler
+{
 
 
 #if MVC6
@@ -35,32 +34,31 @@ namespace YetaWF.Core.HttpHandler {
             Handler = new ImageHttpHandler();
         }
 
-        public async Task Invoke(HttpContext context) {
-
+        public async Task InvokeAsync(HttpContext context) {
             await Handler.ProcessRequest(context);
-            //await _next.Invoke(context);
+            //await _next(context);
         }
     }
 
     public class ImageHttpHandler
 #else
-    public class ImageHttpHandler : IHttpHandler, IReadOnlySessionState
+    public class ImageHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
 #endif
     {
-        // IHttpHandler
-        // IHttpHandler
-        // IHttpHandler
+        // IHttpHandler (Async)
+        // IHttpHandler (Async)
+        // IHttpHandler (Async)
 
 #if MVC6
-        public async Task ProcessRequest(HttpContext context)
+        public async Task ProcessRequest(HttpContext context) {
+            await StartupRequest.StartRequestAsync(context, true);
 #else
-        public bool IsReusable {
+        public override bool IsReusable {
             get { return true; }
         }
 
-        public void ProcessRequest(HttpContext context)
+        public override async Task ProcessRequestAsync(HttpContext context) {
 #endif
-        {
             YetaWFManager manager = YetaWFManager.Manager;
 
             string typeVal = manager.RequestQueryString["type"];
@@ -84,17 +82,19 @@ namespace YetaWF.Core.HttpHandler {
                     string filePath = fileUpload.GetTempFilePathFromName(nameVal, locationVal);
 
                     // if we don't have an image yet, try to get the file from the registered type
-                    if (((img == null || bytes == null) && filePath == null) && entry.GetFilePath != null) {
-                        string file;
-                        if (entry.GetFilePath(nameVal, locationVal, out file)) {
-                            filePath = file;
+                    if (((img == null || bytes == null) && filePath == null) && entry.GetImageAsFileAsync != null) {
+                        ImageSupport.GetImageAsFileInfo info = await entry.GetImageAsFileAsync(nameVal, locationVal);
+                        if (info.Success) {
+                            filePath = info.File;
                         }
                     }
 
                     // if we don't have an image yet, try to get the raw bytes from the registered type
-                    if (((img == null || bytes == null) && filePath == null) && entry.GetBytes != null) {
-                        if (entry.GetBytes(nameVal, locationVal, out bytes)) {
-                            using (MemoryStream ms = new MemoryStream(bytes)) {
+                    if (((img == null || bytes == null) && filePath == null) && entry.GetImageInBytesAsync != null) {
+                        ImageSupport.GetImageInBytesInfo info = await entry.GetImageInBytesAsync(nameVal, locationVal);
+                        if (info.Success) {
+                            bytes = info.Content;
+                            using (MemoryStream ms = new MemoryStream(info.Content)) {
                                 img = System.Drawing.Image.FromStream(ms);
                             }
                         }

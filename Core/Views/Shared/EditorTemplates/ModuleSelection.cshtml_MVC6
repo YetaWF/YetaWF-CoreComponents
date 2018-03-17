@@ -1,0 +1,31 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.ModuleSelection<Guid?>
+@using YetaWF.Core.Support
+@using YetaWF.Core.Views
+@{
+    bool newMods = Html.GetControlInfo<bool>("", "New", false);
+}
+<div id="@DivId" class="yt_moduleselection t_edit" data-name="@Html.FieldName("")">
+    @Html.RenderHidden("AjaxUrl", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.ModuleSelectionHelperController), newMods ? "GetPackageModulesNew" : "GetPackageModulesDesigned"))
+    @if (!newMods) {
+        @Html.RenderHidden("AjaxUrlComplete", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.ModuleSelectionHelperController), "GetPackageModulesDesignedFromGuid"))
+    }
+    <div class="t_packages">
+        @Html.RenderExtLabel(__ResStr("lblPackages", "Packages"), ToolTip: __ResStr("lblPackagesTT", "Select one of the installed packages to list all available modules for the package"))
+        @await Html.RenderModuleSelectionPackagesAsync("Packages", newMods, Model)
+    </div>
+    <div class="t_select">
+        @Html.RenderExtLabel(__ResStr("lblModule", "Module"), ToolTip: __ResStr("lblModuleTT", "Select one of the available modules"))
+        @await Html.RenderModuleSelectionAsync("", newMods, Model)
+    </div>
+    <div class="t_link">
+        @Html.RenderModuleSelectionLink(Model)
+    </div>
+    <div class="t_description">
+    </div>
+</div>
+<script>
+    @using (DocumentReady(DivId)) {
+        @: YetaWF_ModuleSelection.init('@DivId')
+    }
+</script>

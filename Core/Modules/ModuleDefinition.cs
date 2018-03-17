@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Models;
@@ -10,15 +11,15 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
+using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
-using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization
+namespace YetaWF.Core.Modules
+{  // This namespace breaks naming standards so it can properly return module company/name for localization
 
     [ModuleGuidAttribute("00000000-0000-0000-0000-000000000000")]
     [Trim]
@@ -518,10 +519,10 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("Raw"), ReadOnly]
             public string DisplayUserName { get; set; }
 
-            public void SetUser(int userId) {
+            public async Task SetUserAsync(int userId) {
                 DisplayUserId = UserId = userId;
                 View = AllowedEnum.Yes;
-                DisplayUserName = Resource.ResourceAccess.GetUserName(userId);
+                DisplayUserName = await Resource.ResourceAccess.GetUserNameAsync(userId);
             }
             public GridAllowedUser() { }
         }
@@ -539,7 +540,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// Defines the class that causes this module to be injected at the end of the page.
         /// </summary>
         /// <remarks>Certain controls/templates use css that can be handled by skin modules. By defining InvokingCss, a module will automatically be
-        /// injected to implemented the control/template - typically this is a javascript/client side implementation</remarks>
+        /// injected to implement the control/template - typically this is a javascript/client side implementation.</remarks>
         [Category("Variables"), Caption("Invoking Css"), Description("Defines the Css that causes this module to be injected into the page, when the Css is used by a template - only supported for unique modules")]
         [UIHint("String"), ReadOnly]
         [DontSave]

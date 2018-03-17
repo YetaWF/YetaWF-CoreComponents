@@ -1,0 +1,20 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.PageSkin<YetaWF.Core.Skins.SkinDefinition>
+@using YetaWF.Core.Support
+@{ await Manager.AddOnManager.AddTemplateAsync("PageSkin"); } @*same js as pageskin template*@
+<div id='@ControlId' class='yt_popupskin t_edit'>
+    @Html.RenderHidden("AjaxUrl", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.SkinHelperController), "GetPopupPageSkins"))
+    <div class="t_collection">
+        @Html.ExtLabelFor(m => Model.Collection)
+        @await Html.RenderSkinCollectionAsync("Collection", Model.Collection)
+    </div>
+    <div class="t_skin">
+        @Html.ExtLabelFor(m => Model.FileName)
+        @await Html.RenderPopupSkinsForCollectionAsync("FileName", Model.FileName, Model.Collection)
+    </div>
+</div>
+    <script>
+    @using (DocumentReady(ControlId)) {
+        @: YetaWF_Template_PageSkin.popupInit('@ControlId');
+    }
+</script>

@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
@@ -21,9 +22,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(IPAddressHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderIPAddressDisplay(this IHtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static async Task<HtmlString> RenderIPAddressDisplayAsync(this IHtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #else
-        public static HtmlString RenderIPAddressDisplay(this HtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static async Task<HtmlString> RenderIPAddressDisplayAsync(this HtmlHelper htmlHelper, string name, string ipAddress, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             if (string.IsNullOrWhiteSpace(ipAddress)) return HtmlStringExtender.Empty;
@@ -32,14 +33,14 @@ namespace YetaWF.Core.Views.Shared {
 
             bool lookup = htmlHelper.GetControlInfo<bool>("", "Lookup", true);
             if (lookup) {
-                ModuleDefinition modDisplay = ModuleDefinition.Load(new Guid("{ad95564e-8eb7-4bcb-be64-dc6f1cd6b55d}"), AllowNone: true);
+                ModuleDefinition modDisplay = await ModuleDefinition.LoadAsync(new Guid("{ad95564e-8eb7-4bcb-be64-dc6f1cd6b55d}"), AllowNone: true);
                 if (modDisplay != null) {
-                    ModuleAction actionDisplay = modDisplay.GetModuleAction("DisplayHostName", null, ipAddress);
+                    ModuleAction actionDisplay = await modDisplay.GetModuleActionAsync("DisplayHostName", null, ipAddress);
                     if (modDisplay != null)
-                        hb.Append(actionDisplay.Render(ModuleAction.RenderModeEnum.IconsOnly));
-                    actionDisplay = modDisplay.GetModuleAction("DisplayGeoData", null, ipAddress);
+                        hb.Append(await actionDisplay.RenderAsync(ModuleAction.RenderModeEnum.IconsOnly));
+                    actionDisplay = await modDisplay.GetModuleActionAsync("DisplayGeoData", null, ipAddress);
                     if (modDisplay != null)
-                        hb.Append(actionDisplay.Render(ModuleAction.RenderModeEnum.IconsOnly));
+                        hb.Append(await actionDisplay.RenderAsync(ModuleAction.RenderModeEnum.IconsOnly));
                 }
             }
             return hb.ToHtmlString();

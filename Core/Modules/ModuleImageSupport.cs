@@ -2,6 +2,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Image;
 using YetaWF.Core.Models;
 using YetaWF.Core.Support;
@@ -16,23 +17,27 @@ namespace YetaWF.Core.Modules {
 
         public const string ImageType = "YetaWF_Core_ModuleImage";
 
-        public void InitializeApplicationStartup() {
-            ImageSupport.AddHandler(ImageType, GetBytes: RetrieveImage);
+        public Task InitializeApplicationStartupAsync() {
+           ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            return Task.CompletedTask;
         }
 
-        private bool RetrieveImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            ImageSupport.GetImageInBytesInfo fail = new Image.ImageSupport.GetImageInBytesInfo();
+            if (!string.IsNullOrWhiteSpace(location)) return fail;
+            if (string.IsNullOrWhiteSpace(name)) return fail;
             string[] s = name.Split(new char[] { ',' });  // looking for "guid,propertyname"
-            if (s.Length != 2) return false;
-            ModuleDefinition mod = ModuleDefinition.Load(new System.Guid(s[0]), AllowNone: true);
-            if (mod == null) return false;
+            if (s.Length != 2) return fail;
+            ModuleDefinition mod = await ModuleDefinition.LoadAsync(new Guid(s[0]), AllowNone: true);
+            if (mod == null) return fail;
             Type modType = mod.GetType();
             PropertyInfo pi = ObjectSupport.TryGetProperty(modType, s[1]);
             if (pi == null) throw new InternalError("Module {0} doesn't have a property named {1}", modType.FullName, s[1]);
-            content = (byte[]) pi.GetValue(mod);
-            return content.Length > 0;
+            byte[] content = (byte[])pi.GetValue(mod);
+            return new ImageSupport.GetImageInBytesInfo {
+                Content = content,
+                Success = content.Length > 0,
+            };
         }
     }
 }

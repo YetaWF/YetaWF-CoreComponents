@@ -10,6 +10,7 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Identity;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,8 +46,8 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="__path">The local Url requested.</param>
         /// <returns></returns>
-        [AllowHttp("GET","HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
-        public ActionResult Show(string __path) {
+        [AllowHttp("GET", "HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
+        public async Task<ActionResult> Show(string __path) {
             // We come here for ANY page request (GET, HEAD only)
 
             if (!YetaWFManager.HaveManager) {
@@ -60,7 +61,7 @@ namespace YetaWF.Core.Controllers {
             Uri uri = new Uri(Manager.CurrentRequestUrl);
 
             // process logging type callbacks
-            PageLogging.HandleCallbacks(Manager.CurrentRequestUrl, false);
+            await PageLogging.HandleCallbacksAsync(Manager.CurrentRequestUrl, false);
 
             // Mobile detection
             bool isMobile;
@@ -162,7 +163,7 @@ namespace YetaWF.Core.Controllers {
             string lang = Manager.CurrentRequest[Globals.Link_Language];
 #endif
             if (!string.IsNullOrWhiteSpace(lang))
-                Manager.SetUserLanguage(lang);
+                await Manager.SetUserLanguageAsync(lang);
 
             // Check if home URL is requested and matches site's desired home URL
             if (uri.AbsolutePath == "/") {
@@ -265,18 +266,18 @@ namespace YetaWF.Core.Controllers {
             }
 
             // set up all info, like who is logged on, popup, origin list, etc.
-            YetaWFController.SetupEnvironmentInfo();
+            await YetaWFController.SetupEnvironmentInfoAsync();
 
             Logging.AddLog("Page");
 
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
-            Action<QueryHelper> action = BuiltinCommands.Find(uri.LocalPath, checkAuthorization: true);
+            Func<QueryHelper, Task> action = await BuiltinCommands.FindAsync(uri.LocalPath, checkAuthorization: true);
             if (action != null) {
                 if (Manager.IsHeadRequest)
                     return new EmptyResult();
                 Manager.CurrentPage = PageDefinition.Create();
                 QueryHelper qh = QueryHelper.FromQueryString(uri.Query);
-                action(qh);
+                await action(qh);
                 return new EmptyResult();
             }
 
@@ -306,9 +307,9 @@ namespace YetaWF.Core.Controllers {
                         return new EmptyResult();
 #endif
                     }
-                    ModuleDefinition module = ModuleDefinition.FindDesignedModule(url);
+                    ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
                     if (module == null)
-                        module = ModuleDefinition.LoadByUrl(url);
+                        module = await ModuleDefinition.LoadByUrlAsync(url);
                     moduleFound = module;
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
@@ -323,19 +324,20 @@ namespace YetaWF.Core.Controllers {
                         return new EmptyResult();
 #endif
                     }
-                    pageFound = PageDefinition.LoadFromUrl(url);
+                    pageFound = await PageDefinition.LoadFromUrlAsync(url);
                 } else {
-                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, uri.Query, out newUrl, out newQs);
+                    PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, uri.Query);
+                    PageDefinition page = pageInfo.Page;
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
-                        if (newUrl != url) {
-                            Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
+                        if (pageInfo.NewUrl != url) {
+                            Logging.AddTraceLog("Server.TransferRequest - {0}", pageInfo.NewUrl);
 #if MVC6
-                            HttpContext.Request.Path = newUrl;
-                            HttpContext.Request.QueryString = new QueryString(newQs);
+                            HttpContext.Request.Path = pageInfo.NewUrl;
+                            HttpContext.Request.QueryString = new QueryString(pageInfo.NewQS);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
-                            Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
+                            Server.TransferRequest(QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS));
                             return new EmptyResult();
 #endif
                         }
@@ -363,7 +365,7 @@ namespace YetaWF.Core.Controllers {
             if (Manager.Need2FA) {
                 if (Manager.Need2FARedirect) {
                     Logging.AddLog("Two-step authentication setup required");
-                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null);
+                    ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null);
                     Manager.Need2FARedirect = false;
                     Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
                     Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
@@ -372,7 +374,7 @@ namespace YetaWF.Core.Controllers {
                 Resource.ResourceAccess.ShowNeed2FA();
             }
             if (pageFound != null) {
-                switch (CanProcessAsDesignedPage(pageFound, uri.LocalPath, uri.Query)) {
+                switch (await CanProcessAsDesignedPageAsync(pageFound, uri.LocalPath, uri.Query)) {
                     case ProcessingStatus.Complete:
                         return new EmptyResult();
                     case ProcessingStatus.Page:
@@ -408,7 +410,7 @@ namespace YetaWF.Core.Controllers {
 
             // display 404 error page if one is defined
             if (!string.IsNullOrWhiteSpace(site.NotFoundUrl)) {
-                PageDefinition page = PageDefinition.LoadFromUrl(site.NotFoundUrl);
+                PageDefinition page = await PageDefinition.LoadFromUrlAsync(site.NotFoundUrl);
                 if (page != null) {
                     Manager.CurrentPage = page;// Found It!!
                     if (Manager.IsHeadRequest) {
@@ -456,12 +458,12 @@ namespace YetaWF.Core.Controllers {
             }
             return false;
         }
-        private ProcessingStatus CanProcessAsDesignedPage(PageDefinition page, string url, string queryString) {
+        private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, string url, string queryString) {
             // request for a designed page
             if (!Manager.EditMode) { // only redirect if we're not editing
                 if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                     if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                        PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                        PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                         if (redirectPage != null) {
                             if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                                 string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
@@ -496,7 +498,7 @@ namespace YetaWF.Core.Controllers {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                 if (!Manager.EditMode) { // only redirect if we're not editing
                     if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                        PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                        PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                         if (mobilePage != null) {
                             if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                                 string redirUrl = page.MobilePageUrl;

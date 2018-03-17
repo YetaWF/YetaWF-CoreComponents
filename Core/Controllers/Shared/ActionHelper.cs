@@ -20,25 +20,24 @@ namespace YetaWF.Core.Controllers.Shared {
 
     public static class HtmlHelperActionExtensions {
 
-        public static IHtmlContent Action(this IHtmlHelper helper, ModuleDefinition module, string action, object parameters = null) {
+        public static async Task<IHtmlContent> ActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, object parameters = null) {
             var controller = (string)helper.ViewContext.RouteData.Values["controller"];
-            return Action(helper, module, action, controller, parameters);
+            return await ActionAsync(helper, module, action, controller, parameters);
         }
 
-        public static IHtmlContent Action(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, object parameters = null) {
+        public static async Task<IHtmlContent> ActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, object parameters = null) {
             var area = (string)helper.ViewContext.RouteData.Values["area"];
-            return Action(helper, module, action, controller, area, parameters);
+            return await ActionAsync(helper, module, action, controller, area, parameters);
         }
 
-        public static IHtmlContent Action(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        public static async Task<IHtmlContent> ActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             if (action == null)
                 throw new ArgumentNullException("action");
             if (controller == null)
                 throw new ArgumentNullException("controller");
             if (area == null)
                 throw new ArgumentNullException("area");
-            var task = RenderActionAsync(helper, module, action, controller, area, parameters);
-            return task.Result;
+            return await RenderActionAsync(helper, module, action, controller, area, parameters);
         }
 
         private static async Task<IHtmlContent> RenderActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
@@ -50,7 +49,7 @@ namespace YetaWF.Core.Controllers.Shared {
             // creating new action invocation context
             var routeData = new RouteData();
             var routeParams = new RouteValueDictionary(parameters ?? new { });
-            var routeValues = new RouteValueDictionary(new { area = area, controller = controller, action = action });
+            var routeValues = new RouteValueDictionary(new { area = area, controller = controller, action = action, ModuleAction = module });
 
             foreach (var router in helper.ViewContext.RouteData.Routers)
                 routeData.PushState(router, null, null);

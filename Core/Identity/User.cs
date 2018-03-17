@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Identity {
@@ -12,7 +13,7 @@ namespace YetaWF.Core.Identity {
     /// Interface supported by any class that needs to remove data when a user is removed.
     /// </summary>
     public interface IRemoveUser {
-        void Remove(int userId);
+        Task RemoveAsync(int userId);
     }
 
     public class User {
@@ -24,13 +25,13 @@ namespace YetaWF.Core.Identity {
         /// Calls all classes implementing the IRemoveUser interface to remove any data associated with the specified user.
         /// </summary>
         /// <param name="userId">The id of the user being removed.</param>
-        public static void RemoveDependentPackages(int userId) {
+        public static async Task RemoveDependentPackagesAsync(int userId) {
             List<Type> types = GetRemoveUserTypes();
             foreach (Type type in types) {
                 try {
                     IRemoveUser iRemoveUser = Activator.CreateInstance(type) as IRemoveUser;
                     if (iRemoveUser != null)
-                        iRemoveUser.Remove(userId);
+                        await iRemoveUser.RemoveAsync(userId);
                 } catch (Exception) { }
             }
         }

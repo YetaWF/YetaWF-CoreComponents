@@ -1,0 +1,3 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.PageJQueryUISkins<string>
+@await Html.RenderJQueryUISkinsAsync("", Model, HtmlAttributes: new { @class = "yt_jqueryuiskin t_edit" })

@@ -209,11 +209,8 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
         }
         // include the character dimension info
         {
-            var width, height;
-            var $mod = YetaWF_Basics.getModuleFromTag(form);
-            width = $mod.attr('data-charwidthavg');
-            height = $mod.attr('data-charheight');
-            formData = formData + "&" + YGlobals.Link_CharInfo + "=" + width.toString() + ',' + height.toString();
+            var charSize = YetaWF_Basics.getCharSizeFromTag(form);
+            formData = formData + "&" + YGlobals.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
         }
 
         formData = formData + "&" + YGlobals.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));

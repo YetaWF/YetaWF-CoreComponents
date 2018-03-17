@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -60,7 +62,7 @@ namespace YetaWF.Core.Identity {
         // This is using AttributeAuthorizationHandler
 #else
         protected override bool AuthorizeCore(HttpContextBase httpContext) {
-            return Resource.ResourceAccess.IsResourceAuthorized(Name);
+            return YetaWFManager.Syncify<bool>(() => Resource.ResourceAccess.IsResourceAuthorizedAsync(Name)); // Must sync, no async attributes in mvc5
         }
 #endif
     }
@@ -69,20 +71,20 @@ namespace YetaWF.Core.Identity {
 
         bool IsBackDoorWideOpen();
         void ShutTheBackDoor();
-        void ResolveUser();
-        void Logoff();
-        void LoginAs(int userId);
+        Task ResolveUserAsync();
+        Task LogoffAsync();
+        Task LoginAsAsync(int userId);
 
-        bool IsResourceAuthorized(string resourceName);
+        Task<bool> IsResourceAuthorizedAsync(string resourceName);
 
-        void AddRole(string roleName, string description);
-        void RemoveRole(string roleName);
-        void AddRoleToUser(int userId, string roleName);
-        void RemoveRoleFromUser(int userId, string roleName);
+        Task AddRoleAsync(string roleName, string description);
+        Task RemoveRoleAsync(string roleName);
+        Task AddRoleToUserAsync(int userId, string roleName);
+        Task RemoveRoleFromUserAsync(int userId, string roleName);
 
-        int GetUserId(string userName);
-        string GetUserName(int userId);
-        string GetUserEmail(int userId);
+        Task<int> GetUserIdAsync(string userName);
+        Task<string> GetUserNameAsync(int userId);
+        Task<string> GetUserEmailAsync(int userId);
         int GetSuperuserId();
         List<RoleInfo> GetDefaultRoleList(bool Exclude2FA = false);
         List<User> GetDefaultUserList();
@@ -95,16 +97,14 @@ namespace YetaWF.Core.Identity {
         int GetRoleId(string roleName);
 
         ModuleAction GetSelectTwoStepAction(int userId, string userName, string email);
-        ModuleAction GetForceTwoStepActionSetup(string url);
+        Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url);
         void ShowNeed2FA();
 
-        List<string> GetEnabledTwoStepAuthentications(int userId);
-        void SetEnabledTwoStepAuthentications(int userId, List<string> auths);
-        void AddEnabledTwoStepAuthentication(int userId, string auth);
-        void RemoveEnabledTwoStepAuthentication(int userId, string auth);
-        bool HasEnabledTwoStepAuthentication(int userId, string auth);
-        void AddTwoStepLoginFailure();
-        bool GetTwoStepLoginFailuresExceeded();
+        Task AddEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task RemoveEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task AddTwoStepLoginFailureAsync();
+        Task<bool> GetTwoStepLoginFailuresExceededAsync();
     }
 
     public static class Resource {

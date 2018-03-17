@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
@@ -64,8 +65,8 @@ namespace YetaWF.Core.Views.Shared {
         }
 
         // These must be provided during app startup
-        public static Func<RecaptchaV2Config> LoadRecaptchaV2Config { get; set; }
-        public static Action<RecaptchaV2Config> SaveRecaptchaV2Config { get; set; }
+        public static Func<Task<RecaptchaV2Config>> LoadRecaptchaV2ConfigAsync { get; set; }
+        public static Func<RecaptchaV2Config, Task> SaveRecaptchaV2ConfigAsync { get; set; }
     }
 
     public class RecaptchaV2<TModel> : RazorTemplate<TModel> { }

@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
@@ -26,15 +27,15 @@ namespace YetaWF.Core.Addons {
         public const string CssWarningIcon = "yform-warningicon";
         public const string CssDataApplyButton = "data-apply-button";// used as attribute for Apply button (input[type=submit])
 
-        public void AddSupport(YetaWFManager manager) {
+        public async Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
 
-            manager.AddOnManager.AddAddOnGlobal("bassistance.de", "jquery-validation");
-            manager.AddOnManager.AddAddOnGlobal("microsoft.com", "jquery_unobtrusive_validation");
-            manager.AddOnManager.AddAddOnGlobal("gist.github.com_remi_957732", "jquery_validate_hooks");
+            await manager.AddOnManager.AddAddOnGlobalAsync("bassistance.de", "jquery-validation");
+            await manager.AddOnManager.AddAddOnGlobalAsync("microsoft.com", "jquery_unobtrusive_validation");
+            await manager.AddOnManager.AddAddOnGlobalAsync("gist.github.com_remi_957732", "jquery_validate_hooks");
 
             scripts.AddLocalization("Forms", "AjaxError", this.__ResStr("AjaxError", "An error occurred processing this form:(+nl)(+nl){0} - {1}"));
             scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Form Error"));
@@ -58,8 +59,7 @@ namespace YetaWF.Core.Addons {
             string url = skinImages.FindIcon_Package("#Warning", package);
             scripts.AddConfigOption("Forms", "CssWarningIconUrl", url);
 
-            scripts.AddVolatileOption("Forms", "TabStyle", (int) manager.CurrentSite.TabStyle);
-
+            scripts.AddVolatileOption("Forms", "TabStyle", (int)manager.CurrentSite.TabStyle);
         }
     }
 }

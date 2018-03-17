@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Packages {
@@ -50,7 +51,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Visitors",
         };
 
-        public void MakeSiteTemplateData() {
+        public async Task MakeSiteTemplateDataAsync() {
             string rootFolder;
 #if MVC6
             rootFolder = YetaWFManager.RootFolderWebProject;
@@ -66,7 +67,7 @@ namespace YetaWF.Core.Packages {
             // export the data for each listed package and save the zip file in the site template data folder
             foreach (string packageName in PackageNames) {
                 Package package = Package.GetPackageFromPackageName(packageName);
-                using (YetaWFZipFile zipFile = package.ExportData(takingBackup: true)) {
+                using (YetaWFZipFile zipFile = await package.ExportDataAsync(takingBackup: true)) {
                     string file = Path.Combine(path, zipFile.Zip.Name);
                     zipFile.Zip.Save(file);
                 }

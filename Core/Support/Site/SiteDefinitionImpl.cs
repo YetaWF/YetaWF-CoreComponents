@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
@@ -16,29 +17,32 @@ namespace YetaWF.Core.Site {
         public const string ImageType = "YetaWF_Core_FavIcon";
         public const string LargeImageType = "YetaWF_Core_FavIconLrg";
 
-        public void InitializeApplicationStartup() {
-            ImageSupport.AddHandler(ImageType, GetBytes: RetrieveImage);
-            ImageSupport.AddHandler(LargeImageType, GetBytes: RetrieveLargeImage);
+        public Task InitializeApplicationStartupAsync() {
+            ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            ImageSupport.AddHandler(LargeImageType, GetBytesAsync: RetrieveLargeImageAsync);
+            return Task.CompletedTask;
         }
-        private bool RetrieveImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            SiteDefinition site = SiteDefinition.LoadSiteDefinition(name);
-            if (site == null) return false;
-            if (site.FavIcon_Data == null || site.FavIcon_Data.Length == 0) return false;
-            content = site.FavIcon_Data;
-            return true;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
+            if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
+            if (site == null) return new ImageSupport.GetImageInBytesInfo();
+            if (site.FavIcon_Data == null || site.FavIcon_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
+            return new ImageSupport.GetImageInBytesInfo {
+                Content = site.FavIcon_Data,
+                Success = true,
+            };
         }
-        private bool RetrieveLargeImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            SiteDefinition site = SiteDefinition.LoadSiteDefinition(name);
-            if (site == null) return false;
-            if (site.FavIconLrg_Data == null || site.FavIconLrg_Data.Length == 0) return false;
-            content = site.FavIconLrg_Data;
-            return true;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveLargeImageAsync(string name, string location) {
+            if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
+            if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
+            if (site == null) return new ImageSupport.GetImageInBytesInfo();
+            if (site.FavIconLrg_Data == null || site.FavIconLrg_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
+            return new ImageSupport.GetImageInBytesInfo {
+                Content = site.FavIconLrg_Data,
+                Success = true,
+            };
         }
 
         // URLS
@@ -256,47 +260,47 @@ namespace YetaWF.Core.Site {
             // Seriously? All this for a favicon? Who thought this was a good idea?
             if (data != null && data.Length > 0) {
                 // std
-                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 32, 32, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 32, 32, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='32x32' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 16, 16, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 16, 16, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='16x16' />", YetaWFManager.HtmlEncode(url));
                 // apple-touch
-                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 57, 57, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 57, 57, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='57x57' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 60, 60, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.ImageType, null, name, 60, 60, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='60x60' href='{0}' />", YetaWFManager.HtmlEncode(url));
             }
             if (dataLrg != null && dataLrg.Length > 0) {
                 // std
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 196, 196, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 196, 196, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='196x196' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 96, 96, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 96, 96, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='96x96' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 128, 128, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 128, 128, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='128x128' />", YetaWFManager.HtmlEncode(url));
                 // apple-touch
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 114, 114, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 114, 114, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='114x114' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 72, 72, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 72, 72, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='72x72' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 144, 144, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 144, 144, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='144x144' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 120, 120, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 120, 120, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='120x120' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 76, 76, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 76, 76, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='76x76' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 152, 152, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 152, 152, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='152x152' href='{0}' />", YetaWFManager.HtmlEncode(url));
                 // msbs
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 144, 144, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 144, 144, Stretch: true);
                 hb.Append("<meta name='msapplication-TileImage' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 70, 70, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 70, 70, Stretch: true);
                 hb.Append("<meta name='msapplication-square70x70logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 150, 150, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 150, 150, Stretch: true);
                 hb.Append("<meta name='msapplication-square150x150logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 310, 150, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 310, 150, Stretch: true);
                 hb.Append("<meta name='msapplication-wide310x150logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 310, 310, Stretch: true, ForceHttpHandler: true);
+                url = ImageHelper.FormatUrl(SiteDefinition.LargeImageType, null, nameLrg, 310, 310, Stretch: true);
                 hb.Append("<meta name='msapplication-square310x310logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
                 hb.Append("<meta name='application-name' content='{0}'/>", SiteDomain);
                 hb.Append("<meta name='msapplication-TileColor' content='#FFFFFF' />");
@@ -309,34 +313,37 @@ namespace YetaWF.Core.Site {
         // LOAD/SAVE
 
         // these must be provided during app startup
-        public static Func<string, SiteDefinition> LoadSiteDefinition { get; set; }
-        public static Func<SiteDefinition, bool> SaveSiteDefinition { get; set; }
-        public static Action RemoveSiteDefinition { get; set; }
-        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, SitesInfo> GetSites { get; set; }
-        public static Func<string, SiteDefinition> LoadStaticSiteDefinition { get; set; }
+        public static Func<string, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; }
+        public static Func<SiteDefinition, Task<bool>> SaveSiteDefinitionAsync { get; set; }
+        public static Func<Task> RemoveSiteDefinitionAsync { get; set; }
+        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; }
+        public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; }
 
-        public class SitesInfo {
-            public List<SiteDefinition> Sites { get; set; }
-            public int Total { get; set; }
+        public class SaveResult {
+            public bool RestartRequired { get; set; }
         }
 
-        public void Save(out bool restart) {
-            restart = SiteDefinition.SaveSiteDefinition(this);
+        public async Task<SaveResult> SaveAsync() {
+            bool restart;
+            restart = await SiteDefinition.SaveSiteDefinitionAsync(this);
+            return new SaveResult {
+                RestartRequired = restart,
+            };
         }
-        public void AddNew() {
+        public async Task AddNewAsync() {
             // Add a new site
-            if (SiteDefinition.SaveSiteDefinition(this))
+            if (await SiteDefinition.SaveSiteDefinitionAsync(this))
                 throw new InternalError("SaveSiteDefinition implementation error - restart required");
             // we also have to create all site specific data - data providers expect the current site to be active so we have to switch temporarily
             SiteDefinition origSite = Manager.CurrentSite;
             Manager.CurrentSite = this;// new site
             // create all site specific data
-            Package.AddSiteData();
+            await Package.AddSiteDataAsync();
             // restore original site
             Manager.CurrentSite = origSite;
         }
-        public void Remove() {
-            SiteDefinition.RemoveSiteDefinition();
+        public async Task RemoveAsync() {
+            await SiteDefinition.RemoveSiteDefinitionAsync();
         }
 
         // INITIAL INSTALL

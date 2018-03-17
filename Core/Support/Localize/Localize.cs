@@ -3,16 +3,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Localize {
 

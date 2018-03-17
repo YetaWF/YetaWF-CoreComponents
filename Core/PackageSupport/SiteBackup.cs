@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
@@ -37,7 +38,7 @@ namespace YetaWF.Core.Packages {
             }
         }
 
-        public bool Create(List<string> errorList, bool ForDistribution = false, bool DataOnly = false) {
+        public async Task<bool> CreateAsync(List<string> errorList, bool ForDistribution = false, bool DataOnly = false) {
 
             SerializableSiteBackup serBackup;
             using (YetaWFZipFile zipBackupFile = MakeZipFile(out serBackup)) {
@@ -59,7 +60,7 @@ namespace YetaWF.Core.Packages {
                     YetaWFZipFile zipFile;
                     string file;
                     if (package.IsModulePackage || package.IsCorePackage) {
-                        using (zipFile = package.ExportData(takingBackup: true)) {
+                        using (zipFile = await package.ExportDataAsync(takingBackup: true)) {
                             file = Path.Combine(tempFolder, zipFile.Zip.Name);
                             zipFile.Zip.Save(file);
                             serBackup.PackageDataFiles.Add(zipFile.Zip.Name);

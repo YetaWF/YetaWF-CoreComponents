@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Log {
@@ -11,9 +12,9 @@ namespace YetaWF.Core.Log {
     public interface ILogging {
         void Clear();
         void Flush();
-        void WriteToLogFile(Logging.LevelEnum level, int relStack, string text);
+        void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text);
         Logging.LevelEnum GetLevel();
-        bool IsInstalled();
+        Task<bool> IsInstalledAsync();
     }
 
     public static partial class Logging {
@@ -43,7 +44,7 @@ namespace YetaWF.Core.Log {
         /// <summary>
         /// Set up default log provider.
         /// </summary>
-        public static void SetupLogging() {
+        public static async Task SetupLoggingAsync() {
 
             TerminateLogging();
 
@@ -65,7 +66,7 @@ namespace YetaWF.Core.Log {
             } catch (Exception) { }
 
             if (log != null) {
-                if (log.IsInstalled()) {
+                if (await log.IsInstalledAsync()) {
                     DefaultLogger = log;
                     DefaultLoggerType = tp;
                     RegisterLogging(log);
@@ -118,11 +119,16 @@ namespace YetaWF.Core.Log {
         /// <summary>
         /// Write a message to all loggers.
         /// </summary>
-        public static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
-            string text = string.Format("{0} - {1}", DateTime.Now/*Local Time*/, message);
+        private static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
+            WriteToAllLogFiles(YetaWFEvent, level, relStack, message);
+        }
+        /// <summary>
+        /// Write a message to all loggers.
+        /// </summary>
+        public static void WriteToAllLogFiles(string category, LevelEnum level, int relStack, string message) {
             foreach (ILogging log in GetLoggers()) {
                 if (log.GetLevel() <= level)
-                    log.WriteToLogFile(level, relStack, text);
+                    log.WriteToLogFile(category, level, relStack, message);
             }
         }
         /// <summary>

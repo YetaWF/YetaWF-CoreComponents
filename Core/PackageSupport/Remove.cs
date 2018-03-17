@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace YetaWF.Core.Packages {
 
@@ -10,12 +11,12 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        public bool Remove(string packageName, List<string> errorList) {
+        public async Task<bool> RemoveAsync(string packageName, List<string> errorList) {
 
             bool status = true;
 
             Package package = Package.GetPackageFromPackageName(packageName);
-            if (!package.UninstallModels(errorList))
+            if (!await package.UninstallModelsAsync(errorList))
                 return false;
 
             // now remove all files associated with this package

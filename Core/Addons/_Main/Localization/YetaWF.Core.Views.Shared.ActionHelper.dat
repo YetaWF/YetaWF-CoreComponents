@@ -22,8 +22,16 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="manage" />
+                <Name Value="dropdownText" />
                 <Text Value="Manage" />
+              </Properties>
+            </Object>
+          </Value>
+          <Value>
+            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
+              <Properties>
+                <Name Value="dropdownWidth" />
+                <Text Value="11" />
               </Properties>
             </Object>
           </Value>

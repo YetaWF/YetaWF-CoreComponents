@@ -8,6 +8,7 @@ using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -45,9 +46,9 @@ namespace YetaWF.Core.Views.Shared {
         /// </remarks>
 
 #if MVC6
-        public static HtmlString RenderDropDownList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderDropDownListAsync<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderDropDownList<TYPE>(this HtmlHelper<object> htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderDropDownListAsync<TYPE>(this HtmlHelper<object> htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null, object HtmlAttributes = null) {
 #endif
             List<TYPE> list = htmlHelper.GetParentModelSupportProperty<List<TYPE>>(name, "List");
             List<SelectionItem<TYPE>> itemList = new List<SelectionItem<TYPE>>();
@@ -57,7 +58,7 @@ namespace YetaWF.Core.Views.Shared {
                     Value = l,
                 });
             }
-            return htmlHelper.RenderDropDownSelectionList(name, selection, itemList, FuncToString, HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, itemList, FuncToString, HtmlAttributes);
         }
 
         /// <summary>
@@ -74,13 +75,13 @@ namespace YetaWF.Core.Views.Shared {
         /// The parent model containing the property has to offer a property "_List" with a List<SelectionItem<TYPE>> of possible values.
         /// </remarks>
 #if MVC6
-        public static HtmlString RenderDropDownSelectionList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
+        public static async Task<HtmlString> RenderDropDownSelectionListAsync<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
 #else
-        public static HtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
+        public static async Task<HtmlString> RenderDropDownSelectionListAsync<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, Func<TYPE, string> FuncToString = null,
 #endif
                 object HtmlAttributes = null, bool BrowserControls = false, bool Validation = true) {
             List<SelectionItem<TYPE>> list = htmlHelper.GetParentModelSupportProperty<List<SelectionItem<TYPE>>>(name, "List");
-            return htmlHelper.RenderDropDownSelectionList<TYPE>(name, selection, list, FuncToString, HtmlAttributes: HtmlAttributes, BrowserControls: BrowserControls, Validation: Validation);
+            return await htmlHelper.RenderDropDownSelectionListAsync<TYPE>(name, selection, list, FuncToString, HtmlAttributes: HtmlAttributes, BrowserControls: BrowserControls, Validation: Validation);
         }
         /// <summary>
         /// Renders a dropdownlist (with tooltips) for selection.
@@ -94,15 +95,15 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="HtmlAttributes">Optional attributes.</param>
         /// <returns></returns>
 #if MVC6
-        public static HtmlString RenderDropDownSelectionList<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
+        public static async Task<HtmlString> RenderDropDownSelectionListAsync<TYPE>(this IHtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
 #else
-        public static HtmlString RenderDropDownSelectionList<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
+        public static async Task<HtmlString> RenderDropDownSelectionListAsync<TYPE>(this HtmlHelper htmlHelper, string name, TYPE selection, List<SelectionItem<TYPE>> list,
 #endif
             Func<TYPE, string> FuncToString = null, object HtmlAttributes = null, bool BrowserControls = false, bool Validation = true) {
 
             bool useKendo = !BrowserControls && !Manager.IsRenderingGrid;
 
-            Manager.AddOnManager.AddTemplate("DropDownList");
+            await Manager.AddOnManager.AddTemplateAsync("DropDownList");
             if (useKendo) {
                 Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
                 // Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
@@ -119,9 +120,10 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
             tag.AddCssClass("yt_dropdownlist_base");
             string id = htmlHelper.MakeId(tag);
-            if (useKendo)
+            if (useKendo) {
                 tag.Attributes.Add("data-needinit", "");
-            else
+                tag.Attributes.Add("data-charavgw", Manager.CharWidthAvg.ToString());
+            } else
                 tag.AddCssClass("t_native");
 
             HtmlBuilder tagHtml = new HtmlBuilder();
@@ -218,9 +220,9 @@ namespace YetaWF.Core.Views.Shared {
         /// <remarks>
         /// A dropdownlist is rendered based on the enumerated type's EnumDescription attributes.</remarks>
 #if MVC6
-        public static HtmlString RenderEnum(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderEnumAsync(this IHtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderEnum(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderEnumAsync(this HtmlHelper<object> htmlHelper, string name, object value, object HtmlAttributes = null) {
 #endif
             List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
 
@@ -252,7 +254,7 @@ namespace YetaWF.Core.Views.Shared {
                 });
             }
 
-            return htmlHelper.RenderDropDownSelectionList(name, Convert.ToInt32(value), items, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync(name, Convert.ToInt32(value), items, HtmlAttributes: HtmlAttributes);
         }
         /// <summary>
         /// Renders an enumerated value for display.

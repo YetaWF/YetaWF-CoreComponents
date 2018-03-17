@@ -1,0 +1,9 @@
+@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
+@using (await CreateFormAsync("Add_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial")) {
+    @PartialForm(UseAreaViewName: false)
+    @await FormButtonsAsync(new FormButton[] {
+        new FormButton() { ButtonType= ButtonTypeEnum.Submit, },
+        new FormButton() { ButtonType= ButtonTypeEnum.Cancel, },
+    });
+}

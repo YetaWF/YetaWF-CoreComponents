@@ -1008,18 +1008,6 @@
                           </Properties>
                         </Object>
                       </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="UseHttpHandler" />
-                            <Caption Value="Use HttpHandler" />
-                            <Description Value="Defines whether images and CSS files use an HttpHandler (can only be set using Appsettings.json)" />
-                            <HelpLink />
-                            <TextAbove />
-                            <TextBelow />
-                          </Properties>
-                        </Object>
-                      </Value>
                     </List>
                   </Object>
                 </Properties>

@@ -1,58 +1,54 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using YetaWF.Core.DataProvider;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.IO {
+    
     public interface IInstallableModel {
 
         /// <summary>
         /// Returns whether the model is installed (assemblies may be present but the data source is not available)
         /// </summary>
-        bool IsInstalled();
+        Task<bool> IsInstalledAsync();
 
         /// <summary>
         /// Installs all required files/folders/SQL data.
         /// </summary>
-        bool InstallModel(List<string> errorList);
+        Task<bool> InstallModelAsync(List<string> errorList);
 
         /// <summary>
         /// Uninstalls all files/folders/SQL data managed by this model.
         /// </summary>
-        bool UninstallModel(List<string> errorList);
+        Task<bool> UninstallModelAsync(List<string> errorList);
 
         /// <summary>
         /// Add site-specific data for this model
         /// </summary>
-        void AddSiteData();
+        Task AddSiteDataAsync();
 
         /// <summary>
         /// Removes site-specific data for this model
         /// </summary>
-        void RemoveSiteData();
+        Task RemoveSiteDataAsync();
 
         /// <summary>
         /// Exports data this model implements (in model defined chunk increments (0..n))
         /// </summary>
-        /// <param name="chunk"></param>
-        /// <param name="fileList"></param>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        bool ExportChunk(int chunk, SerializableList<SerializableFile> fileList, out object obj);
+        Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList);
 
         /// <summary>
         /// Imports all data this model implements (in model defined chunk increments (0..n))
         /// </summary>
-        /// <param name="chunk"></param>
-        /// <param name="fileList"></param>
-        /// <param name="obj"></param>
-        void ImportChunk(int chunk, SerializableList<SerializableFile> fileList, object obj);
+        Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
     }
     public interface IInstallableModel2 {
         /// <summary>
         /// Upgrades all required files/folders/SQL data from lastSeenVersion to current package version.
         /// </summary>
-        bool UpgradeModel(List<string> errorList, string lastSeenVersion);
+        Task<bool> UpgradeModelAsync(List<string> errorList, string lastSeenVersion);
     }
 }

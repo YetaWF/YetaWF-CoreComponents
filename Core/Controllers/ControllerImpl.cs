@@ -12,19 +12,14 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Linq;
-using System.Threading.Tasks;
-using YetaWF.Core.Pages;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -32,7 +27,8 @@ using System.Web.Routing;
 using YetaWF.Core.Log;
 #endif
 
-namespace YetaWF.Core.Controllers {
+namespace YetaWF.Core.Controllers
+{
 
     /// <summary>
     /// The base class for any module-based controller. Modules within YetaWF that implement controllers derive from this class so controllers have access to module definitions.
@@ -48,42 +44,41 @@ namespace YetaWF.Core.Controllers {
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        protected TMod Module {
-            get {
-                if (Equals(_module, default(TMod))) {
-                    if (Manager.IsGetRequest) {
-                        _module = (TMod)RouteData.Values[Globals.RVD_ModuleDefinition];
-                        if (_module == null) {
-                            string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
-                            if (string.IsNullOrWhiteSpace(moduleGuid))
-                                throw new InternalError("Missing QueryString[{0}] value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
-                            Guid guid = new Guid(moduleGuid);
-                            _module = (TMod)ModuleDefinition.Load(guid);
-                        }
-                    } else if (Manager.IsPostRequest) {
-                        _module = (TMod)RouteData.Values[Globals.RVD_ModuleDefinition];
-                        if (_module == null) {
-                            string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
-                            if (string.IsNullOrWhiteSpace(moduleGuid))
-                                moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
-                            if (string.IsNullOrWhiteSpace(moduleGuid))
-                                throw new InternalError("Missing {0} value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
-                            Guid guid = new Guid(moduleGuid);
-                            _module = (TMod)ModuleDefinition.Load(guid);
-                        }
-                    }
-                    if (_module == default(TMod))
-                        throw new InternalError("No ModuleDefinition available in controller {0} {1}.", GetType().Namespace, ClassName);
-                }
-                return _module;
-            }
-        }
-        private TMod _module;
+        protected TMod Module { get { return (TMod)CurrentModule; } }
 
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller. Can be used with a base class to get the derived module's module definitions.
         /// </summary>
-        protected override ModuleDefinition GetModule() { return Module; }
+        protected override async Task<ModuleDefinition> GetModuleAsync() {
+            if (!HaveCurrentModule) {
+                ModuleDefinition mod = null;
+                if (Manager.IsGetRequest) {
+                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
+                    if (mod == null) {
+                        string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
+                        if (string.IsNullOrWhiteSpace(moduleGuid))
+                            throw new InternalError("Missing QueryString[{0}] value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
+                        Guid guid = new Guid(moduleGuid);
+                        mod = await ModuleDefinition.LoadAsync(guid);
+                    }
+                } else if (Manager.IsPostRequest) {
+                    mod = (TMod)RouteData.Values[Globals.RVD_ModuleDefinition];
+                    if (mod == null) {
+                        string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
+                        if (string.IsNullOrWhiteSpace(moduleGuid))
+                            moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
+                        if (string.IsNullOrWhiteSpace(moduleGuid))
+                            throw new InternalError("Missing {0} value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
+                        Guid guid = new Guid(moduleGuid);
+                        mod = await ModuleDefinition.LoadAsync(guid);
+                    }
+                }
+                if (mod == null)
+                    throw new InternalError("No ModuleDefinition available in controller {0} {1}.", GetType().Namespace, ClassName);
+                CurrentModule = mod;
+            }
+            return CurrentModule;
+        }
     }
 
     /// <summary>
@@ -263,93 +258,95 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="filterContext">Information about the current request and action.</param>
 #if MVC6
-        public override void OnActionExecuting(ActionExecutingContext filterContext) {
+        public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
 #else
-        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
+        protected override void OnActionExecuting(ActionExecutingContext filterContext) { 
+            YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
 #endif
-            base.OnActionExecuting(filterContext);
+                await SetupEnvironmentInfoAsync();
+                base.OnActionExecuting(filterContext);
 
-            if (Manager.IsPostRequest) {
-                // find the unique Id prefix (saved as hidden field in Form)
-                string uniqueIdPrefix = null;
+                if (Manager.IsPostRequest) {
+                    // find the unique Id prefix (saved as hidden field in Form)
+                    string uniqueIdPrefix = null;
 #if MVC6
                 if (HttpContext.Request.HasFormContentType)
                     uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
 #else
-                uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
+                    uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
 #endif
-                if (string.IsNullOrEmpty(uniqueIdPrefix)) {
+                    if (string.IsNullOrEmpty(uniqueIdPrefix)) {
 #if MVC6
-                    uniqueIdPrefix = HttpContext.Request.Query[Forms.UniqueIdPrefix];
+                        uniqueIdPrefix = HttpContext.Request.Query[Forms.UniqueIdPrefix];
 #else
-                    uniqueIdPrefix = HttpContext.Request.QueryString[Forms.UniqueIdPrefix];
+                        uniqueIdPrefix = HttpContext.Request.QueryString[Forms.UniqueIdPrefix];
 #endif
+                    }
+                    if (!string.IsNullOrEmpty(uniqueIdPrefix))
+                        Manager.UniqueIdPrefix = uniqueIdPrefix;
                 }
-                if (!string.IsNullOrEmpty(uniqueIdPrefix))
-                    Manager.UniqueIdPrefix = uniqueIdPrefix;
-            }
-            Type ctrlType;
-            string actionName;
+                Type ctrlType;
+                string actionName;
 #if MVC6
-            ctrlType = filterContext.Controller.GetType();
-            actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+                ctrlType = filterContext.Controller.GetType();
+                actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
 #else
-            ctrlType = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
-            actionName = filterContext.ActionDescriptor.ActionName;
+                ctrlType = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
+                actionName = filterContext.ActionDescriptor.ActionName;
 #endif
-            MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-            // check if the action is authorized by checking the module's authorization
-            string level = null;
-            PermissionAttribute permAttr = (PermissionAttribute) Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
-            if (permAttr != null)
-                level = permAttr.Level;
-            ModuleDefinition mod = GetModule();
-            if (!mod.IsAuthorized(level)) {
+                MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+                // check if the action is authorized by checking the module's authorization
+                string level = null;
+                PermissionAttribute permAttr = (PermissionAttribute)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
+                if (permAttr != null)
+                    level = permAttr.Level;
+                ModuleDefinition mod = await GetModuleAsync();
+                if (!mod.IsAuthorized(level)) {
+                    if (Manager.IsPostRequest) {
+#if MVC6
+                        filterContext.Result = new UnauthorizedResult();
+#else
+                        filterContext.Result = new HttpUnauthorizedResult();
+#endif
+                    } else {
+                        // We get here if an action is attempted that the user is not authorized for
+                        // we could attempt to capture and redirect to user login, whatevz
+                        filterContext.Result = new EmptyResult();
+                    }
+                    return;
+                }
+
+                // action is about to start - if this is a postback or ajax request, we'll clean up parameters
                 if (Manager.IsPostRequest) {
 #if MVC6
-                    filterContext.Result = new UnauthorizedResult();
+                    IDictionary<string,object> parms = filterContext.ActionArguments;
 #else
-                    filterContext.Result = new HttpUnauthorizedResult();
+                    IDictionary<string, object> parms = filterContext.ActionParameters;
 #endif
-                } else {
-                    // We get here if an action is attempted that the user is not authorized for
-                    // we could attempt to capture and redirect to user login, whatevz
-                    filterContext.Result = new EmptyResult();
-                }
-                return;
-            }
-
-            // action is about to start - if this is a postback or ajax request, we'll clean up parameters
-            if (Manager.IsPostRequest) {
+                    if (parms != null) {
+                        // remove leading/trailing spaces based on TrimAttribute for properties
+                        // and update ModelState for RequiredIfxxx attributes
 #if MVC6
-                IDictionary<string,object> parms = filterContext.ActionArguments;
+                        Controller controller = (Controller)filterContext.Controller;
+                        ViewDataDictionary viewData = controller.ViewData;
 #else
-                IDictionary<string,object> parms = filterContext.ActionParameters;
+                        ViewDataDictionary viewData = filterContext.Controller.ViewData;
 #endif
-                if (parms != null) {
-                    // remove leading/trailing spaces based on TrimAttribute for properties
-                    // and update ModelState for RequiredIfxxx attributes
-#if MVC6
-                    Controller controller = (Controller)filterContext.Controller;
-                    ViewDataDictionary viewData = controller.ViewData;
-#else
-                    ViewDataDictionary viewData = filterContext.Controller.ViewData;
-#endif
-                    ModelStateDictionary modelState = viewData.ModelState;
-                    foreach (var parm in parms) {
-                        FixArgumentParmTrim(parm.Value);
-                        FixArgumentParmCase(parm.Value);
-                        FixDates(parm.Value);
-                        PropertyListSupport.CorrectModelState(parm.Value, modelState);
-                    }
+                        ModelStateDictionary modelState = viewData.ModelState;
+                        foreach (var parm in parms) {
+                            FixArgumentParmTrim(parm.Value);
+                            FixArgumentParmCase(parm.Value);
+                            FixDates(parm.Value);
+                            PropertyListSupport.CorrectModelState(parm.Value, modelState);
+                        }
 
-                    // translate any xxx.JSON properties to native objects
-                    if (modelState.IsValid)
-                        ReplaceJSONParms(parms);
+                        // translate any xxx.JSON properties to native objects
+                        if (modelState.IsValid)
+                            ReplaceJSONParms(parms);
 
-                    // if we have a template action, search parameters for templates with actions and execute it
+                        // if we have a template action, search parameters for templates with actions and execute it
 #if MVC6
-                    if (HttpContext.Request.HasFormContentType) {
+                        if (HttpContext.Request.HasFormContentType) {
 #else
 #endif
                         string templateName = HttpContext.Request.Form[Basics.TemplateName];
@@ -364,25 +361,30 @@ namespace YetaWF.Core.Controllers {
                             }
                         }
 #if MVC6
-                    }
+                        }
 #else
 #endif
                     }
+
+                    // origin list (we already do this in global.asax.cs for GET, maybe move it there)
+                    //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
+                    //if (!string.IsNullOrWhiteSpace(originList))
+                    //    Manager.OriginList = YetaWFManager.JSONDeserialize<List<Origin>>(originList);
+                    //else
+                    //    Manager.OriginList = new List<Origin>();
+
+                    //string inPopup = HttpContext.Request.Form[Globals.Link_InPopup];
+                    //if (!string.IsNullOrWhiteSpace(inPopup))
+                    //    Manager.IsInPopup = true;
+
+                    ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
                 }
-
-            // origin list (we already do this in global.asax.cs for GET, maybe move it there)
-            //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
-            //if (!string.IsNullOrWhiteSpace(originList))
-            //    Manager.OriginList = YetaWFManager.JSONDeserialize<List<Origin>>(originList);
-            //else
-            //    Manager.OriginList = new List<Origin>();
-
-            //string inPopup = HttpContext.Request.Form[Globals.Link_InPopup];
-            //if (!string.IsNullOrWhiteSpace(inPopup))
-            //    Manager.IsInPopup = true;
-
-            ViewData.Add(Globals.RVD_ModuleDefinition, GetModule());
-        }
+#if MVC6
+                await next();
+#else
+            }); // End of Syncify
+#endif
+            }
 
         // INPUT CLEANUP
         // INPUT CLEANUP
@@ -644,7 +646,7 @@ namespace YetaWF.Core.Controllers {
         protected ViewResult View(string viewName, object model, bool UseAreaViewName = true) {
             if (UseAreaViewName) {
                 if (string.IsNullOrWhiteSpace(viewName))
-                    viewName = GetModule().DefaultViewName;
+                    viewName = CurrentModule.DefaultViewName;
                 else
                     viewName = YetaWFController.MakeFullViewName(viewName, Area);
                 if (string.IsNullOrWhiteSpace(viewName)) {
@@ -871,7 +873,7 @@ namespace YetaWF.Core.Controllers {
 
             popupText = popupText != null ? YetaWFManager.JsonSerialize(popupText) : null;
             popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
-            PopupOptions = PopupOptions != null ? PopupOptions : "null";
+            PopupOptions = PopupOptions ?? "null";
 
             bool isApply = Manager.RequestForm[Globals.Link_SubmitIsApply] != null;
             if (isApply) {
@@ -1244,13 +1246,18 @@ namespace YetaWF.Core.Controllers {
         /// <param name="objType">The module type (the derived type).</param>
         /// <param name="modelName">The model name (always "Module").</param>
         /// <returns>The bound object of the specified type.</returns>
-        protected object GetObjectFromModel(Type objType, string modelName) {
+#if MVC6
+        protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName)
+#else
+        protected Task<object> GetObjectFromModelAsync(Type objType, string modelName)
+#endif
+        {
             object obj;
 #if MVC6
             obj = Activator.CreateInstance(objType);
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
-            bool result = TryUpdateModelAsync(obj, objType, modelName).Result;
+            bool result = await TryUpdateModelAsync(obj, objType, modelName);
             if (!result)
                 throw new InternalError("Model with type {0} cannot be updated", objType.FullName);
 #else
@@ -1289,7 +1296,11 @@ namespace YetaWF.Core.Controllers {
                         ViewData.ModelState.Clear();
                 }
             }
+#if MVC6
             return obj;
+#else
+            return Task.FromResult<object>(obj);
+#endif
         }
     }
 }

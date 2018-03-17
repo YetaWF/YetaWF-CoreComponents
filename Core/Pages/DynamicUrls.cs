@@ -2,30 +2,36 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Search;
 
 namespace YetaWF.Core.Pages {
-
-    public interface ISearchDynamicUrls {
-        /// <summary>
-        /// Used by Search to extract keywords from dynamically generated pages.
-        /// </summary>
-        /// <param name="addTermsForPage"></param>
-        void KeywordsForDynamicUrls(ISearchWords searchWords);
-    }
-    public interface ISiteMapDynamicUrls {
-        /// <summary>
-        ///  Used to discover dynamic Urls to build a site map.
-        /// </summary>
-        void FindDynamicUrls(Action<PageDefinition, string, DateTime?, PageDefinition.SiteMapPriorityEnum, PageDefinition.ChangeFrequencyEnum, object> addDynamicUrl,
-                Func<PageDefinition, bool> validForSiteMap);
-    }
 
     public class DynamicUrlsImpl {
 
         public List<Type> GetDynamicUrlTypes() {
             return Package.GetClassesInPackages<ISearchDynamicUrls>();
         }
+    }
+
+    public interface ISearchDynamicUrls
+    {
+        /// <summary>
+        /// Used by Search to extract keywords from dynamically generated pages.
+        /// </summary>
+        Task KeywordsForDynamicUrlsAsync(ISearchWords searchWords);
+    }
+
+    public delegate Task AddDynamicUrlAsync(PageDefinition page, string url, DateTime? dateUpdated, 
+        PageDefinition.SiteMapPriorityEnum priority, PageDefinition.ChangeFrequencyEnum changeFrequency, object obj);
+
+    public interface ISiteMapDynamicUrls
+    {
+
+        /// <summary>
+        ///  Used to discover dynamic Urls to build a site map.
+        /// </summary>
+        Task FindDynamicUrlsAsync(AddDynamicUrlAsync addDynamicUrlAsync, Func<PageDefinition, bool> validForSiteMap);
     }
 }

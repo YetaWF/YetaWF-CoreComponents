@@ -8,6 +8,7 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Modules;
@@ -177,7 +178,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="path">The local Url requested.</param>
         /// <returns></returns>
         [AllowGet]
-        public ActionResult Show([FromBody] DataIn dataIn) {
+        public async Task<ActionResult> Show([FromBody] DataIn dataIn) {
 
             dataIn.Path = YetaWFManager.UrlDecodePath(dataIn.Path);
             if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
@@ -192,7 +193,7 @@ namespace YetaWF.Core.Controllers {
             SiteDefinition site = Manager.CurrentSite;
 
             // process logging type callbacks
-            PageLogging.HandleCallbacks(dataIn.Path, false);
+            await PageLogging.HandleCallbacksAsync(dataIn.Path, false);
 
             if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
 
@@ -251,9 +252,9 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
-                        ModuleDefinition module = ModuleDefinition.FindDesignedModule(dataIn.Path);
+                        ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
                         if (module == null)
-                            module = ModuleDefinition.LoadByUrl(dataIn.Path);
+                            module = await ModuleDefinition.LoadByUrlAsync(dataIn.Path);
                         moduleFound = module;
                     } else {
                         PageContentResult cr = new PageContentResult();
@@ -268,19 +269,20 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
-                        pageFound = PageDefinition.LoadFromUrl(url);
+                        pageFound = await PageDefinition.LoadFromUrlAsync(url);
                     } else {
                         PageContentResult cr = new PageContentResult();
                         cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                         return cr;
                     }
                 } else {
-                    PageDefinition page = PageDefinition.GetPageUrlFromUrlWithSegments(url, dataIn.QueryString, out newUrl, out newQs);
+                    PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, dataIn.QueryString);
+                    PageDefinition page = pageInfo.Page;
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
-                        if (newUrl != url) {
+                        if (pageInfo.NewUrl != url) {
                             PageContentResult cr = new PageContentResult();
-                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
+                            cr.Result.RedirectContent = QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS);
                             return cr;
                         }
                         pageFound = page;
@@ -294,7 +296,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // set up all info, like who is logged on, popup, origin list, etc.
-            YetaWFController.SetupEnvironmentInfo();
+            await YetaWFController.SetupEnvironmentInfoAsync();
 
             Logging.AddLog("Page Content");
 
@@ -302,7 +304,7 @@ namespace YetaWF.Core.Controllers {
             if (Manager.Need2FA) {
                 if (Manager.Need2FARedirect) {
                     Logging.AddLog("Two-step authentication setup required");
-                    ModuleAction action2FA = Resource.ResourceAccess.GetForceTwoStepActionSetup(null);
+                    ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null);
                     Manager.Need2FARedirect = false;
                     Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
                     Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
@@ -321,7 +323,7 @@ namespace YetaWF.Core.Controllers {
             // Process the page
             if (pageFound != null) {
                 PageContentResult cr = new PageContentResult();
-                switch (CanProcessAsDesignedPage(pageFound, dataIn, cr)) {
+                switch (await CanProcessAsDesignedPageAsync(pageFound, dataIn, cr)) {
                     case ProcessingStatus.Complete:
                         return cr;
                     case ProcessingStatus.Page:
@@ -371,7 +373,7 @@ namespace YetaWF.Core.Controllers {
         //    }
         //    return false;
         //}
-        private ProcessingStatus CanProcessAsDesignedPage(PageDefinition page, DataIn dataIn, PageContentResult cr) {
+        private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, DataIn dataIn, PageContentResult cr) {
             // request for a designed page
             if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                 if (page.UnifiedSetGuid != null) {
@@ -409,7 +411,7 @@ namespace YetaWF.Core.Controllers {
             }
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                 if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                    PageDefinition redirectPage = PageDefinition.LoadFromUrl(page.RedirectToPageUrl);
+                    PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                     if (redirectPage != null) {
                         if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                             string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
@@ -432,7 +434,7 @@ namespace YetaWF.Core.Controllers {
             if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                 if (dataIn.IsMobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                    PageDefinition mobilePage = PageDefinition.LoadFromUrl(page.MobilePageUrl);
+                    PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                     if (mobilePage != null) {
                         if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                             string redirUrl = page.MobilePageUrl;

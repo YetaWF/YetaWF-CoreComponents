@@ -6,6 +6,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,11 +25,11 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(TextBoxHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderTextBox(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderTextBoxAsync(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderTextBox(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderTextBoxAsync(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
-            Manager.AddOnManager.AddTemplate("Text");
+            await Manager.AddOnManager.AddTemplateAsync("Text");
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -71,7 +72,7 @@ namespace YetaWF.Core.Views.Shared {
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
             if (copy) {
-                Manager.AddOnManager.AddAddOnGlobal("clipboardjs.com", "clipboard");// add clipboard support
+                await Manager.AddOnManager.AddAddOnGlobalAsync("clipboardjs.com", "clipboard");// add clipboard support
                 SkinImages skinImages = new SkinImages();
                 string imageUrl = skinImages.FindIcon_Template("Copy.png", YetaWF.Core.Controllers.AreaRegistration.CurrentPackage, "Text");
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, title: __ResStr("ttCopy", "Copy to Clipboard"), alt: __ResStr("altCopy", "Copy to Clipboard"));
@@ -89,11 +90,11 @@ namespace YetaWF.Core.Views.Shared {
             return hb.ToHtmlString();
         }
 #if MVC6
-        public static HtmlString RenderTextBoxDisplay(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderTextBoxDisplayAsync(this IHtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderTextBoxDisplay(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderTextBoxDisplayAsync(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
-            Manager.AddOnManager.AddTemplate("Text");
+            await Manager.AddOnManager.AddTemplateAsync("Text");
             Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
 
             HtmlBuilder hb = new HtmlBuilder();
@@ -114,7 +115,7 @@ namespace YetaWF.Core.Views.Shared {
             hb.Append(tag.ToString(TagRenderMode.StartTag));
 
             if (copy) {
-                Manager.AddOnManager.AddAddOnGlobal("clipboardjs.com", "clipboard");// add clipboard support
+                await Manager.AddOnManager.AddAddOnGlobalAsync("clipboardjs.com", "clipboard");// add clipboard support
                 SkinImages skinImages = new SkinImages();
                 string imageUrl = skinImages.FindIcon_Template("Copy.png", YetaWF.Core.Controllers.AreaRegistration.CurrentPackage, "Text");
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, title: __ResStr("ttCopy", "Copy to Clipboard"), alt: __ResStr("altCopy", "Copy to Clipboard"));

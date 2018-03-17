@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
@@ -29,13 +30,14 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
-        public void InitializeApplicationStartup() {
+        public Task InitializeApplicationStartupAsync() {
             // delete all files from last session and create the folder
             Logging.AddLog("Removing/creating bundle folder");
             string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
             if (Directory.Exists(tempPath))
                 Directory.Delete(tempPath, true);
             Bundles = new List<Bundle>();
+            return Task.CompletedTask;
         }
 
         private static List<Bundle> Bundles { get; set; }

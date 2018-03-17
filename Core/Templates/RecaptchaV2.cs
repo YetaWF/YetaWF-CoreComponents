@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
@@ -7,9 +8,9 @@ using YetaWF.Core.Views.Shared;
 namespace YetaWF.Core.Addons.Templates {
     public class RecaptchaV2 : IAddOnSupport {
 
-        public void AddSupport(YetaWFManager manager) {
+        public async Task AddSupportAsync(YetaWFManager manager) {
 
-            RecaptchaV2Config config = RecaptchaV2Config.LoadRecaptchaV2Config();
+            RecaptchaV2Config config = await RecaptchaV2Config.LoadRecaptchaV2ConfigAsync();
             if (string.IsNullOrWhiteSpace(config.PublicKey))
                 throw new InternalError("The Recaptcha configuration settings are missing - no public key found");
 

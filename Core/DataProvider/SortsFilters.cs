@@ -12,12 +12,15 @@ namespace YetaWF.Core.DataProvider {
 
     public static class DataProviderImpl<OBJTYPE> {
 
-        public static List<OBJTYPE> GetRecords(List<OBJTYPE> objects, int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, out int total) {
+        public static DataProviderGetRecords<OBJTYPE> GetRecords(List<OBJTYPE> objects, int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters) {
             objects = Filter(objects, filters);
             objects = Sort(objects, sort);
-            total = objects.Count;
+            int total = objects.Count;
             objects = objects.Skip(skip).Take(take).ToList();
-            return objects;
+            return new DataProviderGetRecords<OBJTYPE> {
+                Data = objects,
+                Total = total,
+            };
         }
         public static List<OBJTYPE> Sort(List<OBJTYPE> list, List<DataProviderSortInfo> sort) {
             if (sort != null && sort.Any()) {

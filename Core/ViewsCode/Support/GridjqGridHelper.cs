@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
@@ -53,10 +54,14 @@ namespace YetaWF.Core.Views.Shared {
             sb.RemoveLast(); // remove last comma
             return sb.ToHtmlString();
         }
+        public class GetColModelInfo {
+            public HtmlString Data { get; set; }
+            public bool HasFilters { get; set; }
+        }
 #if MVC6
-        public static HtmlString RenderColModel(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
+        public static async Task<GetColModelInfo> GetColModelAsync(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #else
-        public static HtmlString RenderColModel(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef, out bool hasFilters) {
+        public static async Task<GetColModelInfo> GetColModelAsync(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -64,7 +69,7 @@ namespace YetaWF.Core.Views.Shared {
             GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
             Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
 
-            hasFilters = false;
+            bool hasFilters = false;
 
             foreach (var d in dict) {
                 string propName = d.Key;
@@ -79,7 +84,7 @@ namespace YetaWF.Core.Views.Shared {
                 sb.Append("{");
                 sb.Append("name:{0},index:{0},", YetaWFManager.JsonSerialize(prop.Name));
 
-                int width = 0;
+                int width = 0, charWidth = 0;
                 if (gridCol.Icons != 0) {
                     gridCol.Sortable = false;
                     GridHelper.GridActionsEnum actionStyle = GridHelper.GridActionsEnum.Icons;
@@ -88,14 +93,15 @@ namespace YetaWF.Core.Views.Shared {
                     gridCol.ChWidth = gridCol.PixWidth = 0;
                     gridCol.Alignment = GridHAlignmentEnum.Center;
                     if (actionStyle == GridHelper.GridActionsEnum.DropdownMenu) {
-                        width = Manager.CharWidthAvg * 12;
+                        charWidth = gridDef.DropdownActionWidth??12;
                     } else {
-                        width = Manager.CharWidthAvg + (Math.Abs(gridCol.Icons) * (16 + Manager.CharWidthAvg / 2 + 2) + Manager.CharWidthAvg);
+                        width = 10 + (Math.Abs(gridCol.Icons) * (16 + 4) + 10);
+                        charWidth = 0;
                     }
                 }
-                if (gridCol.ChWidth != 0)
-                    width = gridCol.ChWidth * Manager.CharWidthAvg + Manager.CharWidthAvg / 2;
-                else if (gridCol.PixWidth != 0)
+                if (gridCol.ChWidth != 0) {
+                    charWidth = gridCol.ChWidth;
+                } else if (gridCol.PixWidth != 0)
                     width = gridCol.PixWidth;
 
                 if (gridSavedSettings != null && gridSavedSettings.Columns.ContainsKey(prop.Name)) {
@@ -108,6 +114,7 @@ namespace YetaWF.Core.Views.Shared {
                     sb.Append("no_sub_if_notchecked:{0},", YetaWFManager.JsonSerialize(gridCol.OnlySubmitWhenChecked));
 
                 sb.Append("width:{0},", width);
+                sb.Append("__charWidth:{0},", charWidth);
                 sb.Append("title: false,");
 
                 sb.Append("classes:'t_cell t_{0}',", prop.Name.ToLower());
@@ -172,10 +179,13 @@ namespace YetaWF.Core.Views.Shared {
 
                 // get the uihint to add the template
                 if (prop.UIHint != null)
-                    Manager.AddOnManager.AddTemplateFromUIHint(prop.UIHint);
+                    await Manager.AddOnManager.AddTemplateFromUIHintAsync(prop.UIHint);
             }
             sb.RemoveLast(); // remove last comma
-            return sb.ToHtmlString();
+            return new GetColModelInfo {
+                HasFilters = hasFilters,
+                Data = sb.ToHtmlString()
+            };
         }
 
         private static void AddFilterOptions(ScriptBuilder sb, GridColumnInfo gridCol) {

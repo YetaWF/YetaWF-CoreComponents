@@ -2,11 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Language;
 using YetaWF.Core.Localize;
@@ -19,6 +15,11 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Mvc;
+#endif
 
 namespace YetaWF.Core.Site {
 
@@ -160,12 +161,14 @@ namespace YetaWF.Core.Site {
         [Category("Variables"), Caption("Default Site Domain"), Description("The domain name of the default site for this instance of YetaWF")]
         public string DefaultSiteDomain {
             get {
-                return SiteDefinition.GetDefaultSiteDomain();
+                return YetaWFManager.Syncify(async () => { // this is cached anyway so no harm done
+                    return await SiteDefinition.GetDefaultSiteDomainAsync();
+                });
             }
         }
-        public static string GetDefaultSiteDomain() {
+        public static async Task<string> GetDefaultSiteDomainAsync() {
             if (_defaultSiteDomain == null) {
-                SiteDefinition defaultSite = LoadSiteDefinition(null);
+                SiteDefinition defaultSite = await LoadSiteDefinitionAsync(null);
                 _defaultSiteDomain = defaultSite.SiteDomain;
             }
             return _defaultSiteDomain;
@@ -427,18 +430,6 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         public bool DisableMinimizeFUOC { get; set; }
-
-        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and CSS files use an HttpHandler (can only be set using Appsettings.json)")]
-        [UIHint("Boolean")]
-        public bool UseHttpHandler {
-            get {
-                if (useHttpHandler == null) {
-                    useHttpHandler = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseHttpHandler", true);
-                }
-                return (bool)useHttpHandler;
-            }
-        }
-        private bool? useHttpHandler = null;
 
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
         [UIHint("Text80"), StringLength(MaxCopyright)]

@@ -20,6 +20,7 @@ using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Skins;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -167,8 +168,8 @@ namespace YetaWF.Core.Support {
             } else {
                 manager = new YetaWFManager(null);
                 manager.UserLanguage = MultiString.DefaultLanguage;
-                if (SiteDefinition.LoadSiteDefinition != null) {
-                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomain();
+                if (SiteDefinition.LoadSiteDefinitionAsync != null) {
+                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // sync OK as it's cached - this will not run async as we don't have a Manager
                     manager.HostPortUsed = 80;
                     manager.HostSchemeUsed = "http";
                 } else {
@@ -1382,9 +1383,9 @@ namespace YetaWF.Core.Support {
             CharSizeStack.Add(_charSize);
         }
         public void NewCharSize(int width, int height) {
+            PushCharSize();
             CharWidthAvg = width;
             CharHeight = height;
-            PushCharSize();
         }
         /// <summary>
         /// Contains the last date/time updated while rendering a page.
@@ -1465,7 +1466,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Define options for the current page or popup skin.
         /// </summary>
-        internal void SetSkinOptions() {
+        internal async Task SetSkinOptions() {
             SkinAccess skinAccess = new SkinAccess();
             SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
             SkinInfo = info;
@@ -1480,9 +1481,9 @@ namespace YetaWF.Core.Support {
                         skin = Manager.CurrentSite.BootstrapSkin;
                     string themeFolder = skinAccess.FindBootstrapSkin(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
-                        AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootstrap-less");
+                        await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootstrap-less");
                     else
-                        AddOnManager.AddAddOnGlobal("getbootstrap.com", "bootswatch", themeFolder);
+                        await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootswatch", themeFolder);
                 }
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
@@ -1491,7 +1492,7 @@ namespace YetaWF.Core.Support {
                 CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
             if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
                 CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
-            AddOnManager.AddSkinBasedAddOns();
+            await AddOnManager.AddSkinBasedAddOnsAsync();
         }
 
         /// <summary>
@@ -1568,16 +1569,16 @@ namespace YetaWF.Core.Support {
         public int UserId { get; set; }
         public List<int> UserRoles { get; set; }
         public object UserObject { get; set; }// data saved by Authentication provider
-        public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider
+        public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider IUserSettings
         public string UserLanguage { get; private set; }
         public string GetUserLanguage() {
             string userLang = UserSettings.GetProperty<string>("LanguageId");
             UserLanguage = MultiString.NormalizeLanguageId(userLang);
             return UserLanguage;
         }
-        public void SetUserLanguage(string language) {
+        public async Task SetUserLanguageAsync(string language) {
             language = MultiString.NormalizeLanguageId(language);
-            UserSettings.SetProperty<string>("LanguageId", language);
+            await UserSettings.SetPropertyAsync<string>("LanguageId", language);
             UserLanguage = language;
         }
         public bool HaveUser { get { return UserId != 0; } }
@@ -1701,8 +1702,7 @@ namespace YetaWF.Core.Support {
                             url.StartsWith(Globals.AddOnsUrl) ||
                             url.StartsWith(Globals.AddOnsCustomUrl) ||
                             url.StartsWith(Globals.AddonsBundlesUrl) ||
-                            url.StartsWith("/FileHndlr.image") ||
-                            url.StartsWith("/File.image")) {
+                            url.StartsWith("/FileHndlr.image")) {
                         // leave useAlt as is
                     } else
                         useAlt = false;
@@ -1751,5 +1751,55 @@ namespace YetaWF.Core.Support {
         // SITE TEMPLATES
 
         public bool SiteCreationTemplateActive { get; set; }
+
+        // ASYNC
+        // ASYNC
+        // ASYNC
+
+        public static bool IsSync() {
+            if (YetaWFManager.HaveManager) return YetaWFManager.Manager._syncCount > 0;
+            return true;// if there is no manager, we can't async (and it's probably no advantage to be async in this case)
+        }
+        private int _syncCount = 0;
+
+        /// <summary>
+        /// Used to mark all methods within its scope as synchronous. 
+        /// Only synchronous data providers are used. 
+        /// Async code will run synchronously on all platforms.
+        /// </summary>
+        public class NeedSync : IDisposable {
+            private YetaWFManager Manager;
+            public NeedSync() {
+                if (YetaWFManager.HaveManager) { // if no manager is available, code is synchronous by definition
+                    Manager = YetaWFManager.Manager;
+                    Manager._syncCount++;
+                }
+                DisposableTracker.AddObject(this);
+            }
+            public void Dispose() { Dispose(true); }
+            protected virtual void Dispose(bool disposing) {
+                if (Manager != null && --Manager._syncCount < 0) Manager._syncCount = 0;
+                if (disposing) DisposableTracker.RemoveObject(this);
+            }
+            //~NeedSync() { Dispose(false); }
+        }
+
+        /// <summary>
+        /// Runs synchronously and returns the return value of the async body within its scope.
+        /// </summary>
+        public static TYPE Syncify<TYPE>(Func<Task<TYPE>> func) {
+            using (new NeedSync()) {
+                return func().Result; // sync OK as we requested sync mode
+            }
+        }
+        /// <summary>
+        /// Waits for the async body within its scope and runs synchronously.
+        /// </summary>
+        /// <param name="func"></param>
+        public static void Syncify(Func<Task> func) {
+            using (new NeedSync()) {
+                func().Wait(); // Sync wait because we're in sync mode
+            }
+        }
     }
 }

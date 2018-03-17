@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
@@ -87,6 +88,7 @@ namespace YetaWF.Core.Models {
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool HandleLocalInput { get; set; } // store input in local datasource for submit
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
+        public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         // other settings
         public string Id { get; set; } // html id of the grid
@@ -132,5 +134,13 @@ namespace YetaWF.Core.Models {
         }
         [UIHint("GridDataRecords")]
         public List<object> GridDataRecords { get { return Data.Data; } }
+
+        public Task FinalizeSettingsAsync() {
+            if (ShowFilter == null)
+                ShowFilter = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowGridSearchToolbar");
+            if (DropdownActionWidth == null)
+                DropdownActionWidth = ActionHelper.GetDropdownActionWidthInChars();
+            return Task.CompletedTask;
+        }
     }
 }

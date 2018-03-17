@@ -58,13 +58,13 @@ namespace YetaWF.Core.Views.Shared {
                     prefix = dataSrc.FieldPrefix;
                 }
                 recordCount = dataSrc.RecordCount;
-                hiddenProps = GridHelper.GetHiddenGridProperties(model);//not sure whether this could fail - if so, handle it
+                hiddenProps = GridHelper.GetHiddenGridProperties(model);
                 props = GridHelper.GetGridProperties(model);
             } else if (gridEntry != null) {
                 readOnly = false;
                 prefix = gridEntry.Prefix;
                 recordCount = gridEntry.RecNumber;
-                hiddenProps = GridHelper.GetHiddenGridProperties(model);//not sure whether this could fail - if so, handle it
+                hiddenProps = GridHelper.GetHiddenGridProperties(model);
                 props = GridHelper.GetGridProperties(model);
             }
 #if MVC6

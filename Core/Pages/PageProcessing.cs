@@ -123,12 +123,9 @@ namespace YetaWF.Core.Pages {
         }
 
         private string ProcessImages(string pageHtml) {
-            if (Manager.CurrentSite.UseHttpHandler) {
-                if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
-                    return ImageSupport.ProcessImagesAsCDN(pageHtml);
-                return pageHtml;
-            }
-            return ImageSupport.ProcessImagesAsStatic(pageHtml);
+            if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
+                return ImageSupport.ProcessImagesAsCDN(pageHtml);
+            return pageHtml;
         }
     }
 }

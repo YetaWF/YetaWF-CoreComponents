@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
@@ -25,9 +26,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageSelectionHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderPageSelectionDD(this IHtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPageSelectionDDAsync(this IHtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderPageSelectionDD(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderPageSelectionDDAsync(this HtmlHelper htmlHelper, string name, Guid? pageGuid, object HtmlAttributes = null) {
 #endif
             List<SelectionItem<Guid?>> list;
             list = (
@@ -38,12 +39,12 @@ namespace YetaWF.Core.Views.Shared {
                     }).ToList<SelectionItem<Guid?>>();
             list.Insert(0, new SelectionItem<Guid?> { Text = __ResStr("select", "(select)"), Value = null });
 
-            return htmlHelper.RenderDropDownSelectionList<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
+            return await htmlHelper.RenderDropDownSelectionListAsync<Guid?>(name, pageGuid ?? Guid.Empty, list, HtmlAttributes: HtmlAttributes);
         }
 #if MVC6
-        public static HtmlString RenderPageSelectionLink(this IHtmlHelper htmlHelper, Guid? pageGuid) {
+        public static async Task<HtmlString> RenderPageSelectionLinkAsync(this IHtmlHelper htmlHelper, Guid? pageGuid) {
 #else
-        public static HtmlString RenderPageSelectionLink(this HtmlHelper htmlHelper, Guid? pageGuid) {
+        public static async Task<HtmlString> RenderPageSelectionLinkAsync(this HtmlHelper htmlHelper, Guid? pageGuid) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -52,7 +53,7 @@ namespace YetaWF.Core.Views.Shared {
 
             PageDefinition page = null;
             if (pageGuid != null)
-                page = PageDefinition.Load((Guid)pageGuid);
+                page = await PageDefinition.LoadAsync((Guid)pageGuid);
 
             tag.MergeAttribute("href", (page != null ? page.EvaluatedCanonicalUrl : ""));
             tag.MergeAttribute("target", "_blank");

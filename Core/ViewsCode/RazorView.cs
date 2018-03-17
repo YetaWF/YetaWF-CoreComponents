@@ -10,18 +10,19 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Threading.Tasks;
 #else
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 #endif
 
-namespace YetaWF.Core.Views {
+namespace YetaWF.Core.Views
+{
 
 #if MVC6
     public class RazorView<TModel> : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel>
@@ -72,9 +73,11 @@ namespace YetaWF.Core.Views {
 #if MVC6
             // NOTE: the page has not been activated when using MVC6 so all data has to be extracted from context.
             // context is null with MVC5
-            ModuleDefinition module = (ModuleDefinition)context.ViewData[Globals.RVD_ModuleDefinition];
+            ModuleDefinition module = (ModuleDefinition)context.RouteData.Values[Globals.RVD_ModuleDefinition];
+            context.ViewData[Globals.RVD_ModuleDefinition] = module;
             TModel model = (TModel) context.ViewData.Model;
 #else
+            ViewData[Globals.RVD_ModuleDefinition] = ViewContext.RouteData.Values[Globals.RVD_ModuleDefinition];
             ModuleDefinition module = Module;
             TModel model = (TModel) Model;
 #endif
@@ -82,7 +85,11 @@ namespace YetaWF.Core.Views {
             _oldMod = Manager.CurrentModule;
             Manager.CurrentModule = module;
         }
-
+        public Task EndRenderAsync(ViewContext context) {
+            Manager.CurrentModule = _oldMod;
+            Manager.PopModel();
+            return Task.CompletedTask;
+        }
         public void EndRender(ViewContext context) {
             Manager.CurrentModule = _oldMod;
             Manager.PopModel();
@@ -217,16 +224,17 @@ namespace YetaWF.Core.Views {
         // FORM
         // FORM
 
-        protected MvcForm Form(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
+        protected async Task<MvcForm> CreateFormAsync(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) { 
+
             Manager.NextUniqueIdPrefix();
-            Manager.AddOnManager.AddAddOnNamed("YetaWF", "Core", "Forms");
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");
 
             _viewName = viewName;
             if (string.IsNullOrWhiteSpace(ActionName))
                 ActionName = viewName;
             _model = Model;
 
-            IDictionary<string,object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
+            IDictionary<string, object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
             if (SaveReturnUrl)
                 rvd.Add(Basics.CssSaveReturnUrl, "");
             string css = null;
@@ -282,16 +290,16 @@ namespace YetaWF.Core.Views {
 #endif
             return new HtmlString(viewHtml);
         }
-        public HtmlString FormButtons(List<FormButton> buttons, int dummy = 0) {
-            return FormButtons(buttons.ToArray());
+        public async Task<HtmlString> FormButtonsAsync(List<FormButton> buttons, int dummy = 0) {
+            return await FormButtonsAsync(buttons.ToArray());
         }
 
-        public HtmlString FormButtons(FormButton[] buttons, int dummy = 0) {
+        public async Task<HtmlString> FormButtonsAsync(FormButton[] buttons, int dummy = 0) {
             HtmlBuilder hb = new HtmlBuilder();
             if (Module.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
                 foreach (FormButton button in buttons) {
-                    hb.Append(button.Render());
+                    hb.Append(await button.RenderAsync());
                 }
                 hb.Append("</div>");
             }
@@ -339,13 +347,9 @@ namespace YetaWF.Core.Views {
 
         private static string ProcessImages(string viewHtml) {
             if (!Manager.IsPostRequest) return viewHtml; // we'll handle it in RazorPage::PostProcessHtml
-            if (Manager.CurrentSite.UseHttpHandler) {
-                if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
-                    return ImageSupport.ProcessImagesAsCDN(viewHtml);
-                return viewHtml;
-            } else {
-                return ImageSupport.ProcessImagesAsStatic(viewHtml);
-            }
+            if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
+                return ImageSupport.ProcessImagesAsCDN(viewHtml);
+            return viewHtml;
         }
     }
 }

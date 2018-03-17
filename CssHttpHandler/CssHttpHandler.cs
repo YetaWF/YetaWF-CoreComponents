@@ -29,10 +29,9 @@ namespace YetaWF.Core.HttpHandler {
             Handler = new CssHttpHandler();
         }
 
-        public async Task Invoke(HttpContext context) {
-
+        public async Task InvokeAsync(HttpContext context) {
             await Handler.ProcessRequest(context);
-            //await _next.Invoke(context);
+            //await _next(context);
         }
     }
 
@@ -47,20 +46,17 @@ namespace YetaWF.Core.HttpHandler {
         // IHttpHandler
 
 #if MVC6
-        public async Task ProcessRequest(HttpContext context)
+        public async Task ProcessRequest(HttpContext context) {
+            await StartupRequest.StartRequestAsync(context, true);
 #else
         public bool IsReusable {
             get { return true; }
         }
 
-        public void ProcessRequest(HttpContext context)
+        public void ProcessRequest(HttpContext context) {
 #endif
-        {
             YetaWFManager manager = YetaWFManager.Manager;
 
-            int charWidth, charHeight;
-            GetCharSize(manager, out charWidth, out charHeight);
-            bool processCharSize = charWidth > 0 && charHeight > 0;
             string fullUrl = context.Request.Path;
             string file;
 #if MVC6
@@ -77,7 +73,6 @@ namespace YetaWF.Core.HttpHandler {
 #endif
             file = YetaWFManager.UrlToPhysical(fullUrl);
 
-            if (fullUrl.ContainsIgnoreCase(Globals.NodeModulesUrl) || fullUrl.ContainsIgnoreCase(Globals.BowerComponentsUrl) || fullUrl.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) processCharSize = false;
             DateTime lastMod = File.GetLastWriteTimeUtc(file);
 
             // Cache verification?
@@ -102,17 +97,16 @@ namespace YetaWF.Core.HttpHandler {
             // Send entire file
             byte[] bytes = null;
             string cacheKey = null;
-            if (processCharSize && !manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
-                try {
-                    cacheKey = "CssHttpHandler_" + file + "_" + charWidth.ToString() + "_" + charHeight.ToString();
+
+            if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
+                cacheKey = "CssHttpHandler_" + file + "_";
 #if MVC6
-                    IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
-                    bytes = cache.Get<byte[]>(cacheKey);
+                IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
+                bytes = cache.Get<byte[]>(cacheKey);
 #else
-                    if (System.Web.HttpRuntime.Cache[cacheKey] != null)
-                        bytes = (byte[])System.Web.HttpRuntime.Cache[cacheKey];
+                if (System.Web.HttpRuntime.Cache[cacheKey] != null)
+                    bytes = (byte[])System.Web.HttpRuntime.Cache[cacheKey];
 #endif
-                } catch (Exception) { processCharSize = false; } // this can fail for *.css requests without !CI=
             }
             if (bytes == null) {
                 string text = "";
@@ -128,23 +122,7 @@ namespace YetaWF.Core.HttpHandler {
 #endif
                     return;
                 }
-                if (processCharSize) {
-                    // process css - replace nn ch with pixel value, derived from avg char width
-                    try {
-                        text = manager.CssManager.ProcessCss(text, charWidth, charHeight);
-                    } catch (Exception) { }// this can fail for *.css requests without !CI= in which case we use the text as-is
-                    bytes = Encoding.ASCII.GetBytes(text);
-                    if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
-#if MVC6
-                        IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
-                        cache.Set<byte[]>(cacheKey, bytes);
-#else
-                        System.Web.HttpRuntime.Cache[cacheKey] = bytes;
-#endif
-                    }
-                } else {
-                    bytes = Encoding.ASCII.GetBytes(text);
-                }
+                bytes = Encoding.ASCII.GetBytes(text);
             }
             context.Response.ContentType = "text/css";
             context.Response.StatusCode = 200;
@@ -161,18 +139,6 @@ namespace YetaWF.Core.HttpHandler {
             context.Response.OutputStream.Write(bytes, 0, bytes.Length);
             context.ApplicationInstance.CompleteRequest();
 #endif
-        }
-        private void GetCharSize(YetaWFManager manager, out int width, out int height) {
-            width = 0;
-            height = 0;
-            string wh = manager.RequestForm[Globals.Link_CharInfo];
-            if (wh == null)
-                wh = manager.RequestQueryString[Globals.Link_CharInfo];
-            if (!string.IsNullOrWhiteSpace(wh)) {
-                string[] parts = wh.Split(new char[] { ',' });
-                width = Convert.ToInt32(parts[0]);
-                height = Convert.ToInt32(parts[1]);
-            }
         }
         private static string GetETag() {
             return string.Format(@"""{0}""", YetaWFManager.CacheBuster);

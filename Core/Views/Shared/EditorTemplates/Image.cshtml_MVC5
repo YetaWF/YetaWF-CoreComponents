@@ -1,0 +1,21 @@
+﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+@inherits YetaWF.Core.Views.Shared.Image<string>
+<div class="yt_image t_edit" id="@ControlId">
+    @Html.RenderHidden("", Model)  @*where the actual filename is returned*@
+    <div class="t_image">
+        @Html.RenderImage("", Model, Alt: __ResStr("imgAlt", "Preview Image")) @*Image Preview *@
+    </div>
+    <div class="t_info">
+        @Html.RenderImageAttributes("", Model) @*Image Attributes*@
+    </div>
+    <div class="t_haveimage" @Html.Raw(string.IsNullOrWhiteSpace(Model) ? "style='display:none'" : "")>
+        <input type="button" class="t_clear" value="@__ResStr("btnClear", "Clear")" title="@__ResStr("txtClear", "Click to clear the current image")" />
+    </div>
+    @Html.RenderImageEdit("", Model) @* Upload Control *@
+</div>
+
+<script>
+    @using (DocumentReady(ControlId)) {
+        @: YetaWF_Image.init('@ControlId');
+    }
+</script>

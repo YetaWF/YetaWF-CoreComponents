@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Site;
 #if MVC6
@@ -23,8 +24,8 @@ namespace YetaWF.Core.Support {
     {
         public static readonly string SignalRUrl = "/__signalr";
 
-        public static void Use() {
-            YetaWFManager.Manager.AddOnManager.AddAddOnGlobal("github.com.signalr", "signalr");
+        public static async Task UseAsync() {
+            await YetaWFManager.Manager.AddOnManager.AddAddOnGlobalAsync("github.com.signalr", "signalr");
             YetaWFManager.Manager.ScriptManager.AddConfigOption("Basics", "SignalRUrl", SignalRUrl);
         }
 
@@ -57,7 +58,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Set up environment info for SignalR requests.
         /// </summary>
-        public static YetaWFManager SetupEnvironment() {
+        public static async Task<YetaWFManager> SetupEnvironmentAsync() {
             if (YetaWFManager.HaveManager) return YetaWFManager.Manager;
             YetaWFManager manager;
             string host;
@@ -71,9 +72,10 @@ namespace YetaWF.Core.Support {
             host = httpReq.Url.Host;
             manager = YetaWFManager.MakeInstance(host);
 #endif
-            manager.CurrentSite = SiteDefinition.LoadSiteDefinition(host);
+            manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(host);
             if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
-            YetaWFController.SetupEnvironmentInfo();
+            await YetaWFController.SetupEnvironmentInfoAsync();
+
             return manager;
         }
     }

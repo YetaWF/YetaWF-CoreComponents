@@ -5,19 +5,18 @@ using System.Text;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
-using System.Threading.Tasks;
 #else
 using System.Web;
 using System.Web.Mvc;
 using System.Web.WebPages;
 #endif
 
-namespace YetaWF.Core.Pages {
+namespace YetaWF.Core.Pages
+{
 
 #if MVC6
     public static class HtmlStringExtension {
@@ -106,8 +105,7 @@ namespace YetaWF.Core.Pages {
             ExecutePageHierarchy(wpc, viewContext.Writer, this);
         }
 #endif
-
-        public HtmlString RenderPane(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
+        public async Task<HtmlString> RenderPaneAsync(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
             if (IsTemplate)
                 throw new InternalError("Can't use RenderPane in templates");
 
@@ -124,18 +122,18 @@ namespace YetaWF.Core.Pages {
                     //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the template page ({2} vs. {3})", realPage.Url, page.Url, realPage.TemplatePage.Url ?? "(none)", page.TemplatePage.Url ?? "(none)");
                     Manager.CurrentPage = page;
 #if MVC6
-                    sb.Append(CurrentPage.RenderPane((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
+                    sb.Append(await CurrentPage.RenderPaneAsync((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
 #else
-                    sb.Append(CurrentPage.RenderPane((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
+                    sb.Append(await CurrentPage.RenderPaneAsync((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
 #endif
                 }
                 Manager.CurrentPage = realPage;
                 return new HtmlString(sb.ToString());
             } else {
 #if MVC6
-                return CurrentPage.RenderPane((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
+                return await CurrentPage.RenderPaneAsync((IHtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
 #else
-                return CurrentPage.RenderPane((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
+                return await CurrentPage.RenderPaneAsync((HtmlHelper<object>)GetHtml(), pane, cssClass, Conditional: Conditional);
 #endif
             }
         }
@@ -153,15 +151,22 @@ namespace YetaWF.Core.Pages {
         /// Used to render page contents for unified pages with dynamic content.
         /// </summary>
         /// <returns></returns>
-        public HtmlString RenderPageContent() {
-            PageContentController.PageContentData model = (PageContentController.PageContentData)(object)ViewData.Model;
-            PageContentController.DataIn dataIn = (PageContentController.DataIn) ViewData["DataIn"];
+        public
 #if MVC6
-            CurrentPage.RenderPaneContents((IHtmlHelper<object>)GetHtml(), dataIn, model);
-#else
-            CurrentPage.RenderPaneContents((HtmlHelper<object>)GetHtml(), dataIn, model);
+            async 
 #endif
+                Task<HtmlString> RenderPageContentAsync() {
+            PageContentController.PageContentData model = (PageContentController.PageContentData)(object)ViewData.Model;
+            PageContentController.DataIn dataIn = (PageContentController.DataIn)ViewData["DataIn"];
+#if MVC6
+            await CurrentPage.RenderPaneContentsAsync((IHtmlHelper<object>)GetHtml(), dataIn, model);
             return null;
+#else
+            YetaWFManager.Syncify(async () => {
+                await CurrentPage.RenderPaneContentsAsync((HtmlHelper<object>)GetHtml(), dataIn, model);
+            });
+            return Task.FromResult<HtmlString>(new HtmlString(""));
+#endif
         }
 
         // used by templates
@@ -245,8 +250,10 @@ namespace YetaWF.Core.Pages {
 #else
         public override void ExecutePageHierarchy() {
             BeginRender(null);
-            base.ExecutePageHierarchy();
-            EndRender(null);
+            using (new YetaWFManager.NeedSync()) { // rendering needs to be sync (for templates)
+                base.ExecutePageHierarchy();
+            }
+            EndRenderAsync(null).Wait(); // Sorry, no async for you, MVC5
         }
 #endif
         public void BeginRender(ViewContext context) {
@@ -294,11 +301,11 @@ namespace YetaWF.Core.Pages {
         private string _domain { get; set; }
         private string _templateName { get; set; }
 
-        public void EndRender(ViewContext context) {
+        public async Task EndRenderAsync(ViewContext context) {
             if (IsTemplate) {
                 Manager.PopModel();
                 if (!string.IsNullOrWhiteSpace(_domain) && !string.IsNullOrWhiteSpace(_product))
-                    Manager.AddOnManager.AddTemplate(_domain, _product, _templateName);
+                    await Manager.AddOnManager.AddTemplateAsync(_domain, _product, _templateName);
             } else {
                 Manager.PopModel();
             }

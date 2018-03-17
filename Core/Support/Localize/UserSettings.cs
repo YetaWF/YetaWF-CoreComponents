@@ -1,13 +1,15 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Localize {
 
     public interface IUserSettings {
+        Task<object> ResolveUserAsync();
         object GetProperty(string name, Type type);
-        void SetProperty(string name, Type type, object value);
+        Task SetPropertyAsync(string name, Type type, object value);
     }
 
     public static class UserSettings {
@@ -18,12 +20,12 @@ namespace YetaWF.Core.Localize {
             if (UserSettingsAccess == null) return default(TYPE);
             object obj = UserSettingsAccess.GetProperty(name, typeof(TYPE));
             if (obj == null) return default(TYPE);
-            return (TYPE) obj;
+            return (TYPE)obj;
         }
-        public static void SetProperty<TYPE>(string name, TYPE value) {
-            if (UserSettingsAccess == null) 
+        public static async Task SetPropertyAsync<TYPE>(string name, TYPE value) {
+            if (UserSettingsAccess == null)
                 throw new InternalError("IUserSettings UserSettingsAccess missing");
-            UserSettingsAccess.SetProperty(name, typeof(TYPE), value);
+            await UserSettingsAccess.SetPropertyAsync(name, typeof(TYPE), value);
         }
     }
 }

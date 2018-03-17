@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
@@ -33,18 +34,20 @@ namespace YetaWF.Core.Pages {
         // IInitializeApplicationStartup
         public const string ImageType = "YetaWF_Core_PageFavIcon";
 
-        public void InitializeApplicationStartup() {
-            ImageSupport.AddHandler(ImageType, GetBytes: RetrieveImage);
+        public Task InitializeApplicationStartupAsync() {
+            ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            return Task.CompletedTask;
         }
-        private bool RetrieveImage(string name, string location, out byte[] content) {
-            content = null;
-            if (!string.IsNullOrWhiteSpace(location)) return false;
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            PageDefinition page = PageDefinition.Load(new Guid(name));
-            if (page == null) return false;
-            if (page.FavIcon_Data == null || page.FavIcon_Data.Length == 0) return false;
-            content = page.FavIcon_Data;
-            return true;
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
+            if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
+            PageDefinition page = await PageDefinition.LoadAsync(new Guid(name));
+            if (page == null) return new ImageSupport.GetImageInBytesInfo();
+            if (page.FavIcon_Data == null || page.FavIcon_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
+            return new ImageSupport.GetImageInBytesInfo() {
+                Content = page.FavIcon_Data,
+                Success = true,
+            };
         }
 
         public class DesignedPage {
@@ -63,17 +66,17 @@ namespace YetaWF.Core.Pages {
         }
 
         // this must be provided during app startup by a package implementing a page data provider
-        public static Func<string, PageDefinition> CreatePageDefinition { get; set; }
-        public static Func<Guid, PageDefinition> LoadPageDefinition { get; set; }
-        public static Func<string, PageDefinition> LoadPageDefinitionByUrl { get; set; }
-        public static Action<PageDefinition> SavePageDefinition { get; set; }
-        public static Func<Guid, bool> RemovePageDefinition { get; set; }
+        public static Func<string, Task<PageDefinition>> CreatePageDefinitionAsync { get; set; }
+        public static Func<Guid, Task<PageDefinition>> LoadPageDefinitionAsync { get; set; }
+        public static Func<string, Task<PageDefinition>> LoadPageDefinitionByUrlAsync { get; set; }
+        public static Func<PageDefinition, Task> SavePageDefinitionAsync { get; set; }
+        public static Func<Guid, Task<bool>> RemovePageDefinitionAsync { get; set; }
         public static Func<List<DesignedPage>> GetDesignedPages { get; set; }
         public static Func<List<Guid>> GetDesignedGuids { get; set; }
         public static Func<List<string>> GetDesignedUrls { get; set; }
-        public static Func<Guid, List<PageDefinition>> GetPagesFromModule { get; set; }
+        public static Func<Guid, Task<List<PageDefinition>>> GetPagesFromModuleAsync { get; set; }
 
-        public static Func<Guid?, string, string, UnifiedInfo> GetUnifiedPageInfo { get; set; }
+        public static Func<Guid?, string, string, Task<UnifiedInfo>> GetUnifiedPageInfoAsync { get; set; }
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
@@ -87,14 +90,14 @@ namespace YetaWF.Core.Pages {
             [StringLength(PageDefinition.MaxPane)]
             public string Pane { get; set; }// if blank, use first pane
             public Guid ModuleGuid { get; set; }
-            [DontSave]
-            public ModuleDefinition Module { get { return GetModule(); } set { _module = value; } }// we're caching module definition here
 
-            private ModuleDefinition GetModule()
-            {
+            public async Task<ModuleDefinition> GetModuleAsync() {
                 if (_module == null)
-                    _module = ModuleDefinition.Load(ModuleGuid);
+                    _module = await ModuleDefinition.LoadAsync(ModuleGuid);
                 return _module;
+            }
+            public void SetModule(ModuleDefinition mod) {
+                _module = mod;
             }
             ModuleDefinition _module = null;
         }
@@ -193,8 +196,8 @@ namespace YetaWF.Core.Pages {
             PageDefinition.ModuleEntry modEntry = new PageDefinition.ModuleEntry {
                 Pane = pane,
                 ModuleGuid = module.ModuleGuid,
-                Module = module,
             };
+            modEntry.SetModule(module);
             if (top)
                 ModuleDefinitions.Insert(0, modEntry);
             else
@@ -268,8 +271,8 @@ namespace YetaWF.Core.Pages {
         /// Loads a page definition.
         /// If the page doesn't exist, null is returned.
         /// </summary>
-        public static PageDefinition Load(Guid pageGuid) {
-            return PageDefinition.LoadPageDefinition(pageGuid);
+        public static async Task<PageDefinition> LoadAsync(Guid pageGuid) {
+            return await PageDefinition.LoadPageDefinitionAsync(pageGuid);
         }
         /// <summary>
         /// Creates a new temporary page definition.
@@ -280,30 +283,29 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Saves a page definition.
         /// </summary>
-        public void Save() {
+        public async Task SaveAsync() {
             if (Temporary)
                 throw new InternalError("Temporary pages cannot be saved");
             foreach (var moduleEntry in ModuleDefinitions) {
                 try {
-                    moduleEntry.Module.Temporary = false;
-                    moduleEntry.Module.Save();
+                    ModuleDefinition mod = await moduleEntry.GetModuleAsync();
+                    mod.Temporary = false;
+                    await mod.SaveAsync();
                 } catch (Exception) { }// this can fail when modules no longer exist
             }
-            PageDefinition.SavePageDefinition(this);
+            await PageDefinition.SavePageDefinitionAsync(this);
         }
 
+        public class NewPageInfo {
+            public PageDefinition Page { get; set; }
+            public string Message { get; set; }
+        }
         /// <summary>
         /// Saves a page definition.
         /// </summary>
-        /// <param name="title"></param>
-        /// <param name="description"></param>
-        /// <param name="url"></param>
-        /// <param name="modelPage"></param>
-        /// <param name="copyModules"></param>
-        /// <param name="message"></param>
-        public static PageDefinition CreateNewPage(MultiString title, MultiString description, string url, PageDefinition modelPage, bool copyModules, out string message) {
+        public static async Task<NewPageInfo> CreateNewPageAsync(MultiString title, MultiString description, string url, PageDefinition modelPage, bool copyModules) {
             try {
-                PageDefinition page = PageDefinition.CreatePageDefinition(url);
+                PageDefinition page = await PageDefinition.CreatePageDefinitionAsync(url);
                 if (modelPage != null) {
                     page.AllowedRoles = modelPage.AllowedRoles;
                     page.AllowedUsers = modelPage.AllowedUsers;
@@ -331,11 +333,13 @@ namespace YetaWF.Core.Pages {
                     page.Title = title;
                     page.Description = description;
                 }
-                message = "";
-                return page;
+                return new NewPageInfo {
+                    Page = page
+                };
             } catch (Exception exc) {
-                message = exc.Message;
-                return null;
+                return new NewPageInfo {
+                    Message = exc.Message
+                };
             }
         }
 
@@ -343,21 +347,20 @@ namespace YetaWF.Core.Pages {
         /// Removes a page definition.
         /// </summary>
         /// <param name="pageGuid"></param>
-        public static bool TryRemove(Guid pageGuid) {
-            return PageDefinition.RemovePageDefinition(pageGuid);
+        public static async Task<bool> TryRemoveAsync(Guid pageGuid) {
+            return await PageDefinition.RemovePageDefinitionAsync(pageGuid);
         }
 
         /// <summary>
         /// Loads a page definition.
         /// If the page doesn't exist, null is returned.
         /// </summary>
-        public static PageDefinition LoadFromUrl(string url) {
+        public static async Task<PageDefinition> LoadFromUrlAsync(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Not a local Url");
             int index = url.IndexOf("?");
             if (index >= 0) url = url.Truncate(index);
-            string newUrl = YetaWFManager.UrlDecodePath(url);
-            string newQs;
-            return GetPageUrlFromUrlWithSegments(newUrl, "", out newUrl, out newQs);
+            PageUrlInfo pageInfo = await GetPageUrlFromUrlWithSegmentsAsync(YetaWFManager.UrlDecodePath(url), "");
+            return pageInfo.Page;
         }
 
         // We'll accept any URL that looks like this:
@@ -365,13 +368,18 @@ namespace YetaWF.Core.Pages {
         // as there could be keywords which need to xlated to &segment=segment?...
         // we'll check if there is a page by checking the longest sequence of
         // segments, removing a pair at a time, until we find a page
-        public static PageDefinition GetPageUrlFromUrlWithSegments(string url, string qs, out string newUrl, out string newQs) {
+        public class PageUrlInfo {
+            public PageDefinition Page { get; set; }
+            public string NewUrl { get; set; }
+            public string NewQS { get; set; }
+        }
+        public static async Task<PageUrlInfo> GetPageUrlFromUrlWithSegmentsAsync(string url, string qs) {
             if (!url.StartsWith("/")) throw new InternalError("Not a local Url");
-            newUrl = url;
-            newQs = qs;
+            string newUrl = url;
+            string newQs = qs;
             PageDefinition page = null;
-            for ( ; ; ) {
-                page = PageDefinition.LoadPageDefinitionByUrl(newUrl);
+            for (;;) {
+                page = await PageDefinition.LoadPageDefinitionByUrlAsync(newUrl);
                 if (page != null)
                     break;// found it
 
@@ -387,7 +395,11 @@ namespace YetaWF.Core.Pages {
                 newQs += string.IsNullOrWhiteSpace(newQs) ? "" : "&";
                 newQs += string.Format("{0}={1}", YetaWFManager.UrlEncodeArgs(key), YetaWFManager.UrlEncodeArgs(val));
             }
-            return page;
+            return new PageUrlInfo {
+                Page = page,
+                NewUrl = newUrl,
+                NewQS = newQs,
+            };
         }
 
         public static void GetUrlFromUrlWithSegments(string url, string[] segments, int urlSegments, string origQuery, out string newUrl, out string newQs) {
@@ -428,17 +440,20 @@ namespace YetaWF.Core.Pages {
         // RENDERING
 
 #if MVC6
-        public HtmlString RenderPane(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+        public async Task<HtmlString> RenderPaneAsync(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 #else
-        public HtmlString RenderPane(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+        public async Task<HtmlString> RenderPaneAsync(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 #endif
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
             // copy page's moduleDefinitions
             List<ModuleEntry> moduleList = (from m in ModuleDefinitions select m).ToList();
             // add templatepage moduleDefinitions
-            if (!Manager.EditMode && TemplatePage != null)
-                moduleList.AddRange(TemplatePage.ModuleDefinitions);
+            if (!Manager.EditMode) {
+                PageDefinition templatePage = await GetTemplatePageAsync();
+                if (templatePage != null)
+                    moduleList.AddRange(templatePage.ModuleDefinitions);
+            }
 
             // render all modules that are on this pane
             StringBuilder sb = new StringBuilder();
@@ -458,16 +473,16 @@ namespace YetaWF.Core.Pages {
                     empty = false;
                     ModuleDefinition module = null;
                     try {
-                        module = modEntry.Module;
+                        module = await modEntry.GetModuleAsync();
                         if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                            sb.Append(module.RenderModule(htmlHelper).ToString());
+                            sb.Append((await module.RenderModuleAsync(htmlHelper)).ToString());
                     } catch (Exception exc) {
                         sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
-                        ModuleDefinition modServices = ModuleDefinition.Load(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
+                        ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                         if (modServices != null) {
-                            ModuleAction action = modServices.GetModuleAction("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
+                            ModuleAction action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
                             if (action != null) {
-                                HtmlString act = action.Render(ModuleAction.RenderModeEnum.NormalLinks);
+                                HtmlString act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
                                 if (act != HtmlStringExtender.Empty) { // only render if the action actually is available
                                     sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
                                     sb.Append("<li>");
@@ -529,7 +544,7 @@ namespace YetaWF.Core.Pages {
                 leftOver = (from l in leftOver where !Manager.CurrentPage.Panes.Contains(l) select l).ToList();
                 // now render what's left
                 foreach (string p in leftOver) {
-                    sb.Append(RenderPane(htmlHelper, p, "yGeneratedPane"));
+                    sb.Append(await RenderPaneAsync(htmlHelper, p, "yGeneratedPane"));
                 }
             }
             return new HtmlString(sb.ToString());
@@ -594,16 +609,16 @@ namespace YetaWF.Core.Pages {
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>
 #if MVC6
-        public void RenderPaneContents(IHtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+        public async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #else
-        public void RenderPaneContents(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+        public async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
 #endif
         {
             Manager.SetSkinOptionsContent();
             if (dataIn.Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
             foreach (string pane in dataIn.Panes) {
 
-                string paneHtml = RenderPane(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false).ToString();
+                string paneHtml = (await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false)).ToString();
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
@@ -615,7 +630,7 @@ namespace YetaWF.Core.Pages {
                     });
                 }
             }
-            model.Addons = htmlHelper.RenderUniqueModuleAddOns(ExcludedGuids: dataIn.UnifiedAddonMods).ToString();
+            model.Addons = (await htmlHelper.RenderUniqueModuleAddOnsAsync(ExcludedGuids: dataIn.UnifiedAddonMods)).ToString();
 
             // clear any http errors that may have occurred if a module failed (otherwise our ajax request will fail)
             Manager.CurrentResponse.StatusCode = 200;
@@ -723,15 +738,13 @@ namespace YetaWF.Core.Pages {
         // TEMPLATE
         // TEMPLATE
 
-        public PageDefinition TemplatePage {
-            get {
-                if (!_templatePageEvaluated) {
-                    _templatePageEvaluated = true;
-                    if (TemplateGuid != null)
-                        _templatePage = PageDefinition.Load((Guid)TemplateGuid);
-                }
-                return _templatePage;
+        public async Task<PageDefinition> GetTemplatePageAsync() {
+            if (!_templatePageEvaluated) {
+                _templatePageEvaluated = true;
+                if (TemplateGuid != null)
+                    _templatePage = await PageDefinition.LoadAsync((Guid)TemplateGuid);
             }
+            return _templatePage;
         }
         private PageDefinition _templatePage = null;
         private bool _templatePageEvaluated = false;
