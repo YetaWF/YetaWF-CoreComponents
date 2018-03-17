@@ -68,7 +68,7 @@ namespace YetaWF.Core.Views.Shared {
             return __ResStr("dropdownText", "Manage");
         }
         public static int GetDropdownActionWidthInChars() {
-            string s = __ResStr("dropdownWidth", "12");
+            string s = __ResStr("dropdownWidth", "11");
             return Convert.ToInt32(s);
         }
     }
