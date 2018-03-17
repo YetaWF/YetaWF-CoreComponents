@@ -234,91 +234,11 @@ namespace YetaWF.Core.Image {
             }
             return size;
         }
-        /// <summary>
-        /// Replace all ..href="/File.image..." and ..src="/File.image..." with real (temp) files so we don't need to use the httphandler
-        /// </summary>
-        /// <param name="viewHtml">Html to edit</param>
-        /// <remarks>
-        /// The img tag, particularly the src= portion must follow the exact format parsed here. If args are in a different order, it won't work.
-        /// </remarks>
-        internal static string ProcessImagesAsStatic(string viewHtml) {
-            viewHtml = _imgStatReWH.Replace(viewHtml, new MatchEvaluator(SubstImgWH));
-            viewHtml = _imgStatRePercent.Replace(viewHtml, new MatchEvaluator(SubstImgPercent));
-            viewHtml = _imgStatRe.Replace(viewHtml, new MatchEvaluator(SubstImg));
-            return viewHtml;
-        }
-        static Regex _imgStatRe = new Regex(@"(?'kwd'\s+(src|href)=)""?/File.image\?Type=(?'type'[^&""]+?)&(amp;)?Location=(?'location'[^&""]*?)&(amp;)?Name(=)?(?'name'[^&""]*?)(?'rem'(""|&))", RegexOptions.Compiled | RegexOptions.Singleline);
-        static Regex _imgStatReWH = new Regex(@"(?'kwd'\s+(src|href)=)""?/File.image\?Type=(?'type'[^&""]+?)&(amp;)?Location=(?'location'[^&""]*?)&(amp;)?Name=(?'name'[^&""]*?)&(amp;)?Width=(?'width'[^&""]+?)&(amp;)?Height=(?'height'[^&""]+?)(?'rem'(""|&))", RegexOptions.Compiled | RegexOptions.Singleline);
-        static Regex _imgStatRePercent = new Regex(@"(?'kwd'\s+(src|href)=)""?/File.image\?Type=(?'type'[^&""]+?)&(amp;)?Location=(?'location'[^&""]*?)&(amp;)?Name=(?'name'[^&""]*?)&(amp;)?Percent=(?'percent'[^&""]+?)(?'rem'(""|&))", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        private static string SubstImg(Match m) {
-            string retString = m.Value;
-            try {
-                string type = YetaWFManager.UrlDecodeArgs(m.Groups["type"].Value);
-                string loc = YetaWFManager.UrlDecodeArgs(m.Groups["location"].Value);
-                if (string.IsNullOrWhiteSpace(loc)) loc = "loc";
-                string name = YetaWFManager.UrlDecodeArgs(m.Groups["name"].Value);
-                string rem = m.Groups["rem"].Value;
-                if (string.IsNullOrWhiteSpace(name)) name = "NoImage.png";
-                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}",
-                    type, loc.Replace(",", "_"), FileData.MakeValidFileSystemFileName(name)));
-                //$$ASYNCIFY
-                YetaWFManager.Syncify(async () => {
-                    if (!File.Exists(physFile))
-                        physFile = await GetImageFromArgsAsync(physFile, type, loc, name);
-                });
-                return string.Format(@"{0}""{1}{2}", m.Groups["kwd"].Value, YetaWFManager.PhysicalToUrl(physFile), rem);
-            } catch { }
-            return retString;
-        }
-        private static string SubstImgWH(Match m) {
-            string retString = m.Value;
-            try {
-                string type = YetaWFManager.UrlDecodeArgs(m.Groups["type"].Value);
-                string loc = YetaWFManager.UrlDecodeArgs(m.Groups["location"].Value);
-                if (string.IsNullOrWhiteSpace(loc)) loc = "loc";
-                string name = YetaWFManager.UrlDecodeArgs(m.Groups["name"].Value);
-                if (string.IsNullOrWhiteSpace(name)) name = "NoImage.png";
-                int width = Convert.ToInt32(m.Groups["width"].Value);
-                int height = Convert.ToInt32(m.Groups["height"].Value);
-                string rem = m.Groups["rem"].Value;
-                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}_{3}_{4}",
-                    type, loc.Replace(",", "_"), width, height, FileData.MakeValidFileSystemFileName(name)));
-                //$$ASYNCIFY
-                YetaWFManager.Syncify(async () => {
-                    if (!File.Exists(physFile))
-                        physFile = await GetImageFromArgsAsync(physFile, type, loc, name, width, height);
-                });
-                return string.Format(@"{0}""{1}{2}", m.Groups["kwd"].Value, YetaWFManager.PhysicalToUrl(physFile), rem);
-            } catch { }
-            return retString;
-        }
-        private static string SubstImgPercent(Match m) {
-            string retString = m.Value;
-            try {
-                string type = YetaWFManager.UrlDecodeArgs(m.Groups["type"].Value);
-                string loc = YetaWFManager.UrlDecodeArgs(m.Groups["location"].Value);
-                if (string.IsNullOrWhiteSpace(loc)) loc = "loc";
-                string name = YetaWFManager.UrlDecodeArgs(m.Groups["name"].Value);
-                if (string.IsNullOrWhiteSpace(name)) name = "NoImage.png";
-                int percent = Convert.ToInt32(m.Groups["percent"].Value);
-                string rem = m.Groups["rem"].Value;
-                string physFile = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder, Manager.CurrentSite.Identity.ToString(), string.Format("{0}_{1}_{2}p_{3}",
-                    type, loc.Replace(",", "_"), percent, FileData.MakeValidFileSystemFileName(name)));
-                //$$ASYNCIFY
-                YetaWFManager.Syncify(async () => {
-                    if (!File.Exists(physFile))
-                        physFile = await GetImageFromArgsAsync(physFile, type, loc, name, percent: percent);
-                });
-                return string.Format(@"{0}""{1}{2}", m.Groups["kwd"].Value, YetaWFManager.PhysicalToUrl(physFile), rem);
-            } catch { }
-            return retString;
-        }
-
-        static Regex _imgCDNRe = new Regex(@"(?'kwd'\s+(src|href)=)(?'quot'(""|'))(?'url'/File(|Hndlr)\.image\?Type=[^\'\""]*)", RegexOptions.Compiled | RegexOptions.Singleline);
+        static Regex _imgCDNRe = new Regex(@"(?'kwd'\s+(src|href)=)(?'quot'(""|'))(?'url'/FileHndlr\.image\?Type=[^\'\""]*)", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
-        /// Replace all ..href="/File.image..." and ..src="/File.image..." with CDN Url
+        /// Replace all ..href="/FileHndlr.image..." and ..src="/FileHndlr.image..." with CDN Url
         /// </summary>
         /// <param name="viewHtml">Html to edit</param>
         /// <remarks>
@@ -337,80 +257,6 @@ namespace YetaWF.Core.Image {
                 return string.Format(@"{0}{1}{2}", kwd, quot, Manager.GetCDNUrl(url));
             } catch { }
             return retString;
-        }
-        private static async Task<string> GetImageFromArgsAsync(string physFile, string typeVal, string locationVal, string nameVal, int width = -1, int height = -1, bool stretch = false, int percent = -1) {
-
-            if (!string.IsNullOrWhiteSpace(typeVal)) {
-                ImageHandlerEntry entry = (from h in HandlerEntries where h.Type == typeVal select h).FirstOrDefault();
-                if (entry != null) {
-                    if (!string.IsNullOrWhiteSpace(nameVal)) {
-                        string[] parts = nameVal.Split(new char[] { ImageSeparator });
-                        if (parts.Length > 1)
-                            nameVal = parts[0];
-                    }
-
-                    // check if this is a temporary (uploaded image)
-                    FileUpload fileUpload = new FileUpload();
-                    string filePath = fileUpload.GetTempFilePathFromName(nameVal, locationVal);
-
-                    // if we don't have an image yet, try to get the file from the registered type
-                    if (string.IsNullOrWhiteSpace(filePath) && entry.GetImageAsFileAsync != null) {
-                        GetImageAsFileInfo info = await entry.GetImageAsFileAsync(nameVal, locationVal);
-                        if (info.Success)
-                            if (File.Exists(info.File))
-                                filePath = info.File;
-                    }
-                    // if we don't have an image yet, try to get the raw bytes from the registered type
-                    System.Drawing.Image img = null;
-                    byte[] bytes = null;
-                    if (string.IsNullOrWhiteSpace(filePath) && entry.GetImageInBytesAsync != null) {
-                        GetImageInBytesInfo info = await entry.GetImageInBytesAsync(nameVal, locationVal);
-                        bytes = info.Content;
-                        if (info.Success) {
-                            using (MemoryStream ms = new MemoryStream(info.Content)) {
-                                img = System.Drawing.Image.FromStream(ms);
-                            }
-                        }
-                    }
-                    // if there is no image, use a default image
-                    if (img == null && string.IsNullOrWhiteSpace(filePath)) {
-                        Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                        string addonUrl = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "Image");
-                        filePath = YetaWFManager.UrlToPhysical(Path.Combine(addonUrl, "Images", "NoImage.png"));
-                        if (!File.Exists(filePath))
-                            throw new InternalError("The image {0} is missing", filePath);
-                    }
-
-                    // resize the image if necessary
-                    if (percent > 0) {
-                        // resize to fit
-                        if (img != null && bytes != null) {
-                            img = NewImageSize(img, percent, stretch, out bytes);
-                        } else if (filePath != null) {
-                            img = NewImageSize(filePath, percent, stretch, out bytes);
-                            filePath = null;
-                        }
-                    } else {
-                        if (width > 0 && height > 0) {
-                            // resize to fit
-                            if (img != null && bytes != null) {
-                                img = NewImageSize(img, width, height, stretch, out bytes);
-                            } else if (filePath != null) {
-                                img = NewImageSize(filePath, width, height, stretch, out bytes);
-                                filePath = null;
-                            }
-                        }
-                    }
-                    if (img != null) {
-                        YetaWF.Core.IO.DirectoryIO.CreateFolder(Path.GetDirectoryName(physFile));
-                        img.Save(physFile);
-                        img.Dispose();
-                        filePath = physFile;
-                    }
-                    return filePath;
-                }
-            }
-            return physFile;
         }
     }
 }

@@ -3,7 +3,7 @@
 <div class="yt_image t_edit" id="@ControlId">
     @Html.RenderHidden("", Model)  @*where the actual filename is returned*@
     <div class="t_image">
-        @Html.RenderImage("", Model, ForceHttpHandler: true, Alt: __ResStr("imgAlt", "Preview Image")) @*Image Preview *@
+        @Html.RenderImage("", Model, Alt: __ResStr("imgAlt", "Preview Image")) @*Image Preview *@
     </div>
     <div class="t_info">
         @Html.RenderImageAttributes("", Model) @*Image Attributes*@

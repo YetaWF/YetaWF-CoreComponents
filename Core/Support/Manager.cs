@@ -1702,8 +1702,7 @@ namespace YetaWF.Core.Support {
                             url.StartsWith(Globals.AddOnsUrl) ||
                             url.StartsWith(Globals.AddOnsCustomUrl) ||
                             url.StartsWith(Globals.AddonsBundlesUrl) ||
-                            url.StartsWith("/FileHndlr.image") ||
-                            url.StartsWith("/File.image")) {
+                            url.StartsWith("/FileHndlr.image")) {
                         // leave useAlt as is
                     } else
                         useAlt = false;

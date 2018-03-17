@@ -64,8 +64,7 @@ namespace YetaWF.Core.Views.Shared {
 #endif
                 string CacheBuster = null,
                 string Alt = null,
-                bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
-                bool ForceHttpHandler = false) {
+                bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any) {
 
             string imageType = htmlHelper.GetControlInfo<string>(name, "ImageType");
             int width, height;
@@ -88,12 +87,12 @@ namespace YetaWF.Core.Views.Shared {
                 bool showMissing = htmlHelper.GetControlInfo<bool>(name, "ShowMissing", true);
                 if (string.IsNullOrWhiteSpace(model) && !showMissing) return HtmlStringExtender.Empty;
 
-                string imgTag = RenderImage(imageType, width, height, model, CacheBuster: CacheBuster, Alt:Alt, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
+                string imgTag = RenderImage(imageType, width, height, model, CacheBuster: CacheBuster, Alt:Alt, ExternalUrl: ExternalUrl, SecurityType: SecurityType);
 
                 bool linkToImage = htmlHelper.GetControlInfo<bool>(name, "LinkToImage", false);
                 if (linkToImage) {
                     TagBuilder link = new TagBuilder("a");
-                    string imgUrl = FormatUrl(imageType, null, model, CacheBuster: CacheBuster, ForceHttpHandler: ForceHttpHandler);
+                    string imgUrl = FormatUrl(imageType, null, model, CacheBuster: CacheBuster);
                     link.MergeAttribute("href", imgUrl);
                     link.MergeAttribute("target", "_blank");
                     link.MergeAttribute("rel", "noopener noreferrer");
@@ -104,8 +103,8 @@ namespace YetaWF.Core.Views.Shared {
             }
         }
         public static string RenderImage(string imageType, int width, int height, string model,
-                string CacheBuster = null, string Alt = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, bool ForceHttpHandler = false) {
-            string url = FormatUrl(imageType, null, model, width, height, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType, ForceHttpHandler: ForceHttpHandler);
+                string CacheBuster = null, string Alt = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any) {
+            string url = FormatUrl(imageType, null, model, width, height, CacheBuster: CacheBuster, ExternalUrl: ExternalUrl, SecurityType: SecurityType);
             TagBuilder img = new TagBuilder("img");
             img.AddCssClass("t_preview");
             img.Attributes.Add("src", url);
@@ -124,29 +123,21 @@ namespace YetaWF.Core.Views.Shared {
             return new HtmlString(__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));
         }
 #if MVC6
-        public static HtmlString RenderImageDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
+        public static HtmlString RenderImageDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null) {
 #else
-        public static HtmlString RenderImageDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null, bool ForceHttpHandler = false) {
+        public static HtmlString RenderImageDisplay(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0, string CacheBuster = null, string Alt = null) {
 #endif
-            return htmlHelper.RenderImage(name, model, Alt: Alt, ForceHttpHandler: ForceHttpHandler);
+            return htmlHelper.RenderImage(name, model, Alt: Alt);
         }
         public static string FormatUrl(string imageType, string location, string name, int width = 0, int height = 0,
                 string CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
-                bool Stretch = false,
-                bool ForceHttpHandler = false) { // TODO: research whether can we get rid of ForceHttpHandler
+                bool Stretch = false) {
             string url;
             if (width > 0 && height > 0) {
-                if (ForceHttpHandler)
-                    url = string.Format(Addons.Templates.Image.FormatUrlWithSizeForceHttpHandler, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name),
-                        width, height, Stretch ? "1" : "0");
-                else
-                    url = string.Format(Addons.Templates.Image.FormatUrlWithSize, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name),
-                        width, height, Stretch ? "1" : "0");
+                url = string.Format(Addons.Templates.Image.FormatUrlWithSize, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name),
+                    width, height, Stretch ? "1" : "0");
             } else {
-                if (ForceHttpHandler)
-                    url = string.Format(Addons.Templates.Image.FormatUrlForceHttpHandler, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
-                else
-                    url = string.Format(Addons.Templates.Image.FormatUrl, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
+                url = string.Format(Addons.Templates.Image.FormatUrl, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
             }
             if (!string.IsNullOrWhiteSpace(CacheBuster))
                 url += url.AddUrlCacheBuster(CacheBuster);

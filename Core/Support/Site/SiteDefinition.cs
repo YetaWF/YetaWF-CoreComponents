@@ -431,18 +431,6 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         public bool DisableMinimizeFUOC { get; set; }
 
-        [Category("Pages"), Caption("Use HttpHandler"), Description("Defines whether images and CSS files use an HttpHandler (can only be set using Appsettings.json)")]
-        [UIHint("Boolean")]
-        public bool UseHttpHandler {
-            get {
-                if (useHttpHandler == null) {
-                    useHttpHandler = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseHttpHandler", true);
-                }
-                return (bool)useHttpHandler;
-            }
-        }
-        private bool? useHttpHandler = null;
-
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
         [UIHint("Text80"), StringLength(MaxCopyright)]
         public string Copyright { get; set; }

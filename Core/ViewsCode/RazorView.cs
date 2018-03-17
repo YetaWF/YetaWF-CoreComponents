@@ -347,13 +347,9 @@ namespace YetaWF.Core.Views
 
         private static string ProcessImages(string viewHtml) {
             if (!Manager.IsPostRequest) return viewHtml; // we'll handle it in RazorPage::PostProcessHtml
-            if (Manager.CurrentSite.UseHttpHandler) {
-                if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
-                    return ImageSupport.ProcessImagesAsCDN(viewHtml);
-                return viewHtml;
-            } else {
-                return ImageSupport.ProcessImagesAsStatic(viewHtml);
-            }
+            if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
+                return ImageSupport.ProcessImagesAsCDN(viewHtml);
+            return viewHtml;
         }
     }
 }

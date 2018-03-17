@@ -31,7 +31,7 @@
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
                 <Name Value="dropdownWidth" />
-                <Text Value="12" />
+                <Text Value="11" />
               </Properties>
             </Object>
           </Value>
