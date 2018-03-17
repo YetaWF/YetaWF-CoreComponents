@@ -2,9 +2,9 @@
 @inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
 @using (Form("EditApply_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial")) {
     @PartialForm(UseAreaViewName: false)
-    @FormButtons(new FormButton[] {
+    @FormButtonsAsync(new FormButton[] {
         new FormButton() { ButtonType= ButtonTypeEnum.Apply, },
         new FormButton() { ButtonType= ButtonTypeEnum.Submit, },
         new FormButton() { ButtonType= ButtonTypeEnum.Cancel, },
-    });
+    }).Result;
 }

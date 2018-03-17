@@ -73,7 +73,6 @@ namespace YetaWF.Core.Views
 #if MVC6
             // NOTE: the page has not been activated when using MVC6 so all data has to be extracted from context.
             // context is null with MVC5
-            //$$$ update to match mvc5
             ModuleDefinition module = (ModuleDefinition)context.RouteData.Values[Globals.RVD_ModuleDefinition];
             context.ViewData[Globals.RVD_ModuleDefinition] = module;
             TModel model = (TModel) context.ViewData.Model;
@@ -290,16 +289,16 @@ namespace YetaWF.Core.Views
 #endif
             return new HtmlString(viewHtml);
         }
-        public HtmlString FormButtons(List<FormButton> buttons, int dummy = 0) {
-            return FormButtons(buttons.ToArray());
+        public async Task<HtmlString> FormButtonsAsync(List<FormButton> buttons, int dummy = 0) {
+            return await FormButtonsAsync(buttons.ToArray());
         }
 
-        public HtmlString FormButtons(FormButton[] buttons, int dummy = 0) {
+        public async Task<HtmlString> FormButtonsAsync(FormButton[] buttons, int dummy = 0) {
             HtmlBuilder hb = new HtmlBuilder();
             if (Module.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
                 foreach (FormButton button in buttons) {
-                    hb.Append(button.RenderAsync().Result);//$$$$ this is no good
+                    hb.Append(await button.RenderAsync());
                 }
                 hb.Append("</div>");
             }

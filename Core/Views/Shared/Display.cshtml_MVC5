@@ -2,7 +2,7 @@
 @inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
 @using (Form("Display_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial")) {
     @PartialForm(UseAreaViewName: false)
-    @FormButtons(new FormButton[] {
+    @FormButtonsAsync(new FormButton[] {
         new FormButton() { ButtonType = ButtonTypeEnum.Cancel, Text= Manager.IsInPopup ? this.__ResStr("btnClose", "Close") : this.__ResStr("btnReturn", "Return") },
-    });
+    }).Result;
 }
