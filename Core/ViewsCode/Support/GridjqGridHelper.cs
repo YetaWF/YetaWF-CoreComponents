@@ -93,7 +93,7 @@ namespace YetaWF.Core.Views.Shared {
                     gridCol.ChWidth = gridCol.PixWidth = 0;
                     gridCol.Alignment = GridHAlignmentEnum.Center;
                     if (actionStyle == GridHelper.GridActionsEnum.DropdownMenu) {
-                        charWidth = 12;//$$$
+                        charWidth = gridDef.DropdownActionWidth??12;
                     } else {
                         width = 10 + (Math.Abs(gridCol.Icons) * (16 + 4) + 10);
                         charWidth = 0;

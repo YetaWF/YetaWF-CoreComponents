@@ -8,6 +8,7 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using System.Threading.Tasks;
+using System;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -52,7 +53,7 @@ namespace YetaWF.Core.Views.Shared {
                         string id = Manager.UniqueId();
                         string idButton = id + "_btn";
                         string idMenu = id + "_menu";
-                        hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, __ResStr("manage", "Manage"));
+                        hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, GetDropdownActionString());
                         hb.Append(await menuActions.RenderAsync(htmlHelper, idMenu, Globals.CssGridActionMenu));
 
                         ScriptBuilder sb = new ScriptBuilder();
@@ -62,6 +63,13 @@ namespace YetaWF.Core.Views.Shared {
                         return hb.ToHtmlString();
                     }
             }
+        }
+        public static string GetDropdownActionString() {
+            return __ResStr("dropdownText", "Manage");
+        }
+        public static int GetDropdownActionWidthInChars() {
+            string s = __ResStr("dropdownWidth", "12");
+            return Convert.ToInt32(s);
         }
     }
 }
