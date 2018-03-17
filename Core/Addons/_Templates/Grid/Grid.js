@@ -65,6 +65,22 @@ jQuery.extend(jQuery.jgrid.nav, {
     refreshstate: 'current',
     refresh: false,
 });
+// translate column widths given in char width to pixels
+YetaWF_Grid.setColumnWidths = function ($grid, options) {
+    var colModel = options.colModel;
+    debugger;
+    var w = $grid.attr("data-charavgw");
+    if (!w) throw "No data-charavgw attribute on grid";/*DEBUG*/
+    for (var i = 0; i < colModel.length; i++) {
+        var entry = colModel[i];
+        if (entry.__charWidth) {
+            var cw = entry.__charWidth;
+            if (cw > 0) {
+                entry.width = cw * w;
+            }
+        }
+    }
+}
 // modify url post data to retrieve data
 YetaWF_Grid.modifySend = function ($grid, settingsModuleGuid, options, xhr, settings) {
     'use strict';

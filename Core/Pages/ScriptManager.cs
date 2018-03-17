@@ -356,7 +356,7 @@ namespace YetaWF.Core.Pages {
                 if (!fullUrl.IsAbsoluteUrl()) {
                     string path = YetaWFManager.UrlToPhysical(fullUrl);
                     if (!File.Exists(path))
-                        throw new InternalError("File {0} not found", fullUrl);
+                        throw new InternalError($"File {path} not found for {fullUrl}");
                 }
                 _ScriptFiles.Add(key);
                 _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = fullUrl, Bundle = bundle, Last = last, Async = async, Defer = defer });

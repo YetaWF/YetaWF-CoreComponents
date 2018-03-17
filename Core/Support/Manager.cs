@@ -1383,9 +1383,9 @@ namespace YetaWF.Core.Support {
             CharSizeStack.Add(_charSize);
         }
         public void NewCharSize(int width, int height) {
+            PushCharSize();
             CharWidthAvg = width;
             CharHeight = height;
-            PushCharSize();
         }
         /// <summary>
         /// Contains the last date/time updated while rendering a page.

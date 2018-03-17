@@ -120,9 +120,10 @@ namespace YetaWF.Core.Views.Shared {
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);
             tag.AddCssClass("yt_dropdownlist_base");
             string id = htmlHelper.MakeId(tag);
-            if (useKendo)
+            if (useKendo) {
                 tag.Attributes.Add("data-needinit", "");
-            else
+                tag.Attributes.Add("data-charavgw", Manager.CharWidthAvg.ToString());
+            } else
                 tag.AddCssClass("t_native");
 
             HtmlBuilder tagHtml = new HtmlBuilder();

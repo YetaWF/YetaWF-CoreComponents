@@ -207,14 +207,6 @@ YetaWF_Forms.submit = function ($form, useValidation, extraData, successFunc, fa
             if (originList.length > 5)// only keep the last 5 urls
                 originList = originList.slice(originList.length - 5);
         }
-        // include the character dimension info
-        {
-            var width, height;
-            var $mod = YetaWF_Basics.getModuleFromTag(form);
-            width = $mod.attr('data-charwidthavg');
-            height = $mod.attr('data-charheight');
-            formData = formData + "&" + YGlobals.Link_CharInfo + "=" + width.toString() + ',' + height.toString();
-        }
 
         formData = formData + "&" + YGlobals.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
         // add the status of the Pagecontrol

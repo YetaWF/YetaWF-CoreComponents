@@ -20,7 +20,9 @@
     }
 }
 
-<table id="@Model.Id" class="yt_grid @(YetaWF.Core.Addons.Forms.CssFormNoSubmitContents) t_display" data-fieldprefix="@Html.GetDataFieldPrefix(Model)" @Html.Raw(dataDelete) @Html.Raw(dataDisplay) @Html.Raw(dataExtra)></table>
+<table id="@Model.Id" class="yt_grid @(YetaWF.Core.Addons.Forms.CssFormNoSubmitContents) t_display" 
+       data-fieldprefix="@Html.GetDataFieldPrefix(Model)" @Html.Raw(dataDelete) @Html.Raw(dataDisplay) @Html.Raw(dataExtra)
+       data-charavgw=@Manager.CharWidthAvg.ToString()></table>
 <div id="@(Model.Id)_Pager"></div>
 
 @{
@@ -97,7 +99,7 @@
                 }
             },
         };
-
+        YetaWF_Grid.setColumnWidths($grid, options);
         $grid.jqGrid(options);
 
         $grid.jqGrid('filterToolbar',{searchOperators : true});

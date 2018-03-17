@@ -78,7 +78,6 @@ namespace YetaWF.Core {
         [JS] public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
         [JS] public const string Link_PageControl = "!Pagectl"; // show page control module
              public const string Link_NoPageControl = "!Nopagectl"; // no page control module
-        [JS] public const string Link_CharInfo = "!ci"; // character info (char width, char height) for module issuing req.
         [JS] public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
         [JS] public const string Link_EditMode = "!Edit"; // site edit mode
         [JS] public const string Link_NoEditMode = "!Noedit"; // site display mode

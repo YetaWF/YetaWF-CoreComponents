@@ -1051,18 +1051,6 @@ $(document).ready(function () {
             }
         }
 
-        var width, height;
-        var $mod = YetaWF_Basics.getModuleFromTag_Cond($t);
-        if ($mod != null) {
-            width = $mod.attr('data-charwidthavg');
-            height = $mod.attr('data-charheight');
-        } else {
-            width = YVolatile.Basics.CharWidthAvg;
-            height = YVolatile.Basics.CharHeight;
-        }
-        uri.removeSearch(YGlobals.Link_CharInfo);
-        uri.addSearch(YGlobals.Link_CharInfo, width + ',' + height);
-
         // fix the url to include where we came from
         var target = $t.attr("target");
         if ((target == undefined || target == "" || target == "_self") && $t.attr(YConfigs.Basics.CssSaveReturnUrl) != undefined) {
