@@ -1,6 +1,6 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
-@using (Form("Browse_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial")) {
+@using (CreateFormAsync("Browse_Partial", ActionName: ViewContext.RouteData.Values["action"] + "_Partial").Result) {
     // extract grid definition from model (we don't have direct access)
     @PartialForm(UseAreaViewName: false)
 }

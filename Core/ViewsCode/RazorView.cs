@@ -224,9 +224,10 @@ namespace YetaWF.Core.Views
         // FORM
         // FORM
 
-        protected MvcForm Form(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
+        protected async Task<MvcForm> CreateFormAsync(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) { 
+
             Manager.NextUniqueIdPrefix();
-            Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms").Wait(); // it's only done once and would complicate things a lot //TODO:$$$ move/remove
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");
 
             _viewName = viewName;
             if (string.IsNullOrWhiteSpace(ActionName))
