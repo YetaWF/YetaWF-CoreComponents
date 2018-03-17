@@ -138,7 +138,7 @@ namespace YetaWF.Core.Modules {
             ModuleDefinition mod = null;
             try {
                 await StringLocks.DoActionAsync(permGuid.ToString(), async () => {
-                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid); //$$ should this use LoadAsync? 
+                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
                     if (mod == null) {
                         mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
                         if (!mod.IsModuleUnique)
@@ -169,7 +169,7 @@ namespace YetaWF.Core.Modules {
             ModuleDefinition mod = null;
             try {
                 await StringLocks.DoActionAsync(permGuid.ToString(), async () => {
-                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);//$$ should this use LoadAsync? 
+                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
                     if (mod == null) {
                         mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
                         if (!mod.IsModuleUnique)
@@ -203,7 +203,7 @@ namespace YetaWF.Core.Modules {
             ModuleDefinition mod = null;
             try {
                 await StringLocks.DoActionAsync(moduleGuid.ToString(), async () => {
-                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);//$$ should this use LoadAsync? 
+                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);
                     if (mod == null) {
                         Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
                         mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);

@@ -185,7 +185,7 @@ namespace YetaWF.Core.Support {
             List<string> cookiesToClear = new List<string>();
             foreach (string name in context.Request.Cookies.Keys) cookiesToClear.Add(name);
             foreach (string name in cookiesToClear) {
-                //$$context.Response.Cookies.Delete(name);
+                context.Response.Cookies.Delete(name);
             }
             // this cookie is added by filehndlr.image
             //context.Response.Cookies.Delete("ASP.NET_SessionId");

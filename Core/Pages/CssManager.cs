@@ -214,7 +214,7 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("File {0} not found - can't be processed", fullPath);
 
             string extension = Path.GetExtension(fullPath);
-            string minPathUrl = fullPath.Remove(fullPathUrl.Length - extension.Length);
+            string minPathUrl = fullPathUrl.Remove(fullPathUrl.Length - extension.Length);
             string minPathUrlWithCharInfo = minPathUrl;
 
             // add character size to css
