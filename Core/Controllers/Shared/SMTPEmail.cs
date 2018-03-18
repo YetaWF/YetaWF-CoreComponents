@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -33,7 +34,7 @@ namespace YetaWF.Core.Controllers.Shared {
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_SMTPServer_SendTestEmail)]
         [ExcludeDemoMode]
-        public async System.Threading.Tasks.Task<ActionResult> SendTestEmail(string server, int port, SMTPServer.AuthEnum authentication, string username, string password, bool ssl) {
+        public async Task<ActionResult> SendTestEmail(string server, int port, SMTPServer.AuthEnum authentication, string username, string password, bool ssl) {
             SendEmail.SendEmail sendEmail = new SendEmail.SendEmail();
             string subject = this.__ResStr("emailSubj", "Test Message");
             object parms = new {

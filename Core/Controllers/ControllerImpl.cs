@@ -13,6 +13,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
 using System.Threading.Tasks;
+using YetaWF.Core.Log;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,40 +46,6 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected TMod Module { get { return (TMod)CurrentModule; } }
-
-        /// <summary>
-        /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller. Can be used with a base class to get the derived module's module definitions.
-        /// </summary>
-        protected override async Task<ModuleDefinition> GetModuleAsync() {
-            if (!HaveCurrentModule) {
-                ModuleDefinition mod = null;
-                if (Manager.IsGetRequest) {
-                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
-                    if (mod == null) {
-                        string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
-                        if (string.IsNullOrWhiteSpace(moduleGuid))
-                            throw new InternalError("Missing QueryString[{0}] value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
-                        Guid guid = new Guid(moduleGuid);
-                        mod = await ModuleDefinition.LoadAsync(guid);
-                    }
-                } else if (Manager.IsPostRequest) {
-                    mod = (TMod)RouteData.Values[Globals.RVD_ModuleDefinition];
-                    if (mod == null) {
-                        string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
-                        if (string.IsNullOrWhiteSpace(moduleGuid))
-                            moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
-                        if (string.IsNullOrWhiteSpace(moduleGuid))
-                            throw new InternalError("Missing {0} value in controller for module {1} - {2}", Basics.ModuleGuid, ModuleName, GetType().Namespace);
-                        Guid guid = new Guid(moduleGuid);
-                        mod = await ModuleDefinition.LoadAsync(guid);
-                    }
-                }
-                if (mod == null)
-                    throw new InternalError("No ModuleDefinition available in controller {0} {1}.", GetType().Namespace, ClassName);
-                CurrentModule = mod;
-            }
-            return CurrentModule;
-        }
     }
 
     /// <summary>
@@ -259,14 +226,15 @@ namespace YetaWF.Core.Controllers
         /// <param name="filterContext">Information about the current request and action.</param>
 #if MVC6
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
+            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) { 
+            Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
             YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
 #endif
-                await SetupEnvironmentInfoAsync();
-                base.OnActionExecuting(filterContext);
 
-                if (Manager.IsPostRequest) {
+            await SetupActionContextAsync(filterContext);
+            if (Manager.IsPostRequest) {
                     // find the unique Id prefix (saved as hidden field in Form)
                     string uniqueIdPrefix = null;
 #if MVC6
@@ -300,7 +268,8 @@ namespace YetaWF.Core.Controllers
                 PermissionAttribute permAttr = (PermissionAttribute)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
                 if (permAttr != null)
                     level = permAttr.Level;
-                ModuleDefinition mod = await GetModuleAsync();
+
+                ModuleDefinition mod = CurrentModule;
                 if (!mod.IsAuthorized(level)) {
                     if (Manager.IsPostRequest) {
 #if MVC6
@@ -380,7 +349,11 @@ namespace YetaWF.Core.Controllers
                     ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
                 }
 #if MVC6
-                await next();
+                await base.OnActionExecutionAsync(filterContext, next);
+#else
+                base.OnActionExecuting(filterContext);
+#endif
+#if MVC6
 #else
             }); // End of Syncify
 #endif

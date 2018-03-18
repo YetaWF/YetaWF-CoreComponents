@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zlib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,6 +15,7 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Models;
 using YetaWF.Core.ResponseFilter;
+using YetaWF.Core.Addons;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -74,11 +74,11 @@ namespace YetaWF.Core.Controllers
             viewName = area + "_" + viewName;
             return viewName;
         }
+
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller (if any). Can be used with a base class to get the derived module's module definitions.
         /// </summary>
-        protected virtual Task<ModuleDefinition> GetModuleAsync() { return null; }
-        protected ModuleDefinition CurrentModule {
+        protected virtual ModuleDefinition CurrentModule {
             get {
                 if (_currentModule == null) throw new InternalError("No saved module");
                 return _currentModule;
@@ -88,8 +88,42 @@ namespace YetaWF.Core.Controllers
             }
 
         }
-        protected bool HaveCurrentModule { get { return _currentModule != null; } }
+
+        /// <summary>
+        /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller. Can be used with a base class to get the derived module's module definitions.
+        /// </summary>
+        protected async Task<ModuleDefinition> GetModuleAsync() {
+            if (_currentModule == null) {
+                ModuleDefinition mod = null;
+                if (Manager.IsGetRequest) {
+                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
+                    if (mod == null) {
+                        string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
+                        if (string.IsNullOrWhiteSpace(moduleGuid))
+                            return null;
+                        Guid guid = new Guid(moduleGuid);
+                        mod = await ModuleDefinition.LoadAsync(guid);
+                    }
+                } else if (Manager.IsPostRequest) {
+                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
+                    if (mod == null) {
+                        string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
+                        if (string.IsNullOrWhiteSpace(moduleGuid))
+                            moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
+                        if (string.IsNullOrWhiteSpace(moduleGuid))
+                            return null;
+                        Guid guid = new Guid(moduleGuid);
+                        mod = await ModuleDefinition.LoadAsync(guid);
+                    }
+                }
+                if (mod == null)
+                    throw new InternalError("No ModuleDefinition available in controller {0}", GetType().Namespace);
+                CurrentModule = mod;
+            }
+            return _currentModule;
+        }
         ModuleDefinition _currentModule = null;
+
 #if MVC6
         // Handled identically in ErrorHandlingMiddleware
 #else
@@ -157,39 +191,36 @@ namespace YetaWF.Core.Controllers
 #if MVC6
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
-            await SetupEnvironmentInfoAsync();
-            // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
-            if (Manager.IsDemo) {
-                Type ctrlType;
-                string actionName;
-
-                ctrlType = filterContext.Controller.GetType();
-                actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
-
-                MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-                ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
-                if (exclDemoAttr != null)
-                    throw new Error("This action is not available in Demo mode.");
-            }
-            base.OnActionExecuting(filterContext);
-            await next();
+            await SetupActionContextAsync(filterContext);
+            await base.OnActionExecutionAsync(filterContext, next);
         }
 #else
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
-            YetaWFManager.Syncify(async () => {
-                await YetaWFController.SetupEnvironmentInfoAsync();
+            YetaWFManager.Syncify(async () => { // Sorry MVC5 no async for you
+                await SetupActionContextAsync(filterContext);
             });
+            base.OnActionExecuting(filterContext);
+        }
+#endif
+        protected async Task SetupActionContextAsync(ActionExecutingContext filterContext) {
+            await SetupEnvironmentInfoAsync();
+            await GetModuleAsync();
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (Manager.IsDemo) {
+#if MVC6
+                Type ctrlType = filterContext.Controller.GetType();
+                string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+                MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+#else
                 MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+#endif
                 ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
                 if (exclDemoAttr != null)
                     throw new Error("This action is not available in Demo mode.");
             }
-            base.OnActionExecuting(filterContext);
         }
-#endif
+
         /// <summary>
         /// Not authorized for this type of access.
         /// </summary>
