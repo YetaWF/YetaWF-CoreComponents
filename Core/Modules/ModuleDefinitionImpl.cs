@@ -788,14 +788,18 @@ namespace YetaWF.Core.Modules {
         // CONFIGURATION (only used for Configuration modules)
 
         public virtual DataProviderImpl GetConfigDataProvider() {
-            throw new InternalError("Module {0} is not a configuration module", GetType().FullName);
-        }
-        public DataProviderImpl TryGetConfigDataProvider() {
-            try {
-                return GetConfigDataProvider();
-            } catch (Exception) {
+            if (configDPthrowError)
+                throw new InternalError("Module {0} is not a configuration module", GetType().FullName);
+            else
                 return null;
-            }
+        }
+        private bool configDPthrowError = true;
+
+        public DataProviderImpl TryGetConfigDataProvider() {
+            configDPthrowError = false;// avoid exception spam
+            DataProviderImpl dpImpl = GetConfigDataProvider();
+            configDPthrowError = true;
+            return dpImpl;
         }
 
         /// <summary>
