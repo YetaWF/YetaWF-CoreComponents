@@ -48,7 +48,7 @@ namespace YetaWF.Core.Controllers {
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
         public override void ExecuteResult(ControllerContext context) {
-            YetaWFManager.Syncify(async () => {
+            YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
 #endif
                 if (context == null)
                     throw new ArgumentNullException("context");

@@ -249,7 +249,7 @@ namespace YetaWF.Core.Controllers
         // This is handled in ResourceAuthorizeHandler
 #else
         protected override void OnAuthentication(AuthenticationContext filterContext) {
-            YetaWFManager.Syncify(async () => {
+            YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                 await YetaWFController.SetupEnvironmentInfoAsync();
             });
             base.OnAuthentication(filterContext);
@@ -573,7 +573,7 @@ namespace YetaWF.Core.Controllers
                     } finally {
                         Manager.InPartialView = inPartialView;
                     }
-                    YetaWFManager.Syncify(async () => {
+                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                         viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
                     });
                 }

@@ -162,7 +162,7 @@ namespace YetaWF.Core.Pages
             await CurrentPage.RenderPaneContentsAsync((IHtmlHelper<object>)GetHtml(), dataIn, model);
             return null;
 #else
-            YetaWFManager.Syncify(async () => {
+            YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                 await CurrentPage.RenderPaneContentsAsync((HtmlHelper<object>)GetHtml(), dataIn, model);
             });
             return Task.FromResult<HtmlString>(new HtmlString(""));
