@@ -1196,8 +1196,8 @@ namespace YetaWF.Core.Support {
                 // with Kestrel/IIS Express we shut down so provide some feedback
                 try {
                     byte[] btes = System.Text.Encoding.ASCII.GetBytes("<html><head></head><body><strong>The site has stopped - Please close your browser and restart the application.<strong></body></html>");
-                    Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length);
-                    Manager.CurrentResponse.Body.FlushAsync();
+                    Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length).Wait(); // Wait OK, this is debug only
+                    Manager.CurrentResponse.Body.FlushAsync().Wait(); // Wait OK, this is debug only
                 } catch (Exception) { }
 #else
                 CurrentResponse.Redirect(url);

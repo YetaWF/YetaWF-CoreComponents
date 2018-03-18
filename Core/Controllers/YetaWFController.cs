@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Ionic.Zlib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -29,7 +30,6 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Filters;
 using System.Web.Mvc.Html;
-using YetaWF.Core.Addons;
 #endif
 
 namespace YetaWF.Core.Controllers

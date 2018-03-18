@@ -24,8 +24,6 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
-using YetaWF.Core.Log;
 #endif
 
 namespace YetaWF.Core.Controllers

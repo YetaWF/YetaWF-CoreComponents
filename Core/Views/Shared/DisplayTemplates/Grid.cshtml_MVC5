@@ -140,7 +140,7 @@
             @:         }
             @:     }
             @: });
-            @: YetaWF_Grid.toggleSearchToolbar($grid, Model.ShowFilter == true);
+            @: YetaWF_Grid.toggleSearchToolbar($grid, @(Model.ShowFilter == true ? true : false));
         }
         @if (Model.SupportReload) {
             @:     var $mod = $grid.closest('.yModule');
