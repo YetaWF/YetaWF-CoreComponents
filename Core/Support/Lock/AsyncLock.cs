@@ -18,12 +18,15 @@ namespace YetaWF.Core.Support {
         internal SemaphoreSlim _retry = new SemaphoreSlim(0, 1);
         //We do not have System.Threading.Thread.* on .NET Standard without additional dependencies
         //Work around is easy: create a new ThreadLocal<T> with a random value and this is our thread id :)
-        private static readonly long UnlockedThreadId = 0; //"owning" thread id when unlocked
-        internal long _owningId = UnlockedThreadId;
-        private static int _globalThreadCounter;
-        private static readonly ThreadLocal<int> _threadId = new ThreadLocal<int>(() => Interlocked.Increment(ref _globalThreadCounter));
+        //private static readonly long UnlockedThreadId = 0; //"owning" thread id when unlocked
+        //internal long _owningId = UnlockedThreadId;
+        private static readonly YetaWFManager UnlockedOwner = null; //"owning" thread id when unlocked
+        internal YetaWFManager _owningManager = UnlockedOwner;
+        //private static int _globalThreadCounter;
+        //private static readonly ThreadLocal<int> _threadId = new ThreadLocal<int>(() => Interlocked.Increment(ref _globalThreadCounter));
         //We generate a unique id from the thread ID combined with the task ID, if any
-        public static long ThreadId => (long)(((ulong)_threadId.Value) << 32) | ((uint)(Task.CurrentId ?? 0));
+        //public static long ThreadId => (long)(((ulong)_threadId.Value) << 32) | ((uint)(Task.CurrentId ?? 0));
+        public static YetaWFManager ThreadOwner => YetaWFManager.Manager;
 
         struct InnerLock : IDisposable {
             private readonly AsyncLock _parent;
@@ -35,7 +38,7 @@ namespace YetaWF.Core.Support {
                 _parent = parent;
 #if DEBUG
                 _disposed = false;
-#endif
+#endif                
             }
 
             internal async Task ObtainLockAsync() {
@@ -61,14 +64,14 @@ namespace YetaWF.Core.Support {
 
             private bool TryEnter() {
                 lock (_parent._reentrancy) {
-                    Debug.Assert((_parent._owningId == UnlockedThreadId) == (_parent._reentrances == 0));
-                    if (_parent._owningId != UnlockedThreadId && _parent._owningId != AsyncLock.ThreadId) {
+                    Debug.Assert((_parent._owningManager == UnlockedOwner) == (_parent._reentrances == 0));
+                    if (_parent._owningManager != UnlockedOwner && _parent._owningManager != AsyncLock.ThreadOwner) {
                         //another thread currently owns the lock
                         return false;
                     }
                     //we can go in
                     Interlocked.Increment(ref _parent._reentrances);
-                    _parent._owningId = AsyncLock.ThreadId;
+                    _parent._owningManager = AsyncLock.ThreadOwner;
                     return true;
                 }
             }
@@ -83,7 +86,7 @@ namespace YetaWF.Core.Support {
                     if (_parent._reentrances == 0) {
                         //the owning thread is always the same so long as we are in a nested stack call
                         //we reset the owning id to null only when the lock is fully unlocked
-                        _parent._owningId = UnlockedThreadId;
+                        _parent._owningManager = UnlockedOwner;
                         if (_parent._retry.CurrentCount == 0) {
                             _parent._retry.Release();
                         }

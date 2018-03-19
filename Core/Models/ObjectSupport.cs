@@ -474,13 +474,14 @@ namespace YetaWF.Core.Models {
 
             ObjectClassData objClassData = null;
 
-            StringLocks.DoAction(type.FullName, () => {
+            string lang = MultiString.ActiveLanguage;
+            LanguageObjectData langObjData = GetLanguageObjectData(lang);
 
-                string lang = MultiString.ActiveLanguage;
-                LanguageObjectData langObjData = GetLanguageObjectData(lang);
+            // Get class info from language info & localization resource files
+            if (!langObjData.ObjectClassDatas.TryGetValue(type, out objClassData)) {
 
-                // Get class info from language info & localization resource files
-                if (!langObjData.ObjectClassDatas.TryGetValue(type, out objClassData)) {
+                StringLocks.DoAction(type.FullName, () => {
+
                     objClassData = new ObjectClassData() {
                         ClassType = type,
                     };
@@ -527,8 +528,8 @@ namespace YetaWF.Core.Models {
                         else
                             objClassData.PropertyData.Add(pi.Name, new PropertyData(pi.Name, type, pi));
                     }
-                }
-            });
+                });
+            }
             return objClassData;
         }
         /// <summary>

@@ -24,14 +24,14 @@ namespace YetaWF.Core.IO {
         };
 
         private static readonly Dictionary<string, LockedObject> _locks = new Dictionary<string, LockedObject>();
-        private static AsyncLock _lockObject = new AsyncLock();
+        private static object _lockObject = new object();
 
         public static void DoAction(string s, Action action) {
 
             LockedObject obj = null;
 
             // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
-            using (_lockObject.Lock()) {
+            lock (_lockObject) {
                 if (!_locks.TryGetValue(s, out obj)) {
                     obj = new LockedObject { Name=s, UseCount=1 };
                     _locks.Add(s, obj);
@@ -43,7 +43,7 @@ namespace YetaWF.Core.IO {
                 action();
             }
             // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
-            using (_lockObject.Lock()) {
+            lock (_lockObject) {
                 obj = null;
                 if (!_locks.TryGetValue(s, out obj))
                     throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
@@ -65,7 +65,7 @@ namespace YetaWF.Core.IO {
                 LockedObject obj = null;
 
                 // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
-                using (await _lockObject.LockAsync()) {
+                lock (_lockObject) {
                     if (!_locks.TryGetValue(s, out obj)) {
                         obj = new LockedObject { Name = s, UseCount = 1 };
                         _locks.Add(s, obj);
@@ -77,7 +77,7 @@ namespace YetaWF.Core.IO {
                     await action();
                 }
                 // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
-                using (await _lockObject.LockAsync()) {
+                lock (_lockObject) {
                     obj = null;
                     if (!_locks.TryGetValue(s, out obj))
                         throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
