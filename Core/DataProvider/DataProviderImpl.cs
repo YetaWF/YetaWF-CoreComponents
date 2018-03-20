@@ -111,8 +111,8 @@ namespace YetaWF.Core.DataProvider {
         public DataProviderTransaction StartTransaction() {
             return GetIDataProviderTransactions().StartTransaction();
         }
-        protected void CommitTransaction() {
-            GetIDataProviderTransactions().CommitTransaction();
+        protected Task CommitTransactionAsync() {
+            return GetIDataProviderTransactions().CommitTransactionAsync();
         }
         protected void AbortTransaction() {
             GetIDataProviderTransactions().AbortTransaction();

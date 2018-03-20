@@ -31,7 +31,7 @@ namespace YetaWF.Core.IO {
             LockedObject obj = null;
 
             // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to add LockObject
                 if (!_locks.TryGetValue(s, out obj)) {
                     obj = new LockedObject { Name=s, UseCount=1 };
                     _locks.Add(s, obj);
@@ -43,7 +43,7 @@ namespace YetaWF.Core.IO {
                 action();
             }
             // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to remove LockObject
                 obj = null;
                 if (!_locks.TryGetValue(s, out obj))
                     throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
@@ -65,7 +65,7 @@ namespace YetaWF.Core.IO {
                 LockedObject obj = null;
 
                 // Lock the resource by name, by adding an entry in the _locks dictionary or updating the use count
-                lock (_lockObject) {
+                lock (_lockObject) { // short-term lock to add LockObject
                     if (!_locks.TryGetValue(s, out obj)) {
                         obj = new LockedObject { Name = s, UseCount = 1 };
                         _locks.Add(s, obj);
@@ -77,7 +77,7 @@ namespace YetaWF.Core.IO {
                     await action();
                 }
                 // Unlock the resource by name, by removing the entry in the _locks dictionary or decrementing the use count
-                lock (_lockObject) {
+                lock (_lockObject) { // short-term lock to remove LockObject
                     obj = null;
                     if (!_locks.TryGetValue(s, out obj))
                         throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");

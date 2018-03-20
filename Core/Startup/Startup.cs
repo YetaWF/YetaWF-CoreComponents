@@ -10,14 +10,14 @@ using YetaWF.Core.Packages;
 namespace YetaWF.Core.Support {
 
     public interface IInitializeApplicationStartup { // any class defining this interface is called during application startup
-        Task InitializeApplicationStartupAsync();
+        Task InitializeApplicationStartupAsync(bool firstNode);
     }
 
     public static class Startup {
 
         public static bool Started { get; set; }
 
-        public static async Task CallStartupClassesAsync() {
+        public static async Task CallStartupClassesAsync(bool firstNode) {
             Logging.AddLog("Processing IInitializeApplicationStartup");
             // get all types, but put the VersionManagerStartup class first
             List<Type> types = Package.GetClassesInPackages<IInitializeApplicationStartup>(OrderByServiceLevel: true);
@@ -30,7 +30,7 @@ namespace YetaWF.Core.Support {
                     IInitializeApplicationStartup iStart = (IInitializeApplicationStartup)Activator.CreateInstance(type);
                     if (iStart != null) {
                         Logging.AddLog("Calling global startup class \'{0}\'", type.FullName);
-                        await iStart.InitializeApplicationStartupAsync();
+                        await iStart.InitializeApplicationStartupAsync(firstNode);
                     }
                 } catch (Exception exc) {
                     Logging.AddErrorLog("Startup class {0} failed.", type.FullName, exc);

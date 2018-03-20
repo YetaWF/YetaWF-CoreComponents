@@ -50,7 +50,7 @@ namespace YetaWF.Core.Support.StaticPages {
         public static Dictionary<int, SiteEntry> Sites { get; private set; }
 
         private void InitSite() {
-            lock (LockObject) {
+            lock (LockObject) {// short-term lock to sync static pages during startup
                 if (Sites == null)
                     Sites = new Dictionary<int, SiteEntry>();
                 if (!Sites.ContainsKey(Manager.CurrentSite.Identity)) {
@@ -101,7 +101,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
             tempFile = Path.Combine(folder, tempFile + FileData.MakeValidFileName(localUrl));
-            lock (Site.StaticPages) {
+            lock (Site.StaticPages) { // short-term lock to sync static pages 
                 PageEntry entry;
                 if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
                     entry = new StaticPages.StaticPageManager.PageEntry {
@@ -208,7 +208,7 @@ namespace YetaWF.Core.Support.StaticPages {
         public void RemovePage(string localUrl) {
             InitSite();
             string localUrlLower = localUrl.ToLower();
-            lock (Site.StaticPages) {
+            lock (Site.StaticPages) { // short-term lock to sync static pages 
                 Site.StaticPages.Remove(localUrlLower);
                 string tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http#" + FileData.MakeValidFileName(localUrl));
                 if (File.Exists(tempFile)) File.Delete(tempFile);
@@ -227,7 +227,7 @@ namespace YetaWF.Core.Support.StaticPages {
         }
         public void RemoveAllPages() {
             InitSite();
-            lock (Site.StaticPages) {
+            lock (Site.StaticPages) { // short-term lock to sync static pages 
                 Site.StaticPages = new Dictionary<string, StaticPages.StaticPageManager.PageEntry>();
                 RemoveAllPagesInternal();
             }

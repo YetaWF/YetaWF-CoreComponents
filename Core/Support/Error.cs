@@ -39,7 +39,7 @@ namespace YetaWF.Core.Support {
         private static List<Action<string>> Callbacks { get; set; }
 
         public static void RegisterCallback(Action<string> callback) {
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to sync registration during startup
                 if (Callbacks == null) Callbacks = new List<Action<string>>();
                 if (!Callbacks.Contains(callback))
                     Callbacks.Add(callback);

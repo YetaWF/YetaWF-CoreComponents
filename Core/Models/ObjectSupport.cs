@@ -724,7 +724,7 @@ namespace YetaWF.Core.Models {
 
         private static LanguageObjectData GetLanguageObjectData(string lang) {
 
-            lock (_lockObject) {
+            lock (_lockObject) { // lock sync language object - used to sync language objects
                 // get language dictionary
                 Dictionary<string, LanguageObjectData> langObjDatas;
                 if (!PermanentManager.TryGetObject<Dictionary<string, LanguageObjectData>>(out langObjDatas)) {

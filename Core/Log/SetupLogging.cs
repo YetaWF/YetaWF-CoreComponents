@@ -28,13 +28,13 @@ namespace YetaWF.Core.Log {
         private static object _lockObject = new object();
 
         private static List<ILogging> GetLoggers() {
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to sync loggers
                 if (Loggers == null) return new List<ILogging>();
                 return Loggers.ToList();
             }
         }
         private static void SetLoggers(List<ILogging> loggers) {
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to sync loggers
                 Loggers = loggers;
             }
         }
@@ -88,7 +88,7 @@ namespace YetaWF.Core.Log {
         /// </summary>
         /// <param name="logger"></param>
         public static void RegisterLogging(ILogging logger) {
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to sync loggers
                 if (Loggers == null)
                     Loggers = new List<ILogging>();
                 Loggers.Add(logger);
@@ -108,7 +108,7 @@ namespace YetaWF.Core.Log {
         /// Unregister an existing logger.
         /// </summary>
         public static void UnregisterLogging(ILogging logger) {
-            lock (_lockObject) {
+            lock (_lockObject) { // short-term lock to sync loggers
                 if (Loggers != null) {
                     if (Loggers.Contains(logger))
                         Loggers.Remove(logger);

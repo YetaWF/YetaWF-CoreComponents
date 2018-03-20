@@ -212,7 +212,7 @@ namespace YetaWF.Core.Views.Shared {
         }
         private static List<Country> ReadCountryList() {
             if (_countryList == null) {
-                lock (_lockObject) {
+                lock (_lockObject) { // short-term lock to build cached country list
                     Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                     string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CountryISO3166");
                     string customUrl = VersionManager.GetCustomUrlFromUrl(url);

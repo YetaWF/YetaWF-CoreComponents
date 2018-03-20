@@ -32,7 +32,7 @@ namespace YetaWF.Core.Support {
 
         public static void AddObject(object o) {
             if (UseTracker) {
-                lock (_lock) {
+                lock (_lock) { // short-term lock to sync disposable objects (mainly a debug feature)
                     if (DisposableObjects.ContainsKey(o))
                         throw new InternalError("New disposable object which has already been added to the list of disposable objects - possible duplicate using() { }");
 
@@ -46,7 +46,7 @@ namespace YetaWF.Core.Support {
         }
         public static void RemoveObject(object o) {
             if (UseTracker) {
-                lock (_lock) {
+                lock (_lock) { // short-term lock to sync disposable objects (mainly a debug feature)
                     if (!DisposableObjects.ContainsKey(o))
                         throw new InternalError("Disposing of disposable object which was not added to the list of disposable objects - possible duplicate Dispose() call");
                     DisposableObjects.Remove(o);

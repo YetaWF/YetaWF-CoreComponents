@@ -9,6 +9,9 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace YetaWF.Core.IO {
 
+    /// <summary>
+    /// In memory cache, local to current process.
+    /// </summary>
     public class CachedObject {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -34,7 +37,7 @@ namespace YetaWF.Core.IO {
                 } else {
                     // we can't save the entire object, just the data that we actually marked as savable (Properties)
                     // the main reason the object is not savable is because it may be derived from other classes with
-                    // volatile data which is expected to be cleared for every invokation.
+                    // volatile data which is expected to be cleared for every invocation.
                     byte[] cacheData = new GeneralFormatter().Serialize(data);
 #if MVC6
                     YetaWFManager.MemoryCache.Set<byte[]>(cacheKey, cacheData);

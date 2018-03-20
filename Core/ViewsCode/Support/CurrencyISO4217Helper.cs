@@ -156,7 +156,7 @@ namespace YetaWF.Core.Views.Shared {
         }
         private static List<Currency> ReadCurrencyList() {
             if (_currencyList == null) {
-                lock (_lockObject) {
+                lock (_lockObject) { // short-term lock to vuild cached country list
                     Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                     string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
                     string customUrl = VersionManager.GetCustomUrlFromUrl(url);

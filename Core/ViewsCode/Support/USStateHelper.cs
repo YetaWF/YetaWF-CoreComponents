@@ -56,7 +56,7 @@ namespace YetaWF.Core.Views.Shared {
 
         private static List<SelectionItem<string>> ReadStatesList() {
             if (_statesList == null) {
-                lock (_lockObject) {
+                lock (_lockObject) { // short-term lock to build cached states list
                     Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                     string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "USState");
                     string path = YetaWFManager.UrlToPhysical(url);

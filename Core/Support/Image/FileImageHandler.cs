@@ -12,7 +12,7 @@ namespace YetaWF.Core.Support.Image {
 
         public const string ImageType = "YetaWF_Core_File";
 
-        public Task InitializeApplicationStartupAsync() {
+        public Task InitializeApplicationStartupAsync(bool firstNode) {
             YetaWF.Core.Image.ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
             return Task.CompletedTask;
         }

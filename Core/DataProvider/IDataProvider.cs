@@ -14,14 +14,14 @@ namespace YetaWF.Core.DataProvider {
     public sealed class DataProviderTransaction : IDisposable {
 
         private Action abortTransaction;
-        private Action commitTransaction;
-        public DataProviderTransaction(Action commitTransaction, Action abortTransaction) {
+        private Func<Task> commitTransactionAsync;
+        public DataProviderTransaction(Func<Task> commitTransaction, Action abortTransaction) {
             this.abortTransaction = abortTransaction;
-            this.commitTransaction = commitTransaction;
+            this.commitTransactionAsync = commitTransaction;
             DisposableTracker.AddObject(this);
         }
-        public void Commit() {
-            commitTransaction();
+        public async Task CommitAsync() {
+            await commitTransactionAsync();
         }
         public void Dispose() {
             DisposableTracker.RemoveObject(this);
@@ -42,14 +42,14 @@ namespace YetaWF.Core.DataProvider {
 
     public interface IDataProviderTransactions {
         DataProviderTransaction StartTransaction();
-        void CommitTransaction();
+        Task CommitTransactionAsync();
         void AbortTransaction();
     }
 
     public interface IDataProvider<KEYTYPE, OBJTYPE> {
 
         DataProviderTransaction StartTransaction();
-        void CommitTransaction();
+        Task CommitTransactionAsync();
         void AbortTransaction();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
@@ -72,7 +72,7 @@ namespace YetaWF.Core.DataProvider {
     public interface IDataProviderIdentity<KEYTYPE, KEY2TYPE, OBJTYPE> {
 
         DataProviderTransaction StartTransaction();
-        void CommitTransaction();
+        Task CommitTransactionAsync();
         void AbortTransaction();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists

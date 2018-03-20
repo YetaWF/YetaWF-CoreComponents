@@ -63,8 +63,9 @@ namespace YetaWF.Core.Packages {
         ///
         /// A log file recording all upgrade activity is saved at .\Website\Data\UpgradeLogFile.txt
         /// </remarks>
-        public static async Task UpgradeToNewPackagesAsync() {
+        public static async Task UpgradeToNewPackagesAsync(bool firstNode) {
 
+            if (!firstNode) return;
             if (SiteDefinition.INITIAL_INSTALL) return;
             if (YetaWFManager.Manager.Deployed && !MustUpgrade()) return;
 

@@ -18,7 +18,7 @@ namespace YetaWF.Core.Pages {
             CSS = 1,
         }
 
-        public class Bundle {
+        public class Bundle { // TODO: #webfarm Bundles must be shared cached
             public string BundleName { get; set; }
             public int BundleNumber { get; set; }
             public string Url { get; set; }
@@ -30,12 +30,14 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
-        public Task InitializeApplicationStartupAsync() {
+        public Task InitializeApplicationStartupAsync(bool firstNode) {
             // delete all files from last session and create the folder
-            Logging.AddLog("Removing/creating bundle folder");
-            string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-            if (Directory.Exists(tempPath))
-                Directory.Delete(tempPath, true);
+            if (firstNode) {
+                Logging.AddLog("Removing/creating bundle folder");
+                string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
+                if (Directory.Exists(tempPath))
+                    Directory.Delete(tempPath, true);
+            }
             Bundles = new List<Bundle>();
             return Task.CompletedTask;
         }

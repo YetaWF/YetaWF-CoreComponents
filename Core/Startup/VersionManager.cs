@@ -16,7 +16,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons {
 
     public class VersionManagerStartup : IInitializeApplicationStartup {
-        public Task InitializeApplicationStartupAsync() {
+        public Task InitializeApplicationStartupAsync(bool firstNode) {
             VersionManager.RegisterAllAddOns();
             return Task.CompletedTask;
         }

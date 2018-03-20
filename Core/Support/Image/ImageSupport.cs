@@ -24,12 +24,14 @@ namespace YetaWF.Core.Image {
         // IInitializeApplicationStartup
         // IInitializeApplicationStartup
 
-        public Task InitializeApplicationStartupAsync() {
-            // Delete all temp images
-            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
-            YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
-            // Create folder for temp images
-            YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
+        public Task InitializeApplicationStartupAsync(bool firstNode) {
+            if (firstNode) {
+                // Delete all temp images
+                string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
+                YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
+                // Create folder for temp images
+                YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
+            }
             return Task.CompletedTask;
         }
 
