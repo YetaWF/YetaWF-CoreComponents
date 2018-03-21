@@ -6,6 +6,8 @@ using System.Text;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
+using YetaWF.Core.IO;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
@@ -37,23 +39,22 @@ namespace YetaWF.Core.HttpHandler {
 
     public class CssHttpHandler
 #else
-    public class CssHttpHandler : IHttpHandler, IReadOnlySessionState
+    public class CssHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
 #endif
     {
-
-        // IHttpHandler
-        // IHttpHandler
-        // IHttpHandler
+        // IHttpHandler (Async)
+        // IHttpHandler (Async)
+        // IHttpHandler (Async)
 
 #if MVC6
         public async Task ProcessRequest(HttpContext context) {
             await StartupRequest.StartRequestAsync(context, true);
 #else
-        public bool IsReusable {
+        public override bool IsReusable {
             get { return true; }
         }
 
-        public void ProcessRequest(HttpContext context) {
+        public override async Task ProcessRequestAsync(HttpContext context) {
 #endif
             YetaWFManager manager = YetaWFManager.Manager;
 
@@ -96,17 +97,12 @@ namespace YetaWF.Core.HttpHandler {
 
             // Send entire file
             byte[] bytes = null;
-            string cacheKey = null;
+            string cacheKey = "CssHttpHandler_" + file + "_";
 
             if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
-                cacheKey = "CssHttpHandler_" + file + "_";
-#if MVC6
-                IMemoryCache cache = (IMemoryCache)context.RequestServices.GetService(typeof(IMemoryCache));
-                bytes = cache.Get<byte[]>(cacheKey);
-#else
-                if (System.Web.HttpRuntime.Cache[cacheKey] != null)
-                    bytes = (byte[])System.Web.HttpRuntime.Cache[cacheKey];
-#endif
+                GetObjectInfo<byte[]> objInfo = await Caching.LocalCacheProvider.GetAsync<byte[]>(cacheKey);
+                if (objInfo.Success)
+                    bytes = objInfo.Data;
             }
             if (bytes == null) {
                 string text = "";
@@ -120,9 +116,13 @@ namespace YetaWF.Core.HttpHandler {
                     context.Response.StatusDescription = "Not Found";
                     context.ApplicationInstance.CompleteRequest();
 #endif
+                    if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse)
+                        await Caching.LocalCacheProvider.AddAsync<byte[]>(cacheKey, null);
                     return;
                 }
                 bytes = Encoding.ASCII.GetBytes(text);
+                if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse)
+                    await Caching.LocalCacheProvider.AddAsync<byte[]>(cacheKey, bytes);
             }
             context.Response.ContentType = "text/css";
             context.Response.StatusCode = 200;

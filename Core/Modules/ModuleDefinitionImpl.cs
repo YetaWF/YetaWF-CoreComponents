@@ -380,9 +380,9 @@ namespace YetaWF.Core.Modules {
             YetaWFManager.Manager.StaticPageManager.RemovePages(pages);
         }
         // Used to update properties before a module is saved
-        public virtual void ModuleSaving() { }
+        public virtual Task ModuleSavingAsync() { return Task.CompletedTask; }
         // Used to act before a module is removed
-        public virtual void ModuleRemoving() { }
+        public virtual Task ModuleRemovingAsync() { return Task.CompletedTask; }
 
         /// <summary>
         /// Creates a new designed module. Remember to set the ModuleGuid property after creating the module.

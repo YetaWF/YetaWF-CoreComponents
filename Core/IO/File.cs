@@ -114,7 +114,7 @@ namespace YetaWF.Core.IO {
     /// Supports caching.
     /// </summary>
     /// <typeparam name="TObj"></typeparam>
-    public class FileData<TObj> : CachedObject {
+    public class FileData<TObj> : CachedObject { //$$$Remove cachedObject
 
         public FileData() {
 #if DEBUG
