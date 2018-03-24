@@ -125,7 +125,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static async Task<HtmlString> RenderUrlDDAsync(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
-            List<string> pages = PageDefinition.GetDesignedUrls();
+            List<string> pages = await PageDefinition.GetDesignedUrlsAsync();
 
             // get list of desired pages (ignore users that are invalid, they may have been deleted)
             List<SelectionItem<string>> list = new List<SelectionItem<string>>();

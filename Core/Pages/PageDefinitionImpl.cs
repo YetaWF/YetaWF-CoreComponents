@@ -71,9 +71,9 @@ namespace YetaWF.Core.Pages {
         public static Func<string, Task<PageDefinition>> LoadPageDefinitionByUrlAsync { get; set; }
         public static Func<PageDefinition, Task> SavePageDefinitionAsync { get; set; }
         public static Func<Guid, Task<bool>> RemovePageDefinitionAsync { get; set; }
-        public static Func<List<DesignedPage>> GetDesignedPages { get; set; }
-        public static Func<List<Guid>> GetDesignedGuids { get; set; }
-        public static Func<List<string>> GetDesignedUrls { get; set; }
+        public static Func<Task<List<DesignedPage>>> GetDesignedPagesAsync { get; set; }
+        public static Func<Task<List<Guid>>> GetDesignedGuidsAsync { get; set; }
+        public static Func<Task<List<string>>> GetDesignedUrlsAsync { get; set; }
         public static Func<Guid, Task<List<PageDefinition>>> GetPagesFromModuleAsync { get; set; }
 
         public static Func<Guid?, string, string, Task<UnifiedInfo>> GetUnifiedPageInfoAsync { get; set; }

@@ -126,15 +126,19 @@ namespace YetaWF.Core.DataProvider {
             return GetDataProvider().IsInstalledAsync();
         }
         public Task<bool> InstallModelAsync(List<string> errorList) {
+            if (YetaWF.Core.IO.Caching.MultiInstance) throw new InternalError("Installing new models is not possible when distributed caching is enabled");
             return GetDataProvider().InstallModelAsync(errorList);
         }
         public Task AddSiteDataAsync() {
+            if (YetaWF.Core.IO.Caching.MultiInstance) throw new InternalError("Adding site data is not possible when distributed caching is enabled");
             return GetDataProvider().AddSiteDataAsync();
         }
         public Task RemoveSiteDataAsync() {
+            if (YetaWF.Core.IO.Caching.MultiInstance) throw new InternalError("Removing site data is not possible when distributed caching is enabled");
             return GetDataProvider().RemoveSiteDataAsync();
         }
         public Task<bool> UninstallModelAsync(List<string> errorList) {
+            if (YetaWF.Core.IO.Caching.MultiInstance) throw new InternalError("Uninstalling models is not possible when distributed caching is enabled");
             return GetDataProvider().UninstallModelAsync(errorList);
         }
         public Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList) {

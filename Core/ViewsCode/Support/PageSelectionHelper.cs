@@ -32,7 +32,7 @@ namespace YetaWF.Core.Views.Shared {
 #endif
             List<SelectionItem<Guid?>> list;
             list = (
-                from page in PageDefinition.GetDesignedPages() orderby page.Url select
+                from page in await PageDefinition.GetDesignedPagesAsync() orderby page.Url select
                     new SelectionItem<Guid?> {
                         Text = page.Url,
                         Value = page.PageGuid,
