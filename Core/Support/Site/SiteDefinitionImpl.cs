@@ -314,26 +314,17 @@ namespace YetaWF.Core.Site {
 
         // these must be provided during app startup
         public static Func<string, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; }
-        public static Func<SiteDefinition, Task<bool>> SaveSiteDefinitionAsync { get; set; }
+        public static Func<SiteDefinition, Task> SaveSiteDefinitionAsync { get; set; }
         public static Func<Task> RemoveSiteDefinitionAsync { get; set; }
         public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; }
         public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; }
 
-        public class SaveResult {
-            public bool RestartRequired { get; set; }
-        }
-
-        public async Task<SaveResult> SaveAsync() {
-            bool restart;
-            restart = await SiteDefinition.SaveSiteDefinitionAsync(this);
-            return new SaveResult {
-                RestartRequired = restart,
-            };
+        public async Task SaveAsync() {
+            await SiteDefinition.SaveSiteDefinitionAsync(this);
         }
         public async Task AddNewAsync() {
             // Add a new site
-            if (await SiteDefinition.SaveSiteDefinitionAsync(this))
-                throw new InternalError("SaveSiteDefinition implementation error - restart required");
+            await SiteDefinition.SaveSiteDefinitionAsync(this);
             // we also have to create all site specific data - data providers expect the current site to be active so we have to switch temporarily
             SiteDefinition origSite = Manager.CurrentSite;
             Manager.CurrentSite = this;// new site

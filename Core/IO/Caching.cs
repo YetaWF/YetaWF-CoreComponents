@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 namespace YetaWF.Core.IO {
 
     public static class Caching {
+
+        // Dataproviders set by available data providers during application startup
         public static ICacheObject LocalCacheProvider { get; set; }
         public static ICacheObject SharedCacheProvider { get; set; }
         public static ICacheStaticObject StaticCacheProvider { get; set; }
+        
         /// <summary>
         /// Defines whether cache sharing is available.
         /// </summary>

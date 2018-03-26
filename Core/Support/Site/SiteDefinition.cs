@@ -59,6 +59,7 @@ namespace YetaWF.Core.Site {
     }
 
     [Trim]
+    [RequiresRestartAttribute(RestartEnum.MultiInstance)]
     public partial class SiteDefinition {
 
         public static readonly int SiteIdentitySeed = 1000; // the id of the first site
@@ -139,10 +140,10 @@ namespace YetaWF.Core.Site {
             KendoUISkin = null;
             TabStyle = TabStyleEnum.JQuery;
 
-            OriginalUseCDN = UseCDN = false;
-            OriginalCDNUrl = CDNUrl = null;
-            OriginalCDNUrlSecure = CDNUrlSecure = null;
-            OriginalStaticDomain = StaticDomain = null;
+            UseCDN = false;
+            CDNUrl = null;
+            CDNUrlSecure = null;
+            StaticDomain = null;
         }
 
         [Data_Identity]
@@ -156,6 +157,7 @@ namespace YetaWF.Core.Site {
         [Data_PrimaryKey]
         [Category("Site"), Caption("Site Domain"), Description("The domain name of your site (e.g., yourcompany.com, yetawf.com)")]
         [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Required, Trim]
+        [RequiresPageReloadAttribute]
         public string SiteDomain { get; set; }
 
         [Category("Variables"), Caption("Default Site Domain"), Description("The domain name of the default site for this instance of YetaWF")]
@@ -194,20 +196,24 @@ namespace YetaWF.Core.Site {
 
         [Category("Site"), Caption("Enforce Domain Name"), Description("Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost', this property is ignored")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool EnforceSiteUrl { get; set; }
 
         [Category("Site"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced")]
         [UIHint("Enum")]
+        [RequiresPageReloadAttribute]
         public PageSecurityType PageSecurity { get; set; }
 
         [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost', this property is ignored")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
+        [RequiresPageReloadAttribute]
         public bool EnforceSitePort { get; set; }
 
         [Category("Site"), Caption("Port Number (Normal)"), Description("The port number used to access this site using http.")]
         [UIHint("IntValue6"), Range(1, 65535), Required]
         [Data_DontSave]
+        [RequiresPageReloadAttribute]
         public int PortNumberEval {
             get {
                 return PortNumber < 0 ? 80 : PortNumber;
@@ -221,6 +227,7 @@ namespace YetaWF.Core.Site {
         [Category("Site"), Caption("Port Number (SSL)"), Description("The port number used to access this site using https (SSL - Secure Sockets Layer). The default is 443 which can be specified using -1")]
         [UIHint("IntValue6"), Range(1, 65535), Required]
         [Data_DontSave]
+        [RequiresPageReloadAttribute]
         public int PortNumberSSLEval {
             get {
                 return PortNumberSSL < 0 ? 443 : PortNumberSSL;
@@ -246,17 +253,17 @@ namespace YetaWF.Core.Site {
 
         [Category("Site"), Caption("Localization"), Description("Defines whether localization and multilingual support is required, which means all text is provided through resources. Otherwise, only the default language is available")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool Localization { get; set; }
 
         [Category("Site"), Caption("Default Language"), Description("The site's default language")]
         [UIHint("LanguageId"), StringLength(LanguageData.MaxId), AdditionalMetadata("NoDefault", true), Required, Trim]
+        [RequiresPageReloadAttribute]
         public string DefaultLanguageId { get; set; }
 
         [Category("Site"), Caption("Allow Anonymous Users"), Description("Defines whether the site allows access to anonymous users - This can be disabled when a site under development is publicly accessible, so anonymous users are redirected to the login page")]
         [UIHint("Boolean")]
         public bool AllowAnonymousUsers { get; set; }
-
-
 
         [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect")]
         [UIHint("Boolean"), SuppressIfEqual("IsLockedExternal", true)]
@@ -294,10 +301,12 @@ namespace YetaWF.Core.Site {
 
         [Category("Site"), Caption("Allow Popups"), Description("Modules and pages can be displayed as popups")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool AllowPopups { get; set; }
 
         [Category("Site"), Caption("Suppress Tooltips"), Description("The class(es) on A tags that will suppress the navigation tooltip")]
         [UIHint("Text80"), CssClassesValidationAttribute, StringLength(80)]
+        [RequiresPageReloadAttribute]
         public string CssNoTooltips { get; set; }
 
         [Category("Site"), Caption("FavIcon"), Description("The default icon representing this site (a small PNG image used for favicon displays less than or equal to 64x64 pixels) shown by the web browser used to display the page - Individual pages can override this site default - This is image is down/upscaled as needed")]
@@ -350,18 +359,22 @@ namespace YetaWF.Core.Site {
         }
         [Category("Site"), Caption("Country"), Description("The country where you/your company is located")]
         [UIHint("CountryISO3166"), StringLength(MaxCountry), Trim, Required]
+        [RequiresPageReloadAttribute]
         public string Country { get; set; }
 
         [Category("Site"), Caption("Currency"), Description("The default currency used")]
         [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217Helper.Currency.MaxId), Trim, Required]
+        [RequiresPageReloadAttribute]
         public string Currency { get; set; }
 
         [Category("Site"), Caption("Currency Format"), Description("The currency format used on this site - the default is $US if omitted")]
         [UIHint("Text20"), StringLength(20)]
+        [RequiresPageReloadAttribute]
         public string CurrencyFormat { get; set; }
 
         [Category("Site"), Caption("Currency Rounding"), Description("The number of decimal places for the currency used on this site")]
         [UIHint("IntValue2"), Range(0, 5), Required]
+        [RequiresPageReloadAttribute]
         public int CurrencyDecimals { get; set; }
 
         [Category("Variables"), Caption("Copyright"), Description("The Copyright property with evaluated substitutions")]
@@ -394,45 +407,55 @@ namespace YetaWF.Core.Site {
 
         [Category("Pages"), Caption("Allow Cache Use"), Description("Defines whether data caching is enabled (for example, client-side CSS file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool AllowCacheUse { get; set; }
 
         [Category("Pages"), Caption("Compression"), Description("Defines whether whitespace compression is used for all pages. Individual pages can override this setting (see Page Properties)")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool Compression { get; set; }
 
         [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether minified stylesheets (CSS files) are used (Yes). Otherwise, stylesheets are not minified (No)")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool CompressCSSFiles { get; set; }
 
         [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool BundleCSSFiles { get; set; }
 
         [Category("Pages"), Caption("Css Location"), Description("Defines whether CSS files are included at the top or bottom of the page")]
         [UIHint("Enum")]
         [Data_NewValue("(0)")]
+        [RequiresPageReloadAttribute]
         public CssLocationEnum CssLocation { get; set; }
 
         [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes). Otherwise, JavaScript files are not minified (No)")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool CompressJSFiles { get; set; }
 
         [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
         [UIHint("Boolean")]
+        [RequiresPageReloadAttribute]
         public bool BundleJSFiles { get; set; }
 
         [Category("Pages"), Caption("JavaScript Location"), Description("Defines whether JavaScript files are included at the top or bottom of the page")]
         [UIHint("Enum")]
         [Data_NewValue("(0)")]
+        [RequiresPageReloadAttribute]
         public JSLocationEnum JSLocation { get; set; }
 
         [Category("Pages"), Caption("Disable Minimize FOUC"), Description("Normally CSS is injected to minimize the Flash Of Unstyled Content (FUOC) which can occur when JavaScript and/or CSS files are included at the bottom of the page - This feature can be disabled - Your mileage may vary (IE/Edge require this option to stay enabled)")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
+        [RequiresPageReloadAttribute]
         public bool DisableMinimizeFUOC { get; set; }
 
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
         [UIHint("Text80"), StringLength(MaxCopyright)]
+        [RequiresPageReloadAttribute]
         public string Copyright { get; set; }
 
         // CDN
@@ -442,6 +465,7 @@ namespace YetaWF.Core.Site {
         [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
+        [RequiresRestartAttribute(RestartEnum.All)]
         public bool UseCDNComponents { get; set; }
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
@@ -452,6 +476,7 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("Use CDN (Site Content)"), Description("Defines whether the Content Delivery Network Url is used for the site's static files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
+        [RequiresRestartAttribute(RestartEnum.All)]
         public bool UseCDN { get; set; }
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for the site's static files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the \"Use CDN (Site Content)\" setting to be honored, otherwise a CDN is not used for site content")]
@@ -462,6 +487,7 @@ namespace YetaWF.Core.Site {
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         [RequiredIf("UseCDN", true)]
+        [RequiresRestartAttribute(RestartEnum.All)]
         public string CDNUrl { get; set; }
 
         public bool HaveCDNUrl { get { return !string.IsNullOrWhiteSpace(CDNUrl); } }
@@ -469,12 +495,14 @@ namespace YetaWF.Core.Site {
         [Category("CDN"), Caption("CDN Url (Secure)"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
+        [RequiresRestartAttribute(RestartEnum.All)]
         public string CDNUrlSecure { get; set; }
 
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
         [Category("CDN"), Caption("Static Files Domain"), Description("You can optionally serve static files from an alternate domain which can improve your site's performance - Enter the domain name here (without http:// or https://) - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), ProcessIf("UseCDN", false), Trim]
+        [RequiresRestartAttribute(RestartEnum.All)]
         public string StaticDomain { get; set; }
 
         public bool HaveStaticDomain { get { return !string.IsNullOrWhiteSpace(StaticDomain); } }
@@ -482,19 +510,6 @@ namespace YetaWF.Core.Site {
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate Url is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files Url\" setting to be honored, otherwise it is not used")]
         [UIHint("Boolean"), ProcessIf("UseCDN", false), ReadOnly]
         public bool CanUseStaticDomain { get { return Manager.CanUseStaticDomain && HaveStaticDomain; } }
-
-        [UIHint("Hidden")]
-        [DontSave]
-        public bool OriginalUseCDN { get; set; } //$$$$$ don't force restart, use visual indicator
-        [UIHint("Hidden")]
-        [DontSave]
-        public string OriginalCDNUrl { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public string OriginalCDNUrlSecure { get; set; }
-        [UIHint("Hidden")]
-        [DontSave]
-        public string OriginalStaticDomain { get; set; }
 
         // EMAIL
         // EMAIL
@@ -564,6 +579,7 @@ namespace YetaWF.Core.Site {
         [Category("References"), Caption("Skin Modules"), Description("Defines modules which must be injected into all pages")]
         [UIHint("ReferencedModules")]
         [Data_Binary]
+        [RequiresPageReloadAttribute] //$$$ this probably needs a type comparer
         public SerializableList<ModuleDefinition.ReferencedModule> ReferencedModules { get; set; }
 
         // SKIN
@@ -572,6 +588,7 @@ namespace YetaWF.Core.Site {
 
         [Category("Skin"), Caption("Default Page Skin"), Description("The default skin used to for pages - individual pages can override the default skin")]
         [UIHint("PageSkin"), AdditionalMetadata("NoDefault", true), Required, Trim]
+        [RequiresPageReloadAttribute] //$$$ this probably needs a type comparer
         public SkinDefinition SelectedSkin { get; set; }
 
         [Category("Skin"), Caption("Default Popup Skin"), Description("The default skin used in a popup window - individual pages can override the default skin")]
@@ -581,25 +598,30 @@ namespace YetaWF.Core.Site {
         [Category("Skin"), Caption("Immediate Form Errors"), Description("Defines whether errors on forms are immediately marked using warning indicators when first displayed - otherwise indicators are shown as fields are edited and after a form is first submitted")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
+        [RequiresPageReloadAttribute]
         public bool FormErrorsImmed { get; set; }
 
         [Category("Skin"), Caption("Default Bootstrap Skin"), Description("The default skin for overall page appearance and Bootstrap elements - individual pages can override the default skin")]
         [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
         [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [RequiresPageReloadAttribute]
         public string BootstrapSkin { get; set; }
 
         [Category("Skin"), Caption("Default jQuery UI Skin"), Description("The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://jqueryui.com/themeroller/")]
         [UIHint("jQueryUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [RequiresPageReloadAttribute]
         public string jQueryUISkin { get; set; }
 
         [Category("Skin"), Caption("Default Kendo UI Skin"), Description("The default skin for Kendo UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
         [UIHint("KendoUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [RequiresPageReloadAttribute]
         public string KendoUISkin { get; set; }
 
         [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]
         [UIHint("Enum"), Required]
+        [RequiresPageReloadAttribute]
         public TabStyleEnum TabStyle { get; set; }
 
         // ENCRYPTION
@@ -621,6 +643,7 @@ namespace YetaWF.Core.Site {
         [Category("Addons"), Caption("Analytics"), Description("Add analytics JavaScript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including <script></script> tags - Pages can override this setting")]
         [TextAbove("Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
+        [RequiresPageReloadAttribute]
         public string Analytics { get; set; }
         [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual Url - Pages can override this setting")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
@@ -629,18 +652,22 @@ namespace YetaWF.Core.Site {
         [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
         [HelpLink("http://www.google.com/webmasters/")]
+        [RequiresPageReloadAttribute]
         public string GoogleVerification { get; set; }
 
         [Category("Addons"), Caption("<HEAD>"), Description("Any tags that should be added to the <HEAD> tag of each page can be added here")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxHead), Trim]
+        [RequiresPageReloadAttribute]
         public string ExtraHead { get; set; }
 
         [Category("Addons"), Caption("<BODY> Top"), Description("Any tags that should be added to the top of the <BODY> tag of each page can be added here")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxBodyTop), Trim]
+        [RequiresPageReloadAttribute]
         public string ExtraBodyTop { get; set; }
 
         [Category("Addons"), Caption("<BODY> Bottom"), Description("Any tags that should be added to the bottom of the <BODY> tag of each page can be added here")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxBodyBottom), Trim]
+        [RequiresPageReloadAttribute]
         public string ExtraBodyBottom { get; set; }
 
         [Category("Addons"), Caption("Geo Location"), Description("Defines whether the site collects geo location information from your visitors based on their IP address (if available)")]
@@ -655,10 +682,12 @@ namespace YetaWF.Core.Site {
 
         [Category("Meta"), Caption("Site Meta Tags"), Description("Defines <meta> tags that are added to ALL pages")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxMeta), Trim]
+        [RequiresPageReloadAttribute]
         public string SiteMetaTags { get; set; }
 
         [Category("Meta"), Caption("Page Meta Tags"), Description("Defines <meta> tags that are added to all pages by default but can be overridden by each page if the page defines meta tags using the PageMetaTags property")]
         [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxMeta), Trim]
+        [RequiresPageReloadAttribute]
         public string PageMetaTags { get; set; }
 
         [Category("Meta"), Caption("SiteMap Default Priority"), Description("Defines the default page priority used for the site map - Each page can override the default value using its SiteMap Priority property")]

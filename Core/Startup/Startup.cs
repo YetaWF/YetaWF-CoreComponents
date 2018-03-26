@@ -16,6 +16,7 @@ namespace YetaWF.Core.Support {
     public static class Startup {
 
         public static bool Started { get; set; }
+        public static DateTime MultiInstanceStartTime = DateTime.UtcNow; //$$$ verify and create multi-instance SiteStart
 
         public static async Task CallStartupClassesAsync(bool firstNode) {
             Logging.AddLog("Processing IInitializeApplicationStartup");
