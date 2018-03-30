@@ -13,6 +13,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Localize;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -137,18 +138,18 @@ namespace YetaWF.Core.Views.Shared {
                 }
             }
         }
-        public static Dictionary<string, GridColumnInfo> LoadGridColumnDefinitions(GridDefinition gridDef, ref string sortCol, ref GridDefinition.SortBy sortDir) {
-            if (gridDef.CachedDict != null) {
-                sortCol = gridDef.CachedSortCol;
-                sortDir = gridDef.CachedSortDir;
-            } else {
-                gridDef.CachedDict = LoadGridColumnDefinitions(gridDef.RecordType, ref sortCol, ref sortDir);
-                gridDef.CachedSortCol = sortCol;
-                gridDef.CachedSortDir = sortDir;
-            }
+        public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(GridDefinition gridDef) {
+            if (gridDef.CachedDict == null)
+                gridDef.CachedDict = await LoadGridColumnDefinitionsAsync(gridDef.RecordType);
             return gridDef.CachedDict;
         }
-        public static Dictionary<string, GridColumnInfo> LoadGridColumnDefinitions(Type recordType, ref string sortCol, ref GridDefinition.SortBy sortDir) {
+
+        public class LoadGridColumnDefinitionsInfo {
+            public string SortColumn { get; set; }
+            public GridDefinition.SortBy SortBy { get; set; }
+        }
+
+        public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(Type recordType) {
             if (typeof(ModuleDefinition.GridAllowedRole).IsAssignableFrom(recordType)) {
                 recordType = typeof(ModuleDefinition.GridAllowedRole);
             } else if (typeof(ModuleDefinition.GridAllowedUser).IsAssignableFrom(recordType)) {
@@ -165,25 +166,25 @@ namespace YetaWF.Core.Views.Shared {
             Package package = Package.GetPackageFromType(recordType);
             string predefUrl = VersionManager.GetAddOnPackageUrl(package.Domain, package.Product) + "Grids/" + file;
             string customUrl = VersionManager.GetCustomUrlFromUrl(predefUrl);
-            Dictionary<string, GridColumnInfo> predefDict = ObjectSupport.ReadGridDictionary(package, recordType, YetaWFManager.UrlToPhysical(predefUrl), ref sortCol, ref sortDir);
-            Dictionary<string, GridColumnInfo> customDict = ObjectSupport.ReadGridDictionary(package, recordType, YetaWFManager.UrlToPhysical(customUrl), ref sortCol, ref sortDir);
-            foreach (var p in predefDict) dict[p.Key] = p.Value;
-            foreach (var p in customDict) dict[p.Key] = p.Value;
-            if (dict.Count == 0)
+            ObjectSupport.ReadGridDictionaryInfo info;
+            ObjectSupport.ReadGridDictionaryInfo predefInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, YetaWFManager.UrlToPhysical(predefUrl));
+            if (!predefInfo.Success)
                 throw new InternalError("No grid definition exists for {0}", file);
-            return dict;
+            info = predefInfo;
+            ObjectSupport.ReadGridDictionaryInfo customInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, YetaWFManager.UrlToPhysical(customUrl));
+            if (customInfo.Success)
+                info = customInfo;
+            if (info.ColumnInfo.Count == 0)
+                throw new InternalError("No grid definition exists for {0}", file);
+            return info;
         }
-        public static List<PropertyListEntry> GetHiddenGridProperties(object obj, GridDefinition gridDef) {
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
-            return GetHiddenGridProperties(obj, dict);
+        public static async Task<List<PropertyListEntry>> GetHiddenGridPropertiesAsync(object obj, GridDefinition gridDef) {
+            ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(gridDef);
+            return GetHiddenGridProperties(obj, info.ColumnInfo);
         }
-        public static List<PropertyListEntry> GetHiddenGridProperties(object obj) {
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(obj.GetType(), ref sortCol, ref sortDir);
-            return GetHiddenGridProperties(obj, dict);
+        public static async Task<List<PropertyListEntry>> GetHiddenGridPropertiesAsync(object obj) {
+            ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(obj.GetType());
+            return GetHiddenGridProperties(obj, info.ColumnInfo);
         }
         private static List<PropertyListEntry> GetHiddenGridProperties(object obj, Dictionary<string, GridColumnInfo> dict) {
             List<PropertyListEntry> list = new List<PropertyListEntry>();
@@ -197,17 +198,13 @@ namespace YetaWF.Core.Views.Shared {
             }
             return list;
         }
-        public static List<PropertyListEntry> GetGridProperties(object obj, GridDefinition gridDef) {
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
-            return GetGridProperties(obj, dict);
+        public static async Task<List<PropertyListEntry>> GetGridPropertiesAsync(object obj, GridDefinition gridDef) {
+            ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(gridDef);
+            return GetGridProperties(obj, info.ColumnInfo);
         }
-        public static List<PropertyListEntry> GetGridProperties(object obj) {
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(obj.GetType(), ref sortCol, ref sortDir);
-            return GetGridProperties(obj, dict);
+        public static async Task<List<PropertyListEntry>> GetGridPropertiesAsync(object obj) {
+            ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(obj.GetType());
+            return GetGridProperties(obj, info.ColumnInfo);
         }
         private static List<PropertyListEntry> GetGridProperties(object obj, Dictionary<string, GridColumnInfo> dict) {
             List<PropertyListEntry> list = new List<PropertyListEntry>();

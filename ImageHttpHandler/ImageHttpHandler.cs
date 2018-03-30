@@ -11,6 +11,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 #else
@@ -79,7 +80,7 @@ namespace YetaWF.Core.HttpHandler
 
                     // check if this is a temporary (uploaded image)
                     FileUpload fileUpload = new FileUpload();
-                    string filePath = fileUpload.GetTempFilePathFromName(nameVal, locationVal);
+                    string filePath = await fileUpload.GetTempFilePathFromNameAsync(nameVal, locationVal);
 
                     // if we don't have an image yet, try to get the file from the registered type
                     if (((img == null || bytes == null) && filePath == null) && entry.GetImageAsFileAsync != null) {
@@ -101,11 +102,11 @@ namespace YetaWF.Core.HttpHandler
                     }
 
                     // if there is no image, use a default image
-                    if ((img == null || bytes == null) && (filePath == null || !File.Exists(filePath))) {
+                    if ((img == null || bytes == null) && (filePath == null || !await FileSystem.FileSystemProvider.FileExistsAsync(filePath))) {
                         Package package = Package.GetPackageFromType(typeof(YetaWFManager));// get the core package
                         string addonUrl = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "Image");// and the Url of the Image template
                         filePath = YetaWFManager.UrlToPhysical(Path.Combine(addonUrl, "Images", "NoImage.png"));
-                        if (!File.Exists(filePath))
+                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(filePath))
                             throw new InternalError("The image {0} is missing", filePath);
                     }
 
@@ -164,7 +165,7 @@ namespace YetaWF.Core.HttpHandler
                         contentType = mimeSection.GetContentTypeFromExtension(Path.GetExtension(filePath));
                         if (string.IsNullOrWhiteSpace(contentType))
                             throw new InternalError("File type not suitable as image - {0}", filePath);// shouldn't have been uploaded in the first place
-                        DateTime lastMod = File.GetLastWriteTimeUtc(filePath);
+                        DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(filePath);
                         context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
                         YetaWFManager.SetStaticCacheInfo(context.Response);
@@ -206,7 +207,7 @@ namespace YetaWF.Core.HttpHandler
 #if MVC6
                             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
 #else
-                            context.Response.OutputStream.Write(bytes, 0, bytes.Length);
+                            await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
 #endif
                         } else {
                             context.Response.StatusCode = 304;

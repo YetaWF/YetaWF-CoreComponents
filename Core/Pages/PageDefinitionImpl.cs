@@ -256,7 +256,7 @@ namespace YetaWF.Core.Pages {
             get {
                 if (_panes == null) {
                     SkinAccess skinAccess = new SkinAccess();
-                    _panes = skinAccess.Panes(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup);
+                    _panes = skinAccess.GetPanesAsync(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup).Result;//$$$
                 }
                 return _panes;
             }

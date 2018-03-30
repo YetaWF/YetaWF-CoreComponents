@@ -6,6 +6,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,9 +23,9 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(GridDeleteEntryHelper), name, defaultValue, parms); }
 #if MVC6
-        public static HtmlString RenderGridDeleteEntry(this IHtmlHelper htmlHelper, string name,
+        public static async Task<HtmlString> RenderGridDeleteEntryAsync(this IHtmlHelper htmlHelper, string name,
 #else
-        public static HtmlString RenderGridDeleteEntry(this HtmlHelper htmlHelper, string name,
+        public static async Task<HtmlString> RenderGridDeleteEntryAsync(this HtmlHelper htmlHelper, string name,
 #endif
                 int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
             TagBuilder tag = new TagBuilder("span");
@@ -32,7 +33,7 @@ namespace YetaWF.Core.Views.Shared {
 
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Package("#RemoveLight", currentPackage);
+            string imageUrl = await skinImages.FindIcon_PackageAsync("#RemoveLight", currentPackage);
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altRemove", "Remove"));
             tagImg.MergeAttribute("name", "DeleteAction", true);
             tag.SetInnerHtml(tagImg.ToString(TagRenderMode.StartTag));

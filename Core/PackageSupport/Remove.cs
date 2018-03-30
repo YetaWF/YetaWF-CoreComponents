@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 
 namespace YetaWF.Core.Packages {
 
@@ -22,17 +23,17 @@ namespace YetaWF.Core.Packages {
             // now remove all files associated with this package
 
             // Addons for this product
-            status = RemoveEmptyFoldersUp(AddonsFolder, errorList);
+            status = await RemoveEmptyFoldersUpAsync(AddonsFolder, errorList);
 
             // Assembly
             Uri file = new Uri(package.PackageAssembly.CodeBase);
             string asmFile = file.LocalPath;
 
             // Extra assemblies
-            string[] extraAsms = Directory.GetFiles(Path.GetDirectoryName(asmFile), Path.GetFileNameWithoutExtension(asmFile) + ".*.dll");
+            List<string> extraAsms = await FileSystem.FileSystemProvider.GetFilesAsync(Path.GetDirectoryName(asmFile), Path.GetFileNameWithoutExtension(asmFile) + ".*.dll");
             foreach (var extraAsm in extraAsms) {
                 try {
-                    File.Delete(extraAsm);
+                    await FileSystem.FileSystemProvider.DeleteFileAsync(extraAsm);
                 } catch (Exception exc) {
                     if (!(exc is FileNotFoundException)) {
                         errorList.Add(__ResStr("cantRemoveExtraAsm", "Can't delete file {0}: {1}", extraAsm, exc.Message));
@@ -42,7 +43,7 @@ namespace YetaWF.Core.Packages {
             }
             // finally delete the assembly
             try {
-                File.Delete(asmFile);
+                await FileSystem.FileSystemProvider.DeleteFileAsync(asmFile);
             } catch (Exception exc) {
                 if (!(exc is FileNotFoundException)) {
                     errorList.Add(__ResStr("cantRemoveMainAsm", "Can't delete file {0}: {1}", asmFile, exc.Message));
@@ -59,10 +60,10 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         /// <param name="folder"></param>
         /// <param name="errorList"></param>
-        private bool RemoveEmptyFoldersUp(string folder, List<string> errorList) {
+        private async Task<bool> RemoveEmptyFoldersUpAsync(string folder, List<string> errorList) {
             // first delete all content from this folder
             try {
-                Directory.Delete(folder, true);
+                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
             } catch (Exception exc) {
                 if (!(exc is DirectoryNotFoundException)) {
                     errorList.Add(__ResStr("cantRemove", "Package addons folder {0} could not be deleted: {1}", folder, exc.Message));
@@ -71,9 +72,10 @@ namespace YetaWF.Core.Packages {
             }
             // now delete the folder itself if it's empty
             folder = Path.GetDirectoryName(folder);
-            while (Directory.Exists(folder) && Directory.GetFiles(folder).Length == 0 && Directory.GetDirectories(folder).Length == 0) {
+            while (await FileSystem.FileSystemProvider.DirectoryExistsAsync(folder) && (await FileSystem.FileSystemProvider.GetFilesAsync(folder)).Count == 0 &&
+                    (await FileSystem.FileSystemProvider.GetDirectoriesAsync(folder)).Count == 0) {
                 try {
-                    Directory.Delete(folder);
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
                         errorList.Add(__ResStr("cantRemoveHierarchy", "Package addons folder {0} could not be deleted: {1}", folder, exc.Message));

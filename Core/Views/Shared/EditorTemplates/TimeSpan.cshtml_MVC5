@@ -6,19 +6,19 @@
 <div id='@ControlId' class='yt_timespan t_edit'>
     @Html.RenderHidden("", Model.ToString())
     <div class="t_days">
-        @Html.ExtLabelFor(m => ts.Days, "Days")
+        @Html.ExtLabelForAsync(m => ts.Days, "Days").Result
         @Html.EditorFor(m => ts.Days, "IntValue4", "Days")@Html.ValidationMessage("Days")
     </div>
     <div class="t_hours">
-        @Html.ExtLabelFor(m => ts.Hours, "Hours")
+        @Html.ExtLabelForAsync(m => ts.Hours, "Hours").Result
         @Html.EditorFor(m => ts.Hours, "IntValue2", "Hours")@Html.ValidationMessage("Hours")
     </div>
     <div class="t_minutes">
-        @Html.ExtLabelFor(m => ts.Minutes, "Minutes")
+        @Html.ExtLabelForAsync(m => ts.Minutes, "Minutes").Result
         @Html.EditorFor(m => ts.Minutes, "IntValue2", "Minutes")@Html.ValidationMessage("Minutes")
     </div>
     <div class="t_seconds">
-        @Html.ExtLabelFor(m => ts.Seconds, "Seconds")
+        @Html.ExtLabelForAsync(m => ts.Seconds, "Seconds").Result
         @Html.EditorFor(m => ts.Seconds, "IntValue2", "Seconds")@Html.ValidationMessage("Seconds")
     </div>
 </div>

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
@@ -45,12 +46,12 @@ namespace YetaWF.Core.Packages {
 
                 // create backup file in backup folder
                 string backupFolder = Path.Combine(Manager.SiteFolder, BackupFolder);
-                Directory.CreateDirectory(backupFolder);
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(backupFolder);
                 // create a don't deploy marker
-                File.WriteAllText(Path.Combine(backupFolder, Globals.DontDeployMarker), "");
+                await FileSystem.FileSystemProvider.WriteAllTextAsync(Path.Combine(backupFolder, Globals.DontDeployMarker), "");
 
                 string tempFolder = Path.Combine(backupFolder, Path.GetRandomFileName());
-                Directory.CreateDirectory(tempFolder);
+                await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(tempFolder);
                 zipBackupFile.TempFolders.Add(tempFolder);
 
                 // backup data for each package
@@ -66,19 +67,19 @@ namespace YetaWF.Core.Packages {
                             serBackup.PackageDataFiles.Add(zipFile.Zip.Name);
                         }
                     }
-                    if (ForDistribution && package.HasSource && !DataOnly) {
-                        using (zipFile = package.ExportPackage(SourceCode: true)) {
+                    if (ForDistribution && await package.GetHasSourceAsync() && !DataOnly) {
+                        using (zipFile = await package.ExportPackageAsync(SourceCode: true)) {
                             file = Path.Combine(tempFolder, zipFile.Zip.Name);
                             zipFile.Zip.Save(file);
                             serBackup.PackageFiles.Add(zipFile.Zip.Name);
                         }
-                        using (zipFile = package.ExportPackage(SourceCode: false)) {
+                        using (zipFile = await package.ExportPackageAsync(SourceCode: false)) {
                             file = Path.Combine(tempFolder, zipFile.Zip.Name);
                             zipFile.Zip.Save(file);
                             serBackup.PackageFiles.Add(zipFile.Zip.Name);
                         }
                     } else {
-                        using (zipFile = package.ExportPackage(SourceCode: package.HasSource)) {
+                        using (zipFile = await package.ExportPackageAsync(SourceCode: await package.GetHasSourceAsync())) {
                             file = Path.Combine(tempFolder, zipFile.Zip.Name);
                             zipFile.Zip.Save(file);
                             serBackup.PackageFiles.Add(zipFile.Zip.Name);
@@ -87,7 +88,7 @@ namespace YetaWF.Core.Packages {
                 }
 
                 // backup custom addons (site specific)
-                SerializableList<SerializableFile> fileList = Package.ProcessAllFiles(Manager.AddonsCustomSiteFolder, Package.ExcludedFilesAddons);
+                SerializableList<SerializableFile> fileList = await Package.ProcessAllFilesAsync(Manager.AddonsCustomSiteFolder, Package.ExcludedFilesAddons);
                 foreach (var file in fileList) {
                     ZipEntry ze = zipBackupFile.Zip.AddFile(file.AbsFileName);
                     ze.FileName = file.FileName;
@@ -99,9 +100,9 @@ namespace YetaWF.Core.Packages {
                     string fileName = Path.GetTempFileName();
                     zipBackupFile.TempFiles.Add(fileName);
 
-                    FileStream fs = new FileStream(fileName, FileMode.Create);
-                    new GeneralFormatter(Package.ExportFormat).Serialize(fs, serBackup);
-                    fs.Close();
+                    IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName);
+                    new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serBackup);
+                    await fs.CloseAsync();
 
                     ZipEntry ze = zipBackupFile.Zip.AddFile(fileName);
                     ze.FileName = SiteContentsFile;
@@ -124,22 +125,22 @@ namespace YetaWF.Core.Packages {
                 Zip = new ZipFile(),
             };
         }
-        public void Remove(string filename) {
+        public async Task RemoveAsync(string filename) {
             filename = Path.ChangeExtension(filename, "zip");
             string path = Path.Combine(Manager.SiteFolder, SiteBackup.BackupFolder, filename);
-            if (!System.IO.File.Exists(path))
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(path))
                 throw new Error(this.__ResStr("backupNotFound", "The backup '{0}' cannot be located.", filename));
-            File.Delete(path);
+            await FileSystem.FileSystemProvider.DeleteFileAsync(path);
         }
 
-        public void RemoveOldBackups(List<string> errorList, int maxDays) {
+        public async Task RemoveOldBackupsAsync(List<string> errorList, int maxDays) {
             string backupFolder = Path.Combine(Manager.SiteFolder, BackupFolder);
-            if (!Directory.Exists(backupFolder)) return;
-            string[] backups = Directory.GetFiles(backupFolder);
+            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(backupFolder)) return;
+            List<string> backups = await FileSystem.FileSystemProvider.GetFilesAsync(backupFolder);
             TimeSpan timeSpan = new TimeSpan(maxDays, 0, 0, 0);
             foreach (string backup in backups) {
-                if (File.GetLastWriteTimeUtc(backup) < DateTime.UtcNow.Subtract(timeSpan))
-                    File.Delete(backup);
+                if (await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(backup) < DateTime.UtcNow.Subtract(timeSpan))
+                    await FileSystem.FileSystemProvider.DeleteFileAsync(backup);
             }
         }
     }

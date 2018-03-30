@@ -9,6 +9,7 @@ using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
@@ -29,38 +30,38 @@ namespace YetaWF.Core.SendEmail {
         protected MailMessage MailMessage { get; set; }
         protected SmtpClient SmtpClient { get; set; }
 
-        public void PrepareEmailMessageFromStrings(string toEmail, string subject, string emailText, string emailHTML, string fomEmail = null, object parameters = null) {
+        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fomEmail = null, object parameters = null) {
             Manager.CurrentSite.SMTP.Validate();
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
             emailHTML = "<!DOCTYPE html><html><head>" +
                 "<title>" + subject + "</title>" +
                 "</head><body style='margin:0'>" + emailHTML + "</body></html>";
-            PrepareEmailMessage(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
+            await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
         }
-        public string GetEmailFile(Package package, string filename) {
+        public async Task<string> GetEmailFileAsync(Package package, string filename) {
             string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.Domain, package.Product);
             string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
 
             // locate site specific custom email
             string file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
-            if (System.IO.File.Exists(file))
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return file;
             // locate (not site specific) custom email
             file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
-            if (System.IO.File.Exists(file))
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return file;
             // otherwise use default email
             file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", moduleAddOnUrl, EmailsFolder, filename));
-            if (System.IO.File.Exists(file))
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return file;
             throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);
         }
-        public void PrepareEmailMessage(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null) {
+        public async Task PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null) {
             Manager.CurrentSite.SMTP.Validate();
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
-            PrepareEmailMessage(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, parameters);
+            await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, parameters);
         }
-        public void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null) {
+        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null) {
             string file = emailFile;
             if (!file.EndsWith(EmailTxtExtension, StringComparison.CurrentCultureIgnoreCase))
                 throw new Error(this.__ResStr("errEmailTextInv", "The base email file {0} must be a text file (ending in .txt)"), file);
@@ -70,7 +71,7 @@ namespace YetaWF.Core.SendEmail {
             // read simple txt
             string linesText;
             try {
-                linesText = File.ReadAllText(file);
+                linesText = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
             } catch (Exception exc) {
                 throw new Error(this.__ResStr("errEmailTextFile", "The email {0} could not be found."), file, exc);
             }
@@ -79,7 +80,7 @@ namespace YetaWF.Core.SendEmail {
             file = Path.ChangeExtension(emailFile, EmailHtmlExtension);
             string linesHtml = null, htmlFolder = null;
             try {
-                linesHtml = File.ReadAllText(file);
+                linesHtml = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                 htmlFolder = Path.GetDirectoryName(file);
             } catch (Exception exc) {
                 if (!(exc is FileNotFoundException))
@@ -87,9 +88,9 @@ namespace YetaWF.Core.SendEmail {
                 linesHtml = null;
                 htmlFolder = null;
             }
-            PrepareEmailMessage(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, parameters);
+            await PrepareEmailMessageAsync(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, parameters);
         }
-        protected void PrepareEmailMessage(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
+        protected async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
             try {
                 if (string.IsNullOrEmpty(server))
                     throw new Error(this.__ResStr("errMailServer", "No mail server specified."));
@@ -122,17 +123,20 @@ namespace YetaWF.Core.SendEmail {
                     linesHtml = varSubst.ReplaceVariables(linesHtml);
                     linesHtml = varSubst.ReplaceVariables(linesHtml);// twice, in case we have variables containing variables
 
-                    List<string> files = new List<string>(); // inline images
-                    linesHtml = MakeInlineItems(linesHtml, htmlFolder, new Regex(@"=\""\s*file:///([^""]*)\"""), ref files);
-                    linesHtml = MakeInlineItems(linesHtml, htmlFolder, new Regex(@"=\'\s*file:///([^']*)\'"), ref files);
+                    MakeInlineItemsInfo info = new MakeInlineItemsInfo {
+                        LinesHtml = linesHtml,
+                        Files = new List<string>(),
+                    };
+                    info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"=\""\s*file:///([^""]*)\"""), info);
+                    info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"=\'\s*file:///([^']*)\'"), info);
 
                     ContentType mimeType = new ContentType("text/html");
-                    AlternateView alternate = AlternateView.CreateAlternateViewFromString(linesHtml, mimeType);
+                    AlternateView alternate = AlternateView.CreateAlternateViewFromString(info.LinesHtml, mimeType);
                     message.AlternateViews.Add(alternate);
 
                     // add inline images as attachments
                     int i = 0;
-                    foreach (var file in files) {
+                    foreach (var file in info.Files) {
                         LinkedResource lr;
                         if (file.ToLower().EndsWith(".jpeg") || file.ToLower().EndsWith(".jpg"))
                             lr = new LinkedResource(file, "image/jpeg");
@@ -166,12 +170,16 @@ namespace YetaWF.Core.SendEmail {
         }
 
         // find   ="file:///....." in text and replace with ="cid:C{1}"
-        private static string MakeInlineItems(string linesHtml, string htmlFolder, Regex regex, ref List<string> files) {
+        public class MakeInlineItemsInfo {
+            public List<string> Files { get; set; }
+            public string LinesHtml { get; set; }
+        }
+        private static async Task<MakeInlineItemsInfo> MakeInlineItemsAsync(string htmlFolder, Regex regex, MakeInlineItemsInfo info) {
 
             Match m;
             int pos = 0;
             for (;;) {
-                m = regex.Match(linesHtml, pos);
+                m = regex.Match(info.LinesHtml, pos);
                 if (!m.Success)
                     break;
 
@@ -181,15 +189,15 @@ namespace YetaWF.Core.SendEmail {
                 if (src.StartsWith(".\\") && !string.IsNullOrWhiteSpace(htmlFolder)) {
                     src = Path.Combine(htmlFolder, src.Substring(2));
                 }
-                if (File.Exists(src)) {
-                    string newStr = string.Format(@"=""cid:C{0}""", 1000 + files.Count);
-                    linesHtml = linesHtml.Substring(0, m.Index) + newStr + linesHtml.Substring(m.Index + m.Length);
-                    files.Add(src);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(src)) {
+                    string newStr = string.Format(@"=""cid:C{0}""", 1000 + info.Files.Count);
+                    info.LinesHtml = info.LinesHtml.Substring(0, m.Index) + newStr + info.LinesHtml.Substring(m.Index + m.Length);
+                    info.Files.Add(src);
                     pos = m.Index + newStr.Length;
                 } else
                     pos = m.Index + m.Length;
             }
-            return linesHtml;
+            return info;
         }
 
         public void AddBcc(string ccEmail) {

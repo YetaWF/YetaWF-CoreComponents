@@ -6,7 +6,7 @@
         @Html.RenderImage("", Model, Alt: __ResStr("imgAlt", "Preview Image")) @*Image Preview *@
     </div>
     <div class="t_info">
-        @Html.RenderImageAttributes("", Model) @*Image Attributes*@
+        @await Html.RenderImageAttributesAsync("", Model) @*Image Attributes*@
     </div>
     <div class="t_haveimage" @Html.Raw(string.IsNullOrWhiteSpace(Model) ? "style='display:none'" : "")>
         <input type="button" class="t_clear" value="@__ResStr("btnClear", "Clear")" title="@__ResStr("txtClear", "Click to clear the current image")" />

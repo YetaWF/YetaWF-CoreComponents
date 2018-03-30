@@ -10,8 +10,9 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Log {
 
     public interface ILogging {
-        void Clear();
-        void Flush();
+        Task InitAsync();
+        Task ClearAsync();
+        Task FlushAsync();
         void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text);
         Logging.LevelEnum GetLevel();
         Task<bool> IsInstalledAsync();
@@ -66,11 +67,12 @@ namespace YetaWF.Core.Log {
             } catch (Exception) { }
 
             if (log != null) {
+                await log.InitAsync();
                 if (await log.IsInstalledAsync()) {
                     DefaultLogger = log;
                     DefaultLoggerType = tp;
                     RegisterLogging(log);
-                    log.Clear();
+                    await log.ClearAsync();
                 }
             }
         }
@@ -136,7 +138,7 @@ namespace YetaWF.Core.Log {
         /// </summary>
         public static void ForceFlush() {
             foreach (ILogging log in GetLoggers()) {
-                log.Flush();
+                log.FlushAsync();
             }
         }
     }

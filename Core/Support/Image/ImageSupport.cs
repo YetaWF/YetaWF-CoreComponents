@@ -24,15 +24,14 @@ namespace YetaWF.Core.Image {
         // IInitializeApplicationStartup
         // IInitializeApplicationStartup
 
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public async Task InitializeApplicationStartupAsync(bool firstNode) {
             if (firstNode) {
                 // Delete all temp images
                 string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
-                YetaWF.Core.IO.DirectoryIO.DeleteFolder(physFolder);
+                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(physFolder);
                 // Create folder for temp images
-                YetaWF.Core.IO.DirectoryIO.CreateFolder(physFolder);
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(physFolder);
             }
-            return Task.CompletedTask;
         }
 
     }
@@ -60,12 +59,11 @@ namespace YetaWF.Core.Image {
             };
         }
 
-        public Task RunItemAsync(SchedulerItemBase evnt) {
+        public async Task RunItemAsync(SchedulerItemBase evnt) {
             if (evnt.EventName != EventRemoveTempFiles)
                 throw new Error(this.__ResStr("eventNameErr", "Unknown scheduler event {0}."), evnt.EventName);
             FileUpload fileUpload = new FileUpload();
-            fileUpload.RemoveAllExpiredTempFiles(evnt.Frequency.TimeSpan);
-            return Task.CompletedTask;
+            await fileUpload.RemoveAllExpiredTempFilesAsync(evnt.Frequency.TimeSpan);
         }
     }
 
@@ -200,10 +198,10 @@ namespace YetaWF.Core.Image {
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static System.Drawing.Size GetImageSize(string name) {
+        public static async Task<System.Drawing.Size> GetImageSizeAsync(string name) {
             System.Drawing.Size size = new System.Drawing.Size();
             FileUpload fileUpload = new FileUpload();
-            string filePath = fileUpload.GetTempFilePathFromName(name);
+            string filePath = await fileUpload.GetTempFilePathFromNameAsync(name);
             if (filePath == null)
                 return size;
             using (System.Drawing.Image img = System.Drawing.Image.FromFile(filePath)) {

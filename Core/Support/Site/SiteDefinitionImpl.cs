@@ -359,9 +359,9 @@ namespace YetaWF.Core.Site {
         /// Even once the initial install process has ended, INITIAL_INSTALL still returns true to indicate that a site restart is needed.
         /// Some data providers are still marked as not installed until the site is restarted.
         /// </remarks>
-        public static void RemoveInitialInstall() {
+        public static async Task RemoveInitialInstallAsync() {
             WebConfigHelper.SetValue<string>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL", "0");
-            WebConfigHelper.Save();
+            await WebConfigHelper.SaveAsync();
             _initial_install_ended = true;
         }
         private static bool? _initial_install = null;

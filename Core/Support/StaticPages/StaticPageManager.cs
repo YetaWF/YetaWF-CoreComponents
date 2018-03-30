@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
@@ -18,7 +19,7 @@ namespace YetaWF.Core.Support.StaticPages {
 
         private YetaWFManager Manager { get; set; }
         private SiteEntry Site { get; set; }
-        private static object LockObject = new object();
+        private static AsyncLock _lockObject = new AsyncLock();
 
         public enum PageEntryEnum {
             [EnumDescription("File", "Static pages cached using a local file")]
@@ -49,16 +50,16 @@ namespace YetaWF.Core.Support.StaticPages {
 
         public static Dictionary<int, SiteEntry> Sites { get; private set; }
 
-        private void InitSite() {
-            lock (LockObject) {// short-term lock to sync static pages during startup
+        private async Task InitSiteAsync() {
+            using (await _lockObject.LockAsync()) {// short-term lock to sync static pages during startup
                 if (Sites == null)
                     Sites = new Dictionary<int, SiteEntry>();
                 if (!Sites.ContainsKey(Manager.CurrentSite.Identity)) {
-                    RemoveAllPagesInternal();
+                    await RemoveAllPagesInternalAsync();
                     string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-                    Directory.CreateDirectory(folder);
+                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
                     // create a don't deploy marker
-                    File.WriteAllText(Path.Combine(folder, Globals.DontDeployMarker), "");
+                    await FileSystem.FileSystemProvider.WriteAllTextAsync(Path.Combine(folder, Globals.DontDeployMarker), "");
                 }
                 SiteEntry site;
                 if (!Sites.TryGetValue(Manager.CurrentSite.Identity, out site)) {
@@ -69,8 +70,8 @@ namespace YetaWF.Core.Support.StaticPages {
             }
         }
 
-        public List<PageEntry> GetSiteStaticPages() {
-            InitSite();
+        public async Task<List<PageEntry>> GetSiteStaticPagesAsync() {
+            await InitSiteAsync();
             List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
             return list;
         }
@@ -81,8 +82,8 @@ namespace YetaWF.Core.Support.StaticPages {
             return Manager.CurrentRequest.Url.Scheme;
 #endif
         }
-        public void AddPage(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
-            InitSite();
+        public async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
+            await InitSiteAsync();
             string localUrlLower = localUrl.ToLower();
             string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
 
@@ -101,7 +102,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
             tempFile = Path.Combine(folder, tempFile + FileData.MakeValidFileName(localUrl));
-            lock (Site.StaticPages) { // short-term lock to sync static pages 
+            using (await _lockObject.LockAsync()) {
                 PageEntry entry;
                 if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
                     entry = new StaticPages.StaticPageManager.PageEntry {
@@ -120,7 +121,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 SetFileName(entry, tempFile);
             }
             // save the file image
-            File.WriteAllText(tempFile, pageHtml);
+            await FileSystem.FileSystemProvider.WriteAllTextAsync(tempFile, pageHtml);
         }
 
         private void SetFileName(PageEntry entry, string tempFile) {
@@ -154,9 +155,15 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
         }
-        public string GetPage(string localUrl, out DateTime lastUpdate) {
-            InitSite();
-            lastUpdate = DateTime.MinValue;
+
+        public class GetPageInfo {
+            public string FileContents { get; set; }
+            public DateTime LastUpdate{ get; set; }
+        }
+
+        public async Task<GetPageInfo> GetPageAsync(string localUrl) {
+            await InitSiteAsync();
+            DateTime lastUpdate = DateTime.MinValue;
             string localUrlLower = localUrl.ToLower();
             PageEntry entry = null;
             if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
@@ -164,15 +171,27 @@ namespace YetaWF.Core.Support.StaticPages {
                 if (entry.StorageType == PageEntryEnum.Memory) {
                     if (GetScheme() == "https") {
                         if (Manager.IsInPopup) {
-                            return entry.ContentPopupHttps;
+                            return new GetPageInfo {
+                                FileContents = entry.ContentPopupHttps,
+                                LastUpdate = lastUpdate,
+                            };
                         } else {
-                            return entry.ContentHttps;
+                            return new GetPageInfo {
+                                FileContents = entry.ContentHttps,
+                                LastUpdate = lastUpdate,
+                            };
                         }
                     } else {
                         if (Manager.IsInPopup) {
-                            return entry.ContentPopup;
+                            return new GetPageInfo {
+                                FileContents = entry.ContentPopup,
+                                LastUpdate = lastUpdate,
+                            };
                         } else {
-                            return entry.Content;
+                            return new GetPageInfo {
+                                FileContents = entry.Content,
+                                LastUpdate = lastUpdate,
+                            };
                         }
                     }
                 } else /*if (entry.StorageType == PageEntryEnum.File)*/ {
@@ -191,54 +210,63 @@ namespace YetaWF.Core.Support.StaticPages {
                         }
                     }
                     try {
-                        return File.ReadAllText(tempFile);
+                        return new GetPageInfo {
+                            FileContents = await FileSystem.FileSystemProvider.ReadAllTextAsync(tempFile),
+                            LastUpdate = lastUpdate,
+                        };
                     } catch (System.Exception) {
-                        return null;
+                        return new GetPageInfo {
+                            FileContents = null,
+                            LastUpdate = lastUpdate,
+                        };
                     }
                 }
             }
-            return null;
+            return new GetPageInfo {
+                FileContents = null,
+                LastUpdate = lastUpdate,
+            };
         }
-        public bool HavePage(string localUrl) {
-            InitSite();
+        public async Task<bool> HavePageAsync(string localUrl) {
+            await InitSiteAsync();
             string localUrlLower = localUrl.ToLower();
             PageEntry entry = null;
             return Site.StaticPages.TryGetValue(localUrlLower, out entry);
         }
-        public void RemovePage(string localUrl) {
-            InitSite();
+        public async Task RemovePageAsync(string localUrl) {
+            await InitSiteAsync();
             string localUrlLower = localUrl.ToLower();
-            lock (Site.StaticPages) { // short-term lock to sync static pages 
+            using (await _lockObject.LockAsync()) {
                 Site.StaticPages.Remove(localUrlLower);
                 string tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http#" + FileData.MakeValidFileName(localUrl));
-                if (File.Exists(tempFile)) File.Delete(tempFile);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
                 tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https#" + FileData.MakeValidFileName(localUrl));
-                if (File.Exists(tempFile)) File.Delete(tempFile);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
                 tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http_popup#" + FileData.MakeValidFileName(localUrl));
-                if (File.Exists(tempFile)) File.Delete(tempFile);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
                 tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https_popup#" + FileData.MakeValidFileName(localUrl));
-                if (File.Exists(tempFile)) File.Delete(tempFile);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
             }
         }
-        public void RemovePages(List<PageDefinition> pages) {
+        public async Task RemovePagesAsync(List<PageDefinition> pages) {
             if (pages == null) return;
             foreach (PageDefinition page in pages)
-                RemovePage(page.Url);
+                await RemovePageAsync(page.Url);
         }
-        public void RemoveAllPages() {
-            InitSite();
-            lock (Site.StaticPages) { // short-term lock to sync static pages 
+        public async Task RemoveAllPagesAsync() {
+            await InitSiteAsync();
+            using (await _lockObject.LockAsync()) {
                 Site.StaticPages = new Dictionary<string, StaticPages.StaticPageManager.PageEntry>();
-                RemoveAllPagesInternal();
+                await RemoveAllPagesInternalAsync();
             }
         }
-        private void RemoveAllPagesInternal() {
+        private async Task RemoveAllPagesInternalAsync() {
             string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-            if (Directory.Exists(folder)) {
-                string[] files = Directory.GetFiles(folder, "*" + FileData.FileExtension);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(folder)) {
+                List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*" + FileData.FileExtension);
                 foreach (string file in files) {
                     try {
-                        File.Delete(file);
+                        await FileSystem.FileSystemProvider.DeleteFileAsync(file);
                     } catch (Exception) { }
                 }
             }

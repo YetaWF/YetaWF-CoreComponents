@@ -3,12 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
+using YetaWF.Core.IO;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Modules;
-using System.Text.RegularExpressions;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -115,7 +116,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);
 
                 string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
-                if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
                     throw new InternalError("No page skin available - file {0} not found", virtPath);
 
                 // set new character dimensions and popup info
@@ -153,7 +154,7 @@ namespace YetaWF.Core.Controllers {
                     pageHtml = ProcessInlineScripts(pageHtml);
                 Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
 
-                Manager.AddOnManager.AddSkinCustomization(skinCollection);
+                await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
                 Manager.PopCharSize();
 
                 if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
@@ -165,12 +166,12 @@ namespace YetaWF.Core.Controllers {
                 ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious: true);
 
                 PageProcessing pageProc = new PageProcessing(Manager);
-                pageHtml = pageProc.PostProcessHtml(pageHtml);
+                pageHtml = await pageProc.PostProcessHtmlAsync(pageHtml);
                 if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
                     pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
 
                 if (staticPage) {
-                    Manager.StaticPageManager.AddPage(requestedPage.Url, requestedPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
+                    await Manager.StaticPageManager.AddPageAsync(requestedPage.Url, requestedPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);
                     // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
                     // so is only helpful for static pages and can't be used for dynamic pages
                     context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));

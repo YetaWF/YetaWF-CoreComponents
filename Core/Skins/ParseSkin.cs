@@ -1,8 +1,11 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
@@ -11,20 +14,20 @@ namespace YetaWF.Core.Skins {
 
     public partial class SkinAccess {
 
-        public SkinCollectionInfo ParseSkinFile(string domain, string product, string name, string folder) {
+        public async Task<SkinCollectionInfo> ParseSkinFileAsync(string domain, string product, string name, string folder) {
 
             string fileName = Path.Combine(folder, "Skin.txt");
 
             Logging.AddLog("Parsing {0}", fileName);
 
-            string[] lines = File.ReadAllLines(fileName);
+            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(fileName);
             SkinCollectionInfo info = new SkinCollectionInfo() {
                 CollectionName = domain + "/" + product + "/" + name,
                 Folder = folder
             };
             string line;
             int lineCount = 0;
-            int totalLines = lines.Length;
+            int totalLines = lines.Count;
 
             // get the collection description
             if (totalLines <= 0) throw new InternalError("Collection description missing - line {0}", lineCount);
@@ -45,12 +48,12 @@ namespace YetaWF.Core.Skins {
             if (lineCount >= totalLines) throw new InternalError("::Pages:: section missing - line {0}", lineCount);
             line = lines[lineCount++].Trim();
             if (line != "::Pages::") throw new InternalError("::Pages:: section expected - line {0}: {1}", lineCount, line);
-            ExtractPages(fileName, lines, ref lineCount, totalLines, info);
+            lineCount = await ExtractPagesAsync(fileName, lines, lineCount, totalLines, info);
             // ::Popups::
             if (lineCount >= totalLines) throw new InternalError("::Popups:: section missing - line {0}", lineCount);
             line = lines[lineCount++].Trim();
             if (line != "::Popups::") throw new InternalError("::Popups:: section expected - line {0}: {1}", lineCount, line);
-            ExtractPages(fileName, lines, ref lineCount, totalLines, info, Popups: true);
+            lineCount = await ExtractPagesAsync(fileName, lines, lineCount, totalLines, info, Popups: true);
             //::Modules::
             if (lineCount >= totalLines) throw new InternalError("::Modules:: section missing - line {0}", lineCount);
             line = lines[lineCount++].Trim();
@@ -79,7 +82,7 @@ namespace YetaWF.Core.Skins {
             return info;
         }
 
-        private int GetInt(string fileName, string[] lines, int totalLines, ref int lineCount, string name, int dflt) {
+        private int GetInt(string fileName, List<string> lines, int totalLines, ref int lineCount, string name, int dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
             string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);
@@ -95,7 +98,7 @@ namespace YetaWF.Core.Skins {
             return val;
         }
 
-        private bool GetBool(string fileName, string[] lines, int totalLines, ref int lineCount, string name, bool dflt) {
+        private bool GetBool(string fileName, List<string> lines, int totalLines, ref int lineCount, string name, bool dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
             string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);
@@ -105,7 +108,7 @@ namespace YetaWF.Core.Skins {
             return s[1] == "true" || s[1] == "1";
         }
 
-        private string GetOptionalString(string fileName, string[] lines, int totalLines, ref int lineCount, string name, string dflt) {
+        private string GetOptionalString(string fileName, List<string> lines, int totalLines, ref int lineCount, string name, string dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
             string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);
@@ -115,12 +118,11 @@ namespace YetaWF.Core.Skins {
             return s.Length > 1 ? s[1] : null;
         }
 
-        private void ExtractPages(string fileName, string[] lines, ref int lineCount, int totalLines, SkinCollectionInfo info, bool Popups = false)
-        {
+        private async Task<int> ExtractPagesAsync(string fileName, List<string> lines, int lineCount, int totalLines, SkinCollectionInfo info, bool Popups = false) {
             while (lineCount < totalLines) {
                 string line = lines[lineCount].Trim();
                 if (line.StartsWith("::")) // start of a new section?
-                    return;
+                    return lineCount;
                 ++lineCount;
 
                 // Get a page
@@ -132,7 +134,8 @@ namespace YetaWF.Core.Skins {
                 if (name.Length == 0) throw new InternalError("Invalid page name for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 string file = s[1].Trim();
                 if (file.Length == 0) throw new InternalError("Invalid file name for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
-                if (!File.Exists(Path.Combine(info.Folder, Popups?PopupFolder:PageFolder, file))) throw new InternalError("File for skin entry not found - line {0}: {1} ({2})", lineCount, line, fileName);
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(Path.Combine(info.Folder, Popups ? PopupFolder : PageFolder, file)))
+                    throw new InternalError("File for skin entry not found - line {0}: {1} ({2})", lineCount, line, fileName);
                 string description = s[2].Trim();
                 if (description.Length == 0) throw new InternalError("Invalid description for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 string css = s[3].Trim();
@@ -154,7 +157,7 @@ namespace YetaWF.Core.Skins {
                 int charWidth = 0, charHeight = 0;
                 try {
                     charWidth = Convert.ToInt32(s[nextToken]);
-                    charHeight = Convert.ToInt32(s[nextToken+1]);
+                    charHeight = Convert.ToInt32(s[nextToken + 1]);
                 } catch { }
                 if (charWidth <= 0 || charHeight <= 0) throw new InternalError("Invalid character width/height for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
 
@@ -174,8 +177,9 @@ namespace YetaWF.Core.Skins {
                 else
                     info.PageSkins.Add(entry);
             }
+            return lineCount;
         }
-        private void ExtractModules(string[] lines, ref int lineCount, int totalLines, SkinCollectionInfo info) {
+        private void ExtractModules(List<string> lines, ref int lineCount, int totalLines, SkinCollectionInfo info) {
             while (lineCount < totalLines) {
                 string line = lines[lineCount].Trim();
                 if (line.StartsWith("::")) // start of a new section?

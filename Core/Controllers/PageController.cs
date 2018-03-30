@@ -282,9 +282,9 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Process the page
-            string pageData = null;
-            if (CanProcessAsStaticPage(uri.LocalPath, out pageData)) {
-                return Content(pageData, "text/html");
+            CanProcessAsStaticPageInfo info = await CanProcessAsStaticPageAsync(uri.LocalPath);
+            if (info.Success) {
+                return Content(info.Contents, "text/html");
             }
 
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)
@@ -442,21 +442,28 @@ namespace YetaWF.Core.Controllers {
             Page = 1, // Page has been set up
             Complete = 2,// no more processing is needed
         }
-        private bool CanProcessAsStaticPage(string localUrl, out string pageData) {
-            pageData = null;
+        public class CanProcessAsStaticPageInfo {
+            public string Contents { get; set; }
+            public bool Success { get; set; }
+        }
+        private async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(string localUrl) {
             if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers) {
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
                 }
-                DateTime lastUpdate;
-                pageData = Manager.StaticPageManager.GetPage(localUrl, out lastUpdate);
-                if (!string.IsNullOrWhiteSpace(pageData)) {
-                    Manager.CurrentResponse.Headers.Add("Last-Modified", string.Format("{0:R}", lastUpdate));
-                    return true;
+                Support.StaticPages.StaticPageManager.GetPageInfo info = await Manager.StaticPageManager.GetPageAsync(localUrl);
+                if (!string.IsNullOrWhiteSpace(info.FileContents)) {
+                    Manager.CurrentResponse.Headers.Add("Last-Modified", string.Format("{0:R}", info.LastUpdate));
+                    return new CanProcessAsStaticPageInfo {
+                        Contents = info.FileContents,
+                        Success = true,
+                    };
                 }
             }
-            return false;
+            return new CanProcessAsStaticPageInfo {
+                Success = false,
+            };
         }
         private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, string url, string queryString) {
             // request for a designed page

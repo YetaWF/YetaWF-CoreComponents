@@ -1,19 +1,20 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using YetaWF.Core.Models.Attributes;
-using System.IO;
 using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace YetaWF.Core.Support {
 
     public static class WebConfigHelper {
 
-        public static void Init(string settingsFile) {
-            if (!File.Exists(settingsFile))
+        public static Task InitAsync(string settingsFile) {
+            if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Appsettings.json file not found ({0})", settingsFile);
             SettingsFile = settingsFile;
-            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile));
+            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            return Task.CompletedTask;
         }
 
         private static string SettingsFile;
@@ -120,9 +121,10 @@ namespace YetaWF.Core.Support {
             // This is not currently used (except ::WEBCONFIG-SECTION:: which is not yet present in site templates)
             throw new InternalError("Updating Application Settings not supported");
         }
-        public static void Save() {
+        public static Task SaveAsync() {
             string s = YetaWFManager.JsonSerialize(Settings, Indented: true);
             File.WriteAllText(SettingsFile, s);
+            return Task.CompletedTask;
         }
     }
 }

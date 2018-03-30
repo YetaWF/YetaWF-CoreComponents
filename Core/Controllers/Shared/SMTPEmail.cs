@@ -40,7 +40,7 @@ namespace YetaWF.Core.Controllers.Shared {
             object parms = new {
                 Message = this.__ResStr("emailMessage", "Test Message - Site Settings / Email")
             };
-            sendEmail.PrepareEmailMessage(server, port, ssl, authentication, username, password, null, Manager.UserEmail, subject, sendEmail.GetEmailFile(AreaRegistration.CurrentPackage, "SMTPServer Test Message.txt"), parms);
+            await sendEmail.PrepareEmailMessageAsync(server, port, ssl, authentication, username, password, null, Manager.UserEmail, subject, await sendEmail.GetEmailFileAsync(AreaRegistration.CurrentPackage, "SMTPServer Test Message.txt"), parms);
             await sendEmail.SendAsync();
             string msg = this.__ResStr("emailSent", "A test email has just been sent to {0}", Manager.UserEmail);
             ContentResult cr = Content(

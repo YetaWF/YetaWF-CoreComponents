@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.PackageSupport {
@@ -193,15 +195,15 @@ namespace YetaWF.Core.PackageSupport {
         /// <param name="overwrite">If true overwrites an existing reparse point or empty directory</param>
         /// <exception cref="IOException">Thrown when the junction point could not be created or when
         /// an existing directory was found and <paramref name="overwrite" /> if false</exception>
-        public static void Create(string junctionPoint, string targetDir, bool overwrite) {
+        public static async Task CreateAsync(string junctionPoint, string targetDir, bool overwrite) {
             targetDir = Path.GetFullPath(targetDir);
-            if (!Directory.Exists(targetDir))
+            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(targetDir))
                 throw new InternalError("Target path does not exist or is not a directory ({0})", targetDir);
-            if (Directory.Exists(junctionPoint)) {
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(junctionPoint)) {
                 if (!overwrite)
                     throw new InternalError("Directory already exists and overwrite parameter is false");
             } else {
-                Directory.CreateDirectory(junctionPoint);
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(junctionPoint);
             }
 
             using (SafeFileHandle handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericWrite)) {
@@ -242,8 +244,8 @@ namespace YetaWF.Core.PackageSupport {
         /// <returns>True if the specified path represents a junction point</returns>
         /// <exception cref="IOException">Thrown if the specified path is invalid
         /// or some other error occurs</exception>
-        public static bool Exists(string path) {
-            if (!Directory.Exists(path))
+        public static async Task<bool> ExistsAsync(string path) {
+            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(path))
                 return false;
 
             using (SafeFileHandle handle = OpenReparsePoint(path, EFileAccess.GenericRead)) {

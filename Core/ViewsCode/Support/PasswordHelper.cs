@@ -27,7 +27,7 @@ namespace YetaWF.Core.Views.Shared {
         public static async Task<HtmlString> RenderPasswordAsync(this HtmlHelper<object> htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             await Manager.AddOnManager.AddTemplateAsync("Text");
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.maskedtextbox.min.js");
 
             TagBuilder tag = new TagBuilder("input");
             htmlHelper.FieldSetup(tag, name, HtmlAttributes: HtmlAttributes, Validation: Validation);

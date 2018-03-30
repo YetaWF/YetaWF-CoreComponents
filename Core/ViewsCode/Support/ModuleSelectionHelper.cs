@@ -144,9 +144,9 @@ namespace YetaWF.Core.Views.Shared {
             return DropDownHelper.RenderDataSource(areaName, list);
         }
 #if MVC6
-        public static HtmlString RenderModuleSelectionLink(this IHtmlHelper htmlHelper, Guid? modGuid) {
+        public static async Task<HtmlString> RenderModuleSelectionLinkAsync(this IHtmlHelper htmlHelper, Guid? modGuid) {
 #else
-        public static HtmlString RenderModuleSelectionLink(this HtmlHelper htmlHelper, Guid? modGuid) {
+        public static async Task<HtmlString> RenderModuleSelectionLinkAsync(this HtmlHelper htmlHelper, Guid? modGuid) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -161,7 +161,7 @@ namespace YetaWF.Core.Views.Shared {
             // image
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Template("ModulePreview.png", currentPackage, "ModuleSelection");
+            string imageUrl = await skinImages.FindIcon_TemplateAsync("ModulePreview.png", currentPackage, "ModuleSelection");
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("linkAlt", "Preview"));
 
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
@@ -210,7 +210,7 @@ namespace YetaWF.Core.Views.Shared {
             if (mod != null) {
                 tag = new TagBuilder("div");
                 tag.AddCssClass("t_link");
-                tag.SetInnerHtml(htmlHelper.RenderModuleSelectionLink(modGuid).ToString());
+                tag.SetInnerHtml(htmlHelper.RenderModuleSelectionLinkAsync(modGuid).ToString());
                 hb.Append(tag.ToString(TagRenderMode.Normal));
             }
 

@@ -131,8 +131,8 @@ namespace YetaWF.Core.Views.Shared {
             if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.JQuery) {
                 sb.Append($"YetaWF_PropertyList.tabInitjQuery('{controlId}', {activeTab}, '{activeTabId}');\n");
             } else if (Manager.CurrentSite.TabStyle == YetaWF.Core.Site.TabStyleEnum.Kendo) {
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.tabstrip.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.data.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.tabstrip.min.js");
                 sb.Append($"YetaWF_PropertyList.tabInitKendo('{controlId}', {activeTab}, '{activeTabId}');\n");
             } else
                 throw new InternalError("Unknown tab control style");
@@ -251,16 +251,16 @@ namespace YetaWF.Core.Views.Shared {
             return properties;
         }
 #if MVC6
-        public static HtmlString RenderPropertyListDisplay(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListDisplayAsync(this IHtmlHelper htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static HtmlString RenderPropertyListDisplay(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListDisplayAsync(this HtmlHelper<object> htmlHelper, string name, object model, int dummy = 0, bool ReadOnly = false) {
 #endif
-            return htmlHelper.RenderPropertyList(name, model, null, ReadOnly: true);
+            return await htmlHelper.RenderPropertyListAsync(name, model, null, ReadOnly: true);
         }
 #if MVC6
-        public static HtmlString RenderPropertyList(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListAsync(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static HtmlString RenderPropertyList(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListAsync(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
@@ -274,7 +274,7 @@ namespace YetaWF.Core.Views.Shared {
             HtmlBuilder hbProps = new HtmlBuilder();
             string divId = string.IsNullOrWhiteSpace(id) ? Manager.UniqueId() : id;
             hbProps.Append("<div id='{0}' class='yt_propertylist t_table {1}'>", divId, ReadOnly ? "t_display" : "t_edit");
-            hbProps.Append(RenderList(htmlHelper, model, null, showVariables, ReadOnly));
+            hbProps.Append(await RenderListAsync(htmlHelper, model, null, showVariables, ReadOnly));
             hbProps.Append("</div>");
 
             if (!string.IsNullOrWhiteSpace(classData.Legend)) {
@@ -321,9 +321,9 @@ namespace YetaWF.Core.Views.Shared {
             }
         }
 #if MVC6
-        private static HtmlString RenderList(IHtmlHelper htmlHelper, object model, string category, bool showVariables, bool readOnly)
+        private static async Task<HtmlString> RenderListAsync(IHtmlHelper htmlHelper, object model, string category, bool showVariables, bool readOnly)
 #else
-        private static HtmlString RenderList(HtmlHelper<object> htmlHelper, object model, string category, bool showVariables, bool readOnly)
+        private static async Task<HtmlString> RenderListAsync(HtmlHelper<object> htmlHelper, object model, string category, bool showVariables, bool readOnly)
 #endif
         {
             bool focusSet = Manager.WantFocus ? false : true;
@@ -352,7 +352,7 @@ namespace YetaWF.Core.Views.Shared {
                 hb.Append("<div class='t_row t_{0}'>", property.Name.ToLower());
                 if (!string.IsNullOrWhiteSpace(property.TextAbove)) {
                     labelDone = true;
-                    HtmlString hs = htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
+                    HtmlString hs = await htmlHelper.ExtLabelAsync(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
                     if (hs != HtmlStringExtender.Empty) {
                         hb.Append("<div class='t_labels'>");
                         hb.Append(hs);
@@ -368,7 +368,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (labelDone) {
                     hb.Append("<div class='t_labels t_fillerabove'>&nbsp;</div>");
                 } else {
-                    HtmlString hs = htmlHelper.ExtLabel(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
+                    HtmlString hs = await htmlHelper.ExtLabelAsync(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
                     if (hs != HtmlStringExtender.Empty) {
                         hb.Append("<div class='t_labels'>");
                         hb.Append(hs);
@@ -486,7 +486,7 @@ namespace YetaWF.Core.Views.Shared {
 
             List<string> categories = PropertyListSupport.GetCategories(model);
             if (categories.Count <= 1) // if there is only one tab, show as regular property list
-                return RenderPropertyList(htmlHelper, name, model, id, ReadOnly: ReadOnly);
+                return await RenderPropertyListAsync(htmlHelper, name, model, id, ReadOnly: ReadOnly);
 
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
@@ -516,7 +516,7 @@ namespace YetaWF.Core.Views.Shared {
             int panel = 0;
             foreach (string category in categories) {
                 hb.Append(htmlHelper.RenderTabPaneStart(divId, panel));
-                hb.Append(RenderList(htmlHelper, model, category, showVariables, ReadOnly));
+                hb.Append(await RenderListAsync(htmlHelper, model, category, showVariables, ReadOnly));
                 hb.Append(htmlHelper.RenderTabPaneEnd(divId, panel));
                 ++panel;
             }

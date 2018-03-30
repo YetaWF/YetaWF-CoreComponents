@@ -10,6 +10,7 @@ using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -69,17 +70,17 @@ namespace YetaWF.Core.Skins {
         }
 
         // get the contents of the page skin file
-        public string PageSkinFileContents(string filePath) {
-            string contents = File.ReadAllText(filePath);
+        public async Task<string> PageSkinFileContentsAsync(string filePath) {
+            string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(filePath);
             contents = contents.Replace('\r', ' ').Replace('\n', ' ');
             return contents;
         }
 
         // Returns the panes defined by the page skin
-        public List<string> Panes(SkinDefinition pageSkin, bool popup) {
+        public async Task<List<string>> GetPanesAsync(SkinDefinition pageSkin, bool popup) {
             List<string> panes = new List<string>();
             string fileName = PageSkinFile(pageSkin, popup);
-            string contents = PageSkinFileContents(fileName);
+            string contents = await PageSkinFileContentsAsync(fileName);
             Regex regex = new Regex(MakeRegexPattern(regexRazorRenderPane), RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
             Match m = regex.Match(contents);
             while (m.Success) {

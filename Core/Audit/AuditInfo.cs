@@ -1,4 +1,6 @@
-﻿using System;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,7 +54,7 @@ namespace YetaWF.Core.Audit {
             int siteIdentity = 0, userId = 0;
             if (YetaWFManager.HaveManager) {
                 YetaWFManager manager = YetaWFManager.Manager;
-                siteIdentity = manager.CurrentSite != null ? manager.CurrentSite.Identity : 0;
+                siteIdentity = YetaWFManager.Manager.HaveCurrentSite ? manager.CurrentSite.Identity : 0;
                 userId = manager.UserId;
             }
 

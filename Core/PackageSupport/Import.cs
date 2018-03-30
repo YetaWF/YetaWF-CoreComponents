@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.IO;
 using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -19,7 +21,7 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        public static bool Import(string zipFileName, List<string> errorList) {
+        public static async Task<bool> ImportAsync(string zipFileName, List<string> errorList) {
 
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
@@ -45,7 +47,7 @@ namespace YetaWF.Core.Packages {
                 SerializablePackage serPackage = (SerializablePackage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
                 fs.Close();
 
-                File.Delete(xmlFile);
+                await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
 
                 if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
                     errorList.Add(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",
@@ -56,11 +58,11 @@ namespace YetaWF.Core.Packages {
                     errorList.Add(__ResStr("invCore", "This package requires YetaWF version {0} - Current version found is {1}", serPackage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
-                return Import(zip, displayFileName, serPackage, errorList);
+                return await ImportAsync(zip, displayFileName, serPackage, errorList);
             }
         }
 
-        private static bool Import(ZipFile zip, string displayFileName, SerializablePackage serPackage, List<string> errorList) {
+        private static async Task<bool> ImportAsync(ZipFile zip, string displayFileName, SerializablePackage serPackage, List<string> errorList) {
 
             // unzip all files/data
             try {
@@ -69,7 +71,7 @@ namespace YetaWF.Core.Packages {
                 string sourcePath = null;
                 if (hasSource) {
                     // Determine whether this is a YetaWF instance with source code by inspecting the Core package
-                    if (!YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.HasSource)
+                    if (!await YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.GetHasSourceAsync())
                         throw new InternalError("Packages with source code can only be imported on development systems");
                     // set target folder
                     string sourceFolder = null;
@@ -99,19 +101,19 @@ namespace YetaWF.Core.Packages {
                     }
                     sourcePath = Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                     try {
-                        Directory.Delete(sourcePath, true);
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(sourcePath);
                     } catch (Exception exc) {
                         if (!(exc is DirectoryNotFoundException)) {
                             errorList.Add(__ResStr("cantDelete", "Package source folder {0} could not be deleted: {1}", sourcePath, exc.Message));
                             return false;
                         }
                     }
-                    Directory.CreateDirectory(sourcePath);
+                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(sourcePath);
                 }
 
                 string addonsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                 try {
-                    Directory.Delete(Path.Combine(addonsPath), true);
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(addonsPath));
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
                         errorList.Add(__ResStr("cantDeleteAddons", "Site Addons folder {0} could not be deleted: {1}", addonsPath, exc.Message));
@@ -125,7 +127,7 @@ namespace YetaWF.Core.Packages {
                 viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
 #endif
                 try {
-                    Directory.Delete(Path.Combine(viewsPath), true);
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(viewsPath));
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
                         errorList.Add(__ResStr("cantDeleteViews", "Site Views folder {0} could not be deleted: {1}", viewsPath, exc.Message));
@@ -136,6 +138,7 @@ namespace YetaWF.Core.Packages {
                 // copy bin files to website
                 {
                     // copy bin files to a temporary location
+                    //$$$tempbin research temp folder
                     string tempBin = Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct);
                     foreach (var file in serPackage.BinFiles) {
                         ZipEntry e = zip[file.FileName];
@@ -171,12 +174,12 @@ namespace YetaWF.Core.Packages {
                     }
 #else
                     string sourceBin = Path.Combine(tempBin, "bin");
-                    CopyVersionedFiles(sourceBin, Path.Combine(YetaWFManager.RootFolder, "Bin"));
+                    await CopyVersionedFilesAsync(sourceBin, Path.Combine(YetaWFManager.RootFolder, "Bin"));
 #endif
                     try {// try to delete all dirs up to and including tempbin if empty (ignore any errors)
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct), true);
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain));
-                        Directory.Delete(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin"));
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct));
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain));
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin"));
                     } catch (Exception) { }
                 }
 
@@ -229,17 +232,17 @@ namespace YetaWF.Core.Packages {
             }
             return true;
         }
-        private static void CopyVersionedFiles(string sourceFolder, string targetFolder) {
-            string[] files = Directory.GetFiles(sourceFolder);
+        private static async Task CopyVersionedFilesAsync(string sourceFolder, string targetFolder) {
+            List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(sourceFolder);
             foreach (string file in files)
-                CopyVersionedFile(file, targetFolder);
-            string[] dirs = Directory.GetDirectories(sourceFolder);
+                await CopyVersionedFileAsync(file, targetFolder);
+            List<string> dirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(sourceFolder);
             foreach (string dir in dirs)
-                CopyVersionedFiles(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+                await CopyVersionedFilesAsync(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
         }
-        private static void CopyVersionedFile(string sourceFile, string targetFolder) {
+        private static async Task CopyVersionedFileAsync(string sourceFile, string targetFolder) {
             string targetFile = Path.Combine(targetFolder, Path.GetFileName(sourceFile));
-            if (File.Exists(targetFile)) {
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(targetFile)) {
                 FileVersionInfo versTarget = FileVersionInfo.GetVersionInfo(targetFile);
                 FileVersionInfo versSource = FileVersionInfo.GetVersionInfo(sourceFile);
                 if (!string.IsNullOrWhiteSpace(versTarget.FileVersion) && !string.IsNullOrWhiteSpace(versSource.FileVersion)) {
@@ -247,14 +250,14 @@ namespace YetaWF.Core.Packages {
                         return; // no need to copy, target version >= source version
                 }
             }
-            DateTime modTarget = File.GetLastWriteTimeUtc(targetFile);
-            DateTime modSource = File.GetLastWriteTimeUtc(sourceFile);
+            DateTime modTarget = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(targetFile);
+            DateTime modSource = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(sourceFile);
             if (modTarget >= modSource)
                 return; // no need to copy, target modified date/time >= source modified
-            File.Copy(sourceFile, targetFile, true);
+            await FileSystem.FileSystemProvider.CopyFileAsync(sourceFile, targetFile);
         }
 
-        public static bool CreatePackageSymLink(string from, string to) {
+        public static async Task<bool> CreatePackageSymLinkAsync(string from, string to) {
             //RESEARCH:  SE_CREATE_SYMBOLIC_LINK_NAME
             // secpol.msc
             // Local Policies > User Rights Assignments - Create Symbolic Links
@@ -262,11 +265,11 @@ namespace YetaWF.Core.Packages {
             // Needs special UAC/elevation so it's not usable for our purposes
             // return CreateSymbolicLink(from, to, (int)SymbolicLink.Directory) != 0;
             // use junctions instead (no special privilege needed)
-            Junction.Create(from, to, true);
+            await Junction.CreateAsync(from, to, true);
             return true;
         }
-        public static bool IsPackageSymLink(string folder) {
-            return Junction.Exists(folder);
+        public static async Task<bool> IsPackageSymLinkAsync(string folder) {
+            return await Junction.ExistsAsync(folder);
         }
 
         //enum SymbolicLink {

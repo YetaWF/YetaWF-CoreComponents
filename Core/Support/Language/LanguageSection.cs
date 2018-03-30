@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Language {
@@ -19,12 +20,13 @@ namespace YetaWF.Core.Language {
 
         public static LanguageEntryElementCollection Languages { get; set; }
 
-        public static void Init(string settingsFile) {
-            if (!File.Exists(settingsFile))
+        public static Task InitAsync(string settingsFile) {
+            if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Language settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile));
+            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
             Languages = GetLanguages();
+            return Task.CompletedTask;
         }
 
         private static string SettingsFile;

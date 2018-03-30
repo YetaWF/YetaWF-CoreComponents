@@ -43,7 +43,7 @@ namespace YetaWF.Core.Packages {
                 SerializableData serData = (SerializableData)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
                 fs.Close();
 
-                File.Delete(xmlFile);
+                await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
 
                 // check if the originating package is really installed
                 List<Package> allPackages = Package.GetAvailablePackages();
@@ -116,7 +116,7 @@ namespace YetaWF.Core.Packages {
                                     return false;
                                 } finally {
                                     fs.Close();
-                                    File.Delete(xmlFile);
+                                    await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
                                 }
 
                                 await model.ImportChunkAsync(chunk, null, obj);

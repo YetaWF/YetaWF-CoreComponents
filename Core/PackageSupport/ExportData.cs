@@ -25,7 +25,6 @@ namespace YetaWF.Core.Packages {
 
             SerializableData serData;
             ZipEntry ze;
-            FileStream fs;
             string fileName;
             YetaWFZipFile zipFile = MakeZipFile(zipName, out serData);
 
@@ -60,9 +59,9 @@ namespace YetaWF.Core.Packages {
                                 fileName = Path.GetTempFileName();
                                 zipFile.TempFiles.Add(fileName);
 
-                                fs = new FileStream(fileName, FileMode.Create);
-                                new GeneralFormatter(Package.ExportFormat).Serialize(fs, expChunk.ObjectList);
-                                fs.Close();
+                                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName);
+                                new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), expChunk.ObjectList);
+                                await fs.CloseAsync();
 
                                 ze = zipFile.Zip.AddFile(fileName);
                                 ze.FileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
@@ -82,9 +81,11 @@ namespace YetaWF.Core.Packages {
             // serialize package contents
             fileName = Path.GetTempFileName();
             zipFile.TempFiles.Add(fileName);
-            fs = new FileStream(fileName, FileMode.Create);
-            new GeneralFormatter(Package.ExportFormat).Serialize(fs, serData);
-            fs.Close();
+            {
+                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName);
+                new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serData);
+                await fs.CloseAsync();
+            }
             ze = zipFile.Zip.AddFile(fileName);
             ze.FileName = PackageContentsFile;
 

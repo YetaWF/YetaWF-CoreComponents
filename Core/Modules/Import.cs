@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
@@ -35,10 +36,10 @@ namespace YetaWF.Core.Modules {
                 ze = zip[ModuleContentsFile];
                 ze.Extract(fs);
                 fs.Close();
-                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
+                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);//?$$$
                 SerializableModule serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
                 fs.Close();
-                File.Delete(xmlFile);
+                await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
 
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serModule.CoreVersion) < 0) {
                     errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
@@ -79,16 +80,16 @@ namespace YetaWF.Core.Modules {
                         string fName = file.FileName;
                         fName = fName.Replace(originalGuid.ToString(), modDef.ModuleGuid.ToString());
                         fName = Manager.SiteFolder + fName;
-                        Directory.CreateDirectory(Path.GetDirectoryName(fName));
+                        await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName));
                         FileStream fs = new FileStream(fName, FileMode.Create, FileAccess.ReadWrite);
                         e.Extract(fs);
                         fs.Close();
 
                         // open file and replace old module guid with new module guid (this is mostly in case module has guid embedded in data)
-                        string contents = File.ReadAllText(fName);
+                        string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(fName);
                         string newContents = contents.Replace(originalGuid.ToString(), modDef.ModuleGuid.ToString());
                         if (contents != newContents)
-                            File.WriteAllText(fName, newContents);
+                            await FileSystem.FileSystemProvider.WriteAllTextAsync(fName, newContents);
                     } else {
                         throw new Error(__ResStr("nonSite", "Module Data {0} cannot be imported - It contains unexpected non site specific data", serModule.ModuleName));
                     }

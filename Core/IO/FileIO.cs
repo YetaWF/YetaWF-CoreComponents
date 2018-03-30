@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 
@@ -48,34 +49,34 @@ namespace YetaWF.Core.IO {
         /// Loads the file.
         /// </summary>
         /// <returns></returns>
-        public TObj Load() {
+        public async Task<TObj> LoadAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
 
             try {
-                Date = System.IO.File.GetLastWriteTimeUtc(FullPath);
+                Date = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(FullPath);
             } catch (Exception) { }
             if (typeof(TObj) == typeof(string)) {
                 try {
-                    Data = System.IO.File.ReadAllText(FullPath);
+                    Data = await FileSystem.FileSystemProvider.ReadAllTextAsync(FullPath);
                 } catch (Exception) { }
             } else {
-                FileStream fs;
+                IFileStream fs;
 #if DEBUG
-                if (!File.Exists(FullPath))
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(FullPath))
                     return default(TObj);
 #endif
                 try {
-                    fs = new FileStream(FullPath, FileMode.Open);
+                    fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(FullPath);
                 } catch (Exception exc) {
                     if (!(exc is FileNotFoundException || exc is DirectoryNotFoundException)) throw;
                     return default(TObj);
                 }
-                byte[] btes = new byte[fs.Length];
-                fs.Read(btes, 0, (int) fs.Length);
-                fs.Close();
+                byte[] btes = new byte[fs.GetLength()];
+                await fs.ReadAsync(btes, 0, (int)fs.GetLength());
+                await fs.CloseAsync();
                 Data = new GeneralFormatter(Format).Deserialize(btes);
             }
-            return (TObj) Data;
+            return (TObj)Data;
         }
 
         /// <summary>
@@ -83,24 +84,24 @@ namespace YetaWF.Core.IO {
         /// </summary>
         /// <param name="replace"></param>
         /// <returns></returns>
-        public bool Save(bool replace = true) {
+        public async Task<bool> SaveAsync(bool replace = true) {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
             if (Data == null) throw new InternalError("no data");
 
-            Directory.CreateDirectory(BaseFolder);
+            await FileSystem.FileSystemProvider.CreateDirectoryAsync(BaseFolder);
 
-            if (!replace && File.Exists(FullPath))
+            if (!replace && await FileSystem.FileSystemProvider.FileExistsAsync(FullPath))
                 return false;
 
             if (typeof(TObj) == typeof(string)) {
-                System.IO.File.WriteAllText(FullPath, (string) Data);
+                await FileSystem.FileSystemProvider.WriteAllTextAsync(FullPath, (string)Data);
             } else {
-                FileStream fs = new FileStream(FullPath, FileMode.Create);
-                new GeneralFormatter(Format).Serialize(fs, Data);
-                fs.Close();
+                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(FullPath);
+                new GeneralFormatter(Format).Serialize(fs.GetFileStream(), Data);
+                await fs.CloseAsync();
             }
             if (Date != null)
-                System.IO.File.SetLastWriteTime(FullPath, ((DateTime)Date).ToLocalTime() );
+                await FileSystem.FileSystemProvider.SetLastWriteTimeLocalAsync(FullPath, ((DateTime)Date).ToLocalTime());
             return true;
         }
 
@@ -108,19 +109,19 @@ namespace YetaWF.Core.IO {
         /// Removes the file.
         /// Throws an error if the file does not exist.
         /// </summary>
-        public void Remove() {
+        public async Task RemoveAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
-            File.Delete(FullPath);
+            await FileSystem.FileSystemProvider.DeleteFileAsync(FullPath);
         }
         /// <summary>
         /// Removes the file.
         /// Ignores any errors.
         /// </summary>
-        public bool TryRemove() {
+        public async Task<bool> TryRemoveAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
             bool success = false;
-            if (File.Exists(FullPath)) {
-                File.Delete(FullPath);
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(FullPath)) {
+                await FileSystem.FileSystemProvider.DeleteFileAsync(FullPath);
                 success = true;
             }
             return success;
@@ -129,9 +130,9 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Test whether the file exists.
         /// </summary>
-        public bool Exists() {
+        public async Task<bool> ExistsAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
-            return File.Exists(FullPath);
+            return await FileSystem.FileSystemProvider.FileExistsAsync(FullPath);
         }
     }
 }

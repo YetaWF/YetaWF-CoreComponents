@@ -105,15 +105,15 @@ namespace YetaWF.Core.Views.Shared {
 
             await Manager.AddOnManager.AddTemplateAsync("DropDownList");
             if (useKendo) {
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.data.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.data.min.js");
                 // Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.list.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.fx.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.userevents.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.draganddrop.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.mobile.scroller.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.virtuallist.min.js");
-                Manager.ScriptManager.AddKendoUICoreJsFile("kendo.dropdownlist.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.list.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.fx.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.userevents.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.draganddrop.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.mobile.scroller.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.virtuallist.min.js");
+                await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.dropdownlist.min.js");
             }
 
             TagBuilder tag = new TagBuilder("select");

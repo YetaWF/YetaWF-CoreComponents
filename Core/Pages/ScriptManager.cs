@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
+using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 // https://developer.yahoo.com/performance/rules.html
@@ -159,23 +160,23 @@ namespace YetaWF.Core.Pages {
         internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
             string productUrl = version.GetAddOnUrl();
             await AddFromSupportTypesAsync(version);
-            AddFromFileList(version, productUrl, args);
+            await AddFromFileListAsync(version, productUrl, args);
         }
 
         /// <summary>
         /// Add a specific file for an addon product - This is normally only used for addons that are known to exist but don't automatically add all required files.
         /// </summary>
         /// <remarks>This is a bad pattern. Don't use it!</remarks>
-        public void AddSpecificJsFile(VersionManager.AddOnProduct version, string file) {
+        public async Task AddSpecificJsFileAsync(VersionManager.AddOnProduct version, string file) {
             string productJsUrl = version.GetAddOnJsUrl();
             string url = productJsUrl + file;
-            Add(url, true, true, false, false, false);
+            await AddAsync(url, true, true, false, false, false);
         }
-        public void AddKendoUICoreJsFile(string file) {
+        public async Task AddKendoUICoreJsFileAsync(string file) {
             if (Manager.IsPostRequest) return;// can't add this while processing a post request
             if (VersionManager.KendoAddonType == VersionManager.KendoAddonTypeEnum.Pro) return;// everything is already included
             if (Manager.CurrentSite.CanUseCDNComponents) return;// already included
-            AddSpecificJsFile(VersionManager.KendoAddon, file);
+            await AddSpecificJsFileAsync(VersionManager.KendoAddon, file);
         }
 
         // Add localizations and configurations
@@ -192,7 +193,7 @@ namespace YetaWF.Core.Pages {
         }
 
         // Add all javascript files listed in filelistJS.txt
-        private void AddFromFileList(VersionManager.AddOnProduct version, string productUrl, params object[] args) {
+        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object[] args) {
             List<string> list = (from i in version.JsFiles select Path.Combine(version.JsPath, i)).ToList(); // make a copy
             foreach (var info in list) {
                 //bool page = true; // default is to use in page and popups, but not with ajax
@@ -217,7 +218,7 @@ namespace YetaWF.Core.Pages {
                         //page = true;
                         //popup = true;
                         //nominify = false;
-                        for (int i = 1 ; i < count ; ++i) {
+                        for (int i = 1; i < count; ++i) {
                             var part = parts[i].Trim().ToLower();
                             //if (part == "page") page = true;
                             //else if (part == "popup") popup = true;
@@ -246,7 +247,7 @@ namespace YetaWF.Core.Pages {
                     if (kendoUICore) {
                         if (nominify || bundle != null || cdn != null || editonly || last || async || defer || allowCustom)
                             throw new InternalError("Can't use keywords on statement '{0}' ({1}/{2})'.", info, version.Domain, version.Product);
-                        AddKendoUICoreJsFile(file);
+                        await AddKendoUICoreJsFileAsync(file);
                     } else {
                         string filePathURL;
                         if (file.IsAbsoluteUrl()) {
@@ -265,19 +266,19 @@ namespace YetaWF.Core.Pages {
                                 f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                             else
 #endif
-                                f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                            if (!File.Exists(f))
+                            f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
                                 throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                             filePathURL = YetaWFManager.PhysicalToUrl(f);
                         } else {
                             filePathURL = string.Format("{0}{1}", productUrl, file);
-                            if (!File.Exists(YetaWFManager.UrlToPhysical(filePathURL)))
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(filePathURL)))
                                 throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
                         }
                         if (allowCustom) {
                             string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
                             string f = YetaWFManager.UrlToPhysical(customUrl);
-                            if (File.Exists(f))
+                            if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                                 filePathURL = customUrl;
                         }
                         if (bundle == true || last) {
@@ -292,7 +293,7 @@ namespace YetaWF.Core.Pages {
                                 bundle = true;
                             }
                         }
-                        if (!Add(filePathURL, !nominify, (bool)bundle, last, async, defer))
+                        if (!await AddAsync(filePathURL, !nominify, (bool)bundle, last, async, defer))
                             version.JsFiles.Remove(info);// remove empty file
                     }
                 }
@@ -302,9 +303,9 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Add a Javascript file explicitly. This is rarely used because Javascript files are automatically added for modules, templates, etc.
         /// </summary>
-        public void AddScript(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
+        public async Task AddScriptAsync(string domainName, string productName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
             VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(domainName, productName);
-            Add(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
+            await AddAsync(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
         }
         /// <summary>
         /// Add a Javascript file explicitly. This is rarely used because Javascript files are automatically added for modules, templates, etc.
@@ -316,7 +317,7 @@ namespace YetaWF.Core.Pages {
         /// <param name="async">Defines whether async is added to the &lt;script&gt; tag.</param>
         /// <param name="defer">Defines whether defer is added to the &lt;script&gt; tag.</param>
         /// <returns></returns>
-        public bool Add(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
+        public async Task<bool> AddAsync(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
             string key = fullUrl.ToLower();
 
             if (fullUrl.IsAbsoluteUrl()) {
@@ -355,7 +356,7 @@ namespace YetaWF.Core.Pages {
             if (!_ScriptFiles.Contains(key)) {
                 if (!fullUrl.IsAbsoluteUrl()) {
                     string path = YetaWFManager.UrlToPhysical(fullUrl);
-                    if (!File.Exists(path))
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(path))
                         throw new InternalError($"File {path} not found for {fullUrl}");
                 }
                 _ScriptFiles.Add(key);
@@ -500,7 +501,7 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        public HtmlBuilder Render(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
+        public async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
 
             if (cr == null)
                 Manager.Verify_NotPostRequest();
@@ -521,22 +522,22 @@ namespace YetaWF.Core.Pages {
                 }
             }
             if (cr != null) {
-                RenderScriptsFiles(cr, KnownScripts);
+                await RenderScriptsFilesAsync(cr, KnownScripts);
                 return new HtmlBuilder();
             } else {
-                HtmlBuilder hb = RenderScriptsFiles();
+                HtmlBuilder hb = await RenderScriptsFilesAsync();
                 tag.Append(hb.ToHtmlString());
                 return tag;
             }
         }
 
-        public HtmlBuilder RenderAjax() {
+        public async Task<HtmlBuilder> RenderAjaxAsync() {
 
             Manager.Verify_PostRequest();
 
             HtmlBuilder tag = new HtmlBuilder();
 
-            HtmlBuilder hb = RenderScriptsFiles();
+            HtmlBuilder hb = await RenderScriptsFilesAsync();
             if (hb.Length > 0) throw new InternalError("Somehow script file links were added in an Ajax request - this is not supported");
             tag.Append(hb.ToHtmlString());
 
@@ -664,7 +665,7 @@ namespace YetaWF.Core.Pages {
                 return Manager.CurrentSite.BundleJSFiles;
         }
 
-        private HtmlBuilder RenderScriptsFiles(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
+        private async Task<HtmlBuilder> RenderScriptsFilesAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbStart = new ScriptBuilder();
@@ -676,7 +677,7 @@ namespace YetaWF.Core.Pages {
                     bundleList = bundleList.Except(KnownScripts).ToList();
                 externalList = (from s in _Scripts orderby s.Last where !s.Bundle select s).ToList();
                 if (bundleList.Count > 1) {
-                    string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
+                    string bundleUrl = await FileBundles.MakeBundleAsync(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
                     if (!string.IsNullOrWhiteSpace(bundleUrl))
                         externalList.Add(new ScriptEntry {
                             Url = bundleUrl,
@@ -709,7 +710,7 @@ namespace YetaWF.Core.Pages {
                         });
                         if (entry.Bundle) {
                             string file = YetaWFManager.UrlToPhysical(entry.Url);
-                            string contents = File.ReadAllText(file);
+                            string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                             cr.ScriptFilesPayload.Add(new PageContentController.Payload {
                                 Name = entry.Url,
                                 Text = contents,

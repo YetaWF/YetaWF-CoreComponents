@@ -2,6 +2,6 @@
 @inherits YetaWF.Core.Views.Shared.Url<System.String>
 @if (!string.IsNullOrWhiteSpace(Model)) {
     <div class="yt_url t_display">
-        @Html.RenderUrlDisplay("", Model)
+        @await Html.RenderUrlDisplayAsync("", Model)
     </div>
 }

@@ -4,7 +4,9 @@ using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -50,11 +52,15 @@ namespace YetaWF.Core.Support {
         public void Dispose() { Dispose(true); }
 
         protected virtual void Dispose(bool disposing) {
-            if (disposing) { DisposableTracker.RemoveObject(this); }
+            if (disposing) {
+                DisposableTracker.RemoveObject(this);
+            }
+        }
+        public async Task CleanupFoldersAsync() {
             if (TempFiles != null) {
                 foreach (var tempFile in TempFiles) {
                     try {
-                        File.Delete(tempFile);
+                        await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
                     } catch (Exception) { }
                 }
                 TempFiles = null;
@@ -62,7 +68,7 @@ namespace YetaWF.Core.Support {
             if (TempFolders != null) {
                 foreach (var tempFolder in TempFolders) {
                     try {
-                        Directory.Delete(tempFolder, true);
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempFolder);
                     } catch (Exception) { }
                 }
                 TempFolders = null;
@@ -110,6 +116,7 @@ namespace YetaWF.Core.Support {
 
             using (Zip) {
                 Zip.Zip.Save(Response.Body);
+                await CleanupFoldersAsync();//$$$ASYNC
             }
 #else
             Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
@@ -121,6 +128,9 @@ namespace YetaWF.Core.Support {
             using (Zip) {
                 Zip.Zip.Save(Response.OutputStream);
                 Response.End();
+                YetaWFManager.Syncify(async () =>
+                    await Zip.CleanupFoldersAsync()
+                );
             }
 #endif
         }

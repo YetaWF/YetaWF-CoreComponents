@@ -107,32 +107,32 @@ namespace YetaWF.Core.Modules {
             switch (style) {
                 default:
                 case ActionStyleEnum.Normal:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu);
                     break;
                 case ActionStyleEnum.NewWindow:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, NewWindow: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, NewWindow: true);
                     break;
                 case ActionStyleEnum.Popup:
                 case ActionStyleEnum.ForcePopup:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups);
                     break;
                 case ActionStyleEnum.PopupEdit:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, PopupEdit: Manager.CurrentSite.AllowPopups);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, PopupEdit: Manager.CurrentSite.AllowPopups);
                     break;
                 case ActionStyleEnum.OuterWindow:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, OuterWindow: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, OuterWindow: true);
                     break;
                 case ActionStyleEnum.Nothing:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, Nothing: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Nothing: true);
                     break;
                 case ActionStyleEnum.Post:
-                    tag = Render_ALink(RenderEngine, mode, Id, HasSubmenu, Post: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Post: true);
                     break;
             }
             return tag.ToHtmlString(TagRenderMode.Normal);
         }
 
-        private TagBuilder Render_ALink(RenderEngineEnum renderEngine, RenderModeEnum mode, string id, bool hasSubmenu,
+        private async Task<TagBuilder> Render_ALinkAsync(RenderEngineEnum renderEngine, RenderModeEnum mode, string id, bool hasSubmenu,
             bool NewWindow = false, bool Popup = false, bool PopupEdit = false, bool Post = false, bool Nothing = false, bool OuterWindow = false) {
 
             TagBuilder tag = new TagBuilder("a");
@@ -236,7 +236,7 @@ namespace YetaWF.Core.Modules {
             bool hasText = false, hasImg = false;
             string innerHtml = "";
             if (mode != RenderModeEnum.LinksOnly && !string.IsNullOrWhiteSpace(ImageUrlFinal)) {
-                TagBuilder tagImg = ImageHelper.BuildKnownImageTag(GetImageUrlFinal(), alt: mode == RenderModeEnum.NormalMenu ? MenuText : LinkText);
+                TagBuilder tagImg = ImageHelper.BuildKnownImageTag(await GetImageUrlFinalAsync(), alt: mode == RenderModeEnum.NormalMenu ? MenuText : LinkText);
                 tagImg.AddCssClass(Basics.CssNoTooltip);
                 innerHtml += tagImg.ToString(TagRenderMode.StartTag);
                 hasImg = true;

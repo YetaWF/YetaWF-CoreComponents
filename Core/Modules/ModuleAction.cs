@@ -11,6 +11,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Routing;
 #else
@@ -236,7 +237,7 @@ namespace YetaWF.Core.Modules {
                             ImageUrlFinal = "#NotFound";
                         } else {
                             SkinImages skinImages = new SkinImages();
-                            ImageUrlFinal = skinImages.FindIcon_Package(img, Package.GetCurrentPackage(OwningModule));
+                            ImageUrlFinal = skinImages.FindIcon_PackageAsync(img, Package.GetCurrentPackage(OwningModule)).Result;//$$$$
                         }
                     }
                 } else {
@@ -252,10 +253,10 @@ namespace YetaWF.Core.Modules {
         [UIHint("Text80"), StringLength(Globals.MaxUrl)]
         public string ImageUrlFinal { get; set; }
 
-        public string GetImageUrlFinal() {
+        public async Task<string> GetImageUrlFinalAsync() {
             if (ImageUrlFinal != null && ImageUrlFinal.StartsWith("#")) {
                 SkinImages skinImages = new SkinImages();
-                return skinImages.FindIcon_Package(ImageUrlFinal, null);
+                return await skinImages.FindIcon_PackageAsync(ImageUrlFinal, null);
             } else
                 return ImageUrlFinal;
         }

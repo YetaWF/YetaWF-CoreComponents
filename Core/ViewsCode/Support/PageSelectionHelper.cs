@@ -63,7 +63,7 @@ namespace YetaWF.Core.Views.Shared {
             // image
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Template("PagePreview.png", currentPackage, "PageSelection");
+            string imageUrl = await skinImages.FindIcon_TemplateAsync("PagePreview.png", currentPackage, "PageSelection");
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("linkAlt", "Preview"));
 
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));

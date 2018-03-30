@@ -30,21 +30,20 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public async Task InitializeApplicationStartupAsync(bool firstNode) {
             // delete all files from last session and create the folder
             if (firstNode) {
                 Logging.AddLog("Removing/creating bundle folder");
                 string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-                if (Directory.Exists(tempPath))
-                    Directory.Delete(tempPath, true);
+                if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(tempPath))
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempPath);
             }
             Bundles = new List<Bundle>();
-            return Task.CompletedTask;
         }
 
         private static List<Bundle> Bundles { get; set; }
 
-        public static string MakeBundle(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
+        public static async Task<string> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
 
             string url = null;
 
@@ -66,7 +65,7 @@ namespace YetaWF.Core.Pages {
 
                 string bundleName = MakeName(fileList);
 
-                StringLocks.DoAction(bundleName, () => {
+                await StringLocks.DoActionAsync(bundleName, async () => {
                     Bundle bundle = (from b in Bundles where b.BundleName == bundleName select b).FirstOrDefault();
                     if (bundle == null || startLength != bundle.StartLength) {
                         // make a new temp file combining all files in the list
@@ -85,7 +84,7 @@ namespace YetaWF.Core.Pages {
                         sb.Append("--------------------------------------------------*/\n");
 #endif
                         foreach (var file in fileList) {
-                            string fileText = File.ReadAllText(YetaWFManager.UrlToPhysical(file));
+                            string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(YetaWFManager.UrlToPhysical(file));
                             if (!string.IsNullOrWhiteSpace(fileText)) {
 #if DEBUG
                                 sb.AppendFormat("/**** {0} ****/\n", file);
@@ -123,8 +122,8 @@ namespace YetaWF.Core.Pages {
                         }
                         Bundles.Add(bundle);
                         string realFile = YetaWFManager.UrlToPhysical(bundle.Url);
-                        Directory.CreateDirectory(Path.GetDirectoryName(realFile));
-                        File.WriteAllText(realFile, sb.ToString());
+                        await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
+                        await FileSystem.FileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
                     } else {
                         // existing bundle
 #if DEBUG

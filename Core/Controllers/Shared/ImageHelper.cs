@@ -8,6 +8,7 @@ using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -31,17 +32,17 @@ namespace YetaWF.Core.Controllers.Shared {
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_UploadImages)]
 #if MVC6
-        public ActionResult SaveImage(IFormFile __filename, string __lastInternalName) {
+        public async Task<ActionResult> SaveImageAsync(IFormFile __filename, string __lastInternalName) {
 #else
-        public ActionResult SaveImage(HttpPostedFileBase __filename, string __lastInternalName) {
+        public async Task<ActionResult> SaveImageAsync(HttpPostedFileBase __filename, string __lastInternalName) {
 #endif
             FileUpload upload = new FileUpload();
-            string tempName = upload.StoreTempImageFile(__filename);
+            string tempName = await upload.StoreTempImageFileAsync(__filename);
 
             if (!string.IsNullOrWhiteSpace(__lastInternalName)) // delete the previous file we had open
-                upload.RemoveTempFile(__lastInternalName);
+                await upload.RemoveTempFileAsync(__lastInternalName);
 
-            Size size = ImageSupport.GetImageSize(tempName);
+            Size size = await ImageSupport.GetImageSizeAsync(tempName);
 
             ScriptBuilder sb = new ScriptBuilder();
             // Upload control considers Json result a success. result has a function to execute, newName has the file name
@@ -63,9 +64,9 @@ namespace YetaWF.Core.Controllers.Shared {
         /// <returns>An action result.</returns>
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_RemoveImages)]
-        public ActionResult RemoveImage(string __filename, string __internalName) {
+        public async Task<ActionResult> RemoveImage(string __filename, string __internalName) {
             FileUpload upload = new FileUpload();
-            upload.RemoveTempFile(__internalName);
+            await upload.RemoveTempFileAsync(__internalName);
             return new EmptyResult();
         }
     }

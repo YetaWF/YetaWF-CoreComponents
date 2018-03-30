@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.Image;
+using YetaWF.Core.IO;
 
 namespace YetaWF.Core.Support.Image {
 
@@ -17,20 +18,20 @@ namespace YetaWF.Core.Support.Image {
             return Task.CompletedTask;
         }
 
-        private Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
-            Task<ImageSupport.GetImageInBytesInfo> fail = Task.FromResult(new ImageSupport.GetImageInBytesInfo());
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+            ImageSupport.GetImageInBytesInfo fail = new ImageSupport.GetImageInBytesInfo();
             if (!string.IsNullOrWhiteSpace(location)) return fail;
             if (string.IsNullOrWhiteSpace(name)) return fail;
 
             if (!name.StartsWith(Globals.VaultUrl) && !name.StartsWith(Globals.VaultPrivateUrl)) // only allow vault files, otherwise this would be a huge security hole
                 return fail;
             string file = YetaWFManager.UrlToPhysical(name);
-            if (!File.Exists(file))
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return fail;
-            return Task.FromResult(new ImageSupport.GetImageInBytesInfo() {
-                Content = File.ReadAllBytes(file),
+            return new ImageSupport.GetImageInBytesInfo() {
+                Content = await FileSystem.FileSystemProvider.ReadAllBytesAsync(file),
                 Success = true,
-            });
+            };
         }
     }
 }

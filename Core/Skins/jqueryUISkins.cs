@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
@@ -18,15 +20,15 @@ namespace YetaWF.Core.Skins {
             public string Description { get; set; }
         }
 
-        public List<JQueryTheme> GetJQueryThemeList() {
+        public async Task<List<JQueryTheme>> GetJQueryThemeListAsync() {
             if (_jQueryThemeList == null)
-                LoadJQueryUIThemes();
+                await LoadJQueryUIThemesAsync();
             return _jQueryThemeList;
         }
         private static List<JQueryTheme> _jQueryThemeList;
         private static JQueryTheme _jQueryThemeDefault;
 
-        private List<JQueryTheme> LoadJQueryUIThemes() {
+        private async Task<List<JQueryTheme>> LoadJQueryUIThemesAsync() {
             string url = AddOnManager.GetAddOnGlobalUrl("jqueryui.com", "jqueryui-themes", AddOnManager.UrlType.Base);
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
@@ -34,10 +36,10 @@ namespace YetaWF.Core.Skins {
 
             // use custom or default theme list
             string filename = Path.Combine(customPath, ThemeFile);
-            if (!File.Exists(filename))
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(filename))
                 filename = Path.Combine(path, ThemeFile);
 
-            string[] lines = File.ReadAllLines(filename);
+            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(filename);
             List<JQueryTheme> jqList = new List<JQueryTheme>();
 
             foreach (string line in lines) {
@@ -56,7 +58,7 @@ namespace YetaWF.Core.Skins {
                 jqList.Add(new JQueryTheme {
                     Name = name,
                     Description = description,
-                    File= file,
+                    File = file,
                 });
             }
             if (jqList.Count == 0)
@@ -67,15 +69,15 @@ namespace YetaWF.Core.Skins {
             return _jQueryThemeList;
         }
 
-        internal string FindJQueryUISkin(string themeName) {
-            string folder = (from th in GetJQueryThemeList() where th.Name == themeName select th.File).FirstOrDefault();
+        internal async Task<string> FindJQueryUISkinAsync(string themeName) {
+            string folder = (from th in await GetJQueryThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(folder))
                 return folder;
             return _jQueryThemeDefault.File;
         }
-        public static string GetJQueryUIDefaultSkin() {
+        public static async Task<string> GetJQueryUIDefaultSkinAsync() {
             SkinAccess skinAccess = new SkinAccess();
-            skinAccess.GetJQueryThemeList();
+            await skinAccess.GetJQueryThemeListAsync();
             return _jQueryThemeDefault.Name;
         }
     }

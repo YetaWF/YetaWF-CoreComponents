@@ -6,6 +6,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,19 +23,19 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public static void Include() {
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.calendar.min.js");
+        public static async Task IncludeAsync() {
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.calendar.min.js");
             // Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.datepicker.min.js");
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.timepicker.min.js");
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.datetimepicker.min.js");
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.datepicker.min.js");
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.timepicker.min.js");
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.datetimepicker.min.js");
         }
 #if MVC6
-        public static HtmlString RenderDateTime(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderDateTimeAsync(this IHtmlHelper htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static HtmlString RenderDateTime(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderDateTimeAsync(this HtmlHelper<object> htmlHelper, string name, DateTime? model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
-            Include();
+            await IncludeAsync();
 
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append(htmlHelper.RenderHidden(name, "", HtmlAttributes: HtmlAttributes, Validation: Validation));
@@ -65,8 +66,8 @@ namespace YetaWF.Core.Views.Shared {
 
             return hb.ToHtmlString();
         }
-        public static string RenderDateTimeJavascript(string gridId, string elemVarName) {
-            Include();
+        public static async Task<string> RenderDateTimeJavascriptAsync(string gridId, string elemVarName) {
+            await IncludeAsync();
             return string.Format("(new YetaWF_Core.TemplateDateTime.TemplateClass()).renderjqGridFilter('{0}', {1});", gridId, elemVarName);
         }
     }

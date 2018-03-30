@@ -10,6 +10,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 #else
@@ -59,7 +60,7 @@ namespace YetaWF.Core.Addons {
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
-            Manager.CssManager.AddAddOn(version, args);
+            await Manager.CssManager.AddAddOnAsync(version, args);
         }
         /// <summary>
         /// Add an addon (global).
@@ -74,7 +75,7 @@ namespace YetaWF.Core.Addons {
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
-            Manager.CssManager.AddAddOn(version, args);
+            await Manager.CssManager.AddAddOnAsync(version, args);
         }
 
         public enum UrlType {
@@ -116,7 +117,7 @@ namespace YetaWF.Core.Addons {
                     if (_AddedProducts.Contains(version)) return;
                     _AddedProducts.Add(version);
                     await Manager.ScriptManager.AddAddOnAsync(version);
-                    Manager.CssManager.AddAddOn(version);
+                    await Manager.CssManager.AddAddOnAsync(version);
                     return;
                 }
             }
@@ -125,7 +126,7 @@ namespace YetaWF.Core.Addons {
                 if (_AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 await Manager.ScriptManager.AddAddOnAsync(version);
-                Manager.CssManager.AddAddOn(version);
+                await Manager.CssManager.AddAddOnAsync(version);
             }
         }
 
@@ -178,7 +179,7 @@ namespace YetaWF.Core.Addons {
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 await Manager.ScriptManager.AddAddOnAsync(version);
-                Manager.CssManager.AddAddOn(version);
+                await Manager.CssManager.AddAddOnAsync(version);
                 // Also add all packages this module requires
                 List<string> packageNames = modPackage.GetRequiredPackages();
                 foreach (var name in packageNames) {
@@ -199,7 +200,7 @@ namespace YetaWF.Core.Addons {
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
-            Manager.CssManager.AddAddOn(version, args);
+            await Manager.CssManager.AddAddOnAsync(version, args);
         }
 
         /// <summary>
@@ -207,27 +208,27 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <param name="args"></param>
-        public void AddSkinCustomization(string skinCollection, params object[] args) {
+        public async Task AddSkinCustomizationAsync(string skinCollection, params object[] args) {
             Manager.Verify_NotPostRequest();
 
             string url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
-            if (File.Exists(YetaWFManager.UrlToPhysical(url))) {
-                Manager.CssManager.AddFile(true, url);
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                await Manager.CssManager.AddFileAsync(true, url);
             } else {
                 url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
-                if (File.Exists(YetaWFManager.UrlToPhysical(url)))
-                    Manager.CssManager.AddFile(true, url);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url)))
+                    await Manager.CssManager.AddFileAsync(true, url);
             }
 
             string domainName, productName, skinName;
             VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
             url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-            if (File.Exists(YetaWFManager.UrlToPhysical(url))) {
-                Manager.CssManager.AddFile(true, url);
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                await Manager.CssManager.AddFileAsync(true, url);
             } else {
                 url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-                if (File.Exists(YetaWFManager.UrlToPhysical(url)))
-                    Manager.CssManager.AddFile(true, url);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url)))
+                    await Manager.CssManager.AddFileAsync(true, url);
             }
         }
 
@@ -245,16 +246,16 @@ namespace YetaWF.Core.Addons {
             string skin = Manager.CurrentPage.jQueryUISkin;
             if (string.IsNullOrWhiteSpace(skin))
                 skin = Manager.CurrentSite.jQueryUISkin;
-            string themeFolder = skinAccess.FindJQueryUISkin(skin);
+            string themeFolder = await skinAccess.FindJQueryUISkinAsync(skin);
             await AddAddOnGlobalAsync("jqueryui.com", "jqueryui-themes", themeFolder);
 
             // Find Kendo UI theme
             skin = Manager.CurrentPage.KendoUISkin;
             if (string.IsNullOrWhiteSpace(skin))
                 skin = Manager.CurrentSite.KendoUISkin;
-            string internalTheme = skinAccess.FindKendoUISkin(skin);
+            string internalTheme = await skinAccess.FindKendoUISkinAsync(skin);
             await Manager.ScriptManager.AddAddOnAsync(VersionManager.KendoAddon, internalTheme);
-            Manager.CssManager.AddAddOn(VersionManager.KendoAddon, internalTheme);
+            await Manager.CssManager.AddAddOnAsync(VersionManager.KendoAddon, internalTheme);
         }
 
         public void AddUniqueInvokedCssModule(Type modType, Guid guid, List<string> templates, string invokingCss, bool AllowInPopup, bool AllowInAjax) {
@@ -307,10 +308,10 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Read a file
         /// </summary>
-        public HtmlString GetFile(string path, object replacements = null) {
+        public async Task<HtmlString> GetFileAsync(string path, object replacements = null) {
             string file = "";
             try {
-                file = File.ReadAllText(YetaWFManager.UrlToPhysical(path));
+                file = await FileSystem.FileSystemProvider.ReadAllTextAsync(YetaWFManager.UrlToPhysical(path));
             } catch (System.Exception) { }
             QueryHelper query = QueryHelper.FromAnonymousObject(replacements);
             foreach (QueryHelper.Entry entry in query.Entries)

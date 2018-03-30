@@ -56,7 +56,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Forms", "CssFormCancel", CssFormCancel);
             scripts.AddConfigOption("Forms", "CssDataApplyButton", CssDataApplyButton);
             scripts.AddConfigOption("Forms", "CssWarningIcon", CssWarningIcon);
-            string url = skinImages.FindIcon_Package("#Warning", package);
+            string url = await skinImages.FindIcon_PackageAsync("#Warning", package);
             scripts.AddConfigOption("Forms", "CssWarningIconUrl", url);
 
             scripts.AddVolatileOption("Forms", "TabStyle", (int)manager.CurrentSite.TabStyle);

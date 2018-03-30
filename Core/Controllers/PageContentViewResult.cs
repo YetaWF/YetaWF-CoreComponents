@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using YetaWF.Core.IO;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
@@ -48,82 +49,84 @@ namespace YetaWF.Core.Controllers {
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
         public override void ExecuteResult(ControllerContext context) {
+            YetaWFManager.Syncify(async () => { // Sorry, no async for you MVC5
 #endif
-            if (context == null)
-                throw new ArgumentNullException("context");
+                if (context == null)
+                    throw new ArgumentNullException("context");
 
-            Manager.PageTitle = Manager.CurrentPage.Title;
+                Manager.PageTitle = Manager.CurrentPage.Title;
 
-            PageDefinition currPage = Manager.CurrentPage;
-            SkinAccess skinAccess = new SkinAccess();
+                PageDefinition currPage = Manager.CurrentPage;
+                SkinAccess skinAccess = new SkinAccess();
 
-            SkinDefinition skinContent = new Skins.SkinDefinition { Collection = SkinAccess.FallbackSkinCollectionName, FileName = Manager.IsInPopup ? "PopupContent.cshtml" : "PageContent.cshtml" };
-            string virtPath = skinAccess.PhysicalPageUrl(skinContent, Manager.IsInPopup);
-            if (!File.Exists(YetaWFManager.UrlToPhysical(virtPath)))
-                throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
+                SkinDefinition skinContent = new Skins.SkinDefinition { Collection = SkinAccess.FallbackSkinCollectionName, FileName = Manager.IsInPopup ? "PopupContent.cshtml" : "PageContent.cshtml" };
+                string virtPath = skinAccess.PhysicalPageUrl(skinContent, Manager.IsInPopup);
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
+                    throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
 
-            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
-            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
+                Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+                Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
 
-            // set new character dimensions and popup info
-            PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
-            Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
-            if (Manager.IsInPopup) {
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
-                Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.Css);
-            }
+                // set new character dimensions and popup info
+                PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
+                Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
+                if (Manager.IsInPopup) {
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.Css);
+                }
 
-            PageContentController.PageContentData cr = new PageContentController.PageContentData();
-            ViewData.Model = cr;
-            ViewData["DataIn"] = DataIn;
+                PageContentController.PageContentData cr = new PageContentController.PageContentData();
+                ViewData.Model = cr;
+                ViewData["DataIn"] = DataIn;
 #if MVC6
-            await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
+                await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
 #else
-            View = new PageView(virtPath);
-            using (StringWriter writer = new StringWriter()) {
-                ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
-                View.Render(viewContext, writer);
-            }
+                View = new PageView(virtPath);
+                using (StringWriter writer = new StringWriter()) {
+                    ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
+                    View.Render(viewContext, writer);
+                }
 #endif
-            //Manager.PopCharSize();
+                //Manager.PopCharSize();
 
-            Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
+                Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
 
-            Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
-            ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
+                Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
+                ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
 
-            Manager.CssManager.Render(cr, DataIn.KnownCss);
-            Manager.ScriptManager.Render(cr, DataIn.KnownScripts);
-            Manager.ScriptManager.RenderEndofPageScripts(cr);
+                await Manager.CssManager.RenderAsync(cr, DataIn.KnownCss);
+                await Manager.ScriptManager.RenderAsync(cr, DataIn.KnownScripts);
+                Manager.ScriptManager.RenderEndofPageScripts(cr);
 
-            if (Manager.Deployed) {
-                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.AnalyticsContent))
-                    cr.AnalyticsContent = Manager.CurrentPage.AnalyticsContent;
-                else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.AnalyticsContent))
-                    cr.AnalyticsContent = Manager.CurrentSite.AnalyticsContent;
-                if (!string.IsNullOrWhiteSpace(cr.AnalyticsContent))
-                    cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", YetaWFManager.JserEncode(Manager.CurrentPage.EvaluatedCanonicalUrl));
-            }
-            cr.PageTitle = Manager.PageTitle.ToString();
-            cr.PageCssClasses = Manager.CurrentPage.GetCssClass();
-            cr.CanonicalUrl = Manager.CurrentPage.EvaluatedCanonicalUrl;
-            UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
-            cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
+                if (Manager.Deployed) {
+                    if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.AnalyticsContent))
+                        cr.AnalyticsContent = Manager.CurrentPage.AnalyticsContent;
+                    else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.AnalyticsContent))
+                        cr.AnalyticsContent = Manager.CurrentSite.AnalyticsContent;
+                    if (!string.IsNullOrWhiteSpace(cr.AnalyticsContent))
+                        cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", YetaWFManager.JserEncode(Manager.CurrentPage.EvaluatedCanonicalUrl));
+                }
+                cr.PageTitle = Manager.PageTitle.ToString();
+                cr.PageCssClasses = Manager.CurrentPage.GetCssClass();
+                cr.CanonicalUrl = Manager.CurrentPage.EvaluatedCanonicalUrl;
+                UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
+                cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
 
-            string json = YetaWFManager.JsonSerialize(ViewData.Model);
-            context.HttpContext.Response.ContentType = "application/json";
+                string json = YetaWFManager.JsonSerialize(ViewData.Model);
+                context.HttpContext.Response.ContentType = "application/json";
 
-            // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.
+                // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.
 #if MVC6
-            // gzip encoding is performed by middleware
-            byte[] btes = Encoding.ASCII.GetBytes(json);
-            await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
+                // gzip encoding is performed by middleware
+                byte[] btes = Encoding.ASCII.GetBytes(json);
+                await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
-            context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
-            context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
-            context.HttpContext.Response.Output.Write(json);
+                context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
+                context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
+                context.HttpContext.Response.Output.Write(json);
+            });
 #endif
         }
     }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Image;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
@@ -19,7 +20,7 @@ namespace YetaWF.Core.Pages {
         private static readonly Regex reStartBody = new Regex("<\\s*body[^>]*>", RegexOptions.Compiled);
         private static readonly Regex reEndBody = new Regex("</\\s*body\\s*>", RegexOptions.Compiled);
 
-        public string PostProcessHtml(string pageHtml) {
+        public async Task<string> PostProcessHtmlAsync(string pageHtml) {
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
             pageHtml = vars.ReplaceVariables(pageHtml);// variable substitution
@@ -53,7 +54,7 @@ namespace YetaWF.Core.Pages {
             // <link rel="stylesheet">
             string css = "";
             if (currentSite.CssLocation == Site.CssLocationEnum.Top)
-                css = Manager.CssManager.Render().ToString();
+                css = (await Manager.CssManager.RenderAsync()).ToString();
 
             string head = "";
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraHead))
@@ -64,7 +65,7 @@ namespace YetaWF.Core.Pages {
             // linkAlt+css+js+</head> replaces </head>
             string js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Top)
-                js = Manager.ScriptManager.Render().ToString();
+                js = (await Manager.ScriptManager.RenderAsync()).ToString();
             pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + head + "</head>", 1);
 
             string bodyStart = "";
@@ -81,9 +82,9 @@ namespace YetaWF.Core.Pages {
             // <script ..>
             js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Bottom)
-                js = Manager.ScriptManager.Render().ToString();
+                js = (await Manager.ScriptManager.RenderAsync()).ToString();
             if (currentSite.CssLocation == Site.CssLocationEnum.Bottom)
-                css = Manager.CssManager.Render().ToString();
+                css = (await Manager.CssManager.RenderAsync()).ToString();
 
             string endstuff = css;
             if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))

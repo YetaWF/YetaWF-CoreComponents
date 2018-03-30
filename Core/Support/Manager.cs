@@ -289,6 +289,7 @@ namespace YetaWF.Core.Support {
 
         // The date the site was started
         public static readonly DateTime SiteStart = DateTime.UtcNow; //$$$ verify and create multi-instance SiteStart
+        //$$$ this needs to be sync'd across instances because it's used in urls as cache buster
 
         public static string CacheBuster {
             get {
@@ -1479,7 +1480,7 @@ namespace YetaWF.Core.Support {
                     string skin = Manager.CurrentPage.BootstrapSkin;
                     if (string.IsNullOrWhiteSpace(skin))
                         skin = Manager.CurrentSite.BootstrapSkin;
-                    string themeFolder = skinAccess.FindBootstrapSkin(skin);
+                    string themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
                         await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootstrap-less");
                     else

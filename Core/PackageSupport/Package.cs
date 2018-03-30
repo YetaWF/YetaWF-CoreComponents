@@ -14,6 +14,7 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using YetaWF.PackageAttributes;
+using System.Threading.Tasks;
 #if MVC6
 #else
 using System.Web.Compilation;
@@ -77,6 +78,7 @@ namespace YetaWF.Core.Packages {
     public enum ServiceLevelEnum {
         Unknown = -1,
         Core = 0,
+        FileSystemProvider = 50, // File I/O
         LowLevelServiceProvider = 100, // Language, Identity (can't use higher services,like Scheduling)
         SchedulerProvider = 150, // Scheduler
         ServiceProvider = 200, // Logging
@@ -174,32 +176,32 @@ namespace YetaWF.Core.Packages {
         // We statically hold a reference to ALL available, referenced packages- this is necessary for package information caching (notably localization)
         private static List<Package> _availablePackages = null;
 
-        public static List<Package> GetTemplatePackages() {
+        public static async Task<List<Package>> GetTemplatePackagesAsync() {
             string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
-            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
+            List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
             return packages;
         }
-        public static List<Package> GetUtilityPackages() {
+        public static async Task<List<Package>> GetUtilityPackagesAsync() {
             string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
-            List<Package> packages = FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
+            List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
             return packages;
         }
 
         private static readonly Regex csAssemblyTemplateRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Template\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly Regex csAssemblyUtilityRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Utility\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
 
-        private static List<Package> FindPackages(string packageRoot, Regex regex) {
+        private static async Task<List<Package>> FindPackages(string packageRoot, Regex regex) {
             List<Package> packages = new List<Package>();
-            if (!Directory.Exists(packageRoot)) return packages;
-            string[] packageDirs = Directory.GetDirectories(packageRoot);
+            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(packageRoot)) return packages;
+            List<string> packageDirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageRoot);
             foreach (string dir in packageDirs) {
                 string propsFile = Path.Combine(dir, SOURCE_IDENTIFIER);
-                if (File.Exists(propsFile)) {
-                    string target = ExtractAssemblyName(propsFile, regex);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(propsFile)) {
+                    string target = await ExtractAssemblyNameAsync(propsFile, regex);
                     if (string.IsNullOrWhiteSpace(target))
                         throw new InternalError("Folder {0} does not define an assembly name in {1}", dir, SOURCE_IDENTIFIER);
                     string asmPath = Path.Combine(dir, "Bin", target);
-                    if (!File.Exists(asmPath))
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(asmPath))
                         throw new InternalError("Package assembly {0} not found", asmPath);
                     Assembly asm = null;
                     try {
@@ -211,8 +213,8 @@ namespace YetaWF.Core.Packages {
             }
             return packages;
         }
-        private static string ExtractAssemblyName(string propsFile, Regex regex) {
-            string contents = File.ReadAllText(propsFile);
+        private static async Task<string> ExtractAssemblyNameAsync(string propsFile, Regex regex) {
+            string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(propsFile);
             Match m = regex.Match(contents);
             if (!m.Success)
                 throw new InternalError("No assembly name found in {0}", propsFile);
@@ -414,10 +416,8 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Returns whether the current package is a source code package (includes source code). Source code package are only found on development systems.
         /// </summary>
-        public bool HasSource {
-            get {
-                return Directory.Exists(PackageSourceRoot);
-            }
+        public async Task<bool> GetHasSourceAsync() {
+            return await FileSystem.FileSystemProvider.DirectoryExistsAsync(PackageSourceRoot);
         }
 
         /// <summary>

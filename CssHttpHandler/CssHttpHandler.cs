@@ -74,7 +74,7 @@ namespace YetaWF.Core.HttpHandler {
 #endif
             file = YetaWFManager.UrlToPhysical(fullUrl);
 
-            DateTime lastMod = File.GetLastWriteTimeUtc(file);
+            DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(file);
 
             // Cache verification?
             string ifNoneMatch = context.Request.Headers["If-None-Match"];
@@ -107,7 +107,7 @@ namespace YetaWF.Core.HttpHandler {
             if (bytes == null) {
                 string text = "";
                 try {
-                    text = File.ReadAllText(file);
+                    text = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                 } catch (Exception) {
                     context.Response.StatusCode = 404;
                     Logging.AddErrorLog("Not Found");
@@ -136,7 +136,7 @@ namespace YetaWF.Core.HttpHandler {
 #if MVC6
             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
 #else
-            context.Response.OutputStream.Write(bytes, 0, bytes.Length);
+            await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
             context.ApplicationInstance.CompleteRequest();
 #endif
         }

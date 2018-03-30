@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -152,7 +153,7 @@ namespace YetaWF.Core.DataProvider {
         // IMAGE HANDLING
         // IMAGE HANDLING
 
-        public static void SaveImages(Guid moduleGuid, object obj) {
+        public static async Task SaveImagesAsync(Guid moduleGuid, object obj) {
             Type objType = obj.GetType();
             List<PropertyData> propData = ObjectSupport.GetPropertyData(objType);
             foreach (var prop in propData) {
@@ -163,14 +164,14 @@ namespace YetaWF.Core.DataProvider {
                         PropertyData pGuid = ObjectSupport.GetPropertyData(objType, prop.Name + "_Guid");
                         Guid fileGuid = pGuid.GetPropertyValue<Guid>(obj);
                         string fileName = prop.GetPropertyValue<string>(obj);
-                        ConvertImageToFile(moduleGuid, prop.Name, fileGuid, fileName);
+                        await ConvertImageToFileAsync(moduleGuid, prop.Name, fileGuid, fileName);
                         prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
                     } else if (prop.GetAdditionalAttributeValue<bool>("Data", true)) {
                         // save as data
                         PropertyData pData = ObjectSupport.GetPropertyData(objType, prop.Name + "_Data");
                         byte[] currImageData = pData.GetPropertyValue<byte[]>(obj);
                         string fileName = prop.GetPropertyValue<string>(obj);
-                        byte[] newImageData = ConvertImageToData(fileName, currImageData);
+                        byte[] newImageData = await ConvertImageToDataAsync(fileName, currImageData);
                         pData.PropInfo.SetValue(obj, newImageData);
                         prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
                     }
@@ -178,21 +179,21 @@ namespace YetaWF.Core.DataProvider {
                 }
             }
         }
-        private static void ConvertImageToFile(Guid guid, string folder, Guid fileGuid, string fileName) {
+        private static async Task ConvertImageToFileAsync(Guid guid, string folder, Guid fileGuid, string fileName) {
             // Get the new image
             FileUpload fileUpload = new FileUpload();
             if (string.IsNullOrWhiteSpace(fileName) || fileName == "(CLEARED)") {
                 // remove image file
                 string file = Path.Combine(ModuleDefinition.GetModuleDataFolder(guid), folder, fileGuid.ToString());
                 try {
-                    File.Delete(file);// the file may not exist
+                    await FileSystem.FileSystemProvider.DeleteFileAsync(file);// the file may not exist
                 } catch (Exception) { }
                 return;
             } else if (fileUpload.IsTempName(fileName)) {
-                byte[] bytes = fileUpload.GetImageBytesFromTempName(fileName);
+                byte[] bytes = await fileUpload.GetImageBytesFromTempNameAsync(fileName);
                 // save new image file
                 string path = Path.Combine(ModuleDefinition.GetModuleDataFolder(guid), folder);
-                Directory.CreateDirectory(path);
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(path);
                 string file = Path.Combine(path, fileGuid.ToString());
                 using (MemoryStream ms = new MemoryStream(bytes)) {
                     using (System.Drawing.Image img = System.Drawing.Image.FromStream(ms)) {
@@ -200,21 +201,21 @@ namespace YetaWF.Core.DataProvider {
                     }
                 }
                 // Remove the temp file (if any)
-                fileUpload.RemoveTempFile(fileName);
+                await fileUpload.RemoveTempFileAsync(fileName);
             } else {
                 ;//keep existing file
             }
         }
-        private static byte[] ConvertImageToData(string fileName, byte[] currImageData) {
+        private static async Task<byte[]> ConvertImageToDataAsync(string fileName, byte[] currImageData) {
             // Get the new image
             FileUpload fileUpload = new FileUpload();
             byte[] bytes;
             if (string.IsNullOrWhiteSpace(fileName) || fileName == "(CLEARED)")
                 bytes = null;
             else if (fileUpload.IsTempName(fileName)) {
-                bytes = fileUpload.GetImageBytesFromTempName(fileName);
+                bytes = await fileUpload.GetImageBytesFromTempNameAsync(fileName);
                 // Remove the temp file (if any)
-                fileUpload.RemoveTempFile(fileName);
+                await fileUpload.RemoveTempFileAsync(fileName);
             } else
                 bytes = currImageData;
             if (bytes == null)

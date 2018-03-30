@@ -2,6 +2,8 @@
 
 using Ionic.Zip;
 using System.IO;
+using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -12,7 +14,7 @@ namespace YetaWF.Core.Modules {
         public const string ModuleContentsFile = "Contents.xml";
         public const string ModuleIDFile = "Module.txt";
 
-        public YetaWFZipFile ExportData() {
+        public async Task<YetaWFZipFile> ExportDataAsync() {
 
             string zipName = __ResStr("moduleFmt", "Module Data - {0}.{1}.zip", this.ModuleDisplayName, this.Version);
 
@@ -23,7 +25,7 @@ namespace YetaWF.Core.Modules {
             serModule.ModuleGuid = this.ModuleGuid;
             serModule.ModDef = this;
             // and files (if any)
-            serModule.Files = Package.ProcessAllFiles(this.ModuleDataFolder);
+            serModule.Files = await Package.ProcessAllFilesAsync(this.ModuleDataFolder);
 
             // Add files
             foreach (var file in serModule.Files) {
@@ -36,9 +38,9 @@ namespace YetaWF.Core.Modules {
                 string fileName = Path.GetTempFileName();
                 zipFile.TempFiles.Add(fileName);
 
-                FileStream fs = new FileStream(fileName, FileMode.Create);
-                new GeneralFormatter(Package.ExportFormat).Serialize(fs, serModule);
-                fs.Close();
+                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName);
+                new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serModule);
+                await fs.CloseAsync();
 
                 ZipEntry ze = zipFile.Zip.AddFile(fileName);
                 ze.FileName = ModuleContentsFile;

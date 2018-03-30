@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Support.Serializers;
 
@@ -77,13 +78,13 @@ namespace YetaWF.Core.IO {
         }
 
         // Retrieves a list of all file names in the basefolder
-        public List<string> GetNames() {
+        public async Task<List<string>> GetNamesAsync() {
             List<string> files = new List<string>();
 #if DEBUG
-            if (Directory.Exists(BaseFolder)) {// avoid debug spam
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(BaseFolder)) {// avoid debug spam
 #endif
                 try {
-                    files = Directory.GetFiles(BaseFolder).ToList<string>();
+                    files = await FileSystem.FileSystemProvider.GetFilesAsync(BaseFolder);
                 } catch { }
 #if DEBUG
             }
@@ -100,11 +101,11 @@ namespace YetaWF.Core.IO {
         /// Removes all the files in the folder.
         /// Ignores any errors.
         /// </summary>
-        public void TryRemoveAll() {
-            StringLocks.DoAction(LockKey, () => {
+        public async Task TryRemoveAllAsync() {
+            await StringLocks.DoActionAsync(LockKey, async () => { //$$$$$
                 Debug.Assert(!string.IsNullOrEmpty(BaseFolder));
-                if (Directory.Exists(BaseFolder))
-                    Directory.Delete(BaseFolder, true);
+                if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(BaseFolder))
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(BaseFolder);
             });
         }
     }
@@ -139,7 +140,7 @@ namespace YetaWF.Core.IO {
         /// Load a file, returns a new instance of the object.
         /// </summary>
         /// <returns></returns>
-        public TObj Load(bool SpecificType = false) {
+        public async Task<TObj> LoadAsync(bool SpecificType = false) {
             object data = null;
             if (!GetObjectFromCache(CacheKey, out data)) {
                 FileIO<TObj> io = new FileIO<TObj> {
@@ -148,8 +149,8 @@ namespace YetaWF.Core.IO {
                     Data = data,
                     Format = Format,
                 };
-                StringLocks.DoAction(LockKey, () => {
-                    data = io.Load();
+                await StringLocks.DoActionAsync(LockKey, async () => {
+                    data = await io.LoadAsync();//$$
                     if (data != null)
                         AddObjectToCache(CacheKey, data);
                 });
@@ -169,7 +170,7 @@ namespace YetaWF.Core.IO {
         /// </summary>
         /// <param name="data"></param>
         /// <param name="newKey"></param>
-        public UpdateStatusEnum UpdateFile(string newKey, TObj data) {
+        public async Task<UpdateStatusEnum> UpdateFileAsync(string newKey, TObj data) {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
@@ -187,31 +188,31 @@ namespace YetaWF.Core.IO {
                     Date = Date ?? DateTime.UtcNow,
                     Format = Format,
                 };
-                StringLocks.DoAction(LockKey, () => {
-                    if (ioNew.Exists()) {
+                await StringLocks.DoActionAsync(LockKey, async () => {
+                    if (await ioNew.ExistsAsync()) {
                         status = UpdateStatusEnum.NewKeyExists;
                         return;
                     }
-                    if (!io.Exists()) {
+                    if (!await io.ExistsAsync()) {
                         status = UpdateStatusEnum.RecordDeleted;
                         return;
                     }
                     // delete the old file (incl. cache etc.)
-                    Remove();
+                    await RemoveAsync();
                     // save the new file
-                    ioNew.Save();
+                    await ioNew.SaveAsync();
                     FileName = newKey;
                     AddObjectToCache(CacheKey, data);
                     status = UpdateStatusEnum.OK;
                 });
             } else {
                 // Simple Save
-                StringLocks.DoAction(LockKey, () => {
-                    if (!io.Exists()) {
+                await StringLocks.DoActionAsync(LockKey, async () => {
+                    if (!await io.ExistsAsync()) {
                         status = UpdateStatusEnum.RecordDeleted;
                         return;
                     }
-                    io.Save();
+                    await io.SaveAsync();
                     AddObjectToCache(CacheKey, data);
                     status = UpdateStatusEnum.OK;
                 });
@@ -222,7 +223,7 @@ namespace YetaWF.Core.IO {
         /// Add an new file object.
         /// </summary>
         /// <param name="data"></param>
-        public bool Add(TObj data) {
+        public async Task<bool> AddAsync(TObj data) {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
@@ -231,8 +232,8 @@ namespace YetaWF.Core.IO {
                 Format = Format,
             };
             bool success = true;
-            StringLocks.DoAction(LockKey, () => {
-                success = io.Save(replace: false);
+            await StringLocks.DoActionAsync(LockKey, async () => {
+                success = await io.SaveAsync(replace: false);
                 if (success)
                     AddObjectToCache(CacheKey, data);
             });
@@ -241,29 +242,29 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Remove the file. Fails if the file doesn't exist.
         /// </summary>
-        public void Remove() {
+        public async Task RemoveAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
                 Format = Format,
             };
-            StringLocks.DoAction(LockKey, () => {
-                io.Remove();
+            await StringLocks.DoActionAsync(LockKey, async () => {
+                await io.RemoveAsync();
                 RemoveFromCache(CacheKey);
             });
         }
         /// <summary>
         /// Remove the file.
         /// </summary>
-        public bool TryRemove() {
+        public async Task<bool> TryRemoveAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
                 Format = Format,
             };
             bool success = false;
-            StringLocks.DoAction(LockKey, () => {
-                io.TryRemove();
+            await StringLocks.DoActionAsync(LockKey, async () => {
+                await io.TryRemoveAsync();
                 RemoveFromCache(CacheKey);
                 success = true;
             });
@@ -273,15 +274,15 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Check if the file exists.
         /// </summary>
-        public bool Exists() {
+        public async Task<bool> ExistsAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
                 Format = Format,
             };
             bool success = false;
-            StringLocks.DoAction(LockKey, () => {
-                success = io.Exists();
+            await StringLocks.DoActionAsync(LockKey, async () => {//$$$$
+                success = await io.ExistsAsync();
             });
             return success;
         }

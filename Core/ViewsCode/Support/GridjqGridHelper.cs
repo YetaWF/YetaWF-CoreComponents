@@ -25,17 +25,15 @@ namespace YetaWF.Core.Views.Shared {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static HtmlString RenderColNames(this IHtmlHelper htmlHelper, GridDefinition gridDef) {
+        public static async Task<HtmlString> RenderColNamesAsync(this IHtmlHelper htmlHelper, GridDefinition gridDef) {
 #else
-        public static HtmlString RenderColNames(this HtmlHelper<object> htmlHelper, GridDefinition gridDef) {
+        public static async Task<HtmlString> RenderColNamesAsync(this HtmlHelper<object> htmlHelper, GridDefinition gridDef) {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
 
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
+            ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(gridDef);
 
-            foreach (var d in dict) {
+            foreach (var d in info.ColumnInfo) {
                 string propName = d.Key;
                 GridColumnInfo gridCol = d.Value;
 
@@ -65,13 +63,11 @@ namespace YetaWF.Core.Views.Shared {
 #endif
             ScriptBuilder sb = new ScriptBuilder();
 
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
+            ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(gridDef);
 
             bool hasFilters = false;
 
-            foreach (var d in dict) {
+            foreach (var d in info.ColumnInfo) {
                 string propName = d.Key;
                 GridColumnInfo gridCol = d.Value;
 
@@ -149,9 +145,9 @@ namespace YetaWF.Core.Views.Shared {
                     } else if (prop.PropInfo.PropertyType == typeof(DateTime) || prop.PropInfo.PropertyType == typeof(DateTime?)) {
                         sb.Append("searchoptions:{sopt:['ge','le'],dataInit: function(elem) {");
                         if (prop.UIHint == "DateTime") {
-                            sb.Append(DateTimeHelper.RenderDateTimeJavascript(gridDef.Id, "elem"));
+                            sb.Append(await DateTimeHelper.RenderDateTimeJavascriptAsync(gridDef.Id, "elem"));
                         } else if (prop.UIHint == "Date") {
-                            sb.Append(DateHelper.RenderDateJavascript(gridDef.Id, "elem"));
+                            sb.Append(await DateHelper.RenderDateJavascriptAsync(gridDef.Id, "elem"));
                         } else {
                             throw new InternalError("Need DateTime or Date UIHint for DateTime data");
                         }
@@ -217,21 +213,19 @@ namespace YetaWF.Core.Views.Shared {
         /// Renders the grid sort order
         /// </summary>
 #if MVC6
-        public static HtmlString RenderGridSortOrder(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
+        public static async Task<HtmlString> RenderGridSortOrderAsync(this IHtmlHelper htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #else
-        public static HtmlString RenderGridSortOrder(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
+        public static async Task<HtmlString> RenderGridSortOrderAsync(this HtmlHelper<object> htmlHelper, GridHelper.GridSavedSettings gridSavedSettings, GridDefinition gridDef) {
 #endif
             GridDefinition.ColumnDictionary columns = null;
 
             if (gridSavedSettings != null && gridSavedSettings.Columns.Count > 0) // use the saved sort order
                 columns = gridSavedSettings.Columns;
             else {
-                string sortCol = null;
-                GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-                Dictionary<string, GridColumnInfo> dict = GridHelper.LoadGridColumnDefinitions(gridDef, ref sortCol, ref sortDir);
-                if (!string.IsNullOrWhiteSpace(sortCol)) { // use the default sort order
+                ObjectSupport.ReadGridDictionaryInfo info = await GridHelper.LoadGridColumnDefinitionsAsync(gridDef);
+                if (!string.IsNullOrWhiteSpace(info.SortColumn)) { // use the default sort order
                     columns = new GridDefinition.ColumnDictionary();
-                    columns.Add(sortCol, new GridDefinition.ColumnInfo() { Sort = sortDir });
+                    columns.Add(info.SortColumn, new GridDefinition.ColumnInfo() { Sort = info.SortBy });
                 }
             }
             if (columns == null)

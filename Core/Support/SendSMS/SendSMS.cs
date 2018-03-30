@@ -99,7 +99,7 @@ namespace YetaWF.Core.Support.SendSMS {
                 object parms = new {
                     Message = text,
                 };
-                sendEmail.PrepareEmailMessage(toNumber, this.__ResStr("smsSubject", "SMS"), sendEmail.GetEmailFile(AreaRegistration.CurrentPackage, "Text Message.txt"), parameters: parms);
+                await sendEmail.PrepareEmailMessageAsync(toNumber, this.__ResStr("smsSubject", "SMS"), await sendEmail.GetEmailFileAsync(AreaRegistration.CurrentPackage, "Text Message.txt"), parameters: parms);
                 await sendEmail.SendAsync(ThrowError);
             } else {
                 // send using SMS provider

@@ -133,7 +133,7 @@ namespace YetaWF.Core.Packages {
                 }
             }
             // remove the site's data folder
-            DirectoryIO.DeleteFolder(siteFolder);
+            await FileSystem.FileSystemProvider.DeleteDirectoryAsync(siteFolder);
         }
     }
 }
