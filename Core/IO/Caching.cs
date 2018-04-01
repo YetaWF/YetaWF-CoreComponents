@@ -12,13 +12,6 @@ namespace YetaWF.Core.IO {
         public static ICacheObject SharedCacheProvider { get; set; }
         public static ICacheStaticObject StaticCacheProvider { get; set; }
         
-        /// <summary>
-        /// Defines whether cache sharing is available.
-        /// </summary>
-        /// <remarks>Web farm/garden are only possible if shared caching is implemented (MultiInstance is true).
-        /// If MultiInstance is true, cached data is shared between multiple site instances, otherwise only one instance is allowed.</remarks>
-        public static bool MultiInstance { get; set; }
-
         public const string EmptyCachedObject = "Empty";
     };
 

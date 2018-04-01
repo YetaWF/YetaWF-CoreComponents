@@ -13,7 +13,7 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
 
-    public class FileBundles : IInitializeApplicationStartup {
+    public class FileBundles : IInitializeApplicationStartupFirstNodeOnly {
 
         public enum BundleTypeEnum {
             JS = 0,
@@ -32,17 +32,13 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
-        public async Task InitializeApplicationStartupAsync(bool firstNode) {
-            // delete all files from last session and create the folder
-            if (firstNode) {
-                Logging.AddLog("Removing/creating bundle folder");
-                string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-                if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
-                    await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
-            }
+        public async Task InitializeFirstNodeStartupAsync() {
+            // delete all files from last session and recreate the folder
+            Logging.AddLog("Removing/creating bundle folder");
+            string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
+            if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
+                await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
         }
-
-        private const string BUNDLEKEY = "__FileBundles";
 
         public static async Task<string> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
 
@@ -65,6 +61,8 @@ namespace YetaWF.Core.Pages {
                 }
 
                 string bundleName = MakeName(fileList);
+
+                string BUNDLEKEY = $"__FileBundles_{YetaWFManager.Manager.CurrentSite.Identity}";
 
                 using (IStaticLockObject staticLock = await Caching.StaticCacheProvider.LockAsync<SerializableList<Bundle>>(BUNDLEKEY)) {
                     SerializableList<Bundle> bundles = await Caching.StaticCacheProvider.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);

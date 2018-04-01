@@ -19,7 +19,7 @@ namespace YetaWF.Core.Support {
         // IInitializeApplicationStartup
 #if MVC6
 #else
-        public async Task InitializeApplicationStartupAsync(bool firstNode) {
+        public async Task InitializeApplicationStartupAsync() {
             string rootFolder = YetaWFManager.RootFolder;
             await InitAsync(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
         }

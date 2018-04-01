@@ -834,7 +834,7 @@ namespace YetaWF.Core.Models {
                 ClassData classData = GetClassData(modelType);
                 RequiresRestartAttribute restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
                 if (restartAttr != null) {
-                    if (YetaWF.Core.IO.Caching.MultiInstance) {
+                    if (YetaWF.Core.Support.Startup.MultiInstance) {
                         return ModelDisposition.SiteRestart;
                     } else {
                         if ((restartAttr.Restart & RestartEnum.SingleInstance) != 0)
@@ -856,7 +856,7 @@ namespace YetaWF.Core.Models {
                             object oOld = propData.PropInfo.GetValue(oldObj, null);
                             object oNew = propData.PropInfo.GetValue(newObj, null);
                             if (!SameValue(propData, oOld, oNew, out subChanges)) {
-                                if (YetaWF.Core.IO.Caching.MultiInstance) {
+                                if (YetaWF.Core.Support.Startup.MultiInstance) {
                                     return ModelDisposition.SiteRestart;
                                 } else {
                                     if ((restartAttr.Restart & RestartEnum.SingleInstance) != 0)
@@ -905,7 +905,7 @@ namespace YetaWF.Core.Models {
                 ClassData classData = GetClassData(modelType);
                 RequiresRestartAttribute restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
                 if (restartAttr != null) {
-                    if (YetaWF.Core.IO.Caching.MultiInstance) {
+                    if (YetaWF.Core.Support.Startup.MultiInstance) {
                         changes.Add(new ChangedProperty { Name = "__class", Disposition = ModelDisposition.SiteRestart });
                     } else {
                         if ((restartAttr.Restart & RestartEnum.SingleInstance) != 0)
@@ -928,7 +928,7 @@ namespace YetaWF.Core.Models {
                     RequiresPageReloadAttribute pageReloadAttr = propData.TryGetAttribute<RequiresPageReloadAttribute>();
                     if (restartAttr != null) {
                         if (!SameValue(propData, oOld, oNew, out subChanges)) {
-                            if (YetaWF.Core.IO.Caching.MultiInstance) {
+                            if (YetaWF.Core.Support.Startup.MultiInstance) {
                                 foreach (ChangedProperty s in subChanges) s.Disposition = ModelDisposition.SiteRestart;
                                 changes.AddRange(subChanges);
                             } else {

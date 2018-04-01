@@ -287,17 +287,13 @@ namespace YetaWF.Core.Support {
             return siteDomain;
         }
 
-        // The date the site was started
-        public static readonly DateTime SiteStart = DateTime.UtcNow; //$$$ verify and create multi-instance SiteStart
-        //$$$ this needs to be sync'd across instances because it's used in urls as cache buster
-
         public static string CacheBuster {
             get {
                 if (_cacheBuster == null) {
                     if (Manager.CurrentSite.DEBUGMODE || !Manager.CurrentSite.AllowCacheUse)
                         _cacheBuster = (DateTime.Now.Ticks / TimeSpan.TicksPerSecond).ToString();/*local time*/
                     else
-                        _cacheBuster = (YetaWFManager.SiteStart.Ticks / TimeSpan.TicksPerSecond).ToString();
+                        _cacheBuster = (YetaWF.Core.Support.Startup.MultiInstanceStartTime.Ticks / TimeSpan.TicksPerSecond).ToString();
                 }
                 return _cacheBuster;
             }

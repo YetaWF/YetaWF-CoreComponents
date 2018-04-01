@@ -3,10 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
@@ -18,20 +16,18 @@ using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.Image {
 
-    public class ImageSupportInit : IInitializeApplicationStartup {
+    public class ImageSupportInit : IInitializeApplicationStartupFirstNodeOnly {
 
         // IInitializeApplicationStartup
         // IInitializeApplicationStartup
         // IInitializeApplicationStartup
 
-        public async Task InitializeApplicationStartupAsync(bool firstNode) {
-            if (firstNode) {
-                // Delete all temp images
-                string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
-                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(physFolder);
-                // Create folder for temp images
-                await FileSystem.FileSystemProvider.CreateDirectoryAsync(physFolder);
-            }
+        public async Task InitializeFirstNodeStartupAsync() {
+            // Delete all temp images
+            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
+            await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(physFolder);
+            // Create folder for temp images
+            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(physFolder);
         }
 
     }

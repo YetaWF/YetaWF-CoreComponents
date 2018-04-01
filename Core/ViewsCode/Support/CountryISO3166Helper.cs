@@ -26,7 +26,7 @@ namespace YetaWF.Core.Views.Shared {
     public class CountryISO3166<TModel> : RazorTemplate<TModel> { }
 
     public class CountryISO3166HelperStartup : IInitializeApplicationStartup {
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public Task InitializeApplicationStartupAsync() {
             return CountryISO3166Helper.ReadCountryListAsync();
         }
     }

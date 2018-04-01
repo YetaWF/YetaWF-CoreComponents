@@ -34,7 +34,7 @@ namespace YetaWF.Core.Pages {
         // IInitializeApplicationStartup
         public const string ImageType = "YetaWF_Core_PageFavIcon";
 
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public Task InitializeApplicationStartupAsync() {
             ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
             return Task.CompletedTask;
         }

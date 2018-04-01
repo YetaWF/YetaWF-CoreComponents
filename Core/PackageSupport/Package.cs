@@ -78,7 +78,7 @@ namespace YetaWF.Core.Packages {
     public enum ServiceLevelEnum {
         Unknown = -1,
         Core = 0,
-        FileSystemProvider = 50, // File I/O
+        CachingProvider = 50, // Cache, FileSystem
         LowLevelServiceProvider = 100, // Language, Identity (can't use higher services,like Scheduling)
         SchedulerProvider = 150, // Scheduler
         ServiceProvider = 200, // Logging
@@ -683,15 +683,19 @@ namespace YetaWF.Core.Packages {
         private List<Type> _installableModels;
 
         /// <summary>
-        /// Return a list of all classes in all packages that support an interface or are derived from the specified type.
+        /// Return a list of all types in all packages that support an interface or are derived from the specified type.
         /// </summary>
         /// <typeparam name="TYPE">Type used to filter the classes.</typeparam>
+        /// <param name="OrderByServiceLevel">Sort by service level (low to high).</param>
+        /// <param name="serviceLevel">Filter by service level (or ServiceLevelEnum.Unknown for all classes).</param>
         /// <returns>List of classes.</returns>
-        public static List<Type> GetClassesInPackages<TYPE>(bool OrderByServiceLevel = false) {
+        public static List<Type> GetClassesInPackages<TYPE>(bool OrderByServiceLevel = false, ServiceLevelEnum ServiceLevel = ServiceLevelEnum.Unknown) {
             List<Type> list = new List<Type>();
             List<Package> packages = Package.GetAvailablePackages();
             if (OrderByServiceLevel)
                 packages = (from p in packages orderby (int)p.ServiceLevel select p).ToList();
+            if (ServiceLevel != ServiceLevelEnum.Unknown)
+                packages = (from p in packages where ServiceLevel == p.ServiceLevel select p).ToList();
 
             foreach (Package package in packages) {
                 Type[] typesInAsm;

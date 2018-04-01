@@ -17,7 +17,7 @@ namespace YetaWF.Core.Site {
         public const string ImageType = "YetaWF_Core_FavIcon";
         public const string LargeImageType = "YetaWF_Core_FavIconLrg";
 
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public Task InitializeApplicationStartupAsync() {
             ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
             ImageSupport.AddHandler(LargeImageType, GetBytesAsync: RetrieveLargeImageAsync);
             return Task.CompletedTask;
