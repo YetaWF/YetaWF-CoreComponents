@@ -356,7 +356,7 @@ namespace YetaWF.Core.Site {
         /// Call when the initial install process ends.
         /// </summary>
         /// <remarks>
-        /// Even once the initial install process has ended, INITIAL_INSTALL still returns true to indicate that a site restart is needed.
+        /// Even once the initial install process has ended, INITIAL_INSTALL still returns true to indicate that a site restart (including all instances) is needed.
         /// Some data providers are still marked as not installed until the site is restarted.
         /// </remarks>
         public static async Task RemoveInitialInstallAsync() {

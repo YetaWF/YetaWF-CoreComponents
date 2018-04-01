@@ -38,16 +38,17 @@ namespace YetaWF.Core.Packages {
 
                 // read contents file
                 xmlFile = Path.GetTempFileName();
-                FileStream fs = new FileStream(xmlFile, FileMode.Create, FileAccess.ReadWrite);
-                ze = zip[PackageContentsFile];
-                ze.Extract(fs);
-                fs.Close();
-
-                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                SerializablePackage serPackage = (SerializablePackage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
-                fs.Close();
-
-                await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                    ze = zip[PackageContentsFile];
+                    ze.Extract(fs.GetFileStream());
+                    await fs.CloseAsync();
+                }
+                SerializablePackage serPackage;
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                    serPackage = (SerializablePackage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    await fs.CloseAsync();
+                }
+                await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
 
                 if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
                     errorList.Add(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",

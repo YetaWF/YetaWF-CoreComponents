@@ -142,8 +142,11 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                 }
-                if (copy)
-                    list.Add(new SerializableFile(file, ExternalRoot: ExternalRoot));
+                if (copy) {
+                    SerializableFile serFile = new SerializableFile(file, ExternalRoot: ExternalRoot);
+                    serFile.FileDate = await FileSystem.FileSystemProvider.GetCreationTimeUtcAsync(serFile.AbsFileName);
+                    list.Add(serFile);
+                }
             }
             foreach (var dir in await FileSystem.FileSystemProvider.GetDirectoriesAsync(folder)) {
                 string dirName = Path.GetFileName(dir).ToLower();

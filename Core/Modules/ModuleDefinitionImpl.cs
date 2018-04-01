@@ -580,6 +580,11 @@ namespace YetaWF.Core.Modules {
             return moduleActions;
         }
 
+        protected async Task<string> CustomIconAsync(string iconName) {
+            SkinImages skinImg = new SkinImages();
+            return await skinImg.FindIcon_PackageAsync(iconName, Package.GetCurrentPackage(this));
+        }
+
         // RENDERING
         // RENDERING
         // RENDERING

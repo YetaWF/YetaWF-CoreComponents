@@ -8,9 +8,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
+using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
+
     public class FileBundles : IInitializeApplicationStartup {
 
         public enum BundleTypeEnum {
@@ -18,7 +20,7 @@ namespace YetaWF.Core.Pages {
             CSS = 1,
         }
 
-        public class Bundle { // TODO: #webfarm Bundles must be shared cached
+        public class Bundle {
             public string BundleName { get; set; }
             public int BundleNumber { get; set; }
             public string Url { get; set; }
@@ -35,13 +37,12 @@ namespace YetaWF.Core.Pages {
             if (firstNode) {
                 Logging.AddLog("Removing/creating bundle folder");
                 string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-                if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(tempPath))
-                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempPath);
+                if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
+                    await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
             }
-            Bundles = new List<Bundle>();
         }
 
-        private static List<Bundle> Bundles { get; set; }
+        private const string BUNDLEKEY = "__FileBundles";
 
         public static async Task<string> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
 
@@ -65,8 +66,10 @@ namespace YetaWF.Core.Pages {
 
                 string bundleName = MakeName(fileList);
 
-                await StringLocks.DoActionAsync(bundleName, async () => {
-                    Bundle bundle = (from b in Bundles where b.BundleName == bundleName select b).FirstOrDefault();
+                using (IStaticLockObject staticLock = await Caching.StaticCacheProvider.LockAsync<SerializableList<Bundle>>(BUNDLEKEY)) {
+                    SerializableList<Bundle> bundles = await Caching.StaticCacheProvider.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);
+                    if (bundles == null) bundles = new SerializableList<Bundle>();
+                    Bundle bundle = (from b in bundles where b.BundleName == bundleName select b).FirstOrDefault();
                     if (bundle == null || startLength != bundle.StartLength) {
                         // make a new temp file combining all files in the list
                         StringBuilder sb = new StringBuilder();
@@ -112,18 +115,19 @@ namespace YetaWF.Core.Pages {
                             // new bundle
                             bundle = new Bundle {
                                 BundleName = bundleName,
-                                BundleNumber = Bundles.Count,
-                                Url = GetBundleUrlName(Bundles.Count, startLength, extension),
+                                BundleNumber = bundles.Count,
+                                Url = GetBundleUrlName(bundles.Count, startLength, extension),
                                 StartLength = startLength,
 #if DEBUG
                                 StartText = start,
 #endif
                             };
                         }
-                        Bundles.Add(bundle);
+                        bundles.Add(bundle);
                         string realFile = YetaWFManager.UrlToPhysical(bundle.Url);
-                        await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
-                        await FileSystem.FileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
+                        await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
+                        await FileSystem.TempFileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
+                        await Caching.StaticCacheProvider.AddAsync(BUNDLEKEY, bundles);
                     } else {
                         // existing bundle
 #if DEBUG
@@ -132,13 +136,13 @@ namespace YetaWF.Core.Pages {
 #endif
                     }
                     url = bundle.Url;
-                });
+                    await staticLock.UnlockAsync();
+                }
             }
             return url;
         }
 
-        private static string GetBundleUrlName(int index, int startLength, string extension)
-        {
+        private static string GetBundleUrlName(int index, int startLength, string extension) {
             return string.Format("/{0}/bundle{1}_{2}{3}", Globals.AddonsBundlesFolder, index, startLength, extension);
         }
 
@@ -177,9 +181,8 @@ namespace YetaWF.Core.Pages {
 
             List<string> list = (from l in fileList orderby l select l.ToLower()).ToList();
             foreach (var f in list)
-                name += f+",";
+                name += f + ",";
             return name;
         }
-
     }
 }

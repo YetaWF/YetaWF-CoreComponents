@@ -35,7 +35,7 @@ namespace YetaWF.Core.IO {
             get {
                 if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
                 // sanitize the file name and translate invalid characters
-                string file = FileData.MakeValidFileName(FileName);
+                string file = FileSystem.FileSystemProvider.MakeValidDataFileName(FileName);
                 return string.IsNullOrEmpty(FileName) ? BaseFolder : Path.Combine(BaseFolder, file);
             }
         }
@@ -46,9 +46,8 @@ namespace YetaWF.Core.IO {
         }
 
         /// <summary>
-        /// Loads the file.
+        /// Loads an object from a file.
         /// </summary>
-        /// <returns></returns>
         public async Task<TObj> LoadAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
 

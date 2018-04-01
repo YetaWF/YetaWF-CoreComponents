@@ -252,14 +252,12 @@ namespace YetaWF.Core.Pages {
         // SKIN
 
         // Displays the panes defined by the page skin
-        public List<string> Panes {
-            get {
-                if (_panes == null) {
-                    SkinAccess skinAccess = new SkinAccess();
-                    _panes = skinAccess.GetPanesAsync(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup).Result;//$$$
-                }
-                return _panes;
+        public async Task<List<string>> GetPanesAsync() {
+            if (_panes == null) {
+                SkinAccess skinAccess = new SkinAccess();
+                _panes = await skinAccess.GetPanesAsync(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup);
             }
+            return _panes;
         }
         List<string> _panes;
 
@@ -541,7 +539,8 @@ namespace YetaWF.Core.Pages {
             // don't consider template page for modules
             if (PaneDiv && pane == Globals.MainPane) {
                 List<string> leftOver = (from m in ModuleDefinitions select m.Pane).Distinct().ToList();
-                leftOver = (from l in leftOver where !Manager.CurrentPage.Panes.Contains(l) select l).ToList();
+                List<string> panes = await Manager.CurrentPage.GetPanesAsync();
+                leftOver = (from l in leftOver where !panes.Contains(l) select l).ToList();
                 // now render what's left
                 foreach (string p in leftOver) {
                     sb.Append(await RenderPaneAsync(htmlHelper, p, "yGeneratedPane"));

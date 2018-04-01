@@ -186,7 +186,7 @@ namespace YetaWF.Core.Modules {
         private async Task<MenuList> GetMoveToOtherPanesAsync(PageDefinition page, ModuleDefinition modServices) {
 
             MenuList menu = new MenuList();
-            foreach (var pane in page.Panes) {
+            foreach (var pane in await page.GetPanesAsync()) {
                 ModuleAction action = await modServices.GetModuleActionAsync("MoveToPane", page, this, Manager.PaneRendered, pane);
                 if (action != null)
                     menu.Add(action);

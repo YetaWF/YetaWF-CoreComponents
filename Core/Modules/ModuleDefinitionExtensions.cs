@@ -8,6 +8,8 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Packages;
+using YetaWF.Core.Skins;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -52,7 +54,7 @@ namespace YetaWF.Core.Modules {
             ModuleAction action = new ModuleAction(mod) {
                 Category = ModuleAction.ActionCategoryEnum.Significant,
                 CssClass = "",
-                Image = "PageEdit.png",
+                Image = await new SkinImages().FindIcon_PackageAsync("PageEdit.png", Package.GetCurrentPackage(mod)),
                 Location = ModuleAction.ActionLocationEnum.Any,
                 Mode = ModuleAction.ActionModeEnum.Any,
                 Style = ModuleAction.ActionStyleEnum.Nothing,

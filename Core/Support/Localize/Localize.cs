@@ -9,6 +9,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+using YetaWF.Core.Audit;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -156,6 +157,9 @@ namespace YetaWF.Core.Localize {
                 WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey, abort);
                 await WebConfigHelper.SaveAsync();
                 abortOnFailure = abort;
+                await Auditing.AddAuditAsync($"{nameof(LocalizationSupport)}.{nameof(SetAbortOnFailureAsync)}", "Localization", Guid.Empty,
+                    $"{nameof(SetAbortOnFailureAsync)}({abort})"
+                );
             }
         }
         private static bool? abortOnFailure = null;
@@ -174,6 +178,9 @@ namespace YetaWF.Core.Localize {
                 WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, UseKey, use);
                 await WebConfigHelper.SaveAsync();
                 useResources = use;
+                await Auditing.AddAuditAsync($"{nameof(LocalizationSupport)}.{nameof(SetUseLocalizationResourcesAsync)}", "Localization", Guid.Empty,
+                    $"{nameof(SetUseLocalizationResourcesAsync)}({use})"
+                );
             }
         }
         private static bool? useResources = null;

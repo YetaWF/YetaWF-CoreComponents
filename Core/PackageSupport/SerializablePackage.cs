@@ -89,11 +89,10 @@ namespace YetaWF.Core.Packages {
             }
             AbsFileName = fileName;
             FileName = relFileName;
-            FileDate = FileSystem.FileSystemProvider.GetCreationTimeUtcAsync(AbsFileName).Result;//$$$$constructor
         }
 
         public string FileName { get; private set; }
-        public DateTime FileDate { get; private set; }
+        public DateTime FileDate { get; set; }
         public bool SiteSpecific { get; private set; }
         [DontSave]
         public string AbsFileName { get; private set; }

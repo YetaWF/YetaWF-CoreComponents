@@ -32,14 +32,17 @@ namespace YetaWF.Core.Modules {
 
                 // read contents file
                 xmlFile = Path.GetTempFileName();
-                FileStream fs = new FileStream(xmlFile, FileMode.Create, FileAccess.ReadWrite);
-                ze = zip[ModuleContentsFile];
-                ze.Extract(fs);
-                fs.Close();
-                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);//?$$$
-                SerializableModule serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
-                fs.Close();
-                await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                    ze = zip[ModuleContentsFile];
+                    ze.Extract(fs.GetFileStream());
+                    await fs.CloseAsync();
+                }
+                SerializableModule serModule;
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                    serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    await fs.CloseAsync();
+                }
+                await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
 
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serModule.CoreVersion) < 0) {
                     errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));

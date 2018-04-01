@@ -956,6 +956,7 @@ namespace YetaWF.Core.Models {
             changes = new List<ChangedProperty>();
             if (oOld == null) {
                 if (oNew == null) return true;
+                return false;
             } else if (oNew == null) {
                 changes.Add(new ChangedProperty {
                     Name = propData.Name,

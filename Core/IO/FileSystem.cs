@@ -22,12 +22,14 @@ namespace YetaWF.Core.IO {
 
     };
 
+    public interface IFileLockObject : IStaticLockObject { }
+
     public interface IFileSystem {
 
         /// <summary>
         /// Locks a file or directory by name (not the folder contents).
         /// </summary>
-        Task<IDisposable> LockResourceAsync(string fileOrFolder);
+        Task<IFileLockObject> LockResourceAsync(string fileOrFolder);
 
         // Directory I/O
 
@@ -62,6 +64,12 @@ namespace YetaWF.Core.IO {
         Task MoveFileAsync(string fromPath, string toPath);
         Task CopyFileAsync(string fromPath, string toPath);
         Task DeleteFileAsync(string filePath);
+
+        // Data Files
+
+        string GetDataFileExtension();
+        string MakeValidDataFileName(string name);
+        string ExtractNameFromDataFileName(string name);
 
         // FileStream
 

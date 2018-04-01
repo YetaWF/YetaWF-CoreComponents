@@ -33,10 +33,10 @@ namespace YetaWF.Core.IO {
         Task RemoveAsync<TYPE>(string key);
     }
     public interface ICacheStaticObject {
-        Task AddAsync<TYPE>(TYPE data);
-        Task<GetObjectInfo<TYPE>> GetAsync<TYPE>(Func<Task<TYPE>> noDataCallback);
-        Task RemoveAsync<TYPE>();
-        Task<IStaticLockObject> LockAsync<TYPE>();
+        Task AddAsync<TYPE>(string key, TYPE data);
+        Task<TYPE> GetAsync<TYPE>(string key, Func<Task<TYPE>> noDataCallback = null);
+        Task RemoveAsync<TYPE>(string key);
+        Task<IStaticLockObject> LockAsync<TYPE>(string key);
     }
     public interface IStaticLockObject : IDisposable {
         Task UnlockAsync();

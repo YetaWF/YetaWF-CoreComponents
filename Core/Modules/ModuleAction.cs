@@ -221,34 +221,15 @@ namespace YetaWF.Core.Modules {
 
         // Image is only used at runtime to set the image, which is immediately translated to a full path (ImageUrlFinal) for non-builtin icons
         // For built-in icons, we save the icon name
-        [DontSave, ReadOnly, JsonIgnoreAttribute]
+        [DontSave, ReadOnly, JsonIgnore]
         public string Image {
-            get {
-                return ImageUrlFinal;
-            }
-            set {
-                if (value != null) {
-                    string img = value.Trim();
-                    if (img.StartsWith("#")) {
-                        ImageUrlFinal = img;
-                    } else {
-                        if (OwningModule == null) {
-                            //throw new InternalError("need an owning module");
-                            ImageUrlFinal = "#NotFound";
-                        } else {
-                            SkinImages skinImages = new SkinImages();
-                            ImageUrlFinal = skinImages.FindIcon_PackageAsync(img, Package.GetCurrentPackage(OwningModule)).Result;//$$$$
-                        }
-                    }
-                } else {
-                    ImageUrlFinal = null;
-                }
-            }
+            get { return ImageUrlFinal; }
+            set { ImageUrlFinal = value; }
         }
         /// <summary>
         /// The saved image url or built-in name
         /// </summary>
-        /// <remarks>Use GetImageUrlFinal() to retrieve full Url</remarks>
+        /// <remarks>Use GetImageUrlFinalAsync() to retrieve full Url</remarks>
         [Caption("Image URL"), Description("The URL of the image shown for this entry")]
         [UIHint("Text80"), StringLength(Globals.MaxUrl)]
         public string ImageUrlFinal { get; set; }
@@ -324,52 +305,52 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Name used in html to identify the action
         /// </summary>
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public string Name { get; set; }
         /// <summary>
         /// Used in html to determine the initial display
         /// </summary>
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public bool Displayed { get; set; }
         /// <summary>
         /// Used in html and rendered as data-extradata attribute.
         /// </summary>
         /// <remarks>This could be used to pass additional data to client-side processing of this action, typically used with ActionStyleEnum.Nothing.</remarks>
-        [JsonIgnoreAttribute, DontSave]
+        [JsonIgnore, DontSave]
         public string ExtraData { get; set; }
 
         // in a GET request use a cookie as a signal that the data has been sent
         // this is normally used in <a> links that are used to download data (like zip files)
         // so the "Loading" animation can be stopped
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public bool CookieAsDoneSignal { get; set; }
 
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public ActionLocationEnum Location { get; set; } // the type of menu where that action is shown
 
         public SerializableList<ModuleAction> SubMenu { get; set; } // submenu
 
-        [JsonIgnoreAttribute] // menus don't support queryargs - they can be encoded as part of the url
+        [JsonIgnore] // menus don't support queryargs - they can be encoded as part of the url
         public object QueryArgs { get; set; } // arguments
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         [Obsolete("Do not use - replaced by QueryArgsDict")]
         public RouteValueDictionary QueryArgsRvd { get; set; }
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public QueryHelper QueryArgsDict { get; set; }
-        [JsonIgnoreAttribute] // menus don't support queryargshr - they can be encoded as part of the url
+        [JsonIgnore] // menus don't support queryargshr - they can be encoded as part of the url
         public object QueryArgsHR { get; set; } // arguments part of URL as human readable parts
-        [JsonIgnoreAttribute] // anchor used as part of URL
+        [JsonIgnore] // anchor used as part of URL
         public string AnchorId { get; set; }
 
-        [JsonIgnoreAttribute]// This is set in IsAuthorized and it is not user-definable
+        [JsonIgnore]// This is set in IsAuthorized and it is not user-definable
         public PageDefinition.PageSecurityType PageSecurity { get; set; }
 
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public bool DontCheckAuthorization { get; set; }// don't check whether user is authorized (always show) - this will force a login/register when used
 
         [Obsolete("Discontinued - preserve property so deserializing existing data doesn't fail")]
         // Discontinued: we have to use "items" because kendo treeview doesn't let us to use a different variable name - we're no longer using kendo treeview
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public SerializableList<ModuleAction> items {
             get {  return null; } set { }
         }
@@ -377,7 +358,7 @@ namespace YetaWF.Core.Modules {
         public int Id { get; set; } // ids are used for editing purposes to match up old and new menu entries
 
         // GetUserMenu evaluates all ModuleActions so their authorization doesn't have to be reevaluated
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public bool _AuthorizationEvaluated { get; set; }
 
         public Guid GetOwningModuleGuid() {
