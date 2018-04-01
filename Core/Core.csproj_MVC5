@@ -281,12 +281,11 @@
     <Compile Include="Identity\Role.cs" />
     <Compile Include="Identity\Resource.cs" />
     <Compile Include="Identity\User.cs" />
-    <Compile Include="IO\CachedObject.cs" />
     <Compile Include="IO\File.cs" />
     <Compile Include="IO\InstallableModel.cs" />
     <Compile Include="IO\SessionStateIO.cs" />
     <Compile Include="IO\FileIO.cs" />
-    <Compile Include="IO\StringLocks.cs" />
+    <Compile Include="Support\Lock\StringLocks.cs" />
     <Compile Include="Support\Image\ImageSupport.cs" />
     <Compile Include="Support\Language\LanguageInfo.cs" />
     <Compile Include="Support\Localize\Formatting.cs">
