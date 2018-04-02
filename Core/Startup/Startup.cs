@@ -53,14 +53,13 @@ namespace YetaWF.Core.Support {
             types = types.Except(baseTypes).ToList();
 
             // make sure the required providers are installed
-            if (YetaWF.Core.IO.Caching.LocalCacheProvider == null)
+            if (YetaWF.Core.IO.Caching.GetLocalCacheProvider == null)
                 throw new InternalError("There is no local cache provider");
-            if (YetaWF.Core.IO.Caching.SharedCacheProvider == null)
+            if (YetaWF.Core.IO.Caching.GetSharedCacheProvider == null)
                 throw new InternalError("There is no shared cache provider");
-            if (YetaWF.Core.IO.Caching.StaticCacheProvider == null)
+            if (YetaWF.Core.IO.Caching.GetStaticCacheProvider == null)
                 throw new InternalError("There is no static cache provider");
-
-
+            
             // Now we need to determine whether this is the first node
             // We have an indicator file ./Data/FirstNode.txt that signals that the first startup is a "first node".
             // This file must be deployed with the site to force a new start.
@@ -83,11 +82,13 @@ namespace YetaWF.Core.Support {
                 MultiInstanceStartTime = DateTime.UtcNow;
                 if (!firstNode) {
                     // read the startup info object and make sure there was a first node
-                    StartupInfoObject startupInfo = await YetaWF.Core.IO.Caching.StaticCacheProvider.GetAsync<StartupInfoObject>(MULTIINSTANCESTARTTIMEKEY);
-                    if (startupInfo == null)
-                        firstNode = true;
-                    else
-                        MultiInstanceStartTime = startupInfo.MultiInstanceStartTime;
+                    using (ICacheStaticDataProvider staticCacheDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                        StartupInfoObject startupInfo = await staticCacheDP.GetAsync<StartupInfoObject>(MULTIINSTANCESTARTTIMEKEY);
+                        if (startupInfo == null)
+                            firstNode = true;
+                        else
+                            MultiInstanceStartTime = startupInfo.MultiInstanceStartTime;
+                    }
                 }
 
                 // run first node specific initialization
@@ -114,7 +115,9 @@ namespace YetaWF.Core.Support {
                     StartupInfoObject startTime = new Support.Startup.StartupInfoObject() {
                         MultiInstanceStartTime = MultiInstanceStartTime,
                     };
-                    await YetaWF.Core.IO.Caching.StaticCacheProvider.AddAsync(MULTIINSTANCESTARTTIMEKEY, startTime);
+                    using (ICacheStaticDataProvider staticCacheDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                        await staticCacheDP.AddAsync(MULTIINSTANCESTARTTIMEKEY, startTime);
+                    }
                 }
 
                 await YetaWF.Core.IO.FileSystem.FileSystemProvider.DeleteFileAsync(file);

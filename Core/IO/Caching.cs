@@ -8,28 +8,27 @@ namespace YetaWF.Core.IO {
     public static class Caching {
 
         // Dataproviders set by available data providers during application startup
-        public static ICacheObject LocalCacheProvider { get; set; }
-        public static ICacheObject SharedCacheProvider { get; set; }
-        public static ICacheStaticObject StaticCacheProvider { get; set; }
+        public static Func<ICacheDataProvider> GetLocalCacheProvider { get; set; }
+        public static Func<ICacheDataProvider> GetSharedCacheProvider { get; set; }
+        public static Func<ICacheStaticDataProvider> GetStaticCacheProvider { get; set; }
         
         public const string EmptyCachedObject = "Empty";
     };
 
-    public class GetObjectInfo<TYPE> {
-        public TYPE Data { get; set; }
-        public bool Success { get; set; }
-    }
-
-    public interface ICacheObject {
+    public interface ICacheDataProvider : IDisposable {
         Task AddAsync<TYPE>(string key, TYPE data);
         Task<GetObjectInfo<TYPE>> GetAsync<TYPE>(string key);
         Task RemoveAsync<TYPE>(string key);
     }
-    public interface ICacheStaticObject {
+    public interface ICacheStaticDataProvider : IDisposable {
         Task AddAsync<TYPE>(string key, TYPE data);
         Task<TYPE> GetAsync<TYPE>(string key, Func<Task<TYPE>> noDataCallback = null);
         Task RemoveAsync<TYPE>(string key);
         Task<IStaticLockObject> LockAsync<TYPE>(string key);
+    }
+    public class GetObjectInfo<TYPE> {
+        public TYPE Data { get; set; }
+        public bool Success { get; set; }
     }
     public interface IStaticLockObject : IDisposable {
         Task UnlockAsync();

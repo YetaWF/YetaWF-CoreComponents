@@ -38,10 +38,10 @@ namespace YetaWF.Core.Modules {
                 string fileName = Path.GetTempFileName();
                 zipFile.TempFiles.Add(fileName);
 
-                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName);
-                new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serModule);
-                await fs.CloseAsync();
-
+                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                    new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serModule);
+                    await fs.CloseAsync();
+                }
                 ZipEntry ze = zipFile.Zip.AddFile(fileName);
                 ze.FileName = ModuleContentsFile;
 

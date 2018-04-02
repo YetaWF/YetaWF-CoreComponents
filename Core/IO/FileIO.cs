@@ -95,9 +95,10 @@ namespace YetaWF.Core.IO {
             if (typeof(TObj) == typeof(string)) {
                 await FileSystem.FileSystemProvider.WriteAllTextAsync(FullPath, (string)Data);
             } else {
-                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(FullPath);
-                new GeneralFormatter(Format).Serialize(fs.GetFileStream(), Data);
-                await fs.CloseAsync();
+                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(FullPath)) {
+                    new GeneralFormatter(Format).Serialize(fs.GetFileStream(), Data);
+                    await fs.CloseAsync();
+                }
             }
             if (Date != null)
                 await FileSystem.FileSystemProvider.SetLastWriteTimeLocalAsync(FullPath, ((DateTime)Date).ToLocalTime());

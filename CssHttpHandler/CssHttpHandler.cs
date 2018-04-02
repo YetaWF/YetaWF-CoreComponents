@@ -100,7 +100,10 @@ namespace YetaWF.Core.HttpHandler {
             string cacheKey = "CssHttpHandler_" + file + "_";
 
             if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
-                GetObjectInfo<byte[]> objInfo = await Caching.LocalCacheProvider.GetAsync<byte[]>(cacheKey);
+                GetObjectInfo<byte[]> objInfo;
+                using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
+                    objInfo = await localCacheDP.GetAsync<byte[]>(cacheKey);
+                }
                 if (objInfo.Success)
                     bytes = objInfo.Data;
             }
@@ -116,13 +119,19 @@ namespace YetaWF.Core.HttpHandler {
                     context.Response.StatusDescription = "Not Found";
                     context.ApplicationInstance.CompleteRequest();
 #endif
-                    if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse)
-                        await Caching.LocalCacheProvider.AddAsync<byte[]>(cacheKey, null);
+                    if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
+                        using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
+                            await localCacheDP.AddAsync<byte[]>(cacheKey, null);
+                        }
+                    }
                     return;
                 }
                 bytes = Encoding.ASCII.GetBytes(text);
-                if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse)
-                    await Caching.LocalCacheProvider.AddAsync<byte[]>(cacheKey, bytes);
+                if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
+                    using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
+                        await localCacheDP.AddAsync<byte[]>(cacheKey, bytes);
+                    }
+                }
             }
             context.Response.ContentType = "text/css";
             context.Response.StatusCode = 200;

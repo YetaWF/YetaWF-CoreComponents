@@ -100,9 +100,10 @@ namespace YetaWF.Core.Packages {
                 string fileName = Path.GetTempFileName();
                 zipFile.TempFiles.Add(fileName);
 
-                IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName);
-                new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serPackage);
-                await fs.CloseAsync();
+                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                    new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serPackage);
+                    await fs.CloseAsync();
+                }
 
                 ZipEntry ze = zipFile.Zip.AddFile(fileName);
                 ze.FileName = PackageContentsFile;

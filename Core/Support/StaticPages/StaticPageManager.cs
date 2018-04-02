@@ -3,33 +3,40 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
+using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Support.StaticPages {
 
     /// <summary>
     /// Keeps track of static pages.
     /// </summary>
-    public class StaticPageManager {
+    public class StaticPageManager : IInitializeApplicationStartupFirstNodeOnly {
 
         private const string StaticFolder = "YetaWF_StaticPages";
 
-        private YetaWFManager Manager { get; set; }
+        private YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
         private SiteEntry Site { get; set; }
-        private static AsyncLock _lockObject = new AsyncLock();
+
+        public async Task InitializeFirstNodeStartupAsync() {
+            await RemoveAllPagesInternalAsync();
+        }
 
         public enum PageEntryEnum {
             [EnumDescription("File", "Static pages cached using a local file")]
             File = 0,
-            [EnumDescription("Memory", "Static pages cached in memory")]
+            [EnumDescription("Memory", "Static pages cached in memory (not available with distributed caching - web farm/garden)")] //$$$$NOT IN DISTRIBUTED MODE
             Memory = 1,
         }
         public class SiteEntry {
             public int SiteIdentity { get; set; }
-            public Dictionary<string, PageEntry> StaticPages { get; set; }
+            public SerializableDictionary<string, PageEntry> StaticPages { get; set; }
         }
         public class PageEntry {
             public string LocalUrl { get; set; }
@@ -44,36 +51,42 @@ namespace YetaWF.Core.Support.StaticPages {
             public string FileNameHttps { get; set; }
             public string FileNamePopupHttps { get; set; }
         }
-        public StaticPageManager(YetaWFManager manager) {
-            Manager = manager;
-        }
+        public StaticPageManager() { }
 
-        public static Dictionary<int, SiteEntry> Sites { get; private set; }
+        string STATICPAGESKEY = $"__StaticPages_{YetaWFManager.Manager.CurrentSite.Identity}";
 
-        private async Task InitSiteAsync() {
-            using (await _lockObject.LockAsync()) {// short-term lock to sync static pages during startup
-                if (Sites == null)
-                    Sites = new Dictionary<int, SiteEntry>();
-                if (!Sites.ContainsKey(Manager.CurrentSite.Identity)) {
-                    await RemoveAllPagesInternalAsync();
-                    string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
-                    // create a don't deploy marker
-                    await FileSystem.FileSystemProvider.WriteAllTextAsync(Path.Combine(folder, Globals.DontDeployMarker), "");
-                }
-                SiteEntry site;
-                if (!Sites.TryGetValue(Manager.CurrentSite.Identity, out site)) {
-                    site = new SiteEntry { SiteIdentity = Manager.CurrentSite.Identity, StaticPages = new Dictionary<string, StaticPages.StaticPageManager.PageEntry>() };
-                    Sites.Add(Manager.CurrentSite.Identity, site);
-                }
-                Site = site;
+        private async Task<List<SiteEntry>> InitSiteWithLockAsync(ICacheStaticDataProvider cacheStaticDP, IStaticLockObject staticLock) {
+            SerializableList<SiteEntry> siteEntries = await cacheStaticDP.GetAsync<SerializableList<SiteEntry>>(STATICPAGESKEY);
+            if (siteEntries == null) siteEntries = new SerializableList<SiteEntry>();
+            SiteEntry siteEntry = (from s in siteEntries where s.SiteIdentity == Manager.CurrentSite.Identity select s).FirstOrDefault();
+            if (siteEntry == null) {
+                siteEntry = new SiteEntry { SiteIdentity = Manager.CurrentSite.Identity, StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>() };
+                siteEntries.Add(siteEntry);
             }
+            Site = siteEntry;
+            return siteEntries;
+        }
+        private async Task<List<SiteEntry>> InitSiteAsync(ICacheStaticDataProvider cacheStaticDP) {
+            SerializableList<SiteEntry> siteEntries = await cacheStaticDP.GetAsync<SerializableList<SiteEntry>>(STATICPAGESKEY);
+            if (siteEntries == null) siteEntries = new SerializableList<SiteEntry>();
+            SiteEntry siteEntry = (from s in siteEntries where s.SiteIdentity == Manager.CurrentSite.Identity select s).FirstOrDefault();
+            if (siteEntry == null) {
+                siteEntry = new SiteEntry { SiteIdentity = Manager.CurrentSite.Identity, StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>() };
+                siteEntries.Add(siteEntry);
+            }
+            Site = siteEntry;
+            return siteEntries;
         }
 
         public async Task<List<PageEntry>> GetSiteStaticPagesAsync() {
-            await InitSiteAsync();
-            List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
-            return list;
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                    List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
+                    List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
+                    await staticLock.UnlockAsync();
+                    return list;
+                }
+            }
         }
         private string GetScheme() {
 #if MVC6
@@ -83,45 +96,55 @@ namespace YetaWF.Core.Support.StaticPages {
 #endif
         }
         public async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
-            await InitSiteAsync();
-            string localUrlLower = localUrl.ToLower();
-            string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                    List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
 
-            string tempFile;
-            if (GetScheme() == "https") {
-                if (Manager.IsInPopup) {
-                    tempFile = "https_popup#";
-                } else {
-                    tempFile = "https#";
-                }
-            } else {
-                if (Manager.IsInPopup) {
-                    tempFile = "http_popup#";
-                } else {
-                    tempFile = "http#";
+                    string localUrlLower = localUrl.ToLower();
+                    
+                    string folder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder, YetaWFManager.Manager.CurrentSite.Identity.ToString());
+                    await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(folder);
+
+                    string tempFile;
+                    if (GetScheme() == "https") {
+                        if (Manager.IsInPopup) {
+                            tempFile = "https_popup#";
+                        } else {
+                            tempFile = "https#";
+                        }
+                    } else {
+                        if (Manager.IsInPopup) {
+                            tempFile = "http_popup#";
+                        } else {
+                            tempFile = "http#";
+                        }
+                    }
+                    tempFile = Path.Combine(folder, tempFile + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
+
+                    PageEntry entry;
+                    if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                        entry = new StaticPages.StaticPageManager.PageEntry {
+                            LocalUrl = localUrl,
+                            LastUpdate = lastUpdated,
+                        };
+                        Site.StaticPages.Add(localUrlLower, entry);
+                    }
+                    if (cache && !YetaWF.Core.Support.Startup.MultiInstance) {
+                        entry.StorageType = PageEntryEnum.Memory;
+                        SetContents(entry, pageHtml);
+                    } else {
+                        entry.StorageType = PageEntryEnum.File;
+                        SetContents(entry, null);
+                    }
+                    SetFileName(entry, tempFile);
+
+                    // save the file image
+                    await FileSystem.TempFileSystemProvider.WriteAllTextAsync(tempFile, pageHtml);
+
+                    await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
+                    await staticLock.UnlockAsync();
                 }
             }
-            tempFile = Path.Combine(folder, tempFile + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
-            using (await _lockObject.LockAsync()) {
-                PageEntry entry;
-                if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
-                    entry = new StaticPages.StaticPageManager.PageEntry {
-                        LocalUrl = localUrl,
-                        LastUpdate = lastUpdated,
-                    };
-                    Site.StaticPages.Add(localUrlLower, entry);
-                }
-                if (cache) {
-                    entry.StorageType = PageEntryEnum.Memory;
-                    SetContents(entry, pageHtml);
-                } else {
-                    entry.StorageType = PageEntryEnum.File;
-                    SetContents(entry, null);
-                }
-                SetFileName(entry, tempFile);
-            }
-            // save the file image
-            await FileSystem.FileSystemProvider.WriteAllTextAsync(tempFile, pageHtml);
         }
 
         private void SetFileName(PageEntry entry, string tempFile) {
@@ -139,7 +162,6 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
         }
-
         private void SetContents(PageEntry entry, string pageHtml) {
             if (GetScheme() == "https") {
                 if (Manager.IsInPopup) {
@@ -162,114 +184,145 @@ namespace YetaWF.Core.Support.StaticPages {
         }
 
         public async Task<GetPageInfo> GetPageAsync(string localUrl) {
-            await InitSiteAsync();
-            DateTime lastUpdate = DateTime.MinValue;
-            string localUrlLower = localUrl.ToLower();
-            PageEntry entry = null;
-            if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
-                lastUpdate = entry.LastUpdate;
-                if (entry.StorageType == PageEntryEnum.Memory) {
-                    if (GetScheme() == "https") {
-                        if (Manager.IsInPopup) {
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                List<SiteEntry> siteEntries = await InitSiteAsync(cacheStaticDP);
+
+                DateTime lastUpdate = DateTime.MinValue;
+                string localUrlLower = localUrl.ToLower();
+                PageEntry entry = null;
+                if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                    lastUpdate = entry.LastUpdate;
+                    if (entry.StorageType == PageEntryEnum.Memory) {
+                        if (GetScheme() == "https") {
+                            if (Manager.IsInPopup) {
+                                return new GetPageInfo {
+                                    FileContents = entry.ContentPopupHttps,
+                                    LastUpdate = lastUpdate,
+                                };
+                            } else {
+                                return new GetPageInfo {
+                                    FileContents = entry.ContentHttps,
+                                    LastUpdate = lastUpdate,
+                                };
+                            }
+                        } else {
+                            if (Manager.IsInPopup) {
+                                return new GetPageInfo {
+                                    FileContents = entry.ContentPopup,
+                                    LastUpdate = lastUpdate,
+                                };
+                            } else {
+                                return new GetPageInfo {
+                                    FileContents = entry.Content,
+                                    LastUpdate = lastUpdate,
+                                };
+                            }
+                        }
+                    } else /*if (entry.StorageType == PageEntryEnum.File)*/ {
+                        string tempFile = null;
+                        if (GetScheme() == "https") {
+                            if (Manager.IsInPopup) {
+                                tempFile = entry.FileNamePopupHttps;
+                            } else {
+                                tempFile = entry.FileNameHttps;
+                            }
+                        } else {
+                            if (Manager.IsInPopup) {
+                                tempFile = entry.FileNamePopup;
+                            } else {
+                                tempFile = entry.FileName;
+                            }
+                        }
+                        try {
                             return new GetPageInfo {
-                                FileContents = entry.ContentPopupHttps,
+                                FileContents = await FileSystem.TempFileSystemProvider.ReadAllTextAsync(tempFile),
                                 LastUpdate = lastUpdate,
                             };
-                        } else {
+                        } catch (System.Exception) {
                             return new GetPageInfo {
-                                FileContents = entry.ContentHttps,
+                                FileContents = null,
                                 LastUpdate = lastUpdate,
                             };
                         }
-                    } else {
-                        if (Manager.IsInPopup) {
-                            return new GetPageInfo {
-                                FileContents = entry.ContentPopup,
-                                LastUpdate = lastUpdate,
-                            };
-                        } else {
-                            return new GetPageInfo {
-                                FileContents = entry.Content,
-                                LastUpdate = lastUpdate,
-                            };
-                        }
-                    }
-                } else /*if (entry.StorageType == PageEntryEnum.File)*/ {
-                    string tempFile = null;
-                    if (GetScheme() == "https") {
-                        if (Manager.IsInPopup) {
-                            tempFile = entry.FileNamePopupHttps;
-                        } else {
-                            tempFile = entry.FileNameHttps;
-                        }
-                    } else {
-                        if (Manager.IsInPopup) {
-                            tempFile = entry.FileNamePopup;
-                        } else {
-                            tempFile = entry.FileName;
-                        }
-                    }
-                    try {
-                        return new GetPageInfo {
-                            FileContents = await FileSystem.FileSystemProvider.ReadAllTextAsync(tempFile),
-                            LastUpdate = lastUpdate,
-                        };
-                    } catch (System.Exception) {
-                        return new GetPageInfo {
-                            FileContents = null,
-                            LastUpdate = lastUpdate,
-                        };
                     }
                 }
+                return new GetPageInfo {
+                    FileContents = null,
+                    LastUpdate = lastUpdate,
+                };
             }
-            return new GetPageInfo {
-                FileContents = null,
-                LastUpdate = lastUpdate,
-            };
         }
         public async Task<bool> HavePageAsync(string localUrl) {
-            await InitSiteAsync();
-            string localUrlLower = localUrl.ToLower();
-            PageEntry entry = null;
-            return Site.StaticPages.TryGetValue(localUrlLower, out entry);
-        }
-        public async Task RemovePageAsync(string localUrl) {
-            await InitSiteAsync();
-            string localUrlLower = localUrl.ToLower();
-            using (await _lockObject.LockAsync()) {
-                Site.StaticPages.Remove(localUrlLower);
-                string tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
-                tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
-                tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "http_popup#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
-                tempFile = Path.Combine(Manager.SiteFolder, StaticFolder, "https_popup#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                List<SiteEntry> siteEntries = await InitSiteAsync(cacheStaticDP);
+                string localUrlLower = localUrl.ToLower();
+                PageEntry entry = null;
+                return Site.StaticPages.TryGetValue(localUrlLower, out entry);
             }
         }
+        public async Task RemovePageAsync(string localUrl) {
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                    List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
+
+                    string localUrlLower = localUrl.ToLower();
+
+                    Site.StaticPages.Remove(localUrlLower);
+                    await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
+
+                    await RemovePageSet(localUrl);
+
+                    await staticLock.UnlockAsync();
+                }
+            }
+        }
+
+        private async Task RemovePageSet(string localUrl) {
+            string siteFolder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder, YetaWFManager.Manager.CurrentSite.Identity.ToString());
+            string tempFile = Path.Combine(siteFolder, "http#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+            tempFile = Path.Combine(siteFolder, "https#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+            tempFile = Path.Combine(siteFolder, "http_popup#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+            tempFile = Path.Combine(siteFolder, "https_popup#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+        }
+
         public async Task RemovePagesAsync(List<PageDefinition> pages) {
             if (pages == null) return;
-            foreach (PageDefinition page in pages)
-                await RemovePageAsync(page.Url);
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                    List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
+                    foreach (PageDefinition page in pages) {
+                        string localUrlLower = page.Url.ToLower();
+                        await RemovePageSet(page.Url);
+                        Site.StaticPages.Remove(localUrlLower);
+                    }
+                    await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
+
+                    await staticLock.UnlockAsync();
+                }
+            }
         }
         public async Task RemoveAllPagesAsync() {
-            await InitSiteAsync();
-            using (await _lockObject.LockAsync()) {
-                Site.StaticPages = new Dictionary<string, StaticPages.StaticPageManager.PageEntry>();
-                await RemoveAllPagesInternalAsync();
+            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                    List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
+                    Site.StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>();
+                    await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
+                    await RemoveAllPagesInternalAsync();
+                    await staticLock.UnlockAsync();
+                }
             }
         }
         private async Task RemoveAllPagesInternalAsync() {
-            string folder = Path.Combine(Manager.SiteFolder, StaticFolder);
-            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(folder)) {
-                List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*" + FileSystem.FileSystemProvider.GetDataFileExtension());
-                foreach (string file in files) {
-                    try {
-                        await FileSystem.FileSystemProvider.DeleteFileAsync(file);
-                    } catch (Exception) { }
-                }
-            }
+            Logging.AddLog("Removing/creating bundle folder");
+            string folder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder);
+            await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(folder);
+            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(folder);
+            // create a don't deploy marker
+            await FileSystem.TempFileSystemProvider.WriteAllTextAsync(Path.Combine(folder, Globals.DontDeployMarker), "");
         }
     }
 }

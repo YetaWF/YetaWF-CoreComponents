@@ -612,7 +612,7 @@ namespace YetaWF.Core.Modules {
             RouteValueDictionary rvd = new RouteValueDictionary();
             rvd.Add(Globals.RVD_ModuleDefinition, this);
 
-            string moduleHtml;
+            string moduleHtml = null;
             try {
 #if MVC6
                 if (!string.IsNullOrEmpty(Area))
@@ -620,11 +620,12 @@ namespace YetaWF.Core.Modules {
                 else
                     moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
-                using (new YetaWFManager.NeedSync()) { 
+                YetaWFManager.Syncify(() => {
                     if (!string.IsNullOrEmpty(Area))
                         rvd.Add("Area", Area);
                     moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-                }
+                    return Task.CompletedTask;
+                });
 #endif
             } catch (Exception exc) {
                 // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
@@ -709,18 +710,19 @@ namespace YetaWF.Core.Modules {
             RouteValueDictionary rvd = new RouteValueDictionary();
             rvd.Add(Globals.RVD_ModuleDefinition, this);
 
-            string moduleHtml;
+            string moduleHtml = null;
 #if MVC6
             if (!string.IsNullOrEmpty(Area))
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
             else
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
-            using (new YetaWFManager.NeedSync()) {
+            YetaWFManager.Syncify(() => {
                 if (!string.IsNullOrEmpty(Area))
                     rvd.Add("Area", Area);
                 moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-            }
+                return Task.CompletedTask;
+            });
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)

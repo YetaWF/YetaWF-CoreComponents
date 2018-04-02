@@ -156,8 +156,8 @@ namespace YetaWF.Core.Views.Shared {
             return currencies;
         }
         private static async Task<List<Currency>> ReadCurrencyListAsync() {
-            if (_currencyList == null) {
-                using (await _lockObject.LockAsync()) { // short-term lock to vuild cached country list
+            using (await _lockObject.LockAsync()) { // short-term lock to build cached country list
+                if (_currencyList == null) {
                     Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                     string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
                     string customUrl = VersionManager.GetCustomUrlFromUrl(url);

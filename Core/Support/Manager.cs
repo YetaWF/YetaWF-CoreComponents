@@ -983,7 +983,7 @@ namespace YetaWF.Core.Support {
         public StaticPageManager StaticPageManager {
             get {
                 if (_staticPageManager == null)
-                    _staticPageManager = new StaticPageManager(this);
+                    _staticPageManager = new StaticPageManager();
                 return _staticPageManager;
             }
         }
@@ -1764,7 +1764,7 @@ namespace YetaWF.Core.Support {
         /// Only synchronous data providers are used. 
         /// Async code will run synchronously on all platforms.
         /// </summary>
-        public class NeedSync : IDisposable {
+        private class NeedSync : IDisposable {
             private YetaWFManager Manager;
             public NeedSync() {
                 if (YetaWFManager.HaveManager) { // if no manager is available, code is synchronous by definition

@@ -84,9 +84,10 @@ namespace YetaWF.Core.Modules {
                         fName = fName.Replace(originalGuid.ToString(), modDef.ModuleGuid.ToString());
                         fName = Manager.SiteFolder + fName;
                         await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName));
-                        FileStream fs = new FileStream(fName, FileMode.Create, FileAccess.ReadWrite);
-                        e.Extract(fs);
-                        fs.Close();
+                        using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
+                            e.Extract(fs.GetFileStream());
+                            await fs.CloseAsync();
+                        }
 
                         // open file and replace old module guid with new module guid (this is mostly in case module has guid embedded in data)
                         string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(fName);
