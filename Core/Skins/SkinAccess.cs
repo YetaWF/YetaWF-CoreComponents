@@ -262,10 +262,11 @@ namespace YetaWF.Core.Skins {
         public SkinCollectionInfoList GetAllSkinCollections() {
             if (_skinCollections == null) {
                 List<VersionManager.AddOnProduct> addonSkinColls = VersionManager.GetAvailableSkinCollections();
-                _skinCollections = new SkinCollectionInfoList();
+                SkinCollectionInfoList newList = new SkinCollectionInfoList();
                 foreach (VersionManager.AddOnProduct addon in addonSkinColls) {
-                    _skinCollections.Add(addon.SkinInfo);
+                    newList.Add(addon.SkinInfo);
                 }
+                _skinCollections = newList;
             }
             return _skinCollections;
         }

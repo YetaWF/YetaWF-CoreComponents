@@ -100,7 +100,7 @@ namespace YetaWF.Core.Packages {
                     string fileName = Path.GetTempFileName();
                     zipBackupFile.TempFiles.Add(fileName);
 
-                    using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                    using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
                         new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serBackup);
                         await fs.CloseAsync();
                     }

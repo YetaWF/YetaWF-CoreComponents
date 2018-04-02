@@ -59,7 +59,7 @@ namespace YetaWF.Core.Packages {
                                 fileName = Path.GetTempFileName();
                                 zipFile.TempFiles.Add(fileName);
 
-                                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
                                     new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), expChunk.ObjectList);
                                     await fs.CloseAsync();
                                 }
@@ -82,7 +82,7 @@ namespace YetaWF.Core.Packages {
             // serialize package contents
             fileName = Path.GetTempFileName();
             zipFile.TempFiles.Add(fileName);
-            using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+            using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
                 new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serData);
                 await fs.CloseAsync();
             }

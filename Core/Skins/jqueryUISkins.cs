@@ -22,7 +22,7 @@ namespace YetaWF.Core.Skins {
 
         public async Task<List<JQueryTheme>> GetJQueryThemeListAsync() {
             if (_jQueryThemeList == null)
-                await LoadJQueryUIThemesAsync();
+                _jQueryThemeList = await LoadJQueryUIThemesAsync();
             return _jQueryThemeList;
         }
         private static List<JQueryTheme> _jQueryThemeList;
@@ -65,8 +65,7 @@ namespace YetaWF.Core.Skins {
                 throw new InternalError("No jQuery-UI themes found");
 
             _jQueryThemeDefault = jqList[0];
-            _jQueryThemeList = (from theme in jqList orderby theme.Name select theme).ToList();
-            return _jQueryThemeList;
+            return (from theme in jqList orderby theme.Name select theme).ToList();
         }
 
         internal async Task<string> FindJQueryUISkinAsync(string themeName) {

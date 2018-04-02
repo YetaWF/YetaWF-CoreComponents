@@ -22,7 +22,7 @@ namespace YetaWF.Core.Skins {
 
         public async Task<List<BootstrapTheme>> GetBootstrapThemeListAsync() {
             if (_BootstrapThemeList == null)
-                await LoadBootstrapThemesAsync();
+                _BootstrapThemeList = await LoadBootstrapThemesAsync();
             return _BootstrapThemeList;
         }
         private static List<BootstrapTheme> _BootstrapThemeList;
@@ -65,8 +65,7 @@ namespace YetaWF.Core.Skins {
                 throw new InternalError("No Bootstrap themes found");
 
             _BootstrapThemeDefault = bsList[0];
-            _BootstrapThemeList = (from theme in bsList orderby theme.Name select theme).ToList();
-            return _BootstrapThemeList;
+            return (from theme in bsList orderby theme.Name select theme).ToList();
         }
 
         internal async Task<string> FindBootstrapSkinAsync(string themeName) {

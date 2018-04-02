@@ -46,7 +46,7 @@ namespace YetaWF.Core.IO {
             lock (_lockObject) { // short-term lock to remove LockObject
                 obj = null;
                 if (!_locks.TryGetValue(s, out obj))
-                    throw new InternalError("An entry must be present - someone else removed it - due to a usecount mismatch?");
+                    throw new InternalError("An entry must be present - someone else removed it - due to a use count mismatch?");
                 --obj.UseCount;
                 if (obj.UseCount <= 0) {
                     _locks.Remove(s);

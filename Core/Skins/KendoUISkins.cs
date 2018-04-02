@@ -22,7 +22,7 @@ namespace YetaWF.Core.Skins {
 
         public async Task<List<KendoTheme>> GetKendoThemeListAsync() {
             if (_kendoThemeList == null)
-                await LoadKendoUIThemesAsync();
+                _kendoThemeList = await LoadKendoUIThemesAsync();
             return _kendoThemeList;
         }
         private static List<KendoTheme> _kendoThemeList;
@@ -74,8 +74,7 @@ namespace YetaWF.Core.Skins {
                 throw new InternalError("No Kendo themes found");
 
             _kendoThemeDefault = kendoList[0];
-            _kendoThemeList = (from theme in kendoList orderby theme.Name select theme).ToList();
-            return _kendoThemeList;
+            return (from theme in kendoList orderby theme.Name select theme).ToList();
         }
 
         internal async Task<string> FindKendoUISkinAsync(string themeName) {

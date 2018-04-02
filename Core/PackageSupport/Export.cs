@@ -100,7 +100,7 @@ namespace YetaWF.Core.Packages {
                 string fileName = Path.GetTempFileName();
                 zipFile.TempFiles.Add(fileName);
 
-                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
                     new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serPackage);
                     await fs.CloseAsync();
                 }
@@ -179,8 +179,8 @@ namespace YetaWF.Core.Packages {
                 // if there were changes, replace the real file with a temp file/new contents
                 if (text != newText) {
                     string tempFile = Path.GetTempFileName();
-                    await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
-                    await FileSystem.FileSystemProvider.WriteAllTextAsync(tempFile, newText);
+                    await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+                    await FileSystem.TempFileSystemProvider.WriteAllTextAsync(tempFile, newText);
                     sourceFile.ReplaceAbsFileName(tempFile);
                     zipFile.TempFiles.Add(tempFile);
                 }

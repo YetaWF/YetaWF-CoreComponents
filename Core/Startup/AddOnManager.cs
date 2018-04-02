@@ -44,7 +44,7 @@ namespace YetaWF.Core.Addons {
         private List<VersionManager.AddOnProduct> _AddedProducts = new List<VersionManager.AddOnProduct>();
         private List<Module> _AddedInvokedCssModules = new List<Module>();
 
-        private static List<Module> UniqueInvokedCssModules = new List<Module>();
+        private List<Module> UniqueInvokedCssModules = new List<Module>();
 
         /// <summary>
         /// Add a named addon (normal).

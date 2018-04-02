@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.IO;
 using YetaWF.Core.PackageSupport;
@@ -139,7 +138,6 @@ namespace YetaWF.Core.Packages {
                 // copy bin files to website
                 {
                     // copy bin files to a temporary location
-                    //$$$tempbin research temp folder
                     string tempBin = Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct);
                     foreach (var file in serPackage.BinFiles) {
                         ZipEntry e = zip[file.FileName];
@@ -159,7 +157,7 @@ namespace YetaWF.Core.Packages {
                         string binPath;
                         binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", Globals.RUNTIME);
                         string sourceBin = Path.Combine(tempBin, "bin", "Release", Globals.RUNTIME);
-                        if (Directory.Exists(binPath)) {
+                        if (Directory.Exists(binPath)) {//$$$
                             CopyVersionedFiles(sourceBin, binPath);
                             copied = true;
                         }

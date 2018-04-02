@@ -225,7 +225,10 @@ namespace YetaWF.Core.Skins {
             string cdnUrl = Manager.GetCDNUrl(urlCustom);
             if (Manager.Deployed) {
                 try {// could fail if it was already added
-                    Cache.Add(urlCustom, cdnUrl);
+#if DEBUG // minimize exception spam
+                    if (!Cache.ContainsKey(urlCustom))
+#endif
+                        Cache.Add(urlCustom, cdnUrl);
                 } catch (Exception) { }
             }
             return cdnUrl;
@@ -233,7 +236,10 @@ namespace YetaWF.Core.Skins {
         private void AddCacheNotFound(string url) {
             if (Manager.Deployed) {
                 try {// could fail if it was already added
-                    Cache.Add(url, null);// marks url that no icon was found
+#if DEBUG // minimize exception spam
+                    if (!Cache.ContainsKey(url))
+#endif
+                        Cache.Add(url, null);// marks url that no icon was found
                 } catch (Exception) { }
             }
         }

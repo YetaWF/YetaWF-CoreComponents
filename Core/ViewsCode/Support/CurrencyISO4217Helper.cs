@@ -156,43 +156,41 @@ namespace YetaWF.Core.Views.Shared {
             return currencies;
         }
         private static async Task<List<Currency>> ReadCurrencyListAsync() {
-            using (await _lockObject.LockAsync()) { // short-term lock to build cached country list
-                if (_currencyList == null) {
-                    Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                    string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
-                    string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+            if (_currencyList == null) {
+                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
+                string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                    string path = YetaWFManager.UrlToPhysical(url);
-                    string customPath = YetaWFManager.UrlToPhysical(customUrl);
+                string path = YetaWFManager.UrlToPhysical(url);
+                string customPath = YetaWFManager.UrlToPhysical(customUrl);
 
-                    string file = Path.Combine(path, "Currencies.txt");
-                    string customFile = Path.Combine(customPath, "Currencies.txt");
-                    if (await FileSystem.FileSystemProvider.FileExistsAsync(customFile))
-                        file = customFile;
-                    else if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
-                        throw new InternalError("File {0} not found", file);
+                string file = Path.Combine(path, "Currencies.txt");
+                string customFile = Path.Combine(customPath, "Currencies.txt");
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(customFile))
+                    file = customFile;
+                else if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    throw new InternalError("File {0} not found", file);
 
-                    _currencyList = new List<Currency>();
+                List<Currency> newList = new List<Currency>();
 
-                    List<string> cts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
-                    foreach (var st in cts) {
-                        if (st.Trim().Length > 0) {
-                            string[] s = st.Trim().Split(new string[] { "," }, 4, StringSplitOptions.RemoveEmptyEntries);
-                            if (s.Length != 4)
-                                throw new InternalError("Invalid input in currency list - {0} - {1}", st, file);
-                            _currencyList.Add(new Currency {
-                                Name = s[0],
-                                Id = s[1].ToUpper(),
-                                Number = Convert.ToInt32(s[2]),
-                                MinorUnit = Convert.ToInt32(s[3]),
-                            });
-                        }
+                List<string> cts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+                foreach (var st in cts) {
+                    if (st.Trim().Length > 0) {
+                        string[] s = st.Trim().Split(new string[] { "," }, 4, StringSplitOptions.RemoveEmptyEntries);
+                        if (s.Length != 4)
+                            throw new InternalError("Invalid input in currency list - {0} - {1}", st, file);
+                        newList.Add(new Currency {
+                            Name = s[0],
+                            Id = s[1].ToUpper(),
+                            Number = Convert.ToInt32(s[2]),
+                            MinorUnit = Convert.ToInt32(s[3]),
+                        });
                     }
                 }
+                _currencyList = newList;
             }
             return _currencyList;
         }
-        private static AsyncLock _lockObject = new AsyncLock();
         private static List<Currency> _currencyList = null;
     }
 }

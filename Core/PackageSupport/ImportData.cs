@@ -118,7 +118,7 @@ namespace YetaWF.Core.Packages {
                                         return false;
                                     } finally {
                                         await fs.CloseAsync();
-                                        await FileSystem.FileSystemProvider.DeleteFileAsync(xmlFile);
+                                        await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
                                     }
                                 }
                                 await model.ImportChunkAsync(chunk, null, obj);
