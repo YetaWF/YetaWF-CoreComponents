@@ -98,7 +98,6 @@ namespace YetaWF.Core.Upload {
         public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType, Func<HttpPostedFileBase, string> getFileName)
 #endif
         {
-            //$$$tempfile???
             long fileLength = 0;
             if (uploadFile != null) {
 #if MVC6
@@ -159,7 +158,6 @@ namespace YetaWF.Core.Upload {
         }
         private async Task<string> StoreFileAsync(string remoteUrl, string folder, string useType, Func<string, string> getFileName) {
 
-            //$$tempfile??
             MimeSection mimeSection = new MimeSection();
 
             const string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";

@@ -31,7 +31,7 @@ namespace YetaWF.Core.Support.StaticPages {
         public enum PageEntryEnum {
             [EnumDescription("File", "Static pages cached using a local file")]
             File = 0,
-            [EnumDescription("Memory", "Static pages cached in memory (not available with distributed caching - web farm/garden)")] //$$$$NOT IN DISTRIBUTED MODE
+            [EnumDescription("Memory", "Static pages cached in memory (not available with distributed caching - web farm/garden)")]
             Memory = 1,
         }
         public class SiteEntry {

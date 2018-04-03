@@ -146,7 +146,7 @@ namespace YetaWF.Core.Packages {
                     // copy bin files to required location
 #if MVC6
                     // find out if this is a source system or bin system (determined by location of YetaWF.Core.dll)
-                    if (File.Exists(Path.Combine(YetaWFManager.RootFolderWebProject, Controllers.AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
+                    if (await FileSystem.FileSystemProvider.FileExistsAsync(Path.Combine(YetaWFManager.RootFolderWebProject, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
                         // Published (w/o source by definition)
                         string sourceBin = Path.Combine(tempBin, "bin", "Release", Globals.RUNTIME);
                         await CopyVersionedFilesAsync(sourceBin, Path.Combine(YetaWFManager.RootFolderWebProject));
@@ -157,12 +157,12 @@ namespace YetaWF.Core.Packages {
                         string binPath;
                         binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Debug", Globals.RUNTIME);
                         string sourceBin = Path.Combine(tempBin, "bin", "Release", Globals.RUNTIME);
-                        if (Directory.Exists(binPath)) {//$$$
+                        if (await FileSystem.FileSystemProvider.FileExistsAsync(binPath)) {
                             await CopyVersionedFilesAsync(sourceBin, binPath);
                             copied = true;
                         }
                         //binPath = Path.Combine(YetaWFManager.RootFolderWebProject, "bin", "Release", Globals.RUNTIME);
-                        //if (Directory.Exists(binPath)) {
+                        //if (await FileSystem.FileSystemProvider.FileExistsAsync(binPath)) {
                         //    await CopyVersionedFilesAsync(sourceBin, binPath);
                         //    copied = true;
                         //}
