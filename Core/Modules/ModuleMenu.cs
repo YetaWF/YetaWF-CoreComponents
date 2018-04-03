@@ -149,7 +149,7 @@ namespace YetaWF.Core.Modules {
             // </div>
             hb.Append(divTag.ToString(TagRenderMode.EndTag));
 
-            //Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
+            //await Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
             await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.menu.min.js");
 
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "ModuleMenu");

@@ -106,7 +106,7 @@ namespace YetaWF.Core.Views.Shared {
             await Manager.AddOnManager.AddTemplateAsync("DropDownList");
             if (useKendo) {
                 await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.data.min.js");
-                // Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
+                // await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
                 await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.list.min.js");
                 await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.fx.min.js");
                 await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.userevents.min.js");

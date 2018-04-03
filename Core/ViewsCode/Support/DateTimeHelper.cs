@@ -25,7 +25,7 @@ namespace YetaWF.Core.Views.Shared {
 
         public static async Task IncludeAsync() {
             await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.calendar.min.js");
-            // Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
+            //await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
             await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.datepicker.min.js");
             await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.timepicker.min.js");
             await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.datetimepicker.min.js");

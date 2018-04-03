@@ -82,7 +82,7 @@ namespace YetaWF.Core.Views.Shared {
 
             //if (!string.IsNullOrWhiteSpace(mask)) {
             //    // if there is a Mask we need to use the KendoMaskedTextBox
-            //    Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
+            //    await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.maskedtextbox.min.js");
             //    ScriptBuilder sb = new ScriptBuilder();
             //    sb.Append("$('#{0}').kendoMaskedTextBox({{ mask: '{1}' }});\n", id, YetaWFManager.JserEncode(mask));
             //    Manager.ScriptManager.AddLastDocumentReady(sb);

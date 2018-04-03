@@ -19,7 +19,7 @@
         @await Html.RenderModuleSelectionAsync("", newMods, Model)
     </div>
     <div class="t_link">
-        @await Html.RenderModuleSelectionLink(Model)
+        @await Html.RenderModuleSelectionLinkAsync(Model)
     </div>
     <div class="t_description">
     </div>
