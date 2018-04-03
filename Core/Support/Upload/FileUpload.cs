@@ -93,7 +93,7 @@ namespace YetaWF.Core.Upload {
         /// <returns>A file name (with path) of the uploaded file in the specified folder</returns>
 
 #if MVC6
-        public string StoreFile(IFormFile uploadFile, string folder, string useType, Func<IFormFile, string> getFileName)
+        public async Task<string> StoreFileAsync(IFormFile uploadFile, string folder, string useType, Func<IFormFile, string> getFileName)
 #else
         public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType, Func<HttpPostedFileBase, string> getFileName)
 #endif

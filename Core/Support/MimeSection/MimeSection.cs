@@ -31,8 +31,12 @@ namespace YetaWF.Core.Support {
         public const string ImageUse = "ImageUse";
         public const string FlashUse = "FlashUse";
         public const string PackageUse = "PackageUse";
-
-        private static Task InitAsync(string settingsFile) {
+#if MVC6
+        public
+#else
+        private
+#endif
+                Task InitAsync(string settingsFile) {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;

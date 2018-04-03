@@ -117,7 +117,7 @@ namespace YetaWF.Core.Support {
 
                 using (Zip) {
                     Zip.Zip.Save(Response.Body);
-                    await CleanupFoldersAsync();
+                    await Zip.CleanupFoldersAsync();
                 }
 #else
                 Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));

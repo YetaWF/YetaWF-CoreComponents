@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
-using System.Threading.Tasks;
 #else
 using System.Web;
 using System.Web.SessionState;
