@@ -41,9 +41,10 @@ namespace YetaWF.Core.IO {
         /// </summary>
         public static async Task RemoveAllDataFilesAsync(string baseFolder) {
             Debug.Assert(!string.IsNullOrEmpty(baseFolder));
-            using (FileSystem.FileSystemProvider.LockResourceAsync(baseFolder)) {
+            using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(baseFolder)) {
                 if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(baseFolder))
                     await FileSystem.FileSystemProvider.DeleteDirectoryAsync(baseFolder);
+                await lockObject.UnlockAsync();
             }
         }
     }
@@ -88,13 +89,14 @@ namespace YetaWF.Core.IO {
                     Format = Format,
                 };
                 if (Cacheable) {
-                    using (await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                    using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                         data = await io.LoadAsync();
                         if (Cacheable) {
                             using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                                 await sharedCacheDP.AddAsync(CacheKey, data);
                             }
                         }
+                        await lockObject.UnlockAsync();
                     }
                 } else {
                     data = await io.LoadAsync();
@@ -133,7 +135,7 @@ namespace YetaWF.Core.IO {
                     Date = Date ?? DateTime.UtcNow,
                     Format = Format,
                 };
-                using (await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                     if (await ioNew.ExistsAsync())
                         return UpdateStatusEnum.NewKeyExists;
                     if (!await io.ExistsAsync())
@@ -149,11 +151,12 @@ namespace YetaWF.Core.IO {
                         }
                     }
                     status = UpdateStatusEnum.OK;
+                    await lockObject.UnlockAsync();
                 }
             } else {
                 // Simple Save
                 if (Cacheable) {
-                    using (await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                    using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                         if (!await io.ExistsAsync()) {
                             status = UpdateStatusEnum.RecordDeleted;
                         } else {
@@ -163,6 +166,7 @@ namespace YetaWF.Core.IO {
                             }
                             status = UpdateStatusEnum.OK;
                         }
+                        await lockObject.UnlockAsync();
                     }
                 } else {
                     if (!await io.ExistsAsync())
@@ -188,13 +192,14 @@ namespace YetaWF.Core.IO {
             };
             bool success = true;
             if (Cacheable) {
-                using (await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                     success = await io.SaveAsync(replace: false);
                     if (success) {
                         using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                             await sharedCacheDP.AddAsync(CacheKey, data); // save locally cached version
                         }
                     }
+                    await lockObject.UnlockAsync();
                 }
             } else {
                 success = await io.SaveAsync(replace: false);
@@ -211,11 +216,12 @@ namespace YetaWF.Core.IO {
                 Format = Format,
             };
             if (Cacheable) {
-                using (await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                     await io.RemoveAsync();
                     using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                         await sharedCacheDP.RemoveAsync<TObj>(CacheKey);
                     }
+                    await lockObject.UnlockAsync();
                 }
             } else {
                 await io.RemoveAsync();
@@ -231,11 +237,12 @@ namespace YetaWF.Core.IO {
                 Format = Format,
             };
             if (Cacheable) {
-                using (await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                     await io.TryRemoveAsync();
                     using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                         await sharedCacheDP.RemoveAsync<TObj>(CacheKey);
                     }
+                    await lockObject.UnlockAsync();
                 }
             } else {
                 await io.TryRemoveAsync();

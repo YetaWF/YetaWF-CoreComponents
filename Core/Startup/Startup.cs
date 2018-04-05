@@ -37,7 +37,7 @@ namespace YetaWF.Core.Support {
         /// If MultiInstance is true, cached data and the file system is shared between multiple site instances, otherwise only one instance is allowed.</remarks>
         public static bool MultiInstance { get; set; }
 
-        private const string FirstNodeIndicator = "FirstNode.txt";
+        public const string FirstNodeIndicator = "FirstNode.txt";
 
         public static async Task CallStartupClassesAsync() {
 
@@ -75,7 +75,7 @@ namespace YetaWF.Core.Support {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             string file = Path.Combine(rootFolder, Globals.DataFolder, FirstNodeIndicator);
-            using (IFileLockObject lockObject = await YetaWF.Core.IO.FileSystem.FileSystemProvider.LockResourceAsync(file)) {
+            using (ILockObject lockObject = await YetaWF.Core.IO.FileSystem.FileSystemProvider.LockResourceAsync(file)) {
                 if (!YetaWF.Core.Support.Startup.MultiInstance || await YetaWF.Core.IO.FileSystem.FileSystemProvider.FileExistsAsync(file))
                     firstNode = true;
 

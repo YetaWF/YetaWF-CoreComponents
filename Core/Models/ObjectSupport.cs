@@ -439,6 +439,8 @@ namespace YetaWF.Core.Models {
     /// </remarks>
     public static partial class ObjectSupport {
 
+        private static object lockObject = new object();
+
         private class LanguageObjectData {
             public string Language { get; set; }
             public Dictionary<Type, ObjectClassData> ObjectClassDatas { get; set; }
@@ -477,7 +479,7 @@ namespace YetaWF.Core.Models {
             string lang = MultiString.ActiveLanguage;
             LanguageObjectData langObjData = GetLanguageObjectData(lang);
 
-            StringLocks.DoAction(type.FullName, () => {
+            lock (lockObject) { // protect local data LanguageObjectData
 
                 // Get class info from language info & localization resource files
                 if (!langObjData.ObjectClassDatas.TryGetValue(type, out objClassData)) {
@@ -529,7 +531,7 @@ namespace YetaWF.Core.Models {
                             objClassData.PropertyData.Add(pi.Name, new PropertyData(pi.Name, type, pi));
                     }
                 }
-            });
+            }
             return objClassData;
         }
         /// <summary>
@@ -565,7 +567,7 @@ namespace YetaWF.Core.Models {
 
             ObjectEnumData objEnumData = null;
 
-            StringLocks.DoAction(type.FullName, () => {
+            lock (lockObject) { // protect local data LanguageObjectData
 
                 string lang = MultiString.ActiveLanguage;
                 LanguageObjectData langObjData = GetLanguageObjectData(lang);
@@ -605,7 +607,7 @@ namespace YetaWF.Core.Models {
                             objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi));
                     }
                 }
-            });
+            }
             return objEnumData.EnumData;
         }
         /// <summary>

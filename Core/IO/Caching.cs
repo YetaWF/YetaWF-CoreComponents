@@ -11,10 +11,18 @@ namespace YetaWF.Core.IO {
         public static Func<ICacheDataProvider> GetLocalCacheProvider { get; set; }
         public static Func<ICacheDataProvider> GetSharedCacheProvider { get; set; }
         public static Func<ICacheStaticDataProvider> GetStaticCacheProvider { get; set; }
-        
+
+        public static ILockProvider LockProvider { get; set; }
+
         public const string EmptyCachedObject = "Empty";
     };
 
+    public interface ILockProvider : IDisposable {
+        Task<ILockObject> LockResourceAsync(string key);
+    }
+    public interface ILockObject : IDisposable {
+        Task UnlockAsync();
+    }
     public interface ICacheDataProvider : IDisposable {
         Task AddAsync<TYPE>(string key, TYPE data);
         Task<GetObjectInfo<TYPE>> GetAsync<TYPE>(string key);
@@ -24,13 +32,9 @@ namespace YetaWF.Core.IO {
         Task AddAsync<TYPE>(string key, TYPE data);
         Task<TYPE> GetAsync<TYPE>(string key, Func<Task<TYPE>> noDataCallback = null);
         Task RemoveAsync<TYPE>(string key);
-        Task<IStaticLockObject> LockAsync<TYPE>(string key);
     }
     public class GetObjectInfo<TYPE> {
         public TYPE Data { get; set; }
         public bool Success { get; set; }
-    }
-    public interface IStaticLockObject : IDisposable {
-        Task UnlockAsync();
     }
 }

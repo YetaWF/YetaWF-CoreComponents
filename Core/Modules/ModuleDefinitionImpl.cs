@@ -18,6 +18,7 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Search;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Routing;
@@ -295,6 +296,8 @@ namespace YetaWF.Core.Modules {
         public static Func<ModuleDefinition, IModuleDefinitionIO, Task> SaveModuleDefinitionAsync { get; set; }
         [DontSave]
         public static Func<Guid, Task<bool>> RemoveModuleDefinitionAsync { get; set; }
+        [DontSave]
+        public static Func<Guid, Task<ILockObject>> LockModuleAsync { get; set; }
         [DontSave]
         public static Func<ModuleBrowseInfo, Task> GetModulesAsync { get; set; }
         public class ModuleBrowseInfo {

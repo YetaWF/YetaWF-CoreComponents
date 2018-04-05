@@ -55,7 +55,7 @@ namespace YetaWF.Core.Support.StaticPages {
 
         string STATICPAGESKEY = $"__StaticPages_{YetaWFManager.Manager.CurrentSite.Identity}";
 
-        private async Task<List<SiteEntry>> InitSiteWithLockAsync(ICacheStaticDataProvider cacheStaticDP, IStaticLockObject staticLock) {
+        private async Task<List<SiteEntry>> InitSiteWithLockAsync(ICacheStaticDataProvider cacheStaticDP, ILockObject staticLock) {
             SerializableList<SiteEntry> siteEntries = await cacheStaticDP.GetAsync<SerializableList<SiteEntry>>(STATICPAGESKEY);
             if (siteEntries == null) siteEntries = new SerializableList<SiteEntry>();
             SiteEntry siteEntry = (from s in siteEntries where s.SiteIdentity == Manager.CurrentSite.Identity select s).FirstOrDefault();
@@ -79,8 +79,8 @@ namespace YetaWF.Core.Support.StaticPages {
         }
 
         public async Task<List<PageEntry>> GetSiteStaticPagesAsync() {
-            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+            using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+                using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
                     List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
                     await staticLock.UnlockAsync();
@@ -96,8 +96,8 @@ namespace YetaWF.Core.Support.StaticPages {
 #endif
         }
         public async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
-            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+            using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+                using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
 
                     string localUrlLower = localUrl.ToLower();
@@ -233,16 +233,18 @@ namespace YetaWF.Core.Support.StaticPages {
                                 tempFile = entry.FileName;
                             }
                         }
-                        try {
-                            return new GetPageInfo {
-                                FileContents = await FileSystem.TempFileSystemProvider.ReadAllTextAsync(tempFile),
-                                LastUpdate = lastUpdate,
-                            };
-                        } catch (System.Exception) {
-                            return new GetPageInfo {
-                                FileContents = null,
-                                LastUpdate = lastUpdate,
-                            };
+                        if (tempFile != null) {
+                            try {
+                                return new GetPageInfo {
+                                    FileContents = await FileSystem.TempFileSystemProvider.ReadAllTextAsync(tempFile),
+                                    LastUpdate = lastUpdate,
+                                };
+                            } catch (System.Exception) {
+                                return new GetPageInfo {
+                                    FileContents = null,
+                                    LastUpdate = lastUpdate,
+                                };
+                            }
                         }
                     }
                 }
@@ -261,8 +263,8 @@ namespace YetaWF.Core.Support.StaticPages {
             }
         }
         public async Task RemovePageAsync(string localUrl) {
-            using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+            using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+                using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
 
                     string localUrlLower = localUrl.ToLower();
@@ -292,7 +294,7 @@ namespace YetaWF.Core.Support.StaticPages {
         public async Task RemovePagesAsync(List<PageDefinition> pages) {
             if (pages == null) return;
             using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
                     foreach (PageDefinition page in pages) {
                         string localUrlLower = page.Url.ToLower();
@@ -307,7 +309,7 @@ namespace YetaWF.Core.Support.StaticPages {
         }
         public async Task RemoveAllPagesAsync() {
             using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (IStaticLockObject staticLock = await cacheStaticDP.LockAsync<SerializableList<SiteEntry>>(STATICPAGESKEY)) {
+                using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
                     Site.StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>();
                     await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
