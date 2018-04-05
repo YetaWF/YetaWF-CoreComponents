@@ -285,7 +285,6 @@
     <Compile Include="IO\InstallableModel.cs" />
     <Compile Include="IO\SessionStateIO.cs" />
     <Compile Include="IO\FileIO.cs" />
-    <Compile Include="Support\Lock\StringLocks.cs" />
     <Compile Include="Support\Image\ImageSupport.cs" />
     <Compile Include="Support\Language\LanguageInfo.cs" />
     <Compile Include="Support\Localize\Formatting.cs">
