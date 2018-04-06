@@ -37,7 +37,7 @@
                             <Name Value="Memory" />
                             <Value Value="Memory" />
                             <Caption Value="Memory" />
-                            <Description Value="Static pages cached in memory" />
+                            <Description Value="Static pages cached in memory (not available with distributed caching - web farm/garden)" />
                           </Properties>
                         </Object>
                       </Value>

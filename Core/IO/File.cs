@@ -81,7 +81,7 @@ namespace YetaWF.Core.IO {
                     info = await sharedCacheDP.GetAsync<TObj>(CacheKey);
                 }
             }
-            if (!info.Success) {
+            if (info == null || !info.Success) {
                 FileIO<TObj> io = new FileIO<TObj> {
                     BaseFolder = BaseFolder,
                     FileName = FileName,
