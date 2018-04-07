@@ -1,9 +1,9 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Models;
+using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Modules {
 
@@ -37,12 +37,6 @@ namespace YetaWF.Core.Modules {
     }
 
     /// <summary>
-    /// Cached designed modules.
-    /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not used for serialization")]
-    public class DesignedModulesDictionary : Dictionary<Guid, DesignedModule> { }
-
-    /// <summary>
     /// Designed modules management.
     /// </summary>
     public static class DesignedModules {
@@ -51,6 +45,6 @@ namespace YetaWF.Core.Modules {
         /// Loads and caches all designed modules.
         /// </summary>
         /// <remarks>This method is implemented by a data provider, set at application startup.</remarks>
-        public static Func<Task<List<DesignedModule>>> LoadDesignedModulesAsync { get; set; }
+        public static Func<Task<SerializableList<DesignedModule>>> LoadDesignedModulesAsync { get; set; }
     }
 }

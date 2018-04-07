@@ -27,9 +27,6 @@ namespace YetaWF.Core.Views.Shared {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleSelectionHelper), name, defaultValue, parms); }
 
-        public static async Task<bool> ExistingModulesExistAsync() {
-            return (await DesignedModules.LoadDesignedModulesAsync()).Count() > 0;
-        }
         /// <summary>
         /// Renders a dropdownlist of all packages implementing modules.
         /// </summary>
@@ -129,10 +126,9 @@ namespace YetaWF.Core.Views.Shared {
             return DropDownHelper.RenderDataSource(areaName, list);
         }
         public static async Task<HtmlString> RenderReplacementPackageModulesDesignedAsync(Guid modGuid) {
-            List<DesignedModule> designedMods = await DesignedModules.LoadDesignedModulesAsync();
             string areaName = await GetAreaNameFromGuidAsync(false, modGuid);
             List<SelectionItem<Guid?>> list = (
-                from module in designedMods
+                from module in await DesignedModules.LoadDesignedModulesAsync()
                 where module.AreaName == areaName
                 orderby module.Name select
                     new SelectionItem<Guid?> {
