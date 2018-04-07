@@ -4,11 +4,11 @@
 <div id='@ControlId' class='yt_pageskin t_edit'>
     @Html.RenderHidden("AjaxUrl", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.SkinHelperController), "GetPageSkins"))
     <div class="t_collection">
-        @Html.ExtLabelFor(m => Model.Collection)
+        @Html.ExtLabelForAsync(m => Model.Collection).Result
         @Html.RenderSkinCollectionAsync("Collection", Model.Collection).Result
     </div>
     <div class="t_skin">
-        @Html.ExtLabelFor(m => Model.FileName)
+        @Html.ExtLabelForAsync(m => Model.FileName).Result
         @Html.RenderPageSkinsForCollectionAsync("FileName", Model.FileName, Model.Collection).Result
     </div>
 </div>

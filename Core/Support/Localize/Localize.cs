@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+using YetaWF.Core.Audit;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -150,11 +152,14 @@ namespace YetaWF.Core.Localize {
                 return (bool) abortOnFailure;
             }
         }
-        public void SetAbortOnFailure(bool abort) {
+        public async Task SetAbortOnFailureAsync(bool abort) {
             if (AbortOnFailure != abort) {
                 WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey, abort);
-                WebConfigHelper.Save();
+                await WebConfigHelper.SaveAsync();
                 abortOnFailure = abort;
+                await Auditing.AddAuditAsync($"{nameof(LocalizationSupport)}.{nameof(SetAbortOnFailureAsync)}", "Localization", Guid.Empty,
+                    $"{nameof(SetAbortOnFailureAsync)}({abort})"
+                );
             }
         }
         private static bool? abortOnFailure = null;
@@ -168,11 +173,14 @@ namespace YetaWF.Core.Localize {
                 return (bool) useResources;
             }
         }
-        public void SetUseLocalizationResources(bool use) {
+        public async Task SetUseLocalizationResourcesAsync(bool use) {
             if (UseLocalizationResources != use) {
                 WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, UseKey, use);
-                WebConfigHelper.Save();
+                await WebConfigHelper.SaveAsync();
                 useResources = use;
+                await Auditing.AddAuditAsync($"{nameof(LocalizationSupport)}.{nameof(SetUseLocalizationResourcesAsync)}", "Localization", Guid.Empty,
+                    $"{nameof(SetUseLocalizationResourcesAsync)}({use})"
+                );
             }
         }
         private static bool? useResources = null;
@@ -189,27 +197,27 @@ namespace YetaWF.Core.Localize {
         }
 
         public static Func<Package, string, Location, LocalizationData> Load { get; set; }
-        public static Action<Package, string, Location, LocalizationData> Save { get; set; }
-        public static Action<Package> ClearPackageData { get; set; }
-        public static Func<Package, List<string>> GetFiles { get; set; }
+        public static Func<Package, string, Location, LocalizationData, Task> SaveAsync { get; set; }
+        public static Func<Package, Task> ClearPackageDataAsync { get; set; }
+        public static Func<Package, Task<List<string>>> GetFilesAsync { get; set; }
 
         static LocalizationSupport() {
             Load = DefaultLoad;
-            Save = DefaultSave;
-            ClearPackageData = DefaultClearPackageData;
-            GetFiles = DefaultGetFiles;
+            SaveAsync = DefaultSaveAsync;
+            ClearPackageDataAsync = DefaultClearPackageDataAsync;
+            GetFilesAsync = DefaultGetFilesAsync;
         }
         private static LocalizationData DefaultLoad(Package package, string type, Location location) {
             if (!LocalizationSupport.UseLocalizationResources) return null;
             throw new NotImplementedException();
         }
-        private static void DefaultSave(Package package, string type, Location location, LocalizationData data) {
+        private static Task DefaultSaveAsync(Package package, string type, Location location, LocalizationData data) {
             throw new NotImplementedException();
         }
-        private static void DefaultClearPackageData(Package package) {
+        private static Task DefaultClearPackageDataAsync(Package package) {
             throw new NotImplementedException();
         }
-        private static List<string> DefaultGetFiles(Package package) {
+        private static Task<List<string>> DefaultGetFilesAsync(Package package) {
             throw new NotImplementedException();
         }
     }

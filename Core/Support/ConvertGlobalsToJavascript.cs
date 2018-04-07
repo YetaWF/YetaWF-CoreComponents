@@ -1,8 +1,9 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 #if MVC6
 #else
@@ -11,8 +12,9 @@ using YetaWF.Core.Log;
 namespace YetaWF.Core.Support {
 
     public static class ConvertGlobalsToJavascript {
-        internal static void Convert(string outputFile, Object inputObject, string jsObjectName)
-        {
+
+        internal static async Task ConvertAsync(string outputFile, Object inputObject, string jsObjectName) {
+
             Logging.AddLog("Generating {0} for {1}", outputFile, inputObject.GetType().Name);
 
             ScriptBuilder sb = new ScriptBuilder();
@@ -49,7 +51,7 @@ namespace YetaWF.Core.Support {
                 }
             }
             sb.Append("};\n");
-            File.WriteAllText(outputFile, sb.ToString());
+            await FileSystem.FileSystemProvider.WriteAllTextAsync(outputFile, sb.ToString());
         }
     }
 }

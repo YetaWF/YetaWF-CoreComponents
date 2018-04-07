@@ -263,6 +263,7 @@ namespace YetaWF.Core.Modules
         [Data_DontSave]
         public bool UsePartialFormCss { get { return !_SuppressPartialFormCss; } set { _SuppressPartialFormCss = !value; } }
         [Data_NewValue("(0)")]
+        [NoModelChange]
         public bool _SuppressPartialFormCss { get; set; }
 
 

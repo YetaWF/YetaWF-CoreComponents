@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using YetaWF.Core.IO;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
@@ -88,11 +89,10 @@ namespace YetaWF.Core.Packages {
             }
             AbsFileName = fileName;
             FileName = relFileName;
-            FileDate = File.GetCreationTimeUtc(AbsFileName);
         }
 
         public string FileName { get; private set; }
-        public DateTime FileDate { get; private set; }
+        public DateTime FileDate { get; set; }
         public bool SiteSpecific { get; private set; }
         [DontSave]
         public string AbsFileName { get; private set; }

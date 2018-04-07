@@ -34,16 +34,17 @@ namespace YetaWF.Core.Packages {
 
                 // read contents file
                 xmlFile = Path.GetTempFileName();
-                FileStream fs = new FileStream(xmlFile, FileMode.Create, FileAccess.ReadWrite);
-                ze = zip[PackageContentsFile];
-                ze.Extract(fs);
-                fs.Close();
-
-                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                SerializableData serData = (SerializableData)new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
-                fs.Close();
-
-                File.Delete(xmlFile);
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                    ze = zip[PackageContentsFile];
+                    ze.Extract(fs.GetFileStream());
+                    await fs.CloseAsync();
+                }
+                SerializableData serData;
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                    serData = (SerializableData)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    await fs.CloseAsync();
+                }
+                await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
 
                 // check if the originating package is really installed
                 List<Package> allPackages = Package.GetAvailablePackages();
@@ -104,21 +105,22 @@ namespace YetaWF.Core.Packages {
                                 }
 
                                 string xmlFile = Path.GetTempFileName();
-                                FileStream fs = new FileStream(xmlFile, FileMode.Create, FileAccess.ReadWrite);
-                                e.Extract(fs);
-                                fs.Close();
-                                fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                                object obj = null;
-                                try {
-                                    obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs);
-                                } catch (Exception exc) {
-                                    errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.FileName, exc));
-                                    return false;
-                                } finally {
-                                    fs.Close();
-                                    File.Delete(xmlFile);
+                                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                                    e.Extract(fs.GetFileStream());
+                                    await fs.CloseAsync();
                                 }
-
+                                object obj = null;
+                                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                                    try {
+                                        obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                                    } catch (Exception exc) {
+                                        errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.FileName, exc));
+                                        return false;
+                                    } finally {
+                                        await fs.CloseAsync();
+                                        await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
+                                    }
+                                }
                                 await model.ImportChunkAsync(chunk, null, obj);
                             }
                         }

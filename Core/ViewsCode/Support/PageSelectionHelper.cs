@@ -32,7 +32,7 @@ namespace YetaWF.Core.Views.Shared {
 #endif
             List<SelectionItem<Guid?>> list;
             list = (
-                from page in PageDefinition.GetDesignedPages() orderby page.Url select
+                from page in await PageDefinition.GetDesignedPagesAsync() orderby page.Url select
                     new SelectionItem<Guid?> {
                         Text = page.Url,
                         Value = page.PageGuid,
@@ -63,7 +63,7 @@ namespace YetaWF.Core.Views.Shared {
             // image
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Template("PagePreview.png", currentPackage, "PageSelection");
+            string imageUrl = await skinImages.FindIcon_TemplateAsync("PagePreview.png", currentPackage, "PageSelection");
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("linkAlt", "Preview"));
 
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));

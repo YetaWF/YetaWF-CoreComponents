@@ -2,6 +2,7 @@
 
 using System;
 using System.Net;
+using System.Threading.Tasks;
 using YetaWF.Core.Log;
 
 namespace YetaWF.Core.Support {
@@ -28,12 +29,12 @@ namespace YetaWF.Core.Support {
             public string CurrencySymbol { get; set; }
         }
 
-        public UserInfo GetCurrentUserInfo() {
+        public async Task<UserInfo> GetCurrentUserInfoAsync() {
             if (Manager == null) throw new InternalError("Must initialize with Manager instance");
             UserInfo info = Manager.SessionSettings.SiteSettings.GetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo");
             if (info == null) {
                 string ipAddress = Manager.UserHostAddress;
-                info = GetUserInfo(ipAddress);
+                info = await GetUserInfoAsync(ipAddress);
                 // save what we got in session storage so we don't need to retrieve it again
                 Manager.SessionSettings.SiteSettings.SetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo", info);
                 Manager.SessionSettings.SiteSettings.Save();
@@ -41,7 +42,7 @@ namespace YetaWF.Core.Support {
             return info;
         }
 
-        public UserInfo GetUserInfo(string ipAddress) {
+        public async Task<UserInfo> GetUserInfoAsync(string ipAddress) {
             UserInfo info = new UserInfo();
 
             // Get host name (from IP) - TOO SLOW
@@ -59,7 +60,7 @@ namespace YetaWF.Core.Support {
             //info.HostName = hostName;
 
             // Get geolocation data from http://www.geoplugin.net/
-            GeoData geoData = GetGeoData(ipAddress);
+            GeoData geoData = await GetGeoDataAsync(ipAddress);
             if (geoData != null) {
                 try {
                     info.Latitude = Convert.ToSingle(geoData.geoplugin_latitude);
@@ -102,7 +103,7 @@ namespace YetaWF.Core.Support {
             public float geoplugin_currencyConverter { get; set; }
         }
 
-        private GeoData GetGeoData(string ipAddress) {
+        private async Task<GeoData> GetGeoDataAsync(string ipAddress) {
 
             if (ipAddress == "127.0.0.1")
                 return null;
@@ -113,10 +114,19 @@ namespace YetaWF.Core.Support {
                 http.Accept = "application/json";
                 http.Method = "GET";
                 System.Net.WebResponse resp;
-                resp = http.GetResponse();
-                System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
-                string response = sr.ReadToEnd().Trim();
-                geoData = YetaWFManager.JsonDeserialize<GeoData>(response);
+                if (YetaWFManager.IsSync()) {
+                    using (resp = http.GetResponse()) {
+                        System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
+                        string response = sr.ReadToEnd().Trim();
+                        geoData = YetaWFManager.JsonDeserialize<GeoData>(response);
+                    }
+                } else {
+                    using (resp = await http.GetResponseAsync()) {
+                        System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
+                        string response = (await sr.ReadToEndAsync()).Trim();
+                        geoData = YetaWFManager.JsonDeserialize<GeoData>(response);
+                    }
+                }
             } catch (Exception exc) {
                 Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", exc.Message, ipAddress);
                 return null;

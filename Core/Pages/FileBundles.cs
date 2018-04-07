@@ -8,17 +8,19 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
+using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
-    public class FileBundles : IInitializeApplicationStartup {
+
+    public class FileBundles : IInitializeApplicationStartupFirstNodeOnly {
 
         public enum BundleTypeEnum {
             JS = 0,
             CSS = 1,
         }
 
-        public class Bundle { // TODO: #webfarm Bundles must be shared cached
+        public class Bundle {
             public string BundleName { get; set; }
             public int BundleNumber { get; set; }
             public string Url { get; set; }
@@ -30,21 +32,15 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
-            // delete all files from last session and create the folder
-            if (firstNode) {
-                Logging.AddLog("Removing/creating bundle folder");
-                string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-                if (Directory.Exists(tempPath))
-                    Directory.Delete(tempPath, true);
-            }
-            Bundles = new List<Bundle>();
-            return Task.CompletedTask;
+        public async Task InitializeFirstNodeStartupAsync() {
+            // delete all files from last session and recreate the folder
+            Logging.AddLog("Removing/creating bundle folder");
+            string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
+            if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
+                await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
         }
 
-        private static List<Bundle> Bundles { get; set; }
-
-        public static string MakeBundle(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
+        public static async Task<string> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
 
             string url = null;
 
@@ -66,80 +62,91 @@ namespace YetaWF.Core.Pages {
 
                 string bundleName = MakeName(fileList);
 
-                StringLocks.DoAction(bundleName, () => {
-                    Bundle bundle = (from b in Bundles where b.BundleName == bundleName select b).FirstOrDefault();
-                    if (bundle == null || startLength != bundle.StartLength) {
-                        // make a new temp file combining all files in the list
-                        StringBuilder sb = new StringBuilder();
-                        if (!string.IsNullOrWhiteSpace(start))
-                            sb.Append(start);
+                string BUNDLEKEY = $"__FileBundles_{YetaWFManager.Manager.CurrentSite.Identity}";
+
+                using (ILockObject bundleLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(BUNDLEKEY)) {
+                    using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                        SerializableList<Bundle> bundles;
+                        GetObjectInfo<SerializableList<Bundle>> info = await cacheStaticDP.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);
+                        if (info.Success)
+                            bundles = info.Data;
+                        else
+                            bundles = new SerializableList<Bundle>();
+                        Bundle bundle = (from b in bundles where b.BundleName == bundleName select b).FirstOrDefault();
+                        if (bundle == null || startLength != bundle.StartLength) {
+                            // make a new temp file combining all files in the list
+                            StringBuilder sb = new StringBuilder();
+                            if (!string.IsNullOrWhiteSpace(start))
+                                sb.Append(start);
 #if DEBUG
-                        sb.Append("/* File Map: ----------------------------------------\n");
-                        long total = 0;
-                        foreach (string file in fileList) {
-                            long len = new FileInfo(YetaWFManager.UrlToPhysical(file)).Length;
-                            total += len;
-                            sb.Append($"{len:##,#}\t{file}\n");
-                        }
-                        sb.Append($"{total:##,#}\tTotal\n");
-                        sb.Append("--------------------------------------------------*/\n");
-#endif
-                        foreach (var file in fileList) {
-                            string fileText = File.ReadAllText(YetaWFManager.UrlToPhysical(file));
-                            if (!string.IsNullOrWhiteSpace(fileText)) {
-#if DEBUG
-                                sb.AppendFormat("/**** {0} ****/\n", file);
-#endif
-                                if (bundleType == BundleTypeEnum.CSS)
-                                    fileText = ProcessIncludedFiles(fileText, file);
-                                sb.Append(fileText);
-                                sb.Append("\n");
+                            sb.Append("/* File Map: ----------------------------------------\n");
+                            long total = 0;
+                            foreach (string file in fileList) {
+                                long len = new FileInfo(YetaWFManager.UrlToPhysical(file)).Length;
+                                total += len;
+                                sb.Append($"{len:##,#}\t{file}\n");
                             }
-                        }
-                        if (bundle != null) {
-                            // new bundle, different start length
-                            // new generated javascript (most likely caused by different user authorizations)
-                            int existingBundleNumber = bundle.BundleNumber;
-                            bundle = new Bundle {
-                                BundleName = bundleName,
-                                BundleNumber = existingBundleNumber,
-                                Url = GetBundleUrlName(existingBundleNumber, startLength, extension),
-                                StartLength = startLength,
-#if DEBUG
-                                StartText = start,
+                            sb.Append($"{total:##,#}\tTotal\n");
+                            sb.Append("--------------------------------------------------*/\n");
 #endif
-                            };
+                            foreach (var file in fileList) {
+                                string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(YetaWFManager.UrlToPhysical(file));
+                                if (!string.IsNullOrWhiteSpace(fileText)) {
+#if DEBUG
+                                    sb.AppendFormat("/**** {0} ****/\n", file);
+#endif
+                                    if (bundleType == BundleTypeEnum.CSS)
+                                        fileText = ProcessIncludedFiles(fileText, file);
+                                    sb.Append(fileText);
+                                    sb.Append("\n");
+                                }
+                            }
+                            if (bundle != null) {
+                                // new bundle, different start length
+                                // new generated javascript (most likely caused by different user authorizations)
+                                int existingBundleNumber = bundle.BundleNumber;
+                                bundle = new Bundle {
+                                    BundleName = bundleName,
+                                    BundleNumber = existingBundleNumber,
+                                    Url = GetBundleUrlName(existingBundleNumber, startLength, extension),
+                                    StartLength = startLength,
+#if DEBUG
+                                    StartText = start,
+#endif
+                                };
+                            } else {
+                                // new bundle
+                                bundle = new Bundle {
+                                    BundleName = bundleName,
+                                    BundleNumber = bundles.Count,
+                                    Url = GetBundleUrlName(bundles.Count, startLength, extension),
+                                    StartLength = startLength,
+#if DEBUG
+                                    StartText = start,
+#endif
+                                };
+                            }
+                            bundles.Add(bundle);
+                            string realFile = YetaWFManager.UrlToPhysical(bundle.Url);
+                            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
+                            await FileSystem.TempFileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
+                            await cacheStaticDP.AddAsync(BUNDLEKEY, bundles);
                         } else {
-                            // new bundle
-                            bundle = new Bundle {
-                                BundleName = bundleName,
-                                BundleNumber = Bundles.Count,
-                                Url = GetBundleUrlName(Bundles.Count, startLength, extension),
-                                StartLength = startLength,
+                            // existing bundle
 #if DEBUG
-                                StartText = start,
+                            if (start != bundle.StartText)
+                                throw new InternalError("Investigate! Same length start text but different contents");
 #endif
-                            };
                         }
-                        Bundles.Add(bundle);
-                        string realFile = YetaWFManager.UrlToPhysical(bundle.Url);
-                        Directory.CreateDirectory(Path.GetDirectoryName(realFile));
-                        File.WriteAllText(realFile, sb.ToString());
-                    } else {
-                        // existing bundle
-#if DEBUG
-                        if (start != bundle.StartText)
-                            throw new InternalError("Investigate! Same length start text but different contents");
-#endif
+                        url = bundle.Url;
+                        await bundleLock.UnlockAsync();
                     }
-                    url = bundle.Url;
-                });
+                }
             }
             return url;
         }
 
-        private static string GetBundleUrlName(int index, int startLength, string extension)
-        {
+        private static string GetBundleUrlName(int index, int startLength, string extension) {
             return string.Format("/{0}/bundle{1}_{2}{3}", Globals.AddonsBundlesFolder, index, startLength, extension);
         }
 
@@ -178,9 +185,8 @@ namespace YetaWF.Core.Pages {
 
             List<string> list = (from l in fileList orderby l select l.ToLower()).ToList();
             foreach (var f in list)
-                name += f+",";
+                name += f + ",";
             return name;
         }
-
     }
 }

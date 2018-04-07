@@ -1,7 +1,7 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.DateTime<DateTime?>
 <div id="@ControlId" class="yt_datetime t_edit">
-  @Html.RenderDateTime("", Model)
+  @Html.RenderDateTimeAsync("", Model).Result
 </div>
 <script>
     (new YetaWF_Core.TemplateDateTime.TemplateClass()).init('@ControlId');

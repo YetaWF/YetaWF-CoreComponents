@@ -8,6 +8,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -112,12 +113,12 @@ namespace YetaWF.Core.Views.Shared {
             return img.ToString(TagRenderMode.StartTag);
         }
 #if MVC6
-        public static HtmlString RenderImageAttributes(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0) {
+        public static async Task<HtmlString> RenderImageAttributesAsync(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0) {
 #else
-        public static HtmlString RenderImageAttributes(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0) {
+        public static async Task<HtmlString> RenderImageAttributesAsync(this HtmlHelper<object> htmlHelper, string name, string model, int dummy = 0) {
 #endif
             if (model == null) return HtmlStringExtender.Empty;
-            System.Drawing.Size size = ImageSupport.GetImageSize(model);
+            System.Drawing.Size size = await ImageSupport.GetImageSizeAsync(model);
             if (size.IsEmpty) return HtmlStringExtender.Empty;
 
             return new HtmlString(__ResStr("imgAttr", "{0} x {1} (w x h)", size.Width, size.Height));

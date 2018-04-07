@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
@@ -18,15 +20,15 @@ namespace YetaWF.Core.Skins {
             public string Description { get; set; }
         }
 
-        public List<BootstrapTheme> GetBootstrapThemeList() {
+        public async Task<List<BootstrapTheme>> GetBootstrapThemeListAsync() {
             if (_BootstrapThemeList == null)
-                LoadBootstrapThemes();
+                _BootstrapThemeList = await LoadBootstrapThemesAsync();
             return _BootstrapThemeList;
         }
         private static List<BootstrapTheme> _BootstrapThemeList;
         private static BootstrapTheme _BootstrapThemeDefault;
 
-        private List<BootstrapTheme> LoadBootstrapThemes() {
+        private async Task<List<BootstrapTheme>> LoadBootstrapThemesAsync() {
             string url = AddOnManager.GetAddOnGlobalUrl("getbootstrap.com", "bootswatch", AddOnManager.UrlType.Base);
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
@@ -34,10 +36,10 @@ namespace YetaWF.Core.Skins {
 
             // use custom or default theme list
             string filename = Path.Combine(customPath, BootstrapThemeFile);
-            if (!File.Exists(filename))
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(filename))
                 filename = Path.Combine(path, BootstrapThemeFile);
 
-            string[] lines = File.ReadAllLines(filename);
+            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(filename);
             List<BootstrapTheme> bsList = new List<BootstrapTheme>();
 
             foreach (string line in lines) {
@@ -63,19 +65,18 @@ namespace YetaWF.Core.Skins {
                 throw new InternalError("No Bootstrap themes found");
 
             _BootstrapThemeDefault = bsList[0];
-            _BootstrapThemeList = (from theme in bsList orderby theme.Name select theme).ToList();
-            return _BootstrapThemeList;
+            return (from theme in bsList orderby theme.Name select theme).ToList();
         }
 
-        internal string FindBootstrapSkin(string themeName) {
-            string folder = (from th in GetBootstrapThemeList() where th.Name == themeName select th.File).FirstOrDefault();
+        internal async Task<string> FindBootstrapSkinAsync(string themeName) {
+            string folder = (from th in await GetBootstrapThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(folder))
                 return folder;
             return _BootstrapThemeDefault.File;
         }
-        public static string GetBootstrapDefaultSkin() {
+        public static async Task<string> GetBootstrapDefaultSkinAsync() {
             SkinAccess skinAccess = new SkinAccess();
-            skinAccess.GetBootstrapThemeList();
+            await skinAccess.GetBootstrapThemeListAsync();
             return _BootstrapThemeDefault.Name;
         }
     }

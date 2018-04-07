@@ -249,11 +249,11 @@ namespace YetaWF.Core.Pages
 #if MVC6
 #else
         public override void ExecutePageHierarchy() {
-            BeginRender(null);
-            using (new YetaWFManager.NeedSync()) { // rendering needs to be sync (for templates)
+            YetaWFManager.Syncify(async () => { // rendering needs to be sync (for templates)
+                BeginRender(null);
                 base.ExecutePageHierarchy();
-            }
-            EndRenderAsync(null).Wait(); // Sorry, no async for you, MVC5
+                await EndRenderAsync(null);
+            });
         }
 #endif
         public void BeginRender(ViewContext context) {

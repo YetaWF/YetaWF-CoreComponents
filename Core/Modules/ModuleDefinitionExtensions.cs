@@ -8,6 +8,8 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Packages;
+using YetaWF.Core.Skins;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -52,7 +54,7 @@ namespace YetaWF.Core.Modules {
             ModuleAction action = new ModuleAction(mod) {
                 Category = ModuleAction.ActionCategoryEnum.Significant,
                 CssClass = "",
-                Image = "PageEdit.png",
+                Image = await new SkinImages().FindIcon_PackageAsync("PageEdit.png", Package.GetCurrentPackage(mod)),
                 Location = ModuleAction.ActionLocationEnum.Any,
                 Mode = ModuleAction.ActionModeEnum.Any,
                 Style = ModuleAction.ActionStyleEnum.Nothing,
@@ -137,23 +139,28 @@ namespace YetaWF.Core.Modules {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
             try {
-                await StringLocks.DoActionAsync(permGuid.ToString(), async () => {
-                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
-                    if (mod == null) {
-                        mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
-                        if (!mod.IsModuleUnique)
-                            throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
-                        mod.ModuleGuid = permGuid;
-                        mod.Temporary = false;
-                        if (initModule != null)
-                            initModule(mod);
-                        await mod.SaveAsync();
-                    } else {
-                        if (!mod.IsModuleUnique)
-                            throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
-                        mod.Temporary = false;
+                mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                if (mod == null) {
+                    // doesn't exist, lock and try again
+                    using (ILockObject lockObject = await ModuleDefinition.LockModuleAsync(permGuid)) {
+                        mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                        if (mod == null) {
+                            mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
+                            if (!mod.IsModuleUnique)
+                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
+                            mod.ModuleGuid = permGuid;
+                            mod.Temporary = false;
+                            if (initModule != null)
+                                initModule(mod);
+                            await mod.SaveAsync();
+                        } else {
+                            if (!mod.IsModuleUnique)
+                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
+                            mod.Temporary = false;
+                        }
+                        await lockObject.UnlockAsync();
                     }
-                });
+                }
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToHtmlString();
@@ -168,23 +175,28 @@ namespace YetaWF.Core.Modules {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
             try {
-                await StringLocks.DoActionAsync(permGuid.ToString(), async () => {
-                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
-                    if (mod == null) {
-                        mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
-                        if (!mod.IsModuleUnique)
-                            throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
-                        mod.ModuleGuid = permGuid;
-                        mod.Temporary = false;
-                        if (initModule != null)
-                            initModule(mod);
-                        await mod.SaveAsync();
-                    } else {
-                        if (!mod.IsModuleUnique)
-                            throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
-                        mod.Temporary = false;
+                mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                if (mod == null) {
+                    // doesn't exist, lock and try again
+                    using (ILockObject lockObject = await ModuleDefinition.LockModuleAsync(permGuid)) {
+                        mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                        if (mod == null) {
+                            mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
+                            if (!mod.IsModuleUnique)
+                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
+                            mod.ModuleGuid = permGuid;
+                            mod.Temporary = false;
+                            if (initModule != null)
+                                initModule(mod);
+                            await mod.SaveAsync();
+                        } else {
+                            if (!mod.IsModuleUnique)
+                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
+                            mod.Temporary = false;
+                        }
+                        await lockObject.UnlockAsync();
                     }
-                });
+                }
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToHtmlString();
@@ -202,24 +214,29 @@ namespace YetaWF.Core.Modules {
         {
             ModuleDefinition mod = null;
             try {
-                await StringLocks.DoActionAsync(moduleGuid.ToString(), async () => {
-                    mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);
-                    if (mod == null) {
-                        Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
-                        mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
-                        if (mod.IsModuleUnique)
-                            throw new InternalError("{0} is a unique module (can't specify a module guid)", typeof(TYPE).FullName);
-                        mod.ModuleGuid = moduleGuid;
-                        if (initModule != null)
-                            initModule((TYPE)(object)mod);
-                        mod.Temporary = false;
-                        await mod.SaveAsync();
-                    } else {
-                        if (mod.IsModuleUnique)
-                            throw new InternalError("{0} is a unique module (can't specify a module guid)", typeof(TYPE).FullName);
-                        mod.Temporary = false;
+                mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);
+                if (mod == null) {
+                    // doesn't exist, lock and try again
+                    using (ILockObject lockObject = await ModuleDefinition.LockModuleAsync(moduleGuid)) {
+                        mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);
+                        if (mod == null) {
+                            Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
+                            mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
+                            if (mod.IsModuleUnique)
+                                throw new InternalError("{0} is a unique module (can't specify a module guid)", typeof(TYPE).FullName);
+                            mod.ModuleGuid = moduleGuid;
+                            if (initModule != null)
+                                initModule((TYPE)(object)mod);
+                            mod.Temporary = false;
+                            await mod.SaveAsync();
+                        } else {
+                            if (mod.IsModuleUnique)
+                                throw new InternalError("{0} is a unique module (can't specify a module guid)", typeof(TYPE).FullName);
+                            mod.Temporary = false;
+                        }
+                        await lockObject.UnlockAsync();
                     }
-                });
+                }
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, moduleGuid.ToString());
                 return hb.ToHtmlString();

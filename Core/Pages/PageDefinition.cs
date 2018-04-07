@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Language;
 using YetaWF.Core.Models;
@@ -23,9 +22,10 @@ using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Pages {
+
     [Trim]
-    public partial class PageDefinition
-    {
+    public partial class PageDefinition { 
+
         public const int MaxPane = 40;
         public const int MaxTitle = 100;
         public const int MaxDescription = 200;
@@ -217,20 +217,24 @@ namespace YetaWF.Core.Pages {
         [Data_PrimaryKey]
         public Guid PageGuid { get; set; }
 
+        [RequiresPageReload]
         public SkinDefinition SelectedSkin { get; set; }
         public SkinDefinition SelectedPopupSkin { get; set; }
 
         /// <summary>
         /// The page used as template for the current page.
         /// </summary>
+        [RequiresPageReload]
         public Guid? TemplateGuid { get; set; }
         /// <summary>
         /// Defines the unified set of pages this page belongs to (if any).
         /// </summary>
         [Data_Index]
+        [RequiresPageReload]
         public Guid? UnifiedSetGuid { get; set; }
 
         [StringLength(MaxCssClass)]
+        [RequiresPageReload]
         public string CssClass { get; set; }
 
         public string GetCssClass() {
@@ -260,13 +264,17 @@ namespace YetaWF.Core.Pages {
         }
 
         [StringLength(MaxBootstrapSkin)]
+        [RequiresPageReload]
         public string BootstrapSkin { get; set; }
         [StringLength(MaxjQueryUISkin)]
+        [RequiresPageReload]
         public string jQueryUISkin { get; set; }
         [StringLength(MaxKendoUISkin)]
+        [RequiresPageReload]
         public string KendoUISkin { get; set; }
 
         [StringLength(Globals.MaxUrl)]
+        [RequiresPageReload]
         public string Url { get; set; }
         /// <summary>
         /// User-defined canonical Url.
@@ -275,6 +283,7 @@ namespace YetaWF.Core.Pages {
         ///
         /// Modules that override the canonical Url should use EvaluatedCanonicalUrl instead.</remarks>
         [StringLength(Globals.MaxUrl)]
+        [RequiresPageReload]
         public string CanonicalUrl { get; set; }
 
         /// <summary>
@@ -305,21 +314,29 @@ namespace YetaWF.Core.Pages {
         private string _canonicalUrl;
 
         [StringLength(MaxTitle)]
+        [RequiresPageReload]
         public MultiString Title { get; set; }
         [StringLength(MaxDescription)]
+        [RequiresPageReload]
         public MultiString Description { get; set; }
         [StringLength(MaxKeywords)]
+        [RequiresPageReload]
         public MultiString Keywords { get; set; }
         [StringLength(MaxCopyright)]
+        [RequiresPageReload]
         public MultiString Copyright { get; set; }
+
         public bool WantSearch { get; set; }
 
         public DateTime Created { get; set; }
+        [NoModelChange]
         public DateTime Updated { get; set; }
 
+        [RequiresPageReload]
         public PageSecurityType PageSecurity { get; set; }
 
         [Data_NewValue("(0)")]
+        [RequiresPageReload]
         public StaticPageEnum StaticPage { get; set; }
 
         [StringLength(Globals.MaxUrl)]
@@ -329,17 +346,23 @@ namespace YetaWF.Core.Pages {
         public string RedirectToPageUrl { get; set; }
 
         [StringLength(SiteDefinition.MaxAnalytics)]
+        [RequiresPageReload]
         public string Analytics { get; set; }
         [StringLength(SiteDefinition.MaxAnalytics)]
+        [RequiresPageReload]
         public string AnalyticsContent { get; set; }
         [StringLength(SiteDefinition.MaxHead)]
+        [RequiresPageReload]
         public string ExtraHead { get; set; }
         [StringLength(SiteDefinition.MaxBodyTop)]
+        [RequiresPageReload]
         public string ExtraBodyTop { get; set; }
         [StringLength(SiteDefinition.MaxBodyBottom)]
+        [RequiresPageReload]
         public string ExtraBodyBottom { get; set; }
 
         [StringLength(SiteDefinition.MaxMeta)]
+        [RequiresPageReload]
         public string PageMetaTags { get; set; }
 
         [Data_NewValue("(0)")]
@@ -348,8 +371,10 @@ namespace YetaWF.Core.Pages {
         public SiteMapPriorityEnum SiteMapPriority { get; set; }
 
         [Data_Binary]
+        [RequiresPageReload]
         public SerializableList<AllowedRole> AllowedRoles { get; set; }
         [Data_Binary]
+        [RequiresPageReload]
         public SerializableList<AllowedUser> AllowedUsers { get; set; }
 
         [DontSave, ReadOnly]
@@ -375,6 +400,7 @@ namespace YetaWF.Core.Pages {
         public byte[] FavIcon_Data { get; set; }
 
         [Data_Binary]
+        [RequiresPageReload]
         public SerializableList<ModuleDefinition.ReferencedModule> ReferencedModules { get; set; }
 
         public bool RobotNoIndex { get; set; }
@@ -383,6 +409,7 @@ namespace YetaWF.Core.Pages {
         public bool RobotNoSnippet { get; set; }
 
         [StringLength(LanguageData.MaxId)]
+        [RequiresPageReload]
         public string LanguageId { get; set; }
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit the property

@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Packages {
@@ -60,9 +61,9 @@ namespace YetaWF.Core.Packages {
 #endif
             string path = Path.Combine(rootFolder, Globals.SiteTemplatesData);
             // delete all existing zip files
-            string[] files = Directory.GetFiles(path, "*.zip");
+            List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.zip");
             foreach (string file in files) {
-                File.Delete(file);
+                await FileSystem.FileSystemProvider.DeleteFileAsync(file);
             }
             // export the data for each listed package and save the zip file in the site template data folder
             foreach (string packageName in PackageNames) {

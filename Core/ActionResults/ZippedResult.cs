@@ -4,7 +4,9 @@ using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -50,11 +52,15 @@ namespace YetaWF.Core.Support {
         public void Dispose() { Dispose(true); }
 
         protected virtual void Dispose(bool disposing) {
-            if (disposing) { DisposableTracker.RemoveObject(this); }
+            if (disposing) {
+                DisposableTracker.RemoveObject(this);
+            }
+        }
+        public async Task CleanupFoldersAsync() {
             if (TempFiles != null) {
                 foreach (var tempFile in TempFiles) {
                     try {
-                        File.Delete(tempFile);
+                        await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
                     } catch (Exception) { }
                 }
                 TempFiles = null;
@@ -62,7 +68,7 @@ namespace YetaWF.Core.Support {
             if (TempFolders != null) {
                 foreach (var tempFolder in TempFolders) {
                     try {
-                        Directory.Delete(tempFolder, true);
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempFolder);
                     } catch (Exception) { }
                 }
                 TempFolders = null;
@@ -96,32 +102,36 @@ namespace YetaWF.Core.Support {
         /// </summary>
 #if MVC6
         /// <param name="context">The action context.</param>
-        public override void ExecuteResult(ActionContext context) {
+        public override async Task ExecuteResultAsync(ActionContext context) {
 #else
         /// <param name="context">The controller context.</param>
         public override void ExecuteResult(ControllerContext context) {
+            YetaWFManager.Syncify(async () => { // sorry, MVC5, no async for you
 #endif
-            var Response = context.HttpContext.Response;
+                var Response = context.HttpContext.Response;
 
-            Response.ContentType = "application/zip";
+                Response.ContentType = "application/zip";
 #if MVC6
-            Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
-            Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" } );
+                Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
+                Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" } );
 
-            using (Zip) {
-                Zip.Zip.Save(Response.Body);
-            }
+                using (Zip) {
+                    Zip.Zip.Save(Response.Body);
+                    await Zip.CleanupFoldersAsync();
+                }
 #else
-            Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
+                Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
 
-            HttpCookie cookie = new HttpCookie(Basics.CookieDone, CookieToReturn.ToString());
-            Response.Cookies.Remove(Basics.CookieDone);
-            Response.SetCookie(cookie);
+                HttpCookie cookie = new HttpCookie(Basics.CookieDone, CookieToReturn.ToString());
+                Response.Cookies.Remove(Basics.CookieDone);
+                Response.SetCookie(cookie);
 
-            using (Zip) {
-                Zip.Zip.Save(Response.OutputStream);
-                Response.End();
-            }
+                using (Zip) {
+                    Zip.Zip.Save(Response.OutputStream);
+                    Response.End();
+                    await Zip.CleanupFoldersAsync();
+                }
+            });
 #endif
         }
     }

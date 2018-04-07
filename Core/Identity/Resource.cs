@@ -70,7 +70,7 @@ namespace YetaWF.Core.Identity {
     public interface IResource {
 
         bool IsBackDoorWideOpen();
-        void ShutTheBackDoor();
+        Task ShutTheBackDoorAsync();
         Task ResolveUserAsync();
         Task LogoffAsync();
         Task LoginAsAsync(int userId);

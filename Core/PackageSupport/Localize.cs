@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
@@ -23,12 +25,12 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         /// <param name="errorList"></param>
         /// <returns></returns>
-        public bool Localize(List<string> errorList) {
+        public async Task<bool> LocalizeAsync(List<string> errorList) {
 
-            LocalizationSupport.ClearPackageData(this);
+            await LocalizationSupport.ClearPackageDataAsync(this);
 
             // parse all source files to extract strings
-            ParseSourceFiles(PackageSourceRoot);
+            await ParseSourceFilesAsync(PackageSourceRoot);
 
             // enumerate all types
             List<Type> types = PackageAssembly.GetTypes().ToList();
@@ -52,7 +54,7 @@ namespace YetaWF.Core.Packages {
                     }
                 }
                 if (hasData)
-                    LocalizationSupport.Save(Package.GetPackageFromType(type), type.FullName, LocalizationSupport.Location.DefaultResources, data);
+                    await LocalizationSupport.SaveAsync(Package.GetPackageFromType(type), type.FullName, LocalizationSupport.Location.DefaultResources, data);
             }
             return true;
         }
@@ -165,7 +167,7 @@ namespace YetaWF.Core.Packages {
             return text;
         }
 
-        private void ParseSourceFiles(string path) {
+        private async Task ParseSourceFilesAsync(string path) {
             if (path.EndsWith("\\Addons", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\AddonsBundles", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\AddonsCustom", StringComparison.OrdinalIgnoreCase)) return;
@@ -179,24 +181,24 @@ namespace YetaWF.Core.Packages {
             if (path.EndsWith("\\Sites", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\SitesHtml", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Vault", StringComparison.OrdinalIgnoreCase)) return;
-            string[] files = Directory.GetFiles(path, "*.cs");
+            List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.cs");
             foreach (string file in files)
-                ParseCsSourceFile(file);
-            files = Directory.GetFiles(path, "*.cshtml");
+                await ParseCsSourceFileAsync(file);
+            files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.cshtml");
             foreach (string file in files)
-                ParseCshtmlSourceFile(file);
-            string[] dirs = Directory.GetDirectories(path);
+                await ParseCshtmlSourceFileAsync(file);
+            List<string> dirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(path);
             foreach (string dir in dirs)
-                ParseSourceFiles(dir);
+                await ParseSourceFilesAsync(dir);
         }
 
         // C#
 
-        private void ParseCsSourceFile(string file) {
+        private async Task ParseCsSourceFileAsync(string file) {
             if (file.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase)) return;
             if (file.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase)) return;
 
-            string fileText = File.ReadAllText(file);
+            string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
             string ns = GetCsFileNamespace(file, fileText);
             string cls = GetCsFileClass(file, fileText);
 
@@ -219,7 +221,7 @@ namespace YetaWF.Core.Packages {
                     }
                     data.Strings.Add(sd);
                 }
-                LocalizationSupport.Save(this, filename, LocalizationSupport.Location.DefaultResources, data);
+                await LocalizationSupport.SaveAsync(this, filename, LocalizationSupport.Location.DefaultResources, data);
             }
         }
 
@@ -292,9 +294,9 @@ namespace YetaWF.Core.Packages {
 
         // CSHTML
 
-        private void ParseCshtmlSourceFile(string file) {
+        private async Task ParseCshtmlSourceFileAsync(string file) {
 
-            string fileText = File.ReadAllText(file);
+            string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
             string cls = GetCshtmlFileClass(file, fileText);
 
             List<LocalizationData.StringData> strings = GetCshtmlFileStrings(file, fileText);
@@ -316,7 +318,7 @@ namespace YetaWF.Core.Packages {
                     }
                     data.Strings.Add(sd);
                 }
-                LocalizationSupport.Save(this, filename, LocalizationSupport.Location.DefaultResources, data);
+                await LocalizationSupport.SaveAsync(this, filename, LocalizationSupport.Location.DefaultResources, data);
             }
         }
 

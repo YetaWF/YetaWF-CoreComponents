@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -24,9 +25,9 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static HtmlString RenderGridDataOneRecord<TModel>(this IHtmlHelper<TModel> htmlHelper, object model) {
+        public static async Task<HtmlString> RenderGridDataOneRecordAsync<TModel>(this IHtmlHelper<TModel> htmlHelper, object model) {
 #else
-        public static HtmlString RenderGridDataOneRecord(this HtmlHelper<object> htmlHelper, object model) {
+        public static async Task<HtmlString> RenderGridDataOneRecordAsync(this HtmlHelper<object> htmlHelper, object model) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -48,8 +49,8 @@ namespace YetaWF.Core.Views.Shared {
                 }
                 recordCount = gridDef.RecordCount;
                 prefix = htmlHelper.GetDataFieldPrefix(gridDef).ToString();
-                hiddenProps = GridHelper.GetHiddenGridProperties(model, gridDef);
-                props = GridHelper.GetGridProperties(model, gridDef);
+                hiddenProps = await GridHelper.GetHiddenGridPropertiesAsync(model, gridDef);
+                props = await GridHelper.GetGridPropertiesAsync(model, gridDef);
             } else if (dataSrc != null) {
                 if (string.IsNullOrWhiteSpace(dataSrc.FieldPrefix)) {
                     readOnly = true;
@@ -58,14 +59,14 @@ namespace YetaWF.Core.Views.Shared {
                     prefix = dataSrc.FieldPrefix;
                 }
                 recordCount = dataSrc.RecordCount;
-                hiddenProps = GridHelper.GetHiddenGridProperties(model);
-                props = GridHelper.GetGridProperties(model);
+                hiddenProps = await GridHelper.GetHiddenGridPropertiesAsync(model);
+                props = await GridHelper.GetGridPropertiesAsync(model);
             } else if (gridEntry != null) {
                 readOnly = false;
                 prefix = gridEntry.Prefix;
                 recordCount = gridEntry.RecNumber;
-                hiddenProps = GridHelper.GetHiddenGridProperties(model);
-                props = GridHelper.GetGridProperties(model);
+                hiddenProps = await GridHelper.GetHiddenGridPropertiesAsync(model);
+                props = await GridHelper.GetGridPropertiesAsync(model);
             }
 #if MVC6
             IModelMetadataProvider metadataProvider = (IModelMetadataProvider) YetaWFManager.ServiceProvider.GetService(typeof(IModelMetadataProvider));
@@ -91,7 +92,10 @@ namespace YetaWF.Core.Views.Shared {
 
                     if (prop.Name == "__highlight") {
                         // check whether the record supports a special "__highlight" property
-                        hb.Append("\"{0}\"", prop.Value is bool && (bool)prop.Value == true ?  YetaWFManager.JserEncode("<div class='yHighlightGridRow'/>") : "");
+                        hb.Append("\"{0}\"", prop.Value is bool && (bool)prop.Value == true ? YetaWFManager.JserEncode("<div class='yHighlightGridRow'/>") : "");
+                    } else if (prop.Name == "__lowlight") {
+                        // check whether the record supports a special "__lowlight" property
+                        hb.Append("\"{0}\"", prop.Value is bool && (bool)prop.Value == true ? YetaWFManager.JserEncode("<div class='yLowlightGridRow'/>") : "");
                     } else {
 #if MVC6
                         string oldPrefix = htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;

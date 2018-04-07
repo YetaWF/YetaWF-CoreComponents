@@ -378,6 +378,9 @@ YetaWF_Grid.gridComplete = function ($grid, gridId) {
     // highlight data rows with the __highlight property set to true
     $('tr.yHighlightGridRow', $grid).removeClass('yHighlightGridRow'); // remove all highlights
     $('tr td div.yHighlightGridRow', $grid).closest('tr').addClass('yHighlightGridRow');// add highlight to selected rows
+    // lowlight data rows with the __lowlight property set to true
+    $('tr.yLowlightGridRow', $grid).removeClass('yLowlightGridRow'); // remove all lowlights
+    $('tr td div.yLowlightGridRow', $grid).closest('tr').addClass('yLowlightGridRow');// add lowlight to selected rows
 
     // Change pagelist dropdown to show All instead of MaxPages 999999999
     // inspired by http://www.trirand.com/blog/?page_id=393/feature-request/rowlist-all-results

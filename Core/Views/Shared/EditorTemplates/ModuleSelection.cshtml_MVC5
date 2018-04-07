@@ -19,7 +19,7 @@
         @Html.RenderModuleSelectionAsync("", newMods, Model).Result
     </div>
     <div class="t_link">
-        @Html.RenderModuleSelectionLink(Model)
+        @Html.RenderModuleSelectionLinkAsync(Model).Result
     </div>
     <div class="t_description">
     </div>

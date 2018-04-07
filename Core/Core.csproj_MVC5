@@ -69,6 +69,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Linq.Dynamic.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0f07ec44de6ac832, processorArchitecture=MSIL">
@@ -115,6 +116,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
+    <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="IO\FileSystem.cs" />
+    <Compile Include="IO\Caching.cs" />
     <Compile Include="Controllers\PageLogging.cs" />
     <Compile Include="Controllers\PageContentController.cs" />
     <Compile Include="Controllers\PageContentViewResult.cs" />
@@ -130,6 +134,9 @@
     <Compile Include="Extensions\HtmlString.cs" />
     <Compile Include="Identity\Setup.cs" />
     <Compile Include="Models\Attributes\AllowHttpMethods.cs" />
+    <Compile Include="Models\Attributes\RequiresPageReloadAttribute.cs" />
+    <Compile Include="Models\Attributes\NoModelChangeAttribute.cs" />
+    <Compile Include="Models\Attributes\RequiresRestartAttribute.cs" />
     <Compile Include="Models\Attributes\DomainValidationAttribute.cs" />
     <Compile Include="Models\Attributes\RegexValidationBaseAttribute.cs" />
     <Compile Include="Models\Attributes\AreaAttribute.cs" />
@@ -139,6 +146,7 @@
     <Compile Include="Models\Attributes\ProcessIfAttribute.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
     <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
+    <Compile Include="Models\GridSupport.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Pages\ErrorHandlingMiddleware.cs" />
     <Compile Include="Pages\RazorPageLifetime.cs" />
@@ -247,7 +255,6 @@
     <Compile Include="Startup\VersionManager.cs" />
     <Compile Include="Controllers\CorsJsonResult.cs" />
     <Compile Include="Extensions\String.cs" />
-    <Compile Include="IO\DirectoryIO.cs" />
     <Compile Include="Models\Attributes\AnchorValidationAttribute.cs" />
     <Compile Include="Models\Attributes\CssClassesValidationAttribute.cs" />
     <Compile Include="Models\Attributes\PackageAttributes.cs" />
@@ -274,12 +281,10 @@
     <Compile Include="Identity\Role.cs" />
     <Compile Include="Identity\Resource.cs" />
     <Compile Include="Identity\User.cs" />
-    <Compile Include="IO\CachedObject.cs" />
     <Compile Include="IO\File.cs" />
     <Compile Include="IO\InstallableModel.cs" />
     <Compile Include="IO\SessionStateIO.cs" />
     <Compile Include="IO\FileIO.cs" />
-    <Compile Include="IO\StringLocks.cs" />
     <Compile Include="Support\Image\ImageSupport.cs" />
     <Compile Include="Support\Language\LanguageInfo.cs" />
     <Compile Include="Support\Localize\Formatting.cs">

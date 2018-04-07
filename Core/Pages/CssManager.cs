@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
@@ -31,13 +32,13 @@ namespace YetaWF.Core.Pages {
         private readonly List<string> _CssFileKeys = new List<string>(); // already processed script files (not necessarily added to page yet)
         private readonly List<CssEntry> _CssFiles = new List<CssEntry>(); // css files to include (already minified, etc.) using <link...> tags
 
-        public void AddAddOn(VersionManager.AddOnProduct version, params object[] args) {
+        public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
             if (Manager.IsPostRequest) return;// we never add css files for Post requests
-            AddFromFileList(version, args);
+            await AddFromFileListAsync(version, args);
         }
 
         // Add all css files listed in filelistCSS.txt
-        private void AddFromFileList(VersionManager.AddOnProduct version, params object[] args) {
+        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, params object[] args) {
             string productUrl = version.GetAddOnUrl();
             List<string> list = (from i in version.CssFiles select Path.Combine(version.CssPath, i)).ToList(); // make a copy
             foreach (var info in list) {
@@ -89,21 +90,21 @@ namespace YetaWF.Core.Pages {
                             f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                         else
 #endif
-                            f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                        if (!File.Exists(f))
+                        f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                         filePathURL = YetaWFManager.PhysicalToUrl(f);
                     } else {
                         file = file.Replace("\\", "/");// convert to Url in case this is file spec
                         filePathURL = string.Format("{0}{1}", productUrl, file);
                         string fullPath = YetaWFManager.UrlToPhysical(filePathURL);
-                        if (!File.Exists(fullPath))
+                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
                             throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
                     if (allowCustom) {
                         string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
                         string f = YetaWFManager.UrlToPhysical(customUrl);
-                        if (File.Exists(f))
+                        if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             filePathURL = customUrl;
                     }
                     if (bundle == null) {
@@ -114,13 +115,13 @@ namespace YetaWF.Core.Pages {
                             bundle = true;
                         }
                     }
-                    if (!AddFile(version.Type == VersionManager.AddOnType.Skin, filePathURL, !nominify, (bool)bundle))
+                    if (!await AddFileAsync(version.Type == VersionManager.AddOnType.Skin, filePathURL, !nominify, (bool)bundle))
                         version.CssFiles.Remove(info);// remove empty file so we don't use it any more
                 }
             }
         }
 
-        public bool AddFile(bool skinRelated, string fullUrl, bool minify = true, bool bundle = true) {
+        public async Task<bool> AddFileAsync(bool skinRelated, string fullUrl, bool minify = true, bool bundle = true) {
 
             string key = fullUrl;
 
@@ -163,7 +164,7 @@ namespace YetaWF.Core.Pages {
             }
 
             if (!_CssFileKeys.Contains(key)) {
-                if (!UrlHasContent(fullUrl))
+                if (!await UrlHasContentAsync(fullUrl))
                     return false; // empty file
                 _CssFileKeys.Add(key);
                 _CssFiles.Add(new Pages.CssManager.CssEntry { Url = fullUrl, Bundle = bundle, Last = skinRelated });
@@ -171,7 +172,7 @@ namespace YetaWF.Core.Pages {
             return true;
         }
 
-        private bool UrlHasContent(string fullUrl) {
+        private async Task<bool> UrlHasContentAsync(string fullUrl) {
             if (fullUrl.IsAbsoluteUrl())
                 return true;
             if (!fullUrl.EndsWith(".css"))
@@ -179,10 +180,10 @@ namespace YetaWF.Core.Pages {
             if (!fullUrl.ContainsIgnoreCase($"{Globals.AddOnsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddOnsCustomUrl}/"))
                 return true;
             string fullPath = YetaWFManager.UrlToPhysical(fullUrl);
-            if (!File.Exists(fullPath))
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
                 throw new InternalError("File {0} not found - can't be processed", fullPath);
 
-            string text = File.ReadAllText(fullPath);
+            string text = await FileSystem.FileSystemProvider.ReadAllTextAsync(fullPath);
             if (string.IsNullOrWhiteSpace(text))
                 return false;
             return true;
@@ -199,7 +200,7 @@ namespace YetaWF.Core.Pages {
                 return Manager.CurrentSite.BundleCSSFiles;
         }
 
-        public HtmlBuilder Render(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
+        public async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
@@ -209,7 +210,7 @@ namespace YetaWF.Core.Pages {
                     bundleList = bundleList.Except(KnownCss).ToList();
                 if (bundleList.Count > 1) {
                     externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
-                    string bundleUrl = FileBundles.MakeBundle(bundleList, FileBundles.BundleTypeEnum.CSS);
+                    string bundleUrl = await FileBundles.MakeBundleAsync(bundleList, FileBundles.BundleTypeEnum.CSS);
                     if (!string.IsNullOrWhiteSpace(bundleUrl))
                         externalList.Add(new Pages.CssManager.CssEntry {
                             Url = bundleUrl,
@@ -235,7 +236,7 @@ namespace YetaWF.Core.Pages {
                         });
                         if (entry.Bundle) {
                             string file = YetaWFManager.UrlToPhysical(entry.Url);
-                            string contents = File.ReadAllText(file);
+                            string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                             contents = FileBundles.ProcessIncludedFiles(contents, entry.Url);
                             cr.CssFilesPayload.Add(new PageContentController.Payload {
                                 Name = entry.Url,

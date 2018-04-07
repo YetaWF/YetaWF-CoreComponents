@@ -39,9 +39,9 @@ namespace YetaWF.Core.Views.Shared {
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelper), name, defaultValue, parms); }
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
-        public static HtmlString RenderUrlDisplay(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static async Task<HtmlString> RenderUrlDisplayAsync(this IHtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #else
-        public static HtmlString RenderUrlDisplay(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
+        public static async Task<HtmlString> RenderUrlDisplayAsync(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, string Tooltip = null) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -86,7 +86,7 @@ namespace YetaWF.Core.Views.Shared {
                 // image
                 Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                 SkinImages skinImages = new SkinImages();
-                string imageUrl = skinImages.FindIcon_Template("UrlRemote.png", currentPackage, "Url");
+                string imageUrl = await skinImages.FindIcon_TemplateAsync("UrlRemote.png", currentPackage, "Url");
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altText", "Remote Url"));
 
                 tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
@@ -125,7 +125,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static async Task<HtmlString> RenderUrlDDAsync(this HtmlHelper htmlHelper, string name, string url, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
-            List<string> pages = PageDefinition.GetDesignedUrls();
+            List<string> pages = await PageDefinition.GetDesignedUrlsAsync();
 
             // get list of desired pages (ignore users that are invalid, they may have been deleted)
             List<SelectionItem<string>> list = new List<SelectionItem<string>>();
@@ -142,9 +142,9 @@ namespace YetaWF.Core.Views.Shared {
             return await htmlHelper.RenderDropDownSelectionListAsync<string>(name, url, list, HtmlAttributes: HtmlAttributes, Validation: Validation);
         }
 #if MVC6
-        public static HtmlString RenderUrlLinkAndImage(this IHtmlHelper htmlHelper, string url) {
+        public static async Task<HtmlString> RenderUrlLinkAndImageAsync(this IHtmlHelper htmlHelper, string url) {
 #else
-        public static HtmlString RenderUrlLinkAndImage(this HtmlHelper htmlHelper, string url) {
+        public static async Task<HtmlString> RenderUrlLinkAndImageAsync(this HtmlHelper htmlHelper, string url) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -158,7 +158,7 @@ namespace YetaWF.Core.Views.Shared {
             // image
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Template("UrlRemote.png", currentPackage, "Url");
+            string imageUrl = await skinImages.FindIcon_TemplateAsync("UrlRemote.png", currentPackage, "Url");
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altText", "Remote Url"));
 
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));

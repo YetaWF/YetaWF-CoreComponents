@@ -51,7 +51,7 @@
         var $grid = $("#@Model.Id");
         var emptyDiv = "<div id='@idEmpty' class='t_emptydiv'>@Model.NoRecordsText</div>";
         var options = {
-            colNames: [ @Html.RenderColNames(Model) ],
+            colNames: [ @await Html.RenderColNamesAsync(Model) ],
             colModel: [ @colModelInfo.Data ],
             shrinkToFit: @JSEncode(Model.SizeToFit),
             @if (pageSize > 0 && (isAjax || Model.CanAddOrDelete || pageSize < Model.Data.Data.Count)) {
@@ -64,7 +64,7 @@
                 }
                 @: viewrecords: true,
             }
-            @Html.RenderGridSortOrder(gridSavedSettings, Model)
+            @await Html.RenderGridSortOrderAsync(gridSavedSettings, Model)
             page: @initialPage,
             @if (isAjax) {
                 @: url:'@Model.AjaxUrl',

@@ -287,16 +287,13 @@ namespace YetaWF.Core.Support {
             return siteDomain;
         }
 
-        // The date the site was started
-        public static readonly DateTime SiteStart = DateTime.UtcNow;
-
         public static string CacheBuster {
             get {
                 if (_cacheBuster == null) {
                     if (Manager.CurrentSite.DEBUGMODE || !Manager.CurrentSite.AllowCacheUse)
                         _cacheBuster = (DateTime.Now.Ticks / TimeSpan.TicksPerSecond).ToString();/*local time*/
                     else
-                        _cacheBuster = (YetaWFManager.SiteStart.Ticks / TimeSpan.TicksPerSecond).ToString();
+                        _cacheBuster = (YetaWF.Core.Support.Startup.MultiInstanceStartTime.Ticks / TimeSpan.TicksPerSecond).ToString();
                 }
                 return _cacheBuster;
             }
@@ -986,7 +983,7 @@ namespace YetaWF.Core.Support {
         public StaticPageManager StaticPageManager {
             get {
                 if (_staticPageManager == null)
-                    _staticPageManager = new StaticPageManager(this);
+                    _staticPageManager = new StaticPageManager();
                 return _staticPageManager;
             }
         }
@@ -1479,7 +1476,7 @@ namespace YetaWF.Core.Support {
                     string skin = Manager.CurrentPage.BootstrapSkin;
                     if (string.IsNullOrWhiteSpace(skin))
                         skin = Manager.CurrentSite.BootstrapSkin;
-                    string themeFolder = skinAccess.FindBootstrapSkin(skin);
+                    string themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
                         await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootstrap-less");
                     else
@@ -1767,7 +1764,7 @@ namespace YetaWF.Core.Support {
         /// Only synchronous data providers are used. 
         /// Async code will run synchronously on all platforms.
         /// </summary>
-        public class NeedSync : IDisposable {
+        private class NeedSync : IDisposable {
             private YetaWFManager Manager;
             public NeedSync() {
                 if (YetaWFManager.HaveManager) { // if no manager is available, code is synchronous by definition

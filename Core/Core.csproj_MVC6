@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
@@ -30,7 +31,7 @@ namespace YetaWF.Core.Packages {
         ///
         /// The package map is saved at .\Website\Data\PackageMap.txt
         /// </remarks>
-        public static void SavePackageMap() {
+        public static async Task SavePackageMapAsync() {
             Logging.AddLog("Saving package map");
             string rootFolder;
 #if MVC6
@@ -45,7 +46,7 @@ namespace YetaWF.Core.Packages {
             foreach (Package package in packages) {
                 sb.Append(string.Format("{0} {1}\r\n", package.Name, package.Version));
             }
-            File.WriteAllText(outFile, sb.ToString());
+            await FileSystem.FileSystemProvider.WriteAllTextAsync(outFile, sb.ToString());
             Logging.AddLog("Saving package map completed");
         }
 
@@ -63,9 +64,8 @@ namespace YetaWF.Core.Packages {
         ///
         /// A log file recording all upgrade activity is saved at .\Website\Data\UpgradeLogFile.txt
         /// </remarks>
-        public static async Task UpgradeToNewPackagesAsync(bool firstNode) {
+        public static async Task UpgradeToNewPackagesAsync() {
 
-            if (!firstNode) return;
             if (SiteDefinition.INITIAL_INSTALL) return;
             if (YetaWFManager.Manager.Deployed && !MustUpgrade()) return;
 
@@ -93,8 +93,9 @@ namespace YetaWF.Core.Packages {
         }
         public class UpgradeLogging : ILogging {
             public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Info; }
-            public void Clear() { }
-            public void Flush() { }
+            public Task InitAsync() { return Task.CompletedTask; }
+            public Task ClearAsync() { return Task.CompletedTask; }
+            public Task FlushAsync() { return Task.CompletedTask; }
             public Task<bool> IsInstalledAsync() { return Task.FromResult(true); }
             public void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text) {
                 string rootFolder;
@@ -103,7 +104,7 @@ namespace YetaWF.Core.Packages {
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
-                File.AppendAllText(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n");
+                FileSystem.FileSystemProvider.AppendAllTextAsync(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n").Wait();// uhm yeah, only while upgrading
             }
         }
         /// <summary>
@@ -111,7 +112,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         /// <returns></returns>
         public static bool MustUpgrade() {
-            return File.Exists(GetUpdateIndicatorFileName());
+            return FileSystem.FileSystemProvider.FileExistsAsync(GetUpdateIndicatorFileName()).Result;// uhm yeah, only while upgrading
         }
         private static string GetUpdateIndicatorFileName() {
             string rootFolder;
@@ -127,7 +128,7 @@ namespace YetaWF.Core.Packages {
 
             Logging.AddLog("Upgrading to new packages");
 
-            List<PackageInfo> list = LoadPackageMap();
+            List<PackageInfo> list = await LoadPackageMapAsync();
 
             // get all currently installed packages
             List<Package> allPackages = Package.GetAvailablePackages();
@@ -198,16 +199,16 @@ namespace YetaWF.Core.Packages {
             }
 
             // Remove the update indicator file (if present)
-            File.Delete(GetUpdateIndicatorFileName());
+            await FileSystem.FileSystemProvider.DeleteFileAsync(GetUpdateIndicatorFileName());
 
             // Save new package map (only if successful)
-            Package.SavePackageMap();
+            await Package.SavePackageMapAsync();
         }
         /// <summary>
         /// Loads the existing package map at .\Website\Data\PackageMap.txt
         /// </summary>
         /// <returns>Information for all packages that were available during the last startup of YetaWF.</returns>
-        private static List<PackageInfo> LoadPackageMap() {
+        private static async Task<List<PackageInfo>> LoadPackageMapAsync() {
             List<PackageInfo> list = new List<PackageInfo>();
             string rootFolder;
 #if MVC6
@@ -216,9 +217,9 @@ namespace YetaWF.Core.Packages {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             string inFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.PackageMap);
-            if (!File.Exists(inFile))
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(inFile))
                 throw new InternalError("The package map file {0} does not exist", inFile);
-            List<string> lines = File.ReadAllLines(inFile).ToList();
+            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(inFile);
             int count = 1;
             foreach (string line in lines) {
                 if (!string.IsNullOrWhiteSpace(line)) {
@@ -282,7 +283,7 @@ namespace YetaWF.Core.Packages {
 #endif
             string templateBase = package.Name.Replace(".", "_");
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
-            List<string> templates = Directory.GetFiles(templateFolder, templateBase + "*.txt", SearchOption.TopDirectoryOnly).ToList();
+            List<string> templates = await FileSystem.FileSystemProvider.GetFilesAsync(templateFolder, templateBase + "*.txt");
             templates = (from t in templates select Path.GetFileNameWithoutExtension(t)).ToList();
             templates.Sort(new SiteTemplateNameComparer());
             // templates are now sorted by version, process in this order (oldest to newest)

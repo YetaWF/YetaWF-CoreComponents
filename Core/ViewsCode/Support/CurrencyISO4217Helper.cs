@@ -10,6 +10,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -43,11 +44,11 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static HtmlString RenderCurrencyISO4217Display(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderCurrencyISO4217DisplayAsync(this IHtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #else
-        public static HtmlString RenderCurrencyISO4217Display(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
+        public static async Task<HtmlString> RenderCurrencyISO4217DisplayAsync(this HtmlHelper htmlHelper, string name, string selection, object HtmlAttributes = null) {
 #endif
-            string currency = IdToCurrency(selection, AllowMismatch: true);
+            string currency = await IdToCurrencyAsync(selection, AllowMismatch: true);
             return new HtmlString(currency);
         }
 
@@ -60,7 +61,7 @@ namespace YetaWF.Core.Views.Shared {
             if (!htmlHelper.TryGetParentModelSupportProperty<bool>(name, "SiteCurrency", out includeSiteCurrency))
                 includeSiteCurrency = true;
 
-            List<Currency> currencies = GetCurrencies(IncludeSiteCurrency: includeSiteCurrency);
+            List<Currency> currencies = await GetCurrenciesAsync(IncludeSiteCurrency: includeSiteCurrency);
             List<SelectionItem<string>> list = (from l in currencies select new SelectionItem<string>() {
                 Text = l.Name,
                 Value = l.Id,
@@ -77,10 +78,10 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="currency">The currency name.</param>
         /// <param name="AllowMismatch">true to return a default value if the currency name doesn't exist, false otherwise (throws an error).</param>
         /// <returns>Three character Id.</returns>
-        public static string CurrencyToId(string currency, bool AllowMismatch = false) {
+        public static async Task<string> CurrencyToIdAsync(string currency, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(currency))
                 return Manager.CurrentSite.Currency;
-            string id = (from c in GetCurrencies() where c.Name == currency select c.Id).FirstOrDefault();
+            string id = (from c in await GetCurrenciesAsync() where c.Name == currency select c.Id).FirstOrDefault();
             if (id != null)
                 return id;
             if (AllowMismatch)
@@ -92,12 +93,12 @@ namespace YetaWF.Core.Views.Shared {
         /// </summary>
         /// <param name="id">The three character Id.</param>
         /// <returns>The currency name.</returns>
-        public static string IdToCurrency(string id, bool AllowMismatch = false) {
+        public static async Task<string> IdToCurrencyAsync(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 id = Manager.CurrentSite.Currency;
-            string currency = (from c in GetCurrencies() where c.Id == id select c.Name).FirstOrDefault();
+            string currency = (from c in await GetCurrenciesAsync() where c.Id == id select c.Name).FirstOrDefault();
             if (AllowMismatch) {
-                currency = (from c in GetCurrencies() where c.Id == Manager.CurrentSite.Currency select c.Name).FirstOrDefault();
+                currency = (from c in await GetCurrenciesAsync() where c.Id == Manager.CurrentSite.Currency select c.Name).FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(currency))
                     return currency;
             }
@@ -109,14 +110,14 @@ namespace YetaWF.Core.Views.Shared {
         /// <param name="currency">The three character currency Id.</param>
         /// <param name="AllowMismatch">true to return a default value if the currency name doesn't exist, false otherwise (throws an error).</param>
         /// <returns>Numeric Id.</returns>
-        public static int CurrencyIdToNumber(string id, bool AllowMismatch = false) {
+        public static async Task<int> CurrencyIdToNumberAsync(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 id = Manager.CurrentSite.Currency;
-            int number = (from c in GetCurrencies() where c.Name == id select c.Number).FirstOrDefault();
+            int number = (from c in await GetCurrenciesAsync() where c.Name == id select c.Number).FirstOrDefault();
             if (number != 0)
                 return number;
             if (AllowMismatch) {
-                number = (from c in GetCurrencies() where c.Id == Manager.CurrentSite.Currency select c.Number).FirstOrDefault();
+                number = (from c in await GetCurrenciesAsync() where c.Id == Manager.CurrentSite.Currency select c.Number).FirstOrDefault();
                 if (number != 0)
                     return number;
             }
@@ -127,19 +128,19 @@ namespace YetaWF.Core.Views.Shared {
         /// </summary>
         /// <param name="id">The numeric Id.</param>
         /// <returns>The three character currency Id.</returns>
-        public static string NumberToCurrencyId(int number, bool AllowMismatch = false) {
+        public static async Task<string> NumberToCurrencyIdAsync(int number, bool AllowMismatch = false) {
             if (number == 0)
                 return Manager.CurrentSite.Currency;
-            string currency = (from c in GetCurrencies() where c.Number == number select c.Name).FirstOrDefault();
+            string currency = (from c in await GetCurrenciesAsync() where c.Number == number select c.Name).FirstOrDefault();
             if (AllowMismatch) {
-                currency = (from c in GetCurrencies() where c.Id == Manager.CurrentSite.Currency select c.Name).FirstOrDefault();
+                currency = (from c in await GetCurrenciesAsync() where c.Id == Manager.CurrentSite.Currency select c.Name).FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(currency))
                     return currency;
             }
             throw new InternalError("Invalid currency number {0}", number);
         }
-        private static List<Currency> GetCurrencies(bool IncludeSiteCurrency = true) {
-            List<Currency> currencies = ReadCurrencyList().OrderBy(m => m.Name).ToList();
+        private static async Task<List<Currency>> GetCurrenciesAsync(bool IncludeSiteCurrency = true) {
+            List<Currency> currencies = (await ReadCurrencyListAsync()).OrderBy(m => m.Name).ToList();
             if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Currency)) {
                 Currency mainCurrency = (from c in currencies where c.Id == Manager.CurrentSite.Currency select c).FirstOrDefault();
                 if (mainCurrency != null) {
@@ -154,44 +155,42 @@ namespace YetaWF.Core.Views.Shared {
             }
             return currencies;
         }
-        private static List<Currency> ReadCurrencyList() {
+        private static async Task<List<Currency>> ReadCurrencyListAsync() {
             if (_currencyList == null) {
-                lock (_lockObject) { // short-term lock to vuild cached country list
-                    Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                    string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
-                    string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
+                string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                    string path = YetaWFManager.UrlToPhysical(url);
-                    string customPath = YetaWFManager.UrlToPhysical(customUrl);
+                string path = YetaWFManager.UrlToPhysical(url);
+                string customPath = YetaWFManager.UrlToPhysical(customUrl);
 
-                    string file = Path.Combine(path, "Currencies.txt");
-                    string customFile = Path.Combine(customPath, "Currencies.txt");
-                    if (File.Exists(customFile))
-                        file = customFile;
-                    else if (!File.Exists(file))
-                        throw new InternalError("File {0} not found", file);
+                string file = Path.Combine(path, "Currencies.txt");
+                string customFile = Path.Combine(customPath, "Currencies.txt");
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(customFile))
+                    file = customFile;
+                else if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    throw new InternalError("File {0} not found", file);
 
-                    _currencyList = new List<Currency>();
+                List<Currency> newList = new List<Currency>();
 
-                    string[] cts = File.ReadAllLines(file);
-                    foreach (var st in cts) {
-                        if (st.Trim().Length > 0) {
-                            string[] s = st.Trim().Split(new string[] { "," }, 4, StringSplitOptions.RemoveEmptyEntries);
-                            if (s.Length != 4)
-                                throw new InternalError("Invalid input in currency list - {0} - {1}", st, file);
-                            _currencyList.Add(new Currency {
-                                Name = s[0],
-                                Id = s[1].ToUpper(),
-                                Number = Convert.ToInt32(s[2]),
-                                MinorUnit = Convert.ToInt32(s[3]),
-                            });
-                        }
+                List<string> cts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+                foreach (var st in cts) {
+                    if (st.Trim().Length > 0) {
+                        string[] s = st.Trim().Split(new string[] { "," }, 4, StringSplitOptions.RemoveEmptyEntries);
+                        if (s.Length != 4)
+                            throw new InternalError("Invalid input in currency list - {0} - {1}", st, file);
+                        newList.Add(new Currency {
+                            Name = s[0],
+                            Id = s[1].ToUpper(),
+                            Number = Convert.ToInt32(s[2]),
+                            MinorUnit = Convert.ToInt32(s[3]),
+                        });
                     }
                 }
+                _currencyList = newList;
             }
             return _currencyList;
         }
-        private static object _lockObject = new object();
         private static List<Currency> _currencyList = null;
     }
 }

@@ -4,6 +4,8 @@ using Ionic.Zip;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using YetaWF.Core.IO;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -28,9 +30,9 @@ namespace YetaWF.Core.Packages {
 
         public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.Xml;
 
-        public YetaWFZipFile ExportPackage(bool SourceCode = false) {
+        public async Task<YetaWFZipFile> ExportPackageAsync(bool SourceCode = false) {
 
-            if (SourceCode && !HasSource)
+            if (SourceCode && !await GetHasSourceAsync())
                 throw new InternalError("Package export requested for package {0} which is not exportable (not a source package)", Name);
 
             string zipName = SourceCode ?
@@ -55,7 +57,7 @@ namespace YetaWF.Core.Packages {
 
             // all bin files
             string sourceBin = Path.Combine(PackageSourceRoot, "bin");
-            serPackage.BinFiles.AddRange(ProcessAllFiles(sourceBin, ExcludedBinFiles, ExcludedBinFolders, ExternalRoot: PackageSourceRoot));
+            serPackage.BinFiles.AddRange(await ProcessAllFilesAsync(sourceBin, ExcludedBinFiles, ExcludedBinFolders, ExternalRoot: PackageSourceRoot));
             foreach (var file in serPackage.BinFiles) {
                 ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                 ze.FileName = file.FileName;
@@ -63,7 +65,7 @@ namespace YetaWF.Core.Packages {
             if (!SourceCode) {
                 // Addons
                 if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
-                    serPackage.AddOns.AddRange(ProcessAllFiles(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource, ExternalRoot: YetaWFManager.RootFolder));
+                    serPackage.AddOns.AddRange(await ProcessAllFilesAsync(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource, ExternalRoot: YetaWFManager.RootFolder));
                     foreach (var file in serPackage.AddOns) {
                         ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                         ze.FileName = file.FileName;
@@ -77,7 +79,7 @@ namespace YetaWF.Core.Packages {
                 rootFolder = YetaWFManager.RootFolder;
 #endif
                 string viewsPath = Path.Combine(rootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-                serPackage.Views.AddRange(ProcessAllFiles(viewsPath, ExcludedFilesViewsNoSource));
+                serPackage.Views.AddRange(await ProcessAllFilesAsync(viewsPath, ExcludedFilesViewsNoSource));
                 foreach (var file in serPackage.Views) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                     ze.FileName = file.FileName;
@@ -85,8 +87,8 @@ namespace YetaWF.Core.Packages {
             }
             // Source code
             if (SourceCode) {
-                serPackage.SourceFiles.AddRange(ProcessAllFiles(PackageSourceRoot, ExcludedFilesSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
-                ProcessSourceFiles(zipFile, serPackage.SourceFiles);
+                serPackage.SourceFiles.AddRange(await ProcessAllFilesAsync(PackageSourceRoot, ExcludedFilesSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
+                await ProcessSourceFilesAsync(zipFile, serPackage.SourceFiles);
                 foreach (var file in serPackage.SourceFiles) {
                     ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
                     ze.FileName = file.FileName;
@@ -98,9 +100,10 @@ namespace YetaWF.Core.Packages {
                 string fileName = Path.GetTempFileName();
                 zipFile.TempFiles.Add(fileName);
 
-                FileStream fs = new FileStream(fileName, FileMode.Create);
-                new GeneralFormatter(Package.ExportFormat).Serialize(fs, serPackage);
-                fs.Close();
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
+                    new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serPackage);
+                    await fs.CloseAsync();
+                }
 
                 ZipEntry ze = zipFile.Zip.AddFile(fileName);
                 ze.FileName = PackageContentsFile;
@@ -122,15 +125,15 @@ namespace YetaWF.Core.Packages {
                 Zip = new ZipFile(zipName),
             };
         }
-        public static SerializableList<SerializableFile> ProcessAllFiles(string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
+        public static async Task<SerializableList<SerializableFile>> ProcessAllFilesAsync(string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
             SerializableList<SerializableFile> list = new SerializableList<SerializableFile>();
-            AddFiles(list, folder, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
+            await AddFilesAsync(list, folder, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
             return list;
         }
-        private static void AddFiles(SerializableList<SerializableFile> list, string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
-            if (!Directory.Exists(folder))
+        private static async Task AddFilesAsync(SerializableList<SerializableFile> list, string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
+            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(folder))
                 return;
-            foreach (var file in Directory.GetFiles(folder)) {
+            foreach (var file in await FileSystem.FileSystemProvider.GetFilesAsync(folder)) {
                 bool copy = true;
                 if (excludeFiles != null) {
                     foreach (var x in excludeFiles) {
@@ -140,10 +143,13 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                 }
-                if (copy)
-                    list.Add(new SerializableFile(file, ExternalRoot: ExternalRoot));
+                if (copy) {
+                    SerializableFile serFile = new SerializableFile(file, ExternalRoot: ExternalRoot);
+                    serFile.FileDate = await FileSystem.FileSystemProvider.GetCreationTimeUtcAsync(serFile.AbsFileName);
+                    list.Add(serFile);
+                }
             }
-            foreach (var dir in Directory.GetDirectories(folder)) {
+            foreach (var dir in await FileSystem.FileSystemProvider.GetDirectoriesAsync(folder)) {
                 string dirName = Path.GetFileName(dir).ToLower();
                 bool copy = true;
                 if (excludeFolders != null) {
@@ -155,7 +161,7 @@ namespace YetaWF.Core.Packages {
                     }
                 }
                 if (copy)
-                    AddFiles(list, dir, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
+                    await AddFilesAsync(list, dir, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
             }
         }
         /// <summary>
@@ -165,16 +171,16 @@ namespace YetaWF.Core.Packages {
         /// <param name="zipFile">The ZIP file.</param>
         /// <param name="sourceFiles">The full file name to process.</param>
         /// <remarks>Used to remove license validation code when distributing source code packages.</remarks>
-        private void ProcessSourceFiles(YetaWFZipFile zipFile, SerializableList<SerializableFile> sourceFiles) {
+        private async Task ProcessSourceFilesAsync(YetaWFZipFile zipFile, SerializableList<SerializableFile> sourceFiles) {
             foreach (var sourceFile in sourceFiles) {
-                string text = File.ReadAllText(sourceFile.AbsFileName);
+                string text = await FileSystem.FileSystemProvider.ReadAllTextAsync(sourceFile.AbsFileName);
                 string newText = ProcessCs(sourceFile, text);
                 newText = ProcessCsProj(sourceFile, newText);
                 // if there were changes, replace the real file with a temp file/new contents
                 if (text != newText) {
                     string tempFile = Path.GetTempFileName();
-                    File.Delete(tempFile);
-                    File.WriteAllText(tempFile, newText);
+                    await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+                    await FileSystem.TempFileSystemProvider.WriteAllTextAsync(tempFile, newText);
                     sourceFile.ReplaceAbsFileName(tempFile);
                     zipFile.TempFiles.Add(tempFile);
                 }

@@ -16,9 +16,8 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons {
 
     public class VersionManagerStartup : IInitializeApplicationStartup {
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
-            VersionManager.RegisterAllAddOns();
-            return Task.CompletedTask;
+        public async Task InitializeApplicationStartupAsync() {
+            await VersionManager.RegisterAllAddOnsAsync();
         }
     }
 
@@ -435,13 +434,13 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Locates all addons and registers them at application startup.
         /// </summary>
-        public static void RegisterAllAddOns() {
+        public static async Task RegisterAllAddOnsAsync() {
 
             Logging.AddLog("Locating addons");
 
-            if (!File.Exists(AddOnsFolder)) {
+            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(AddOnsFolder)) {
                 Logging.AddLog("Creating addons folder {0}", AddOnsFolder);
-                Directory.CreateDirectory(AddOnsFolder);
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(AddOnsFolder);
             }
 
             Products = new Dictionary<string, AddOnProduct>();
@@ -454,68 +453,68 @@ namespace YetaWF.Core.Addons {
                 if (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage) {
                     string addonsPath = Path.Combine(AddOnsFolder, package.Domain);
                     string addonsProductPath = Path.Combine(addonsPath, package.Product);
-                    if (!Directory.Exists(addonsPath))
-                        Directory.CreateDirectory(addonsPath);
-                    if (package.HasSource) {
+                    if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsPath))
+                        await FileSystem.FileSystemProvider.CreateDirectoryAsync(addonsPath);
+                    if (await package.GetHasSourceAsync()) {
                         // Make a symlink to the addons for this package
                         {
                             // Make a symlink to the source code for the addons of this package
                             // make sure it's symlink not regular folder (which can occur when upgrading from bin to source package)
                             string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
-                            if (!Directory.Exists(addonsProductPath) || !Package.IsPackageSymLink(addonsProductPath)) {
-                                DirectoryIO.DeleteFolder(addonsProductPath);
-                                if (!Package.CreatePackageSymLink(addonsProductPath, to))
+                            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsProductPath) || !await Package.IsPackageSymLinkAsync(addonsProductPath)) {
+                                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(addonsProductPath);
+                                if (!await Package.CreatePackageSymLinkAsync(addonsProductPath, to))
                                     throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                             }
                         }
                         // Make a symlink to the views for this package
                         {
                             string to = Path.Combine(package.PackageSourceRoot, Globals.ViewsFolder);
-                            if (Directory.Exists(to)) {// skins and some modules don't have views
+                            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(to)) {// skins and some modules don't have views
                                 string viewsPath = Path.Combine(AreasFolder, package.AreaName);
-                                if (!Directory.Exists(viewsPath))
-                                    Directory.CreateDirectory(viewsPath);
+                                if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath))
+                                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(viewsPath);
                                 viewsPath = Path.Combine(viewsPath, Globals.ViewsFolder);
-                                if (!Directory.Exists(viewsPath) || !Package.IsPackageSymLink(viewsPath)) {
-                                    DirectoryIO.DeleteFolder(viewsPath);
-                                    if (!Package.CreatePackageSymLink(viewsPath, to))
+                                if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath) || !await Package.IsPackageSymLinkAsync(viewsPath)) {
+                                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
+                                    if (!await Package.CreatePackageSymLinkAsync(viewsPath, to))
                                         throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
                                 }
                             } else {
                                 // remove any symlinks that may point to a Views folder in source that no longer exists
                                 string viewsPath = Path.Combine(AreasFolder, package.AreaName, Globals.ViewsFolder);
-                                DirectoryIO.DeleteFolder(viewsPath);
+                                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
                             }
                         }
                     } else {
                         // no source
                     }
                     Logging.AddLog("Searching {0} for addon files", addonsProductPath);
-                    RegisterAllProducts(package, addonsProductPath);
+                    await RegisterAllProductsAsync(package, addonsProductPath);
                 }
             }
 
             Logging.AddLog("Completed locating addons");
         }
 
-        private static void RegisterAllProducts(Package package, string asmFolder) {
+        private static async Task RegisterAllProductsAsync(Package package, string asmFolder) {
             // find all addons for this package
-            string[] addonFolders = Directory.GetDirectories(asmFolder);
+            List<string> addonFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var folder in addonFolders) {
                 string directoryName = Path.GetFileName(folder);
                 if (string.Compare(directoryName, "_Main", true) == 0) {
                     // main module addon (for all modules in this assembly
-                    RegisterPackageAddon(package, folder);
+                    await RegisterPackageAddonAsync(package, folder);
                 } else if (string.Compare(directoryName, "_Templates", true) == 0) {
-                    RegisterTemplates(package, folder);
+                    await RegisterTemplatesAsync(package, folder);
                 } else if (string.Compare(directoryName, "_Addons", true) == 0) {
-                    RegisterAddons(package, folder);
+                    await RegisterAddonsAsync(package, folder);
                 } else if (string.Compare(directoryName, "_Skins", true) == 0) {
-                    RegisterSkins(package, folder);
+                    await RegisterSkinsAsync(package, folder);
                 } else if (string.Compare(directoryName, Globals.GlobalJavaScript, true) == 0) {
-                    RegisterGlobalAddons(package, folder);
+                    await RegisterGlobalAddonsAsync(package, folder);
                 } else if (string.Compare(directoryName, "_SiteTemplates", true) == 0) {
-                    CopySiteTemplates(folder);
+                    await CopySiteTemplatesAsync(folder);
                 } else if (directoryName.StartsWith("_")) {
                     // reserved for future use and 3rd party
                 } else {
@@ -524,8 +523,8 @@ namespace YetaWF.Core.Addons {
             }
         }
 
-        private static void CopySiteTemplates(string folder) {
-            List<string> files = Directory.GetFiles(folder, "*.txt").ToList();
+        private static async Task CopySiteTemplatesAsync(string folder) {
+            List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.txt");
             string rootFolder;
 #if MVC6
             rootFolder = YetaWFManager.RootFolderWebProject;
@@ -535,34 +534,34 @@ namespace YetaWF.Core.Addons {
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
             foreach (string file in files) {
                 string newFile = Path.Combine(templateFolder, Path.GetFileName(file));
-                File.Copy(file, newFile, true);
+                await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
             }
         }
 
-        private static void RegisterSkins(Package package, string asmFolder) {
-            string[] addonFolders = Directory.GetDirectories(asmFolder);
+        private static async Task RegisterSkinsAsync(Package package, string asmFolder) {
+            List<string> addonFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var folder in addonFolders) {
                 string directoryName = Path.GetFileName(folder);
-                RegisterSkinAddon(package, folder, directoryName);
+                await RegisterSkinAddonAsync(package, folder, directoryName);
             }
         }
 
-        private static void RegisterAddons(Package package, string asmFolder) {
-            string[] addonFolders = Directory.GetDirectories(asmFolder);
+        private static async Task RegisterAddonsAsync(Package package, string asmFolder) {
+            List<string> addonFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var folder in addonFolders) {
                 string directoryName = Path.GetFileName(folder);
-                RegisterNamedAddon(package, folder, directoryName);
+                await RegisterNamedAddonAsync(package, folder, directoryName);
             }
         }
 
-        private static void RegisterGlobalAddons(Package package, string asmFolder) {
-            string[] domainFolders = Directory.GetDirectories(asmFolder);
+        private static async Task RegisterGlobalAddonsAsync(Package package, string asmFolder) {
+            List<string> domainFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var domainFolder in domainFolders) {
                 string domain = Path.GetFileName(domainFolder);
-                string[] productFolders = Directory.GetDirectories(domainFolder);
+                List<string> productFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(domainFolder);
                 foreach (var productFolder in productFolders) {
                     string product = Path.GetFileName(productFolder);
-                    string[] versionFolders = Directory.GetDirectories(productFolder);
+                    List<string> versionFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(productFolder);
                     foreach (var versionFolder in versionFolders) {
                         string versionNumber = Path.GetFileName(versionFolder);
                         if (versionNumber.StartsWith(NotUsedPrefix, StringComparison.InvariantCultureIgnoreCase))
@@ -576,35 +575,35 @@ namespace YetaWF.Core.Addons {
                             Version = versionNumber,
                             Url = YetaWFManager.PhysicalToUrl(versionFolder),
                         };
-                        AddFileLists(version, null, versionFolder);
+                        await AddFileListsAsync(version, null, versionFolder);
                         Products.Add(key, version);
                         Logging.AddLog("added {0} in {1}", version.AddonKey, versionFolder);
                     }
                 }
             }
         }
-        private static void RegisterTemplates(Package package, string asmFolder) {
-            string[] templateFolders = Directory.GetDirectories(asmFolder);
+        private static async Task RegisterTemplatesAsync(Package package, string asmFolder) {
+            List<string> templateFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var folder in templateFolders) {
                 string directoryName = Path.GetFileName(folder);
-                RegisterTemplateAddon(package, folder, directoryName);
+                await RegisterTemplateAddonAsync(package, folder, directoryName);
             }
         }
 
-        private static void RegisterTemplateAddon(Package package, string folder, string templateName) {
-            RegisterAnyAddon(AddOnType.Template, package, folder, templateName);
+        private static async Task RegisterTemplateAddonAsync(Package package, string folder, string templateName) {
+            await RegisterAnyAddonAsync(AddOnType.Template, package, folder, templateName);
         }
-        private static void RegisterNamedAddon(Package package, string folder, string addonName) {
-            RegisterAnyAddon(AddOnType.AddonNamed, package, folder, addonName);
+        private static async Task RegisterNamedAddonAsync(Package package, string folder, string addonName) {
+            await RegisterAnyAddonAsync(AddOnType.AddonNamed, package, folder, addonName);
         }
-        private static void RegisterPackageAddon(Package package, string folder) {
-            RegisterAnyAddon(AddOnType.Package, package, folder, "_Main");
+        private static async Task RegisterPackageAddonAsync(Package package, string folder) {
+            await RegisterAnyAddonAsync(AddOnType.Package, package, folder, "_Main");
         }
-        private static void RegisterSkinAddon(Package package, string folder, string skin) {
-            RegisterAnyAddon(AddOnType.Skin, package, folder, skin);
+        private static async Task RegisterSkinAddonAsync(Package package, string folder, string skin) {
+            await RegisterAnyAddonAsync(AddOnType.Skin, package, folder, skin);
         }
 
-        private static void RegisterAnyAddon(AddOnType type, Package package, string folder, string name) {
+        private static async Task RegisterAnyAddonAsync(AddOnType type, Package package, string folder, string name) {
             string key = AddOnProduct.MakeAddOnKey(type, package, name);
             if (Products.ContainsKey(key))
                 throw new InternalError("Key {0} already exists for {1}.{2}", key, package.Domain, package.Product);
@@ -616,25 +615,26 @@ namespace YetaWF.Core.Addons {
                 Version = null,
                 Url = YetaWFManager.PhysicalToUrl(folder),
             };
-            AddFileLists(version, package, folder);
+            await AddFileListsAsync(version, package, folder);
             Products.Add(key, version);
             Logging.AddLog("added {0} in {1}", version.AddonKey, folder);
         }
 
-        private static void AddFileLists(AddOnProduct version, Package package, string folder) {
-            string filePath;
-            version.JsFiles = ReadFile(version, Path.Combine(folder, Globals.Addons_JSFileList), out filePath);
-            version.JsPath = filePath;
-            version.CssFiles = ReadFile(version, Path.Combine(folder, Globals.Addons_CSSFileList), out filePath);
-            version.CssPath = filePath;
-            version.SupportTypes = ReadSupportFile(version, package, folder);
+        private static async Task AddFileListsAsync(AddOnProduct version, Package package, string folder) {
+            ReadFileInfo info = await ReadFileAsync(version, Path.Combine(folder, Globals.Addons_JSFileList));
+            version.JsFiles = info.Lines;
+            version.JsPath = info.Files;
+            info = await ReadFileAsync(version, Path.Combine(folder, Globals.Addons_CSSFileList));
+            version.CssFiles = info.Lines;
+            version.CssPath = info.Files;
+            version.SupportTypes = await ReadSupportFileAsync(version, package, folder);
             if (version.Type == AddOnType.Skin) {
                 SkinAccess skinAccess = new SkinAccess();
-                version.SkinInfo = skinAccess.ParseSkinFile(version.Domain, version.Product, Path.GetFileName(folder), folder);
+                version.SkinInfo = await skinAccess.ParseSkinFileAsync(version.Domain, version.Product, Path.GetFileName(folder), folder);
             }
         }
 
-        private static List<Type> ReadSupportFile(AddOnProduct version, Package package, string folder) {
+        private static async Task<List<Type>> ReadSupportFileAsync(AddOnProduct version, Package package, string folder) {
 
             List<Type> types = new List<Type>();
 
@@ -672,8 +672,8 @@ namespace YetaWF.Core.Addons {
             string file = Path.Combine(folder, Globals.Addons_SupportFileList);
 
             // also add explicitly defined support types
-            if (!File.Exists(file)) return types;
-            List<string> lines = File.ReadLines(file).ToList<string>();
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) return types;
+            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
             foreach (var line in lines) {
                 if (!string.IsNullOrWhiteSpace(line)) {
                     Type type = Type.GetType(line);
@@ -687,7 +687,7 @@ namespace YetaWF.Core.Addons {
                         throw new InternalError("No IAddOnSupport interface found on type {0} found in file {1}", line, file);
                     if (type == dynType)
                         Logging.AddErrorLog("Dynamic type {0} is also added explicitly", type.FullName);
-                        //  throw new InternalError("Dynamic type {0} is also added explicitly", type.FullName);
+                    //  throw new InternalError("Dynamic type {0} is also added explicitly", type.FullName);
                     types.Add(type);
                     Logging.AddLog("Addon support explicitly added for {0}", type.FullName);
                 }
@@ -695,12 +695,17 @@ namespace YetaWF.Core.Addons {
             return types;
         }
 
-        private static List<string> ReadFile(AddOnProduct version, string file, out string filePath) {
-            filePath = "";
+        private class ReadFileInfo {
+            public string Files { get; set; }
+            public List<string> Lines { get; set; }
+        }
+
+        private static async Task<ReadFileInfo> ReadFileAsync(AddOnProduct version, string file) {
+            string filePath = "";
             List<string> lines = new List<string>();
-            if (File.Exists(file)) {
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(file)) {
                 Logging.AddLog("Found {0}", file);
-                lines = File.ReadLines(file).ToList<string>();
+                lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
                 // remove MVC5/MVC6 lines that don't match current version
 #if MVC6
                 lines = (from l in lines where !l.StartsWith("MVC5 ") select l).ToList();
@@ -725,7 +730,10 @@ namespace YetaWF.Core.Addons {
                 }
                 lines = (from l in lines where !l.StartsWith("#") && !l.StartsWith("Folder ") && !string.IsNullOrWhiteSpace(l) select l.Trim()).ToList();
             }
-            return lines;
+            return new ReadFileInfo {
+                Lines = lines,
+                Files = filePath,
+            };
         }
     }
 }

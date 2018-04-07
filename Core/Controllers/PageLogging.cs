@@ -14,7 +14,7 @@ namespace YetaWF.Core.Controllers {
         private static List<Func<string, bool, Task>> Callbacks { get; set; }
 
         public static void RegisterCallback(Func<string, bool, Task> callback) {
-            lock (_lockObject) { // used durign startup to sync registrations
+            lock (_lockObject) { // used during startup to sync registrations
                 if (Callbacks == null) Callbacks = new List<Func<string, bool, Task>>();
                 if (!Callbacks.Contains(callback))
                     Callbacks.Add(callback);

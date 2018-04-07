@@ -74,7 +74,7 @@ namespace YetaWF.Core.Views.Shared {
             if (copy) {
                 await Manager.AddOnManager.AddAddOnGlobalAsync("clipboardjs.com", "clipboard");// add clipboard support
                 SkinImages skinImages = new SkinImages();
-                string imageUrl = skinImages.FindIcon_Template("Copy.png", YetaWF.Core.Controllers.AreaRegistration.CurrentPackage, "Text");
+                string imageUrl = await skinImages.FindIcon_TemplateAsync("Copy.png", YetaWF.Core.Controllers.AreaRegistration.CurrentPackage, "Text");
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, title: __ResStr("ttCopy", "Copy to Clipboard"), alt: __ResStr("altCopy", "Copy to Clipboard"));
                 tagImg.AddCssClass("yt_text_copy");
                 hb.Append(tagImg.ToString(TagRenderMode.StartTag));
@@ -82,7 +82,7 @@ namespace YetaWF.Core.Views.Shared {
 
             //if (!string.IsNullOrWhiteSpace(mask)) {
             //    // if there is a Mask we need to use the KendoMaskedTextBox
-            //    Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
+            //    await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.maskedtextbox.min.js");
             //    ScriptBuilder sb = new ScriptBuilder();
             //    sb.Append("$('#{0}').kendoMaskedTextBox({{ mask: '{1}' }});\n", id, YetaWFManager.JserEncode(mask));
             //    Manager.ScriptManager.AddLastDocumentReady(sb);
@@ -95,7 +95,7 @@ namespace YetaWF.Core.Views.Shared {
         public static async Task<HtmlString> RenderTextBoxDisplayAsync(this HtmlHelper htmlHelper, string name, string text, int dummy = 0, object HtmlAttributes = null) {
 #endif
             await Manager.AddOnManager.AddTemplateAsync("Text");
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.maskedtextbox.min.js");
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.maskedtextbox.min.js");
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -117,7 +117,7 @@ namespace YetaWF.Core.Views.Shared {
             if (copy) {
                 await Manager.AddOnManager.AddAddOnGlobalAsync("clipboardjs.com", "clipboard");// add clipboard support
                 SkinImages skinImages = new SkinImages();
-                string imageUrl = skinImages.FindIcon_Template("Copy.png", YetaWF.Core.Controllers.AreaRegistration.CurrentPackage, "Text");
+                string imageUrl = await skinImages.FindIcon_TemplateAsync("Copy.png", YetaWF.Core.Controllers.AreaRegistration.CurrentPackage, "Text");
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, title: __ResStr("ttCopy", "Copy to Clipboard"), alt: __ResStr("altCopy", "Copy to Clipboard"));
                 tagImg.AddCssClass("yt_text_copy");
                 hb.Append(tagImg.ToString(TagRenderMode.StartTag));

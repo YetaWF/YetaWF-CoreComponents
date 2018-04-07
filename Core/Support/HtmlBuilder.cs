@@ -1,6 +1,8 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Text;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using System.Text.Encodings.Web;
@@ -56,6 +58,10 @@ namespace YetaWF.Core.Support {
         }
         public void Remove(int startIndex, int length) {
             _hb.Remove(startIndex, length);
+        }
+
+        public void Append(Task<HtmlString> task) {
+            throw new NotImplementedException();
         }
     }
 }

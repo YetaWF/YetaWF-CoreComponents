@@ -120,6 +120,7 @@ namespace YetaWF.Core.Support.Serializers {
             fmt.Serialize(fs, obj);
         }
         public byte[] Serialize(object obj) {
+            if (obj == null) return new byte[] { };
             IFormatter fmt = null;
             if (Format == Style.Xml) {
                 fmt = new TextFormatter();

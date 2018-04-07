@@ -88,7 +88,7 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Initialization executed during application startup.
         /// </summary>
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public Task InitializeApplicationStartupAsync() {
             Packages = new List<Package>();
             Modules = new ModuleTypesDictionary();
             AddInstalledModules();

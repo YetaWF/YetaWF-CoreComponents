@@ -18,6 +18,7 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Search;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Routing;
@@ -296,6 +297,8 @@ namespace YetaWF.Core.Modules {
         [DontSave]
         public static Func<Guid, Task<bool>> RemoveModuleDefinitionAsync { get; set; }
         [DontSave]
+        public static Func<Guid, Task<ILockObject>> LockModuleAsync { get; set; }
+        [DontSave]
         public static Func<ModuleBrowseInfo, Task> GetModulesAsync { get; set; }
         public class ModuleBrowseInfo {
             public int Skip { get; set; }
@@ -377,12 +380,12 @@ namespace YetaWF.Core.Modules {
             if (Temporary) throw new InternalError("Temporary modules cannot be saved");
             await SaveModuleDefinitionAsync(this, DataProvider);
             List<PageDefinition> pages = await PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
-            YetaWFManager.Manager.StaticPageManager.RemovePages(pages);
+            await YetaWFManager.Manager.StaticPageManager.RemovePagesAsync(pages);
         }
         // Used to update properties before a module is saved
-        public virtual void ModuleSaving() { }
+        public virtual Task ModuleSavingAsync() { return Task.CompletedTask; }
         // Used to act before a module is removed
-        public virtual void ModuleRemoving() { }
+        public virtual Task ModuleRemovingAsync() { return Task.CompletedTask; }
 
         /// <summary>
         /// Creates a new designed module. Remember to set the ModuleGuid property after creating the module.
@@ -580,6 +583,11 @@ namespace YetaWF.Core.Modules {
             return moduleActions;
         }
 
+        protected async Task<string> CustomIconAsync(string iconName) {
+            SkinImages skinImg = new SkinImages();
+            return await skinImg.FindIcon_PackageAsync(iconName, Package.GetCurrentPackage(this));
+        }
+
         // RENDERING
         // RENDERING
         // RENDERING
@@ -607,7 +615,7 @@ namespace YetaWF.Core.Modules {
             RouteValueDictionary rvd = new RouteValueDictionary();
             rvd.Add(Globals.RVD_ModuleDefinition, this);
 
-            string moduleHtml;
+            string moduleHtml = null;
             try {
 #if MVC6
                 if (!string.IsNullOrEmpty(Area))
@@ -615,11 +623,12 @@ namespace YetaWF.Core.Modules {
                 else
                     moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
-                using (new YetaWFManager.NeedSync()) { 
+                YetaWFManager.Syncify(() => {
                     if (!string.IsNullOrEmpty(Area))
                         rvd.Add("Area", Area);
                     moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-                }
+                    return Task.CompletedTask;
+                });
 #endif
             } catch (Exception exc) {
                 // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
@@ -704,18 +713,19 @@ namespace YetaWF.Core.Modules {
             RouteValueDictionary rvd = new RouteValueDictionary();
             rvd.Add(Globals.RVD_ModuleDefinition, this);
 
-            string moduleHtml;
+            string moduleHtml = null;
 #if MVC6
             if (!string.IsNullOrEmpty(Area))
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
             else
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
-            using (new YetaWFManager.NeedSync()) {
+            YetaWFManager.Syncify(() => {
                 if (!string.IsNullOrEmpty(Area))
                     rvd.Add("Area", Area);
                 moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-            }
+                return Task.CompletedTask;
+            });
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)

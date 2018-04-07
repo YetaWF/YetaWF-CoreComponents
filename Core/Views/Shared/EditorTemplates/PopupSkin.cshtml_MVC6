@@ -5,11 +5,11 @@
 <div id='@ControlId' class='yt_popupskin t_edit'>
     @Html.RenderHidden("AjaxUrl", YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.SkinHelperController), "GetPopupPageSkins"))
     <div class="t_collection">
-        @Html.ExtLabelFor(m => Model.Collection)
+        @await Html.ExtLabelForAsync(m => Model.Collection)
         @await Html.RenderSkinCollectionAsync("Collection", Model.Collection)
     </div>
     <div class="t_skin">
-        @Html.ExtLabelFor(m => Model.FileName)
+        @await Html.ExtLabelForAsync(m => Model.FileName)
         @await Html.RenderPopupSkinsForCollectionAsync("FileName", Model.FileName, Model.Collection)
     </div>
 </div>

@@ -639,7 +639,7 @@ namespace YetaWF.Core.Controllers
                         Manager.ScriptManager.AddLastDocumentReady(Script);
 
                     // add generated scripts
-                    string js = Manager.ScriptManager.RenderAjax().ToString();
+                    string js = (await Manager.ScriptManager.RenderAjaxAsync()).ToString();
                     if (string.IsNullOrWhiteSpace(js))
                         js = "";
 

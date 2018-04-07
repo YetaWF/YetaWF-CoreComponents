@@ -11,6 +11,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -32,32 +33,32 @@ namespace YetaWF.Core.Views.Shared {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
-        public static HtmlString ExtLabelFor<TModel, TValue>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static async Task<HtmlString> ExtLabelForAsync<TModel, TValue>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
             ModelExplorer modelExplorer = ExpressionMetadataProvider.FromLambdaExpression(expression, htmlHelper.ViewData, htmlHelper.MetadataProvider);
             ModelMetadata metadata = modelExplorer.Metadata;
 #else
-        public static HtmlString ExtLabelFor<TModel, TValue>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
+        public static async Task<HtmlString> ExtLabelForAsync<TModel, TValue>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TValue>> expression, string htmlFieldName = null, int dummy = 0, object HtmlAttributes = null, bool ShowVariable = false, string Caption = null) {
             ModelMetadata metadata = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData);
 #endif
             if (string.IsNullOrWhiteSpace(htmlFieldName))
                 htmlFieldName = ExpressionHelper.GetExpressionText(expression);
-            return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
+            return await ExtLabelHelperAsync(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes), ShowVariable: ShowVariable, Caption: Caption);
         }
 #if MVC6
-        public static HtmlString ExtLabel(this IHtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null, bool SuppressIfEmpty = false) {
+        public static async Task<HtmlString> ExtLabelAsync(this IHtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null, bool SuppressIfEmpty = false) {
             ModelExplorer modelExplorer = ExpressionMetadataProvider.FromStringExpression(expression, htmlHelper.ViewData, htmlHelper.MetadataProvider);
             ModelMetadata metadata = modelExplorer.Metadata;
 #else
-        public static HtmlString ExtLabel(this HtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null, bool SuppressIfEmpty = false) {
+        public static async Task<HtmlString> ExtLabelAsync(this HtmlHelper htmlHelper, string expression, object htmlAttributes = null, bool ShowVariable = false, string Caption = null, bool SuppressIfEmpty = false) {
             ModelMetadata metadata = ModelMetadata.FromStringExpression(expression, htmlHelper.ViewData);
 #endif
             string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
-            return ExtLabelHelper(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(htmlAttributes), ShowVariable: ShowVariable, Caption: Caption, SuppressIfEmpty: SuppressIfEmpty);
+            return await ExtLabelHelperAsync(htmlHelper, metadata, htmlFieldName, null, FieldHelper.AnonymousObjectToHtmlAttributes(htmlAttributes), ShowVariable: ShowVariable, Caption: Caption, SuppressIfEmpty: SuppressIfEmpty);
         }
 #if MVC6
-        private static HtmlString ExtLabelHelper(IHtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null, bool SuppressIfEmpty = false)
+        private static async Task<HtmlString> ExtLabelHelperAsync(IHtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null, bool SuppressIfEmpty = false)
 #else
-        private static HtmlString ExtLabelHelper(HtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null, bool SuppressIfEmpty = false)
+        private static async Task<HtmlString> ExtLabelHelperAsync(HtmlHelper htmlHelper, ModelMetadata metadata, string htmlFieldName, string labelText, IDictionary<string, object> htmlAttributes = null, bool ShowVariable = false, string Caption = null, string Description = null, string HelpLink = null, bool SuppressIfEmpty = false)
 #endif
         {
             PropertyData propData = ObjectSupport.GetPropertyData(metadata.ContainerType, metadata.PropertyName);
@@ -92,7 +93,7 @@ namespace YetaWF.Core.Views.Shared {
                 tagA.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yt_extlabel_img"));
                 Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                 SkinImages skinImages = new SkinImages();
-                string imageUrl = skinImages.FindIcon_Template("HelpLink.png", currentPackage, "ExtLabel");
+                string imageUrl = await skinImages.FindIcon_TemplateAsync("HelpLink.png", currentPackage, "ExtLabel");
                 TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altHelp", "Help"));
                 tagA.SetInnerHtml(tagImg.ToString(TagRenderMode.StartTag));
                 sb.Append(tagA.ToString(TagRenderMode.Normal));

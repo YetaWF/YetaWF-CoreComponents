@@ -131,7 +131,7 @@ namespace YetaWF.Core.Modules {
             hb.Append(divTag.ToString(TagRenderMode.StartTag));
 
             SkinImages skinImages = new SkinImages();
-            string imageUrl = skinImages.FindIcon_Package("#ModuleMenu", Package.GetCurrentPackage(this));
+            string imageUrl = await skinImages.FindIcon_PackageAsync("#ModuleMenu", Package.GetCurrentPackage(this));
             TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("mmAlt", "Menu"));
             hb.Append(tagImg.ToString(TagRenderMode.StartTag));
 
@@ -149,8 +149,8 @@ namespace YetaWF.Core.Modules {
             // </div>
             hb.Append(divTag.ToString(TagRenderMode.EndTag));
 
-            //Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
-            Manager.ScriptManager.AddKendoUICoreJsFile("kendo.menu.min.js");
+            //await Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
+            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.menu.min.js");
 
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "ModuleMenu");
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Modules");// various module support
@@ -186,7 +186,7 @@ namespace YetaWF.Core.Modules {
         private async Task<MenuList> GetMoveToOtherPanesAsync(PageDefinition page, ModuleDefinition modServices) {
 
             MenuList menu = new MenuList();
-            foreach (var pane in page.Panes) {
+            foreach (var pane in await page.GetPanesAsync()) {
                 ModuleAction action = await modServices.GetModuleActionAsync("MoveToPane", page, this, Manager.PaneRendered, pane);
                 if (action != null)
                     menu.Add(action);

@@ -19,10 +19,9 @@ namespace YetaWF.Core.Support {
         // IInitializeApplicationStartup
 #if MVC6
 #else
-        public Task InitializeApplicationStartupAsync(bool firstNode) {
+        public async Task InitializeApplicationStartupAsync() {
             string rootFolder = YetaWFManager.RootFolder;
-            Init(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
-            return Task.CompletedTask;
+            await InitAsync(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
         }
 #endif
 
@@ -33,15 +32,16 @@ namespace YetaWF.Core.Support {
         public const string FlashUse = "FlashUse";
         public const string PackageUse = "PackageUse";
 #if MVC6
-        public void Init(string settingsFile)
+        public
 #else
-        private static void Init(string settingsFile) 
+        private
 #endif
-        {
-            if (!File.Exists(settingsFile))
+                Task InitAsync(string settingsFile) {
+            if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile));
+            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            return Task.CompletedTask;
         }
 
         private static string SettingsFile;

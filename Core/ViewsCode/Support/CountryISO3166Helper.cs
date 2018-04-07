@@ -10,6 +10,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,6 +25,11 @@ namespace YetaWF.Core.Views.Shared {
 
     public class CountryISO3166<TModel> : RazorTemplate<TModel> { }
 
+    public class CountryISO3166HelperStartup : IInitializeApplicationStartup {
+        public Task InitializeApplicationStartupAsync() {
+            return CountryISO3166Helper.ReadCountryListAsync();
+        }
+    }
     public static class CountryISO3166Helper {
 
         public class Country {
@@ -195,7 +201,7 @@ namespace YetaWF.Core.Views.Shared {
         }
 
         private static List<Country> GetCountries(bool IncludeSiteCountry = true) {
-            List<Country> countries = ReadCountryList().OrderBy(m => m.Name).ToList();
+            List<Country> countries = CountryList.ToList();
             if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Country)) {
                 Country mainCountry = (from c in countries where c.Name == Manager.CurrentSite.Country select c).FirstOrDefault();
                 if (mainCountry != null) {
@@ -210,45 +216,42 @@ namespace YetaWF.Core.Views.Shared {
             }
             return countries;
         }
-        private static List<Country> ReadCountryList() {
-            if (_countryList == null) {
-                lock (_lockObject) { // short-term lock to build cached country list
-                    Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                    string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CountryISO3166");
-                    string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                    string path = YetaWFManager.UrlToPhysical(url);
-                    string customPath = YetaWFManager.UrlToPhysical(customUrl);
+        private static List<Country> CountryList { get; set; }
 
-                    string file = Path.Combine(path, "Countries.txt");
-                    string customFile = Path.Combine(customPath, "Countries.txt");
-                    if (File.Exists(customFile))
-                        file = customFile;
-                    else if (!File.Exists(file))
-                        throw new InternalError("File {0} not found", file);
+        internal static async Task ReadCountryListAsync() {
+            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+            string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CountryISO3166");
+            string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                    _countryList = new List<Country>();
+            string path = YetaWFManager.UrlToPhysical(url);
+            string customPath = YetaWFManager.UrlToPhysical(customUrl);
 
-                    string[] cts = File.ReadAllLines(file);
-                    foreach (var st in cts) {
-                        if (st.Trim().Length > 0) {
-                            string[] s = st.Trim().Split(new string[] { "+" }, 5, StringSplitOptions.RemoveEmptyEntries);
-                            if (s.Length < 4 || s.Length > 5)
-                                throw new InternalError("Invalid input in country list - {0} - {1}", st, file);
-                            _countryList.Add(new Country {
-                                Name = s[0],
-                                Id = s[1].ToUpper(),
-                                Id3 = s[2].ToUpper(),
-                                Number = s[3],
-                                AddressType = s.Length > 4 ? s[4] : Country.Generic,
-                            });
-                        }
-                    }
+            string file = Path.Combine(path, "Countries.txt");
+            string customFile = Path.Combine(customPath, "Countries.txt");
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(customFile))
+                file = customFile;
+            else if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                throw new InternalError("File {0} not found", file);
+
+            CountryList = new List<Country>();
+
+            List<string> cts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+            foreach (var st in cts) {
+                if (st.Trim().Length > 0) {
+                    string[] s = st.Trim().Split(new string[] { "+" }, 5, StringSplitOptions.RemoveEmptyEntries);
+                    if (s.Length < 4 || s.Length > 5)
+                        throw new InternalError("Invalid input in country list - {0} - {1}", st, file);
+                    CountryList.Add(new Country {
+                        Name = s[0],
+                        Id = s[1].ToUpper(),
+                        Id3 = s[2].ToUpper(),
+                        Number = s[3],
+                        AddressType = s.Length > 4 ? s[4] : Country.Generic,
+                    });
                 }
             }
-            return _countryList;
+            CountryList = CountryList.OrderBy(m => m.Name).ToList();
         }
-        private static object _lockObject = new object();
-        private static List<Country> _countryList = null;
     }
 }

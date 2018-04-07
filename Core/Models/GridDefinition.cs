@@ -106,7 +106,7 @@ namespace YetaWF.Core.Models {
         // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
         public string CachedSortCol { get; set; }
         public GridDefinition.SortBy CachedSortDir { get; set; }
-        public Dictionary<string, GridColumnInfo> CachedDict { get; set; }
+        public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
 
 
         // used by templates to communicate record # being rendered

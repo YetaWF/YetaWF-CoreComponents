@@ -4,93 +4,32 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Support.Serializers;
-
-#if MVC6
-using Microsoft.Extensions.Caching.Memory;
-#else
-#endif
-
 
 namespace YetaWF.Core.IO {
 
     /// <summary>
-    /// Implements file I/O - can only be used for folder retrieval
-    /// Supports caching.
+    /// Implements data file I/O - can only be used for retrieval of folder with data files.
     /// </summary>
-    public class FileData {
-        public FileData() { }
-        public string BaseFolder { get; set; } // The full path of the folder where the file(s) is/are stored
-        public string CacheKey { // Cache key used to cache the file
-            get { return string.Format("folder__{0}", BaseFolder); }
-        }
-        public string LockKey { // I/O lock used for the file
-            get { return "YetaWF##" + CacheKey; }
-        }
+    public static class DataFilesProvider {
 
-        private static string ValidChars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$^&()_-+={}[],.";
-        public const string FileExtension = ".dat";
-
-        public static string MakeValidFileName(string name) {
-            return MakeValidFileSystemFileName(name) + FileExtension;
-        }
-
-        public static string MakeValidFileSystemFileName(string name) {
-            StringBuilder sb = new StringBuilder();
-            foreach (var c in name) {
-                if (ValidChars.Contains(c))
-                    sb.Append(c);
-                else if (c == '%')
-                    sb.Append("%%");
-                else
-                    sb.Append(string.Format("%{0:x2}", (int)c));
-            }
-            return sb.ToString();
-        }
-
-        public static string ExtractNameFromFileName(string name) {
-            StringBuilder sb = new StringBuilder();
-            int total = name.Length;
-            if (name.EndsWith(FileExtension)) total -= FileExtension.Length;
-            for (int i = 0 ; i < total ; ++i) {
-                char c = name[i];
-                if (c == '%') {
-                    if (i + 1 < total && name[i + 1] == '%') {
-                        sb.Append('%');
-                        i += 1;
-                    } else if (i + 2 < total) {
-                        string hex = name.Substring(i + 1, 2);
-                        int value = (int) '*';
-                        try {
-                            value = Convert.ToInt32(hex, 16);
-                        } catch (Exception) { }
-                        sb.Append((char) value);
-                        i += 2;
-                    }
-                } else
-                    sb.Append(c);
-            }
-            return sb.ToString();
-        }
-
-        // Retrieves a list of all file names in the basefolder
-        public List<string> GetNames() {
+        // Retrieves a list of all file names in the base folder
+        public static async Task<List<string>> GetDataFileNamesAsync(string baseFolder) {
             List<string> files = new List<string>();
 #if DEBUG
-            if (Directory.Exists(BaseFolder)) {// avoid debug spam
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(baseFolder)) {// avoid debug spam
 #endif
                 try {
-                    files = Directory.GetFiles(BaseFolder).ToList<string>();
+                    files = await FileSystem.FileSystemProvider.GetFilesAsync(baseFolder);
                 } catch { }
 #if DEBUG
             }
 #endif
             List<string> names = new List<string>();
             foreach (var file in files) {
-                string name = ExtractNameFromFileName(Path.GetFileName(file));
+                string name = FileSystem.FileSystemProvider.ExtractNameFromDataFileName(Path.GetFileName(file));
                 names.Add(name);
             }
             return names;
@@ -100,63 +39,72 @@ namespace YetaWF.Core.IO {
         /// Removes all the files in the folder.
         /// Ignores any errors.
         /// </summary>
-        public void TryRemoveAll() {
-            StringLocks.DoAction(LockKey, () => {
-                Debug.Assert(!string.IsNullOrEmpty(BaseFolder));
-                if (Directory.Exists(BaseFolder))
-                    Directory.Delete(BaseFolder, true);
-            });
+        public static async Task RemoveAllDataFilesAsync(string baseFolder) {
+            Debug.Assert(!string.IsNullOrEmpty(baseFolder));
+            using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(baseFolder)) {
+                if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(baseFolder))
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(baseFolder);
+                await lockObject.UnlockAsync();
+            }
         }
     }
 
     /// <summary>
-    /// Implements file I/O for an object of type TObj.
-    /// Supports caching.
+    /// Implements data file I/O for an object of type TObj.
+    /// Supports shared caching.
     /// </summary>
     /// <typeparam name="TObj"></typeparam>
-    public class FileData<TObj> : CachedObject {
+    public class FileData<TObj> {
 
         public FileData() {
-#if DEBUG
-            Format = GeneralFormatter.Style.Simple; // the preferred format - change for debugging if desired
-#else
-            Format = GeneralFormatter.Style.Simple;
-#endif
+            Format = GeneralFormatter.Style.Simple; // the preferred format
         }
 
         public string BaseFolder { get; set; } // The full path of the folder where the file(s) is/are stored
         public string FileName { get; set; }
         public DateTime? Date { get; set; } // file save/load date
         public GeneralFormatter.Style Format { get; set; }
+        public bool Cacheable { get; set; }
         public string CacheKey { // Cache key used to cache the file
-            get { return string.Format("file__{0}_{1}", BaseFolder, FileName); }
-        }
-        public string LockKey { // I/O lock used for the file
-            get { return "YetaWF##" + CacheKey; }
+            get { return string.Format("folder__{0}", BaseFolder); }
         }
 
         /// <summary>
         /// Load a file, returns a new instance of the object.
         /// </summary>
         /// <returns></returns>
-        public TObj Load(bool SpecificType = false) {
+        public async Task<TObj> LoadAsync(bool SpecificType = false) {
             object data = null;
-            if (!GetObjectFromCache(CacheKey, out data)) {
+            GetObjectInfo<TObj> info = null;
+            if (Cacheable) {
+                using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                    info = await sharedCacheDP.GetAsync<TObj>(CacheKey);
+                }
+            }
+            if (info == null || !info.Success) {
                 FileIO<TObj> io = new FileIO<TObj> {
                     BaseFolder = BaseFolder,
                     FileName = FileName,
                     Data = data,
                     Format = Format,
                 };
-                StringLocks.DoAction(LockKey, () => {
-                    data = io.Load();
-                    if (data != null)
-                        AddObjectToCache(CacheKey, data);
-                });
+                if (Cacheable) {
+                    using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                        data = await io.LoadAsync();
+                        if (Cacheable) {
+                            using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                                await sharedCacheDP.AddAsync(CacheKey, data);
+                            }
+                        }
+                        await lockObject.UnlockAsync();
+                    }
+                } else {
+                    data = await io.LoadAsync();
+                }
                 Date = (data != null) ? io.Date : null;
             }
             if (SpecificType) {
-                if (typeof(TObj) == data.GetType())
+                if (data != null && typeof(TObj) == data.GetType())
                     return (TObj)data;
                 else
                     return default(TObj);
@@ -169,7 +117,7 @@ namespace YetaWF.Core.IO {
         /// </summary>
         /// <param name="data"></param>
         /// <param name="newKey"></param>
-        public UpdateStatusEnum UpdateFile(string newKey, TObj data) {
+        public async Task<UpdateStatusEnum> UpdateFileAsync(string newKey, TObj data) {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
@@ -187,34 +135,45 @@ namespace YetaWF.Core.IO {
                     Date = Date ?? DateTime.UtcNow,
                     Format = Format,
                 };
-                StringLocks.DoAction(LockKey, () => {
-                    if (ioNew.Exists()) {
-                        status = UpdateStatusEnum.NewKeyExists;
-                        return;
-                    }
-                    if (!io.Exists()) {
-                        status = UpdateStatusEnum.RecordDeleted;
-                        return;
-                    }
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                    if (await ioNew.ExistsAsync())
+                        return UpdateStatusEnum.NewKeyExists;
+                    if (!await io.ExistsAsync())
+                        return UpdateStatusEnum.RecordDeleted;
                     // delete the old file (incl. cache etc.)
-                    Remove();
+                    await RemoveAsync();
                     // save the new file
-                    ioNew.Save();
+                    await ioNew.SaveAsync();
                     FileName = newKey;
-                    AddObjectToCache(CacheKey, data);
+                    if (Cacheable) {
+                        using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                            await sharedCacheDP.AddAsync(CacheKey, data);
+                        }
+                    }
                     status = UpdateStatusEnum.OK;
-                });
+                    await lockObject.UnlockAsync();
+                }
             } else {
                 // Simple Save
-                StringLocks.DoAction(LockKey, () => {
-                    if (!io.Exists()) {
-                        status = UpdateStatusEnum.RecordDeleted;
-                        return;
+                if (Cacheable) {
+                    using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                        if (!await io.ExistsAsync()) {
+                            status = UpdateStatusEnum.RecordDeleted;
+                        } else {
+                            await io.SaveAsync();
+                            using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                                await sharedCacheDP.AddAsync(CacheKey, data);
+                            }
+                            status = UpdateStatusEnum.OK;
+                        }
+                        await lockObject.UnlockAsync();
                     }
-                    io.Save();
-                    AddObjectToCache(CacheKey, data);
-                    status = UpdateStatusEnum.OK;
-                });
+                } else {
+                    if (!await io.ExistsAsync())
+                        return UpdateStatusEnum.RecordDeleted;
+                    await io.SaveAsync();
+                    return UpdateStatusEnum.OK;
+                }
             }
             return status;
         }
@@ -222,7 +181,8 @@ namespace YetaWF.Core.IO {
         /// Add an new file object.
         /// </summary>
         /// <param name="data"></param>
-        public bool Add(TObj data) {
+        public async Task<bool> AddAsync(TObj data) {
+
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
@@ -231,59 +191,75 @@ namespace YetaWF.Core.IO {
                 Format = Format,
             };
             bool success = true;
-            StringLocks.DoAction(LockKey, () => {
-                success = io.Save(replace: false);
-                if (success)
-                    AddObjectToCache(CacheKey, data);
-            });
+            if (Cacheable) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                    success = await io.SaveAsync(replace: false);
+                    if (success) {
+                        using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                            await sharedCacheDP.AddAsync(CacheKey, data); // save locally cached version
+                        }
+                    }
+                    await lockObject.UnlockAsync();
+                }
+            } else {
+                success = await io.SaveAsync(replace: false);
+            }
             return success;
         }
         /// <summary>
         /// Remove the file. Fails if the file doesn't exist.
         /// </summary>
-        public void Remove() {
+        public async Task RemoveAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
                 Format = Format,
             };
-            StringLocks.DoAction(LockKey, () => {
-                io.Remove();
-                RemoveFromCache(CacheKey);
-            });
+            if (Cacheable) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                    await io.RemoveAsync();
+                    using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                        await sharedCacheDP.RemoveAsync<TObj>(CacheKey);
+                    }
+                    await lockObject.UnlockAsync();
+                }
+            } else {
+                await io.RemoveAsync();
+            }
         }
         /// <summary>
         /// Remove the file.
         /// </summary>
-        public bool TryRemove() {
+        public async Task<bool> TryRemoveAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
                 Format = Format,
             };
-            bool success = false;
-            StringLocks.DoAction(LockKey, () => {
-                io.TryRemove();
-                RemoveFromCache(CacheKey);
-                success = true;
-            });
-            return success;
+            if (Cacheable) {
+                using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
+                    await io.TryRemoveAsync();
+                    using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                        await sharedCacheDP.RemoveAsync<TObj>(CacheKey);
+                    }
+                    await lockObject.UnlockAsync();
+                }
+            } else {
+                await io.TryRemoveAsync();
+            }
+            return true;
         }
 
         /// <summary>
         /// Check if the file exists.
         /// </summary>
-        public bool Exists() {
+        public async Task<bool> ExistsAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
                 FileName = FileName,
                 Format = Format,
             };
-            bool success = false;
-            StringLocks.DoAction(LockKey, () => {
-                success = io.Exists();
-            });
-            return success;
+            return await io.ExistsAsync();
         }
     }
 }

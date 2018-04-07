@@ -28,7 +28,7 @@ namespace YetaWF.Core.Views.Shared {
 #endif
             // get all available skins
             SkinAccess skinAccess = new SkinAccess();
-            List<SelectionItem<string>> list = (from theme in skinAccess.GetKendoThemeList() select new SelectionItem<string>() {
+            List<SelectionItem<string>> list = (from theme in await skinAccess.GetKendoThemeListAsync() select new SelectionItem<string>() {
                 Text = theme.Name,
                 Tooltip = theme.Description,
                 Value = theme.Name,
@@ -42,7 +42,7 @@ namespace YetaWF.Core.Views.Shared {
                     Value = "",
                 });
             else if (selection == null)
-                selection = SkinAccess.GetKendoUIDefaultSkin();
+                selection = await SkinAccess.GetKendoUIDefaultSkinAsync();
 
             // display the skins in a drop down
             return await htmlHelper.RenderDropDownSelectionListAsync(name, selection, list, HtmlAttributes: HtmlAttributes);

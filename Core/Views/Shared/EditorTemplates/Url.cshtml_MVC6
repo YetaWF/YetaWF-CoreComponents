@@ -18,7 +18,7 @@
         </div>
     }
     <div class="t_link">
-        @Html.RenderUrlLinkAndImage(Model)
+        @await Html.RenderUrlLinkAndImageAsync(Model)
     </div>
 </div>
 <script>
