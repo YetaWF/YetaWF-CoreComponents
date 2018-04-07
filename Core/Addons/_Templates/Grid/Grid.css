@@ -22,9 +22,11 @@
 }
 
 /* highlighted row (with bool __highlight property) */
-
 .yHighlightGridRow td {
     background-color: silver;
+}
+.yLowlightGridRow td {
+    background-color: ghostwhite;
 }
 
 /* starting with jquery-ui 1.12, sort indicators are oddly positioned */

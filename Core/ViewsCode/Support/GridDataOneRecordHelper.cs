@@ -93,6 +93,9 @@ namespace YetaWF.Core.Views.Shared {
                     if (prop.Name == "__highlight") {
                         // check whether the record supports a special "__highlight" property
                         hb.Append("\"{0}\"", prop.Value is bool && (bool)prop.Value == true ? YetaWFManager.JserEncode("<div class='yHighlightGridRow'/>") : "");
+                    } else if (prop.Name == "__lowlight") {
+                        // check whether the record supports a special "__lowlight" property
+                        hb.Append("\"{0}\"", prop.Value is bool && (bool)prop.Value == true ? YetaWFManager.JserEncode("<div class='yLowlightGridRow'/>") : "");
                     } else {
 #if MVC6
                         string oldPrefix = htmlHelper.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;

@@ -43,13 +43,23 @@ namespace YetaWF.Core.Audit {
             bool RequiresRestart = false, bool ExpensiveMultiInstance = false,
             object DataBefore = null, object DataAfter = null) {
 
+            if (AuditProvider == null) return;
+
             string changes = null;
             if (DataBefore != null && DataAfter != null) {
                 List<ObjectSupport.ChangedProperty> list = ObjectSupport.ModelChanges(DataBefore, DataAfter);                    
                 changes = string.Join(",", (from l in list select $"{l.Name}={l.Value}"));
+                if (!RequiresRestart) {
+                    ObjectSupport.ModelDisposition modelDisp = ObjectSupport.EvaluateModelChanges(DataBefore, DataAfter);
+                    switch (modelDisp) {
+                        case ObjectSupport.ModelDisposition.SiteRestart:
+                            RequiresRestart = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
-
-            if (AuditProvider == null) return;
 
             int siteIdentity = 0, userId = 0;
             if (YetaWFManager.HaveManager) {
