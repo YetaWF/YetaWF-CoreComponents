@@ -29,6 +29,7 @@ namespace YetaWF.Core.Support {
         private const string MULTIINSTANCESTARTTIMEKEY = "__MultiInstanceStartTime";
 
         public static DateTime MultiInstanceStartTime { get; private set; }
+        public static bool RestartPending { get; set; }
 
         /// <summary>
         /// Defines whether this is a multi-instance site (i.e., web farm, web garden) using cache sharing/file system sharing.

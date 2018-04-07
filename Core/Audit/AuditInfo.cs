@@ -13,7 +13,7 @@ namespace YetaWF.Core.Audit {
     public interface IAudit {
         Task AddAsync(AuditInfo info);
         Task RemoveAllAsync();
-        Task<bool> HasItemsAsync();
+        Task<bool> HasPendingRestartAsync();
     }
 
     public class AuditInfo {
@@ -40,25 +40,30 @@ namespace YetaWF.Core.Audit {
         public static bool Active { get { return AuditProvider != null; } }
 
         public static async Task AddAuditAsync(string action, string idString, Guid idGuid, string description, int dummy = 0,
+
             bool RequiresRestart = false, bool ExpensiveMultiInstance = false,
             object DataBefore = null, object DataAfter = null) {
 
-            if (AuditProvider == null) return;
-
-            string changes = null;
             if (DataBefore != null && DataAfter != null) {
-                List<ObjectSupport.ChangedProperty> list = ObjectSupport.ModelChanges(DataBefore, DataAfter);                    
-                changes = string.Join(",", (from l in list select $"{l.Name}={l.Value}"));
                 if (!RequiresRestart) {
                     ObjectSupport.ModelDisposition modelDisp = ObjectSupport.EvaluateModelChanges(DataBefore, DataAfter);
                     switch (modelDisp) {
                         case ObjectSupport.ModelDisposition.SiteRestart:
                             RequiresRestart = true;
+                            YetaWF.Core.Support.Startup.RestartPending = RequiresRestart;
                             break;
                         default:
                             break;
                     }
                 }
+            }
+
+            if (AuditProvider == null) return;
+
+            string changes = null;
+            if (DataBefore != null && DataAfter != null) {
+                List<ObjectSupport.ChangedProperty> list = ObjectSupport.ModelChanges(DataBefore, DataAfter);
+                changes = string.Join(",", (from l in list select $"{l.Name}={l.Value}"));
             }
 
             int siteIdentity = 0, userId = 0;
