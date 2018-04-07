@@ -65,9 +65,13 @@ namespace YetaWF.Core.Pages {
                 string BUNDLEKEY = $"__FileBundles_{YetaWFManager.Manager.CurrentSite.Identity}";
 
                 using (ILockObject bundleLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(BUNDLEKEY)) {
-                    using (ICacheStaticDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                        SerializableList<Bundle> bundles = await cacheStaticDP.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);
-                        if (bundles == null) bundles = new SerializableList<Bundle>();
+                    using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                        SerializableList<Bundle> bundles;
+                        GetObjectInfo<SerializableList<Bundle>> info = await cacheStaticDP.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);
+                        if (info.Success)
+                            bundles = info.Data;
+                        else
+                            bundles = new SerializableList<Bundle>();
                         Bundle bundle = (from b in bundles where b.BundleName == bundleName select b).FirstOrDefault();
                         if (bundle == null || startLength != bundle.StartLength) {
                             // make a new temp file combining all files in the list

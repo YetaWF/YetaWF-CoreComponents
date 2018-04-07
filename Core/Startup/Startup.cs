@@ -82,12 +82,12 @@ namespace YetaWF.Core.Support {
                 MultiInstanceStartTime = DateTime.UtcNow;
                 if (!firstNode) {
                     // read the startup info object and make sure there was a first node
-                    using (ICacheStaticDataProvider staticCacheDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                        StartupInfoObject startupInfo = await staticCacheDP.GetAsync<StartupInfoObject>(MULTIINSTANCESTARTTIMEKEY);
-                        if (startupInfo == null)
+                    using (ICacheDataProvider staticCacheDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                        GetObjectInfo<StartupInfoObject> info = await staticCacheDP.GetAsync<StartupInfoObject>(MULTIINSTANCESTARTTIMEKEY);
+                        if (!info.Success)
                             firstNode = true;
                         else
-                            MultiInstanceStartTime = startupInfo.MultiInstanceStartTime;
+                            MultiInstanceStartTime = info.Data.MultiInstanceStartTime;
                     }
                 }
 
@@ -115,7 +115,7 @@ namespace YetaWF.Core.Support {
                     StartupInfoObject startTime = new Support.Startup.StartupInfoObject() {
                         MultiInstanceStartTime = MultiInstanceStartTime,
                     };
-                    using (ICacheStaticDataProvider staticCacheDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                    using (ICacheDataProvider staticCacheDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                         await staticCacheDP.AddAsync(MULTIINSTANCESTARTTIMEKEY, startTime);
                     }
                 }
