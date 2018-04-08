@@ -354,7 +354,7 @@ namespace YetaWF.Core.Site {
         [Category("Variables"), Caption("FavIcon Html"), Description("The Html used for the icon representing this site")]
         public string FavIconLink {
             get {
-                return GetFavIconLinks(FavIcon_Data, FavIcon, FavIconLrg_Data, FavIconLrg);
+                return GetFavIconLinks(ImageType, FavIcon_Data, FavIcon, LargeImageType, FavIconLrg_Data, FavIconLrg);
             }
         }
         [Category("Site"), Caption("Country"), Description("The country where you/your company is located")]

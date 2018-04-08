@@ -32,9 +32,9 @@ namespace YetaWF.Core.Controllers.Shared {
         [AllowPost]
         [ResourceAuthorize(CoreInfo.Resource_UploadImages)]
 #if MVC6
-        public async Task<ActionResult> SaveImageAsync(IFormFile __filename, string __lastInternalName) {
+        public async Task<ActionResult> SaveImage(IFormFile __filename, string __lastInternalName) {
 #else
-        public async Task<ActionResult> SaveImageAsync(HttpPostedFileBase __filename, string __lastInternalName) {
+        public async Task<ActionResult> SaveImage(HttpPostedFileBase __filename, string __lastInternalName) {
 #endif
             FileUpload upload = new FileUpload();
             string tempName = await upload.StoreTempImageFileAsync(__filename);

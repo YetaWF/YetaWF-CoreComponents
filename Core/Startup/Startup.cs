@@ -123,6 +123,13 @@ namespace YetaWF.Core.Support {
 
                 await YetaWF.Core.IO.FileSystem.FileSystemProvider.DeleteFileAsync(file);
                 await lockObject.UnlockAsync();
+
+                await YetaWF.Core.Audit.Auditing.AddAuditAsync($"{nameof(Startup)}.{nameof(CallStartupClassesAsync)}",
+                    firstNode ? "Site Start First Node" : "Site Start", 
+                    Guid.Empty,
+                    firstNode ? "Site Started (all instanced)" : "Site Started",
+                    ExpensiveMultiInstance: true
+                );
             }
             Logging.AddLog("Processing IInitializeApplicationStartup Ended");
         }

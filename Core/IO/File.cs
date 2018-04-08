@@ -108,6 +108,8 @@ namespace YetaWF.Core.IO {
                     return (TObj)data;
                 else
                     return default(TObj);
+            } else {
+                data = info.Data;
             }
             return (TObj)data;
         }

@@ -729,7 +729,7 @@ namespace YetaWF.Core.Pages {
 
         public string FavIconLink {
             get {
-                return Manager.CurrentSite.GetFavIconLinks(FavIcon_Data, FavIcon, null, null);// no support for large icons
+                return Manager.CurrentSite.GetFavIconLinks(ImageType, FavIcon_Data, FavIcon, null, null, null);// no support for large icons
             }
         }
 
