@@ -102,14 +102,14 @@ namespace YetaWF.Core.IO {
                     data = await io.LoadAsync();
                 }
                 Date = (data != null) ? io.Date : null;
+            } else {
+                data = info.Data;
             }
             if (SpecificType) {
                 if (data != null && typeof(TObj) == data.GetType())
                     return (TObj)data;
                 else
                     return default(TObj);
-            } else {
-                data = info.Data;
             }
             return (TObj)data;
         }
