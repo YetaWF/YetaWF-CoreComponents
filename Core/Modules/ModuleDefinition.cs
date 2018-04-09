@@ -241,11 +241,18 @@ namespace YetaWF.Core.Modules
         public SkinDefinition SelectedPopupSkin { get; set; }
 
         /// <summary>
-        /// The CSS class name use on the &lt;div&gt; tag for this module. The allowable CSS class name is a subset of the CSS specification. Only characters _, a-z, A-Z and 0-9 are allowed, Ansi and Unicode escapes are not allowed.
+        /// The CSS class name used on the &lt;div&gt; tag for this module. The allowable CSS class name is a subset of the CSS specification. Only characters _, a-z, A-Z and 0-9 are allowed, Ansi and Unicode escapes are not allowed.
         /// </summary>
         [Category("Skin"), Caption("CSS Class"), Description("The optional CSS classes to be added to the module's <div> tag for further customization through stylesheets", Order = -94)]
         [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
         public string CssClass { get; set; }
+
+        /// <summary>
+        /// The CSS class name to add to a temporary page's &lt;body&gt; tag when this module is used on a temporary page. Temporary pages are used when a module is displayed without a permanent, designed page.
+        /// </summary>
+        [Category("Skin"), Caption("Temp. Page CSS Class"), Description("The optional CSS classes to be added to a temporary page's <body> tag when this module is used on a temporary page - Temporary pages are used when a module is displayed without a permanent, designed page", Order = -93)]
+        [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
+        public string TempPageCssClass { get; set; }
 
         /// <summary>
         /// Defines whether the module is a Bootstrap "container". This property is ignored if the skin used to render the module is not a bootstrap skin.

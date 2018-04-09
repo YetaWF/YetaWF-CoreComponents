@@ -37,7 +37,7 @@ namespace YetaWF.Core.Pages {
                 yetawfMsg = "\n" +
                     "/*****************************************/\n" +
                     "/* Powered by Yet Another Web Framework  */\n" +
-                    "/* https://YetaWF.com                     */\n" +
+                    "/* https://YetaWF.com                    */\n" +
                     "/* (c) Copyright <<YEAR>> - Softel vdm, Inc. */\n" +
                     "/*****************************************/" +
                     "\n";

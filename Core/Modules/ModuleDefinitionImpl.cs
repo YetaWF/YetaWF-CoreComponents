@@ -661,6 +661,11 @@ namespace YetaWF.Core.Modules {
                     ; // a page with multiple modules is expected to have a valid page title
                 }
             }
+            if (Manager.CurrentPage.Temporary) {
+                // add the module's temporary page css class
+                if (!string.IsNullOrWhiteSpace(this.TempPageCssClass))
+                    Manager.ScriptManager.AddLast($"$('body').addClass('{YetaWFManager.JserEncode(this.TempPageCssClass)}');");
+            }
 
             string containerHtml = (await skinAccess.MakeModuleContainerAsync(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction)).ToString();
 
