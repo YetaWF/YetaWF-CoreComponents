@@ -663,8 +663,15 @@ namespace YetaWF.Core.Modules {
             }
             if (Manager.CurrentPage.Temporary) {
                 // add the module's temporary page css class
-                if (!string.IsNullOrWhiteSpace(this.TempPageCssClass))
-                    Manager.ScriptManager.AddLast($"$('body').addClass('{YetaWFManager.JserEncode(this.TempPageCssClass)}');");
+                if (!string.IsNullOrWhiteSpace(this.TempPageCssClass)) {
+                    string tempCss = YetaWFManager.JserEncode(this.TempPageCssClass);
+                    Manager.ScriptManager.AddLast(
+$"var $body = $('body');" +
+$"$body.removeClass($body.attr('data-pagecss'));" + // remove existing page specific classes
+$"$body.addClass('{tempCss}');" + // add our new class(es)
+$"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for the next page
+                    );
+                }
             }
 
             string containerHtml = (await skinAccess.MakeModuleContainerAsync(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction)).ToString();
