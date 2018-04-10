@@ -426,10 +426,8 @@ namespace YetaWF.Core.Pages {
         public HtmlBuilder AddNow(string javascriptCode) {
             HtmlBuilder tag = new HtmlBuilder();
             if (string.IsNullOrEmpty(javascriptCode)) return tag;
-            tag.Append("<script type=\"text/javascript\">");
-            //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
+            tag.Append("<script>");
             tag.Append(ScriptManager.TrimScript(Manager, javascriptCode));
-            //tag.Append("\n//]]>\n</script>\n");
             tag.Append("</script>");
             return tag;
         }
@@ -510,13 +508,11 @@ namespace YetaWF.Core.Pages {
 
             ScriptBuilder sbA = RenderScriptsPartA(cr);
             if (sbA.Length > 0) {
-                //tag.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 if (cr == null)
-                    tag.Append("<script type=\"text/javascript\">");
+                    tag.Append("<script>");
                 tag.Append(sbA.ToString());
                 if (cr == null)
                     tag.Append("</script>");
-                //tag.Append("\n//]]>\n</script>\n");
                 if (cr != null) {
                     cr.Scripts = tag.ToString();
                 }
@@ -700,7 +696,7 @@ namespace YetaWF.Core.Pages {
                     string opts = "";
                     opts += entry.Async ? " async" : "";
                     opts += entry.Defer ? " defer" : "";
-                    hb.Append(string.Format("<script type='text/javascript' data-name='{0}' src='{1}'{2}></script>",
+                    hb.Append(string.Format("<script data-name='{0}' src='{1}'{2}></script>",
                         YetaWFManager.UrlEncodePath(entry.Url), YetaWFManager.UrlEncodePath(url), opts));
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(entry.Url)) {
@@ -747,9 +743,8 @@ namespace YetaWF.Core.Pages {
 
             ScriptBuilder sbB = RenderScriptsPartB();
             if (sbB.Length > 0 || _SavedNamedScripts.Count > 0 || _SavedNamedScriptsDocReady.Count > 0) {
-                //hb.Append("\n<script type=\"text/javascript\">\n//<![CDATA[\n");
                 if (cr == null)
-                    hb.Append("<script type=\"text/javascript\">");
+                    hb.Append("<script>");
                 if (_SavedNamedScripts.Count > 0) {
                     foreach (var script in _SavedNamedScripts) {
                         hb.Append(TrimScript(Manager, script.Value));
@@ -766,7 +761,6 @@ namespace YetaWF.Core.Pages {
                     hb.Append(sbB.ToString());
                 if (cr == null)
                     hb.Append("</script>");
-                //hb.Append("\n//]]>\n</script>\n");
             }
             if (cr != null) {
                 cr.EndOfPageScripts = hb.ToString();

@@ -725,7 +725,8 @@ _YetaWF_Basics.setContent = function (uri, setState, popupCB) {
         });
         data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
         data.KnownScripts = [];
-        var $scripts = $('script[type="text/javascript"][src][data-name]');
+        //var $scripts = $('script[type="text/javascript"][src][data-name]');
+        var $scripts = $('script[src][data-name]');
         $scripts.each(function () {
             data.KnownScripts.push($(this).attr('data-name'));
         });
