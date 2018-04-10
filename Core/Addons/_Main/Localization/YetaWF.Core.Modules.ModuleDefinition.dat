@@ -559,6 +559,18 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="TempPageCssClass" />
+                            <Caption Value="Temp. Page CSS Class" />
+                            <Description Value="The optional CSS classes to be added to a temporary page's &lt;body&gt; tag when this module is used on a temporary page - Temporary pages are used when a module is displayed without a permanent, designed page" />
+                            <HelpLink />
+                            <TextAbove />
+                            <TextBelow />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="Title" />
                             <Caption Value="Title" />
                             <Description Value="The module title, which appears at the top of the module as its title" />
