@@ -8,7 +8,6 @@ using YetaWF.Core.Log;
 namespace YetaWF.Core.Support {
     public class GeoLocation {
 
-        public GeoLocation(YetaWFManager manager) { Manager = manager; }
         public GeoLocation() { Manager = null; }
 
         protected YetaWFManager Manager { get; private set; }
@@ -29,21 +28,32 @@ namespace YetaWF.Core.Support {
             public string CurrencySymbol { get; set; }
         }
 
-        public async Task<UserInfo> GetCurrentUserInfoAsync() {
-            if (Manager == null) throw new InternalError("Must initialize with Manager instance");
-            UserInfo info = Manager.SessionSettings.SiteSettings.GetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo");
-            if (info == null) {
-                string ipAddress = Manager.UserHostAddress;
-                info = await GetUserInfoAsync(ipAddress);
-                // save what we got in session storage so we don't need to retrieve it again
-                Manager.SessionSettings.SiteSettings.SetValue<UserInfo>("YetaWF_Core_GeoLocationUserInfo", info);
-                Manager.SessionSettings.SiteSettings.Save();
+        private const int MAXREQUESTSPERMINUTE = 120 -10; // geoplugin allow 120/minute, we subtract a safety margin
+
+        private static object _lockObject = new object();
+
+        private static DateTime InitialRequestTime { get; set; } = DateTime.Now;// Local time
+        private static int RemainingRequests { get; set; } = MAXREQUESTSPERMINUTE;
+
+        public int GetRemainingRequests() {
+            lock (_lockObject) { // local lock to protect RemainingRequests
+                if (InitialRequestTime < DateTime.Now.AddMinutes(-1)) {
+                    InitialRequestTime = DateTime.Now;
+                    RemainingRequests = MAXREQUESTSPERMINUTE;
+                }
+                return RemainingRequests;
             }
-            return info;
         }
 
         public async Task<UserInfo> GetUserInfoAsync(string ipAddress) {
             UserInfo info = new UserInfo();
+
+            // make sure we have any remaining requests available
+            lock (_lockObject) { // local lock to protect RemainingRequests
+                if (RemainingRequests <= 0)
+                    throw new InternalError("Too many requests per minute");
+                RemainingRequests = RemainingRequests - 1;
+            }
 
             // Get host name (from IP) - TOO SLOW
             //string hostName = null;

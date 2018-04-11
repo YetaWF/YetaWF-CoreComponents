@@ -210,7 +210,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool EnforceSitePort { get; set; }
 
-        [Category("Site"), Caption("Port Number (Normal)"), Description("The port number used to access this site using http.")]
+        [Category("Site"), Caption("Port Number (Normal)"), Description("The port number used to access this site using http - The typical port for http is 80")]
         [UIHint("IntValue6"), Range(1, 65535), Required]
         [Data_DontSave]
         [RequiresPageReload]
@@ -224,7 +224,7 @@ namespace YetaWF.Core.Site {
         }
         public int PortNumber { get; set; }
 
-        [Category("Site"), Caption("Port Number (SSL)"), Description("The port number used to access this site using https (SSL - Secure Sockets Layer). The default is 443 which can be specified using -1")]
+        [Category("Site"), Caption("Port Number (SSL)"), Description("The port number used to access this site using https (SSL - Secure Sockets Layer) - The typical port for SSL is 443")]
         [UIHint("IntValue6"), Range(1, 65535), Required]
         [Data_DontSave]
         [RequiresPageReload]

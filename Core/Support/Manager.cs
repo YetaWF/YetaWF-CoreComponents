@@ -1718,23 +1718,35 @@ namespace YetaWF.Core.Support {
                                     url = CurrentSite.CDNUrlSecure + url;
                                 else
                                     url = CurrentSite.CDNUrl + url;
-                            } else if (useAlt)
-                                url = "https://" + CurrentSite.StaticDomain + url;
+                            } else if (useAlt) {
+                                if (Manager.CurrentSite.PortNumberSSLEval == 443)
+                                    url = $"https://{CurrentSite.StaticDomain}{url}";
+                                else
+                                    url = $"https://{CurrentSite.StaticDomain}:{Manager.CurrentSite.PortNumberSSLEval}{url}";
+                            }
                             url = url.TruncateStart("http:");
                             url = url.TruncateStart("https:");
                             break;
                         case PageDefinition.PageSecurityType.httpOnly:
                             if (useCDN)
                                 url = CurrentSite.CDNUrl + url;
-                            else if (useAlt)
-                                url = "http://" + CurrentSite.StaticDomain + url;
+                            else if (useAlt) {
+                                if (Manager.CurrentSite.PortNumberEval == 80)
+                                    url = $"http://{CurrentSite.StaticDomain}{url}";
+                                else
+                                    url = $"http://{CurrentSite.StaticDomain}:{Manager.CurrentSite.PortNumberEval}{url}";
+                            }
                             url = url.TruncateStart("http:");
                             break;
                         case PageDefinition.PageSecurityType.httpsOnly:
                             if (useCDN && CurrentSite.HaveCDNUrlSecure)
                                 url = CurrentSite.CDNUrlSecure + url;
-                            else if (useAlt)
-                                url = "https://" + CurrentSite.StaticDomain + url;
+                            else if (useAlt) {
+                                if (Manager.CurrentSite.PortNumberSSLEval == 443)
+                                    url = $"https://{CurrentSite.StaticDomain}{url}";
+                                else
+                                    url = $"https://{CurrentSite.StaticDomain}:{Manager.CurrentSite.PortNumberSSLEval}{url}";
+                            }
                             url = url.TruncateStart("https:");
                             break;
                     }
