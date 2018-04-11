@@ -761,7 +761,7 @@
                           <Properties>
                             <Name Value="PortNumberEval" />
                             <Caption Value="Port Number (Normal)" />
-                            <Description Value="The port number used to access this site using http." />
+                            <Description Value="The port number used to access this site using http - The typical port for http is 80" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -773,7 +773,7 @@
                           <Properties>
                             <Name Value="PortNumberSSLEval" />
                             <Caption Value="Port Number (SSL)" />
-                            <Description Value="The port number used to access this site using https (SSL - Secure Sockets Layer). The default is 443 which can be specified using -1" />
+                            <Description Value="The port number used to access this site using https (SSL - Secure Sockets Layer) - The typical port for SSL is 443" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
