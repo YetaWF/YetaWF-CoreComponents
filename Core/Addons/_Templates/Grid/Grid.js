@@ -278,9 +278,11 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
     var re2 = new RegExp("\"" + prefix + "\[[0-9]+\]\\.", "gim");
     var re3 = new RegExp("\\." + prefix + "\[[0-9]+\]\\.", "gim");
 
+    var rowIds = $grid.jqGrid('getDataIDs');
     var rowIndex = 0;
     for (var itemIndex = 0 ; itemIndex < total ; ++itemIndex) {
-        var item = ds[itemIndex];
+        var rowId = rowIds[itemIndex];
+        var item = ds[rowId];
         var haveData = false;
         var itemDiv = "";
         for (var colIndex = 0 ; colIndex < colCount ; ++colIndex) {
