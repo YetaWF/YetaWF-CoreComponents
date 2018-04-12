@@ -266,9 +266,7 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
     var prefix = $grid.attr('data-fieldprefix');
     if (prefix == undefined) throw "Can't locate grid's field prefix";/*DEBUG*/
 
-    // collect all data from grid's datasource
-    var ds = $grid.jqGrid('getGridParam', 'data');
-    var total = ds.length;
+    // collect all data from grid
     var colDefs = $grid.jqGrid('getGridParam', 'colModel');
     var colCount = colDefs.length;
 
@@ -279,10 +277,11 @@ YetaWF_Grid.HandleSubmitLocalData = function ($grid, $form) {
     var re3 = new RegExp("\\." + prefix + "\[[0-9]+\]\\.", "gim");
 
     var rowIds = $grid.jqGrid('getDataIDs');
+    var total = rowIds.length;
     var rowIndex = 0;
     for (var itemIndex = 0 ; itemIndex < total ; ++itemIndex) {
         var rowId = rowIds[itemIndex];
-        var item = ds[rowId];
+        var item = $grid.jqGrid('getRowData', rowId);
         var haveData = false;
         var itemDiv = "";
         for (var colIndex = 0 ; colIndex < colCount ; ++colIndex) {
