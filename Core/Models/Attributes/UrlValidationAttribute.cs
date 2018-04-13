@@ -29,7 +29,8 @@ namespace YetaWF.Core.Models.Attributes {
             HttpOnly = 1,
             HttpsOnly = 2,
         }
-        private string _regexLocal = @"^\s*((http[s]{0,1}:){0,1}\/\/.+|\/.*)\s*$";
+        private string _regexLocalAndRemote = @"^\s*((http[s]{0,1}:){0,1}\/\/.+|\/.*)\s*$";
+        private string _regexLocal = @"^\s*\/.*\s*$";
         private string _regexLocalNew = @"^\s*\/[^\&\*\,\?]*\s*$";// this may need to be more restrictive
         private string _regexRemote = @"^\s*(http[s]{0,1}\:){0,1}\/\/.+\s*$";
         private string _regexHttpsRemote = @"^\s*https:\/\/.+\s*$";
@@ -125,7 +126,7 @@ namespace YetaWF.Core.Models.Attributes {
         protected string GetPattern() {
             if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
                 if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0)
-                    return _regexLocal;
+                    return _regexLocalAndRemote;
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
