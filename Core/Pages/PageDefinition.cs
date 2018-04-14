@@ -329,7 +329,6 @@ namespace YetaWF.Core.Pages {
         public bool WantSearch { get; set; }
 
         public DateTime Created { get; set; }
-        [NoModelChange]
         public DateTime Updated { get; set; }
 
         [RequiresPageReload]

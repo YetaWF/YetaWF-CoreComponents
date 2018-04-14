@@ -1102,7 +1102,7 @@ $(document).ready(function () {
             if (YetaWF_Popup.handleOuterWindow($t))
                 return false;
         }
-        // first try to handle this as a popup link
+        // try to handle this as a popup link
         if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.handlePopupLink != undefined) {
             if (YetaWF_Popup.handlePopupLink($t))
                 return false;

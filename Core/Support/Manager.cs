@@ -402,7 +402,10 @@ namespace YetaWF.Core.Support {
                 return Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder);
             }
         }
-
+        /// <summary>
+        /// Translate a Url to a local file name.
+        /// </summary>
+        /// <remarks>Doesn't really take special characters (except spaces %20) into account.</remarks>
         public static string UrlToPhysical(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
 #if MVC6
@@ -425,14 +428,21 @@ namespace YetaWF.Core.Support {
         }
         private static string UrlToPhysicalRaw(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
-            return url.Replace('/', '\\');
+            url = url.Replace('/', '\\');
+            url = url.Replace("%20", " ");
+            return url;
         }
+        /// <summary>
+        /// Translate a local file name to a Url.
+        /// </summary>
+        /// <remarks>Doesn't really take special characters (except spaces %20) into account.</remarks>
         public static string PhysicalToUrl(string path) {
             path = ReplaceString(path, RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase);
 #if MVC6
             path = ReplaceString(path, RootFolderWebProject, String.Empty, StringComparison.OrdinalIgnoreCase);
 #else
 #endif
+            path = path.Replace(" ", "%20");
             return path.Replace('\\', '/');
         }
         private static string ReplaceString(string str, string oldValue, string newValue, StringComparison comparison) {
