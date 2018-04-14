@@ -300,6 +300,16 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="Excluded" />
+                            <Value Value="Excluded" />
+                            <Caption Value="(Exclude From Site Map)" />
+                            <Description Value="The page is never added to the site map" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="None" />
                             <Value Value="None" />
                             <Caption Value="None" />
@@ -374,16 +384,6 @@
                             <Value Value="Top" />
                             <Caption Value="Highest" />
                             <Description />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="Excluded" />
-                            <Value Value="Excluded" />
-                            <Caption Value="(Exclude From Site Map)" />
-                            <Description Value="The page is never added to the site map" />
                           </Properties>
                         </Object>
                       </Value>
@@ -404,6 +404,16 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
+                            <Name Value="Excluded" />
+                            <Value Value="Excluded" />
+                            <Caption Value="(Exclude From Site Map)" />
+                            <Description Value="Pages are never added to the site map" />
+                          </Properties>
+                        </Object>
+                      </Value>
+                      <Value>
+                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
+                          <Properties>
                             <Name Value="None" />
                             <Value Value="None" />
                             <Caption Value="None" />
@@ -478,16 +488,6 @@
                             <Value Value="Top" />
                             <Caption Value="Highest" />
                             <Description />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="Excluded" />
-                            <Value Value="Excluded" />
-                            <Caption Value="(Exclude From Site Map)" />
-                            <Description Value="Pages are never added to the site map" />
                           </Properties>
                         </Object>
                       </Value>
