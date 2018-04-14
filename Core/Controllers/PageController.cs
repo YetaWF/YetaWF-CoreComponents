@@ -300,7 +300,7 @@ namespace YetaWF.Core.Controllers {
                         Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
                         HttpContext.Request.Path = newUrl;
-                        HttpContext.Request.QueryString = new QueryString(newQs);
+                        HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
 #else
                         Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
@@ -317,7 +317,7 @@ namespace YetaWF.Core.Controllers {
                         Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
                         HttpContext.Request.Path = newUrl;
-                        HttpContext.Request.QueryString = new QueryString(newQs);
+                        HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
 #else
                         Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
@@ -334,7 +334,7 @@ namespace YetaWF.Core.Controllers {
                             Logging.AddTraceLog("Server.TransferRequest - {0}", pageInfo.NewUrl);
 #if MVC6
                             HttpContext.Request.Path = pageInfo.NewUrl;
-                            HttpContext.Request.QueryString = new QueryString(pageInfo.NewQS);
+                            HttpContext.Request.QueryString = QueryHelper.MakeQueryString(pageInfo.NewQS);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
                             Server.TransferRequest(QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS));
@@ -350,7 +350,7 @@ namespace YetaWF.Core.Controllers {
                             Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
 #if MVC6
                             HttpContext.Request.Path = newUrl;
-                            HttpContext.Request.QueryString = new QueryString(newQs);
+                            HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                             uri = new Uri(Manager.CurrentRequestUrl);
 #else
                             Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));

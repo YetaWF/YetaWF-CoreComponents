@@ -176,6 +176,14 @@ namespace YetaWF.Core.Support {
                 url = "#" + Anchor;
             return url;
         }
+#if MVC6
+        internal static QueryString MakeQueryString(string newQS)
+        {
+            if (string.IsNullOrWhiteSpace(newQS)) return new QueryString();
+            if (newQS.StartsWith("?")) return new QueryString(newQS);
+            return new QueryString("?" + newQS);
+        }
+#endif
         //
         /// <summary>
         /// Add some random query string to the url to defeat client-side caching for a page.
