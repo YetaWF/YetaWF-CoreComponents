@@ -48,15 +48,15 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Loads an object from a file.
         /// </summary>
-        public async Task<TObj> LoadAsync() {
+        public async Task<TObj> LoadAsync(bool SpecificTypeOnly = false) {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
-
+            object data = null;
             try {
                 Date = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(FullPath);
             } catch (Exception) { }
             if (typeof(TObj) == typeof(string)) {
                 try {
-                    Data = await FileSystem.FileSystemProvider.ReadAllTextAsync(FullPath);
+                    data = await FileSystem.FileSystemProvider.ReadAllTextAsync(FullPath);
                 } catch (Exception) { }
             } else {
                 IFileStream fs;
@@ -73,9 +73,20 @@ namespace YetaWF.Core.IO {
                 byte[] btes = new byte[fs.GetLength()];
                 await fs.ReadAsync(btes, 0, (int)fs.GetLength());
                 await fs.CloseAsync();
-                Data = new GeneralFormatter(Format).Deserialize(btes);
+                data = new GeneralFormatter(Format).Deserialize(btes);
             }
-            return (TObj)Data;
+            if (SpecificTypeOnly) {
+                if (data != null && typeof(TObj) == data.GetType()) {
+                    Data = data;
+                    return (TObj)data;
+                } else {
+                    Data = null;
+                    return default(TObj);
+                }
+            } else {
+                Data = data;
+                return (TObj)Data;
+            }
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Basics",
             "YetaWF.Blog",
             "YetaWF.BootstrapCarousel",
+            "YetaWF.Caching",
             "YetaWF.Core",
             "YetaWF.CurrencyConverter",
             "YetaWF.Dashboard",
