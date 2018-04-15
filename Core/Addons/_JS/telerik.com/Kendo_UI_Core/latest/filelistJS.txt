@@ -1,4 +1,4 @@
-//kendo.cdn.telerik.com/2018.1.221/js/kendo.all.min.js,CDN
+//kendo.cdn.telerik.com/2018.1.411/js/kendo.all.min.js,CDN
 
 Folder \bower_components\kendo-ui\js\
 kendo.core.min.js,noCDN

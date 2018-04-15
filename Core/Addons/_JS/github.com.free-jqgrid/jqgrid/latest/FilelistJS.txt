@@ -1,5 +1,5 @@
-﻿//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.3/i18n/grid.locale-en.js,CDN
-//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.3/jquery.jqgrid.min.js,CDN
+﻿//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.4/i18n/grid.locale-en.js,CDN
+//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.4/jquery.jqgrid.min.js,CDN
 
 \node_modules\free-jqgrid\dist\i18n\min\grid.locale-en.js,nominify,noCDN
 \node_modules\free-jqgrid\dist\jquery.jqGrid.min.js,nominify,noCDN
