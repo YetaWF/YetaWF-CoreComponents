@@ -169,10 +169,13 @@ namespace YetaWF.Core.DataProvider {
                     if (prop.GetAdditionalAttributeValue<bool>("File", false)) {
                         // save as file
                         PropertyData pGuid = ObjectSupport.GetPropertyData(objType, prop.Name + "_Guid");
-                        Guid fileGuid = pGuid.GetPropertyValue<Guid>(obj);
+                        Guid origFileGuid = pGuid.GetPropertyValue<Guid>(obj);
                         string fileName = prop.GetPropertyValue<string>(obj);
-                        await ConvertImageToFileAsync(moduleGuid, prop.Name, fileGuid, fileName);
-                        prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
+                        Guid newFileGuid = await ConvertImageToFileAsync(moduleGuid, prop.Name, origFileGuid, fileName);
+                        if (origFileGuid != newFileGuid) {
+                            pGuid.PropInfo.SetValue(obj, newFileGuid);
+                            prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
+                        }
                     } else if (prop.GetAdditionalAttributeValue<bool>("Data", true)) {
                         // save as data
                         PropertyData pData = ObjectSupport.GetPropertyData(objType, prop.Name + "_Data");
@@ -186,22 +189,32 @@ namespace YetaWF.Core.DataProvider {
                 }
             }
         }
-        private static async Task ConvertImageToFileAsync(Guid guid, string folder, Guid fileGuid, string fileName) {
+        private static async Task<Guid> ConvertImageToFileAsync(Guid moduleGuid, string folder, Guid origFileGuid, string fileName) {
             // Get the new image
             FileUpload fileUpload = new FileUpload();
             if (string.IsNullOrWhiteSpace(fileName) || fileName == "(CLEARED)") {
-                // remove image file
-                string file = Path.Combine(ModuleDefinition.GetModuleDataFolder(guid), folder, fileGuid.ToString());
-                try {
-                    await FileSystem.FileSystemProvider.DeleteFileAsync(file);// the file may not exist
-                } catch (Exception) { }
-                return;
+                if (origFileGuid != Guid.Empty) {
+                    // remove old image file
+                    string oldFile = Path.Combine(ModuleDefinition.GetModuleDataFolder(moduleGuid), folder, origFileGuid.ToString());
+                    try {
+                        await FileSystem.FileSystemProvider.DeleteFileAsync(oldFile);// the file may not exist
+                    } catch (Exception) { }
+                }
+                return Guid.Empty;
             } else if (fileUpload.IsTempName(fileName)) {
                 byte[] bytes = await fileUpload.GetImageBytesFromTempNameAsync(fileName);
+                if (origFileGuid != Guid.Empty) {
+                    // remove old image file
+                    string oldFile = Path.Combine(ModuleDefinition.GetModuleDataFolder(moduleGuid), folder, origFileGuid.ToString());
+                    try {
+                        await FileSystem.FileSystemProvider.DeleteFileAsync(oldFile);// the file may not exist
+                    } catch (Exception) { }
+                }
                 // save new image file
-                string path = Path.Combine(ModuleDefinition.GetModuleDataFolder(guid), folder);
+                string path = Path.Combine(ModuleDefinition.GetModuleDataFolder(moduleGuid), folder);
                 await FileSystem.FileSystemProvider.CreateDirectoryAsync(path);
-                string file = Path.Combine(path, fileGuid.ToString());
+                Guid newGuid = Guid.NewGuid();
+                string file = Path.Combine(path, newGuid.ToString());
                 using (MemoryStream ms = new MemoryStream(bytes)) {
                     using (System.Drawing.Image img = System.Drawing.Image.FromStream(ms)) {
                         img.Save(file);
@@ -209,8 +222,9 @@ namespace YetaWF.Core.DataProvider {
                 }
                 // Remove the temp file (if any)
                 await fileUpload.RemoveTempFileAsync(fileName);
+                return newGuid;
             } else {
-                ;//keep existing file
+                return origFileGuid;//keep existing file
             }
         }
         private static async Task<byte[]> ConvertImageToDataAsync(string fileName, byte[] currImageData) {

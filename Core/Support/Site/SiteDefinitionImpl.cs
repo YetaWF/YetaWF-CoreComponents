@@ -253,6 +253,7 @@ namespace YetaWF.Core.Site {
         // FAVICON
         // FAVICON
 
+        //$$$ resolve favicon caching
         public string GetFavIconLinks(string imageType, byte[] data, string name, string imageTypeLarge, byte[] dataLrg, string nameLrg) {
             HtmlBuilder hb = new HtmlBuilder();
 

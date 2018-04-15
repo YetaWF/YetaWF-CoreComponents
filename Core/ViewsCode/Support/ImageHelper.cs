@@ -140,7 +140,6 @@ namespace YetaWF.Core.Views.Shared {
             } else {
                 url = string.Format(Addons.Templates.Image.FormatUrl, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
             }
-            //$$$ this cache buster needs some help, eg when replacing images which resolve to the same url, they can be browser cached
             if (!string.IsNullOrWhiteSpace(CacheBuster))
                 url += url.AddUrlCacheBuster(CacheBuster);
             url = Manager.GetCDNUrl(url);
