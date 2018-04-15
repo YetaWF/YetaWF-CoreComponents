@@ -66,7 +66,7 @@ namespace YetaWF.Core.IO {
         public GeneralFormatter.Style Format { get; set; }
         public bool Cacheable { get; set; }
         public string CacheKey { // Cache key used to cache the file
-            get { return string.Format("folder__{0}", BaseFolder); }
+            get { return $"folder__{BaseFolder}__{FileName}"; }
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace YetaWF.Core.IO {
         public async Task<TObj> LoadAsync(bool SpecificType = false) {
             object data = null;
             GetObjectInfo<TObj> info = null;
-            if (Cacheable) {
+            if (Cacheable && !SpecificType) {
                 using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                     info = await sharedCacheDP.GetAsync<TObj>(CacheKey);
                 }
@@ -88,7 +88,7 @@ namespace YetaWF.Core.IO {
                     Data = data,
                     Format = Format,
                 };
-                if (Cacheable) {
+                if (Cacheable && !SpecificType) {
                     using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                         data = await io.LoadAsync();
                         if (Cacheable) {
