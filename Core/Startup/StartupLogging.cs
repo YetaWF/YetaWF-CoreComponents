@@ -18,7 +18,10 @@ namespace YetaWF.Core.Support {
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
+            string folder = Path.Combine(rootFolder, Globals.DataFolder);
+            Directory.CreateDirectory(folder);
             LogFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.StartupLogFile);
+            File.Delete(LogFile);
         }
         public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Trace; }
         public Task InitAsync() { return Task.CompletedTask; }
