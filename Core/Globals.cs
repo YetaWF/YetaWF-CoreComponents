@@ -61,6 +61,7 @@ namespace YetaWF.Core {
 
         public const string UpdateIndicatorFile = "UpdateIndicator.txt"; // filename of the file signaling a global package update/create
         public const string UpgradeLogFile = "UpgradeLogFile.txt"; // log file created during YetaWF upgrade
+        public const string StartupLogFile = "StartupLogFile.txt"; // log file created during YetaWF startup
         public const string PackageMap = "PackageMap.txt";// currently installed packages
 
         public const string DontDeployMarker = "dontdeploy.txt"; // if seen in a folder, its files will not be deployed by CopySite

@@ -104,7 +104,7 @@ namespace YetaWF.Core.Packages {
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
-                FileSystem.FileSystemProvider.AppendAllTextAsync(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), text + "\r\n").Wait();// uhm yeah, only while upgrading
+                FileSystem.FileSystemProvider.AppendAllTextAsync(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), $"{DateTime.Now} {text}\r\n").Wait();// uhm yeah, only while upgrading
             }
         }
         /// <summary>
