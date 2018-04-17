@@ -73,7 +73,7 @@ namespace YetaWF.Core.Packages {
 
             // Create an update log file
             UpgradeLogging log = new UpgradeLogging();
-            Logging.RegisterLogging(log);
+            await Logging.RegisterLoggingAsync(log);
 
             SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(null);// get the default site
             if (site == null)
@@ -92,19 +92,26 @@ namespace YetaWF.Core.Packages {
             }
         }
         public class UpgradeLogging : ILogging {
-            public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Info; }
-            public Task InitAsync() { return Task.CompletedTask; }
-            public Task ClearAsync() { return Task.CompletedTask; }
-            public Task FlushAsync() { return Task.CompletedTask; }
-            public Task<bool> IsInstalledAsync() { return Task.FromResult(true); }
-            public void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text) {
+
+            private string LogFile { get; set; }
+
+            public UpgradeLogging() {
                 string rootFolder;
 #if MVC6
                 rootFolder = YetaWFManager.RootFolderWebProject;
 #else
                 rootFolder = YetaWFManager.RootFolder;
 #endif
-                FileSystem.FileSystemProvider.AppendAllTextAsync(Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile), $"{DateTime.Now} {text}\r\n").Wait();// uhm yeah, only while upgrading
+                LogFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile);
+            }
+
+            public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Info; }
+            public Task InitAsync() { return Task.CompletedTask; }
+            public Task ClearAsync() { return Task.CompletedTask; }
+            public Task FlushAsync() { return Task.CompletedTask; }
+            public Task<bool> IsInstalledAsync() { return Task.FromResult(true); }
+            public void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text) {
+                FileSystem.FileSystemProvider.AppendAllTextAsync(LogFile, $"{DateTime.Now} {text}\r\n").Wait();// uhm yeah, only while upgrading
             }
         }
         /// <summary>

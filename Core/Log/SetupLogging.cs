@@ -67,11 +67,10 @@ namespace YetaWF.Core.Log {
             } catch (Exception) { }
 
             if (log != null) {
-                await log.InitAsync();
                 if (await log.IsInstalledAsync()) {
                     DefaultLogger = log;
                     DefaultLoggerType = tp;
-                    RegisterLogging(log);
+                    await RegisterLoggingAsync(log);
                     await log.ClearAsync();
                 }
             }
@@ -89,7 +88,8 @@ namespace YetaWF.Core.Log {
         /// Register a new logger.
         /// </summary>
         /// <param name="logger"></param>
-        public static void RegisterLogging(ILogging logger) {
+        public static async Task RegisterLoggingAsync(ILogging logger) {
+            await logger.InitAsync();
             lock (_lockObject) { // short-term lock to sync loggers
                 if (Loggers == null)
                     Loggers = new List<ILogging>();
