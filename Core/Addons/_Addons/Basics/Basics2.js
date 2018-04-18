@@ -81,7 +81,7 @@ var YetaWF_BasicsServices = /** @class */ (function () {
             $tag = $("body");
         for (var _i = 0, _a = this.whenReady; _i < _a.length; _i++) {
             var entry = _a[_i];
-            try {
+            try { // catch errors to insure all callbacks are called
                 if (entry.callback != null)
                     entry.callback($tag);
                 else if (entry.callbackTS != null) {
@@ -116,7 +116,7 @@ var YetaWF_BasicsServices = /** @class */ (function () {
             $tag = $("body");
         for (var _i = 0, _a = this.whenReadyOnce; _i < _a.length; _i++) {
             var entry = _a[_i];
-            try {
+            try { // catch errors to insure all callbacks are called
                 if (entry.callback !== undefined)
                     entry.callback($tag);
                 else {
@@ -145,7 +145,7 @@ var YetaWF_BasicsServices = /** @class */ (function () {
     YetaWF_BasicsServices.prototype.processClearDiv = function (tag) {
         for (var _i = 0, _a = this.clearDiv; _i < _a.length; _i++) {
             var entry = _a[_i];
-            try {
+            try { // catch errors to insure all callbacks are called
                 if (entry.callback != null)
                     entry.callback(tag);
             }
