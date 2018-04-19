@@ -553,7 +553,7 @@ namespace YetaWF.Core.Views.Shared {
                     }
                     continue;
                 }
-                // Only one of the Requiredxxx and Suppressxxx attributes is supported
+
                 {
                     RequiredIfInRangeAttribute reqIfInRange = prop.TryGetAttribute<RequiredIfInRangeAttribute>();
                     if (reqIfInRange != null) {
