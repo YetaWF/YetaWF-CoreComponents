@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using YetaWF.Core.DataProvider.Attributes;
-using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
@@ -13,12 +12,15 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using System.Collections;
-using System.Data.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
+#endif
+#if NETSTANDARD || NETCOREAPP
+#else
+using System.Data.Linq;
 #endif
 
 namespace YetaWF.Core.Models {
@@ -822,7 +824,7 @@ namespace YetaWF.Core.Models {
         };
 
         /// <summary>
-        /// Compare old and new objects and determine page reload/site 
+        /// Compare old and new objects and determine page reload/site
         /// </summary>
         /// <param name="origSite"></param>
         /// <param name="site"></param>
@@ -832,7 +834,7 @@ namespace YetaWF.Core.Models {
             List<ChangedProperty> subChanges;
             Type modelType = oldObj.GetType();
             if (modelType != newObj.GetType()) throw new InternalError($"{nameof(EvaluateModelChanges)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
-            // check model for class attributes RequiresPageReload and RequiresRestart 
+            // check model for class attributes RequiresPageReload and RequiresRestart
             {
                 ClassData classData = GetClassData(modelType);
                 RequiresRestartAttribute restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
@@ -903,7 +905,7 @@ namespace YetaWF.Core.Models {
             Type modelType = oldObj.GetType();
             if (modelType != newObj.GetType()) throw new InternalError($"{nameof(EvaluateModelChanges)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
 
-            // check model for class attributes RequiresPageReload and RequiresRestart 
+            // check model for class attributes RequiresPageReload and RequiresRestart
             {
                 ClassData classData = GetClassData(modelType);
                 RequiresRestartAttribute restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
@@ -1004,7 +1006,7 @@ namespace YetaWF.Core.Models {
                 }
                 return changes.Count == 0;
             } else if (propData.PropInfo.PropertyType == typeof(byte[])) {
-                if (new Binary((byte[])oOld).Equals(new Binary((byte[])oNew))) return true;
+                if (ByteArraysEqual((byte[])oOld, (byte[])oNew)) return true;
                 changes.Add(new ChangedProperty {
                     Name = propData.Name,
                     Value = "(data)",
@@ -1077,6 +1079,26 @@ namespace YetaWF.Core.Models {
                     return false;
                 }
             }
+        }
+
+        //https://stackoverflow.com/questions/43289/comparing-two-byte-arrays-in-net/8808245#8808245
+        //portable and reasonably fast
+        private static bool ByteArraysEqual(byte[] array1, byte[] array2, int bytesToCompare = 0) {
+            if (array1.Length != array2.Length) return false;
+
+            var length = (bytesToCompare == 0) ? array1.Length : bytesToCompare;
+            var tailIdx = length - length % sizeof(Int64);
+
+            //check in 8 byte chunks
+            for (var i = 0; i < tailIdx; i += sizeof(Int64)) {
+                if (BitConverter.ToInt64(array1, i) != BitConverter.ToInt64(array2, i)) return false;
+            }
+
+            //check the remainder of the array, always shorter than 8 bytes
+            for (var i = tailIdx; i < length; i++) {
+                if (array1[i] != array2[i]) return false;
+            }
+            return true;
         }
     }
 }
