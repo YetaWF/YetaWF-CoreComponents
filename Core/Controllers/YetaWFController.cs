@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using YetaWF.Core.Pages;
 #else
 using System.IO;
+using System.IO.Compression;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Filters;
@@ -581,13 +582,13 @@ namespace YetaWF.Core.Controllers
                     // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
                     // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
 #if MVC6
+                    // gzip encoding is performed by middleware
 #else
                     context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
                     context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
 #endif
                 }
 #if MVC6
-                // gzip encoding is performed by middleware
                 byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else

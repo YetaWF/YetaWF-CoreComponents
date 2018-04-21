@@ -63,7 +63,7 @@ namespace YetaWF.Core.Support {
                 Response.SetCookie(cookie);
 
                 using (Zip) {
-                    Zip.Zip.Save(Response.OutputStream);
+                    await Zip.SaveAsync(Response.OutputStream);
                     Response.End();
                     await Zip.CleanupFoldersAsync();
                 }
