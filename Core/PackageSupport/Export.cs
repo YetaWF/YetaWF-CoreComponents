@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -9,6 +8,7 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 using YetaWF.PackageAttributes;
 
 namespace YetaWF.Core.Packages {
@@ -59,16 +59,14 @@ namespace YetaWF.Core.Packages {
             string sourceBin = Path.Combine(PackageSourceRoot, "bin");
             serPackage.BinFiles.AddRange(await ProcessAllFilesAsync(sourceBin, ExcludedBinFiles, ExcludedBinFolders, ExternalRoot: PackageSourceRoot));
             foreach (var file in serPackage.BinFiles) {
-                ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
-                ze.FileName = file.FileName;
+                zipFile.AddFile(file.AbsFileName, file.FileName);
             }
             if (!SourceCode) {
                 // Addons
                 if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
                     serPackage.AddOns.AddRange(await ProcessAllFilesAsync(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource, ExternalRoot: YetaWFManager.RootFolder));
                     foreach (var file in serPackage.AddOns) {
-                        ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
-                        ze.FileName = file.FileName;
+                        zipFile.AddFile(file.AbsFileName, file.FileName);
                     }
                 }
                 // Views
@@ -81,8 +79,7 @@ namespace YetaWF.Core.Packages {
                 string viewsPath = Path.Combine(rootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
                 serPackage.Views.AddRange(await ProcessAllFilesAsync(viewsPath, ExcludedFilesViewsNoSource));
                 foreach (var file in serPackage.Views) {
-                    ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
-                    ze.FileName = file.FileName;
+                    zipFile.AddFile(file.AbsFileName, file.FileName);
                 }
             }
             // Source code
@@ -90,8 +87,7 @@ namespace YetaWF.Core.Packages {
                 serPackage.SourceFiles.AddRange(await ProcessAllFilesAsync(PackageSourceRoot, ExcludedFilesSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
                 await ProcessSourceFilesAsync(zipFile, serPackage.SourceFiles);
                 foreach (var file in serPackage.SourceFiles) {
-                    ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
-                    ze.FileName = file.FileName;
+                    zipFile.AddFile(file.AbsFileName, file.FileName);
                 }
             }
 
@@ -105,10 +101,9 @@ namespace YetaWF.Core.Packages {
                     await fs.CloseAsync();
                 }
 
-                ZipEntry ze = zipFile.Zip.AddFile(fileName);
-                ze.FileName = PackageContentsFile;
+                zipFile.AddFile(fileName, PackageContentsFile);
             }
-            zipFile.Zip.AddEntry(PackageIDFile, __ResStr("package", "YetaWF Package"));
+            zipFile.AddData("YetaWF Package", PackageIDFile);
 
             return zipFile;
         }
@@ -122,7 +117,6 @@ namespace YetaWF.Core.Packages {
 
             return new YetaWFZipFile {
                 FileName = zipName,
-                Zip = new ZipFile(zipName),
             };
         }
         public static async Task<SerializableList<SerializableFile>> ProcessAllFilesAsync(string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {

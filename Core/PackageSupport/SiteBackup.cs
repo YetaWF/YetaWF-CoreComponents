@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +10,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 
 namespace YetaWF.Core.Packages {
 
@@ -62,27 +62,27 @@ namespace YetaWF.Core.Packages {
                     string file;
                     if (package.IsModulePackage || package.IsCorePackage) {
                         using (zipFile = await package.ExportDataAsync(takingBackup: true)) {
-                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                            zipFile.Zip.Save(file);
-                            serBackup.PackageDataFiles.Add(zipFile.Zip.Name);
+                            file = Path.Combine(tempFolder, zipFile.FileName);
+                            await zipFile.SaveAsync(file);
+                            serBackup.PackageDataFiles.Add(zipFile.FileName);
                         }
                     }
                     if (ForDistribution && await package.GetHasSourceAsync() && !DataOnly) {
                         using (zipFile = await package.ExportPackageAsync(SourceCode: true)) {
-                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                            zipFile.Zip.Save(file);
-                            serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                            file = Path.Combine(tempFolder, zipFile.FileName);
+                            await zipFile.SaveAsync(file);
+                            serBackup.PackageFiles.Add(zipFile.FileName);
                         }
                         using (zipFile = await package.ExportPackageAsync(SourceCode: false)) {
-                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                            zipFile.Zip.Save(file);
-                            serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                            file = Path.Combine(tempFolder, zipFile.FileName);
+                            await zipFile.SaveAsync(file);
+                            serBackup.PackageFiles.Add(zipFile.FileName);
                         }
                     } else {
                         using (zipFile = await package.ExportPackageAsync(SourceCode: await package.GetHasSourceAsync())) {
-                            file = Path.Combine(tempFolder, zipFile.Zip.Name);
-                            zipFile.Zip.Save(file);
-                            serBackup.PackageFiles.Add(zipFile.Zip.Name);
+                            file = Path.Combine(tempFolder, zipFile.FileName);
+                            await zipFile.SaveAsync(file);
+                            serBackup.PackageFiles.Add(zipFile.FileName);
                         }
                     }
                 }
@@ -90,8 +90,7 @@ namespace YetaWF.Core.Packages {
                 // backup custom addons (site specific)
                 SerializableList<SerializableFile> fileList = await Package.ProcessAllFilesAsync(Manager.AddonsCustomSiteFolder, Package.ExcludedFilesAddons);
                 foreach (var file in fileList) {
-                    ZipEntry ze = zipBackupFile.Zip.AddFile(file.AbsFileName);
-                    ze.FileName = file.FileName;
+                    zipBackupFile.AddFile(file.AbsFileName, file.FileName);
                     serBackup.CustomAddonFiles.Add(file.AbsFileName);
                 }
 
@@ -105,12 +104,11 @@ namespace YetaWF.Core.Packages {
                         await fs.CloseAsync();
                     }
 
-                    ZipEntry ze = zipBackupFile.Zip.AddFile(fileName);
-                    ze.FileName = SiteContentsFile;
+                    zipBackupFile.AddFile(fileName, SiteContentsFile);
 
-                    zipBackupFile.Zip.AddDirectory(tempFolder);
-                    zipBackupFile.Zip.AddEntry(SiteIDFile, this.__ResStr("backup", "YetaWF Site Backup"));
-                    zipBackupFile.Zip.Save(Path.Combine(backupFolder, string.Format(BackupFileFormat + ".zip", serBackup.Created.ToString(BackupDateTimeFormat))));
+                    await zipBackupFile.AddFolderAsync(tempFolder);
+                    zipBackupFile.AddData("YetaWF Site Backup", SiteIDFile);
+                    await zipBackupFile.SaveAsync(Path.Combine(backupFolder, string.Format(BackupFileFormat + ".zip", serBackup.Created.ToString(BackupDateTimeFormat))));
                 }
             }
             return true;
@@ -122,9 +120,7 @@ namespace YetaWF.Core.Packages {
             serBackup.PackageVersion = executingPackage.Version;
             serBackup.Created = DateTime.UtcNow;
 
-            return new YetaWFZipFile {
-                Zip = new ZipFile(),
-            };
+            return new YetaWFZipFile();
         }
         public async Task RemoveAsync(string filename) {
             filename = Path.ChangeExtension(filename, "zip");

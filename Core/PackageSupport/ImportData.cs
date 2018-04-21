@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,10 +24,10 @@ namespace YetaWF.Core.Packages {
 
             string xmlFile = null;
 
-            using (ZipFile zip = ZipFile.Read(zipFileName)) {
+            using (ZipFile zip = new ZipFile(zipFileName)) {
 
                 // check id file
-                ZipEntry ze = zip[PackageIDDataFile];
+                ZipEntry ze = zip.GetEntry(PackageIDDataFile);
                 if (ze == null) {
                     errorList.Add(__ResStr("invDataFormat", "{0} is not a valid package data file.", displayFileName));
                     return false;
@@ -35,8 +36,10 @@ namespace YetaWF.Core.Packages {
                 // read contents file
                 xmlFile = Path.GetTempFileName();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
-                    ze = zip[PackageContentsFile];
-                    ze.Extract(fs.GetFileStream());
+                    ze = zip.GetEntry(PackageContentsFile);
+                    using (Stream entryStream = zip.GetInputStream(ze)) {
+                        Extract(entryStream, fs);
+                    }
                     await fs.CloseAsync();
                 }
                 SerializableData serData;
@@ -79,26 +82,27 @@ namespace YetaWF.Core.Packages {
 
                         // unzip files - date provider doesn't have to do anything for files
                         foreach (var file in serModel.Files) {
-                            ZipEntry e = zip[file.FileName];
-                            if (YetaWFManager.HaveManager && file.SiteSpecific)
-                                e.Extract(YetaWFManager.Manager.SiteFolder, ExtractExistingFileAction.OverwriteSilently);
-                            else {
-                                string rootFolder;
+                            ZipEntry e = zip.GetEntry(file.FileName);
+                            using (Stream entryStream = zip.GetInputStream(e)) {
+                                if (YetaWFManager.HaveManager && file.SiteSpecific) {
+                                    await ExtractAsync(YetaWFManager.Manager.SiteFolder, e.Name, entryStream);
+                                } else {
+                                    string rootFolder;
 #if MVC6
-                                rootFolder = YetaWFManager.RootFolderWebProject;
+                                    rootFolder = YetaWFManager.RootFolderWebProject;
 #else
-                                rootFolder = YetaWFManager.RootFolder;
+                                    rootFolder = YetaWFManager.RootFolder;
 #endif
-                                e.Extract(rootFolder, ExtractExistingFileAction.OverwriteSilently);
+                                    await ExtractAsync(rootFolder, e.Name, entryStream);
+                                }
                             }
                         }
-
                         for (int chunk = 0; chunk < serModel.Chunks; ++chunk) {
 
                             // unzip data
                             {
                                 string zipFileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
-                                ZipEntry e = zip[zipFileName];
+                                ZipEntry e = zip.GetEntry(zipFileName);
                                 if (e == null) {
                                     errorList.Add(__ResStr("errDataCorrupt", "Zip file {1} corrupted - file {0} not found.", zipFileName, displayFileName));
                                     return false;
@@ -106,7 +110,9 @@ namespace YetaWF.Core.Packages {
 
                                 string xmlFile = Path.GetTempFileName();
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
-                                    e.Extract(fs.GetFileStream());
+                                    using (Stream entryStream = zip.GetInputStream(e)) {
+                                        Extract(entryStream, fs);
+                                    }
                                     await fs.CloseAsync();
                                 }
                                 object obj = null;
@@ -114,7 +120,7 @@ namespace YetaWF.Core.Packages {
                                     try {
                                         obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
                                     } catch (Exception exc) {
-                                        errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.FileName, exc));
+                                        errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.Name, exc));
                                         return false;
                                     } finally {
                                         await fs.CloseAsync();
@@ -139,6 +145,19 @@ namespace YetaWF.Core.Packages {
                 errorList.Add(__ResStr("warnReqPckages", "This package requires additional packages - These should be imported at the same time:{0}", s));
             }
             return true;
+        }
+
+        private static async Task ExtractAsync(string siteFolder, string name, Stream entryStream) {
+            string fileName = Path.Combine(siteFolder, name);
+            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fileName));
+            using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                Extract(entryStream, fs);
+                await fs.CloseAsync();
+            }
+        }
+        private static void Extract(Stream entryStream, IFileStream fs) {
+            byte[] buffer = new byte[4096];
+            StreamUtils.Copy(entryStream, fs.GetFileStream(), buffer);
         }
     }
 }

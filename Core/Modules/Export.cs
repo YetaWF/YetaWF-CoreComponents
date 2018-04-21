@@ -1,12 +1,11 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
 using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
-using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 
 namespace YetaWF.Core.Modules {
     public partial class ModuleDefinition {
@@ -29,8 +28,7 @@ namespace YetaWF.Core.Modules {
 
             // Add files
             foreach (var file in serModule.Files) {
-                ZipEntry ze = zipFile.Zip.AddFile(file.AbsFileName);
-                ze.FileName = file.FileName;
+                zipFile.AddFile(file.AbsFileName, file.FileName);
             }
 
             // serialize zipfile contents
@@ -42,10 +40,9 @@ namespace YetaWF.Core.Modules {
                     new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serModule);
                     await fs.CloseAsync();
                 }
-                ZipEntry ze = zipFile.Zip.AddFile(fileName);
-                ze.FileName = ModuleContentsFile;
+                zipFile.AddFile(fileName, ModuleContentsFile);
 
-                zipFile.Zip.AddEntry(ModuleIDFile, __ResStr("moduleData", "YetaWF Module Data"));
+                zipFile.AddData("YetaWF Module Data", ModuleIDFile);
             }
             return zipFile;
         }
@@ -58,7 +55,6 @@ namespace YetaWF.Core.Modules {
 
             return new YetaWFZipFile {
                 FileName = zipName,
-                Zip = new ZipFile(zipName),
             };
         }
     }

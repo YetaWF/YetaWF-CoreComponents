@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.Zip;
 
 namespace YetaWF.Core.Packages {
     public class SiteTemplateData {
@@ -70,8 +71,8 @@ namespace YetaWF.Core.Packages {
             foreach (string packageName in PackageNames) {
                 Package package = Package.GetPackageFromPackageName(packageName);
                 using (YetaWFZipFile zipFile = await package.ExportDataAsync(takingBackup: true)) {
-                    string file = Path.Combine(path, zipFile.Zip.Name);
-                    zipFile.Zip.Save(file);
+                    string file = Path.Combine(path, zipFile.FileName);
+                    await zipFile.SaveAsync(file);
                 }
             }
         }

@@ -1,11 +1,8 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
-using YetaWF.Core.IO;
+using YetaWF.Core.Support.Zip;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -14,66 +11,6 @@ using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Support {
-
-    /// <summary>
-    /// Class describing a ZIP file.
-    /// </summary>
-    public class YetaWFZipFile : IDisposable {
-        /// <summary>
-        /// The ZIP archive, provided by Ionic.Zip.
-        /// </summary>
-        public ZipFile Zip { get; set; }
-        /// <summary>
-        /// The file name (without path) of the ZIP archive.
-        /// </summary>
-        public string FileName { get; set; }
-        /// <summary>
-        /// Temporary files referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
-        /// </summary>
-        public List<string> TempFiles { get; set; }
-        /// <summary>
-        /// Temporary files referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
-        /// </summary>
-        public List<string> TempFolders { get; set; }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public YetaWFZipFile() {
-            TempFiles = new List<string>();
-            TempFolders = new List<string>();
-            DisposableTracker.AddObject(this);
-        }
-
-        /// <summary>
-        /// Performs cleanup of temporary files and folders (TempFiles, TempFolders).
-        /// </summary>
-        public void Dispose() { Dispose(true); }
-
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                DisposableTracker.RemoveObject(this);
-            }
-        }
-        public async Task CleanupFoldersAsync() {
-            if (TempFiles != null) {
-                foreach (var tempFile in TempFiles) {
-                    try {
-                        await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
-                    } catch (Exception) { }
-                }
-                TempFiles = null;
-            }
-            if (TempFolders != null) {
-                foreach (var tempFolder in TempFolders) {
-                    try {
-                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempFolder);
-                    } catch (Exception) { }
-                }
-                TempFolders = null;
-            }
-        }
-    }
 
     /// <summary>
     /// Used to return a ZIP file from a controller.
@@ -115,7 +52,7 @@ namespace YetaWF.Core.Support {
                 Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" } );
 
                 using (Zip) {
-                    Zip.Zip.Save(Response.Body);
+                    await Zip.SaveAsync(Response.Body);
                     await Zip.CleanupFoldersAsync();
                 }
 #else

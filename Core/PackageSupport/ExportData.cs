@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 
 namespace YetaWF.Core.Packages {
 
@@ -24,7 +24,6 @@ namespace YetaWF.Core.Packages {
             string zipName = __ResStr("packageDataFmt", "Package Data - {0}.{1}.zip", this.Name, this.Version);
 
             SerializableData serData;
-            ZipEntry ze;
             string fileName;
             YetaWFZipFile zipFile = MakeZipFile(zipName, out serData);
 
@@ -49,8 +48,7 @@ namespace YetaWF.Core.Packages {
                                 if (fileList != null && fileList.Count > 0) {
                                     serModel.Files.AddRange(fileList);
                                     foreach (var file in fileList) {
-                                        ze = zipFile.Zip.AddFile(file.AbsFileName);
-                                        ze.FileName = file.FileName;
+                                        zipFile.AddFile(file.AbsFileName, file.FileName);
                                     }
                                 }
                                 if (!more && expChunk.ObjectList == null)
@@ -64,8 +62,7 @@ namespace YetaWF.Core.Packages {
                                     await fs.CloseAsync();
                                 }
 
-                                ze = zipFile.Zip.AddFile(fileName);
-                                ze.FileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
+                                zipFile.AddFile(fileName, string.Format("{0}_{1}.xml", modelType.Name, chunk));
                             }
 
                             serModel.Class = modelType.Name;
@@ -86,10 +83,9 @@ namespace YetaWF.Core.Packages {
                 new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serData);
                 await fs.CloseAsync();
             }
-            ze = zipFile.Zip.AddFile(fileName);
-            ze.FileName = PackageContentsFile;
+            zipFile.AddFile(fileName, PackageContentsFile);
 
-            zipFile.Zip.AddEntry(PackageIDDataFile, __ResStr("packageData", "YetaWF Package Data"));
+            zipFile.AddData("YetaWF Package Data", PackageIDDataFile);
 
             return zipFile;
         }
@@ -101,7 +97,6 @@ namespace YetaWF.Core.Packages {
 
             return new YetaWFZipFile {
                 FileName = zipName,
-                Zip = new ZipFile(zipName),
             };
         }
     }

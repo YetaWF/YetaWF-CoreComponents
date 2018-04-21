@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zip;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,10 +22,10 @@ namespace YetaWF.Core.Modules {
 
             string xmlFile = null;
 
-            using (ZipFile zip = ZipFile.Read(zipFileName)) {
+            using (ZipFile zip = new ZipFile(zipFileName)) {
 
                 // check id file
-                ZipEntry ze = zip[ModuleIDFile];
+                ZipEntry ze = zip.GetEntry(ModuleIDFile);
                 if (ze == null) {
                     errorList.Add(__ResStr("invFormat", "{0} is not valid module data", displayFileName));
                     return false;
@@ -33,8 +34,10 @@ namespace YetaWF.Core.Modules {
                 // read contents file
                 xmlFile = Path.GetTempFileName();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
-                    ze = zip[ModuleContentsFile];
-                    ze.Extract(fs.GetFileStream());
+                    ze = zip.GetEntry(ModuleContentsFile);
+                    using (Stream entryStream = zip.GetInputStream(ze)) {
+                        Extract(entryStream, fs);
+                    }
                     await fs.CloseAsync();
                 }
                 SerializableModule serModule;
@@ -78,14 +81,16 @@ namespace YetaWF.Core.Modules {
                 }
                 // unzip ALL files but replace guid if it's part of the path
                 foreach (var file in serModule.Files) {
-                    ZipEntry e = zip[file.FileName];
+                    ZipEntry e = zip.GetEntry(file.FileName);
                     if (HaveManager && file.SiteSpecific) {
                         string fName = file.FileName;
                         fName = fName.Replace(originalGuid.ToString(), modDef.ModuleGuid.ToString());
                         fName = Manager.SiteFolder + fName;
                         await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName));
                         using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
-                            e.Extract(fs.GetFileStream());
+                            using (Stream entryStream = zip.GetInputStream(e)) {
+                                Extract(entryStream, fs);
+                            }
                             await fs.CloseAsync();
                         }
 
@@ -103,6 +108,11 @@ namespace YetaWF.Core.Modules {
                 return false;
             }
             return true;
+        }
+
+        private static void Extract(Stream entryStream, IFileStream fs) {
+            byte[] buffer = new byte[4096];
+            StreamUtils.Copy(entryStream, fs.GetFileStream(), buffer);
         }
     }
 }

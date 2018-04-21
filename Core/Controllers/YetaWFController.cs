@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Ionic.Zlib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
