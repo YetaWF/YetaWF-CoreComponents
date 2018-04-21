@@ -50,7 +50,7 @@ namespace YetaWF.Core.Serializers {
                 //WARNING ASSUMES LITTLE-ENDIAN
                 if (!BitConverter.IsLittleEndian) throw new InternalError("Little endian only please");
                 // the least significant bits in the least significant byte (which is stored first) holds a special indicator
-                if (len < 256 >> 2) { // use 1 byte for length
+                if (len < (256 >> 2)) { // use 1 byte for length
                     Output.Write((byte)((len << 2) + 0x2));
                 } else if (len < (65535 >> 2)) { // use 2 bytes for length
                     Output.Write((ushort)((len << 2) + 0x1));
@@ -418,115 +418,124 @@ namespace YetaWF.Core.Serializers {
                 input = ReadString();
             }
         }
-        private object DeserializeOneProperty(string propName, object obj, Type tpObj, List<PropertyInfo> propInfos, bool set = true) {
+        private object DeserializeOneProperty(string propName, object obj, Type tpObj, List<PropertyInfo> propInfos) {
+
             string input = ReadString();
+            UnreadString(input); // pushback
 
             object objVal = null;
-            PropertyInfo pi = null;
-            if (set) {
-                pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
-                //if (pi == null) {
+            PropertyInfo pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
+            if (pi == null) {
                 //Logging.AddLog("Element found for non-existent property {0}", propName);
                 //throw new InternalError("Element found for non-existent property {0}", propName);
                 // This is OK as it can happen when data models change
-                //}
+                return null;
             }
 
             if (input == "V") {
 
-                if (set && pi != null) {
-                    Type pType = pi.PropertyType;
+                objVal = GetDeserializedProperty(pi.PropertyType);
 
-                    // simple value
-                    if (pType == typeof(Byte[])) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = new byte[len];
-                            Buffer.BlockCopy(btes, offs, (byte[])objVal, 0, len);
-                        }, () => { objVal = new byte[] { }; }, () => { objVal = new byte[] { }; });
-                    } else if (pType == typeof(int) || pType == typeof(int?)) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = BitConverter.ToInt32(btes, offs);
-                        }, () => { objVal = null; }, () => { objVal = null; });
-                    } else if (pType == typeof(long) || pType == typeof(long?)) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = BitConverter.ToInt64(btes, offs);
-                        }, () => { objVal = null; }, () => { objVal = null; });
-                    } else if (pType == typeof(string)) {
-                        objVal = ReadString();
-                    } else if (pType == typeof(bool) || pType == typeof(bool?)) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = BitConverter.ToBoolean(btes, offs);
-                        }, () => { objVal = null; }, () => { objVal = null; });
-                    } else if (pType.IsEnum) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = Enum.ToObject(pType, BitConverter.ToInt64(btes, offs));
-                        }, () => { objVal = null; }, () => { objVal = null; });
-                    } else if (pType == typeof(DateTime) || pType == typeof(DateTime?)) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = new DateTime(BitConverter.ToInt64(btes, offs));
-                        }, () => { objVal = null; }, () => { objVal = null; });
-                    } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
-                        ReadBytes((btes, offs, len) => {
-                            objVal = new TimeSpan(BitConverter.ToInt64(btes, offs));
-                        }, () => { objVal = null; }, () => { objVal = null; });
-                    } else if (pType == typeof(Guid) || pType == typeof(Guid?)) {
-                        ReadBytes((btes, offs, len) => {
-                            byte[] b = new byte[len];
-                            Buffer.BlockCopy(btes, offs, b, 0, len);
-                            objVal = new Guid(b);
-                        }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
-                    } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
-                        ReadBytes((btes, offs, len) => {
-                            byte[] b = new byte[len];
-                            Buffer.BlockCopy(btes, offs, b, 0, len);
-                            using (MemoryStream ms = new MemoryStream(b)) {
-                                objVal = System.Drawing.Image.FromStream(ms);
-                            }
-                        }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
-                    } else {
-                        string strVal = ReadString();
-                        objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
+                bool fail = false;
+                string failMsg = null;
+                try {
+                    pi.SetValue(obj, objVal, null);
+                } catch (Exception exc) {
+                    fail = true;
+                    failMsg = exc.Message;
+                }
+                if (fail) {
+                    // try using a constructor (types like Guid can't simply be assigned)
+                    ConstructorInfo ci = pi.PropertyType.GetConstructor(new Type[] { typeof(string) });
+                    if (ci == null) {
+                        throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}", propName, failMsg);
                     }
-
-                    bool fail = false;
-                    string failMsg = null;
                     try {
+                        objVal = ci.Invoke(new object[] { objVal });
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
-                        fail = true;
-                        failMsg = exc.Message;
+                        throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}", propName, failMsg, exc.Message);
                     }
-                    if (fail) {
-                        // try using a constructor (types like Guid can't simply be assigned)
-                        ConstructorInfo ci = pType.GetConstructor(new Type[] { typeof(string) });
-                        if (ci == null) {
-                            throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}", propName, failMsg);
-                        }
-                        try {
-                            objVal = ci.Invoke(new object[] { objVal });
-                            pi.SetValue(obj, objVal, null);
-                        } catch (Exception exc) {
-                            throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}", propName, failMsg, exc.Message);
-                        }
-                    }
-                } else {
-                    string strVal = ReadString();
-                    objVal = strVal;
                 }
+
             } else {
-                UnreadString(input); // pushback
 
                 objVal = DeserializeOneObject();
-                if (set && pi != null) {
-                    try {
-                        pi.SetValue(obj, objVal, null);
-                    } catch (Exception exc) {
-                        throw new InternalError("Element for property {0} has an invalid value - {1}", propName, exc.Message);
-                    }
+
+                try {
+                    pi.SetValue(obj, objVal, null);
+                } catch (Exception exc) {
+                    throw new InternalError("Element for property {0} has an invalid value - {1}", propName, exc.Message);
                 }
             }
             return objVal;
         }
+
+        private object GetDeserializedProperty(Type pType) {
+
+            string input = ReadString();
+
+            object objVal = null;
+
+            if (input == "V") {
+
+                // simple value
+                if (pType == typeof(Byte[])) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = new byte[len];
+                        Buffer.BlockCopy(btes, offs, (byte[])objVal, 0, len);
+                    }, () => { objVal = new byte[] { }; }, () => { objVal = new byte[] { }; });
+                } else if (pType == typeof(int) || pType == typeof(int?)) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = BitConverter.ToInt32(btes, offs);
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType == typeof(long) || pType == typeof(long?)) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = BitConverter.ToInt64(btes, offs);
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType == typeof(string)) {
+                    objVal = ReadString();
+                } else if (pType == typeof(bool) || pType == typeof(bool?)) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = BitConverter.ToBoolean(btes, offs);
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType.IsEnum) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = Enum.ToObject(pType, BitConverter.ToInt64(btes, offs));
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType == typeof(DateTime) || pType == typeof(DateTime?)) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = new DateTime(BitConverter.ToInt64(btes, offs));
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = new TimeSpan(BitConverter.ToInt64(btes, offs));
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType == typeof(Guid) || pType == typeof(Guid?)) {
+                    ReadBytes((btes, offs, len) => {
+                        byte[] b = new byte[len];
+                        Buffer.BlockCopy(btes, offs, b, 0, len);
+                        objVal = new Guid(b);
+                    }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
+                } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
+                    ReadBytes((btes, offs, len) => {
+                        byte[] b = new byte[len];
+                        Buffer.BlockCopy(btes, offs, b, 0, len);
+                        using (MemoryStream ms = new MemoryStream(b)) {
+                            objVal = System.Drawing.Image.FromStream(ms);
+                        }
+                    }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
+                } else {
+                    string strVal = ReadString();
+                    objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
+                }
+            } else {
+                UnreadString(input); // pushback
+                objVal = DeserializeOneObject();
+            }
+            return objVal;
+        }
+
         private void DeserializeDictionary(object obj, Type tpObj) {
             string input = ReadString();
 
@@ -534,13 +543,23 @@ namespace YetaWF.Core.Serializers {
             if (mi == null)
                 throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
+            // handle derived types
+            Type baseType = tpObj;
+            while (baseType.GenericTypeArguments.Count() != 2) {
+                if (baseType.BaseType == null)
+                    throw new InternalError($"SerializableDictionary must have 2 generic types - {tpObj.Name}");
+                baseType = baseType.BaseType;
+            }
+            Type elemKeyType = baseType.GenericTypeArguments[0].UnderlyingSystemType;
+            Type elemValType = baseType.GenericTypeArguments[1].UnderlyingSystemType;
+
             for (;;) {
                 if (input == "E")
                     return;
 
                 UnreadString(input);
-                object objKey = DeserializeOneProperty(null, obj, tpObj, null, false);
-                object objVal = DeserializeOneProperty(null, obj, tpObj, null, false);
+                object objKey = GetDeserializedProperty(elemKeyType);
+                object objVal = GetDeserializedProperty(elemValType);
 
                 try {
                     mi.Invoke(obj, new object[] { objKey, objVal });
@@ -557,12 +576,21 @@ namespace YetaWF.Core.Serializers {
             if (mi == null)
                 throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
+            // handle derived types
+            Type baseType = tpObj;
+            while (baseType.GenericTypeArguments.Count() == 0) {
+                if (baseType.BaseType == null)
+                    throw new InternalError($"SerializableList must have 1 generic type - {tpObj.Name}");
+                baseType = baseType.BaseType;
+            }
+            Type elemType = baseType.GenericTypeArguments[0].UnderlyingSystemType;
+
             for (;;) {
                 if (input == "E")
                     return;
 
                 UnreadString(input);
-                object objVal = DeserializeOneProperty(null, obj, tpObj, null, false);
+                object objVal = GetDeserializedProperty(elemType);
 
                 try {
                     mi.Invoke(obj, new object[] { objVal });
