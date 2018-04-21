@@ -68,6 +68,7 @@ namespace YetaWF.Core.Support.Zip {
         }
 
         public void AddFile(string absFileName, string fileName) {
+            if (fileName.StartsWith("/") || fileName.StartsWith("\\")) fileName = fileName.Substring(1);
             Entries.Add(new YetaWFZipEntry {
                 AbsoluteFileName = absFileName,
                 RelativeName = fileName,
