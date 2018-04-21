@@ -230,22 +230,6 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="package" />
-                <Text Value="YetaWF Package" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
-                <Name Value="packageData" />
-                <Text Value="YetaWF Package Data" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
                 <Name Value="packageDataFmt" />
                 <Text Value="Package Data - {0}.{1}.zip" />
               </Properties>

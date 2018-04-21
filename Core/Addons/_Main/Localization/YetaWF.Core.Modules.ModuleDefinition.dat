@@ -995,14 +995,6 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="moduleData" />
-                <Text Value="YetaWF Module Data" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
                 <Name Value="moduleFmt" />
                 <Text Value="Module Data - {0}.{1}.zip" />
               </Properties>

@@ -22,14 +22,6 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="backup" />
-                <Text Value="YetaWF Site Backup" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
                 <Name Value="backupNotFound" />
                 <Text Value="The backup '{0}' cannot be located." />
               </Properties>
