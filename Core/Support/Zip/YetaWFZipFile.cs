@@ -1,4 +1,6 @@
-﻿using ICSharpCode.SharpZipLib.Core;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
