@@ -12,6 +12,7 @@ using YetaWF.Core.IO;
 using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 using YetaWF.Core.Upload;
 using YetaWF.PackageAttributes;
 
@@ -143,7 +144,7 @@ namespace YetaWF.Core.Packages {
                     // copy bin files to a temporary location
                     string tempBin = Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct);
                     foreach (var file in serPackage.BinFiles) {
-                        ZipEntry e = zip.GetEntry(file.FileName);
+                        ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                         using (Stream entryStream = zip.GetInputStream(e)) {
                             await ExtractAsync(tempBin, e.Name, entryStream);
                         }
@@ -190,14 +191,14 @@ namespace YetaWF.Core.Packages {
                 if (!hasSource) {
                     // Addons
                     foreach (var file in serPackage.AddOns) {
-                        ZipEntry e = zip.GetEntry(file.FileName);
+                        ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                         using (Stream entryStream = zip.GetInputStream(e)) {
                             await ExtractAsync(YetaWFManager.RootFolder, e.Name, entryStream);
                         }
                     }
                     // Views
                     foreach (var file in serPackage.Views) {
-                        ZipEntry e = zip.GetEntry(file.FileName);
+                        ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                         using (Stream entryStream = zip.GetInputStream(e)) {
                             string rootFolder;
 #if MVC6
@@ -211,14 +212,14 @@ namespace YetaWF.Core.Packages {
                 } else {
                     // bin
                     foreach (var file in serPackage.BinFiles) {
-                        ZipEntry e = zip.GetEntry(file.FileName);
+                        ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                         using (Stream entryStream = zip.GetInputStream(e)) {
                             await ExtractAsync(sourcePath, e.Name, entryStream);
                         }
                     }
                     // Source code (optional), includes addons & views
                     foreach (var file in serPackage.SourceFiles) {
-                        ZipEntry e = zip.GetEntry(file.FileName);
+                        ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                         using (Stream entryStream = zip.GetInputStream(e)) {
                             await ExtractAsync(sourcePath, e.Name, entryStream);
                         }

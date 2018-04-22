@@ -68,11 +68,16 @@ namespace YetaWF.Core.Support.Zip {
         }
 
         public void AddFile(string absFileName, string fileName) {
-            if (fileName.StartsWith("/") || fileName.StartsWith("\\")) fileName = fileName.Substring(1);
             Entries.Add(new YetaWFZipEntry {
                 AbsoluteFileName = absFileName,
-                RelativeName = fileName,
+                RelativeName = CleanFileName(fileName),
             });
+        }
+        public static string CleanFileName(string fileName) {
+            fileName = fileName.Replace("\\", "/");
+            if (fileName.StartsWith("/"))
+                fileName = fileName.Substring(1);
+            return fileName;
         }
         public void AddData(string data, string fileName) {
             Entries.Add(new YetaWFZipEntry {
@@ -119,6 +124,7 @@ namespace YetaWF.Core.Support.Zip {
                 StreamUtils.Copy(ms, zipStream, buffer);
             }
         }
+
         private async Task WriteFileAsync(ZipOutputStream zipStream, string absoluteFileName, string relativeName) {
             using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(absoluteFileName)) {
                 DateTime lastWrite = await FileSystem.TempFileSystemProvider.GetLastWriteTimeUtcAsync(absoluteFileName);

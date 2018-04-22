@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.Packages {
@@ -82,7 +83,7 @@ namespace YetaWF.Core.Packages {
 
                         // unzip files - date provider doesn't have to do anything for files
                         foreach (var file in serModel.Files) {
-                            ZipEntry e = zip.GetEntry(file.FileName);
+                            ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                             using (Stream entryStream = zip.GetInputStream(e)) {
                                 if (YetaWFManager.HaveManager && file.SiteSpecific) {
                                     await ExtractAsync(YetaWFManager.Manager.SiteFolder, e.Name, entryStream);

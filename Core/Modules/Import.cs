@@ -11,6 +11,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
+using YetaWF.Core.Support.Zip;
 using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.Modules {
@@ -81,7 +82,7 @@ namespace YetaWF.Core.Modules {
                 }
                 // unzip ALL files but replace guid if it's part of the path
                 foreach (var file in serModule.Files) {
-                    ZipEntry e = zip.GetEntry(file.FileName);
+                    ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                     if (HaveManager && file.SiteSpecific) {
                         string fName = file.FileName;
                         fName = fName.Replace(originalGuid.ToString(), modDef.ModuleGuid.ToString());
