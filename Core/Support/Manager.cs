@@ -423,6 +423,7 @@ namespace YetaWF.Core.Support {
 #else
             if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase))
                 url = url.ReplaceFirst(Globals.VaultPrivateUrl, Globals.VaultUrl);
+            url = url.Replace("%20", " ");
             return HostingEnvironment.MapPath(url.RemoveStartingAt('?'));
 #endif
         }
