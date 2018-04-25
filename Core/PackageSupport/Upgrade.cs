@@ -144,7 +144,8 @@ namespace YetaWF.Core.Packages {
             if (coreInfo == null)
                 throw new InternalError("YetaWF.Core package not found in package map");
             //bool dropIndexes = Package.CompareVersion(coreInfo.Version, "2.0.3") < 0; // we're upgrading from pre-2.0.3, need to upgrade all varchar columns -> drop all indexes
-            bool dropIndexes = Package.CompareVersion(coreInfo.Version, "2.8.0") < 0; // we're upgrading from pre-2.8.0, need to upgrade for new SQL data provider
+            //bool dropIndexes = Package.CompareVersion(coreInfo.Version, "2.8.0") < 0; // we're upgrading from pre-2.8.0, need to upgrade for new SQL data provider
+            bool dropIndexes = Package.CompareVersion(coreInfo.Version, "3.0.0") < 0; // we're upgrading from pre-3.0.0, need to upgrade for new SQL data provider
             MajorDataChange = dropIndexes;
 
             // update/create all models
