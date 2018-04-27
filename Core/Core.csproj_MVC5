@@ -149,6 +149,7 @@
     <Compile Include="Models\GridSupport.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Pages\ErrorHandlingMiddleware.cs" />
+    <Compile Include="Pages\Export.cs" />
     <Compile Include="Pages\RazorPageLifetime.cs" />
     <Compile Include="Pages\ViewServiceRender.cs" />
     <Compile Include="Pages\YetaWFRazorView.cs" />
