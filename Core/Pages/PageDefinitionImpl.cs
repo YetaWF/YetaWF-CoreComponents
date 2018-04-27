@@ -17,6 +17,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.ResponseFilter;
+using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -28,6 +29,8 @@ using System.Web.Mvc;
 namespace YetaWF.Core.Pages {
 
     public partial class PageDefinition : IInitializeApplicationStartup {
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); }
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 

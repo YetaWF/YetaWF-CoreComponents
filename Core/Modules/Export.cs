@@ -8,6 +8,7 @@ using YetaWF.Core.Support.Serializers;
 using YetaWF.Core.Support.Zip;
 
 namespace YetaWF.Core.Modules {
+
     public partial class ModuleDefinition {
 
         public const string ModuleContentsFile = "Contents.xml";

@@ -1,12 +1,12 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.IO;
-using YetaWF.Core.IO;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.Zip;
 using YetaWF.PackageAttributes;
 
 namespace YetaWF.Core.Packages {
@@ -30,6 +30,23 @@ namespace YetaWF.Core.Packages {
             AddOns = new SerializableList<SerializableFile>();
             Views = new SerializableList<SerializableFile>();
             SourceFiles = new SerializableList<SerializableFile>();
+        }
+    }
+
+    public class SerializablePage {
+        public string PageUrl { get; set; }
+        public string CoreVersion { get; set; }
+
+        public Guid PageGuid { get; set; }
+        public PageDefinition PageDef { get; set; }
+        public SerializableList<Guid> ModuleGuids { get; set; }
+        public SerializableList<string> ModuleZips { get; set; }
+        public SerializableList<SerializableFile> Files { get; set; }
+
+        public SerializablePage() {
+            ModuleGuids = new SerializableList<Guid>();
+            ModuleZips = new SerializableList<string>();
+            Files = new SerializableList<SerializableFile>();
         }
     }
 
