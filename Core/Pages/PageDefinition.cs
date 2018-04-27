@@ -24,7 +24,7 @@ using System.Web.Mvc;
 namespace YetaWF.Core.Pages {
 
     [Trim]
-    public partial class PageDefinition { 
+    public partial class PageDefinition {
 
         public const int MaxPane = 40;
         public const int MaxTitle = 100;

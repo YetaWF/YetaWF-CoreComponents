@@ -32,7 +32,7 @@ namespace YetaWF.Core.Pages {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); }
 
-        protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         // IInitializeApplicationStartup
         public const string ImageType = "YetaWF_Core_PageFavIcon";

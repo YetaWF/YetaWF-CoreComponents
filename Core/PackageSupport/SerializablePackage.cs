@@ -39,12 +39,10 @@ namespace YetaWF.Core.Packages {
 
         public Guid PageGuid { get; set; }
         public PageDefinition PageDef { get; set; }
-        public SerializableList<Guid> ModuleGuids { get; set; }
         public SerializableList<string> ModuleZips { get; set; }
         public SerializableList<SerializableFile> Files { get; set; }
 
         public SerializablePage() {
-            ModuleGuids = new SerializableList<Guid>();
             ModuleZips = new SerializableList<string>();
             Files = new SerializableList<SerializableFile>();
         }

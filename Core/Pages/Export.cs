@@ -30,8 +30,6 @@ namespace YetaWF.Core.Pages {
             foreach (ModuleEntry modEntry in this.ModuleDefinitions) {
                 ModuleDefinition mod = await modEntry.GetModuleAsync();
                 if (mod != null) {
-                    // save the module guid
-                    serPage.ModuleGuids.Add(mod.ModuleGuid);
                     // export the module
                     YetaWFZipFile modZip = await mod.ExportDataAsync();
                     // save the module zip file to a temp file
@@ -39,7 +37,7 @@ namespace YetaWF.Core.Pages {
                     await modZip.SaveAsync(modZipFileName);
                     await modZip.CleanupFoldersAsync();
                     // add the module zip file to the page zip file
-                    serPage.ModuleZips.Add(modZipFileName);
+                    serPage.ModuleZips.Add(mod.ModuleGuidName);
                     zipFile.AddFile(modZipFileName, mod.ModuleGuidName);
                     zipFile.TempFiles.Add(modZipFileName);
                 }
