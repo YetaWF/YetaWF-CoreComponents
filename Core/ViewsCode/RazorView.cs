@@ -324,7 +324,8 @@ namespace YetaWF.Core.Views
                 divId = Manager.UniqueId();
                 tag.Attributes.Add("id", divId);
             } else {
-                if (UsePartialFormCss && !Manager.IsInPopup && !string.IsNullOrWhiteSpace(Manager.SkinInfo.PartialFormCss) && module.UsePartialFormCss)
+                if (UsePartialFormCss && !Manager.IsInPopup && Manager.ActiveDevice != YetaWFManager.DeviceSelected.Mobile &&
+                        !string.IsNullOrWhiteSpace(Manager.SkinInfo.PartialFormCss) && module.UsePartialFormCss)
                     tag.AddCssClass(Manager.SkinInfo.PartialFormCss);
             }
             hb.Append(tag.ToString(TagRenderMode.StartTag));
