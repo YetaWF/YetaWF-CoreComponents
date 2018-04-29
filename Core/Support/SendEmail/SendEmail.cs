@@ -207,7 +207,11 @@ namespace YetaWF.Core.SendEmail {
 
         public async Task SendAsync(bool fThrowError = true) {
             try {
-                await SmtpClient.SendMailAsync(MailMessage);
+                if (YetaWFManager.IsSync()) {
+                    SmtpClient.Send(MailMessage);
+                } else {
+                    await SmtpClient.SendMailAsync(MailMessage);
+                }
             } catch (Exception exc) {
                 Logging.AddErrorLog("Server={0}, SSL={1}, Auth={2}", SmtpClient.Host, SmtpClient.EnableSsl.ToString(), SmtpClient.UseDefaultCredentials.ToString(), exc);
                 if (fThrowError)
