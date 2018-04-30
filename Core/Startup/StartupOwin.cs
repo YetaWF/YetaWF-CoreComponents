@@ -22,7 +22,6 @@ namespace YetaWF.Core.Support {
         public void Configuration(IAppBuilder app) {
 
             Logging.AddLog("Processing OwinStartup");
-            // get all types, but put the VersionManagerStartup class first
             List<Type> types = Package.GetClassesInPackages<IInitializeOwinStartup>(OrderByServiceLevel: true);
             // start up all classes
             foreach (Type type in types) {
