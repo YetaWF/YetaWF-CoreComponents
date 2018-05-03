@@ -585,7 +585,7 @@
                           <Properties>
                             <Name Value="UsePartialFormCss" />
                             <Caption Value="Partial Form Css" />
-                            <Description Value="Defines whether the skin's partial form Css is added to partial forms within this module - Partial form Css is never used in popup windows" />
+                            <Description Value="Defines whether the skin's partial form Css is added to partial forms within this module - Partial form Css is never used in popup windows or on mobile devices" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

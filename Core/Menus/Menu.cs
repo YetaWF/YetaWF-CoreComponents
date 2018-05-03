@@ -182,8 +182,10 @@ namespace YetaWF.Core.Menus {
                 hb.Append(tag.ToString(TagRenderMode.StartTag));
 
                 ModuleDefinition subMod = await ModuleDefinition.LoadAsync((Guid)subGuid, AllowNone: true);
-                if (subMod != null)
+                if (subMod != null) {
+                    subMod.ShowTitle = false; // don't show the module title in a submenu (temp. override)
                     hb.Append(await subMod.RenderModuleAsync(htmlHelper));
+                }
 
                 hb.Append("</li>\n");
             } else {
