@@ -138,7 +138,7 @@ namespace YetaWF.Core.Support {
                     }
                 }
             } catch (Exception exc) {
-                Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", exc.Message, ipAddress);
+                Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", ErrorHandling.FormatExceptionMessage(exc), ipAddress);
                 return null;
             }
             if (geoData.geoplugin_status != 200) {

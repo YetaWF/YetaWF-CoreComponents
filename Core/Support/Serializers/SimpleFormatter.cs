@@ -269,7 +269,7 @@ namespace YetaWF.Core.Serializers {
                     Assembly asm = Assemblies.Load(strAsmFull);
                     t = asm.GetType(strType, true);
                 } catch (Exception exc) {
-                    throw new InternalError("Invalid object type {0} - {1} - AssemblyFull missing or invalid", input, exc.Message);
+                    throw new InternalError("Invalid object type {0} - {1} - AssemblyFull missing or invalid", input, ErrorHandling.FormatExceptionMessage(exc));
                 }
             }
             input = Read(stream);
@@ -279,7 +279,7 @@ namespace YetaWF.Core.Serializers {
             try {
                 obj = Activator.CreateInstance(t);
             } catch (Exception exc) {
-                throw new InternalError("Unable to create an instance of type {0} - {1}.", strType, exc.Message);
+                throw new InternalError("Unable to create an instance of type {0} - {1}.", strType, ErrorHandling.FormatExceptionMessage(exc));
             }
 
             for ( ; ; ) {
@@ -371,7 +371,7 @@ namespace YetaWF.Core.Serializers {
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
                         fail = true;
-                        failMsg = exc.Message;
+                        failMsg = ErrorHandling.FormatExceptionMessage(exc);
                     }
                     if (fail) {
                         // try using a constructor (types like Guid can't simply be assigned)
@@ -383,7 +383,7 @@ namespace YetaWF.Core.Serializers {
                             objVal = ci.Invoke(new object[] { strVal });
                             pi.SetValue(obj, objVal, null);
                         } catch (Exception exc) {
-                            throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}.", propName, failMsg, exc.Message);
+                            throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}.", propName, failMsg, ErrorHandling.FormatExceptionMessage(exc));
                         }
                     }
                 } else {
@@ -397,7 +397,7 @@ namespace YetaWF.Core.Serializers {
                     try {
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
-                        throw new InternalError("Element for property {0} has an invalid value - {1}.", propName, exc.Message);
+                        throw new InternalError("Element for property {0} has an invalid value - {1}.", propName, ErrorHandling.FormatExceptionMessage(exc));
                     }
                 }
             }
@@ -423,7 +423,7 @@ namespace YetaWF.Core.Serializers {
                 try {
                     mi.Invoke(obj, new object[] { objKey, objVal });
                 } catch (Exception exc) {
-                    throw new InternalError("Couldn't add new entry to dictionary type {0} - {1}.", tpObj.Name, exc.Message);
+                    throw new InternalError("Couldn't add new entry to dictionary type {0} - {1}.", tpObj.Name, ErrorHandling.FormatExceptionMessage(exc));
                 }
                 input = Read(stream);
             }
@@ -446,7 +446,7 @@ namespace YetaWF.Core.Serializers {
                 try {
                     mi.Invoke(obj, new object[] { objVal });
                 } catch (Exception exc) {
-                    throw new InternalError("Couldn't add new entry to list type {0} - {1}.", tpObj.Name, exc.Message);
+                    throw new InternalError("Couldn't add new entry to list type {0} - {1}.", tpObj.Name, ErrorHandling.FormatExceptionMessage(exc));
                 }
                 input = Read(stream);
             }

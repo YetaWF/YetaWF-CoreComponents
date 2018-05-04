@@ -173,7 +173,7 @@ namespace YetaWF.Core.Upload {
                     resp = (HttpWebResponse)await req.GetResponseAsync();
                 }
             } catch (Exception ex) {
-                throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ex.Message));
+                throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ErrorHandling.FormatExceptionMessage(ex)));
             }
             if (!mimeSection.CanUse(resp.ContentType, useType)) {
                 string contentType = resp.ContentType;

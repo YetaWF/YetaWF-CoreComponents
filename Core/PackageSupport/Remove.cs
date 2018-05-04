@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Packages {
 
@@ -36,7 +37,7 @@ namespace YetaWF.Core.Packages {
                     await FileSystem.FileSystemProvider.DeleteFileAsync(extraAsm);
                 } catch (Exception exc) {
                     if (!(exc is FileNotFoundException)) {
-                        errorList.Add(__ResStr("cantRemoveExtraAsm", "Can't delete file {0}: {1}", extraAsm, exc.Message));
+                        errorList.Add(__ResStr("cantRemoveExtraAsm", "Can't delete file {0}: {1}", extraAsm, ErrorHandling.FormatExceptionMessage(exc)));
                         status = false;
                     }
                 }
@@ -46,7 +47,7 @@ namespace YetaWF.Core.Packages {
                 await FileSystem.FileSystemProvider.DeleteFileAsync(asmFile);
             } catch (Exception exc) {
                 if (!(exc is FileNotFoundException)) {
-                    errorList.Add(__ResStr("cantRemoveMainAsm", "Can't delete file {0}: {1}", asmFile, exc.Message));
+                    errorList.Add(__ResStr("cantRemoveMainAsm", "Can't delete file {0}: {1}", asmFile, ErrorHandling.FormatExceptionMessage(exc)));
                     status = false;
                 }
             }
@@ -66,7 +67,7 @@ namespace YetaWF.Core.Packages {
                 await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
             } catch (Exception exc) {
                 if (!(exc is DirectoryNotFoundException)) {
-                    errorList.Add(__ResStr("cantRemove", "Package addons folder {0} could not be deleted: {1}", folder, exc.Message));
+                    errorList.Add(__ResStr("cantRemove", "Package addons folder {0} could not be deleted: {1}", folder, ErrorHandling.FormatExceptionMessage(exc)));
                     return false;
                 }
             }
@@ -78,7 +79,7 @@ namespace YetaWF.Core.Packages {
                     await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantRemoveHierarchy", "Package addons folder {0} could not be deleted: {1}", folder, exc.Message));
+                        errorList.Add(__ResStr("cantRemoveHierarchy", "Package addons folder {0} could not be deleted: {1}", folder, ErrorHandling.FormatExceptionMessage(exc)));
                         return false;
                     }
                 }

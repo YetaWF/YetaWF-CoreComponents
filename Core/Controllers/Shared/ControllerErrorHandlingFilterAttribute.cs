@@ -23,14 +23,7 @@ namespace YetaWF.Core.Controllers {
             Exception exc = context.Exception;
             string msg = "(unknown)";
             if (exc != null) {
-                // show inner exception
-                if (exc.Message != null && !string.IsNullOrWhiteSpace(exc.Message))
-                    msg = exc.Message;
-                while (exc.InnerException != null) {
-                    exc = exc.InnerException;
-                    if (exc.Message != null && !string.IsNullOrWhiteSpace(exc.Message))
-                        msg += " " + exc.Message;
-                }
+                msg = ErrorHandling.FormatExceptionMessage(exc);
                 Logging.AddErrorLog(msg);
             }
             if (!YetaWFManager.HaveManager || !Manager.IsPostRequest)

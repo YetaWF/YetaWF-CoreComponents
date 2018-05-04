@@ -339,7 +339,7 @@ namespace YetaWF.Core.Pages {
                 };
             } catch (Exception exc) {
                 return new NewPageInfo {
-                    Message = exc.Message
+                    Message = ErrorHandling.FormatExceptionMessage(exc)
                 };
             }
         }

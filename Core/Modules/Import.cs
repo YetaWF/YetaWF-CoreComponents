@@ -105,7 +105,7 @@ namespace YetaWF.Core.Modules {
                     }
                 }
             } catch (Exception exc) {
-                errorList.Add(__ResStr("errCantImport", "Module Data {0}({1}) cannot be imported - {2}", serModule.ModuleName, serModule.ModuleVersion, exc.Message));
+                errorList.Add(__ResStr("errCantImport", "Module Data {0}({1}) cannot be imported - {2}", serModule.ModuleName, serModule.ModuleVersion, ErrorHandling.FormatExceptionMessage(exc)));
                 return false;
             }
             return true;

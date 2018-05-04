@@ -275,7 +275,7 @@ namespace YetaWF.Core.Support {
                 if (GetVariableValue(obj, var, subvar, out retString))
                     return true;
             } catch (Exception e) {
-                retString = string.Format("{0} {1} => {2}", var, subvar, e.Message);
+                retString = string.Format("{0} {1} => {2}", var, subvar, ErrorHandling.FormatExceptionMessage(e));
                 return true;
             }
             return false;

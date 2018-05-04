@@ -72,7 +72,7 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                 } catch (Exception exc) {
-                    throw new Error(__ResStr("errModCantExport", "Model type {0} cannot be exported - {1}"), modelType.FullName, exc.Message);
+                    throw new Error(__ResStr("errModCantExport", "Model type {0} cannot be exported - {1}"), modelType.FullName, ErrorHandling.FormatExceptionMessage(exc));
                 }
             }
 

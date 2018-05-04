@@ -86,7 +86,7 @@ namespace YetaWF.Core.Pages {
                 info.Url = pageDef.Url;
                 return info;
             } catch (Exception exc) {
-                errorList.Add(__ResStr("errCantImport", "Page {0} cannot be imported - {1}", serPage.PageUrl, exc.Message));
+                errorList.Add(__ResStr("errCantImport", "Page {0} cannot be imported - {1}", serPage.PageUrl, ErrorHandling.FormatExceptionMessage(exc)));
                 return info;
             }
         }

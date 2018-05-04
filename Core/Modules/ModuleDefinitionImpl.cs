@@ -755,12 +755,8 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", YetaWFManager.HtmlEncode(name)));
 #endif
             // skip first exception (because it's not user friendly)
-            if (!string.IsNullOrWhiteSpace(exc.Message) && exc.InnerException != null) exc = exc.InnerException;
-            while (exc != null) {
-                if (!string.IsNullOrWhiteSpace(exc.Message))
-                    hb.Append(__ResStr("modErr2", "{0}<br/>", YetaWFManager.HtmlEncode(exc.Message)));
-                exc = exc.InnerException;
-            }
+            if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;            
+            hb.Append(YetaWFManager.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
             hb.Append("</div>");
             if (Manager.CurrentResponse.StatusCode == 200)
                 Manager.CurrentResponse.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)

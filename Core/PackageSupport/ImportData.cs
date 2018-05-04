@@ -133,7 +133,7 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                 } catch (Exception exc) {
-                    errorList.Add(__ResStr("errDataCantImport", "Model type {0} cannot be imported - {1}", modelType.FullName, exc.Message));
+                    errorList.Add(__ResStr("errDataCantImport", "Model type {0} cannot be imported - {1}", modelType.FullName, ErrorHandling.FormatExceptionMessage(exc)));
                     return false;
                 }
             }

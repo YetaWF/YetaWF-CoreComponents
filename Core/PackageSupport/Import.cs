@@ -108,7 +108,7 @@ namespace YetaWF.Core.Packages {
                         await FileSystem.FileSystemProvider.DeleteDirectoryAsync(sourcePath);
                     } catch (Exception exc) {
                         if (!(exc is DirectoryNotFoundException)) {
-                            errorList.Add(__ResStr("cantDelete", "Package source folder {0} could not be deleted: {1}", sourcePath, exc.Message));
+                            errorList.Add(__ResStr("cantDelete", "Package source folder {0} could not be deleted: {1}", sourcePath, ErrorHandling.FormatExceptionMessage(exc)));
                             return false;
                         }
                     }
@@ -120,7 +120,7 @@ namespace YetaWF.Core.Packages {
                     await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(addonsPath));
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantDeleteAddons", "Site Addons folder {0} could not be deleted: {1}", addonsPath, exc.Message));
+                        errorList.Add(__ResStr("cantDeleteAddons", "Site Addons folder {0} could not be deleted: {1}", addonsPath, ErrorHandling.FormatExceptionMessage(exc)));
                         return false;
                     }
                 }
@@ -134,7 +134,7 @@ namespace YetaWF.Core.Packages {
                     await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(viewsPath));
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantDeleteViews", "Site Views folder {0} could not be deleted: {1}", viewsPath, exc.Message));
+                        errorList.Add(__ResStr("cantDeleteViews", "Site Views folder {0} could not be deleted: {1}", viewsPath, ErrorHandling.FormatExceptionMessage(exc)));
                         return false;
                     }
                 }
@@ -240,7 +240,7 @@ namespace YetaWF.Core.Packages {
                     errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when it's rebuilt using Visual Studio."));
                 }
             } catch (Exception exc) {
-                errorList.Add(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}", serPackage.PackageName, serPackage.PackageVersion, exc.Message));
+                errorList.Add(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}", serPackage.PackageName, serPackage.PackageVersion, ErrorHandling.FormatExceptionMessage(exc)));
                 return false;
             }
             return true;

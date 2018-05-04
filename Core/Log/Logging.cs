@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Log {
 
@@ -111,7 +112,7 @@ namespace YetaWF.Core.Log {
             }
             if (exc != null) {
                 while (exc != null) {
-                    bld.AppendFormat("{0}\n", exc.Message);
+                    bld.AppendFormat("{0}\n", ErrorHandling.FormatExceptionMessage(exc));
                     //System.Data.Entity.Validation.DbEntityValidationException excDb = exc as System.Data.Entity.Validation.DbEntityValidationException;
                     //if (excDb != null) {
                     //    foreach (System.Data.Entity.Validation.DbEntityValidationResult res in excDb.EntityValidationErrors) {

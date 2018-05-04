@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Scheduler;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Packages {
 
@@ -47,7 +48,7 @@ namespace YetaWF.Core.Packages {
             try {
                 await SchedulerSupport.InstallAsync(this);
             } catch (Exception exc) {
-                errorList.Add(exc.Message);
+                errorList.Add(ErrorHandling.FormatExceptionMessage(exc));
             }
             return success;
         }
@@ -100,7 +101,7 @@ namespace YetaWF.Core.Packages {
             try {
                 await SchedulerSupport.UninstallAsync(this);
             } catch (Exception exc) {
-                errorList.Add(exc.Message);
+                errorList.Add(ErrorHandling.FormatExceptionMessage(exc));
             }
             return success;
         }

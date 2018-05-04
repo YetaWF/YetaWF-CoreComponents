@@ -54,5 +54,27 @@ namespace YetaWF.Core.Support {
             }
             return message;
         }
+
+        public static string FormatExceptionMessage(Exception exc) {
+            if (exc == null) return "";
+            string message = "(none)";
+            if (exc.Message != null && !string.IsNullOrWhiteSpace(exc.Message))
+                message = exc.Message;
+            if (exc is AggregateException) {
+                AggregateException aggrExc = (AggregateException)exc;
+                foreach (Exception innerExc in aggrExc.InnerExceptions) {
+                    string s = FormatExceptionMessage(innerExc);
+                    if (s != null)
+                        message += " - " + s;
+                }
+            } else {
+                while (exc.InnerException != null) {
+                    string s = FormatExceptionMessage(exc.InnerException);
+                    if (s != null)
+                        message += " - " + s;
+                }
+            }
+            return message;
+        }
     }
 }

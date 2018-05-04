@@ -56,7 +56,7 @@ namespace YetaWF.Core.Security {
                     encryptedText = sb.ToString();
                 }
             } catch (Exception ex) {
-                throw new InternalError("Failure encrypting - {0}", ex.Message);
+                throw new InternalError("Failure encrypting - {0}", ErrorHandling.FormatExceptionMessage(ex));
             }
         }
 
@@ -81,7 +81,7 @@ namespace YetaWF.Core.Security {
                     plainText = Encoding.Unicode.GetString(plainBytes);
                 }
             } catch (Exception ex) {
-                throw new InternalError("Failure decrypting - {0}", ex.Message);
+                throw new InternalError("Failure decrypting - {0}", ErrorHandling.FormatExceptionMessage(ex));
             }
         }
 #if NETCOREAPP

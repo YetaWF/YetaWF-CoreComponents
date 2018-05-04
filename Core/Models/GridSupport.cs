@@ -104,7 +104,7 @@ namespace YetaWF.Core.Models {
                         try {
                             dict.Add(name, gridCol);
                         } catch (Exception exc) {
-                            throw new InternalError("Can't add {1} in {0} - {2}", file, name, exc.Message);
+                            throw new InternalError("Can't add {1} in {0} - {2}", file, name, ErrorHandling.FormatExceptionMessage(exc));
                         }
                     }
                 }
