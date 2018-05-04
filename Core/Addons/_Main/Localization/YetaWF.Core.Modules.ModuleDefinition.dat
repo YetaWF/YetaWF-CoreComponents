@@ -987,14 +987,6 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="modErr2" />
-                <Text Value="{0}&lt;br/&gt;" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
                 <Name Value="moduleFmt" />
                 <Text Value="Module Data - {0}.{1}.zip" />
               </Properties>
