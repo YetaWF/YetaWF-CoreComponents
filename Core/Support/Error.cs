@@ -69,7 +69,8 @@ namespace YetaWF.Core.Support {
                 }
             } else {
                 while (exc.InnerException != null) {
-                    string s = FormatExceptionMessage(exc.InnerException);
+                    exc = exc.InnerException;
+                    string s = FormatExceptionMessage(exc);
                     if (s != null)
                         message += " - " + s;
                 }
