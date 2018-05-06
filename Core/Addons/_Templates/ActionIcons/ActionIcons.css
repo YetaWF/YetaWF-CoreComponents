@@ -28,12 +28,12 @@ ul.yActionIcons, ul.yModuleLinks
 }
 .yActionIcons li, .yModuleLinks li
 {
-    display:inline;
+    display:inline-block;
 }
 
 /* a bit of extra space above the module action links */
 ul.yModuleLinks {
-    margin-top:1em;
+    margin-top:.5em;
 }
 .yModuleTitle ul.yModuleLinks {
     margin-top:2em;

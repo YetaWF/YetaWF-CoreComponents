@@ -1,1 +1,1 @@
-\node_modules\smartmenus\dist\addons\bootstrap\jquery.smartmenus.bootstrap.css,bundle
+\node_modules\smartmenus\dist\addons\bootstrap-4\jquery.smartmenus.bootstrap-4.css,bundle

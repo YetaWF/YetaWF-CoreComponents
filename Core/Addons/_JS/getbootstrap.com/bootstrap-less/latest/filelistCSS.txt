@@ -1,7 +1,5 @@
-﻿//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css,CDN
-//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css,CDN
+﻿//stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css,CDN
 
 \node_modules\bootstrap\dist\css\bootstrap.min.css,noCDN
-\node_modules\bootstrap\dist\css\bootstrap-theme.min.css,noCDN
 
 Bootstrap.css,bundle

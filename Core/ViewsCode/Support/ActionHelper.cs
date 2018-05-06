@@ -46,22 +46,22 @@ namespace YetaWF.Core.Views.Shared {
                 case GridHelper.GridActionsEnum.Icons:
                     return await actions.RenderAsync(htmlHelper, null, ActionIcons.CssActionIcons);
                 case GridHelper.GridActionsEnum.DropdownMenu: {
-                        MenuList menuActions = actions;
-                        menuActions.RenderMode = ModuleAction.RenderModeEnum.NormalMenu;
+                    MenuList menuActions = actions;
+                    menuActions.RenderMode = ModuleAction.RenderModeEnum.NormalMenu;
 
-                        HtmlBuilder hb = new HtmlBuilder();
-                        string id = Manager.UniqueId();
-                        string idButton = id + "_btn";
-                        string idMenu = id + "_menu";
-                        hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, GetDropdownActionString());
-                        hb.Append(await menuActions.RenderAsync(htmlHelper, idMenu, Globals.CssGridActionMenu));
+                    HtmlBuilder hb = new HtmlBuilder();
+                    string id = Manager.UniqueId();
+                    string idButton = id + "_btn";
+                    string idMenu = id + "_menu";
+                    hb.Append("<button id=\"{0}\" type=\"button\" class=\"yt_actionicons\">{1}<span class=\"k-icon k-i-arrow-60-down\"></span></button>", idButton, GetDropdownActionString());
+                    hb.Append(await menuActions.RenderAsync(htmlHelper, idMenu, Globals.CssGridActionMenu));
 
-                        ScriptBuilder sb = new ScriptBuilder();
-                        sb.Append("YetaWF_TemplateActionIcons.initMenu('{0}', $('#{1}'), $('#{2}'));", id, idButton, idMenu);
+                    ScriptBuilder sb = new ScriptBuilder();
+                    sb.Append("YetaWF_TemplateActionIcons.initMenu('{0}', $('#{1}'), $('#{2}'));", id, idButton, idMenu);
 
-                        hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToString());
-                        return hb.ToHtmlString();
-                    }
+                    hb.Append(Manager.ScriptManager.AddNow(sb.ToString()).ToString());
+                    return hb.ToHtmlString();
+                }
             }
         }
         public static string GetDropdownActionString() {

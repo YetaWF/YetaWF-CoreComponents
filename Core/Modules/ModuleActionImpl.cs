@@ -77,7 +77,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
         public async Task<HtmlString> RenderAsync(RenderModeEnum mode, int dummy = 0, string Id = null, RenderEngineEnum RenderEngine = RenderEngineEnum.JqueryMenu,
-                bool HasSubmenu = false) {
+                bool HasSubmenu = false, int BootstrapSmartMenuLevel = 0) {
 
             // check if we're in the right mode
             if (!await RendersSomethingAsync()) return HtmlStringExtender.Empty;
@@ -107,33 +107,33 @@ namespace YetaWF.Core.Modules {
             switch (style) {
                 default:
                 case ActionStyleEnum.Normal:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
                 case ActionStyleEnum.NewWindow:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, NewWindow: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, NewWindow: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
                 case ActionStyleEnum.Popup:
                 case ActionStyleEnum.ForcePopup:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
                 case ActionStyleEnum.PopupEdit:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, PopupEdit: Manager.CurrentSite.AllowPopups);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, PopupEdit: Manager.CurrentSite.AllowPopups, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
                 case ActionStyleEnum.OuterWindow:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, OuterWindow: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, OuterWindow: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
                 case ActionStyleEnum.Nothing:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Nothing: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Nothing: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
                 case ActionStyleEnum.Post:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Post: true);
+                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Post: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
                     break;
             }
             return tag.ToHtmlString(TagRenderMode.Normal);
         }
 
         private async Task<TagBuilder> Render_ALinkAsync(RenderEngineEnum renderEngine, RenderModeEnum mode, string id, bool hasSubmenu,
-            bool NewWindow = false, bool Popup = false, bool PopupEdit = false, bool Post = false, bool Nothing = false, bool OuterWindow = false) {
+            bool NewWindow = false, bool Popup = false, bool PopupEdit = false, bool Post = false, bool Nothing = false, bool OuterWindow = false, int BootstrapSmartMenuLevel = 0) {
 
             TagBuilder tag = new TagBuilder("a");
             if (!string.IsNullOrWhiteSpace(Tooltip))
@@ -149,6 +149,9 @@ namespace YetaWF.Core.Modules {
                 }
                 tag.Attributes.Add("aria-haspopup", "true");
                 tag.Attributes.Add("aria-expanded", "false");
+            }
+            if (renderEngine == ModuleAction.RenderEngineEnum.BootstrapSmartMenu) {
+                tag.AddCssClass(BootstrapSmartMenuLevel <= 1 ? "nav-link" : "dropdown-item");
             }
 
             if (!string.IsNullOrWhiteSpace(id))

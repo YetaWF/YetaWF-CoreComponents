@@ -170,7 +170,6 @@ namespace YetaWF.Core.Skins {
         //    [[CONTENTS]]
         //    [ThisModule,ActionMenu]
         // </div>
-        // Depending on the BootstrapContainer property <div class="container"> and <div class="row"> may be added.
         internal async Task<HtmlString> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
@@ -197,10 +196,6 @@ namespace YetaWF.Core.Skins {
             div.Attributes.Add("data-charheight", Manager.CharHeight.ToString());
 
             HtmlBuilder inner = new HtmlBuilder();
-            if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
-                inner.Append("<div class='container'><div class='row'>");
-            else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
-                inner.Append("<div class='container'>");
 
             // add an inner div with css classes to modules that can't be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") &&
@@ -239,11 +234,6 @@ namespace YetaWF.Core.Skins {
             inner.Append(htmlContents);
             if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) // only show action menus in a pane
                 inner.Append(await mod.GetActionMenuHtmlAsync());
-
-            if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerRow)
-                inner.Append("</div></div>");
-            else if (mod.BootstrapContainer == ModuleDefinition.BootstrapContainerEnum.ContainerOnly)
-                inner.Append("</div>");
 
             if (showOwnership)
                 inner.Append("</div>");

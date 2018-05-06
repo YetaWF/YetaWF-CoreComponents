@@ -5,8 +5,11 @@ Cyborg,cyborg
 Darkly,darkly
 Flatly,flatly
 Journal,journal
+Litera,litera
 Lumen,lumen
-Paper,paper
+Lux,lux
+Materia,materia
+Minty,minty
 Readable,readable
 Sandstone,sandstone
 Simplex,simplex

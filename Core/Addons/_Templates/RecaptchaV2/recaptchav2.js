@@ -4,7 +4,7 @@ var YetaWF_Core_RecaptchaV2 = {};
 
 YetaWF_Core_RecaptchaV2.onLoad = function ($tag) {
     'use strict';
-    if (typeof grecaptcha === 'undefined') {
+    if (typeof grecaptcha === 'undefined' || !grecaptcha.render) {
         // keep trying until grecaptcha is available
         setTimeout(function() {
             YetaWF_Core_RecaptchaV2.onLoad($tag);

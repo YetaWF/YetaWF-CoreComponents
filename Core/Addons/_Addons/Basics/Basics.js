@@ -514,9 +514,9 @@ _YetaWF_Basics.initButtons = function ($tag) {
     'use strict';
     if (YVolatile.Skin.Bootstrap && YVolatile.Skin.BootstrapButtons) {
         // bootstrap
-        $("input[type=submit],input[type=button],input[type=reset],input[type=file]", $tag).not('.y_jqueryui').addClass('btn btn-default')
-        $("button", $tag).not('.y_jqueryui').addClass('btn')
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_jqueryui').addClass('btn btn-default') // action link as a button
+        $("input[type=submit],input[type=button],input[type=reset],input[type=file]", $tag).not('.y_jqueryui').addClass('btn btn-primary')
+        $("button", $tag).not('.y_jqueryui,.yt_actionicons').addClass('btn')
+        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_jqueryui').addClass('btn btn-outline-primary') // action link as a button
         // explicitly marked for jquery
         $("input[type=submit].y_jqueryui,input[type=button].y_jqueryui,input[type=reset].y_jqueryui,input[type=file].y_jqueryui,button.y_jqueryui", $tag).button()
         $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_jqueryui", $tag).button() // action link as a button
@@ -525,9 +525,9 @@ _YetaWF_Basics.initButtons = function ($tag) {
         $("input[type=submit],input[type=button],input[type=reset],input[type=file],button", $tag).not('.y_bootstrap').button() // beautify all buttons
         $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_bootstrap').button() // action link as a button
         // explicitly marked for bootstrap
-        $("input[type=submit].y_bootstrap,input[type=button].y_bootstrap,input[type=reset].y_bootstrap,input[type=file].y_bootstrap", $tag).addClass('btn btn-default')
-        $("button.y_bootstrap", $tag).addClass('btn')
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_bootstrap", $tag).addClass('btn btn-default') // action link as a button
+        $("input[type=submit].y_bootstrap,input[type=button].y_bootstrap,input[type=reset].y_bootstrap,input[type=file].y_bootstrap", $tag).addClass('btn btn-primary')
+        $("button.y_bootstrap", $tag).addClass('btn btn-primary')
+        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_bootstrap", $tag).addClass('btn btn-outline-primary') // action link as a button
     }
 };
 
