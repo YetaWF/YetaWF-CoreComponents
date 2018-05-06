@@ -161,6 +161,7 @@ namespace YetaWF.Core.Modules {
                         await lockObject.UnlockAsync();
                     }
                 }
+                mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToHtmlString();
@@ -197,6 +198,7 @@ namespace YetaWF.Core.Modules {
                         await lockObject.UnlockAsync();
                     }
                 }
+                mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToHtmlString();
@@ -237,6 +239,7 @@ namespace YetaWF.Core.Modules {
                         await lockObject.UnlockAsync();
                     }
                 }
+                mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, moduleGuid.ToString());
                 return hb.ToHtmlString();
