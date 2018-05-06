@@ -10,10 +10,12 @@ Lumen,lumen
 Lux,lux
 Materia,materia
 Minty,minty
-Readable,readable
+Pulse,pulse
 Sandstone,sandstone
 Simplex,simplex
+Sketchy,sketchy
 Slate,slate
+Solar,solar
 Spacelab,spacelab
 Superhero,superhero
 United,united
