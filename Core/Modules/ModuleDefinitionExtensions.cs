@@ -51,9 +51,12 @@ namespace YetaWF.Core.Modules {
 #endif
             ModuleDefinition mod = await ModuleDefinition.LoadAsync(moduleGuid);
 
+            string css = null;
+            if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UsingBootstrapButtons)
+                css = "btn btn-outline-primary";
             ModuleAction action = new ModuleAction(mod) {
                 Category = ModuleAction.ActionCategoryEnum.Significant,
-                CssClass = "",
+                CssClass = css,
                 Image = await new SkinImages().FindIcon_PackageAsync("PageEdit.png", Package.GetCurrentPackage(mod)),
                 Location = ModuleAction.ActionLocationEnum.Any,
                 Mode = ModuleAction.ActionModeEnum.Any,
@@ -113,6 +116,8 @@ namespace YetaWF.Core.Modules {
                     action.LinkText = __ResStr("editControlLinkToView", "Switch to View Mode");
                     action.MenuText = __ResStr("editControlLinkToView", "Switch to View Mode");
                 }
+                if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UsingBootstrapButtons)
+                    action.CssClass = YetaWFManager.CombineCss(action.CssClass, "btn btn-outline-primary");
                 tag.SetInnerHtml((await action.RenderAsButtonIconAsync(Globals.IdEditControlButton)).ToString() + (await mod.RenderModuleAsync(htmlHelper)).ToString());// mainly just to get js/css, the module is normally empty
 
                 return tag.ToHtmlString(TagRenderMode.Normal);
