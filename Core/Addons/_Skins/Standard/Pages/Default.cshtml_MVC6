@@ -14,7 +14,7 @@
         @(await Html.RenderModuleAsync<global::YetaWF.Modules.TinyLogin.Modules.TinyLoginModule>())
         @(await Html.RenderModuleAsync<global::YetaWF.Modules.Menus.Modules.MainMenuModule>())
 
-        @await RenderPaneAsync("", "MainPane AnyPane")
+        @await RenderPaneAsync("", "MainPane AnyPane", Unified: true)
 
         <div class="pageFooter">[[PageOrSite,CopyrightEvaluated]]</div>
 
