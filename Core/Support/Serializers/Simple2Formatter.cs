@@ -9,11 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.Serializers {
 
@@ -143,8 +143,6 @@ namespace YetaWF.Core.Serializers {
             _unread = input;
         }
 
-        private static Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
-
         /// <summary>
         /// Serialize an object.
         /// </summary>
@@ -176,7 +174,7 @@ namespace YetaWF.Core.Serializers {
             // "YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null]]"
             // remove version as it's not needed and just clutters up the save files
             string typeName = obj.GetType().FullName;
-            typeName = reVers.Replace(typeName, ",");
+            typeName = GeneralFormatter.UpdateTypeForSerialization(typeName);
 
             WriteString("Object:{0}:{1}:{2}", typeName, asmName, asmFullName);
             WriteString("P");
@@ -308,7 +306,7 @@ namespace YetaWF.Core.Serializers {
                 throw new InternalError("Unexpected type {0} cannot be serialized", tp.FullName);
         }
         /// <summary>
-        /// Deserialized a byte array into an object.
+        /// Deserialize a byte array into an object.
         /// </summary>
         /// <param name="btes">The byte array.</param>
         /// <returns>The object.</returns>
@@ -332,6 +330,7 @@ namespace YetaWF.Core.Serializers {
                 throw new InternalError("Invalid Object encountered - {0}", input);
 
             string strType = s[1];
+            strType = GeneralFormatter.UpdateTypeForDeserialization(strType);
             string strAsm = s[2];
             string strAsmFull = s[3];
 

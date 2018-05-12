@@ -4,13 +4,13 @@
   <Properties>
     <Comment />
     <Classes>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core]]" Assembly="YetaWF.Core">
         <Properties />
         <List />
       </Object>
     </Classes>
     <Enums>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core]]" Assembly="YetaWF.Core">
         <Properties />
         <List>
           <Value>
@@ -18,7 +18,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+AllowedEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -62,7 +62,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+ChangeFrequencyEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -156,7 +156,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+ChangeFrequencySiteEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -240,7 +240,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+PageSecurityType" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -284,7 +284,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+SiteMapPriorityEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -398,7 +398,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+SiteMapPrioritySiteEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -502,7 +502,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+StaticPageEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -546,7 +546,7 @@
               <Properties>
                 <Name Value="YetaWF.Core.Pages.PageDefinition+UnifiedModeEnum" />
                 <Entries>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -609,7 +609,7 @@
       </Object>
     </Enums>
     <Strings>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core]]" Assembly="YetaWF.Core">
         <Properties />
         <List>
           <Value>

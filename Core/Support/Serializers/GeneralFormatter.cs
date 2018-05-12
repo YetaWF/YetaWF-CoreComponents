@@ -3,8 +3,8 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Support.Serializers {
@@ -136,6 +136,27 @@ namespace YetaWF.Core.Support.Serializers {
                 fmt.Serialize(ms, obj);
                 return ms.ToArray();
             }
+        }
+
+        private static Regex reVersion = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
+        private static Regex reCulture = new Regex(@",\s*Culture=.*?,", RegexOptions.Compiled);
+        private static Regex rePubKey = new Regex(@",\s*PublicKeyToken=.*?\]", RegexOptions.Compiled);
+
+        // Remove some type information that is not needed and normalize it to MVC6
+        internal static string UpdateTypeForSerialization(string typeName) {
+            typeName = reVersion.Replace(typeName, ",");
+            typeName = reCulture.Replace(typeName, ",");
+            typeName = rePubKey.Replace(typeName, "]");
+            typeName = typeName.Replace(", mscorlib", ", System.Private.CoreLib"); // (MVC5) used for system.string, replace with MVC6 equivalent (standard is MVC6)
+            return typeName;
+        }
+        // Denormalize type information if we're on MVC5
+        internal static string UpdateTypeForDeserialization(string typeName) {
+#if MVC6
+#else
+            typeName = typeName.Replace(", System.Private.CoreLib", ", mscorlib"); // (MVC5) used for system.string, replace with MVC5 equivalent (standard is MVC6)
+#endif
+            return typeName;
         }
     }
 }

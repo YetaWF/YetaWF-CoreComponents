@@ -4,7 +4,7 @@
   <Properties>
     <Comment />
     <Classes>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core]]" Assembly="YetaWF.Core">
         <Properties />
         <List>
           <Value>
@@ -16,13 +16,13 @@
                 <Footer />
                 <Legend />
                 <Categories>
-                  <Object Type="YetaWF.Core.Serializers.SerializableDictionary`2[[System.String, mscorlib, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableDictionary`2[[System.String, System.Private.CoreLib],[System.String, System.Private.CoreLib]]" Assembly="YetaWF.Core">
                     <Properties />
                     <Dictionary />
                   </Object>
                 </Categories>
                 <Properties>
-                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+PropertyData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+                  <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+PropertyData, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
                     <List>
                       <Value>
@@ -71,13 +71,13 @@
       </Object>
     </Classes>
     <Enums>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumData, YetaWF.Core]]" Assembly="YetaWF.Core">
         <Properties />
         <List />
       </Object>
     </Enums>
     <Strings>
-      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core, Culture=neutral, PublicKeyToken=null]]" Assembly="YetaWF.Core">
+      <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+StringData, YetaWF.Core]]" Assembly="YetaWF.Core">
         <Properties />
         <List />
       </Object>

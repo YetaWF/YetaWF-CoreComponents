@@ -9,11 +9,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Text.RegularExpressions;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.Serializers {
     public static class StreamExtender {
@@ -99,8 +99,6 @@ namespace YetaWF.Core.Serializers {
             SerializeObjectProperties(serializationStream, graph);
         }
 
-        private static Regex reVers = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
-
         private void SerializeObjectProperties(Stream stream, object obj) {
 
             string asmName = obj.GetType().Assembly.GetName().Name;
@@ -111,7 +109,7 @@ namespace YetaWF.Core.Serializers {
             // "YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null]]"
             // remove version as it's not needed and just clutters up the save files
             string typeName = obj.GetType().FullName;
-            typeName = reVers.Replace(typeName, ",");
+            typeName = GeneralFormatter.UpdateTypeForSerialization(typeName);
 
             stream.Write("Object:{0}:{1}:{2}", typeName, asmName, asmFullName);
             stream.Write("P");
@@ -254,6 +252,7 @@ namespace YetaWF.Core.Serializers {
                 throw new InternalError("Invalid Object encountered - {0}.", input);
 
             string strType = s[1];
+            strType = GeneralFormatter.UpdateTypeForDeserialization(strType);
             string strAsm = s[2];
             string strAsmFull = s[3];
 
