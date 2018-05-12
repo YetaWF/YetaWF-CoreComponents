@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Collections.Generic;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Extensions {
@@ -69,6 +70,23 @@ namespace YetaWF.Core.Extensions {
         }
         public static bool ContainsIgnoreCase(this string text, string search) {
             return text.ToLower().Contains(search.ToLower());
+        }
+        /// <summary>
+        /// Remove part of a string starting at <para>start</para> searching for the end by matching a character in the string to the list of strings in <para>endChars</para>.
+        /// The search starts at <para>offset</para>.
+        /// </summary>
+        /// <returns>Returns the string with the substring removed.</returns>
+        public static string RemoveUpTo(this string text, int start, int offset, List<char> endChars) {
+            for (int len = text.Length; offset < len; ++offset) {
+                char c = text[offset];
+                if (endChars.Contains(c)) {
+                    if (start > 0)
+                        return text.Substring(0, start) + text.Substring(offset);
+                    else
+                        return text.Substring(offset);
+                }
+            }
+            return text;
         }
         public static bool IsHttp(this string text) {
             return text.StartsWith("http://");

@@ -1,10 +1,11 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.RegularExpressions;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Support.Serializers {
@@ -138,18 +139,23 @@ namespace YetaWF.Core.Support.Serializers {
             }
         }
 
-        private static Regex reVersion = new Regex(@",\s*Version=.*?,", RegexOptions.Compiled);
-        private static Regex reCulture = new Regex(@",\s*Culture=.*?,", RegexOptions.Compiled);
-        private static Regex rePubKey = new Regex(@",\s*PublicKeyToken=.*?\]", RegexOptions.Compiled);
-
         // Remove some type information that is not needed and normalize it to MVC6
         internal static string UpdateTypeForSerialization(string typeName) {
-            typeName = reVersion.Replace(typeName, ",");
-            typeName = reCulture.Replace(typeName, ",");
-            typeName = rePubKey.Replace(typeName, "]");
+            int index;
+            for ( ; (index = typeName.IndexOf(", Version=")) >= 0 ; ) {
+                typeName = typeName.RemoveUpTo(index, index + ", Version=".Length, EndChars);
+            }
+            for ( ; (index = typeName.IndexOf(", Culture=")) >= 0 ; ) {
+                typeName = typeName.RemoveUpTo(index, index + ", Culture=".Length, EndChars);
+            }
+            for ( ; (index = typeName.IndexOf(", PublicKeyToken=")) >= 0 ; ) {
+                typeName = typeName.RemoveUpTo(index, index + ", PublicKeyToken=".Length, EndChars);
+            }
             typeName = typeName.Replace(", mscorlib", ", System.Private.CoreLib"); // (MVC5) used for system.string, replace with MVC6 equivalent (standard is MVC6)
             return typeName;
         }
+        static List<char> EndChars = new List<char> { ',', ']' };
+
         // Denormalize type information if we're on MVC5
         internal static string UpdateTypeForDeserialization(string typeName) {
 #if MVC6

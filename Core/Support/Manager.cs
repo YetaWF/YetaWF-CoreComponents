@@ -1185,6 +1185,20 @@ namespace YetaWF.Core.Support {
                 return session;
             }
         }
+
+        public string CurrentSessionId {
+            get {
+#if MVC6
+                if (HaveCurrentSession)
+                    return CurrentContext.Session.Id;
+#else
+                if (HaveCurrentSession)
+                    return CurrentContext.Session.SessionID;
+#endif
+                return null;
+            }
+        }
+
         public string CurrentRequestUrl {
             get {
 #if MVC6
