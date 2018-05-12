@@ -397,7 +397,6 @@
     <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\Popup.cshtml" />
     <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridEdit" />
-    <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
