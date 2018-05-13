@@ -12,7 +12,9 @@ namespace YetaWF.Core {
 
     public class Globals : IInitializeApplicationStartup {
 
-        public const string RUNTIME = "net471"; // runtime
+#if MVC6
+        public const string RUNTIME = "netcoreapp2.0"; // runtime
+#endif
 
         public const int MaxIP = 15; // "xxx.xxx.xxx.xxx"
         public const int MaxUser = 100;
