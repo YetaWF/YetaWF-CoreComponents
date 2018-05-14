@@ -1033,8 +1033,8 @@ namespace YetaWF.Core.Support {
                 string ip = CurrentRequest.Headers["X-Forwarded-For"];
                 // extract just IP address in case there is a port #
                 if (!string.IsNullOrWhiteSpace(ip)) {
-                    string[] s = ip.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                    ip = s[0];
+                    string[] s = ip.Split(new char[] { ':', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    ip = s[0].Truncate(Globals.MaxIP);
                 }
                 if (!string.IsNullOrWhiteSpace(ip)) return ip;
 #if MVC6
