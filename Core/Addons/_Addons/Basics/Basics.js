@@ -1019,6 +1019,11 @@ $(document).ready(function () {
         Y_KillTooltips();
     });
 
+    // <a> links that only have a hash are intercepted so we don't go through content handling
+    $("body").on("click", "a[href^='#']", function (e) {
+        YetaWF_Basics.suppressPopState = true;
+    });
+
     // For an <a> link clicked, add the page we're coming from (not for popup links though)
     $("body").on("click", "a.yaction-link,area.yaction-link", function (e) {
         var $t = $(this);
@@ -1341,8 +1346,14 @@ YetaWF_Basics.initPage = function () {
     _YetaWF_Basics.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
 };
 
-$(window).on("popstate", function () {
+YetaWF_Basics.suppressPopState = 0;
+
+$(window).on("popstate", function (ev) {
     var uri = new URI(window.location.href);
+    if (YetaWF_Basics.suppressPopState) {
+        YetaWF_Basics.suppressPopState = 0;
+        return;
+    }
     return !_YetaWF_Basics.setContent(uri, false);
 });
 
