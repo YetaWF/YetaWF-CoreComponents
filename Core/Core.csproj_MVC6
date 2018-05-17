@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Version>3.0.0.0</Version>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
     <AssemblyName>YetaWF.Core</AssemblyName>
     <PackageId>Core</PackageId>
