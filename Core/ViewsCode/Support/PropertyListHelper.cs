@@ -11,6 +11,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -267,7 +268,7 @@ namespace YetaWF.Core.Views.Shared {
             ClassData classData = ObjectSupport.GetClassData(modelType);
             RenderHeader(hb, classData);
 
-            hb.Append(RenderHidden(htmlHelper, model));
+            hb.Append(await RenderHiddenAsync(htmlHelper, model));
             bool showVariables = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowVariables");
 
             // property table
@@ -337,11 +338,15 @@ namespace YetaWF.Core.Views.Shared {
                 if (property.Restricted) {
                     shtmlDisp = new HtmlString(__ResStr("demo", "This property is not available in Demo Mode"));
                 } else if (readOnly || !property.Editable) {
+                    if (htmlHelper.IsSupported(model, property.Name)) {
+                        shtmlDisp = await htmlHelper.ForDisplayAsync(model, property.Name);
+                    } else {
 #if MVC6
-                    shtmlDisp = new HtmlString(htmlHelper.Display(property.Name).AsString());
+                        shtmlDisp = new HtmlString(htmlHelper.Display(property.Name).AsString());
 #else
-                    shtmlDisp = htmlHelper.Display(property.Name);
+                        shtmlDisp = htmlHelper.Display(property.Name);
 #endif
+                    }
                     string s = shtmlDisp.ToString().Trim();
                     if (string.IsNullOrWhiteSpace(s)) {
                         if (property.SuppressEmpty)
@@ -390,7 +395,11 @@ namespace YetaWF.Core.Views.Shared {
                     }
                     focusSet = true;
                     hb.Append("<div class='{0}'>", cls);
-                    hb.Append(htmlHelper.Editor(property.Name));
+                    if (htmlHelper.IsSupported(model, property.Name)) {
+                        hb.Append(await htmlHelper.ForEditAsync(model, property.Name));
+                    } else {
+                        hb.Append(htmlHelper.Editor(property.Name));
+                    }
                     hb.Append(htmlHelper.ValidationMessage(property.Name));
                     hb.Append("</div>");
                 } else {
@@ -458,15 +467,19 @@ namespace YetaWF.Core.Views.Shared {
         }
 
 #if MVC6
-        private static HtmlString RenderHidden(IHtmlHelper htmlHelper, object model)
+        private static async Task<HtmlString> RenderHiddenAsync(IHtmlHelper htmlHelper, object model)
 #else
-        private static HtmlString RenderHidden(HtmlHelper<object> htmlHelper, object model)
+        private static async Task<HtmlString> RenderHiddenAsync(HtmlHelper<object> htmlHelper, object model)
 #endif
         {
             HtmlBuilder hb = new HtmlBuilder();
             List<PropertyListEntry> properties = PropertyListSupport.GetHiddenProperties(model);
             foreach (var property in properties) {
-                hb.Append(htmlHelper.Display(property.Name));
+                if (htmlHelper.IsSupported(model, property.Name)) {
+                    hb.Append(await htmlHelper.ForDisplayAsync(model, property.Name));
+                } else {
+                    hb.Append(htmlHelper.Display(property.Name));
+                }
             }
             return hb.ToHtmlString();
         }
@@ -497,7 +510,7 @@ namespace YetaWF.Core.Views.Shared {
             string divId = string.IsNullOrWhiteSpace(id) ? Manager.UniqueId() : id;
             hb.Append("<div id='{0}' class='yt_propertylisttabbed {1}'>", divId, ReadOnly ? "t_display" : "t_edit");
 
-            hb.Append(RenderHidden(htmlHelper, model));
+            hb.Append(await RenderHiddenAsync(htmlHelper, model));
             bool showVariables = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowVariables");
 
             // tabstrip
