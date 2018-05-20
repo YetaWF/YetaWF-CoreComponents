@@ -161,6 +161,7 @@ namespace YetaWF.Core.Site {
         public string SiteDomain { get; set; }
 
         [Category("Variables"), Caption("Default Site Domain"), Description("The domain name of the default site for this instance of YetaWF")]
+        [UIHint("String"), ReadOnly]
         public string DefaultSiteDomain {
             get {
                 return YetaWFManager.Syncify(async () => { // this is cached anyway so no harm done
@@ -178,6 +179,7 @@ namespace YetaWF.Core.Site {
         public static string _defaultSiteDomain;
 
         [Category("Variables"), Caption("Default Site"), Description("Returns whether the current site is the default site for this instance of YetaWF")]
+        [UIHint("Boolean"), ReadOnly]
         public bool IsDefaultSite {
             get {
                 return string.Compare(YetaWFManager.DefaultSiteName, this.SiteDomain, true) == 0;
@@ -239,12 +241,14 @@ namespace YetaWF.Core.Site {
         public int PortNumberSSL { get; set; }
 
         [Category("Variables"), Caption("Site Url With http"), Description("The site Url including http:")]
+        [UIHint("String"), ReadOnly]
         public string SiteUrlHttp {
             get {
                 return MakeRealUrl();
             }
         }
         [Category("Variables"), Caption("Site Url With https"), Description("The site Url including https:")]
+        [UIHint("String"), ReadOnly]
         public string SiteUrlHttps {
             get {
                 return MakeRealUrl(Secure: true);
@@ -352,6 +356,7 @@ namespace YetaWF.Core.Site {
         public byte[] FavIconLrg_Data { get; set; }
 
         [Category("Variables"), Caption("FavIcon Html"), Description("The Html used for the icon representing this site")]
+        [UIHint("String"), ReadOnly]
         public string FavIconLink {
             get {
                 return GetFavIconLinks(ImageType, FavIcon_Data, FavIcon, LargeImageType, FavIconLrg_Data, FavIconLrg);
@@ -378,6 +383,7 @@ namespace YetaWF.Core.Site {
         public int CurrencyDecimals { get; set; }
 
         [Category("Variables"), Caption("Copyright"), Description("The Copyright property with evaluated substitutions")]
+        [UIHint("String"), ReadOnly]
         public string CopyrightEvaluated {
             get {
                 return Copyright.Replace("<<Year>>", Formatting.FormatDateTimeYear(DateTime.UtcNow));

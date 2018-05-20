@@ -1340,6 +1340,30 @@ namespace YetaWF.Core.Support {
 
         public List<Package> ComponentPackagesSeen = new List<Package>();
 
+        public IDisposable StartNestedComponent(string fieldName) {
+            NestedComponents.Add(fieldName);
+            return new NestedComponent();
+        }
+        public string NestedComponentPrefix {
+            get {
+                if (NestedComponents.Count == 0) return null;
+                return NestedComponents.Last();
+            }
+        }
+        private List<string> NestedComponents = new List<string>();
+
+        private class NestedComponent : IDisposable {
+            public NestedComponent() {
+                DisposableTracker.AddObject(this);
+            }
+            public void Dispose() { Dispose(true); }
+            protected virtual void Dispose(bool disposing) {
+                YetaWFManager manager = YetaWFManager.Manager;
+                manager.NestedComponents.RemoveAt(manager.NestedComponents.Count-1);
+                if (disposing) DisposableTracker.RemoveObject(this);
+            }
+        }
+
         // RENDERING
         // RENDERING
         // RENDERING

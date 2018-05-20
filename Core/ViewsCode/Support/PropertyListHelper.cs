@@ -357,7 +357,7 @@ namespace YetaWF.Core.Views.Shared {
                 hb.Append("<div class='t_row t_{0}'>", property.Name.ToLower());
                 if (!string.IsNullOrWhiteSpace(property.TextAbove)) {
                     labelDone = true;
-                    HtmlString hs = await htmlHelper.ExtLabelAsync(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
+                    HtmlString hs = await htmlHelper.ForLabelAsync(model, property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
                     if (hs != HtmlStringExtender.Empty) {
                         hb.Append("<div class='t_labels'>");
                         hb.Append(hs);
@@ -373,7 +373,7 @@ namespace YetaWF.Core.Views.Shared {
                 if (labelDone) {
                     hb.Append("<div class='t_labels t_fillerabove'>&nbsp;</div>");
                 } else {
-                    HtmlString hs = await htmlHelper.ExtLabelAsync(property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
+                    HtmlString hs = await htmlHelper.ForLabelAsync(model, property.Name, ShowVariable: showVariables, SuppressIfEmpty: true);
                     if (hs != HtmlStringExtender.Empty) {
                         hb.Append("<div class='t_labels'>");
                         hb.Append(hs);

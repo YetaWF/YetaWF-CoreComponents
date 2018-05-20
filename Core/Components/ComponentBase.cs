@@ -2,9 +2,11 @@
 using YetaWF.Core.Support;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
+using System.Collections.Generic;
 #if MVC6
 #else
 using System.Web.Mvc;
+using System.Web.Routing;
 #endif
 
 namespace YetaWF.Core.Components {
@@ -26,18 +28,27 @@ namespace YetaWF.Core.Components {
         }
 
 #if MVC6
-        public void SetRenderInfo(IHtmlHelper htmlHelper, object container, string propertyName, PropertyData propData, string fieldName, object htmlAttributes, bool validation)
+        public void SetRenderInfo(IHtmlHelper htmlHelper, 
 #else
-        public void SetRenderInfo(HtmlHelper htmlHelper, object container, string propertyName, PropertyData propData, string fieldName, object htmlAttributes, bool validation)
+        public void SetRenderInfo(HtmlHelper htmlHelper,
 #endif
+             object container, string propertyName, PropertyData propData, string fieldName, object htmlAttributes, bool validation)
         {
             HtmlHelper = htmlHelper;
             Container = container;
             PropertyName = propertyName;
             PropData = propData;
+            FieldNamePrefix = Manager.NestedComponentPrefix;
             FieldName = fieldName;
-            HtmlAttributes = htmlAttributes;
+            if (!string.IsNullOrWhiteSpace(FieldNamePrefix))
+                FieldName = FieldNamePrefix + "." + FieldName;
+            HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
+        }
+        private IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+            if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
+            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
+            return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
         }
 
 #if MVC6
@@ -62,16 +73,15 @@ namespace YetaWF.Core.Components {
         protected object Container { get; private set; }
         protected string PropertyName { get; private set; }
         protected PropertyData PropData { get; private set; }
+        protected string FieldNamePrefix { get; private set; }
         protected string FieldName { get; private set; }
-        protected object HtmlAttributes { get; private set; }
+        protected IDictionary<string, object> HtmlAttributes { get; private set; }
         protected bool Validation { get; private set; }
 
         public YetaWFComponentBase() {
             Package = GetPackage();
-            ComponentName = GetTemplateName();
         }
         public readonly Package Package;
-        protected readonly string ComponentName;
 
         protected string ControlId {
             get {
@@ -100,8 +110,22 @@ namespace YetaWF.Core.Components {
         public abstract ComponentType GetComponentType();
 
         /// <summary>
-        /// Include required JavaScript, Css files for all components in this package.
+        /// Include required JavaScript, Css files when displaying a component, for all components in this package.
         /// </summary>
-        public virtual Task IncludeStandardAsync() { return Task.CompletedTask; }
+        public virtual Task IncludeStandardDisplayAsync() { return Task.CompletedTask; }
+        /// <summary>
+        /// Include required JavaScript, Css files when editing a component, for all components in this package.
+        /// </summary>
+        public virtual Task IncludeStandardEditAsync() { return Task.CompletedTask; }
+
+        /// <summary>
+        /// Retrieves a sibling property. Used to extract related properties from container, which typically are used for additional component customization.
+        /// </summary>
+        public bool TryGetSiblingProperty<TYPE>(string property, out TYPE value) {
+            value = default(TYPE);
+            if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out value))
+                return false;
+            return true;
+        }
     }
 }

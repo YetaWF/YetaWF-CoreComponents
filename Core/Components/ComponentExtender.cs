@@ -5,6 +5,8 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using System.Collections.Generic;
 using System.Reflection;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Localize;
 #if MVC6
 #else
 using System.Web;
@@ -16,6 +18,13 @@ namespace YetaWF.Core.Components {
     public static class YetaWFComponentExtender {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFComponentExtender), name, defaultValue, parms); }
+
+        public class LabelInfo {
+            [UIHint("Label")]
+            public string LabelContents { get; set; }
+            public string LabelContents_HelpLink { get; set; }
+        }
 
 #if MVC6
         public static bool IsSupported(this IHtmlHelper htmlHelper, object container, string propertyName) 
@@ -27,56 +36,88 @@ namespace YetaWF.Core.Components {
             object model = propData.PropInfo.GetValue(container, null);
             UIHintAttribute uiAttr = propData.TryGetAttribute<UIHintAttribute>();
             if (uiAttr == null)
-                throw new InternalError("No UIHintAttribute found for property {propertyName}");
+                throw new InternalError($"No UIHintAttribute found for property {propertyName}");
             Type compType;
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiAttr.UIHint, out compType) &&
                     !YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiAttr.UIHint, out compType))
                 return false;
             return true;
         }
-
 #if MVC6
-        public static async Task<HtmlString> ForDisplayAsync(this IHtmlHelper htmlHelper, object container, string propertyName, object HtmlAttributes = null) 
+        public static async Task<HtmlString> ForLabelAsync(this IHtmlHelper htmlHelper, 
 #else
-        public static async Task<HtmlString> ForDisplayAsync(this HtmlHelper htmlHelper, object container, string propertyName, object HtmlAttributes = null)
+        public static async Task<HtmlString> ForLabelAsync(this HtmlHelper htmlHelper,
 #endif
+            object container, string propertyName, bool ShowVariable = false, bool SuppressIfEmpty = true)
+        {
+            Type containerType = container.GetType();
+            PropertyData propData = ObjectSupport.GetPropertyData(containerType, propertyName);
+            Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
+            string description = propData.GetDescription(containerType);
+            if (!string.IsNullOrWhiteSpace(description)) {
+                if (ShowVariable)
+                    description = __ResStr("showVarFmt", "{0} (Variable {1})", description, propertyName);
+                htmlAttributes.Add(Basics.CssTooltip, description);
+            }
+            string label = propData.GetCaption(containerType);
+            if (string.IsNullOrEmpty(label)) { // we're distinguishing between "" and " "
+                if (SuppressIfEmpty)
+                    return HtmlStringExtender.Empty;
+            }
+            string helpLink = propData.GetHelpLink(containerType);
+            LabelInfo info = new LabelInfo() {
+                LabelContents = label,
+                LabelContents_HelpLink = helpLink,
+            };
+            return await htmlHelper.ForDisplayAsync(info, nameof(LabelInfo.LabelContents), HtmlAttributes: htmlAttributes);
+        }
+#if MVC6
+        public static async Task<HtmlString> ForDisplayAsync(this IHtmlHelper htmlHelper, 
+#else
+        public static async Task<HtmlString> ForDisplayAsync(this HtmlHelper htmlHelper,
+#endif
+            object container, string propertyName, object HtmlAttributes = null) 
         {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), "display", htmlHelper, container, propertyName, HtmlAttributes, false);
         }
 #if MVC6
-        public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper, object container, string propertyName, object HtmlAttributes = null, bool Validation = true)
+        public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper, 
 #else
-        public static async Task<HtmlString> ForEditAsync(this HtmlHelper htmlHelper, object container, string propertyName, object HtmlAttributes = null, bool Validation = true)
+        public static async Task<HtmlString> ForEditAsync(this HtmlHelper htmlHelper,
 #endif
+            object container, string propertyName, object HtmlAttributes = null, bool Validation = true)
         {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), "edit", htmlHelper, container, propertyName, HtmlAttributes, Validation);
         }
 #if MVC6
-        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper, object container, string propertyName, object htmlAttributes, bool validation)
+        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper, 
 #else
-        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string, Type> components, string renderType, HtmlHelper htmlHelper, object container, string propertyName, object htmlAttributes, bool validation)
+        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string, Type> components, string renderType, HtmlHelper htmlHelper,
 #endif
+            object container, string propertyName, object htmlAttributes, bool validation)
         {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
             object model = propData.PropInfo.GetValue(container, null);
             UIHintAttribute uiAttr = propData.TryGetAttribute<UIHintAttribute>();
             if (uiAttr == null)
-                throw new InternalError("No UIHintAttribute found for property {propertyName}");
+                throw new InternalError($"No UIHintAttribute found for property {propertyName}");
             return await RenderComponentAsync(components, renderType, htmlHelper, container, propertyName, propData, model, uiAttr.UIHint, htmlAttributes, validation);
         }
 #if MVC6
-        public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper, object container, string propertyName, object model, string templateName, object HtmlAttributes = null, bool Validation = true)
+        public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper, 
 #else
-        public static async Task<HtmlString> ForEditAsync(this HtmlHelper htmlHelper, object container, string propertyName, object model, string templateName, object HtmlAttributes = null, bool Validation = true)
+        public static async Task<HtmlString> ForEditAsync(this HtmlHelper htmlHelper,
 #endif
+            object container, string propertyName, object model, string templateName, object HtmlAttributes = null, bool Validation = true)
         {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), "edit", htmlHelper, container, propertyName, null, model, templateName, HtmlAttributes, Validation);
         }
 #if MVC6
-        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper, object container, string propertyName, PropertyData propData, object model, string templateName, object htmlAttributes, bool validation)
+        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper,
 #else
-        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, HtmlHelper htmlHelper, object container, string propertyName, PropertyData propData, object model, string templateName, object htmlAttributes, bool validation)
+        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, HtmlHelper htmlHelper,
 #endif
+             object container, string propertyName, PropertyData propData, object model, string templateName, object htmlAttributes, bool validation)
         {
             Type compType;
             if (!components.TryGetValue(templateName, out compType))
@@ -85,7 +126,10 @@ namespace YetaWF.Core.Components {
 
             // Get standard support for this package
             if (!Manager.ComponentPackagesSeen.Contains(component.Package)) {
-                await component.IncludeStandardAsync();
+                if (renderType == "edit")
+                    await component.IncludeStandardEditAsync();
+                else
+                    await component.IncludeStandardDisplayAsync();
                 try {
                     Manager.ComponentPackagesSeen.Add(component.Package);
                 } catch (Exception) { }
@@ -105,9 +149,9 @@ namespace YetaWF.Core.Components {
             await methRetvalTask;
 
             // Invoke RenderAsync
-            miAsync = compType.GetMethod(nameof(IYetaWFComponent<object>.RenderAsync), new Type[] { model.GetType() });
+            miAsync = compType.GetMethod(nameof(IYetaWFComponent<object>.RenderAsync), new Type[] { propData.PropInfo.PropertyType });
             if (miAsync == null)
-                throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFComponent<object>.RenderAsync)} method accepting a model type {model.GetType().FullName}");
+                throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFComponent<object>.RenderAsync)} method accepting a model type {propData.PropInfo.PropertyType.FullName}");
             Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(component, new object[] { model });
             return await methStringTask;
         }

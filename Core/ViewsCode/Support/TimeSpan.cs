@@ -9,7 +9,7 @@ using System.Web.Mvc;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 
-namespace YetaWF.Core.Views.Shared {
+namespace YetaWF.Core.Views.Shared { //$$$REMOVE
 
     public class TimeSpanUI {
         public TimeSpanUI() { }

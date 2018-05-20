@@ -42,6 +42,21 @@ namespace YetaWF.Core.Views.Shared {
             tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
             return tImg;
         }
+        public static YTagBuilder BuildKnownImageYTag(string url, string title = null, string alt = null, string id = null, string cssClass = null) {
+            title = title ?? "";
+            alt = alt ?? title;
+            YTagBuilder tImg = new YTagBuilder("img");
+            if (!string.IsNullOrWhiteSpace(alt))
+                tImg.MergeAttribute("alt", alt);
+            if (!string.IsNullOrWhiteSpace(cssClass))
+                tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
+            if (!string.IsNullOrWhiteSpace(title))
+                tImg.MergeAttribute("title", title);
+            if (!string.IsNullOrWhiteSpace(id))
+                tImg.Attributes.Add("id", id);
+            tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
+            return tImg;
+        }
 #if MVC6
         public static HtmlString RenderImageEdit(this IHtmlHelper<string> htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null) {
 #else
