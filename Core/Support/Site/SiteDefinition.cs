@@ -15,6 +15,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using YetaWF.Core.Templates;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -95,9 +96,9 @@ namespace YetaWF.Core.Site {
             FavIcon_Data = new byte[0];
             FavIconLrg_Data = new byte[0];
             Country = Globals.DefaultCountry;
-            Currency = CurrencyISO4217Helper.Currency.DefaultId;
+            Currency = CurrencyISO4217.Currency.DefaultId;
             CurrencyFormat = Globals.DefaultCurrencyFormat;
-            CurrencyDecimals = CurrencyISO4217Helper.Currency.DefaultMinorUnit;
+            CurrencyDecimals = CurrencyISO4217.Currency.DefaultMinorUnit;
 
             AllowCacheUse = true;
             Compression = true;
@@ -368,7 +369,7 @@ namespace YetaWF.Core.Site {
         public string Country { get; set; }
 
         [Category("Site"), Caption("Currency"), Description("The default currency used")]
-        [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217Helper.Currency.MaxId), Trim, Required]
+        [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217.Currency.MaxId), Trim, Required]
         [RequiresPageReload]
         public string Currency { get; set; }
 
