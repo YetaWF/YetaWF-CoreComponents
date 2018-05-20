@@ -476,7 +476,7 @@ namespace YetaWF.Core.Views.Shared {
             List<PropertyListEntry> properties = PropertyListSupport.GetHiddenProperties(model);
             foreach (var property in properties) {
                 if (htmlHelper.IsSupported(model, property.Name)) {
-                    hb.Append(await htmlHelper.ForDisplayAsync(model, property.Name));
+                    hb.Append(await htmlHelper.ForEditAsync(model, property.Name));// hidden fields are edit by definition otherwise they're useless
                 } else {
                     hb.Append(htmlHelper.Display(property.Name));
                 }

@@ -76,7 +76,7 @@ namespace YetaWF.Core.Components {
         protected string FieldNamePrefix { get; private set; }
         protected string FieldName { get; private set; }
         protected IDictionary<string, object> HtmlAttributes { get; private set; }
-        protected bool Validation { get; private set; }
+        public bool Validation { get; private set; }
 
         public YetaWFComponentBase() {
             Package = GetPackage();

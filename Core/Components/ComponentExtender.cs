@@ -39,7 +39,7 @@ namespace YetaWF.Core.Components {
                 throw new InternalError($"No UIHintAttribute found for property {propertyName}");
             Type compType;
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiAttr.UIHint, out compType) &&
-                    !YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiAttr.UIHint, out compType))
+                    !YetaWFComponentBaseStartup.GetComponentsEdit().TryGetValue(uiAttr.UIHint, out compType))
                 return false;
             return true;
         }

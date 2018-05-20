@@ -19,6 +19,7 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Views.Shared {
 
+    //$$$ move out of dropdown helper
     public class SelectionItem<TYPE> {
         public MultiString Text { get; set; }
         public TYPE Value { get; set; }
