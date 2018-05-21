@@ -75,7 +75,7 @@ namespace YetaWF.Core.Components {
         public PropertyData PropData { get; private set; }
         public string FieldNamePrefix { get; private set; }
         public string FieldName { get; private set; }
-        protected IDictionary<string, object> HtmlAttributes { get; private set; }
+        public IDictionary<string, object> HtmlAttributes { get; private set; }
         public bool Validation { get; private set; }
 
         public YetaWFComponentBase() {
@@ -92,7 +92,7 @@ namespace YetaWF.Core.Components {
         }
         private string _controlId;
 
-        protected string DivId {
+        public string DivId {
             get {
                 if (string.IsNullOrEmpty(_divId))
                     _divId = Manager.UniqueId("div");

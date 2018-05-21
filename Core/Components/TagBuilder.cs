@@ -56,8 +56,14 @@ namespace YetaWF.Core.Support {
         public void MergeAttribute(string key, string value, bool replaceExisting) {
             if (string.IsNullOrWhiteSpace(key))
                 throw new InternalError($"Invalid attribute key");
-            if (replaceExisting || !Attributes.ContainsKey(key))
+            if (replaceExisting) {
                 Attributes[key] = value;
+            } else {
+                if (key == "class") // special case for class as it's cumulative
+                    AddCssClass(value);
+                else
+                    Attributes[key] = value;
+            }
         }
         public string ToString(YTagRenderMode renderMode) {
             StringBuilder sb = new StringBuilder();
