@@ -2,7 +2,7 @@
 
 using YetaWF.Core.Localize;
 
-namespace YetaWF.Core.Views.Shared {
+namespace YetaWF.Core.Templates {
 
     public class FileUpload1 {
 

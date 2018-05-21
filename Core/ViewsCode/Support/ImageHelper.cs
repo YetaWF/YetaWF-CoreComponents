@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.IO;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
@@ -9,6 +7,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
+using YetaWF.Core.Templates;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;

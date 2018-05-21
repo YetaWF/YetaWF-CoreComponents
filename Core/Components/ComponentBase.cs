@@ -70,11 +70,11 @@ namespace YetaWF.Core.Components {
 #else
         private HtmlHelper _htmlHelper;
 #endif
-        protected object Container { get; private set; }
-        protected string PropertyName { get; private set; }
-        protected PropertyData PropData { get; private set; }
-        protected string FieldNamePrefix { get; private set; }
-        protected string FieldName { get; private set; }
+        public object Container { get; private set; }
+        public string PropertyName { get; private set; }
+        public PropertyData PropData { get; private set; }
+        public string FieldNamePrefix { get; private set; }
+        public string FieldName { get; private set; }
         protected IDictionary<string, object> HtmlAttributes { get; private set; }
         public bool Validation { get; private set; }
 
