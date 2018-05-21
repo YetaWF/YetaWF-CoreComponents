@@ -261,7 +261,7 @@ namespace YetaWF.Core.Views.Shared {
 #if MVC6
         public static async Task<HtmlString> RenderPropertyListAsync(this IHtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #else
-        public static async Task<HtmlString> RenderPropertyListAsync(this HtmlHelper<object> htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
+        public static async Task<HtmlString> RenderPropertyListAsync(this HtmlHelper htmlHelper, string name, object model, string id = null, int dummy = 0, bool ReadOnly = false) {
 #endif
             HtmlBuilder hb = new HtmlBuilder();
             Type modelType = model.GetType();
@@ -324,7 +324,7 @@ namespace YetaWF.Core.Views.Shared {
 #if MVC6
         private static async Task<HtmlString> RenderListAsync(IHtmlHelper htmlHelper, object model, string category, bool showVariables, bool readOnly)
 #else
-        private static async Task<HtmlString> RenderListAsync(HtmlHelper<object> htmlHelper, object model, string category, bool showVariables, bool readOnly)
+        private static async Task<HtmlString> RenderListAsync(HtmlHelper htmlHelper, object model, string category, bool showVariables, bool readOnly)
 #endif
         {
             bool focusSet = Manager.WantFocus ? false : true;
@@ -430,7 +430,7 @@ namespace YetaWF.Core.Views.Shared {
 #if MVC6
         public static string GetControlSets(this IHtmlHelper htmlHelper, object model, string id) {
 #else
-        public static string GetControlSets(this HtmlHelper<object> htmlHelper, object model, string id) {
+        public static string GetControlSets(this HtmlHelper htmlHelper, object model, string id) {
 #endif
             List<PropertyListEntry> properties = PropertyListSupport.GetPropertiesByCategory(model, null);
             ScriptBuilder sb = new ScriptBuilder();
@@ -469,7 +469,7 @@ namespace YetaWF.Core.Views.Shared {
 #if MVC6
         private static async Task<HtmlString> RenderHiddenAsync(IHtmlHelper htmlHelper, object model)
 #else
-        private static async Task<HtmlString> RenderHiddenAsync(HtmlHelper<object> htmlHelper, object model)
+        private static async Task<HtmlString> RenderHiddenAsync(HtmlHelper htmlHelper, object model)
 #endif
         {
             HtmlBuilder hb = new HtmlBuilder();

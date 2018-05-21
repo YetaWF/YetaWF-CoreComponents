@@ -59,10 +59,10 @@ namespace YetaWF.Core.Support {
             if (replaceExisting) {
                 Attributes[key] = value;
             } else {
-                if (key == "class") // special case for class as it's cumulative
-                    AddCssClass(value);
-                else
+                if (!Attributes.ContainsKey(key))
                     Attributes[key] = value;
+                else if (key == "class") // special case for class as it's cumulative
+                    AddCssClass(value);
             }
         }
         public string ToString(YTagRenderMode renderMode) {

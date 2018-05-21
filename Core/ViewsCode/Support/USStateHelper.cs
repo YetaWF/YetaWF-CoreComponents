@@ -1,16 +1,11 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
-using YetaWF.Core.Support;
 using System.Threading.Tasks;
-using YetaWF.Core.IO;
+using YetaWF.Core.Templates;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -31,7 +26,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static async Task<HtmlString> RenderUSStateAsync(this HtmlHelper htmlHelper, string name, string model, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
-            List<SelectionItem<string>> states = await ReadStatesListAsync();
+            List<SelectionItem<string>> states = await USState.ReadStatesListAsync();
 
             bool useDefault = !htmlHelper.GetControlInfo<bool>("", "NoDefault");
             if (useDefault) {
@@ -49,32 +44,10 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static async Task<HtmlString> RenderUSStateDisplayAsync(this HtmlHelper htmlHelper, string name, string model) {
 #endif
-            List<SelectionItem<string>> states = await ReadStatesListAsync();
+            List<SelectionItem<string>> states = await USState.ReadStatesListAsync();
             if (model == null) model = "";
             string state = (from s in states where string.Compare(s.Value, model.ToUpper(), true) == 0 select s.Text).FirstOrDefault();
             return new HtmlString(state);
         }
-
-        private static async Task<List<SelectionItem<string>>> ReadStatesListAsync() {
-            if (_statesList == null) {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
-                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "USState");
-                string path = YetaWFManager.UrlToPhysical(url);
-                string file = Path.Combine(path, "USStates.txt");
-                List<SelectionItem<string>> newList = new List<SelectionItem<string>>();
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) throw new InternalError("File {0} not found", file);
-
-                List<string> sts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
-                foreach (var st in sts) {
-                    string[] s = st.Split(new string[] { "," }, 2, StringSplitOptions.RemoveEmptyEntries);
-                    if (s.Length != 2)
-                        throw new InternalError("Invalid input in US states list - {0}", file);
-                    newList.Add(new SelectionItem<string> { Text = s[1], Value = s[0].ToUpper() });
-                }
-                _statesList = newList;
-            }
-            return _statesList;
-        }
-        private static List<SelectionItem<string>> _statesList = null;
     }
 }
