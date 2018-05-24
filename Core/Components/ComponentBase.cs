@@ -15,10 +15,12 @@ namespace YetaWF.Core.Components {
         Task IncludeAsync();
         Task<YHtmlString> RenderAsync(TYPE model);
     }
+    public interface IYetaWFContainer<TYPE> {
+        Task IncludeAsync();
+        Task<YHtmlString> RenderContainerAsync(TYPE model);
+    }
 
     public abstract class YetaWFComponentBase {
-
-        public const string ComponentSuffix = "Component";
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -71,10 +73,42 @@ namespace YetaWF.Core.Components {
         private HtmlHelper _htmlHelper;
 #endif
         public object Container { get; private set; }
-        public string PropertyName { get; private set; }
-        public PropertyData PropData { get; private set; }
+
+        public string PropertyName {
+            get {
+                if (_propertyName == null) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                return _propertyName;
+            }
+            private set {
+                _propertyName = value;
+            }
+        }
+        string _propertyName;
+
+        public PropertyData PropData { 
+            get {
+                if (_propData == null) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                return _propData;
+            }
+            private set {
+                _propData = value;
+            }
+        }
+        PropertyData _propData;
+
         public string FieldNamePrefix { get; private set; }
-        public string FieldName { get; private set; }
+
+        public string FieldName {
+            get {
+                if (_fieldName == null) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                return _fieldName;
+            }
+            private set {
+                _fieldName = value;
+            }
+        }
+        string _fieldName;
+
         public IDictionary<string, object> HtmlAttributes { get; private set; }
         public bool Validation { get; private set; }
 

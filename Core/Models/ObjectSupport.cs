@@ -319,12 +319,24 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
         /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
         /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
+        public bool TryGetAdditionalAttributeValue<TYPE>(string name, out TYPE value) {
+            value = default(TYPE);
+            AdditionalMetadataAttribute attr = (AdditionalMetadataAttribute) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
+            if (attr == null) return false;
+            value = (TYPE) attr.Value;
+            return true;
+        }
+        /// <summary>
+        /// Retrieves the value specified on an AdditionalMetadataAttribute.
+        /// </summary>
+        /// <typeparam name="TYPE">The Type of the value.</typeparam>
+        /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
+        /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
+        /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
         public TYPE GetAdditionalAttributeValue<TYPE>(string name, TYPE dflt = default(TYPE)) {
             TYPE val = dflt;
-            AdditionalMetadataAttribute attr = (AdditionalMetadataAttribute) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
-            if (attr == null)
-                return val;
-            val = (TYPE) attr.Value;
+            if (!TryGetAdditionalAttributeValue(name, out val))
+                return dflt;
             return val;
         }
         private Dictionary<string, object> GetAttributes() {

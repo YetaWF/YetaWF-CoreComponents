@@ -26,7 +26,7 @@ namespace YetaWF.Core.Views.Shared {
 
     public class Grid<TModel> : RazorTemplate<TModel> { }
 
-    public class DataSourceResult {
+    public class DataSourceResult { //$$$MOVE to core
         public List<object> Data { get; set; } // one page of data
         public int Total { get; set; } // total # of records
         public string FieldPrefix { get; set; } // Html field prefix (only used for partial rendering)

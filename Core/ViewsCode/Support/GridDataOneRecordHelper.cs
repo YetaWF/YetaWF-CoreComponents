@@ -5,6 +5,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -78,11 +79,14 @@ namespace YetaWF.Core.Views.Shared {
 
                 // Swap out the ViewData so we get the names/ids that we want for these objects
                 ViewDataDictionary oldVdd = htmlHelper.ViewContext.ViewData;
+
+                //$$$remove metadata
 #if MVC6
                 ModelMetadata meta = metadataProvider.GetMetadataForProperty(model.GetType(), prop.Name);
 #else
                 ModelMetadata meta = ModelMetadataProviders.Current.GetMetadataForProperty(() => prop.Value, model.GetType(), prop.Name);
 #endif
+                using (Manager.StartNestedComponent(prefix)) {
                 using (new HtmlHelperExtender.ControlInfoOverride(meta.AdditionalValues)) {
 
                     string output = "";
@@ -110,15 +114,24 @@ namespace YetaWF.Core.Views.Shared {
                             output = htmlHelper.Editor(prop.Name, prop.UIHint, propName).AsString();
                             output += htmlHelper.ValidationMessage(propName).AsString();
                         } else {
-                            output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, propName).AsString();
+                            if (htmlHelper.IsSupported(model, prop.Name, UIHint: prop.UIHint)) {
+                                output = (await htmlHelper.ForDisplayComponentAsync(model, prop.Name, prop.Value, prop.UIHint)).ToString();
+                            } else {
+                                output = htmlHelper.DisplayFor(m => prop.Value, prop.UIHint, propName).AsString();
+                            }
                         }
                         output = output.Trim(new char[] { '\r', '\n' }); // templates generate a lot of extra \r\n which breaks filtering
                         if (string.IsNullOrWhiteSpace(output)) { output = "&nbsp;"; }
 
                         if (!readOnly && prop.Editable && hiddenProps != null) {
                             // list hidden properties with the first editable field
-                            foreach (var h in hiddenProps)
-                                output += htmlHelper.DisplayFor(m => h.Value, "Hidden", "[" + recordCount + "]." + h.Name).AsString();
+                            foreach (var h in hiddenProps) {
+                                if (htmlHelper.IsSupported(model, propName, UIHint: "Hidden")) {
+                                    output = (await htmlHelper.ForEditComponentAsync(model, propName, prop.Value, "Hidden")).ToString();
+                                } else {
+                                    output += htmlHelper.DisplayFor(m => h.Value, "Hidden", "[" + recordCount + "]." + h.Name).AsString();
+                                }
+                            }
                             hiddenProps = null;
                         }
 
@@ -129,6 +142,7 @@ namespace YetaWF.Core.Views.Shared {
                         htmlHelper.ViewContext.ViewData.TemplateInfo = oldTemplateInfo;
 #endif
                     }
+                }
                 }
                 ++propCount;
             }
