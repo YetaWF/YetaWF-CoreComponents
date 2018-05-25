@@ -74,9 +74,13 @@ namespace YetaWF.Core.Components {
 #endif
         public object Container { get; private set; }
 
+        public bool IsContainerComponent {
+            get { return _propertyName == null; }
+        }
+
         public string PropertyName {
             get {
-                if (_propertyName == null) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
                 return _propertyName;
             }
             private set {
@@ -87,7 +91,7 @@ namespace YetaWF.Core.Components {
 
         public PropertyData PropData { 
             get {
-                if (_propData == null) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
                 return _propData;
             }
             private set {
@@ -100,7 +104,7 @@ namespace YetaWF.Core.Components {
 
         public string FieldName {
             get {
-                if (_fieldName == null) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
                 return _fieldName;
             }
             private set {
