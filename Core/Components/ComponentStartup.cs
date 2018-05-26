@@ -19,7 +19,12 @@ namespace YetaWF.Core.Components {
             foreach (Type tp in types) {
 
                 YetaWFComponentBase component = (YetaWFComponentBase) Activator.CreateInstance(tp);
-                string templateName = component.GetTemplateName();
+                Package compPackage = Package.GetPackageFromType(tp);
+                string templateName;
+                if (compPackage.IsCorePackage || compPackage.Product.StartsWith("Components"))
+                    templateName = component.GetTemplateName();
+                else
+                    templateName = $"{compPackage.Domain}_{compPackage.Product}_{component.GetTemplateName()}";
                 YetaWFComponentBase.ComponentType compType = component.GetComponentType();
                 switch (compType) {
                     case YetaWFComponentBase.ComponentType.Display:
