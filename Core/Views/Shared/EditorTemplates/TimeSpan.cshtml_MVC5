@@ -1,24 +1,25 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.TimeSpan<TimeSpan>
+@using YetaWF.Core.Components    
 @{
     TimeSpanUI ts = new TimeSpanUI(Model);
 }
 <div id='@ControlId' class='yt_timespan t_edit'>
     @Html.RenderHidden("", Model.ToString())
     <div class="t_days">
-        @Html.ExtLabelForAsync(m => ts.Days, "Days").Result
+        @Html.ForLabelAsync(ts, "Days").Result
         @Html.EditorFor(m => ts.Days, "IntValue4", "Days")@Html.ValidationMessage("Days")
     </div>
     <div class="t_hours">
-        @Html.ExtLabelForAsync(m => ts.Hours, "Hours").Result
+        @Html.ForLabelAsync(ts, "Hours").Result
         @Html.EditorFor(m => ts.Hours, "IntValue2", "Hours")@Html.ValidationMessage("Hours")
     </div>
     <div class="t_minutes">
-        @Html.ExtLabelForAsync(m => ts.Minutes, "Minutes").Result
+        @Html.ForLabelAsync(ts, "Minutes").Result
         @Html.EditorFor(m => ts.Minutes, "IntValue2", "Minutes")@Html.ValidationMessage("Minutes")
     </div>
     <div class="t_seconds">
-        @Html.ExtLabelForAsync(m => ts.Seconds, "Seconds").Result
+        @Html.ForLabelAsync(ts, "Seconds").Result
         @Html.EditorFor(m => ts.Seconds, "IntValue2", "Seconds")@Html.ValidationMessage("Seconds")
     </div>
 </div>

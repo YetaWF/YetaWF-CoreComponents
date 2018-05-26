@@ -334,6 +334,8 @@ namespace YetaWF.Core.Views
             hb.Append(htmlHelper.Hidden(Basics.ModuleGuid, module.ModuleGuid));
             hb.Append(htmlHelper.Hidden(Forms.UniqueIdPrefix, Manager.UniqueIdPrefix));
 
+            hb.Append(htmlHelper.ValidationSummary());
+
             viewHtml = ProcessImages(viewHtml);
             hb.Append(viewHtml);
 

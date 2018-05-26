@@ -1,17 +1,4 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.Shared.Grid<DataSourceResult>
-@{
-    @: {
-    @:   "records":@Model.Total,
-    @:   "rows":[
-        Model.RecordCount = 0;
-        foreach (var record in Model.Data) {
-            if (Model.RecordCount > 0) {
-                @: ,
-            }
-            @: { "id": "@Model.RecordCount.ToString()", @Html.DisplayFor(m => record, "GridDataOneRecord") }
-            Model.RecordCount = Model.RecordCount + 1;
-        }
-    @:   ]
-    @: }
-}
+@using YetaWF.Core.Components
+@Html.ForDisplayContainerAsync(Model, "GridData").Result

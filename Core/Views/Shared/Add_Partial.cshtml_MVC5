@@ -1,7 +1,5 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
-@Html.ValidationSummary()
-<div>
-    @Html.EditorFor(m => Model, "PropertyListTabbed")
-</div>
+@using YetaWF.Core.Components
+@Html.ForEditContainerAsync(Model, "PropertyList").Result
 

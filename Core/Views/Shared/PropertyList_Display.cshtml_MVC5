@@ -1,3 +1,4 @@
 @*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @inherits YetaWF.Core.Views.RazorView<YetaWF.Core.Modules.ModuleDefinition, object>
-@Html.DisplayFor(m => Model, "PropertyListTabbed")
+@using YetaWF.Core.Components
+@Html.ForDisplayContainerAsync(Model, "PropertyList").Result

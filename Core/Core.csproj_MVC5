@@ -115,6 +115,10 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\ComponentStartup.cs" />
+    <Compile Include="Components\ComponentExtender.cs" />
+    <Compile Include="Components\ComponentBase.cs" />
+    <Compile Include="Components\HtmlString.cs" />
     <Compile Include="IO\FileSystem.cs" />
     <Compile Include="IO\Caching.cs" />
     <Compile Include="Controllers\PageLogging.cs" />
@@ -174,6 +178,11 @@
     <Compile Include="Support\Shims\SessionState.cs" />
     <Compile Include="Support\Shims\TagBuilder.cs" />
     <Compile Include="Support\StaticPages\StaticPageManager.cs" />
+    <Compile Include="Components\TagBuilder.cs" />
+    <Compile Include="Support\Templates\CountryISO3166.cs" />
+    <Compile Include="Support\Templates\CurrencyISO4217.cs" />
+    <Compile Include="Support\Templates\FileUpload1.cs" />
+    <Compile Include="Support\Templates\USStateHelper.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
@@ -194,7 +203,6 @@
     <Compile Include="ViewsCode\Support\DropDownHelper.cs" />
     <Compile Include="ViewsCode\Support\ExtHiddenHelper.cs" />
     <Compile Include="ViewsCode\Support\ExtLabelHelper.cs" />
-    <Compile Include="ViewsCode\Support\FileUploadDanielm1Helper.cs" />
     <Compile Include="ViewsCode\Support\GridDataOneRecordHelper.cs" />
     <Compile Include="ViewsCode\Support\GridDeleteEntryHelper.cs" />
     <Compile Include="ViewsCode\Support\GridHelper.cs" />
@@ -443,6 +451,8 @@
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
     <Content Include="Addons\_Templates\ActionIcons\ActionIcons.js" />
     <Content Include="Addons\_Templates\ActionIcons\filelistJS.txt" />
+    <Content Include="Addons\_Templates\DateTime\filelistCSS.txt" />
+    <Content Include="Addons\_Templates\DateTime\filelistJS.txt" />
     <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
     <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
     <Content Include="Addons\_Templates\DropDownList\DropDownList.js" />
@@ -462,9 +472,6 @@
     <Content Include="Addons\_Templates\Currency\Currency.css" />
     <Content Include="Addons\_Templates\Currency\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Currency\filelistJS.txt" />
-    <Content Include="Addons\_Templates\DateTime\DateTime.css" />
-    <Content Include="Addons\_Templates\DateTime\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\DateTime\filelistJS.txt" />
     <Content Include="Addons\_Templates\Date\filelistCSS.txt" />
     <Content Include="Addons\_Templates\Date\filelistJS.txt" />
     <Content Include="Addons\_Templates\Date\Date.css" />
