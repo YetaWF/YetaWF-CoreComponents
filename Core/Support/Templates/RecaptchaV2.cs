@@ -6,10 +6,11 @@ using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 
-namespace YetaWF.Core.Views.Shared {
+namespace YetaWF.Core.Templates {
 
     public class RecaptchaV2Data {
         public RecaptchaV2Data() { VerifyPresence = true; }
+        [UIHint("Hidden")]
         public bool VerifyPresence { get; set; }
     }
     public class RecaptchaV2Config {

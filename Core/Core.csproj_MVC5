@@ -182,11 +182,11 @@
     <Compile Include="Support\Templates\CountryISO3166.cs" />
     <Compile Include="Support\Templates\CurrencyISO4217.cs" />
     <Compile Include="Support\Templates\FileUpload1.cs" />
+    <Compile Include="Support\Templates\RecaptchaV2.cs" />
     <Compile Include="Support\Templates\USStateHelper.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
-    <Compile Include="Templates\RecaptchaV2.cs" />
     <Compile Include="Templates\Text.cs" />
     <Compile Include="ViewsCode\FieldHelper.cs" />
     <Compile Include="ViewsCode\HtmlHelperExtender.cs" />
@@ -227,7 +227,6 @@
     <Compile Include="ViewsCode\Support\PasswordHelper.cs" />
     <Compile Include="ViewsCode\Support\PropertyListHelper.cs" />
     <Compile Include="ViewsCode\Support\RecaptchaHelper.cs" />
-    <Compile Include="ViewsCode\Support\RecaptchaV2Helper.cs" />
     <Compile Include="ViewsCode\Support\ReferencedModules.cs" />
     <Compile Include="ViewsCode\Support\ScrollerHelper.cs" />
     <Compile Include="ViewsCode\Support\SiteIdHelper.cs" />

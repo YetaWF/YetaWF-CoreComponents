@@ -62,9 +62,5 @@ namespace YetaWF.Core.Support {
         public void Remove(int startIndex, int length) {
             _hb.Remove(startIndex, length);
         }
-
-        public void Append(Task<HtmlString> task) {
-            throw new NotImplementedException();
-        }
     }
 }

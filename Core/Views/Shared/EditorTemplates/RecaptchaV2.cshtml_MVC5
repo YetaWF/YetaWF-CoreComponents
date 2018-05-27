@@ -1,5 +1,5 @@
 ﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
-@inherits YetaWF.Core.Views.Shared.Recaptcha<RecaptchaV2Data>
+@inherits YetaWF.Core.Views.Shared.Recaptcha<YetaWF.Core.Templates.RecaptchaV2Data>
 @using YetaWF.Core.Views.Shared
 <div id="@DivId" class="yt_recaptchav2"></div>
 @Html.RenderHidden("VerifyPresence", Model.VerifyPresence)

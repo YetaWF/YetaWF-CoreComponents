@@ -42,7 +42,7 @@ namespace YetaWF.Core.Components {
             PropData = propData;
             FieldNamePrefix = Manager.NestedComponentPrefix;
             FieldName = fieldName;
-            if (!string.IsNullOrWhiteSpace(FieldNamePrefix))
+            if (!string.IsNullOrWhiteSpace(FieldNamePrefix) && fieldName != null)
                 FieldName = FieldNamePrefix + "." + FieldName;
             HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
