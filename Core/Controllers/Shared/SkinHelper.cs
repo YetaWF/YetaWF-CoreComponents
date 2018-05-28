@@ -16,7 +16,7 @@ namespace YetaWF.Core.Controllers.Shared {
     /// <summary>
     /// PageSkin and PopupSkin template support.
     /// </summary>
-    public class SkinHelperController : YetaWFController {
+    public class SkinHelperController : YetaWFController {///$$$$$
 
         /// <summary>
         /// Returns &lt;option&gt; HTML to replace a select statement with page skins for the provided skin collection.

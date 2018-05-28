@@ -65,11 +65,9 @@ namespace YetaWF.Core.Skins {
 
         public SkinDefinition() { }
 
-        [Caption("Skin Collection"), Description("The name of the skin collection")]
         [StringLength(MaxCollection)]
         public string Collection { get; set; } // may be null for site default
 
-        [Caption("Skin Name"), Description("The name of the skin")]
         [StringLength(MaxSkinFile)]
         public string FileName { get; set; } // may be null for site default
 

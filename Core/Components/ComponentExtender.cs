@@ -56,12 +56,17 @@ namespace YetaWF.Core.Components {
             PropertyData propData = ObjectSupport.GetPropertyData(containerType, propertyName);
             Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
             string description = propData.GetDescription(containerType);
+
             if (!string.IsNullOrWhiteSpace(description)) {
                 if (ShowVariable)
                     description = __ResStr("showVarFmt", "{0} (Variable {1})", description, propertyName);
                 htmlAttributes.Add(Basics.CssTooltip, description);
             }
             string label = propData.GetCaption(containerType);
+            if (string.IsNullOrEmpty(label)) {
+                PropertyData propDataLabel = ObjectSupport.GetPropertyData(containerType, $"{propertyName}_Label");
+                label = propDataLabel.GetPropertyValue<string>(container);
+            }
             if (string.IsNullOrEmpty(label)) { // we're distinguishing between "" and " "
                 if (SuppressIfEmpty)
                     return HtmlStringExtender.Empty;
