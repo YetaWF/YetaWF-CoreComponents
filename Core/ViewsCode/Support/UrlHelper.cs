@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.Addons;
@@ -10,6 +9,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
+using YetaWF.Core.Models.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,18 +22,6 @@ namespace YetaWF.Core.Views.Shared {
 
     public class Url<TModel> : RazorTemplate<TModel> { }
 
-    public static class UrlHelperEx {
-
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelper), name, defaultValue, parms); }
-        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-
-        [Flags]
-        public enum UrlTypeEnum {
-            Local = 1,
-            Remote = 2,
-            New = 4, // Local by definition
-        }
-    }
     public static class UrlHelper {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(UrlHelper), name, defaultValue, parms); }
@@ -96,26 +84,26 @@ namespace YetaWF.Core.Views.Shared {
             }
         }
 #if MVC6
-        public static async Task<HtmlString> RenderUrlSelAsync(this IHtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderUrlSelAsync(this IHtmlHelper htmlHelper, string name, UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #else
-        public static async Task<HtmlString> RenderUrlSelAsync(this HtmlHelper htmlHelper, string name, UrlHelperEx.UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
+        public static async Task<HtmlString> RenderUrlSelAsync(this HtmlHelper htmlHelper, string name, UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
             List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
-            if ((type & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+            if ((type & UrlTypeEnum.Local) != 0) {
                 items.Add(new SelectionItem<int> {
                     Text = __ResStr("selLocal", "Designed Page"),
                     Value = 1,
                     Tooltip = __ResStr("selLocalTT", "Select for local, designed pages"),
                 });
             }
-            if ((type & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+            if ((type & UrlTypeEnum.Remote) != 0) {
                 items.Add(new SelectionItem<int> {
                     Text = __ResStr("selRemote", "Local/Remote Url"),
                     Value = 2,
                     Tooltip = __ResStr("selRemoteTT", "Select to enter a Url (local or remote) - Can contain query string arguments - Local Urls start with /, remote Urls with http:// or https://"),
                 });
             }
-            if ((type & UrlHelperEx.UrlTypeEnum.New) != 0)
+            if ((type & UrlTypeEnum.New) != 0)
                 throw new InternalError("New url not supported by this template");
 
             return await htmlHelper.RenderDropDownSelectionListAsync(name, 0, items, HtmlAttributes: HtmlAttributes, Validation: Validation);

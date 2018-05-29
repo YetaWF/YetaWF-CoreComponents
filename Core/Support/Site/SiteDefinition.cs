@@ -291,7 +291,7 @@ namespace YetaWF.Core.Site {
         public string LockedExternalForIP { get; set; }
 
         [Category("Site"), Caption("Locked Url Redirect"), Description("The page where the user is redirected when the site is locked (down for maintenance)")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local| UrlHelperEx.UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local| UrlHelperEx.UrlTypeEnum.Remote)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local| UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local| UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), RequiredIf("IsLocked", true), Trim]
         public string LockedUrl { get; set; }
 
@@ -491,7 +491,7 @@ namespace YetaWF.Core.Site {
         public bool CanUseCDN { get { return Manager.CanUseCDN && UseCDN && HaveCDNUrl; } }
 
         [Category("CDN"), Caption("CDN Url"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - The site (and all instances) must be restarted for this setting to take effect")]
-        [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
+        [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         [RequiredIf("UseCDN", true)]
         [RequiresRestart(RestartEnum.All)]
@@ -500,7 +500,7 @@ namespace YetaWF.Core.Site {
         public bool HaveCDNUrl { get { return !string.IsNullOrWhiteSpace(CDNUrl); } }
 
         [Category("CDN"), Caption("CDN Url (Secure)"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead - The site (and all instances) must be restarted for this setting to take effect")]
-        [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
+        [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         [RequiresRestart(RestartEnum.All)]
         public string CDNUrlSecure { get; set; }
@@ -540,7 +540,7 @@ namespace YetaWF.Core.Site {
         [Description("The home page of your site")]
         [Category("Urls")]
         [Caption("Site Home Page")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Required, Trim]
         public string HomePageUrl {
             get {
@@ -555,27 +555,27 @@ namespace YetaWF.Core.Site {
         private string _homePageUrl = null;
 
         [Category("Urls"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this Url")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string NotFoundUrl { get; set; }
 
         [Category("Urls"), Caption("Mobile Device Url"), Description("If a mobile device accesses this site, the user is redirected to this Url")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string MobileSiteUrl { get; set; }
 
         [Category("Urls"), Caption("Unsupported Browsers Url"), Description("If an unsupported browsers accesses this site, the user is redirected to this Url - If no Url is defined, browser versions are not checked")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string UnsupportedBrowserUrl { get; set; }
 
         [Category("Urls"), Caption("Login Url"), Description("The Url where the user is redirected to log into the site")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string LoginUrl { get; set; }
 
         [Category("Urls"), Caption("External Account Setup Url"), Description("The Url where the user is redirected to provide local information when using an external login provider")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string ExternalAccountSetupUrl { get; set; }
 

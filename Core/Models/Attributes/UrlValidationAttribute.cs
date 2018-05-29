@@ -3,9 +3,17 @@
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
+using YetaWF.Core.Templates;
 using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Models.Attributes {
+
+    [Flags]
+    public enum UrlTypeEnum {
+        Local = 1, // Local Url starting with /
+        Remote = 2, // Remote Url http:// https:// or /
+        New = 4, // Local by definition
+    }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class UrlValidationAttribute : RegexValidationBaseAttribute {
@@ -13,7 +21,7 @@ namespace YetaWF.Core.Models.Attributes {
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public UrlValidationAttribute(SchemaEnum remoteSchema = SchemaEnum.Any, UrlHelperEx.UrlTypeEnum urlType = UrlHelperEx.UrlTypeEnum.Remote) : base(@"", "") {
+        public UrlValidationAttribute(SchemaEnum remoteSchema = SchemaEnum.Any, UrlTypeEnum urlType = UrlTypeEnum.Remote) : base(@"", "") {
             RemoteSchema = remoteSchema;
             UrlType = urlType;
             Pattern = GetPattern();
@@ -22,7 +30,7 @@ namespace YetaWF.Core.Models.Attributes {
             ErrorMessageWithFieldFormat = GetMessageWithField();
         }
         public SchemaEnum RemoteSchema { get; private set; }
-        public UrlHelperEx.UrlTypeEnum UrlType { get; private set; }
+        public UrlTypeEnum UrlType { get; private set; }
 
         public enum SchemaEnum {
             Any = 0,
@@ -37,7 +45,7 @@ namespace YetaWF.Core.Models.Attributes {
         private string _regexHttpRemote = @"^\s*http:\/\/.+\s*$";
 
         private string GetMessage() {
-            if ((UrlType & (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) == (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) {
+            if ((UrlType & (UrlTypeEnum.Remote | UrlTypeEnum.Local)) == (UrlTypeEnum.Remote | UrlTypeEnum.Local)) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
@@ -47,7 +55,7 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return __ResStr("valUrl3", "The Url is invalid - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Remote) != 0) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
@@ -57,16 +65,16 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return __ResStr("valUrl6", "The Url is invalid - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Local) != 0) {
                 return __ResStr("valUrl7", "The Url is invalid - It should be in the format '/someLocalPage' defining a local Url on the current site");
-            } else if (UrlType == UrlHelperEx.UrlTypeEnum.New) {
+            } else if (UrlType == UrlTypeEnum.New) {
                 return __ResStr("valUrl8", "The Url is invalid - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
             } else {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
         }
         private string GetMessageWithData() {
-            if ((UrlType & (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) == (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) {
+            if ((UrlType & (UrlTypeEnum.Remote | UrlTypeEnum.Local)) == (UrlTypeEnum.Remote | UrlTypeEnum.Local)) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
@@ -76,7 +84,7 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return __ResStr("valUrlD3", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Remote) != 0) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
@@ -86,16 +94,16 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return __ResStr("valUrlD6", "The Url '{0}' is invalid - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Local) != 0) {
                 return __ResStr("valUrlD7", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' defining a local Url on the current site");
-            } else if (UrlType == UrlHelperEx.UrlTypeEnum.New) {
+            } else if (UrlType == UrlTypeEnum.New) {
                 return __ResStr("valUrlD8", "The Url '{0}' is invalid - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
             } else {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
         }
         private string GetMessageWithField() {
-            if ((UrlType & (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) == (UrlHelperEx.UrlTypeEnum.Remote | UrlHelperEx.UrlTypeEnum.Local)) {
+            if ((UrlType & (UrlTypeEnum.Remote | UrlTypeEnum.Local)) == (UrlTypeEnum.Remote | UrlTypeEnum.Local)) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
@@ -105,7 +113,7 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return __ResStr("valUrlF3", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' or 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Remote) != 0) {
                 switch (RemoteSchema) {
                     default:
                     case SchemaEnum.Any:
@@ -115,17 +123,17 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return __ResStr("valUrlF6", "The Url is invalid (field '{0}') - It should be in the format 'https://somedomain.com/page' - It must be secure - http is not allowed");
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Local) != 0) {
                 return __ResStr("valUrlF7", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' defining a local Url on the current site");
-            } else if (UrlType == UrlHelperEx.UrlTypeEnum.New) {
+            } else if (UrlType == UrlTypeEnum.New) {
                 return __ResStr("valUrlF8", "The Url is invalid (field '{0}') - It should be in the format '/someLocalPage' defining a new local page - local pages must start with '/' and can't use certain special characters like . , * ? & etc.");
             } else {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
             }
         }
         protected string GetPattern() {
-            if ((UrlType & UrlHelperEx.UrlTypeEnum.Remote) != 0) {
-                if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0)
+            if ((UrlType & UrlTypeEnum.Remote) != 0) {
+                if ((UrlType & UrlTypeEnum.Local) != 0)
                     return _regexLocalAndRemote;
                 switch (RemoteSchema) {
                     default:
@@ -136,9 +144,9 @@ namespace YetaWF.Core.Models.Attributes {
                     case SchemaEnum.HttpsOnly:
                         return _regexHttpsRemote;
                 }
-            } else if ((UrlType & UrlHelperEx.UrlTypeEnum.Local) != 0) {
+            } else if ((UrlType & UrlTypeEnum.Local) != 0) {
                 return _regexLocal;
-            } else if (UrlType == UrlHelperEx.UrlTypeEnum.New) {
+            } else if (UrlType == UrlTypeEnum.New) {
                 return _regexLocalNew;
             } else {
                 throw new InternalError("Invalid UrlType combination {0}", UrlType);
