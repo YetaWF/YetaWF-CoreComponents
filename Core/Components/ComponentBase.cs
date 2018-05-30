@@ -121,7 +121,7 @@ namespace YetaWF.Core.Components {
         }
         public readonly Package Package;
 
-        protected string ControlId {
+        public string ControlId {
             get {
                 if (string.IsNullOrEmpty(_controlId))
                     _controlId = Manager.UniqueId("ctrl");
@@ -139,7 +139,7 @@ namespace YetaWF.Core.Components {
         }
         private string _divId;
 
-        protected string UniqueId(string name = "b") {
+        public string UniqueId(string name = "b") {
             return Manager.UniqueId(name);
         }
 

@@ -148,6 +148,15 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, null, null, null, uiHint, HtmlAttributes, true);
         }
 #if MVC6
+        public static async Task<HtmlString> ForDisplayAsAsync(this IHtmlHelper htmlHelper, 
+#else
+        public static async Task<HtmlString> ForDisplayAsAsync(this HtmlHelper htmlHelper,
+#endif
+                object container, string propertyName, string FieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
+            PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, false);
+        }
+#if MVC6
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, IHtmlHelper htmlHelper,
 #else
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, HtmlHelper htmlHelper,
@@ -182,7 +191,6 @@ namespace YetaWF.Core.Components {
                 await methRetvalTask;
 
                 // Invoke RenderAsync
-                // containers can support either a specific container type or object (as catch-all)
                 miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.RenderContainerAsync), new Type[] { containerType });
                 if (miAsync == null)
                     throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFContainer<object>.RenderContainerAsync)} method accepting a model type {typeof(object).FullName}");
