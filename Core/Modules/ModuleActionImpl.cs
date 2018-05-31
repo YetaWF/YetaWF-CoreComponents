@@ -18,6 +18,8 @@ using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Modules {
+
+    //$$$ rendering code should be in ComponentsHTML
     public partial class ModuleAction {
 
         public enum RenderModeEnum {
