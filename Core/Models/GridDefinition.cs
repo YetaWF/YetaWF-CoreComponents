@@ -61,6 +61,7 @@ namespace YetaWF.Core.Models {
                 Model = model;
             }
             public string Prefix { get; private set; }
+            [UIHint("GridDataOneRecord")]
             public object Model { get; private set; }
             public int RecNumber { get; private set; }
         }

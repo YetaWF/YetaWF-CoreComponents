@@ -166,7 +166,7 @@ namespace YetaWF.Core.Views
         // DOCUMENTREADY
         // DOCUMENTREADY
 
-        protected class JSDocumentReady : IDisposable {
+        protected class JSDocumentReady : IDisposable {//$$$$$remove?
 #if MVC6
             public JSDocumentReady(IHtmlHelper<TModel> Html)
 #else
