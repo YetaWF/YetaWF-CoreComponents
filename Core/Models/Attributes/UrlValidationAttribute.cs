@@ -3,8 +3,6 @@
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
-using YetaWF.Core.Templates;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Models.Attributes {
 

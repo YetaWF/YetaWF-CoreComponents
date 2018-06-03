@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using YetaWF.Core.Addons.Templates;
 using YetaWF.Core.Menus;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
@@ -9,6 +8,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using System.Threading.Tasks;
 using System;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -33,19 +33,19 @@ namespace YetaWF.Core.Views.Shared {
 #endif
             if (!string.IsNullOrEmpty(name))
                 throw new InternalError("Field name not supported for ActionIcons");
-            GridHelper.GridActionsEnum actionStyle = GridHelper.GridActionsEnum.Icons;
+            Grid.GridActionsEnum actionStyle = Grid.GridActionsEnum.Icons;
             if (actions.Count > 1) {
-                GridHelper.GridActionsEnum gridActionStyle;
-                if (htmlHelper.TryGetControlInfo<GridHelper.GridActionsEnum>("", "GridActionsEnum", out gridActionStyle))
+                Grid.GridActionsEnum gridActionStyle;
+                if (htmlHelper.TryGetControlInfo<Grid.GridActionsEnum>("", "GridActionsEnum", out gridActionStyle))
                     actionStyle = gridActionStyle;
                 else
-                    actionStyle = UserSettings.GetProperty<GridHelper.GridActionsEnum>("GridActions");
+                    actionStyle = UserSettings.GetProperty<Grid.GridActionsEnum>("GridActions");
             }
             switch (actionStyle) {
                 default:
-                case GridHelper.GridActionsEnum.Icons:
-                    return await actions.RenderAsync(htmlHelper, null, ActionIcons.CssActionIcons);
-                case GridHelper.GridActionsEnum.DropdownMenu: {
+                case Grid.GridActionsEnum.Icons:
+                    return await actions.RenderAsync(htmlHelper, null, "yActionIcons"/*$$$YetaWF.Modules.ComponentsHTML.Addons.Templates.ActionIcons.CssActionIcons*/);
+                case Grid.GridActionsEnum.DropdownMenu: {
                     MenuList menuActions = actions;
                     menuActions.RenderMode = ModuleAction.RenderModeEnum.NormalMenu;
 

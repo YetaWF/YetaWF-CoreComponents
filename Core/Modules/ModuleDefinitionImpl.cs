@@ -51,9 +51,8 @@ namespace YetaWF.Core.Modules {
         // MODULE INFO
         // MODULE INFO
 
-        [Category("About")]
-        [Description("The internal, permanent module name")]
-        [Caption("Permanent Module Name")]
+        [Category("About"), Description("The internal, permanent module name"), Caption("Permanent Module Name")]
+        [UIHint("String"), ReadOnly]
         public string PermanentModuleName {
             get {
                 GetModuleInfo();
@@ -61,63 +60,56 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        [Category("About")]
-        [Description("The displayable module name")]
-        [Caption("Module Display Name")]
+        [Category("About"), Description("The displayable module name"), Caption("Module Display Name")]
+        [UIHint("String"), ReadOnly]
         public string ModuleDisplayName {
             get {
                 GetModuleInfo();
                 return ModuleName;
             }
         }
-        [Category("About")]
-        [Description("The internal company name of the module's publisher")]
-        [Caption("Company Name")]
+        [Category("About"), Description("The internal company name of the module's publisher"), Caption("Company Name")]
+        [UIHint("String"), ReadOnly]
         public string CompanyName {
             get {
                 GetModuleInfo();
                 return _CompanyName;
             }
         }
-        [Category("About")]
-        [Description("The displayable company name of the module's publisher")]
-        [Caption("Company Display Name")]
+        [Category("About"), Description("The displayable company name of the module's publisher"), Caption("Company Display Name")]
+        [UIHint("String"), ReadOnly]
         public string CompanyDisplayName {
             get {
                 GetModuleInfo();
                 return _CompanyDisplayName;
             }
         }
-        [Category("About")]
-        [Description("The domain name of the product or company publishing the module")]
-        [Caption("Domain")]
+        [Category("About"), Description("The domain name of the product or company publishing the module"), Caption("Domain")]
+        [UIHint("String"), ReadOnly]
         public string Domain {
             get {
                 GetModuleInfo();
                 return _Domain;
             }
         }
-        [Category("About")]
-        [Description("The MVC area name of the module")]
-        [Caption("Area")]
+        [Category("About"), Description("The MVC area name of the module"), Caption("Area")]
+        [UIHint("String"), ReadOnly]
         public string Area {
             get {
                 GetModuleInfo();
                 return _Area;
             }
         }
-        [Category("About")]
-        [Description("The module's product name")]
-        [Caption("Product")]
+        [Category("About"), Description("The module's product name"), Caption("Product")]
+        [UIHint("String"), ReadOnly]
         public string Product {
             get {
                 GetModuleInfo();
                 return _Product;
             }
         }
-        [Category("About")]
-        [Description("The module version")]
-        [Caption("Version")]
+        [Category("About"), Description("The module version"), Caption("Version")]
+        [UIHint("String"), ReadOnly]
         public string Version {
             get {
                 GetModuleInfo();
@@ -125,9 +117,8 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        [Category("About")]
-        [Description("The module's class name")]
-        [Caption("Class Name")]
+        [Category("About"), Description("The module's class name"), Caption("Class Name")]
+        [UIHint("String"), ReadOnly]
         public string ClassName {
             get {
                 if (string.IsNullOrEmpty(_ClassName)) {
@@ -138,18 +129,16 @@ namespace YetaWF.Core.Modules {
         }
         private string _ClassName { get; set; }
 
-        [Category("About")]
-        [Description("The module's full class name")]
-        [Caption("Class Name (Full)")]
+        [Category("About"), Description("The module's full class name"), Caption("Class Name (Full)")]
+        [UIHint("String"), ReadOnly]
         public string FullClassName {
             get {
                 return GetType().FullName;
             }
         }
 
-        [Category("About")]
-        [Description("The module name")]
-        [Caption("Module Name")]
+        [Category("About"), Description("The module name"), Caption("Module Name")]
+        [UIHint("String"), ReadOnly]
         public string ModuleName {
             get {
                 GetModuleInfo();
@@ -207,9 +196,8 @@ namespace YetaWF.Core.Modules {
         private string _Version { get; set; }
         private string _CompanyDisplayName { get; set; }
 
-        [Category("Variables")]
-        [Description("Displays whether the module is a unique module")]
-        [Caption("IsModuleUnique")]
+        [Category("Variables"), Description("Displays whether the module is a unique module"), Caption("IsModuleUnique")]
+        [UIHint("Boolean"), ReadOnly]
         public bool IsModuleUnique {
             get {
                 UniqueModuleAttribute attr = (UniqueModuleAttribute) Attribute.GetCustomAttribute(GetType(), typeof(UniqueModuleAttribute));
@@ -283,9 +271,8 @@ namespace YetaWF.Core.Modules {
         // LOAD/SAVE
         // LOAD/SAVE
 
-        [Category("Variables")]
-        [Caption("Has Settings")]
-        [Description("Defines whether the module has settings that can be edited and saved")]
+        [Category("Variables"), Caption("Has Settings"), Description("Defines whether the module has settings that can be edited and saved")]
+        [UIHint("Boolean"), ReadOnly]
         [DontSave]
         public virtual bool ModuleHasSettings { get { return true; } }
 
@@ -461,9 +448,8 @@ namespace YetaWF.Core.Modules {
         public static string GetModuleDataFolder(Guid modGuid) {
             return Path.Combine(Manager.SiteFolder, ModuleDefinition.BaseFolderName, modGuid.ToString()) + "_Data";
         }
-        [Category("Variables")]
-        [Description("The module's data folder used to store additional data")]
-        [Caption("Data Folder")]
+        [Category("Variables"), Description("The module's data folder used to store additional data"), Caption("Data Folder")]
+        [UIHint("String"), ReadOnly]
         public string ModuleDataFolder {
             get {
                 return ModuleDefinition.GetModuleDataFolder(ModuleGuid);
@@ -471,9 +457,8 @@ namespace YetaWF.Core.Modules {
         }
         public static string BaseFolderName { get { return "YetaWF_Modules"; } }
 
-        [Category("Variables")]
-        [Description("The Url of the module's addon folder")]
-        [Caption("AddOn Folder")]
+        [Category("Variables"), Description("The Url of the module's addon folder"), Caption("AddOn Folder")]
+        [UIHint("String"), ReadOnly]
         public string AddOnModuleUrl {
             get {
                 return VersionManager.TryGetAddOnPackageUrl(Domain, Product);

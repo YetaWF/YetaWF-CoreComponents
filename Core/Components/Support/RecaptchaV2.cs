@@ -6,7 +6,7 @@ using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 
-namespace YetaWF.Core.Templates {
+namespace YetaWF.Core.Components {
 
     public class RecaptchaV2Data {
         public RecaptchaV2Data() { VerifyPresence = true; }

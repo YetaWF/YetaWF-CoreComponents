@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
-using YetaWF.Core.Templates;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;

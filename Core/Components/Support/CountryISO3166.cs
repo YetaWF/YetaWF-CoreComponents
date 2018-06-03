@@ -12,7 +12,7 @@ using YetaWF.Core.Support;
 
 // https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
-namespace YetaWF.Core.Templates {
+namespace YetaWF.Core.Components {
 
     public class CountryISO3166Startup : IInitializeApplicationStartup {
         public Task InitializeApplicationStartupAsync() {

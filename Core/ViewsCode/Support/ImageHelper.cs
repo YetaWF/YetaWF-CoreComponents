@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
+using System.IO;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
@@ -7,7 +9,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
-using YetaWF.Core.Templates;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -30,21 +31,6 @@ namespace YetaWF.Core.Views.Shared {
             title = title ?? "";
             alt = alt ?? title;
             TagBuilder tImg = new TagBuilder("img");
-            if (!string.IsNullOrWhiteSpace(alt))
-                tImg.MergeAttribute("alt", alt);
-            if (!string.IsNullOrWhiteSpace(cssClass))
-                tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-            if (!string.IsNullOrWhiteSpace(title))
-                tImg.MergeAttribute("title", title);
-            if (!string.IsNullOrWhiteSpace(id))
-                tImg.Attributes.Add("id", id);
-            tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
-            return tImg;
-        }
-        public static YTagBuilder BuildKnownImageYTag(string url, string title = null, string alt = null, string id = null, string cssClass = null) {
-            title = title ?? "";
-            alt = alt ?? title;
-            YTagBuilder tImg = new YTagBuilder("img");
             if (!string.IsNullOrWhiteSpace(alt))
                 tImg.MergeAttribute("alt", alt);
             if (!string.IsNullOrWhiteSpace(cssClass))

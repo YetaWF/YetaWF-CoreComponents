@@ -12,7 +12,7 @@ using YetaWF.Core.Support;
 
 // https://www.iso.org/iso-4217-currency-codes.html
 
-namespace YetaWF.Core.Templates {
+namespace YetaWF.Core.Components {
 
     public static class CurrencyISO4217 {
 

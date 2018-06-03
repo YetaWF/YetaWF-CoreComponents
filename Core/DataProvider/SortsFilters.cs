@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using YetaWF.Core.Components;
 using YetaWF.Core.Models;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
@@ -32,7 +33,7 @@ namespace YetaWF.Core.DataProvider {
         }
         public static List<OBJTYPE> Filter(List<OBJTYPE> list, List<DataProviderFilterInfo> filters) {
             if (filters != null && filters.Count > 0) {
-                GridHelper.NormalizeFilters(typeof(OBJTYPE), filters);
+                Grid.NormalizeFilters(typeof(OBJTYPE), filters);
                 // get a flat list of all filters
                 List<DataProviderFilterInfo> flatFilters = DataProviderFilterInfo.CollectAllFilters(filters);
                 // get all filter values as array (needed by the Where method of Dynamic Linq)

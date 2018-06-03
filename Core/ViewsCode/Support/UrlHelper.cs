@@ -10,6 +10,7 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -75,7 +76,7 @@ namespace YetaWF.Core.Views.Shared {
                 Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
                 SkinImages skinImages = new SkinImages();
                 string imageUrl = await skinImages.FindIcon_TemplateAsync("UrlRemote.png", currentPackage, "Url");
-                TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altText", "Remote Url"));
+                TagBuilder tagImg = ImageHTML.BuildKnownImageTag(imageUrl, alt: __ResStr("altText", "Remote Url"));
 
                 tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
                 hb.Append(tag.ToString(TagRenderMode.Normal));
@@ -88,7 +89,7 @@ namespace YetaWF.Core.Views.Shared {
 #else
         public static async Task<HtmlString> RenderUrlSelAsync(this HtmlHelper htmlHelper, string name, UrlTypeEnum type, int dummy = 0, object HtmlAttributes = null, bool Validation = true) {
 #endif
-            List<SelectionItem<int>> items = new List<Shared.SelectionItem<int>>();
+            List<SelectionItem<int>> items = new List<SelectionItem<int>>();
             if ((type & UrlTypeEnum.Local) != 0) {
                 items.Add(new SelectionItem<int> {
                     Text = __ResStr("selLocal", "Designed Page"),
@@ -147,7 +148,7 @@ namespace YetaWF.Core.Views.Shared {
             Package currentPackage = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
             string imageUrl = await skinImages.FindIcon_TemplateAsync("UrlRemote.png", currentPackage, "Url");
-            TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("altText", "Remote Url"));
+            TagBuilder tagImg = ImageHTML.BuildKnownImageTag(imageUrl, alt: __ResStr("altText", "Remote Url"));
 
             tag.SetInnerHtml(tag.GetInnerHtml() + tagImg.ToString(TagRenderMode.StartTag));
             hb.Append(tag.ToString(TagRenderMode.Normal));

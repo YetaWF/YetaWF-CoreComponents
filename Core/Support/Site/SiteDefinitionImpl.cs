@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Site {
 
@@ -261,47 +261,47 @@ namespace YetaWF.Core.Site {
             // Seriously? All this for a favicon? Who thought this was a good idea?
             if (data != null && data.Length > 0) {
                 // std
-                url = ImageHelper.FormatUrl(imageType, null, name, 32, 32, Stretch: true);
+                url = ImageHTML.FormatUrl(imageType, null, name, 32, 32, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='32x32' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageType, null, name, 16, 16, Stretch: true);
+                url = ImageHTML.FormatUrl(imageType, null, name, 16, 16, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='16x16' />", YetaWFManager.HtmlEncode(url));
                 // apple-touch
-                url = ImageHelper.FormatUrl(imageType, null, name, 57, 57, Stretch: true);
+                url = ImageHTML.FormatUrl(imageType, null, name, 57, 57, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='57x57' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageType, null, name, 60, 60, Stretch: true);
+                url = ImageHTML.FormatUrl(imageType, null, name, 60, 60, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='60x60' href='{0}' />", YetaWFManager.HtmlEncode(url));
             }
             if (!string.IsNullOrWhiteSpace(imageTypeLarge) && dataLrg != null && dataLrg.Length > 0) {
                 // std
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 196, 196, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 196, 196, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='196x196' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 96, 96, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 96, 96, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='96x96' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 128, 128, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 128, 128, Stretch: true);
                 hb.Append("<link rel='icon' type='image/png' href='{0}' sizes='128x128' />", YetaWFManager.HtmlEncode(url));
                 // apple-touch
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 114, 114, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 114, 114, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='114x114' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 72, 72, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 72, 72, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='72x72' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 144, 144, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 144, 144, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='144x144' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 120, 120, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 120, 120, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='120x120' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 76, 76, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 76, 76, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='76x76' href='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 152, 152, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 152, 152, Stretch: true);
                 hb.Append("<link rel='apple-touch-icon' sizes='152x152' href='{0}' />", YetaWFManager.HtmlEncode(url));
                 // msbs
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 144, 144, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 144, 144, Stretch: true);
                 hb.Append("<meta name='msapplication-TileImage' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 70, 70, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 70, 70, Stretch: true);
                 hb.Append("<meta name='msapplication-square70x70logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 150, 150, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 150, 150, Stretch: true);
                 hb.Append("<meta name='msapplication-square150x150logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 310, 150, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 310, 150, Stretch: true);
                 hb.Append("<meta name='msapplication-wide310x150logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
-                url = ImageHelper.FormatUrl(imageTypeLarge, null, nameLrg, 310, 310, Stretch: true);
+                url = ImageHTML.FormatUrl(imageTypeLarge, null, nameLrg, 310, 310, Stretch: true);
                 hb.Append("<meta name='msapplication-square310x310logo' content='{0}' />", YetaWFManager.HtmlEncode(url));
                 hb.Append("<meta name='application-name' content='{0}'/>", SiteDomain);
                 hb.Append("<meta name='msapplication-TileColor' content='#FFFFFF' />");

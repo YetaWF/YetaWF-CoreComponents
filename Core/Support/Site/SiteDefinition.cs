@@ -14,8 +14,7 @@ using YetaWF.Core.SendEmail;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
-using YetaWF.Core.Templates;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else

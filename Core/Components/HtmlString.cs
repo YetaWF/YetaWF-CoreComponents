@@ -9,5 +9,4 @@ namespace YetaWF.Core.Support {
         public YHtmlString(string value) : base(value) { }
         public YHtmlString() : base("") { }
     }
-
 }

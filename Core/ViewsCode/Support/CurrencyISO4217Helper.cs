@@ -5,8 +5,7 @@ using System.Linq;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using System.Threading.Tasks;
-using YetaWF.Core.Templates;
-using static YetaWF.Core.Templates.CurrencyISO4217;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -43,7 +42,7 @@ namespace YetaWF.Core.Views.Shared {
             if (!htmlHelper.TryGetParentModelSupportProperty<bool>(name, "SiteCurrency", out includeSiteCurrency))
                 includeSiteCurrency = true;
 
-            List<Currency> currencies = await Templates.CurrencyISO4217.GetCurrenciesAsync(IncludeSiteCurrency: includeSiteCurrency);
+            List<Currency> currencies = await CurrencyISO4217.GetCurrenciesAsync(IncludeSiteCurrency: includeSiteCurrency);
             List<SelectionItem<string>> list = (from l in currencies select new SelectionItem<string>() {
                 Text = l.Name,
                 Value = l.Id,

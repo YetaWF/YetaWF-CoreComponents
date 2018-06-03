@@ -19,6 +19,8 @@ using System.Web;
 using System.Web.Mvc;
 #endif
 
+//$$$ MOVE TO YetaWF.Menus/YetaWF.ComponentsHTML
+
 namespace YetaWF.Core.Menus {
 
     public interface IModuleMenuAsync {

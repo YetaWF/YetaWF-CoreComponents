@@ -13,6 +13,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
+using YetaWF.Core.Components;
 #if MVC6
 #else
 using System.Web.Mvc;
@@ -106,6 +107,7 @@ namespace YetaWF.Core.Modules
         public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
 
         [Category("Variables"), Caption("Permanent Guid"), Description("Displays a unique identifier for this type of module. This is typically used for development purposes only and can be used to uniquely identify this module type. This id never changes")]
+        [UIHint("Guid"), ReadOnly]
         public Guid PermanentGuid {
             get {
                 return GetPermanentGuid(GetType());
@@ -149,6 +151,7 @@ namespace YetaWF.Core.Modules
             return Globals.ModuleUrl + GetModuleGuidName(guid);
         }
         [Category("Variables"), Caption("Permanent Url"), Description("The Url used to uniquely and permanently identify this module")]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), ReadOnly]
         public string ModulePermanentUrl {
             get {
                 return GetModulePermanentUrl(GetType());
@@ -160,7 +163,7 @@ namespace YetaWF.Core.Modules
         public MultiString Description { get; set; }
 
         [Category("Variables"), Caption("Module Guid"), Description("Displays a unique identifier for this instance of a module. This is typically used for development purposes only and can be used to uniquely identify this module. This id never changes, even if the module is later renamed", Order = -100)]
-        [ReadOnly, CopyAttribute]
+        [UIHint("Guid"), ReadOnly, CopyAttribute]
         [Data_PrimaryKey]
         public Guid ModuleGuid { get; set; }
 
@@ -177,10 +180,10 @@ namespace YetaWF.Core.Modules
         }
 
         [Category("Variables"), Caption("Date Created"), Description("The date/time this module was created", Order = -96)]
-        [ReadOnly]
+        [UIHint("DateTime"), ReadOnly]
         public DateTime DateCreated { get; set; }
         [Category("Variables"), Caption("Date Updated"), Description("The date/time this module was last updated", Order = -95)]
-        [ReadOnly]
+        [UIHint("DateTime"), ReadOnly]
         public DateTime DateUpdated { get; set; }
 
         /// <summary>
@@ -202,7 +205,7 @@ namespace YetaWF.Core.Modules
         private string _moduleHtmlId;
 
         [Category("Variables"), Caption("Temporary"), Description("Defines whether the module is a temporary (generated) module", Order = -92)]
-        [ReadOnly, DontSave]
+        [UIHint("Boolean"), ReadOnly, DontSave]
         public bool Temporary { get; set; }
 
         // SKIN

@@ -8,7 +8,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -132,7 +132,7 @@ namespace YetaWF.Core.Modules {
 
             SkinImages skinImages = new SkinImages();
             string imageUrl = await skinImages.FindIcon_PackageAsync("#ModuleMenu", Package.GetCurrentPackage(this));
-            TagBuilder tagImg = ImageHelper.BuildKnownImageTag(imageUrl, alt: __ResStr("mmAlt", "Menu"));
+            TagBuilder tagImg = ImageHTML.BuildKnownImageTag(imageUrl, alt: __ResStr("mmAlt", "Menu"));
             hb.Append(tagImg.ToString(TagRenderMode.StartTag));
 
             // <div>

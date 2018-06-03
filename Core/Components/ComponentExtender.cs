@@ -45,6 +45,8 @@ namespace YetaWF.Core.Components {
                 return false;
             return true;
         }
+
+        //$$$ this should be in ComponentsHTML
 #if MVC6
         public static async Task<HtmlString> ForLabelAsync(this IHtmlHelper htmlHelper, 
 #else
@@ -186,14 +188,14 @@ namespace YetaWF.Core.Components {
                 // Invoke IncludeAsync
                 MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
                 if (miAsync == null)
-                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method");
+                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method for {containerType.FullName}");
                 Task methRetvalTask = (Task)miAsync.Invoke(component, null);
                 await methRetvalTask;
 
                 // Invoke RenderAsync
                 miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.RenderContainerAsync), new Type[] { containerType });
                 if (miAsync == null)
-                    throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFContainer<object>.RenderContainerAsync)} method accepting a model type {typeof(object).FullName}");
+                    throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFContainer<object>.RenderContainerAsync)} method accepting a model type {typeof(object).FullName} for {containerType.FullName}");
                 Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(component, new object[] { container });
                 return await methStringTask;
             } else {
@@ -205,14 +207,14 @@ namespace YetaWF.Core.Components {
                 // Invoke IncludeAsync
                 MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFComponent<object>.IncludeAsync), new Type[] { });
                 if (miAsync == null)
-                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFComponent<object>.IncludeAsync)} method");
+                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFComponent<object>.IncludeAsync)} method for {containerType.FullName}, {propertyName}");
                 Task methRetvalTask = (Task)miAsync.Invoke(component, null);
                 await methRetvalTask;
 
                 // Invoke RenderAsync
                 miAsync = compType.GetMethod(nameof(IYetaWFComponent<object>.RenderAsync), new Type[] { propData.PropInfo.PropertyType });
                 if (miAsync == null)
-                    throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFComponent<object>.RenderAsync)} method accepting a model type {propData.PropInfo.PropertyType.FullName}");
+                    throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFComponent<object>.RenderAsync)} method accepting a model type {propData.PropInfo.PropertyType.FullName} for {containerType.FullName}, {propertyName}");
                 Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(component, new object[] { model });
                 return await methStringTask;
             }

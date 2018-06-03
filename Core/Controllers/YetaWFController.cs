@@ -16,6 +16,7 @@ using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Models;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

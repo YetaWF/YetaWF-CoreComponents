@@ -8,7 +8,7 @@ using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -241,7 +241,7 @@ namespace YetaWF.Core.Modules {
             bool hasText = false, hasImg = false;
             string innerHtml = "";
             if (mode != RenderModeEnum.LinksOnly && !string.IsNullOrWhiteSpace(ImageUrlFinal)) {
-                TagBuilder tagImg = ImageHelper.BuildKnownImageTag(await GetImageUrlFinalAsync(), alt: mode == RenderModeEnum.NormalMenu ? MenuText : LinkText);
+                TagBuilder tagImg = ImageHTML.BuildKnownImageTag(await GetImageUrlFinalAsync(), alt: mode == RenderModeEnum.NormalMenu ? MenuText : LinkText);
                 tagImg.AddCssClass(Basics.CssNoTooltip);
                 innerHtml += tagImg.ToString(TagRenderMode.StartTag);
                 hasImg = true;

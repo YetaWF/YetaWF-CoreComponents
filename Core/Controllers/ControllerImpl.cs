@@ -14,6 +14,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Views.Shared;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
+using System.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -304,7 +305,7 @@ namespace YetaWF.Core.Controllers
                             FixArgumentParmTrim(parm.Value);
                             FixArgumentParmCase(parm.Value);
                             FixDates(parm.Value);
-                            PropertyListSupport.CorrectModelState(parm.Value, modelState);
+                            CorrectModelState(parm.Value, modelState);
                         }
 
                         // translate any xxx.JSON properties to native objects
@@ -355,7 +356,90 @@ namespace YetaWF.Core.Controllers
 #else
             }); // End of Syncify
 #endif
+        }
+
+        public static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
+            if (model == null) return;
+            Type modelType = model.GetType();
+            if (ModelState.Keys.Count() == 0) return;
+            List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
+            foreach (var prop in props) {
+                if (!ModelState.Keys.Contains(prefix + prop.Name)) {
+                    // check if the property name is for a class
+                    string subPrefix = prefix + prop.Name + ".";
+                    if ((from k in ModelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
+                        object subObject = prop.PropInfo.GetValue(model);
+                        CorrectModelState(subObject, ModelState, subPrefix);
+                    }
+                    continue;
+                }
+
+                {
+                    RequiredIfInRangeAttribute reqIfInRange = prop.TryGetAttribute<RequiredIfInRangeAttribute>();
+                    if (reqIfInRange != null) {
+                        if (!reqIfInRange.InRange(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    RequiredIfNotAttribute reqIfNot = prop.TryGetAttribute<RequiredIfNotAttribute>();
+                    if (reqIfNot != null) {
+                        if (!reqIfNot.IsNot(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    RequiredIfAttribute reqIf = prop.TryGetAttribute<RequiredIfAttribute>();
+                    if (reqIf != null) {
+                        if (!reqIf.Is(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    RequiredIfSupplied reqIfSupplied = prop.TryGetAttribute<RequiredIfSupplied>();
+                    if (reqIfSupplied != null) {
+                        if (!reqIfSupplied.IsSupplied(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    SuppressIfEqualAttribute suppIfEqual = prop.TryGetAttribute<SuppressIfEqualAttribute>();
+                    if (suppIfEqual != null) {
+                        if (suppIfEqual.IsEqual(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    SuppressIfNotEqualAttribute suppIfNotEqual = prop.TryGetAttribute<SuppressIfNotEqualAttribute>();
+                    if (suppIfNotEqual != null) {
+                        if (suppIfNotEqual.IsNotEqual(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    ProcessIfAttribute procIf = prop.TryGetAttribute<ProcessIfAttribute>();
+                    if (procIf != null) {
+                        if (procIf.Processing(model))
+                            continue; // we're processing this
+                        // we're not processing this
+                        ModelState.Remove(prefix + prop.Name);
+                        continue;
+                    }
+                }
             }
+        }
 
         // INPUT CLEANUP
         // INPUT CLEANUP
@@ -1252,7 +1336,7 @@ namespace YetaWF.Core.Controllers
                 FixArgumentParmCase(obj);
                 FixDates(obj);
 
-                PropertyListSupport.CorrectModelState(obj, ViewData.ModelState, modelName + ".");
+                CorrectModelState(obj, ViewData.ModelState, modelName + ".");
 
                 // translate any xxx.JSON properties to native objects (There is no use case for this)
                 //if (ViewData.ModelState.IsValid)

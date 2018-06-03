@@ -8,7 +8,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
-using YetaWF.Core.Templates;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 #else

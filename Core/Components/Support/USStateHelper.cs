@@ -8,9 +8,8 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
-namespace YetaWF.Core.Templates {
+namespace YetaWF.Core.Components {
 
     public static class USState {
 
