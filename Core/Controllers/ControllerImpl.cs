@@ -11,7 +11,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using System.Linq;

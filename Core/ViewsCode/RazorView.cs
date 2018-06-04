@@ -9,8 +9,8 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,8 +21,7 @@ using System.Web.Mvc;
 using System.Web.Mvc.Html;
 #endif
 
-namespace YetaWF.Core.Views
-{
+namespace YetaWF.Core.Views {
 
 #if MVC6
     public class RazorView<TModel> : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel>

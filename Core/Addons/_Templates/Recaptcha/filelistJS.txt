@@ -1,1 +1,0 @@
-﻿//www.google.com/recaptcha/api/js/recaptcha_ajax.js

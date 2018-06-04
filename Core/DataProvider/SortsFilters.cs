@@ -7,7 +7,6 @@ using System.Linq.Dynamic.Core;
 using YetaWF.Core.Components;
 using YetaWF.Core.Models;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.DataProvider {
 

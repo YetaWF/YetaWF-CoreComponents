@@ -2,14 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Models {
 
@@ -136,13 +134,5 @@ namespace YetaWF.Core.Models {
         }
         [UIHint("GridDataRecords")]
         public List<object> GridDataRecords { get { return Data.Data; } }
-
-        public Task FinalizeSettingsAsync() {
-            if (ShowFilter == null)
-                ShowFilter = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowGridSearchToolbar");
-            if (DropdownActionWidth == null)
-                DropdownActionWidth = ActionHelper.GetDropdownActionWidthInChars();
-            return Task.CompletedTask;
-        }
     }
 }

@@ -13,7 +13,7 @@ using System.Web;
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Views.Shared {
+namespace YetaWF.Core.Components {
 
     public enum ButtonTypeEnum {
         Submit = 0,

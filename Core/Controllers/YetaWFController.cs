@@ -12,7 +12,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Modules;
-using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Models;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Addons;

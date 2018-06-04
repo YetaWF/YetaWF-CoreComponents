@@ -165,6 +165,8 @@ namespace YetaWF.Core.Modules {
 
             MenuList moduleMenu = await GetModuleMenuListAsync(renderMode, ModuleAction.ActionLocationEnum.ModuleLinks);
 
+            await Manager.AddOnManager.AddTemplateAsync("YetaWF", "ComponentsHTML", "ActionIcons"); //$$$
+
             string menuContents = (await moduleMenu.RenderAsync(null, null, Globals.CssModuleLinks)).ToString();
             if (string.IsNullOrWhiteSpace(menuContents))
                 return HtmlStringExtender.Empty;// we don't have a menu
