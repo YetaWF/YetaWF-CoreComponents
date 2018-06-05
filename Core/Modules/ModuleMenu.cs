@@ -3,18 +3,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using YetaWF.Core.Menus;
+using YetaWF.Core.Components;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
-using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
-using System.Web;
-using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Modules {
@@ -112,77 +108,6 @@ namespace YetaWF.Core.Modules {
                         moduleMenu.New(action, location);
             }
             return moduleMenu;
-        }
-
-        public async Task<HtmlString> RenderModuleMenuAsync() {
-
-            HtmlBuilder hb = new HtmlBuilder();
-
-            MenuList moduleMenu = await GetModuleMenuListAsync(ModuleAction.RenderModeEnum.NormalMenu, ModuleAction.ActionLocationEnum.ModuleMenu);
-
-            string menuContents = (await moduleMenu.RenderAsync(null, null, Globals.CssModuleMenu)).ToString();
-            if (string.IsNullOrWhiteSpace(menuContents))
-                return HtmlStringExtender.Empty;// we don't have a menu
-
-            // <div class= >
-            TagBuilder divTag = new TagBuilder("div");
-            divTag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleMenuEditIcon));
-            divTag.Attributes.Add("style", "display:none");
-            hb.Append(divTag.ToString(TagRenderMode.StartTag));
-
-            SkinImages skinImages = new SkinImages();
-            string imageUrl = await skinImages.FindIcon_PackageAsync("#ModuleMenu", Package.GetCurrentPackage(this));
-            TagBuilder tagImg = ImageHTML.BuildKnownImageTag(imageUrl, alt: __ResStr("mmAlt", "Menu"));
-            hb.Append(tagImg.ToString(TagRenderMode.StartTag));
-
-            // <div>
-            TagBuilder div2Tag = new TagBuilder("div");
-            div2Tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleMenuContainer));
-            hb.Append(div2Tag.ToString(TagRenderMode.StartTag));
-
-            // <ul><li> menu
-            hb.Append(menuContents);
-
-            // </div>
-            hb.Append(div2Tag.ToString(TagRenderMode.EndTag));
-
-            // </div>
-            hb.Append(divTag.ToString(TagRenderMode.EndTag));
-
-            //await Manager.ScriptManager.AddKendoUICoreJsFile("kendo.popup.min.js"); // is now a prereq of kendo.window (2017.2.621)
-            await Manager.ScriptManager.AddKendoUICoreJsFileAsync("kendo.menu.min.js");
-
-            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "ModuleMenu");
-            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Modules");// various module support
-            await Manager.AddOnManager.AddAddOnGlobalAsync("jquery.com", "jquery-color");// for color change when entering module edit menu
-
-            return hb.ToHtmlString();
-        }
-
-        public async Task<HtmlString> RenderModuleLinksAsync(ModuleAction.RenderModeEnum renderMode, string cssClass) {
-
-            HtmlBuilder hb = new HtmlBuilder();
-
-            MenuList moduleMenu = await GetModuleMenuListAsync(renderMode, ModuleAction.ActionLocationEnum.ModuleLinks);
-
-            await Manager.AddOnManager.AddTemplateAsync("YetaWF", "ComponentsHTML", "ActionIcons"); //$$$
-
-            string menuContents = (await moduleMenu.RenderAsync(null, null, Globals.CssModuleLinks)).ToString();
-            if (string.IsNullOrWhiteSpace(menuContents))
-                return HtmlStringExtender.Empty;// we don't have a menu
-
-            // <div>
-            TagBuilder div2Tag = new TagBuilder("div");
-            div2Tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-            hb.Append(div2Tag.ToString(TagRenderMode.StartTag));
-
-            // <ul><li> menu
-            hb.Append(menuContents);
-
-            // </div>
-            hb.Append(div2Tag.ToString(TagRenderMode.EndTag));
-
-            return hb.ToHtmlString();
         }
 
         private async Task<MenuList> GetMoveToOtherPanesAsync(PageDefinition page, ModuleDefinition modServices) {

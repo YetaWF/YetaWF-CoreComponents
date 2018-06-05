@@ -19,9 +19,7 @@ using System.Web;
 using System.Web.Mvc;
 #endif
 
-//$$$ MOVE TO YetaWF.Menus/YetaWF.ComponentsHTML
-
-namespace YetaWF.Core.Menus {
+namespace YetaWF.Core.Components {
 
     public interface IModuleMenuAsync {
         Task<MenuList> GetMenuAsync();

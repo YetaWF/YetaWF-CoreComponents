@@ -115,6 +115,7 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\CoreRendering.cs" />
     <Compile Include="Components\ComponentStartup.cs" />
     <Compile Include="Components\ComponentExtender.cs" />
     <Compile Include="Components\ComponentBase.cs" />
@@ -229,7 +230,6 @@
     <Compile Include="Controllers\YetaWFController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\Shared\SMTPEmail.cs" />
-    <Compile Include="Controllers\Shared\ImageHelper.cs" />
     <Compile Include="DataProvider\IDataProvider.cs" />
     <Compile Include="DataProvider\DataAttributes.cs" />
     <Compile Include="Identity\Role.cs" />
@@ -246,7 +246,7 @@
     </Compile>
     <Compile Include="Support\Localize\UserSettings.cs" />
     <Compile Include="Log\SetupLogging.cs" />
-    <Compile Include="Menus\Menu.cs" />
+    <Compile Include="Components\Support\Menu.cs" />
     <Compile Include="Models\AttributeHelper.cs" />
     <Compile Include="Models\Attributes\RequiredAttribute.cs" />
     <Compile Include="Models\Attributes\UrlValidationAttribute.cs" />
@@ -342,6 +342,7 @@
     <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridDisplay" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
+    <Content Include="Addons\_Addons\Image\NoImage.png" />
     <Content Include="Addons\_Skins\Standard\Popups\PopupContent.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
@@ -361,11 +362,6 @@
     <Content Include="Addons\_Addons\Forms\forms.css" />
     <Content Include="Addons\_Addons\Forms\forms.js" />
     <Content Include="Addons\_Addons\Forms\validation.js" />
-    <Content Include="Addons\_Addons\ModuleMenu\filelistJS.txt" />
-    <Content Include="Addons\_Addons\ModuleMenu\ModuleMenu.js" />
-    <Content Include="Addons\_Addons\Modules\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Modules\images\ModuleMenuEditIcon.png" />
-    <Content Include="Addons\_Addons\Modules\modules.js" />
     <Content Include="Addons\_Addons\Popups\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Popups\filelistJS.txt" />
     <Content Include="Addons\_Addons\Popups\popups.css" />

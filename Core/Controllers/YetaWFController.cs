@@ -370,7 +370,7 @@ namespace YetaWF.Core.Controllers
                 await HandlePropertiesAsync(item);
         }
         private async Task HandlePropertiesAsync(object data) {
-            await ObjectSupport.HandlePropertyAsync<Menus.MenuList>("Commands", "__GetCommandsAsync", data);
+            await ObjectSupport.HandlePropertyAsync<MenuList>("Commands", "__GetCommandsAsync", data);
         }
 
         // PARTIAL VIEW

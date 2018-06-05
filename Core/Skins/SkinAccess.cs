@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 using YetaWF.Core.IO;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -213,11 +213,16 @@ namespace YetaWF.Core.Skins {
                     showOwnership = false;
             }
 
-            if (ShowMenu)
-                inner.Append(await mod.GetModuleMenuHtmlAsync());
+            if (ShowMenu) {
+                if (mod.ShowModuleMenu)
+                    inner.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
+            }
+
             if (ShowTitle) {
                 if (mod.ShowTitleActions) {
-                    string actions = await mod.GetActionTopMenuHtmlAsync();
+                    string actions = null;
+                    if (ShowTitle && mod.ShowTitleActions)
+                        actions = (await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer)).ToString();
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         inner.Append("<div class='yModuleTitle'>");
                         inner.Append(mod.TitleHtml);
@@ -231,9 +236,12 @@ namespace YetaWF.Core.Skins {
                     inner.Append(mod.TitleHtml);
                 }
             }
+
             inner.Append(htmlContents);
-            if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) // only show action menus in a pane
-                inner.Append(await mod.GetActionMenuHtmlAsync());
+            if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) { // only show action menus in a pane
+                if (mod.ShowActionMenu)
+                    inner.Append(await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer));
+            }
 
             if (showOwnership)
                 inner.Append("</div>");

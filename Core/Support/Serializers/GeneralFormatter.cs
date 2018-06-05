@@ -162,6 +162,10 @@ namespace YetaWF.Core.Support.Serializers {
 #else
             typeName = typeName.Replace(", System.Private.CoreLib", ", mscorlib"); // (MVC5) used for system.string, replace with MVC5 equivalent (standard is MVC6)
 #endif
+            // Types that were changed in 4.0
+            if (typeName == "YetaWF.Core.Menus.MenuList")
+                typeName = "YetaWF.Core.Components.MenuList";
+
             return typeName;
         }
     }

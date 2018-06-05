@@ -758,26 +758,6 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             }
         }
 
-        public async Task<string> GetModuleMenuHtmlAsync() {
-            if (ShowModuleMenu)
-                return (await RenderModuleMenuAsync()).ToString();
-            else
-                return "";
-        }
-
-        public async Task<string> GetActionMenuHtmlAsync() {
-            if (ShowActionMenu)
-                return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)).ToString();
-            else
-                return "";
-        }
-        public async Task<string> GetActionTopMenuHtmlAsync() {
-            if (ShowTitle && ShowTitleActions)
-                return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer)).ToString();
-            else
-                return "";
-        }
-
         [Category("Variables"), Caption("Show Module Menu"), Description("Displays whether the module menu is shown for this module")]
         public virtual bool ShowModuleMenu { get { return true; } }
 
