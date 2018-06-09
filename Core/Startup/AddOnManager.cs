@@ -11,6 +11,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.IO;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 #else
@@ -131,13 +132,6 @@ namespace YetaWF.Core.Addons {
         }
 
         /// <summary>
-        /// Add a core template - ignores non-existent templates
-        /// </summary>
-        public async Task AddTemplateAsync(string templateName) {
-            await AddTemplateAsync(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Domain, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Product, templateName);
-        }
-
-        /// <summary>
         /// Add a template given a uihint - ignores non-existent templates
         /// </summary>
         /// <param name="uiHintTemplate"></param>
@@ -150,11 +144,11 @@ namespace YetaWF.Core.Addons {
             int firstIndex = uiHintTemplate.IndexOf("_");
             if (firstIndex < 0) {
                 // standard template
-                await AddTemplateAsync(uiHintTemplate);
+                await YetaWFCoreRendering.AddTemplateAsync(uiHintTemplate);
             } else {
                 // domain_product_name template
                 string[] parts = uiHintTemplate.Split(new char[] { '_' }, 3);
-                if (parts.Length != 3) throw new InternalError("Unexpected error");
+                if (parts.Length != 3) throw new InternalError($"Template name invalid - {uiHintTemplate}");
                 await AddTemplateAsync(parts[0], parts[1], parts[2]);
             }
         }

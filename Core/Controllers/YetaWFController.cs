@@ -560,7 +560,9 @@ namespace YetaWF.Core.Controllers
                     bool inPartialView = Manager.InPartialView;
                     Manager.InPartialView = true;
                     try {
-                        viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
+                        viewHtml = YetaWFManager.Syncify(() =>  // sorry MVC5, just no async for you :-(
+                            Task.FromResult(htmlHelper.Partial(base.ViewName, Model).ToString())
+                        );
                     } catch (Exception) {
                         throw;
                     } finally {

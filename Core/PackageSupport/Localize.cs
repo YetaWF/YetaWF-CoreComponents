@@ -330,7 +330,7 @@ namespace YetaWF.Core.Packages {
             //              @inherits YetaWF.Modules.Identity.Views.Shared.UsersHelper<YetaWF.Core.Serializers.SerializableList<YetaWF.Core.Identity.User>>
             // a view:      @inherits YetaWF.Core.Views.RazorView<YetaWF.Modules.Identity.Modules.RolesEditModule, YetaWF.Modules.Identity.Controllers.RolesEditModuleController.EditModel>
             //              @inherits YetaWF.Core.Views.RazorView<YetaWF.Modules.Identity.Modules.RolesBrowseModule, YetaWF.Modules.Identity.Controllers.RolesBrowseModuleController.BrowseModel>
-            //DEBUG: if (fileText.Contains("@inherits YetaWF.Core.Views.Shared.Url<System.String>"))
+            //DEBUG: if (fileText.Contains("@inherits .....Url<System.String>"))
             //DEBUG:    fileName = fileName;
 
             Match m = cshtmlClassRegex.Match(fileText);

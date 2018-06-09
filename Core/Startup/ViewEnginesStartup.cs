@@ -47,12 +47,12 @@ namespace YetaWF.Core.Support {
                 MasterLocationFormats = new string[] { },
                 FileExtensions = new string[] { "cshtml" },
                 AreaPartialViewLocationFormats = new string[] {
-                    "~/Areas/{2}/Views/Shared/{0}.cshtml",
+                    "~/Areas/{2}/Views/Shared/{0}.cshtml",//$$$$ remove?
                     "~/Areas/{2}/Views/{0}.cshtml",
                 },
                 AreaViewLocationFormats = new string[] {
                     "~/Areas/{2}/Views/{0}.cshtml",
-                    "~/Areas/YetaWF_Core/Views/Shared/{0}.cshtml", // ShowMessage
+                    "~/Areas/YetaWF_Core/Views/Shared/{0}.cshtml", // ShowMessage and std views/partialviews
                 },
                 PartialViewLocationFormats = new string[] { },
                 ViewLocationFormats = new string[] { },
@@ -85,7 +85,7 @@ namespace YetaWF.Core.Support {
 #if MVC6
                     pvs.Add(string.Format("/Areas/{0}/Views/Shared/{{0}}.cshtml", package.AreaName));
 #else
-                    pvs.Add(string.Format("~/Areas/{0}/Views/Shared/{{0}}.cshtml", package.AreaName));
+                    pvs.Add(string.Format("~/Areas/{0}/Views/Shared/{{0}}.cshtml", package.AreaName));//$$$$ remove?
                     Logging.AddLog("Found {0}", package.AreaName);
 #endif
                 }

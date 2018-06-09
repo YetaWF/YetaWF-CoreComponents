@@ -1,17 +1,8 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Components {
 
@@ -45,60 +36,16 @@ namespace YetaWF.Core.Components {
             Action = action;
             RenderAs = renderAs;
         }
-        public async Task<HtmlString> RenderAsync() {
+        public async Task<YHtmlString> RenderAsync() {
             if (ButtonType == ButtonTypeEnum.Empty)
-                return HtmlStringExtender.Empty;
+                return new YHtmlString("");
             if (Action != null) {
                 if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
                     return await Action.RenderAsIconAsync();
                 else
                     return await Action.RenderAsButtonAsync();
             } else {
-                TagBuilder tag = new TagBuilder("input");
-
-                string text = Text;
-                switch (ButtonType) {
-                    case ButtonTypeEnum.Submit:
-                    case ButtonTypeEnum.ConditionalSubmit:
-                        if (ButtonType == ButtonTypeEnum.ConditionalSubmit && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
-                            // if we don't have anyplace to return to and we're not in a popup we don't need a submit button
-                            return HtmlStringExtender.Empty;
-                        }
-                        if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnSave", "Save");
-                        tag.Attributes.Add("type", "submit");
-                        break;
-                    case ButtonTypeEnum.Apply:
-                        if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnApply", "Apply");
-                        tag.Attributes.Add("type", "button");
-                        tag.Attributes.Add(Forms.CssDataApplyButton, "");
-                        break;
-                    default:
-                    case ButtonTypeEnum.Button:
-                        tag.Attributes.Add("type", "button");
-                        break;
-                    case ButtonTypeEnum.Cancel:
-                    case ButtonTypeEnum.ConditionalCancel:
-                        if (ButtonType == ButtonTypeEnum.ConditionalCancel && !Manager.IsInPopup && !Manager.HaveReturnToUrl) {
-                            // if we don't have anyplace to return to and we're not in a popup we don't need a cancel button
-                            return HtmlStringExtender.Empty;
-                        }
-                        if (string.IsNullOrWhiteSpace(text)) text = this.__ResStr("btnCancel", "Cancel");
-                        tag.Attributes.Add("type", "button");
-                        tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Forms.CssFormCancel));
-                        break;
-                }
-                if (!string.IsNullOrWhiteSpace(Id))
-                    tag.Attributes.Add("id", Id);
-                if (!string.IsNullOrWhiteSpace(Name))
-                    tag.Attributes.Add("name", Name);
-                if (Hidden)
-                    tag.Attributes.Add("style", "display:none");
-                if (!string.IsNullOrWhiteSpace(Title))
-                    tag.Attributes.Add("title", Title);
-                tag.Attributes.Add("value", text);
-                if (!string.IsNullOrWhiteSpace(CssClass))
-                    tag.AddCssClass(CssClass);
-                return tag.ToHtmlString(TagRenderMode.StartTag);
+                return await YetaWFCoreRendering.Render.RenderFormButtonAsync(this);
             }
         }
     }

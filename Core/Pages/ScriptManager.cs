@@ -109,6 +109,7 @@ using YetaWF.Core.Support;
 // We can't provide a general solution to this as this is content dependent. On the other hand, pretty much any menu (JavaScript dependent) and
 // layout (Css dependent) will cause this penalty. Unless you prefer a "Flash Of Unformatted Content" to avoid the "penalty" there is probably not
 // all that much that can be done about that.
+// YetaWF.com achieves a 97 rating (for desktop) thanks to its large above the fold image.
 // The mobile speed rating is generally lower due to the same penalties. There are no additional, mobile specific penalties.
 
 // https://tools.pingdom.com

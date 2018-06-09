@@ -15,7 +15,7 @@ namespace YetaWF.Core.Components {
 
         public static async Task<List<SelectionItem<string>>> ReadStatesListAsync() {
             if (_statesList == null) {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
                 string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "USState");
                 string path = YetaWFManager.UrlToPhysical(url);
                 string file = Path.Combine(path, "USStates.txt");

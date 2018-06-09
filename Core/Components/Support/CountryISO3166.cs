@@ -194,7 +194,7 @@ namespace YetaWF.Core.Components {
         private static List<Country> CountryList { get; set; }
 
         internal static async Task ReadCountryListAsync() {
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
             string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CountryISO3166");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 

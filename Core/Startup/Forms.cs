@@ -33,6 +33,7 @@ namespace YetaWF.Core.Addons {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
 
+            //$$$$should this be moved into ComponentsHTML?
             await manager.AddOnManager.AddAddOnGlobalAsync("bassistance.de", "jquery-validation");
             await manager.AddOnManager.AddAddOnGlobalAsync("microsoft.com", "jquery_unobtrusive_validation");
             await manager.AddOnManager.AddAddOnGlobalAsync("gist.github.com_remi_957732", "jquery_validate_hooks");

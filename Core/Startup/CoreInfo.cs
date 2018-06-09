@@ -14,7 +14,7 @@ namespace YetaWF.Core.Addons {
         public const string Resource_ViewOwnership = "YetaWF_Core-ViewOwnership";
         public const string Resource_ModuleLists = "YetaWF_Core-ModuleLists";
 
-        public const string Resource_SMTPServer_SendTestEmail = "YetaWF_Core-SMTPServer_SendTestEmail";
+        public const string Resource_SMTPServer_SendTestEmail = "YetaWF_Core-SMTPServer_SendTestEmail";//$$$ THIS is probably in the wrong place
 
         public Task AddSupportAsync(YetaWFManager manager) {
             return Task.CompletedTask;

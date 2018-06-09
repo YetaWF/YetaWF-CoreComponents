@@ -535,11 +535,13 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public string InvokingCss { get; protected set; }
 
         [Category("Variables"), Caption("Use In Popup"), Description("Defines whether this module can be injected in a popup")]
+        [UIHint("Boolean")]
         [DontSave, ReadOnly]
         public bool InvokeInPopup { get; protected set; }
 
         [Category("Variables"), Caption("Use In Ajax"), Description("Defines whether this module can be injected in an Ajax request/partial view")]
         [DontSave, ReadOnly]
+        [UIHint("Boolean")]
         public bool InvokeInAjax { get; protected set; }
 
         public class ReferencedModule {

@@ -336,10 +336,6 @@
     <Compile Include="ViewsCode\YetaWFDefaultHtmlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
-    <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
-    <None Include="Addons\_Main\Grids\PageDefinitionsHelper.GridDisplay" />
-    <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridDisplay" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
     <Content Include="Addons\_Addons\Image\NoImage.png" />
@@ -347,7 +343,6 @@
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\Popup.cshtml" />
-    <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridEdit" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -386,124 +381,15 @@
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
-    <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedRoles\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedRoles\moduleedit.css" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\moduleedit.css" />
     <Content Include="Addons\_Templates\USState\USStates.txt" />
-    <Content Include="Views\Shared\DisplayTemplates\ActionIcons.cshtml">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="Views\Shared\DisplayTemplates\Text.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text10.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text20.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text40.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text80.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text10.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text20.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text40.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text80.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PropertyListTabbed.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ModuleSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PaneSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Enum.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PropertyList.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Hidden.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TextArea.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PropertyList.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\TextArea.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Raw.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\String.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue4.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\TimeSpan.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Enum.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString80.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString40.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString10.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString20.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Recaptcha.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Password20.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\StringTT.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PageSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PopupSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue2.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ModuleSkins.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\JQueryUISkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\KendoUISkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\LanguageId.cshtml" />
     <Content Include="Views\Shared\ShowMessage.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\GridDeleteEntry.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\USState.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\USState.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Image.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Scroller.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DropDownList.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ModuleAction.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Url.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Currency.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\GridDataOneRecord.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\MultiString.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Date.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\SMTPServer.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ListOfStrings.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TimeSpan.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Url.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PageSkin.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PopupSkin.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ModuleSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Email.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Email.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FileSize.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Guid.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\JQueryUISkin.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\KendoUISkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Boolean.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ModuleActions.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue6.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Boolean.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ReferencedModules.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ReferencedModules.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Currency.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Decimal.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Guid.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\RawInt.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PageDefinitions.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\LongValue.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\LongValue.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IPAddress.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Grid.cshtml" />
     <Content Include="Views\Shared\GridData.cshtml" />
     <Content Include="Views\Shared\GridEntry.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\GridDataRecords.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\RawBool.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\FileUpload1.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FloatValue.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TextAreaSimple.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue2.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue6.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue4.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DropDownListInt.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TimeZone.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\TimeZone.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PageSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\RecaptchaV2.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FormButton.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\SiteId.cshtml" />
     <Content Include="Views\Shared\Browse.cshtml" />
     <Content Include="Views\Shared\Browse_Partial.cshtml" />
     <Content Include="Views\Shared\Add.cshtml" />
     <Content Include="Views\Shared\Add_Partial.cshtml" />
     <Content Include="Views\Shared\Display.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PropertyListTabbed.cshtml" />
     <Content Include="Views\Shared\EditApply.cshtml" />
     <Content Include="Views\Shared\Edit.cshtml" />
     <Content Include="Views\Shared\Display_Partial.cshtml" />
@@ -512,22 +398,15 @@
     <Content Include="Views\Shared\PropertyList_Display.cshtml" />
     <Content Include="Views\Shared\PropertyList_Edit.cshtml" />
     <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FileFolderSize.cshtml" />
     <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\CountryISO3166.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\CurrencyISO4217.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\CurrencyISO4217.cshtml" />
     <None Include="tsconfig.json" />
     <None Include="tslint.json" />
-    <Content Include="Views\Shared\DisplayTemplates\BootstrapSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\BootstrapSkin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Addons\_JS\" />
-    <Folder Include="Addons\_Main\Icons\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />

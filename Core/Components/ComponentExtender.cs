@@ -165,6 +165,12 @@ namespace YetaWF.Core.Components {
 #endif
              object container, string propertyName, PropertyData propData, object model, string templateName, object htmlAttributes, bool validation)
         {
+#if MVC6
+#else
+            if (!YetaWFManager.IsSync())
+                throw new InternalError("Rendering on MVC5 cannot be async");
+#endif
+
             Type compType;
             if (!components.TryGetValue(templateName, out compType))
                 throw new InternalError($"Template {templateName} ({renderType}) not found");

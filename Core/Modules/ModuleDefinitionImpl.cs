@@ -759,11 +759,11 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
         }
 
         [Category("Variables"), Caption("Show Module Menu"), Description("Displays whether the module menu is shown for this module")]
+        [UIHint("Boolean")]
         public virtual bool ShowModuleMenu { get { return true; } }
 
-        [Category("Variables")]
-        [Description("Displays whether the action menu is shown for this module")]
-        [Caption("Show Action Menu")]
+        [Category("Variables"), Description("Displays whether the action menu is shown for this module"), Caption("Show Action Menu")]
+        [UIHint("Boolean")]
         public virtual bool ShowActionMenu { get { return true; } }
 
         // CONFIGURATION (only used for Configuration modules)

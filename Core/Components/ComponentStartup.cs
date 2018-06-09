@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
@@ -26,6 +27,9 @@ namespace YetaWF.Core.Components {
                 else
                     templateName = $"{compPackage.Domain}_{compPackage.Product}_{component.GetTemplateName()}";
                 YetaWFComponentBase.ComponentType compType = component.GetComponentType();
+
+                Logging.AddLog($"Found component {templateName} ({compType}) - {tp.FullName}");
+
                 switch (compType) {
                     case YetaWFComponentBase.ComponentType.Display:
                         ComponentsDisplay.Add(templateName, tp);

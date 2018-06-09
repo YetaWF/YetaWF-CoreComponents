@@ -35,7 +35,7 @@ namespace YetaWF.Core.Pages
 #endif
 
 
-    // used by templates
+    // used by templates //$$$$REMOVE
 #if MVC6
     public class RazorTemplate<TModel> : RazorPage<TModel>, IRazorPageLifetime
 #else
@@ -227,7 +227,7 @@ namespace YetaWF.Core.Pages
 #endif
             public int CloseParen { get; internal set; }
         }
-        protected JSDocumentReady DocumentReady(string id) {
+        protected JSDocumentReady DocumentReady(string id) { //$$$remove ???
 #if MVC6
             IHtmlHelper<TModel> htmlHelper;
 #else
@@ -259,7 +259,7 @@ namespace YetaWF.Core.Pages
         public void BeginRender(ViewContext context) {
             // NOTE: the page has not been activated when using MVC6 so all data has to be extracted from context.
             // context is null with MVC5
-            if (IsTemplate) {
+            if (IsTemplate) {//$$$REMOVE
 #if MVC6
                 string path = Path;
 #else
@@ -301,14 +301,16 @@ namespace YetaWF.Core.Pages
         private string _domain { get; set; }
         private string _templateName { get; set; }
 
-        public async Task EndRenderAsync(ViewContext context) {
+        public Task EndRenderAsync(ViewContext context) {
             if (IsTemplate) {
                 Manager.PopModel();
-                if (!string.IsNullOrWhiteSpace(_domain) && !string.IsNullOrWhiteSpace(_product))
-                    await Manager.AddOnManager.AddTemplateAsync(_domain, _product, _templateName);
+                //$$$all this can be deleted - no template support
+                //if (!string.IsNullOrWhiteSpace(_domain) && !string.IsNullOrWhiteSpace(_product))
+                //    await Manager.AddOnManager.AddTemplateAsync(_domain, _product, _templateName);
             } else {
                 Manager.PopModel();
             }
+            return Task.CompletedTask;
         }
 
         public virtual bool IsTemplate { get { return false; } }

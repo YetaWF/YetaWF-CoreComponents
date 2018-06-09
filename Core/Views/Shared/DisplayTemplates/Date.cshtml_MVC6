@@ -1,8 +1,0 @@
-﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
-@inherits YetaWF.Core.Pages.RazorTemplate<DateTime?>
-@if (Model != null && (DateTime) Model > DateTime.MinValue && (DateTime) Model < DateTime.MaxValue) {
-    <div class='yt_date t_display'>
-        @YetaWF.Core.Localize.Formatting.FormatDate(Model)
-    </div>
-}
-
