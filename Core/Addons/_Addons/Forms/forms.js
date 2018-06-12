@@ -320,9 +320,13 @@ YetaWF_Forms.getFormInfo = function (obj) {
     s = $('input[name="' + YConfigs.Basics.ModuleGuid + '"]', $form).val();
     if (s == undefined || s.length == 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
     info.ModuleGuid = s;
+
+    var charSize = YetaWF_Basics.getCharSizeFromTag($form);
+
     info.QS = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(info.RequestVerificationToken) +
               "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(info.UniqueIdPrefix) +
-              "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(info.ModuleGuid);
+              "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(info.ModuleGuid) +
+              "&" + YGlobals.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
     return info;
 };
 
