@@ -2,6 +2,6 @@
 @using YetaWF.Core.Components
 @using YetaWF.Core.Models
 @inherits  YetaWF.Core.Views.RazorView<GridDefinition.GridEntryDefinition>
-@using (Manager.StartNestedComponent(string.Format("{0}[{1}]", Model.Prefix, Model.RecNumber))) {
+@using (YetaWF.Core.Support.YetaWFManager.Manager.StartNestedComponent(string.Format("{0}[{1}]", Model.Prefix, Model.RecNumber))) {
     @Html.ForDisplayAsync(Model, "Model").Result
 }

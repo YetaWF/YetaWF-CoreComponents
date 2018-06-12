@@ -336,6 +336,8 @@
     <Compile Include="ViewsCode\YetaWFDefaultHtmlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
+    <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
     <Content Include="Addons\_Addons\Image\NoImage.png" />
