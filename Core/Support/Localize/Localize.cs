@@ -4,16 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Audit;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-using YetaWF.Core.Audit;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
-using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Localize {
@@ -29,11 +28,14 @@ namespace YetaWF.Core.Localize {
             [StringLength(MaxString)]
             public string BaseTypeName { get; set; }
 
-            [StringLength(MaxString)]
+            [Caption("Class Header"), Description("Text found in [HeaderAttribute(...)]")]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string Header { get; set; }
-            [StringLength(MaxString)]
+            [Caption("Class Footer"), Description("Text found in [FooterAttribute(...)]")]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string Footer { get; set; }
-            [StringLength(MaxString)]
+            [Caption("Class Legend"), Description("Text found in [LegendAttribute(...)]")]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string Legend { get; set; }
 
             [Data_Binary]
@@ -48,21 +50,21 @@ namespace YetaWF.Core.Localize {
             }
         }
         public class PropertyData {
-            [StringLength(MaxString)]
+            [UIHint("Hidden"), StringLength(MaxString)]
             public string Name { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text40"), StringLength(MaxString)]
             public string Caption { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string Description { get; set; }
-            [StringLength(Globals.MaxUrl)]
+            [UIHint("Text80"), StringLength(Globals.MaxUrl)]
             public string HelpLink { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string TextAbove { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string TextBelow { get; set; }
         }
         public class EnumData {
-            [StringLength(MaxString)]
+            [UIHint("Hidden"), StringLength(MaxString)]
             public string Name { get; set; }
             [Data_Binary]
             public SerializableList<EnumDataEntry> Entries { get; set; }
@@ -75,19 +77,19 @@ namespace YetaWF.Core.Localize {
             }
         }
         public class EnumDataEntry {
-            [StringLength(MaxString)]
+            [UIHint("Hidden"), StringLength(MaxString)]
             public string Name { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Hidden"), StringLength(MaxString)]
             public string Value { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text40"), StringLength(MaxString)]
             public string Caption { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string Description { get; set; }
         }
         public class StringData {
-            [StringLength(MaxString)]
+            [UIHint("Hidden"), StringLength(MaxString)]
             public string Name { get; set; }
-            [StringLength(MaxString)]
+            [UIHint("Text80"), StringLength(MaxString)]
             public string Text { get; set; }
         }
 

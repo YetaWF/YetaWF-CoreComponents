@@ -46,36 +46,49 @@ namespace YetaWF.Core.Components {
             return true;
         }
 
-        //$$$ this should be in ComponentsHTML
 #if MVC6
         public static async Task<HtmlString> ForLabelAsync(this IHtmlHelper htmlHelper, 
 #else
         public static async Task<HtmlString> ForLabelAsync(this HtmlHelper htmlHelper,
 #endif
-            object container, string propertyName, bool ShowVariable = false, bool SuppressIfEmpty = true)
-        {
+            object container, string propertyName, bool ShowVariable = false, bool SuppressIfEmpty = true, object HtmlAttributes = null) {
             Type containerType = container.GetType();
             PropertyData propData = ObjectSupport.GetPropertyData(containerType, propertyName);
-            Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
-            string description = propData.GetDescription(containerType);
 
+            IDictionary<string, object> htmlAttributes = HtmlAttributes != null ? YetaWFComponentBase.AnonymousObjectToHtmlAttributes(HtmlAttributes) : new Dictionary<string, object>();
+
+            string description;
+            if (htmlAttributes.ContainsKey("Description")) {
+                description = (string)htmlAttributes["Description"];
+                htmlAttributes.Remove("Description");
+            } else {
+                description = propData.GetDescription(containerType);
+            }
             if (!string.IsNullOrWhiteSpace(description)) {
                 if (ShowVariable)
                     description = __ResStr("showVarFmt", "{0} (Variable {1})", description, propertyName);
                 htmlAttributes.Add(Basics.CssTooltip, description);
             }
-            string label = propData.GetCaption(containerType);
-            if (string.IsNullOrEmpty(label)) {
-                PropertyData propDataLabel = ObjectSupport.GetPropertyData(containerType, $"{propertyName}_Label");
-                label = propDataLabel.GetPropertyValue<string>(container);
+
+            string caption;
+            if (htmlAttributes.ContainsKey("Caption")) {
+                caption = (string)htmlAttributes["Caption"];
+                htmlAttributes.Remove("Caption");
+            } else {
+                caption = propData.GetCaption(containerType);
+                if (string.IsNullOrEmpty(caption)) {
+                    PropertyData propDataLabel = ObjectSupport.GetPropertyData(containerType, $"{propertyName}_Label");
+                    caption = propDataLabel.GetPropertyValue<string>(container);
+                }
             }
-            if (string.IsNullOrEmpty(label)) { // we're distinguishing between "" and " "
+            if (string.IsNullOrEmpty(caption)) { // we're distinguishing between "" and " "
                 if (SuppressIfEmpty)
                     return HtmlStringExtender.Empty;
             }
+
             string helpLink = propData.GetHelpLink(containerType);
             LabelInfo info = new LabelInfo() {
-                LabelContents = label,
+                LabelContents = caption,
                 LabelContents_HelpLink = helpLink,
             };
             return await htmlHelper.ForDisplayAsync(info, nameof(LabelInfo.LabelContents), HtmlAttributes: htmlAttributes);
@@ -157,6 +170,15 @@ namespace YetaWF.Core.Components {
                 object container, string propertyName, string FieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
             PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, false);
+        }
+#if MVC6
+        public static async Task<HtmlString> ForEditAsAsync(this IHtmlHelper htmlHelper, 
+#else
+        public static async Task<HtmlString> ForEditAsAsync(this HtmlHelper htmlHelper,
+#endif
+                object container, string propertyName, string FieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
+            PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, true);
         }
 #if MVC6
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, IHtmlHelper htmlHelper,

@@ -47,7 +47,7 @@ namespace YetaWF.Core.Components {
             HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
         }
-        private IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+        public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
             return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);

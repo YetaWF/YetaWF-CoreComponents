@@ -435,6 +435,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public class GridAllowedRole {
 
             [DontSave]
+            [UIHint("Boolean")]
             public bool __editable { get; set; }
 
             [Caption("Role"), Description("Role Description", Order = -100)]
@@ -454,16 +455,22 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             public AllowedEnum Remove { get; set; }
 
             [ResourceRedirect("RolesDefinitions", 3, "RoleResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra1 { get; set; }
             [ResourceRedirect("RolesDefinitions", 4, "RoleResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra2 { get; set; }
             [ResourceRedirect("RolesDefinitions", 5, "RoleResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra3 { get; set; }
             [ResourceRedirect("RolesDefinitions", 6, "RoleResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra4 { get; set; }
             [ResourceRedirect("RolesDefinitions", 7, "RoleResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
+            [UIHint("IntValue")]
             public int RoleId { get; set; }
 
             public GridAllowedRole() { __editable = true;  }
@@ -492,14 +499,19 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             public AllowedEnum Remove { get; set; }
 
             [ResourceRedirect("RolesDefinitions", 3, "UserResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra1 { get; set; }
             [ResourceRedirect("RolesDefinitions", 4, "UserResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra2 { get; set; }
             [ResourceRedirect("RolesDefinitions", 5, "UserResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra3 { get; set; }
             [ResourceRedirect("RolesDefinitions", 6, "UserResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra4 { get; set; }
             [ResourceRedirect("RolesDefinitions", 7, "UserResource")]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
             [UIHint("RawInt"), ReadOnly]
