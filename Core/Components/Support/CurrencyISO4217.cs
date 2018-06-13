@@ -14,7 +14,7 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
-    public static class Event {
+    public static class CurrencyISO4217 {
 
         public class Currency {
 
