@@ -116,7 +116,7 @@ namespace YetaWF.Core.Components {
         private static async Task<List<Currency>> ReadCurrencyListAsync() {
             if (_currencyList == null) {
                 Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
-                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "Event");
+                string url = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "CurrencyISO4217");
                 string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
                 string path = YetaWFManager.UrlToPhysical(url);

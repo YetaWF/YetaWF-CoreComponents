@@ -63,6 +63,9 @@ namespace YetaWF.Core.Support {
                     AddCssClass(value);
             }
         }
+        public new string ToString() {
+            return ToString(YTagRenderMode.Normal);
+        }
         public string ToString(YTagRenderMode renderMode) {
             StringBuilder sb = new StringBuilder();
             switch (renderMode) {
