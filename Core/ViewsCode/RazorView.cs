@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
+using System.Web.Routing;
 #endif
 
 //$$$move/remove
@@ -234,7 +235,7 @@ namespace YetaWF.Core.Views {
                 ActionName = viewName;
             _model = Model;
 
-            IDictionary<string, object> rvd = FieldHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
+            IDictionary<string, object> rvd = AnonymousObjectToHtmlAttributes(HtmlAttributes);
             if (SaveReturnUrl)
                 rvd.Add(Basics.CssSaveReturnUrl, "");
             string css = null;
@@ -250,6 +251,12 @@ namespace YetaWF.Core.Views {
             return Html.BeginForm(ActionName, Module.Controller, null, FormMethod.Post, rvd);
 #endif
         }
+        private IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+            if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
+            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
+            return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+        }
+
         private string _viewName = null;
         private object _model = null;
 

@@ -77,8 +77,9 @@ namespace YetaWF.Core.Components {
             } else {
                 caption = propData.GetCaption(containerType);
                 if (string.IsNullOrEmpty(caption)) {
-                    PropertyData propDataLabel = ObjectSupport.GetPropertyData(containerType, $"{propertyName}_Label");
-                    caption = propDataLabel.GetPropertyValue<string>(container);
+                    PropertyData propDataLabel = ObjectSupport.TryGetPropertyData(containerType, $"{propertyName}_Label");
+                    if (propDataLabel != null)
+                        caption = propDataLabel.GetPropertyValue<string>(container);
                 }
             }
             if (string.IsNullOrEmpty(caption)) { // we're distinguishing between "" and " "

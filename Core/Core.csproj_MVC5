@@ -193,8 +193,6 @@
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
-    <Compile Include="ViewsCode\FieldHelper.cs" />
-    <Compile Include="ViewsCode\HtmlHelperExtender.cs" />
     <Compile Include="ViewsCode\RazorView.cs" />
     <Compile Include="Components\FormButton.cs" />
     <Compile Include="Components\TemplateAction.cs" />
