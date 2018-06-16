@@ -95,18 +95,15 @@ namespace YetaWF.Core.Controllers
         protected async Task<ModuleDefinition> GetModuleAsync() {
             if (_currentModule == null) {
                 ModuleDefinition mod = null;
-                if (Manager.IsGetRequest) {
-                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
-                    if (mod == null) {
+                mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
+                if (mod == null) {
+                    if (Manager.IsGetRequest) {
                         string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             return null;
                         Guid guid = new Guid(moduleGuid);
                         mod = await ModuleDefinition.LoadAsync(guid);
-                    }
-                } else if (Manager.IsPostRequest) {
-                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
-                    if (mod == null) {
+                    } else if (Manager.IsPostRequest) {
                         string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
@@ -528,6 +525,9 @@ namespace YetaWF.Core.Controllers
                 if (!string.IsNullOrEmpty(ContentType))
                     response.ContentType = ContentType;
 
+                ModuleDefinition oldMod = Manager.CurrentModule;
+                Manager.CurrentModule = Module;
+
                 string viewHtml;
 #if MVC6
                 bool inPartialView = Manager.InPartialView;
@@ -542,36 +542,66 @@ namespace YetaWF.Core.Controllers
                     Manager.InPartialView = inPartialView;
                 }
 #else
-                ViewEngineResult viewEngine = null;
 
-                if (View == null) {
-                    viewEngine = FindView(context);
-                    View = viewEngine.View;
-                }
-                IView view = FindView(context).View;
+                if (YetaWFViewExtender.IsSupported(base.ViewName)) { //$$$
 
-                StringBuilder sb = new StringBuilder();
-                using (StringWriter sw = new StringWriter(sb)) {
-                    ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
-                    IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
-                    HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
-                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
+                    StringBuilder sb = new StringBuilder();
+                    using (StringWriter sw = new StringWriter(sb)) {
+                        ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
+                        IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
+                        HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+                        context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
 
-                    bool inPartialView = Manager.InPartialView;
-                    Manager.InPartialView = true;
-                    try {
-                        viewHtml = YetaWFManager.Syncify(() =>  // sorry MVC5, just no async for you :-(
-                            Task.FromResult(htmlHelper.Partial(base.ViewName, Model).ToString())
-                        );
-                    } catch (Exception) {
-                        throw;
-                    } finally {
-                        Manager.InPartialView = inPartialView;
+                        bool inPartialView = Manager.InPartialView;
+                        try {
+                            viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                                return (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
+                            });
+                        } catch (Exception) {
+                            throw;
+                        } finally {
+                            Manager.InPartialView = inPartialView;
+                        }
+                        YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                            viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
+                        });
                     }
-                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
-                        viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
-                    });
+                    if (sb.Length > 0)
+                        throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sb.ToString()}\"");
+                } else {
+                    ViewEngineResult viewEngine = null;
+
+                    if (View == null) {
+                        viewEngine = FindView(context);
+                        View = viewEngine.View;
+                    }
+                    IView view = FindView(context).View;
+
+                    StringBuilder sb = new StringBuilder();
+                    using (StringWriter sw = new StringWriter(sb)) {
+                        ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
+                        IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
+                        HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+                        context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
+
+                        bool inPartialView = Manager.InPartialView;
+                        Manager.InPartialView = true;
+                        try {
+                            viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
+                        } catch (Exception) {
+                            throw;
+                        } finally {
+                            Manager.InPartialView = inPartialView;
+                        }
+                        YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                            viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
+                        });
+                    }
+                    if (viewEngine != null)
+                        viewEngine.ViewEngine.ReleaseView(context, View);
                 }
+
+                Manager.CurrentModule = oldMod;
 #endif
                 if (Gzip) {
                     // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
@@ -588,8 +618,6 @@ namespace YetaWF.Core.Controllers
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
                 response.Output.Write(viewHtml);
-                if (viewEngine != null)
-                    viewEngine.ViewEngine.ReleaseView(context, View);
 #endif
             }
 
@@ -597,6 +625,11 @@ namespace YetaWF.Core.Controllers
 #else
             private class ViewDataContainer : IViewDataContainer {
                 public ViewDataDictionary ViewData { get; set; }
+            }
+            private class ViewImpl : IView {
+                public void Render(ViewContext viewContext, TextWriter writer) {
+                    throw new NotImplementedException();
+                }
             }
 #endif
 

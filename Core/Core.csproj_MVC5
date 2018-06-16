@@ -115,6 +115,8 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\ViewExtender.cs" />
+    <Compile Include="Components\ViewBase.cs" />
     <Compile Include="Components\CoreRendering.cs" />
     <Compile Include="Components\ComponentStartup.cs" />
     <Compile Include="Components\ComponentExtender.cs" />
@@ -331,7 +333,7 @@
     <Compile Include="Support\WebConfig.cs" />
     <Compile Include="ActionResults\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
-    <Compile Include="ViewsCode\YetaWFDefaultHtmlGenerator.cs" />
+    <Compile Include="ViewsCode\RenderView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
@@ -382,22 +384,6 @@
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
     <Content Include="Addons\_Templates\USState\USStates.txt" />
-    <Content Include="Views\Shared\ShowMessage.cshtml" />
-    <Content Include="Views\Shared\GridData.cshtml" />
-    <Content Include="Views\Shared\GridEntry.cshtml" />
-    <Content Include="Views\Shared\Browse.cshtml" />
-    <Content Include="Views\Shared\Browse_Partial.cshtml" />
-    <Content Include="Views\Shared\Add.cshtml" />
-    <Content Include="Views\Shared\Add_Partial.cshtml" />
-    <Content Include="Views\Shared\Display.cshtml" />
-    <Content Include="Views\Shared\EditApply.cshtml" />
-    <Content Include="Views\Shared\Edit.cshtml" />
-    <Content Include="Views\Shared\Display_Partial.cshtml" />
-    <Content Include="Views\Shared\EditApply_Partial.cshtml" />
-    <Content Include="Views\Shared\Edit_Partial.cshtml" />
-    <Content Include="Views\Shared\PropertyList_Display.cshtml" />
-    <Content Include="Views\Shared\PropertyList_Edit.cshtml" />
-    <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
     <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
     <None Include="tsconfig.json" />
     <None Include="tslint.json" />
@@ -407,6 +393,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Addons\_JS\" />
+    <Folder Include="Startup\MVC6\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />

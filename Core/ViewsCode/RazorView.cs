@@ -7,7 +7,6 @@ using YetaWF.Core.Controllers;
 using YetaWF.Core.Image;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
-using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
@@ -22,7 +21,6 @@ using System.Web.Mvc.Html;
 using System.Web.Routing;
 #endif
 
-//$$$move/remove
 namespace YetaWF.Core.Views {
 
 #if MVC6
@@ -142,12 +140,6 @@ namespace YetaWF.Core.Views {
             }
         }
 #endif
-        public PageDefinition CurrentPage {
-            get {
-                return Manager.CurrentPage;
-            }
-        }
-
         // generates a new unique Id
         protected string UniqueId(string name = "a") {
             return Manager.UniqueId(name);
@@ -225,7 +217,7 @@ namespace YetaWF.Core.Views {
         // FORM
         // FORM
 
-        protected async Task<MvcForm> CreateFormAsync(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) { 
+        protected async Task<MvcForm> CreateFormAsync(string viewName, int dummy = 0, object HtmlAttributes = null, object Model = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
 
             Manager.NextUniqueIdPrefix();
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");

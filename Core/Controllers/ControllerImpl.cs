@@ -14,6 +14,9 @@ using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using System.Linq;
+using System.IO;
+using System.Text;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -226,7 +229,7 @@ namespace YetaWF.Core.Controllers
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
 #else
-        protected override void OnActionExecuting(ActionExecutingContext filterContext) { 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
             YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
 #endif
@@ -714,17 +717,67 @@ namespace YetaWF.Core.Controllers
             }
             if (string.IsNullOrWhiteSpace(viewName))
                 throw new InternalError("Missing view name");
+
+            //TEMPORARY HACK to support both Views and YetaWFViews //$$$$
+            // if (viewName
+            if (YetaWFViewExtender.IsSupported(viewName))
+                return new YetaWFViewResult(viewName, CurrentModule, model);
+
             return base.View(viewName, model);
         }
 
-        // PAGE/FORM SAVE
-        // PAGE/FORM SAVE
-        // PAGE/FORM SAVE
+        public class YetaWFViewResult : ViewResult { //$$$ should be ActionResult  //TEMPORARY HACK to support both Views and YetaWFViews //$$$$
 
-        /// <summary>
-        /// The type of form reload used with the Reload method.
-        /// </summary>
-        protected enum ReloadEnum {
+            private ModuleDefinition Module { get; set; }
+            private new object Model { get; set; }
+            private new string ViewName { get; set; }
+
+            public YetaWFViewResult(string viewName, ModuleDefinition module, object model) {
+                ViewName = viewName;
+                Module = module;
+                Model = model;
+            }
+
+            public override void ExecuteResult(ControllerContext context) {
+
+                TextWriter sw = context.HttpContext.Response.Output;
+                ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
+                IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
+                HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+
+                try {
+#if MVC6
+#else
+                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                        YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+                        sw.Write(data.ToString());
+                    });
+#endif
+                } catch (Exception) {
+                    throw;
+                } finally { }
+            }
+#if MVC6
+#else
+            private class ViewImpl : IView {
+                public void Render(ViewContext viewContext, TextWriter writer) {
+                    throw new NotImplementedException();
+                }
+            }
+            private class ViewDataContainer : IViewDataContainer {
+                public ViewDataDictionary ViewData { get; set; }
+            }
+#endif
+        }
+
+            // PAGE/FORM SAVE
+            // PAGE/FORM SAVE
+            // PAGE/FORM SAVE
+
+            /// <summary>
+            /// The type of form reload used with the Reload method.
+            /// </summary>
+            protected enum ReloadEnum {
             Page = 1,
             Module = 2, // TODO: The entire module is not currently supported - use page reload instead
             ModuleParts = 3
@@ -1266,7 +1319,7 @@ namespace YetaWF.Core.Controllers
                 if (Manager.PageControlShown)
                     qhUrl.Add(Globals.Link_PageControl, "y");
                 else
-                    qhUrl.Add(Globals.Link_NoPageControl, "y");                
+                    qhUrl.Add(Globals.Link_NoPageControl, "y");
             } else {
                 // check whether control panel should be open
                 if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {

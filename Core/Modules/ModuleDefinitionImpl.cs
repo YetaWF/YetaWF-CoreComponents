@@ -19,6 +19,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Search;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.IO;
+using YetaWF.Core.Views;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Routing;
@@ -611,8 +612,12 @@ namespace YetaWF.Core.Modules {
                 YetaWFManager.Syncify(() => {
                     if (!string.IsNullOrEmpty(Area))
                         rvd.Add("Area", Area);
-                    moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+
+                    //moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
+                    //if (moduleHtml == null) //$$$$ remove
+                        moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
                     return Task.CompletedTask;
+
                 });
 #endif
             } catch (Exception exc) {
@@ -720,7 +725,10 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             YetaWFManager.Syncify(() => {
                 if (!string.IsNullOrEmpty(Area))
                     rvd.Add("Area", Area);
-                moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
+
+                //moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
+                //if (moduleHtml == null) //$$$$ remove
+                    moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
                 return Task.CompletedTask;
             });
 #endif
@@ -740,7 +748,7 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", YetaWFManager.HtmlEncode(name)));
 #endif
             // skip first exception (because it's not user friendly)
-            if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;            
+            if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;
             hb.Append(YetaWFManager.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
             hb.Append("</div>");
             if (Manager.CurrentResponse.StatusCode == 200)

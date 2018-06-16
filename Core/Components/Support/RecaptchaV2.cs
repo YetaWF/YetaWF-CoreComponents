@@ -69,6 +69,4 @@ namespace YetaWF.Core.Components {
         public static Func<Task<RecaptchaV2Config>> LoadRecaptchaV2ConfigAsync { get; set; }
         public static Func<RecaptchaV2Config, Task> SaveRecaptchaV2ConfigAsync { get; set; }
     }
-
-    public class RecaptchaV2<TModel> : RazorTemplate<TModel> { }
 }

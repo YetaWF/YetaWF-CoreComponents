@@ -27,9 +27,9 @@ namespace YetaWF.Core.Components {
         }
 
 #if MVC6
-        public static bool IsSupported(this IHtmlHelper htmlHelper, object container, string propertyName, string UIHint = null) 
+        public static bool IsSupported(object container, string propertyName, string UIHint = null)
 #else
-        public static bool IsSupported(this HtmlHelper htmlHelper, object container, string propertyName, string UIHint = null)
+        public static bool IsSupported(object container, string propertyName, string UIHint = null)
 #endif
         {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
@@ -47,7 +47,7 @@ namespace YetaWF.Core.Components {
         }
 
 #if MVC6
-        public static async Task<HtmlString> ForLabelAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForLabelAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForLabelAsync(this HtmlHelper htmlHelper,
 #endif
@@ -95,16 +95,16 @@ namespace YetaWF.Core.Components {
             return await htmlHelper.ForDisplayAsync(info, nameof(LabelInfo.LabelContents), HtmlAttributes: htmlAttributes);
         }
 #if MVC6
-        public static async Task<HtmlString> ForDisplayAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForDisplayAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForDisplayAsync(this HtmlHelper htmlHelper,
 #endif
-            object container, string propertyName, object HtmlAttributes = null, string UIHint = null) 
+            object container, string propertyName, object HtmlAttributes = null, string UIHint = null)
         {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, HtmlAttributes, false, UIHint);
         }
 #if MVC6
-        public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForEditAsync(this HtmlHelper htmlHelper,
 #endif
@@ -113,7 +113,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, HtmlAttributes, Validation, UIHint);
         }
 #if MVC6
-        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper, 
+        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper,
 #else
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, HtmlHelper htmlHelper,
 #endif
@@ -130,7 +130,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(components, renderType, htmlHelper, container, propertyName, propData, model, uiHint, htmlAttributes, validation);
         }
 #if MVC6
-        public static async Task<HtmlString> ForDisplayComponentAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForDisplayComponentAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForDisplayComponentAsync(this HtmlHelper htmlHelper,
 #endif
@@ -139,7 +139,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, propData, propertyValue, uiHint, HtmlAttributes, false);
         }
 #if MVC6
-        public static async Task<HtmlString> ForEditComponentAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForEditComponentAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForEditComponentAsync(this HtmlHelper htmlHelper,
 #endif
@@ -148,7 +148,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, propData, propertyValue, uiHint, HtmlAttributes, Validation);
         }
 #if MVC6
-        public static async Task<HtmlString> ForDisplayContainerAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForDisplayContainerAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForDisplayContainerAsync(this HtmlHelper htmlHelper,
 #endif
@@ -156,7 +156,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, null, null, null, uiHint, HtmlAttributes, false);
         }
 #if MVC6
-        public static async Task<HtmlString> ForEditContainerAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForEditContainerAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForEditContainerAsync(this HtmlHelper htmlHelper,
 #endif
@@ -164,7 +164,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, null, null, null, uiHint, HtmlAttributes, true);
         }
 #if MVC6
-        public static async Task<HtmlString> ForDisplayAsAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForDisplayAsAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForDisplayAsAsync(this HtmlHelper htmlHelper,
 #endif
@@ -173,7 +173,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, false);
         }
 #if MVC6
-        public static async Task<HtmlString> ForEditAsAsync(this IHtmlHelper htmlHelper, 
+        public static async Task<HtmlString> ForEditAsAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForEditAsAsync(this HtmlHelper htmlHelper,
 #endif

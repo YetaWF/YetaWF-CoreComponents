@@ -1457,7 +1457,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public bool InPartialView { get; set; }
 
-        // MODEL STACK
+        // MODEL STACK  //$$$$ Hurray, remove Model Stack!!!
         // MODEL STACK
         // MODEL STACK
 
@@ -1827,8 +1827,8 @@ namespace YetaWF.Core.Support {
         private int _syncCount = 0;
 
         /// <summary>
-        /// Used to mark all methods within its scope as synchronous. 
-        /// Only synchronous data providers are used. 
+        /// Used to mark all methods within its scope as synchronous.
+        /// Only synchronous data providers are used.
         /// Async code will run synchronously on all platforms.
         /// </summary>
         private class NeedSync : IDisposable {

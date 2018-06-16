@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
 using System.Text;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
@@ -33,17 +32,6 @@ namespace YetaWF.Core.Pages
 #else
     public class RazorPage : RazorPage<object> { }
 #endif
-
-
-    // used by templates //$$$$REMOVE
-#if MVC6
-    public class RazorTemplate<TModel> : RazorPage<TModel>, IRazorPageLifetime
-#else
-    public class RazorTemplate<TModel> : RazorPage<TModel>
-#endif
-    {
-        public override bool IsTemplate { get { return true; } }
-    }
 
     // used by views
 #if MVC6
@@ -106,8 +94,6 @@ namespace YetaWF.Core.Pages
         }
 #endif
         public async Task<HtmlString> RenderPaneAsync(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
-            if (IsTemplate)
-                throw new InternalError("Can't use RenderPane in templates");
 
             if (!Manager.EditMode && Unified && Manager.UnifiedPages != null) {
                 PageDefinition realPage = Manager.CurrentPage;
@@ -138,8 +124,6 @@ namespace YetaWF.Core.Pages
             }
         }
         public PageDefinition.PaneSet PaneSet(string cssClass = null, bool Conditional = true, bool SameHeight = true) {
-            if (IsTemplate)
-                throw new InternalError("Can't use PaneSet in templates");
 #if MVC6
             return CurrentPage.RenderPaneSet((IHtmlHelper<object>)GetHtml(), cssClass, Conditional: Conditional, SameHeight: SameHeight);
 #else
@@ -153,7 +137,7 @@ namespace YetaWF.Core.Pages
         /// <returns></returns>
         public
 #if MVC6
-            async 
+            async
 #endif
                 Task<HtmlString> RenderPageContentAsync() {
             PageContentController.PageContentData model = (PageContentController.PageContentData)(object)ViewData.Model;
@@ -169,83 +153,6 @@ namespace YetaWF.Core.Pages
 #endif
         }
 
-        // used by templates
-        public string ControlId {
-            get {
-                if (string.IsNullOrEmpty(_controlId))
-                    _controlId = Manager.UniqueId("ctrl");
-                return _controlId;
-            }
-        }
-        private string _controlId;
-
-        public string DivId {
-            get {
-                if (string.IsNullOrEmpty(_divId))
-                    _divId = Manager.UniqueId("div");
-                return _divId;
-            }
-        }
-        private string _divId;
-
-        public string UniqueId(string name = "b") {
-            return Manager.UniqueId(name);
-        }
-
-        public HtmlString JSEncode(object obj) {
-            return new HtmlString(YetaWFManager.JsonSerialize(obj));
-        }
-
-        // DOCUMENTREADY
-        // DOCUMENTREADY
-        // DOCUMENTREADY
-
-        protected class JSDocumentReady : IDisposable {
-#if MVC6
-            public JSDocumentReady(IHtmlHelper<TModel> Html)
-#else
-            public JSDocumentReady(HtmlHelper<object> Html)
-#endif
-            {
-                this.Html = Html;
-                DisposableTracker.AddObject(this);
-            }
-            public void Dispose() { Dispose(true); }
-            protected virtual void Dispose(bool disposing) {
-                if (disposing) DisposableTracker.RemoveObject(this);
-                while (CloseParen > 0) {
-                    Html.ViewContext.Writer.Write("}");
-                    CloseParen = CloseParen - 1;
-                }
-                Html.ViewContext.Writer.Write("}});");
-            }
-            //~JSDocumentReady() { Dispose(false); }
-#if MVC6
-            public IHtmlHelper<TModel> Html { get; set; }
-#else
-            public HtmlHelper<object> Html { get; set; }
-#endif
-            public int CloseParen { get; internal set; }
-        }
-        protected JSDocumentReady DocumentReady(string id) { //$$$remove ???
-#if MVC6
-            IHtmlHelper<TModel> htmlHelper;
-#else
-            HtmlHelper<object> htmlHelper;
-#endif
-            htmlHelper = GetHtml();
-            htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyOnce.push({{callback: function ($tag) {{ if ($tag.has('#{0}').length > 0) {{\n", id);
-            return new JSDocumentReady(htmlHelper) { CloseParen = 1 };
-        }
-        protected JSDocumentReady DocumentReady() {
-#if MVC6
-            IHtmlHelper<TModel> htmlHelper = GetHtml();
-#else
-            HtmlHelper<object> htmlHelper = GetHtml();
-#endif
-            htmlHelper.ViewContext.Writer.Write("YetaWF_Basics.whenReadyOnce.push({callback: function ($tag) {\n");
-            return new JSDocumentReady(htmlHelper);
-        }
 #if MVC6
 #else
         public override void ExecutePageHierarchy() {
@@ -259,60 +166,18 @@ namespace YetaWF.Core.Pages
         public void BeginRender(ViewContext context) {
             // NOTE: the page has not been activated when using MVC6 so all data has to be extracted from context.
             // context is null with MVC5
-            if (IsTemplate) {//$$$REMOVE
-#if MVC6
-                string path = Path;
-#else
-                string path = VirtualPath;
-#endif
-                string[] pathParts = path.Split(new char[] { '/' });
-                int partsCount = pathParts.Length;
-                if (partsCount >= 3) {
-                    if (pathParts[partsCount - 3] == "Shared" && (pathParts[partsCount - 2] == "DisplayTemplates" || pathParts[partsCount - 2] == "EditorTemplates")) {
-                        // standard template
-                    } else if (pathParts[partsCount - 2] == "Shared") {
-                        // special shared template
-                    } else
-                        throw new InternalError("Unexpected template {0}", path);
-                    _templateName = pathParts[partsCount - 1];
-                    if (!_templateName.EndsWith(".cshtml"))
-                        throw new InternalError("Unexpected template {0}", path);
-                    _templateName = _templateName.Substring(0, _templateName.Length - 7);
-                    string[] parts = _templateName.Split(new char[] { '_' });
-                    if (parts.Length == 3) {
-                        _domain = parts[0];
-                        _product = parts[1];
-                        _templateName = parts[2];
-                    } else if (parts.Length == 1) {
-                        _domain = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Domain;
-                        _product = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Product;
-                    } else
-                        throw new InternalError("template name for {0} should have the format \"domain_product_template\"", _templateName);
-                } else
-                    throw new InternalError("Unexpected template {0}", path);
-            }
 #if MVC6
             Manager.PushModel(context.ViewData.Model);
 #else
             Manager.PushModel(GetModel());
 #endif
         }
-        private string _product { get; set; }
-        private string _domain { get; set; }
-        private string _templateName { get; set; }
 
         public Task EndRenderAsync(ViewContext context) {
-            if (IsTemplate) {
-                Manager.PopModel();
-                //$$$all this can be deleted - no template support
-                //if (!string.IsNullOrWhiteSpace(_domain) && !string.IsNullOrWhiteSpace(_product))
-                //    await Manager.AddOnManager.AddTemplateAsync(_domain, _product, _templateName);
-            } else {
-                Manager.PopModel();
-            }
+
+            Manager.PopModel();
+
             return Task.CompletedTask;
         }
-
-        public virtual bool IsTemplate { get { return false; } }
     }
 }

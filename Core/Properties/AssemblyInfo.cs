@@ -27,8 +27,6 @@ using YetaWF.PackageAttributes;
     "https://yetawf.com/Documentation/YetaWF/Core#Release%20Notice",
     "https://yetawf.com/Documentation/YetaWF/Core#License")]
 
-[assembly: PublicPartialViews]
-
 [assembly: Resource(CoreInfo.Resource_BuiltinCommands, "Allow use of built-in commands", Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_UploadImages, "Allow uploading images", User = true, Editor = true, Administrator = true, Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_RemoveImages, "Remove uploaded images", User = true, Editor = true, Administrator = true, Superuser = true)]
