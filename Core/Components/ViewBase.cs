@@ -87,6 +87,16 @@ namespace YetaWF.Core.Components {
             return Manager.UniqueId(name);
         }
 
+        public string HAE(string text) {
+            return YetaWFManager.HtmlAttributeEncode(text);
+        }
+        public string HE(string text) {
+            return YetaWFManager.HtmlEncode(text);
+        }
+        public string JE(string text) {
+            return YetaWFManager.JserEncode(text);
+        }
+
         public abstract Package GetPackage();
         public abstract string GetViewName();
 
@@ -94,7 +104,7 @@ namespace YetaWF.Core.Components {
         // FORM
         // FORM
 
-        protected async Task<string> RenderBeginFormAsync(string PartialViewName = null, object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null) {
+        protected async Task<string> RenderBeginFormAsync(string PartialViewName = null, object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null, string ControllerName = null, bool Pure = false) {
 
             Manager.NextUniqueIdPrefix();
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");
@@ -104,22 +114,26 @@ namespace YetaWF.Core.Components {
             _partialViewName = PartialViewName;
             if (string.IsNullOrWhiteSpace(ActionName))
                 ActionName = PartialViewName;
+            if (string.IsNullOrWhiteSpace(ControllerName))
+                ControllerName = ModuleBase.Controller;
 
             IDictionary<string, object> rvd = AnonymousObjectToHtmlAttributes(HtmlAttributes);
             if (SaveReturnUrl)
                 rvd.Add(Basics.CssSaveReturnUrl, "");
-            string css = null;
-            if (Manager.CurrentSite.FormErrorsImmed)
-                css = YetaWFManager.CombineCss(css, "yValidateImmediately");
-            css = YetaWFManager.CombineCss(css, Forms.CssFormAjax);
-            rvd.Add("class", css);
 
+            if (!Pure) {
+                string css = null;
+                if (Manager.CurrentSite.FormErrorsImmed)
+                    css = YetaWFManager.CombineCss(css, "yValidateImmediately");
+                css = YetaWFManager.CombineCss(css, Forms.CssFormAjax);
+                rvd.Add("class", css);
+            }
 #if MVC6
             //$$$verify MVC6 Source
 #endif
             YTagBuilder tagBuilder = new YTagBuilder("form");
             tagBuilder.MergeAttributes(rvd, true);
-            string formAction = UrlHelper.GenerateUrl(null /* routeName */, ActionName, ModuleBase.Controller, null, HtmlHelper.RouteCollection, HtmlHelper.ViewContext.RequestContext, true /* includeImplicitMvcValues */);
+            string formAction = UrlHelper.GenerateUrl(null /* routeName */, ActionName, ControllerName, null, HtmlHelper.RouteCollection, HtmlHelper.ViewContext.RequestContext, true /* includeImplicitMvcValues */);
             tagBuilder.MergeAttribute("action", formAction, true);
             tagBuilder.MergeAttribute("method", "post", true);
 
