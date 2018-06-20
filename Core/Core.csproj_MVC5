@@ -195,7 +195,7 @@
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
-    <Compile Include="ViewsCode\RazorView.cs" />
+    <Compile Include="Pages\RazorView.cs" />
     <Compile Include="Components\FormButton.cs" />
     <Compile Include="Components\TemplateAction.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
@@ -333,7 +333,7 @@
     <Compile Include="Support\WebConfig.cs" />
     <Compile Include="ActionResults\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
-    <Compile Include="ViewsCode\RenderView.cs" />
+    <Compile Include="Pages\RenderView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
