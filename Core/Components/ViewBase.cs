@@ -51,7 +51,7 @@ namespace YetaWF.Core.Components {
 
         private ModuleDefinition ModuleBase { get; set; }
 
-        internal void SetRenderInfo(
+        public void SetRenderInfo(
 #if MVC6
             IHtmlHelper htmlHelper
 #else
@@ -104,16 +104,13 @@ namespace YetaWF.Core.Components {
         // FORM
         // FORM
 
-        protected async Task<string> RenderBeginFormAsync(string PartialViewName = null, object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null, string ControllerName = null, bool Pure = false) {
+        protected async Task<string> RenderBeginFormAsync(object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null, string ControllerName = null, bool Pure = false) {
 
             Manager.NextUniqueIdPrefix();
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");
 
-            if (string.IsNullOrWhiteSpace(PartialViewName))
-                PartialViewName = GetViewName() + "_Partial";
-            _partialViewName = PartialViewName;
             if (string.IsNullOrWhiteSpace(ActionName))
-                ActionName = PartialViewName;
+                ActionName = GetViewName() + "_Partial";
             if (string.IsNullOrWhiteSpace(ControllerName))
                 ControllerName = ModuleBase.Controller;
 
@@ -148,25 +145,17 @@ namespace YetaWF.Core.Components {
             return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
         }
 
-        private string _partialViewName = null;
-
         // PartialForm rendering called during regular form processing (not ajax)
-        public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, string partialViewName = null, bool UseAreaViewName = true, bool UsePartialFormCss = true, bool ShowView = true) {
+        public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, bool UsePartialFormCss = true, bool ShowView = true) {
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
             Manager.InPartialView = true;
 
-            if (string.IsNullOrWhiteSpace(partialViewName))
-                partialViewName = _partialViewName;
-
             YHtmlString viewHtml = new YHtmlString();
 
             try {
-                if (ShowView && !string.IsNullOrWhiteSpace(partialViewName)) {
-                    if (UseAreaViewName)
-                        partialViewName = YetaWFController.MakeFullViewName(partialViewName, ModuleBase.Area);
+                if (ShowView)
                     viewHtml = await renderPartial();
-                }
 
                 //DEBUG:  viewHtml has the entire partial FORM
 

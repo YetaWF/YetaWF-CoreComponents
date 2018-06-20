@@ -26,21 +26,14 @@ namespace YetaWF.Core.Pages
 #else
 #endif
 
-    // used by pages and popups
+    // used by pages
 #if MVC6
-    public class RazorPage : RazorPage<object>, IRazorPageLifetime { }
-#else
-    public class RazorPage : RazorPage<object> { }
-#endif
-
-    // used by views
-#if MVC6
-    public class RazorPage<TModel> : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel> {
+    public class RazorPage : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel> {
 
         public RazorPage() : base() {  }
 
 #else
-    public class RazorPage<TModel> : System.Web.Mvc.WebViewPage {
+    public class RazorPage : System.Web.Mvc.WebViewPage {
 #endif
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -66,21 +59,7 @@ namespace YetaWF.Core.Pages
         public string __ResStr(string name, string defaultValue, params object[] parms) {
             return ResourceAccessHelper.__ResStr(this, name, defaultValue, parms);
         }
-#if MVC6
-#else
-        public new TModel Model {
-            get {
-                return (TModel)base.Model;
-            }
-        }
-#endif
-        public TModel GetModel() {
-#if MVC6
-            return (TModel) Model;
-#else
-            return (TModel) base.Model;
-#endif
-        }
+
         public PageDefinition CurrentPage {
             get {
                 return Manager.CurrentPage;
@@ -89,7 +68,7 @@ namespace YetaWF.Core.Pages
 #if MVC6
 #else
         public void RenderView(ViewContext viewContext) {
-            WebPageContext wpc = new WebPageContext(viewContext.HttpContext, this, Model);
+            WebPageContext wpc = new WebPageContext(viewContext.HttpContext, this, null);
             ExecutePageHierarchy(wpc, viewContext.Writer, this);
         }
 #endif
@@ -151,33 +130,6 @@ namespace YetaWF.Core.Pages
             });
             return Task.FromResult<HtmlString>(new HtmlString(""));
 #endif
-        }
-
-#if MVC6
-#else
-        public override void ExecutePageHierarchy() {
-            YetaWFManager.Syncify(async () => { // rendering needs to be sync (for templates)
-                BeginRender(null);
-                base.ExecutePageHierarchy();
-                await EndRenderAsync(null);
-            });
-        }
-#endif
-        public void BeginRender(ViewContext context) {
-            // NOTE: the page has not been activated when using MVC6 so all data has to be extracted from context.
-            // context is null with MVC5
-#if MVC6
-            Manager.PushModel(context.ViewData.Model);
-#else
-            Manager.PushModel(GetModel());
-#endif
-        }
-
-        public Task EndRenderAsync(ViewContext context) {
-
-            Manager.PopModel();
-
-            return Task.CompletedTask;
         }
     }
 }

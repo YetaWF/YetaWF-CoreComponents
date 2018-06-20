@@ -743,6 +743,8 @@ namespace YetaWF.Core.Controllers
                 try {
 #if MVC6
                     //$$$$
+                    YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+                    sw.Write(data.ToString());
 #else
                     YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                         YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);

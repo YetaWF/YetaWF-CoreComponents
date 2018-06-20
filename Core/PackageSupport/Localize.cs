@@ -339,8 +339,6 @@ namespace YetaWF.Core.Packages {
             string pageCls = m.Groups["base"].Value;
             string moduleCls = m.Groups["class"].Value;
             string more = m.Groups["more"].Value;
-            if (pageCls == "YetaWF.Core.Pages.RazorTemplate") // these can't have resources //$$$remove
-                return null;
             if (more.Contains(","))
                 return moduleCls;// it's a regular view, so we return the module's class as the class for resources
             else

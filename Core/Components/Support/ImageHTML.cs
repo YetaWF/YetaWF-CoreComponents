@@ -38,21 +38,6 @@ namespace YetaWF.Core.Components {
             return url;
         }
 
-        public static TagBuilder BuildKnownImageTag(string url, string title = null, string alt = null, string id = null, string cssClass = null) { //$$$remove
-            title = title ?? "";
-            alt = alt ?? title;
-            TagBuilder tImg = new TagBuilder("img");
-            if (!string.IsNullOrWhiteSpace(alt))
-                tImg.MergeAttribute("alt", alt);
-            if (!string.IsNullOrWhiteSpace(cssClass))
-                tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-            if (!string.IsNullOrWhiteSpace(title))
-                tImg.MergeAttribute("title", title);
-            if (!string.IsNullOrWhiteSpace(id))
-                tImg.Attributes.Add("id", id);
-            tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
-            return tImg;
-        }
         public static YTagBuilder BuildKnownImageYTag(string url, string title = null, string alt = null, string id = null, string cssClass = null) {
             title = title ?? "";
             alt = alt ?? title;

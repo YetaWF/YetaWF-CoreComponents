@@ -1457,41 +1457,6 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public bool InPartialView { get; set; }
 
-        // MODEL STACK  //$$$$ Hurray, remove Model Stack!!!
-        // MODEL STACK
-        // MODEL STACK
-
-        // preserve models so templates can access the enclosing object
-        public void PopModel() {
-            if (ModelStack.Count > 0)
-                ModelStack.RemoveAt(ModelStack.Count - 1);
-        }
-        public void PushModel(object model) {
-            ModelStack.Add(model);
-        }
-        private List<object> ModelStack {
-            get {
-                if (_modelStack == null)
-                    _modelStack = new List<object>();
-                return _modelStack;
-            }
-        }
-        private List<object> _modelStack = null;
-
-        public object TryGetParentModel(int Skip = 0) {
-            if (ModelStack.Count <= 1 + Skip) return null;
-            return ModelStack[ModelStack.Count - 2 - Skip];
-        }
-        public object GetParentModel(int Skip = 0) {
-            object o = TryGetParentModel(Skip);
-            if (o == null) throw new InternalError("No parent model");
-            return o;
-        }
-        public object GetCurrentModel() {
-            if (ModelStack.Count <= 0) throw new InternalError("No model");
-            return ModelStack[ModelStack.Count - 1];
-        }
-
         /// <summary>
         /// Defines whether non-site specific data is also imported when importing packages
         /// </summary>
@@ -1508,7 +1473,7 @@ namespace YetaWF.Core.Support {
 #if MVC6
         public IReadOnlyDictionary<object, object> ControlInfoOverrides { get; set; }
 #else
-        public Dictionary<string, object> ControlInfoOverrides { get; set; }
+        public Dictionary<string, object> ControlInfoOverrides { get; set; } //$$$
 #endif
 
         // UTILITY
