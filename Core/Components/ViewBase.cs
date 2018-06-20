@@ -151,7 +151,7 @@ namespace YetaWF.Core.Components {
         private string _partialViewName = null;
 
         // PartialForm rendering called during regular form processing (not ajax)
-        public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, string partialViewName = null, bool UseAreaViewName = true, bool UsePartialFormCss = true) {
+        public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, string partialViewName = null, bool UseAreaViewName = true, bool UsePartialFormCss = true, bool ShowView = true) {
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
             Manager.InPartialView = true;
@@ -162,7 +162,7 @@ namespace YetaWF.Core.Components {
             YHtmlString viewHtml = new YHtmlString();
 
             try {
-                if (!string.IsNullOrWhiteSpace(partialViewName)) {
+                if (ShowView && !string.IsNullOrWhiteSpace(partialViewName)) {
                     if (UseAreaViewName)
                         partialViewName = YetaWFController.MakeFullViewName(partialViewName, ModuleBase.Area);
                     viewHtml = await renderPartial();

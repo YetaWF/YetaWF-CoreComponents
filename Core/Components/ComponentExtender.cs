@@ -193,6 +193,8 @@ namespace YetaWF.Core.Components {
             if (!YetaWFManager.IsSync())
                 throw new InternalError("Rendering on MVC5 cannot be async");
 #endif
+            if (string.IsNullOrWhiteSpace(templateName))
+                throw new InternalError($"No UIHint found for {(propertyName ?? "(Container)")} in {container.GetType().FullName}");
 
             Type compType;
             if (!components.TryGetValue(templateName, out compType))
@@ -245,7 +247,13 @@ namespace YetaWF.Core.Components {
                 if (miAsync == null)
                     throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFComponent<object>.RenderAsync)} method accepting a model type {propData.PropInfo.PropertyType.FullName} for {containerType.FullName}, {propertyName}");
                 Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(component, new object[] { model });
-                return await methStringTask;
+
+                YHtmlString yhtml = await methStringTask;
+#if DEBUG
+                if (yhtml.ToString().Contains("System.Threading.Tasks.Task"))
+                    throw new InternalError($"Component {templateName} contains System.Threading.Tasks.Task - check for missing \"await\"");
+#endif
+                return yhtml;
             }
         }
 #if MVC6

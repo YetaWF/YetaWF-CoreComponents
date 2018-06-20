@@ -52,7 +52,12 @@ namespace YetaWF.Core.Components {
 
             // Invoke RenderViewAsync/RenderPartialViewAsync
             Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(view, new object[] { module, model });
-            return await methStringTask;
+            YHtmlString yhtml = await methStringTask;
+#if DEBUG
+            if (yhtml.ToString().Contains("System.Threading.Tasks.Task"))
+                throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\"");
+#endif
+            return yhtml;
         }
     }
 }
