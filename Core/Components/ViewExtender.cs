@@ -32,7 +32,6 @@ namespace YetaWF.Core.Components {
 #endif
                 string viewName, ModuleDefinition module, object model) {
 
-
             Type viewType;
             string v = viewName.TrimEnd(PartialSuffix);
             if (!YetaWFComponentBaseStartup.GetViews().TryGetValue(v, out viewType))

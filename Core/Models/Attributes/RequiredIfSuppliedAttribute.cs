@@ -46,7 +46,7 @@ namespace YetaWF.Core.Models.Attributes {
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("requiredIfSupplied", "The {0} field is required", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
 #else
@@ -55,7 +55,7 @@ namespace YetaWF.Core.Models.Attributes {
                 ErrorMessage = __ResStr("requiredIfSupplied", "The {0} field is required", AttributeHelper.GetPropertyCaption(metadata)),
                 ValidationType = "requiredifsupplied"
             };
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
+            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName);
             yield return rule;
         }
 #endif

@@ -16,6 +16,8 @@ using YetaWF.Core.Support;
 
 // Inspired by https://ppolyzos.com/2016/09/09/asp-net-core-render-view-to-string/
 
+//$$$ NO LONGER NEEDED???
+
 namespace YetaWF.Core.Pages {
 
     public interface IViewRenderService {

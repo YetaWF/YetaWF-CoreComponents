@@ -70,7 +70,7 @@ namespace YetaWF.Core.Controllers {
                 AreaName,
                 AreaName + "/{controller}/{action}",
                 new { },
-                new string[] { ns, ns + ".Shared" }
+                new string[] { ns }
             );
         }
 #endif

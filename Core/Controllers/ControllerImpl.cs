@@ -663,25 +663,25 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View() { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View() { throw new NotSupportedException(); }
 #if MVC6
 #else
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View(IView view) { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View(IView view) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View(IView view, object model) { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View(IView view, object model) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new virtual ViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
+        protected new virtual YetaWFViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
 #endif
         /// <summary>
         /// Renders the default view (defined using ModuleDefinition.DefaultView) using the provided model.
         /// </summary>
         /// <param name="model">The model.</param>
-        /// <returns>A ViewResult.</returns>
+        /// <returns>A YetaWFViewResult.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
-        protected new ViewResult View(object model) {
+        protected new YetaWFViewResult View(object model) {
             return View(null, model, UseAreaViewName: true);
         }
         /// <summary>
@@ -689,8 +689,8 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <param name="viewName">The name of the view.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns>A ViewResult.</returns>
-        protected ViewResult View(string viewName, bool UseAreaViewName = true) {
+        /// <returns>A YetaWFViewResult.</returns>
+        protected YetaWFViewResult View(string viewName, bool UseAreaViewName = true) {
             return View(viewName, null, UseAreaViewName: UseAreaViewName);
         }
         /// <summary>
@@ -699,8 +699,8 @@ namespace YetaWF.Core.Controllers
         /// <param name="viewName">The name of the view.</param>
         /// <param name="model">The model.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns>A ViewResult.</returns>
-        protected ViewResult View(string viewName, object model, bool UseAreaViewName = true) {
+        /// <returns>A YetaWFViewResult.</returns>
+        protected YetaWFViewResult View(string viewName, object model, bool UseAreaViewName = true) {
             if (UseAreaViewName) {
                 if (string.IsNullOrWhiteSpace(viewName))
                     viewName = CurrentModule.DefaultViewName;
@@ -718,19 +718,14 @@ namespace YetaWF.Core.Controllers
             if (string.IsNullOrWhiteSpace(viewName))
                 throw new InternalError("Missing view name");
 
-            //TEMPORARY HACK to support both Views and YetaWFViews //$$$$
-            // if (viewName
-            if (YetaWFViewExtender.IsSupported(viewName))
-                return new YetaWFViewResult(viewName, CurrentModule, model);
-
-            return base.View(viewName, model);
+            return new YetaWFViewResult(viewName, CurrentModule, model);
         }
 
-        public class YetaWFViewResult : ViewResult { //$$$ should be ActionResult  //TEMPORARY HACK to support both Views and YetaWFViews //$$$$
+        public class YetaWFViewResult : ActionResult {
 
             private ModuleDefinition Module { get; set; }
-            private new object Model { get; set; }
-            private new string ViewName { get; set; }
+            private object Model { get; set; }
+            private string ViewName { get; set; }
 
             public YetaWFViewResult(string viewName, ModuleDefinition module, object model) {
                 ViewName = viewName;
@@ -747,6 +742,7 @@ namespace YetaWF.Core.Controllers
 
                 try {
 #if MVC6
+                    //$$$$
 #else
                     YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                         YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
@@ -770,14 +766,14 @@ namespace YetaWF.Core.Controllers
 #endif
         }
 
-            // PAGE/FORM SAVE
-            // PAGE/FORM SAVE
-            // PAGE/FORM SAVE
+        // PAGE/FORM SAVE
+        // PAGE/FORM SAVE
+        // PAGE/FORM SAVE
 
-            /// <summary>
-            /// The type of form reload used with the Reload method.
-            /// </summary>
-            protected enum ReloadEnum {
+        /// <summary>
+        /// The type of form reload used with the Reload method.
+        /// </summary>
+        protected enum ReloadEnum {
             Page = 1,
             Module = 2, // TODO: The entire module is not currently supported - use page reload instead
             ModuleParts = 3

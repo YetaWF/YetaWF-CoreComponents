@@ -52,7 +52,7 @@ namespace YetaWF.Core.Models.Attributes {
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("requiredIf", "The {0} field is required", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredif-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
@@ -62,7 +62,7 @@ namespace YetaWF.Core.Models.Attributes {
                 ErrorMessage = __ResStr("requiredIf", "The {0} field is required", AttributeHelper.GetPropertyCaption(metadata)),
                 ValidationType = "requiredif"
             };
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
+            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName);
             rule.ValidationParameters[Forms.ConditionPropertyValue] = RequiredValue;
             yield return rule;
         }
@@ -105,7 +105,7 @@ namespace YetaWF.Core.Models.Attributes {
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("requiredIfNot", "The {0} field is required", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifnot-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
         }
@@ -115,7 +115,7 @@ namespace YetaWF.Core.Models.Attributes {
                 ErrorMessage = __ResStr("requiredIfNot", "The {0} field is required", AttributeHelper.GetPropertyCaption(metadata)),
                 ValidationType = "requiredifnot"
             };
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
+            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName);
             rule.ValidationParameters[Forms.ConditionPropertyValue] = RequiredValue;
             yield return rule;
         }
@@ -158,7 +158,7 @@ namespace YetaWF.Core.Models.Attributes {
         public new void AddValidation(ClientModelValidationContext context) {
             ErrorMessage = __ResStr("requiredIfNot", "The {0} field is required", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, context.ModelMetadata, (ViewContext)context.ActionContext));
+            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName));
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyValueLow, RequiredValueLow.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifinrange-" + Forms.ConditionPropertyValueHigh, RequiredValueHigh.ToString());
             AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
@@ -169,7 +169,7 @@ namespace YetaWF.Core.Models.Attributes {
                 ErrorMessage = __ResStr("requiredIfInRange", "The {0} field is required", AttributeHelper.GetPropertyCaption(metadata)),
                 ValidationType = "requiredifinrange"
             };
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName, metadata, context as ViewContext);
+            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName);
             rule.ValidationParameters[Forms.ConditionPropertyValueLow] = RequiredValueLow;
             rule.ValidationParameters[Forms.ConditionPropertyValueHigh] = RequiredValueHigh;
             yield return rule;

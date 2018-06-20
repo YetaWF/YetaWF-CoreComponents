@@ -104,17 +104,6 @@ namespace YetaWF.Core.Packages {
     }
 
     /// <summary>
-    /// Attribute class used in a package's AssemblyInfo.cs file to define whether the package exposes public partial views (display/editor templates)
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public class PublicPartialViewsAttribute : Attribute { //$$$can this be removed?
-        /// <summary>
-        /// Defines whether the package exposes public partial views (display/editor templates).
-        /// </summary>
-        public PublicPartialViewsAttribute() { }
-    }
-
-    /// <summary>
     /// Package class, used to describe a YetaWF package, containing modules and skins.
     /// </summary>
     public partial class Package {
@@ -376,13 +365,6 @@ namespace YetaWF.Core.Packages {
             }
         }
         private PackageTypeEnum? _packageType;
-
-        public bool HasPublicPartialViews {
-            get {
-                PublicPartialViewsAttribute attr = (PublicPartialViewsAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PublicPartialViewsAttribute));
-                return attr != null;
-            }
-        }
 
         /// <summary>
         /// Returns the source file path of the package's AssemblyInfo.cs file. This is used to determine the location of a source package on a development system.

@@ -24,6 +24,8 @@ namespace YetaWF.Core.Models {
 
     public static class AttributeHelper {
 
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
         public static string GetPropertyCaption(ValidationContext validationContext) {
             object instance = validationContext.ObjectInstance;
             Type type = validationContext.ObjectType;
@@ -43,22 +45,11 @@ namespace YetaWF.Core.Models {
             PropertyData propData = ObjectSupport.GetPropertyData(type, propertyName);
             return propData.GetCaption(type);
         }
-        public static string BuildDependentPropertyName(string PropertyName, ModelMetadata metadata, ViewContext viewContext) {
-            // build the id of the property
-            string depProp = viewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(PropertyName);
-            // unfortunately this will have the name of the current field appended to the beginning,
-            // because the TemplateInfo's context has had this fieldname appended to it. Instead, we
-            // want to get the context as though it was one level higher (i.e. outside the current property,
-            // which is the containing object (our Person), and hence the same level as the dependent property.
-            string thisField = "." + metadata.PropertyName + ".";
-            if (depProp.Contains(thisField))
-                depProp = depProp.Replace(thisField, ".");
-            else {
-                thisField = metadata.PropertyName + ".";
-                if (depProp.StartsWith(thisField)) // strip it off again
-                    depProp = depProp.Substring(thisField.Length);
-            }
-            return depProp;
+        public static string BuildDependentPropertyName(string PropertyName) {
+            if (!string.IsNullOrWhiteSpace(Manager.NestedComponentPrefix))
+                return Manager.NestedComponentPrefix + "." + PropertyName;
+            else
+                return PropertyName;
         }
 
         public static TYPE GetAttributeValue<TYPE>(ValidationContext validationContext, string attrName, TYPE dflt) {

@@ -604,20 +604,10 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                if (!string.IsNullOrEmpty(Area))
-                    moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
-                else
-                    moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
+                moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
 #else
-                YetaWFManager.Syncify(() => {
-                    if (!string.IsNullOrEmpty(Area))
-                        rvd.Add("Area", Area);
-
-                    //moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
-                    //if (moduleHtml == null) //$$$$ remove
-                        moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-                    return Task.CompletedTask;
-
+                YetaWFManager.Syncify(async () => {
+                    moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
                 });
 #endif
             } catch (Exception exc) {
@@ -722,14 +712,8 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             else
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
 #else
-            YetaWFManager.Syncify(() => {
-                if (!string.IsNullOrEmpty(Area))
-                    rvd.Add("Area", Area);
-
-                //moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
-                //if (moduleHtml == null) //$$$$ remove
-                    moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-                return Task.CompletedTask;
+            YetaWFManager.Syncify(async () => {
+                moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
             });
 #endif
             Manager.CurrentModule = oldMod;
