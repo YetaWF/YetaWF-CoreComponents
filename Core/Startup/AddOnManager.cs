@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
@@ -226,14 +225,7 @@ namespace YetaWF.Core.Addons {
             }
         }
 
-        public async Task AddStandardAddOnsAsync() {
-            await AddAddOnGlobalAsync("jquery.com", "jquery");
-            await AddAddOnGlobalAsync("jqueryui.com", "jqueryui");
-            await AddAddOnGlobalAsync("medialize.github.io", "URI.js");// for client-side Url manipulation
-            await AddAddOnGlobalAsync("necolas.github.io", "normalize");
-        }
-
-        public async Task AddSkinBasedAddOnsAsync() {
+        public async Task AddSkinBasedAddOnsAsync() { //$$$ should this be in ComponentsHTML
             SkinAccess skinAccess = new SkinAccess();
 
             // Find the jquery theme

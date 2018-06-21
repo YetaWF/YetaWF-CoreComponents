@@ -14,9 +14,10 @@ using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 
-namespace YetaWF.Core.Controllers.Shared {
+namespace YetaWF.Core.Controllers {
 
     // Inspired by http://stackoverflow.com/questions/26916664/html-action-in-asp-net-core
+    // $$$ REMOVE
 
     public static class HtmlHelperActionExtensions {
 

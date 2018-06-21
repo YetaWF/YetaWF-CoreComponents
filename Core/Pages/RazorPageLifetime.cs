@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YetaWF.Core.Pages {
 
-    public interface IRazorPageLifetime {
+    public interface IRazorPageLifetime { //$$$$ NEEDED?
         void BeginRender(ViewContext context);
         Task EndRenderAsync(ViewContext context);
     }

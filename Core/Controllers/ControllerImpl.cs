@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using System.Linq;
 using System.IO;
-using System.Text;
 using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
@@ -29,8 +28,7 @@ using System.Web;
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Controllers
-{
+namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// The base class for any module-based controller. Modules within YetaWF that implement controllers derive from this class so controllers have access to module definitions.

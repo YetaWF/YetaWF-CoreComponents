@@ -1,8 +1,9 @@
-﻿using System;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;

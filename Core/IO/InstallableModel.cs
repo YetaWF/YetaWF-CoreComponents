@@ -7,7 +7,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.IO {
-    
+
     public interface IInstallableModel {
 
         /// <summary>

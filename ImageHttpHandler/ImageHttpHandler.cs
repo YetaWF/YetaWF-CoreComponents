@@ -19,9 +19,7 @@ using System.Web;
 using System.Web.SessionState;
 #endif
 
-namespace YetaWF.Core.HttpHandler
-{
-
+namespace YetaWF.Core.HttpHandler {
 
 #if MVC6
 

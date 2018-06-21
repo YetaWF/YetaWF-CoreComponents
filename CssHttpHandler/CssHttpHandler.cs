@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.IO;
 using System.Text;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;

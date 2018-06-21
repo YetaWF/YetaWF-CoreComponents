@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System.Threading.Tasks;
 using YetaWF.Core.Support;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;

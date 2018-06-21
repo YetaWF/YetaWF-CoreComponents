@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using YetaWF.Core.Image;
 using YetaWF.Core.IO;
 

@@ -10,6 +10,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -131,13 +132,13 @@ namespace YetaWF.Core.Controllers {
                 }
                 Manager.LastUpdated = requestedPage.Updated;
 
-                await Manager.AddOnManager.AddStandardAddOnsAsync();
+                await YetaWFCoreRendering.AddStandardAddOns();
                 await Manager.SetSkinOptions();
                 await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
-                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");
+                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");//$$$ move?
                 if (Manager.IsInPopup)
-                    await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");
+                    await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");//$$$ move?
 
                 string pageHtml;
 #if MVC6

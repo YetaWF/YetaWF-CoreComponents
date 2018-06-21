@@ -9,7 +9,6 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
-using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Localize;
@@ -66,19 +65,6 @@ namespace YetaWF.Core.Components {
                 modSettings.SetValue<GridSavedSettings>("GridSavedSettings", gridSavedSettings);
                 modSettings.Save();
             }
-        }
-        /// <summary>
-        /// Renders the url to save the column widths for a grid
-        /// </summary>
-        /// <param name="htmlHelper"></param>
-        /// <returns></returns>
-#if MVC6
-        public static HtmlString GetSettingsSaveColumnWidthsUrl(this IHtmlHelper htmlHelper) {
-#else
-        public static HtmlString GetSettingsSaveColumnWidthsUrl(this HtmlHelper<object> htmlHelper) {
-#endif
-            string settingsSaveUrl = YetaWFManager.UrlFor(typeof(YetaWF.Core.Controllers.Shared.GridHelperController), "GridSaveColumnWidths");
-            return new HtmlString(settingsSaveUrl);
         }
 
         public static void SaveSettings(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filter, Guid? settingsModuleGuid = null) {

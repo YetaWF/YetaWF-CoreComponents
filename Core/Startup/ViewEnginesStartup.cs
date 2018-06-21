@@ -1,8 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Web.Mvc;
 #endif
 using YetaWF.Core.Log;
-using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
 

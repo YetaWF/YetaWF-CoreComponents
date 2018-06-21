@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using System.Web;
 #if MVC6
 #else
 using System.Web.Mvc;
@@ -12,6 +13,7 @@ namespace YetaWF.Core.Components {
 
     public interface IYetaWFCoreRendering {
         Package GetImplementingPackage();
+        Task AddStandardAddOns();
         Task<YHtmlString> RenderModuleLinksAsync(ModuleDefinition mod, ModuleAction.RenderModeEnum renderMode, string cssClass);
         Task<YHtmlString> RenderModuleMenuAsync(ModuleDefinition mod);
 
@@ -39,7 +41,7 @@ namespace YetaWF.Core.Components {
             }
             set {
                 if (_render != null) throw new InternalError("IYetaWFCoreRendering handler already installed");
-                _render = value; 
+                _render = value;
             }
         }
         private static IYetaWFCoreRendering _render;
@@ -49,6 +51,10 @@ namespace YetaWF.Core.Components {
                 Package package = Render.GetImplementingPackage();
                 await Manager.AddOnManager.AddTemplateAsync(package.Domain, package.Product, uiHintTemplate);
             }
+        }
+
+        public static Task AddStandardAddOns() {
+            return Render.AddStandardAddOns();
         }
     }
 }

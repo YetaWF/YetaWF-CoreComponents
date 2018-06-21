@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Controllers.Shared {
+namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// SmtpServer template support.

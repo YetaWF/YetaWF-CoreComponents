@@ -1,4 +1,6 @@
-﻿#if MVC6
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+#if MVC6
 #else
 using System.Web;
 #endif

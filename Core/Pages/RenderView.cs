@@ -1,12 +1,16 @@
-﻿using System;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Web;
+using YetaWF.Core.Support;
+#if MVC6
+#else
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using System.Web.Routing;
-using YetaWF.Core.Support;
+#endif
 
 namespace YetaWF.Core.Views {
 

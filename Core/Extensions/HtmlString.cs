@@ -10,7 +10,7 @@ namespace YetaWF.Core.Extensions {
 
     public static class HtmlStringExtensions {
 
-        public static bool IsEmpty(this HtmlString htmlString) {
+        public static bool IsEmpty(this HtmlString htmlString) { //$$$REMOVE? not used in mvc5
             return htmlString.ToString().Length == 0;
         }
     }
