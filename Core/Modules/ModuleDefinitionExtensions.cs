@@ -107,7 +107,6 @@ namespace YetaWF.Core.Modules {
                 TagBuilder tag = new TagBuilder("div");
                 tag.Attributes.Add("id", Globals.IdEditControlDiv);
 
-
                 ModuleAction action = await mod.GetModuleActionAsync(Manager.EditMode ? "SwitchToView" : "SwitchToEdit");
                 if (Manager.EditMode) {
                     action.LinkText = __ResStr("editControlLinkToEdit", "Switch to Edit Mode");

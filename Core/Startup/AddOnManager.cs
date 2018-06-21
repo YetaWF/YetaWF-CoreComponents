@@ -53,10 +53,28 @@ namespace YetaWF.Core.Addons {
         /// <param name="productName">The package product name.</param>
         /// <param name="args">Any optional arguments supported by the addon.</param>
         /// <param name="name">The name of the addon.</param>
-        /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
+        /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.
+        /// Will fail if the addon doesn't exist.</remarks>
         public async Task AddAddOnNamedAsync(string domainName, string productName, string name, params object[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(domainName, productName, name);
+            if (_AddedProducts.Contains(version)) return;
+            _AddedProducts.Add(version);
+            await Manager.ScriptManager.AddAddOnAsync(version, args);
+            await Manager.CssManager.AddAddOnAsync(version, args);
+        }
+        /// <summary>
+        /// Add a named addon (normal) if it exists.
+        /// </summary>
+        /// <param name="domainName">The package domain name.</param>
+        /// <param name="productName">The package product name.</param>
+        /// <param name="args">Any optional arguments supported by the addon.</param>
+        /// <param name="name">The name of the addon.</param>
+        /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
+        public async Task TryAddAddOnNamedAsync(string domainName, string productName, string name, params object[] args) {
+            if (Manager.IsPostRequest) return;
+            VersionManager.AddOnProduct version = VersionManager.TryFindAddOnNamedVersion(domainName, productName, name);
+            if (version == null) return;
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);

@@ -51,6 +51,21 @@ namespace YetaWF.Core.Components {
             if (miAsync == null)
                 throw new InternalError($"View {viewName} ({viewType.FullName}) doesn't have a {methodName} method accepting a module type {moduleType.FullName} and model type {modelType.FullName}");
 
+            // Add support for this view
+            string shortName;
+            if (view.Package.IsCorePackage || view.Package.Product.StartsWith("Components")) {
+                shortName = viewName;
+            } else {
+                string[] s = viewName.Split(new char[] { '_' });
+#if DEBUG
+                if (s.Length != 3) throw new InternalError($"Invalid view name {viewName}");
+                if (s[0] != view.Package.Domain) throw new InternalError($"Invalid domain in view name {viewName}");
+                if (s[1] != view.Package.Product) throw new InternalError($"Invalid product in view name {viewName}");
+#endif
+                shortName = s[2];
+            }
+            await Manager.AddOnManager.TryAddAddOnNamedAsync(view.Package.Domain, view.Package.Product, shortName);
+
             // Invoke RenderViewAsync/RenderPartialViewAsync
             Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(view, new object[] { module, model });
             YHtmlString yhtml = await methStringTask;

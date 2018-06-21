@@ -1334,9 +1334,9 @@ namespace YetaWF.Core.Support {
 
         public ModuleDefinition CurrentModule { get; set; } // current module rendered
 
-        // COMPONENTS
-        // COMPONENTS
-        // COMPONENTS
+        // COMPONENTS/VIEWS
+        // COMPONENTS/VIEWS
+        // COMPONENTS/VIEWS
 
         public List<Package> ComponentPackagesSeen = new List<Package>();
 

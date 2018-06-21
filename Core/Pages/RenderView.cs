@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using YetaWF.Core.Support;
 #if MVC6
 #else
+using Microsoft.Web.Infrastructure.DynamicValidationHelper;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using System.Web.Routing;
@@ -26,13 +28,14 @@ namespace YetaWF.Core.Views {
 #endif
                 string actionName, string controllerName, string areaName, RouteValueDictionary routeValues) {
 
-            //$$$ HttpContext currentContext = HttpContext.Current;
-            //if (currentContext != null) {
-            //    bool? isRequestValidationEnabled = ValidationUtility.IsValidationEnabled(currentContext);
-            //    if (isRequestValidationEnabled == true) {
-            //        ValidationUtility.EnableDynamicValidation(currentContext);
-            //    }
-            //}
+            HttpContext currentContext = HttpContext.Current;
+            if (currentContext != null) {
+                bool? isRequestValidationEnabled = ValidationUtility.IsValidationEnabled(currentContext);
+                if (isRequestValidationEnabled == true) {
+                    ValidationUtility.EnableDynamicValidation(currentContext);
+                }
+            }
+
             routeValues["action"] = actionName;
             routeValues["controller"] = controllerName;
             routeValues["area"] = areaName;

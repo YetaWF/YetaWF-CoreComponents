@@ -108,7 +108,7 @@ namespace YetaWF.Core.Components {
         protected async Task<string> RenderBeginFormAsync(object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null, string ControllerName = null, bool Pure = false) {
 
             Manager.NextUniqueIdPrefix();
-            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");//$$$ not good here
 
             if (string.IsNullOrWhiteSpace(ActionName))
                 ActionName = GetViewName() + "_Partial";

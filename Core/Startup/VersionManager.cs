@@ -88,7 +88,7 @@ namespace YetaWF.Core.Addons {
                 if (type != AddOnType.AddonNamed && type != AddOnType.AddonJSGlobal)
                     if (name == null)
                         throw new InternalError("A name is required");
-                return (GetPrefix(type) + domain + "+" + product + (name != null ? "+" + name : "")).ToLower();
+                return $"{GetPrefix(type)}{domain}+{product}{(name != null ? $"+{name}" : "")}".ToLower();
             }
             internal static string MakeAddOnKey(AddOnType type, Package package, string name = null) {
                 return MakeAddOnKey(type, package.Domain, package.Product, name);
