@@ -14,14 +14,18 @@ using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using System.Linq;
-using System.IO;
 using YetaWF.Core.Components;
+using Microsoft.Extensions.DependencyInjection;
+using System.IO;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web;
@@ -716,7 +720,7 @@ namespace YetaWF.Core.Controllers {
             if (string.IsNullOrWhiteSpace(viewName))
                 throw new InternalError("Missing view name");
 
-            return new YetaWFViewResult(viewName, CurrentModule, model);
+            return new YetaWFViewResult(this, viewName, CurrentModule, model);
         }
 
         public class YetaWFViewResult : ActionResult {
@@ -724,37 +728,63 @@ namespace YetaWF.Core.Controllers {
             private ModuleDefinition Module { get; set; }
             private object Model { get; set; }
             private string ViewName { get; set; }
+            private YetaWFController RequestingController { get; set; }
 
-            public YetaWFViewResult(string viewName, ModuleDefinition module, object model) {
+            public YetaWFViewResult(YetaWFController requestingController, string viewName, ModuleDefinition module, object model) {
                 ViewName = viewName;
                 Module = module;
                 Model = model;
+                RequestingController = requestingController;
             }
+#if MVC6
+            public override async Task ExecuteResultAsync(ActionContext context) {
 
+                using (var sw = new StringWriter()) {
+                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    if (htmlHelper is IViewContextAware contextable) {
+                        var viewContext = new ViewContext(
+                            context,
+                            NullView.Instance,
+                            RequestingController.ViewData,
+                            RequestingController.TempData,
+                            sw,
+                            new HtmlHelperOptions()
+                        );
+                        contextable.Contextualize(viewContext);
+                    }
+                    YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+#if DEBUG
+                    if (sw.ToString().Length > 0)
+                        throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+#endif
+                    byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
+                    Stream body = context.HttpContext.Response.Body;
+                    body.Write(buffer, 0, buffer.Length);
+                }
+            }
+#else
             public override void ExecuteResult(ControllerContext context) {
 
                 TextWriter sw = context.HttpContext.Response.Output;
+                //$$$ use RequestingController?
                 ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
                 IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
                 HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
 
                 try {
-#if MVC6
-                    //$$$$
-                    YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
-                    sw.Write(data.ToString());
-#else
                     YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                         YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+#if DEBUG
+                        if (sw.ToString().Length > 0)
+                            throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+#endif
                         sw.Write(data.ToString());
                     });
-#endif
                 } catch (Exception) {
                     throw;
                 } finally { }
             }
-#if MVC6
-#else
+
             private class ViewImpl : IView {
                 public void Render(ViewContext viewContext, TextWriter writer) {
                     throw new NotImplementedException();

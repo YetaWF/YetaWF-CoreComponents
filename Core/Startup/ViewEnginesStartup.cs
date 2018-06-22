@@ -13,7 +13,7 @@ namespace YetaWF.Core.Support {
     public static class ViewEnginesStartup {
 
         /// <summary>
-        /// Update view engines so we can find our views.
+        /// Update view engines, we're not using any
         /// </summary>
 #if MVC6
         public static void Start(IServiceCollection services) {

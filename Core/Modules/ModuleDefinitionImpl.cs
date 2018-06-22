@@ -25,7 +25,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using YetaWF.Core.Controllers.Shared;
+using YetaWF.Core.Controllers;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -604,7 +604,7 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
+                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
                 YetaWFManager.Syncify(async () => {
                     moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
@@ -707,10 +707,7 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
 
             string moduleHtml = null;
 #if MVC6
-            if (!string.IsNullOrEmpty(Area))
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
-            else
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
+            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
             YetaWFManager.Syncify(async () => {
                 moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);

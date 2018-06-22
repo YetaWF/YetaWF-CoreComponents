@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 #if MVC6
+using Microsoft.AspNetCore.Html;
 #else
 using System.Web;
 #endif
@@ -28,7 +29,7 @@ namespace YetaWF.Core.Support {
         }
 
         public void SetInnerText(string text) {
-            InnerHtml = HttpUtility.HtmlEncode(text);
+            InnerHtml = YetaWFManager.HtmlEncode(text);
         }
 
         public string InnerHtml { get; set; }
@@ -103,7 +104,7 @@ namespace YetaWF.Core.Support {
                 string key = attribute.Key;
                 if (String.Equals(key, "id", StringComparison.Ordinal /* case-sensitive */) && String.IsNullOrEmpty(attribute.Value))
                     continue;
-                string value = HttpUtility.HtmlAttributeEncode(attribute.Value);
+                string value = YetaWFManager.HtmlAttributeEncode(attribute.Value);
                 sb.Append(' ').Append(key).Append("=\"").Append(value).Append('"');
             }
         }

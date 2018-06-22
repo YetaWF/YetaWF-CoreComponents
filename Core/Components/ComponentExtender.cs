@@ -10,6 +10,8 @@ using System.Reflection;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 #if MVC6
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Html;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -115,7 +117,7 @@ namespace YetaWF.Core.Components {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, HtmlAttributes, Validation, UIHint);
         }
 #if MVC6
-        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, string renderType, IHtmlHelper htmlHelper,
+        private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, IHtmlHelper htmlHelper,
 #else
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, HtmlHelper htmlHelper,
 #endif
@@ -252,8 +254,11 @@ namespace YetaWF.Core.Components {
 
                 YHtmlString yhtml = await methStringTask;
 #if DEBUG
-                if (yhtml.ToString().Contains("System.Threading.Tasks.Task"))
-                    throw new InternalError($"Component {templateName} contains System.Threading.Tasks.Task - check for missing \"await\"");
+                string s = yhtml.ToString();
+                if (s.Contains("System.Threading.Tasks.Task"))
+                    throw new InternalError($"Component {templateName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{s}\"");
+                if (s.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                    throw new InternalError($"Component {templateName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{s}\"");
 #endif
                 return yhtml;
             }

@@ -1,18 +1,19 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#if MVC6
+#else
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.Support;
-#if MVC6
-#else
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Web.Infrastructure.DynamicValidationHelper;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using System.Web.Routing;
-#endif
 
 namespace YetaWF.Core.Views {
 
@@ -20,13 +21,7 @@ namespace YetaWF.Core.Views {
 
         public static string RDVViewIndicator = "YetaWFView";
 
-        public static async Task<string> RenderViewAsync(
-#if MVC6
-            this IHtmlHelper htmlHelper,
-#else
-            this HtmlHelper htmlHelper,
-#endif
-                string actionName, string controllerName, string areaName, RouteValueDictionary routeValues) {
+        public static async Task<string> RenderViewAsync(this HtmlHelper htmlHelper, string actionName, string controllerName, string areaName, RouteValueDictionary routeValues) {
 
             HttpContext currentContext = HttpContext.Current;
             if (currentContext != null) {
@@ -40,6 +35,8 @@ namespace YetaWF.Core.Views {
             routeValues["controller"] = controllerName;
             routeValues["area"] = areaName;
 
+            string html = null;
+
             VirtualPathData vpd = htmlHelper.RouteCollection.GetVirtualPathForArea(htmlHelper.ViewContext.RequestContext, routeValues);
             if (vpd == null)
                 throw new InternalError($"No route found for {areaName}/{controllerName}/{actionName}");
@@ -52,11 +49,11 @@ namespace YetaWF.Core.Views {
             // Instantiate the controller and call Execute
             IControllerFactory factory = ControllerBuilder.Current.GetControllerFactory();
             IController controller = factory.CreateController(requestContext, controllerName);
+
             if (controller == null)
                 throw new InternalError($"Controller {controllerName} not found");
 
             TextWriter oldOutput = YetaWFManager.Manager.CurrentContext.Response.Output;
-            string html = null;
             try {
                 using (var sw = new StringWriter()) {
 
@@ -78,7 +75,6 @@ namespace YetaWF.Core.Views {
 
                 YetaWFManager.Manager.CurrentContext.Response.Output = oldOutput;
             }
-
             return html;
         }
 
@@ -100,3 +96,5 @@ namespace YetaWF.Core.Views {
         }
     }
 }
+
+#endif

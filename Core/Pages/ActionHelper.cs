@@ -14,10 +14,9 @@ using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 
-namespace YetaWF.Core.Controllers {
+namespace YetaWF.Core.Pages {
 
     // Inspired by http://stackoverflow.com/questions/26916664/html-action-in-asp-net-core
-    // $$$ REMOVE
 
     public static class HtmlHelperActionExtensions {
 
@@ -67,7 +66,7 @@ namespace YetaWF.Core.Controllers {
             RouteContext routeContext = new RouteContext(httpContext) { RouteData = routeData };
             var candidates = actionSelector.SelectCandidates(routeContext);
             if (candidates == null || candidates.Count == 0)
-                throw new InternalError("No route cadidates found - /{0}/{1}/{2}", area, controller, action);
+                throw new InternalError("No route candidates found - /{0}/{1}/{2}", area, controller, action);
 
             string content = null;
             ActionDescriptor actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);

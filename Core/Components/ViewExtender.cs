@@ -7,6 +7,7 @@ using System.Reflection;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Extensions;
 #if MVC6
+using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
 #endif
@@ -54,9 +55,9 @@ namespace YetaWF.Core.Components {
             // Add support for this view
             string shortName;
             if (view.Package.IsCorePackage || view.Package.Product.StartsWith("Components")) {
-                shortName = viewName;
+                shortName = v;
             } else {
-                string[] s = viewName.Split(new char[] { '_' });
+                string[] s = v.Split(new char[] { '_' });
 #if DEBUG
                 if (s.Length != 3) throw new InternalError($"Invalid view name {viewName}");
                 if (s[0] != view.Package.Domain) throw new InternalError($"Invalid domain in view name {viewName}");
@@ -70,8 +71,11 @@ namespace YetaWF.Core.Components {
             Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(view, new object[] { module, model });
             YHtmlString yhtml = await methStringTask;
 #if DEBUG
-            if (yhtml.ToString().Contains("System.Threading.Tasks.Task"))
-                throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\"");
+            string html = yhtml.ToString();
+            if (html.ToString().Contains("System.Threading.Tasks.Task"))
+                throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{html}\"");
+            if (html.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                throw new InternalError($"View {viewName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{html}\"");
 #endif
             return yhtml;
         }

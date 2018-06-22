@@ -8,7 +8,12 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc;
 #if MVC6
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -31,7 +36,7 @@ namespace YetaWF.Core.Components {
             Package = GetPackage();
         }
 #if MVC6
-        public IHtmlHelper htmlHelper
+        public IHtmlHelper HtmlHelper
 #else
         public HtmlHelper HtmlHelper
 #endif
@@ -111,7 +116,9 @@ namespace YetaWF.Core.Components {
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");//$$$ not good here
 
             if (string.IsNullOrWhiteSpace(ActionName))
-                ActionName = GetViewName() + "_Partial";
+                ActionName = GetViewName();
+            if (!ActionName.EndsWith(YetaWFViewExtender.PartialSuffix))
+                ActionName += YetaWFViewExtender.PartialSuffix;
             if (string.IsNullOrWhiteSpace(ControllerName))
                 ControllerName = ModuleBase.Controller;
 
@@ -126,12 +133,17 @@ namespace YetaWF.Core.Components {
                 css = YetaWFManager.CombineCss(css, Forms.CssFormAjax);
                 rvd.Add("class", css);
             }
-#if MVC6
-            //$$$verify MVC6 Source
-#endif
+
             YTagBuilder tagBuilder = new YTagBuilder("form");
             tagBuilder.MergeAttributes(rvd, true);
-            string formAction = UrlHelper.GenerateUrl(null /* routeName */, ActionName, ControllerName, null, HtmlHelper.RouteCollection, HtmlHelper.ViewContext.RequestContext, true /* includeImplicitMvcValues */);
+            string formAction;
+#if MVC6
+            IServiceProvider services = HtmlHelper.ViewContext.HttpContext.RequestServices;
+            IUrlHelper urlHelper = services.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(HtmlHelper.ViewContext);
+            formAction = urlHelper.Action(action: ActionName, controller: ControllerName);
+#else
+            formAction = UrlHelper.GenerateUrl(null /* routeName */, ActionName, ControllerName, null, HtmlHelper.RouteCollection, HtmlHelper.ViewContext.RequestContext, true /* includeImplicitMvcValues */);
+#endif
             tagBuilder.MergeAttribute("action", formAction, true);
             tagBuilder.MergeAttribute("method", "post", true);
 
@@ -143,7 +155,11 @@ namespace YetaWF.Core.Components {
         private IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
+#if MVC6
+            return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+#else
             return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+#endif
         }
 
         // PartialForm rendering called during regular form processing (not ajax)

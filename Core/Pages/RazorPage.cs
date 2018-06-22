@@ -28,7 +28,7 @@ namespace YetaWF.Core.Pages
 
     // used by pages
 #if MVC6
-    public class RazorPage : Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel> {
+    public class RazorPage : Microsoft.AspNetCore.Mvc.Razor.RazorPage<object> {
 
         public RazorPage() : base() {  }
 
@@ -43,7 +43,7 @@ namespace YetaWF.Core.Pages
         public override void Execute() { }
 #endif
 #if MVC6
-        internal IHtmlHelper<TModel> GetHtml() {
+        internal IHtmlHelper<object> GetHtml() {
             dynamic page = this;
             return page.Html;
         }

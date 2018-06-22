@@ -5,7 +5,9 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Routing;
 #if MVC6
+using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -32,7 +34,7 @@ namespace YetaWF.Core.Components {
         }
 
 #if MVC6
-        public void SetRenderInfo(IHtmlHelper htmlHelper, 
+        public void SetRenderInfo(IHtmlHelper htmlHelper,
 #else
         public void SetRenderInfo(HtmlHelper htmlHelper,
 #endif
@@ -52,11 +54,15 @@ namespace YetaWF.Core.Components {
         public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
+#if MVC6
+            return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+#else
             return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+#endif
         }
 
 #if MVC6
-        public IHtmlHelper htmlHelper
+        public IHtmlHelper HtmlHelper
 #else
         public HtmlHelper HtmlHelper
 #endif
@@ -91,7 +97,7 @@ namespace YetaWF.Core.Components {
         }
         string _propertyName;
 
-        public PropertyData PropData { 
+        public PropertyData PropData {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
                 return _propData;

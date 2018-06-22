@@ -16,6 +16,10 @@ using YetaWF.Core.Models;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -501,7 +505,7 @@ namespace YetaWF.Core.Controllers
                     if (Module == null) throw new InternalError("Can't use AreaViewName without module context");
                     if (String.IsNullOrEmpty(ViewName)) {
                         if (!string.IsNullOrWhiteSpace(Module.DefaultViewName))
-                            ViewName = Module.DefaultViewName + "_Partial";
+                            ViewName = Module.DefaultViewName + YetaWFViewExtender.PartialSuffix;
                     } else {
                         ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
                     }
@@ -528,47 +532,52 @@ namespace YetaWF.Core.Controllers
                 Manager.CurrentModule = Module;
 
                 string viewHtml;
-#if MVC6
-                bool inPartialView = Manager.InPartialView;
-                Manager.InPartialView = true;
-                try {
-                    IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
-                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
-                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRenderAsync);
-                } catch (Exception) {
-                    throw;
-                } finally {
-                    Manager.InPartialView = inPartialView;
-                }
-#else
-
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
+
+#if MVC6
+                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    if (htmlHelper is IViewContextAware contextable) {
+                        ViewContext viewContext = new ViewContext(context, NullView.Instance, this.ViewData, this.TempData, sw, new HtmlHelperOptions());
+                        contextable.Contextualize(viewContext);
+                    }
+#else
                     ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
                     IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
                     HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+#endif
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
 
                     bool inPartialView = Manager.InPartialView;
                     try {
+#if MVC6
+                        viewHtml = (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
+#else
                         viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                             return (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
                         });
+#endif
                     } catch (Exception) {
                         throw;
                     } finally {
                         Manager.InPartialView = inPartialView;
                     }
+#if MVC6
+                    viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
+#else
                     YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                         viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
                     });
+#endif
                 }
+#if DEBUG
                 if (sb.Length > 0)
                     throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sb.ToString()}\"");
-
-                Manager.CurrentModule = oldMod;
 #endif
-                if (Gzip) {
+
+                    Manager.CurrentModule = oldMod;
+
+                    if (Gzip) {
                     // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
                     // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
 #if MVC6

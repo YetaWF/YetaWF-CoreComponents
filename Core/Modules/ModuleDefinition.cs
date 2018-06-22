@@ -13,6 +13,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Components;
 #if MVC6
+using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
 #endif
