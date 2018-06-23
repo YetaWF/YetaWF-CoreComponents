@@ -16,19 +16,18 @@ using YetaWF.Core.Models;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
-using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.IO;
-using Microsoft.Extensions.DependencyInjection;
 #if MVC6
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using YetaWF.Core.Pages;
 #else
-using System.IO;
 using System.IO.Compression;
 using System.Web;
 using System.Web.Mvc;

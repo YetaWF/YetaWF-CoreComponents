@@ -8,12 +8,12 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views;
+#if MVC6
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
-#if MVC6
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
 #else
 using System.Web.Mvc;
 using System.Web.Routing;

@@ -3,17 +3,16 @@
 #if MVC6
 #else
 
+using Microsoft.Web.Infrastructure.DynamicValidationHelper;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using YetaWF.Core.Support;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.Web.Infrastructure.DynamicValidationHelper;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using System.Web.Routing;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views {
 
@@ -21,7 +20,7 @@ namespace YetaWF.Core.Views {
 
         public static string RDVViewIndicator = "YetaWFView";
 
-        public static async Task<string> RenderViewAsync(this HtmlHelper htmlHelper, string actionName, string controllerName, string areaName, RouteValueDictionary routeValues) {
+        public static async Task<string> ActionAsync(this HtmlHelper htmlHelper, string actionName, string controllerName, string areaName, RouteValueDictionary routeValues) {
 
             HttpContext currentContext = HttpContext.Current;
             if (currentContext != null) {

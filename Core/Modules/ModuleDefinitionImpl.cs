@@ -607,7 +607,7 @@ namespace YetaWF.Core.Modules {
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
                 YetaWFManager.Syncify(async () => {
-                    moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
+                    moduleHtml = await htmlHelper.ActionAsync(Action, Controller, Area, rvd);
                 });
 #endif
             } catch (Exception exc) {
@@ -710,7 +710,7 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
             YetaWFManager.Syncify(async () => {
-                moduleHtml = await htmlHelper.RenderViewAsync(Action, Controller, Area, rvd);
+                moduleHtml = await htmlHelper.ActionAsync(Action, Controller, Area, rvd);
             });
 #endif
             Manager.CurrentModule = oldMod;
