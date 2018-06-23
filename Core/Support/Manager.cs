@@ -1463,19 +1463,6 @@ namespace YetaWF.Core.Support {
         /// <remarks>Site specific data is always imported</remarks>
         public bool ImportChunksNonSiteSpecifics { get; set; }
 
-        // CONTROLINFOOVERRIDE
-        // CONTROLINFOOVERRIDE
-        // CONTROLINFOOVERRIDE
-
-        /// <summary>
-        /// AdditionalValues meta data overrides for current control being processed
-        /// </summary>
-#if MVC6
-        public IReadOnlyDictionary<object, object> ControlInfoOverrides { get; set; }
-#else
-        public Dictionary<string, object> ControlInfoOverrides { get; set; } //$$$
-#endif
-
         // UTILITY
         // UTILITY
         // UTILITY

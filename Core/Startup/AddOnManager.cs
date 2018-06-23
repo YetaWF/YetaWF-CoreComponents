@@ -243,7 +243,7 @@ namespace YetaWF.Core.Addons {
             }
         }
 
-        public async Task AddSkinBasedAddOnsAsync() { //$$$ should this be in ComponentsHTML
+        public async Task AddSkinBasedAddOnsAsync() {
             SkinAccess skinAccess = new SkinAccess();
 
             // Find the jquery theme

@@ -720,6 +720,7 @@ namespace YetaWF.Core.Controllers {
             if (string.IsNullOrWhiteSpace(viewName))
                 throw new InternalError("Missing view name");
 
+            ViewData.Model = model;
             return new YetaWFViewResult(this, viewName, CurrentModule, model);
         }
 
