@@ -10,7 +10,7 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+ClassData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="YetaWF.Core.Views.Shared.PageDefinitionsHelper+GridDisplay" />
+                <Name Value="YetaWF.Core.Localize.LocalizationData+ClassData" />
                 <BaseTypeName />
                 <Header />
                 <Footer />
@@ -28,9 +28,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="Description" />
-                            <Caption Value="Description" />
-                            <Description Value="The page description (not usually visible, entered by page designer, used for search keywords)" />
+                            <Name Value="Footer" />
+                            <Caption Value="Class Footer" />
+                            <Description Value="Text found in [FooterAttribute(...)]" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -40,9 +40,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="Title" />
-                            <Caption Value="Title" />
-                            <Description Value="The page title which will appear as title in the browser window" />
+                            <Name Value="Header" />
+                            <Caption Value="Class Header" />
+                            <Description Value="Text found in [HeaderAttribute(...)]" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />
@@ -52,9 +52,9 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+PropertyData" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="Url" />
-                            <Caption Value="Url" />
-                            <Description Value="The Url used to identify this page" />
+                            <Name Value="Legend" />
+                            <Caption Value="Class Legend" />
+                            <Description Value="Text found in [LegendAttribute(...)]" />
                             <HelpLink />
                             <TextAbove />
                             <TextBelow />

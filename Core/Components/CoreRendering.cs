@@ -26,8 +26,7 @@ namespace YetaWF.Core.Components {
 #endif
             );
 
-        Task<YHtmlString> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string id,
-            bool NewWindow = false, bool Popup = false, bool PopupEdit = false, bool Post = false, bool Nothing = false, bool OuterWindow = false);
+        Task<YHtmlString> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string id);
         Task<YHtmlString> RenderFormButtonAsync(FormButton formButton);
     }
 

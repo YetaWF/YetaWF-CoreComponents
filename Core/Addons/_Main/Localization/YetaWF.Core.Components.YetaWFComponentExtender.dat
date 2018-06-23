@@ -22,16 +22,8 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="default" />
-                <Text Value="(Site Default)" />
-              </Properties>
-            </Object>
-          </Value>
-          <Value>
-            <Object Type="YetaWF.Core.Localize.LocalizationData+StringData" Assembly="YetaWF.Core">
-              <Properties>
-                <Name Value="defaultTT" />
-                <Text Value="Use the site defined default theme" />
+                <Name Value="showVarFmt" />
+                <Text Value="{0} (Variable {1})" />
               </Properties>
             </Object>
           </Value>

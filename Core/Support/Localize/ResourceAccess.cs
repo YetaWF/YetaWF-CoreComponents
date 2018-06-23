@@ -35,10 +35,10 @@ namespace YetaWF.Core.Localize {
         {
             if (LocalizationSupport.UseLocalizationResources) {
                 string fullName = type.FullName;
-                if (fullName.Contains("_Shared_DisplayTemplates_") || fullName.Contains("_Shared_EditorTemplates_") || fullName.Contains(".Shared.DisplayTemplates.") || fullName.Contains(".Shared.EditorTemplates.")) {
-                    // template implementations use the base class to store resources
-                    type = type.BaseType;
-                }
+                //if (...) {
+                //    // use the base class to store resources
+                //    type = type.BaseType;
+                //}
                 fullName = type.FullName.Split(new char[] { '`' }).First(); // chop off any generics <>
                 string text;
                 LocalizationData locData = LocalizationSupport.Load(Package.GetPackageFromAssembly(type.Assembly), fullName, LocalizationSupport.Location.Merge);

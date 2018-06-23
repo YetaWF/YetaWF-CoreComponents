@@ -207,7 +207,7 @@ namespace YetaWF.Core.Packages {
             if (strings.Count > 0) {
 
                 if (string.IsNullOrWhiteSpace(cls))
-                    throw new InternalError("File {0} can't contain resource string definitions because its class doesn't support resource access");
+                    throw new InternalError($"File {file} can't contain resource string definitions because its class doesn't support resource access");
 
                 string filename = string.Format("{0}.{1}", ns, cls);
                 LocalizationData data = LocalizationSupport.Load(this, filename, LocalizationSupport.Location.DefaultResources);
@@ -234,7 +234,7 @@ namespace YetaWF.Core.Packages {
             return m.Groups["namespace"].Value;
         }
 
-        private static readonly Regex csClassRegex = new Regex("(?'leadspace'[\t ]*)public\\s+(static\\s+|partial\\s+){0,1}class\\s+(?'class'[A-Za-z0-9_]+)\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex csClassRegex = new Regex("(?'leadspace'[\t ]*)public\\s+(static\\s+|(abstract\\s+|)partial\\s+){0,1}class\\s+(?'class'[A-Za-z0-9_]+)\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly Regex csCombResRegex = new Regex(@"\[\s*CombinedResources\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private string GetCsFileClass(string fileName, string fileText) {
@@ -304,7 +304,7 @@ namespace YetaWF.Core.Packages {
             if (strings.Count > 0) {
 
                 if (string.IsNullOrWhiteSpace(cls))
-                    throw new InternalError("File {0} can't contain resource string definitions because its class doesn't support resource access", file);
+                    throw new InternalError($"File {file} can't contain resource string definitions because its class doesn't support resource access", file);
 
                 string filename = cls;
                 LocalizationData data = LocalizationSupport.Load(this, filename, LocalizationSupport.Location.DefaultResources);

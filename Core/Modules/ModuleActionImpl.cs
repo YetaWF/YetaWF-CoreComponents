@@ -71,55 +71,8 @@ namespace YetaWF.Core.Modules {
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
         public async Task<YHtmlString> RenderAsync(RenderModeEnum mode, string Id = null) {
 
-            // check if we're in the right mode
-            if (!await RendersSomethingAsync()) return new YHtmlString("");
+            return await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id);
 
-            if (!string.IsNullOrWhiteSpace(ConfirmationText) && (Style != ActionStyleEnum.Post && Style != ActionStyleEnum.Nothing))
-                throw new InternalError("When using ConfirmationText, the Style property must be set to Post");
-            if (!string.IsNullOrWhiteSpace(PleaseWaitText) && (Style != ActionStyleEnum.Normal && Style != ActionStyleEnum.Post))
-                throw new InternalError("When using PleaseWaitText, the Style property must be set to Normal or Post");
-            if (CookieAsDoneSignal && Style != ActionStyleEnum.Normal)
-                throw new InternalError("When using CookieAsDoneSignal, the Style property must be set to Normal");
-
-            ActionStyleEnum style = Style;
-            if (style == ActionStyleEnum.OuterWindow)
-                if (!Manager.IsInPopup)
-                    style = ActionStyleEnum.Normal;
-
-            if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit)
-                if (Manager.IsInPopup)
-                    style = ActionStyleEnum.NewWindow;
-
-            if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit || style == ActionStyleEnum.ForcePopup)
-                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");// this is needed for popup support //$$$$$this probably needs to move
-
-            YHtmlString text = null;
-            switch (style) {
-                default:
-                case ActionStyleEnum.Normal:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id);
-                    break;
-                case ActionStyleEnum.NewWindow:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, NewWindow: true);
-                    break;
-                case ActionStyleEnum.Popup:
-                case ActionStyleEnum.ForcePopup:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, Popup: Manager.CurrentSite.AllowPopups);
-                    break;
-                case ActionStyleEnum.PopupEdit:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, Popup: Manager.CurrentSite.AllowPopups, PopupEdit: Manager.CurrentSite.AllowPopups);
-                    break;
-                case ActionStyleEnum.OuterWindow:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, OuterWindow: true);
-                    break;
-                case ActionStyleEnum.Nothing:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, Nothing: true);
-                    break;
-                case ActionStyleEnum.Post:
-                    text = await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, Post: true);
-                    break;
-            }
-            return text;
         }
 
         public string GetCompleteUrl(bool OnPage = false) {

@@ -16,7 +16,7 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="YetaWF.Core.Views.Shared.RecaptchaConfig+ThemeEnum" />
+                <Name Value="YetaWF.Core.Components.Grid+GridActionsEnum" />
                 <Entries>
                   <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
@@ -24,40 +24,20 @@
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="Red" />
-                            <Value Value="Red" />
-                            <Caption Value="Red" />
-                            <Description />
+                            <Name Value="Icons" />
+                            <Value Value="Icons" />
+                            <Caption Value="Icons" />
+                            <Description Value="Actions in grids are displayed as icons" />
                           </Properties>
                         </Object>
                       </Value>
                       <Value>
                         <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
                           <Properties>
-                            <Name Value="White" />
-                            <Value Value="White" />
-                            <Caption Value="White" />
-                            <Description />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="Blackglass" />
-                            <Value Value="Blackglass" />
-                            <Caption Value="Black" />
-                            <Description />
-                          </Properties>
-                        </Object>
-                      </Value>
-                      <Value>
-                        <Object Type="YetaWF.Core.Localize.LocalizationData+EnumDataEntry" Assembly="YetaWF.Core">
-                          <Properties>
-                            <Name Value="Clean" />
-                            <Value Value="Clean" />
-                            <Caption Value="Clean" />
-                            <Description />
+                            <Name Value="DropdownMenu" />
+                            <Value Value="DropdownMenu" />
+                            <Caption Value="Dropdown Menu" />
+                            <Description Value="If more than one action is available they are displayed as a dropdown menu, accessible through a button - Otherwise a single icon is displayed" />
                           </Properties>
                         </Object>
                       </Value>

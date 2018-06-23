@@ -16,7 +16,7 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="YetaWF.Core.Views.Shared.RecaptchaV2Config+SizeEnum" />
+                <Name Value="YetaWF.Core.Components.RecaptchaV2Config+SizeEnum" />
                 <Entries>
                   <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
@@ -50,7 +50,7 @@
           <Value>
             <Object Type="YetaWF.Core.Localize.LocalizationData+EnumData" Assembly="YetaWF.Core">
               <Properties>
-                <Name Value="YetaWF.Core.Views.Shared.RecaptchaV2Config+ThemeEnum" />
+                <Name Value="YetaWF.Core.Components.RecaptchaV2Config+ThemeEnum" />
                 <Entries>
                   <Object Type="YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+EnumDataEntry, YetaWF.Core]]" Assembly="YetaWF.Core">
                     <Properties />
