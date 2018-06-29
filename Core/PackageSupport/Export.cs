@@ -1,10 +1,14 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
+using YetaWF.Core.Language;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -72,11 +76,24 @@ namespace YetaWF.Core.Packages {
             }
             // Source code
             if (SourceCode) {
+                // package source
                 serPackage.SourceFiles.AddRange(await ProcessAllFilesAsync(PackageSourceRoot, ExcludedFilesSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
                 await ProcessSourceFilesAsync(zipFile, serPackage.SourceFiles);
                 foreach (var file in serPackage.SourceFiles) {
                     zipFile.AddFile(file.AbsFileName, file.FileName);
                 }
+            }
+            // localization
+            foreach (LanguageData languageData in MultiString.Languages) {
+                List<string> files = await LocalizationSupport.GetFilesAsync(this, languageData.Id);
+                foreach (string file in files) {
+                    SerializableFile serFile = new SerializableFile(file, ExternalRoot: YetaWFManager.RootFolderWebProject);
+                    serFile.FileDate = await FileSystem.FileSystemProvider.GetCreationTimeUtcAsync(serFile.AbsFileName);
+                    serPackage.LocalizationFiles.Add(serFile);
+                }
+            }
+            foreach (SerializableFile file in serPackage.LocalizationFiles) {
+                zipFile.AddFile(file.AbsFileName, file.FileName);
             }
 
             // serialize package contents

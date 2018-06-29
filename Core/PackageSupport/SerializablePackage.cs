@@ -20,7 +20,7 @@ namespace YetaWF.Core.Packages {
 
         public SerializableList<SerializableFile> BinFiles { get; set; }
         public SerializableList<SerializableFile> AddOns { get; set; }
-        public SerializableList<SerializableFile> Views { get; set; }
+        public SerializableList<SerializableFile> LocalizationFiles { get; set; }
         public SerializableList<SerializableFile> SourceFiles { get; set; }
         public string PackageDomain { get; set; }
         public string PackageProduct { get; set; }
@@ -28,7 +28,7 @@ namespace YetaWF.Core.Packages {
         public SerializablePackage() {
             BinFiles = new SerializableList<SerializableFile>();
             AddOns = new SerializableList<SerializableFile>();
-            Views = new SerializableList<SerializableFile>();
+            LocalizationFiles = new SerializableList<SerializableFile>();
             SourceFiles = new SerializableList<SerializableFile>();
         }
     }
