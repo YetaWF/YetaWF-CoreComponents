@@ -64,6 +64,7 @@ namespace YetaWF.Core.Components {
 #if MVC6
         public IHtmlHelper HtmlHelper
 #else
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public HtmlHelper HtmlHelper
 #endif
         {
@@ -86,6 +87,7 @@ namespace YetaWF.Core.Components {
             get { return _propertyName == null; }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string PropertyName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
@@ -97,6 +99,7 @@ namespace YetaWF.Core.Components {
         }
         string _propertyName;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public PropertyData PropData {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
@@ -110,6 +113,7 @@ namespace YetaWF.Core.Components {
 
         public string FieldNamePrefix { get; private set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string FieldName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
@@ -124,6 +128,7 @@ namespace YetaWF.Core.Components {
         public IDictionary<string, object> HtmlAttributes { get; private set; }
         public bool Validation { get; private set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFComponentBase() {
             Package = GetPackage();
         }

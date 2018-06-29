@@ -24,6 +24,8 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
     [Trim]
     public partial class ModuleDefinition {
 
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
+
         public const int MaxName = 80;
         public const int MaxDescription = 200;
         public const int MaxTitle = 100;

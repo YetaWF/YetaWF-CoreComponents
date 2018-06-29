@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
@@ -44,6 +45,11 @@ namespace YetaWF.Core.IO {
         /// Imports all data this model implements (in model defined chunk increments (0..n))
         /// </summary>
         Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
+
+        /// <summary>
+        /// Translate all data for this model into the specified language.
+        /// </summary>
+        Task LocalizeModelAsync(string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync);
     }
     public interface IInstallableModel2 {
         /// <summary>

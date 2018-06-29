@@ -401,20 +401,6 @@ namespace YetaWF.Core.Addons {
             }
         }
         /// <summary>
-        /// Returns the path to the site's Views folder
-        /// </summary>
-        private static string AreasFolder {
-            get {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
-                return Path.Combine(rootFolder, Globals.AreasFolder);
-            }
-        }
-        /// <summary>
         /// Returns the URL of the Addons folder
         /// </summary>
         public static string AddOnsUrl {
@@ -467,25 +453,25 @@ namespace YetaWF.Core.Addons {
                                     throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                             }
                         }
-                        // Make a symlink to the views for this package
-                        {
-                            string to = Path.Combine(package.PackageSourceRoot, Globals.ViewsFolder);
-                            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(to)) {// skins and some modules don't have views
-                                string viewsPath = Path.Combine(AreasFolder, package.AreaName);
-                                if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath))
-                                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(viewsPath);
-                                viewsPath = Path.Combine(viewsPath, Globals.ViewsFolder);
-                                if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath) || !await Package.IsPackageSymLinkAsync(viewsPath)) {
-                                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
-                                    if (!await Package.CreatePackageSymLinkAsync(viewsPath, to))
-                                        throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
-                                }
-                            } else {
-                                // remove any symlinks that may point to a Views folder in source that no longer exists
-                                string viewsPath = Path.Combine(AreasFolder, package.AreaName, Globals.ViewsFolder);
-                                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
-                            }
-                        }
+                        //// Make a symlink to the views for this package
+                        //{
+                        //    string to = Path.Combine(package.PackageSourceRoot, Globals.ViewsFolder);
+                        //    if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(to)) {// skins and some modules don't have views
+                        //        string viewsPath = Path.Combine(AreasFolder, package.AreaName);
+                        //        if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath))
+                        //            await FileSystem.FileSystemProvider.CreateDirectoryAsync(viewsPath);
+                        //        viewsPath = Path.Combine(viewsPath, Globals.ViewsFolder);
+                        //        if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath) || !await Package.IsPackageSymLinkAsync(viewsPath)) {
+                        //            await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
+                        //            if (!await Package.CreatePackageSymLinkAsync(viewsPath, to))
+                        //                throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
+                        //        }
+                        //    } else {
+                        //        // remove any symlinks that may point to a Views folder in source that no longer exists
+                        //        string viewsPath = Path.Combine(AreasFolder, package.AreaName, Globals.ViewsFolder);
+                        //        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
+                        //    }
+                        //}
                     } else {
                         // no source
                     }

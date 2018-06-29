@@ -53,6 +53,7 @@ namespace YetaWF.Core.Controllers
         /// <summary>
         /// Constructor.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         protected YetaWFController() {
             // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
             // This also means we don't need AllowHtml attributes
@@ -80,6 +81,7 @@ namespace YetaWF.Core.Controllers
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller (if any). Can be used with a base class to get the derived module's module definitions.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected virtual ModuleDefinition CurrentModule {
             get {
                 if (_currentModule == null) throw new InternalError("No saved module");

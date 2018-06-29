@@ -67,6 +67,7 @@ namespace YetaWF.Core.IO {
                 try {
                     fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(FullPath);
                 } catch (Exception exc) {
+                    if (exc is System.IO.IOException) return default(TObj); // this can happen if we're trying to load properties while serializing the same properties (file in use)
                     if (!(exc is FileNotFoundException || exc is DirectoryNotFoundException)) throw;
                     return default(TObj);
                 }

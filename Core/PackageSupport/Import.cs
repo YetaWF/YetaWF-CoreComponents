@@ -20,7 +20,7 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         public static async Task<bool> ImportAsync(string zipFileName, List<string> errorList) {
 
@@ -121,20 +121,6 @@ namespace YetaWF.Core.Packages {
                 } catch (Exception exc) {
                     if (!(exc is DirectoryNotFoundException)) {
                         errorList.Add(__ResStr("cantDeleteAddons", "Site Addons folder {0} could not be deleted: {1}", addonsPath, ErrorHandling.FormatExceptionMessage(exc)));
-                        return false;
-                    }
-                }
-                string viewsPath;
-#if MVC6
-                viewsPath = Path.Combine(YetaWFManager.RootFolderWebProject, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-#else
-                viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-#endif
-                try {
-                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(viewsPath));
-                } catch (Exception exc) {
-                    if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantDeleteViews", "Site Views folder {0} could not be deleted: {1}", viewsPath, ErrorHandling.FormatExceptionMessage(exc)));
                         return false;
                     }
                 }

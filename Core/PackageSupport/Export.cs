@@ -15,7 +15,7 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         public const string PackageIDFile = "Package.txt";
         public const string PackageIDDataFile = "PackageData.txt";
@@ -68,18 +68,6 @@ namespace YetaWF.Core.Packages {
                     foreach (var file in serPackage.AddOns) {
                         zipFile.AddFile(file.AbsFileName, file.FileName);
                     }
-                }
-                // Views
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
-                string viewsPath = Path.Combine(rootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-                serPackage.Views.AddRange(await ProcessAllFilesAsync(viewsPath, ExcludedFilesViewsNoSource));
-                foreach (var file in serPackage.Views) {
-                    zipFile.AddFile(file.AbsFileName, file.FileName);
                 }
             }
             // Source code

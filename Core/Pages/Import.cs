@@ -18,6 +18,8 @@ namespace YetaWF.Core.Pages {
 
     public partial class PageDefinition {
 
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); } */
+
         private static readonly string ModuleContentsFile = "Contents.xml";
 
         public class ImportInfo {

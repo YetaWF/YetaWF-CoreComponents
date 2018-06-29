@@ -118,11 +118,15 @@ namespace YetaWF.Core {
         public const string Addons_TemplatesDirectoryName = "_Templates";
         public const string Addons_ModulesDirectoryName = "_Modules";
         public const string Addons_SkinsDirectoryName = "_Skins";
+
+        public const string Addons_JSFileList = "filelistJS.txt";
+        public const string Addons_CSSFileList = "filelistCSS.txt";
+        public const string Addons_SupportFileList = "Support.txt";
+
         public const string SiteFilesUrl = "/SiteFiles/";
         public const string VaultUrl = "/" + VaultFolder + "/";
         public const string VaultPrivateUrl = "/" + VaultPrivateFolder + "/";
 
-        public const string LibUrl = "/lib/";
         public const string LibFolder = "lib";
 
         public const string NodeModulesFolder = "node_modules";
@@ -131,14 +135,6 @@ namespace YetaWF.Core {
         public const string BowerComponentsUrl = "/bower_components/";
 
         public const string TempImagesFolder = "_img_";
-
-        public const string Addons_JSFileList = "filelistJS.txt";
-        public const string Addons_CSSFileList = "filelistCSS.txt";
-        public const string Addons_SupportFileList = "Support.txt";
-
-        // Areas
-        public const string AreasFolder = "Areas";
-        public const string ViewsFolder = "Views";
 
         // Module format strings
         public const string PermanentModuleNameFormat = "{0}.{1}";

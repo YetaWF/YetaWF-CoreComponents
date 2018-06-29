@@ -32,12 +32,14 @@ namespace YetaWF.Core.Components {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFViewBase() {
             Package = GetPackage();
         }
 #if MVC6
         public IHtmlHelper HtmlHelper
 #else
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public HtmlHelper HtmlHelper
 #endif
         {

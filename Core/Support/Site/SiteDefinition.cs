@@ -717,7 +717,7 @@ namespace YetaWF.Core.Site {
 
         public Guid ModuleControlServicesFallback { get { return new Guid("{96CAEAD9-068D-4b83-8F46-5269834F3B16}"); } }// ModuleControl module
         public Guid ModuleEditingServicesFallback { get { return new Guid("{ACDC1453-32BD-4de2-AB2B-7BF5CE217762}"); } }// ModuleEdit module
-        public Guid PackageLocalizationServicesFallback { get { return new Guid("{b30d6119-4769-4702-88d8-585ee4ebd4a7}"); } }// LocalizeEditFileModule module
+        public Guid PackageLocalizationServicesFallback { get { return new Guid("{b30d6119-4769-4702-88d8-585ee4ebd4a7}"); } }// LocalizeBrowsePackageModule module
         public Guid MenuServicesFallback { get { return new Guid("{59909BB1-75F4-419f-B961-8569BB282131}"); } }// MainMenuModule module
 
         // PAGE CONTROL & EDITING

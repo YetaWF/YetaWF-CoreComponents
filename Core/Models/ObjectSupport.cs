@@ -1112,5 +1112,47 @@ namespace YetaWF.Core.Models {
             }
             return true;
         }
+
+        public static async Task<bool> TranslateObject(object data, string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync, List<PropertyInfo> props = null) {
+
+            bool FORCE = false;//$$$$$
+            if (props == null)
+                props = ObjectSupport.GetProperties(data.GetType());
+
+            bool changed = false;
+
+            List<string> list = new List<string>();
+            foreach (PropertyInfo prop in props) {
+                if (prop.PropertyType == typeof(MultiString)) {
+                    MultiString ms = (MultiString)prop.GetValue(data);
+                    if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
+                        if (isHtml(ms.DefaultText)) {
+                            ms[language] = await translateComplexStringAsync(ms.DefaultText);
+                            prop.SetValue(data, ms);
+                        } else {
+                            list.Add(ms.DefaultText);
+                        }
+                        changed = true;
+                    }
+                }
+            }
+            if (list.Count > 0) {
+                list = await translateStringsAsync(list);
+                foreach (PropertyInfo prop in props) {
+                    if (prop.PropertyType == typeof(MultiString)) {
+                        MultiString ms = (MultiString)prop.GetValue(data);
+                        if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
+                            if (!isHtml(ms.DefaultText)) {
+                                ms[language] = list[0];
+                                prop.SetValue(data, ms);
+                                list.RemoveAt(0);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return changed;
+        }
     }
 }

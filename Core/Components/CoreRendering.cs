@@ -34,6 +34,7 @@ namespace YetaWF.Core.Components {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public static IYetaWFCoreRendering Render {
             get {
                 if (_render == null) throw new InternalError("No IYetaWFCoreRendering handler installed");

@@ -16,6 +16,8 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
+
         private class PackageInfo {
             public string Name { get; set; }
             public string Version { get; set; }

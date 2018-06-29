@@ -200,8 +200,8 @@ namespace YetaWF.Core.Localize {
 
         public static Func<Package, string, Location, LocalizationData> Load { get; set; }
         public static Func<Package, string, Location, LocalizationData, Task> SaveAsync { get; set; }
-        public static Func<Package, Task> ClearPackageDataAsync { get; set; }
-        public static Func<Package, Task<List<string>>> GetFilesAsync { get; set; }
+        public static Func<Package, string, Task> ClearPackageDataAsync { get; set; }
+        public static Func<Package, string, Task<List<string>>> GetFilesAsync { get; set; }
 
         static LocalizationSupport() {
             Load = DefaultLoad;
@@ -216,10 +216,10 @@ namespace YetaWF.Core.Localize {
         private static Task DefaultSaveAsync(Package package, string type, Location location, LocalizationData data) {
             throw new NotImplementedException();
         }
-        private static Task DefaultClearPackageDataAsync(Package package) {
+        private static Task DefaultClearPackageDataAsync(Package package, string language) {
             throw new NotImplementedException();
         }
-        private static Task<List<string>> DefaultGetFilesAsync(Package package) {
+        private static Task<List<string>> DefaultGetFilesAsync(Package package, string language) {
             throw new NotImplementedException();
         }
     }

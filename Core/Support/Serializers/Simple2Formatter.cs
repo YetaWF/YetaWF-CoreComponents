@@ -148,6 +148,7 @@ namespace YetaWF.Core.Serializers {
         /// </summary>
         /// <param name="obj">The object to be serialized.</param>
         /// <returns>A byte array.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public byte[] Serialize(object obj) {
             using (MemoryStream ms = new MemoryStream()) {
                 using (BinaryWriter bw = new BinaryWriter(ms)) {
