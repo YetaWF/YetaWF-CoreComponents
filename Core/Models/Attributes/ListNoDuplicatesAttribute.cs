@@ -5,17 +5,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using YetaWF.Core.Localize;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class ListNoDuplicatesAttribute : ValidationAttribute, YIClientValidatable {
+    public class ListNoDuplicatesAttribute : ValidationAttribute, YIClientValidation {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -31,20 +26,10 @@ namespace YetaWF.Core.Models.Attributes {
             }
             return ValidationResult.Success;
         }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = __ResStr("dupClient",  "Duplicate entry found");
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-listnoduplicates", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = __ResStr("dupClient", "Duplicate entry found");
+            tag.MergeAttribute("data-val-listnoduplicates", msg);
+            tag.MergeAttribute("data-val", "true");
         }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            var rule = new ModelClientValidationRule {
-                ErrorMessage = __ResStr("dupClient", "Duplicate entry found"),
-                ValidationType = "listnoduplicates"
-            };
-            yield return rule;
-        }
-#endif
     }
 }

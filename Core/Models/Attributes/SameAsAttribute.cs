@@ -5,18 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Collections.Generic;
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class SameAsAttribute : ValidationAttribute, YIClientValidatable {
+    public class SameAsAttribute : ValidationAttribute, YIClientValidation {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -44,26 +38,11 @@ namespace YetaWF.Core.Models.Attributes {
             PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
             return pi.GetValue(model, null);
         }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            if (string.IsNullOrWhiteSpace(ErrorMessage))
-                ErrorMessage = __ResStr("SameAs", "The {0} field doesn't match", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-sameas-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = __ResStr("SameAs", "The {0} field doesn't match", propData.GetCaption(container));
+            tag.MergeAttribute("data-val-sameas", msg);
+            tag.MergeAttribute("data-val-sameas-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
+            tag.MergeAttribute("data-val", "true");
         }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            var rule = new ModelClientValidationRule {
-                ValidationType = "sameas"
-            };
-            if (!string.IsNullOrWhiteSpace(ErrorMessage))
-                rule.ErrorMessage = ErrorMessage;
-            else
-                rule.ErrorMessage = __ResStr("SameAs", "The {0} field doesn't match", AttributeHelper.GetPropertyCaption(metadata));
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName);
-            yield return rule;
-        }
-#endif
     }
 }

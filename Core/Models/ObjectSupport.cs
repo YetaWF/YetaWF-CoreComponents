@@ -155,72 +155,55 @@ namespace YetaWF.Core.Models {
         /// Defines the order of the property within the class, derived from the OrderAttribute.
         /// </summary>
         public int Order { get; private set; }
+        /// <summary>
+        /// List of validation attributes.
+        /// </summary>
+        public List<YIClientValidation> ValidationAttributes { get; set; }
 
-        private ResourceRedirectAttribute Redirect { get; set; }
+        private ResourceRedirectListAttribute Redirect { get; set; }
+        private ResourceRedirectAttribute Redirect1 { get; set; }
 
-#if MVC6
         /// <summary>
         /// Retrieves the property caption.
         /// </summary>
-        /// <param name="parentType">The type of the parent model containing this property.</param>
+        /// <param name="container">The parent model containing this property.</param>
         /// <returns>The caption.</returns>
-        public string GetCaption(Type parentType) {
+        /// <remarks>If the ResourceRedirectAttribute is used, GetCaption returns the redirected caption, otherwise the localized caption derived from the CaptionAttribute is returned.</remarks>
+        public string GetCaption(object container) {
+            if (container == null) return Caption;
+            if (Redirect != null)
+                return Redirect.GetCaption(container);
+            if (Redirect1 != null)
+                return Redirect1.GetCaption(container);
             return Caption;
         }
-#else
-#endif
-        /// <summary>
-        /// Retrieves the property caption.
-        /// </summary>
-        /// <param name="parentObject">The parent model containing this property.</param>
-        /// <returns>The caption.</returns>
-        /// <remarks>If the RedirectAttribute is used, GetCaption returns the redirected caption, otherwise the localized caption derived from the CaptionAttribute is returned.</remarks>
-        public string GetCaption(object parentObject) {
-            if (parentObject == null || Redirect == null) return Caption;
-            return Redirect.GetCaption(parentObject);
-        }
-#if MVC6
         /// <summary>
         /// Retrieves the property description.
         /// </summary>
-        /// <param name="parentType">The type of the parent model containing this property.</param>
+        /// <param name="parentObject">The parent model containing this property.</param>
         /// <returns>The description.</returns>
-        public string GetDescription(Type parentType) {
+        /// <remarks>If the ResourceRedirectAttribute is used, GetDescription returns the redirected description, otherwise the localized description derived from the DescriptionAttribute is returned.</remarks>
+        public string GetDescription(object container) {
+            if (container == null) return Description;
+            if (Redirect != null)
+                return Redirect.GetDescription(container);
+            if (Redirect1 != null)
+                return Redirect1.GetDescription(container);
             return Description;
         }
-#else
-#endif
-        /// <summary>
-        /// Retrieves the property description.
-        /// </summary>
-        /// <param name="parentObject">The parent model containing this property.</param>
-        /// <returns>The description.</returns>
-        /// <remarks>If the RedirectAttribute is used, GetDescription returns the redirected description, otherwise the localized description derived from the DescriptionAttribute is returned.</remarks>
-        public string GetDescription(object parentObject) {
-            if (parentObject == null || Redirect == null) return Description;
-            return Redirect.GetDescription(parentObject);
-        }
-#if MVC6
         /// <summary>
         /// Retrieves the property help link.
         /// </summary>
-        /// <param name="parentType">The type of the parent model containing this property.</param>
+        /// <param name="parentObject">The parent model containing this property.</param>
         /// <returns>The help link.</returns>
-        /// <remarks>If the RedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
-        public string GetHelpLink(Type parentType) {
+        /// <remarks>If the ResourceRedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
+        public string GetHelpLink(object container) {
+            if (container == null) return HelpLink;
+            if (Redirect != null)
+                return Redirect.GetHelpLink(container);
+            if (Redirect1 != null)
+                return Redirect1.GetHelpLink(container);
             return HelpLink;
-        }
-#else
-#endif
-        /// <summary>
-        /// Retrieves the property help link.
-        /// </summary>
-        /// <param name="parentObject">The parent model containing this property.</param>
-        /// <returns>The help link.</returns>
-        /// <remarks>If the RedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
-        public string GetHelpLink(object parentObject) {
-            if (parentObject == null || Redirect == null) return HelpLink;
-            return Redirect.GetHelpLink(parentObject);
         }
 
         internal PropertyData(string name, Type containerType, PropertyInfo propInfo,
@@ -245,7 +228,9 @@ namespace YetaWF.Core.Models {
                 Categories = new List<string>();
             DescriptionAttribute descAttr = TryGetAttribute<DescriptionAttribute>();
             Order = descAttr != null ? descAttr.Order : 0;
-            Redirect = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
+            ValidationAttributes = GetValidationAttributes();
+            Redirect = TryGetAttribute<ResourceRedirectListAttribute>();// Check if there is a resource redirect for this property
+            Redirect1 = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
         }
         internal PropertyData(string name, Type containerType, PropertyInfo propInfo) {
@@ -273,7 +258,9 @@ namespace YetaWF.Core.Models {
                 Categories = cats.Categories;
             else
                 Categories = new List<string>();
-            Redirect = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
+            ValidationAttributes = GetValidationAttributes();
+            Redirect = TryGetAttribute<ResourceRedirectListAttribute>();// Check if there is a resource redirect for this property
+            Redirect1 = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
         }
 
@@ -357,6 +344,15 @@ namespace YetaWF.Core.Models {
                 }
             }
             return CustomAttributes;
+        }
+        /// <summary>
+        /// Retrieve list of validation attributes.
+        /// </summary>
+        /// <returns></returns>
+        private List<YIClientValidation> GetValidationAttributes() {
+            if (ValidationAttributes == null)
+                ValidationAttributes = (from a in GetAttributes().Values where (a as YIClientValidation) != null select (YIClientValidation)a).ToList();
+            return ValidationAttributes;
         }
     }
     /// <summary>

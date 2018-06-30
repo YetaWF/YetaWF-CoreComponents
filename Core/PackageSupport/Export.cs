@@ -85,7 +85,7 @@ namespace YetaWF.Core.Packages {
             }
             // localization
             foreach (LanguageData languageData in MultiString.Languages) {
-                List<string> files = await LocalizationSupport.GetFilesAsync(this, languageData.Id);
+                List<string> files = await LocalizationSupport.GetFilesAsync(this, languageData.Id, true);
                 foreach (string file in files) {
                     SerializableFile serFile = new SerializableFile(file, ExternalRoot: YetaWFManager.RootFolderWebProject);
                     serFile.FileDate = await FileSystem.FileSystemProvider.GetCreationTimeUtcAsync(serFile.AbsFileName);

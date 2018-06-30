@@ -5,18 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Collections.Generic;
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
-    public class RequiredIfSupplied : RequiredAttribute, YIClientValidatable {
+    public class RequiredIfSupplied : RequiredAttribute, YIClientValidation {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -42,23 +36,11 @@ namespace YetaWF.Core.Models.Attributes {
             PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
             return pi.GetValue(model, null);
         }
-#if MVC6
-        public new void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = __ResStr("requiredIfSupplied", "The {0} field is required", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-requiredifsupplied-" + Forms.ConditionPropertyName, AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = __ResStr("requiredIfSupplied", "The {0} field is required", propData.GetCaption(container));
+            tag.MergeAttribute("data-val-requiredifsupplied", msg);
+            tag.MergeAttribute("data-val-requiredifsupplied-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
+            tag.MergeAttribute("data-val", "true");
         }
-#else
-        public new IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            var rule = new ModelClientValidationRule {
-                ErrorMessage = __ResStr("requiredIfSupplied", "The {0} field is required", AttributeHelper.GetPropertyCaption(metadata)),
-                ValidationType = "requiredifsupplied"
-            };
-            rule.ValidationParameters[Forms.ConditionPropertyName] = AttributeHelper.BuildDependentPropertyName(this.RequiredPropertyName);
-            yield return rule;
-        }
-#endif
-
     }
 }

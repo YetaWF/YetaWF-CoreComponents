@@ -4,11 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Localize;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-#else
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -17,7 +13,7 @@ namespace YetaWF.Core.Models.Attributes {
     // VALIDATION
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class StringLengthAttribute : System.ComponentModel.DataAnnotations.StringLengthAttribute, YIClientValidatable {
+    public class StringLengthAttribute : System.ComponentModel.DataAnnotations.StringLengthAttribute, YIClientValidation {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -52,21 +48,6 @@ namespace YetaWF.Core.Models.Attributes {
             string errorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(validationContext));
             return new ValidationResult(errorMessage);
         }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-length", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-length-max", MaximumLength.ToString());
-            if (MinimumLength > 0)
-                AttributeHelper.MergeAttribute(context.Attributes, "data-val-length-min", MinimumLength.ToString());
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
-        }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            string errorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(metadata));
-            yield return new ModelClientValidationStringLengthRule(errorMessage, MinimumLength, MaximumLength);
-        }
-#endif
         private string GetErrorMessage(string caption) {
             string errorMessage;
             if (MinimumLength == 0 && MaximumLength > 0)
@@ -77,10 +58,18 @@ namespace YetaWF.Core.Models.Attributes {
                     caption, MinimumLength, MaximumLength);
             return errorMessage;
         }
+        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = GetErrorMessage(propData.GetCaption(container));
+            tag.MergeAttribute("data-val-length", msg);
+            tag.MergeAttribute("data-val-length-max", MaximumLength.ToString());
+            if (MinimumLength > 0)
+                tag.MergeAttribute("data-val-length-min", MinimumLength.ToString());
+            tag.MergeAttribute("data-val", "true");
+        }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class RangeAttribute : System.ComponentModel.DataAnnotations.RangeAttribute, YIClientValidatable {
+    public class RangeAttribute : System.ComponentModel.DataAnnotations.RangeAttribute, YIClientValidation {
 
         [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
@@ -90,24 +79,13 @@ namespace YetaWF.Core.Models.Attributes {
         public RangeAttribute(decimal minimum, decimal maximum) : base((double) minimum, (double) maximum) { }
         public RangeAttribute(Type type, string minimum, string maximum) : base(type, minimum, maximum) { }
 
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = __ResStr("range", "The '{0}' value must be between {1} and {2}",
-                    AttributeHelper.GetPropertyCaption(context.ModelMetadata), Minimum, Maximum);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-min", base.Minimum.ToString());
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-range-max", base.Maximum.ToString());
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = __ResStr("range", "The '{0}' value must be between {1} and {2}", propData.GetCaption(container), Minimum, Maximum);
+            tag.MergeAttribute("data-val-range", msg);
+            tag.MergeAttribute("data-val-range-min", base.Minimum.ToString());
+            tag.MergeAttribute("data-val-range-max", base.Maximum.ToString());
+            tag.MergeAttribute("data-val", "true");
         }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            string errorMessage = ErrorMessage;
-            if (string.IsNullOrWhiteSpace(errorMessage))
-                ErrorMessage = __ResStr("range", "The '{0}' value must be between {1} and {2}",
-                    AttributeHelper.GetPropertyCaption(metadata), Minimum, Maximum);
-            yield return new ModelClientValidationRangeRule(ErrorMessage, base.Minimum, base.Maximum); // string.Format(base.ErrorMessageString, metadata.DisplayName), base.Minimum, base.Maximum);
-        }
-#endif
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

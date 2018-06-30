@@ -445,31 +445,31 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("StringTT"), ReadOnly]
             public StringTT RoleName { get; set; }
 
-            [Caption("View"), ResourceRedirect("RolesDefinitions", 0, "RoleResource"), Description("The role has permission to view the module", Order = -99)]
+            [Caption("View"), ResourceRedirectList(nameof(RolesDefinitions), 0, nameof(RoleDefinition.RoleResource)), Description("The role has permission to view the module", Order = -99)]
             [UIHint("Enum")]
             public AllowedEnum View { get; set; }
 
-            [Caption("Edit"), ResourceRedirect("RolesDefinitions", 1, "RoleResource"), Description("The role has permission to edit the module", Order = -98)]
+            [Caption("Edit"), ResourceRedirectList(nameof(RolesDefinitions), 1, nameof(RoleDefinition.RoleResource)), Description("The role has permission to edit the module", Order = -98)]
             [UIHint("Enum")]
             public AllowedEnum Edit { get; set; }
 
-            [Caption("Remove"), ResourceRedirect("RolesDefinitions", 2, "RoleResource"), Description("The role has permission to remove the module", Order = -97)]
+            [Caption("Remove"), ResourceRedirectList(nameof(RolesDefinitions), 2, nameof(RoleDefinition.RoleResource)), Description("The role has permission to remove the module", Order = -97)]
             [UIHint("Enum")]
             public AllowedEnum Remove { get; set; }
 
-            [ResourceRedirect("RolesDefinitions", 3, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 3, nameof(RoleDefinition.RoleResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra1 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 4, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 4, nameof(RoleDefinition.RoleResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra2 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 5, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 5, nameof(RoleDefinition.RoleResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra3 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 6, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 6, nameof(RoleDefinition.RoleResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra4 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 7, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 7, nameof(RoleDefinition.RoleResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
@@ -489,31 +489,31 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("YetaWF_Identity_UserId"), ReadOnly]
             public int DisplayUserId { get; set; }
 
-            [Caption("View"), ResourceRedirect("RolesDefinitions", 0, "UserResource"), Description("The user has permission to view the module", Order = -98)]
+            [Caption("View"), ResourceRedirectList(nameof(RolesDefinitions), 0, nameof(RoleDefinition.UserResource)), Description("The user has permission to view the module", Order = -98)]
             [UIHint("Enum")]
             public AllowedEnum View { get; set; }
 
-            [Caption("Edit"), ResourceRedirect("RolesDefinitions", 1, "UserResource"), Description("The user has permission to edit the module", Order = -97)]
+            [Caption("Edit"), ResourceRedirectList(nameof(RolesDefinitions), 1, nameof(RoleDefinition.UserResource)), Description("The user has permission to edit the module", Order = -97)]
             [UIHint("Enum")]
             public AllowedEnum Edit { get; set; }
 
-            [Caption("Remove"), ResourceRedirect("RolesDefinitions", 2, "UserResource"), Description("The user has permission to remove the module", Order = -96)]
+            [Caption("Remove"), ResourceRedirectList(nameof(RolesDefinitions), 2, nameof(RoleDefinition.UserResource)), Description("The user has permission to remove the module", Order = -96)]
             [UIHint("Enum")]
             public AllowedEnum Remove { get; set; }
 
-            [ResourceRedirect("RolesDefinitions", 3, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 3, nameof(RoleDefinition.UserResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra1 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 4, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 4, nameof(RoleDefinition.UserResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra2 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 5, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 5, nameof(RoleDefinition.UserResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra3 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 6, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 6, nameof(RoleDefinition.UserResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra4 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 7, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 7, nameof(RoleDefinition.UserResource))]
             [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 

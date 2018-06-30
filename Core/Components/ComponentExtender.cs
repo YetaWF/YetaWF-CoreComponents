@@ -66,7 +66,7 @@ namespace YetaWF.Core.Components {
                 description = (string)htmlAttributes["Description"];
                 htmlAttributes.Remove("Description");
             } else {
-                description = propData.GetDescription(containerType);
+                description = propData.GetDescription(container);
             }
             if (!string.IsNullOrWhiteSpace(description)) {
                 if (ShowVariable)
@@ -79,7 +79,7 @@ namespace YetaWF.Core.Components {
                 caption = (string)htmlAttributes["Caption"];
                 htmlAttributes.Remove("Caption");
             } else {
-                caption = propData.GetCaption(containerType);
+                caption = propData.GetCaption(container);
                 if (string.IsNullOrEmpty(caption)) {
                     PropertyData propDataLabel = ObjectSupport.TryGetPropertyData(containerType, $"{propertyName}_Label");
                     if (propDataLabel != null)
@@ -91,7 +91,7 @@ namespace YetaWF.Core.Components {
                     return HtmlStringExtender.Empty;
             }
 
-            string helpLink = propData.GetHelpLink(containerType);
+            string helpLink = propData.GetHelpLink(container);
             LabelInfo info = new LabelInfo() {
                 LabelContents = caption,
                 LabelContents_HelpLink = helpLink,

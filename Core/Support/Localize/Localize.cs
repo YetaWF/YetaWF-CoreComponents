@@ -10,16 +10,12 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-#endif
 
 namespace YetaWF.Core.Localize {
 
     public class LocalizationData {
 
-        public const int MaxString = 10000;
+        public const int MaxString = 10000; //$$a bit long maybe?
         public const int MaxComment = 1000;
 
         public class ClassData {
@@ -28,14 +24,11 @@ namespace YetaWF.Core.Localize {
             [StringLength(MaxString)]
             public string BaseTypeName { get; set; }
 
-            [Caption("Class Header"), Description("Text found in [HeaderAttribute(...)]")]
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Header { get; set; }
-            [Caption("Class Footer"), Description("Text found in [FooterAttribute(...)]")]
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Footer { get; set; }
-            [Caption("Class Legend"), Description("Text found in [LegendAttribute(...)]")]
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Legend { get; set; }
 
             [Data_Binary]
@@ -50,21 +43,21 @@ namespace YetaWF.Core.Localize {
             }
         }
         public class PropertyData {
-            [UIHint("Hidden"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Name { get; set; }
-            [UIHint("Text40"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Caption { get; set; }
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Description { get; set; }
-            [UIHint("Text80"), StringLength(Globals.MaxUrl)]
+            [StringLength(Globals.MaxUrl)]
             public string HelpLink { get; set; }
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string TextAbove { get; set; }
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string TextBelow { get; set; }
         }
         public class EnumData {
-            [UIHint("Hidden"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Name { get; set; }
             [Data_Binary]
             public SerializableList<EnumDataEntry> Entries { get; set; }
@@ -77,20 +70,28 @@ namespace YetaWF.Core.Localize {
             }
         }
         public class EnumDataEntry {
-            [UIHint("Hidden"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Name { get; set; }
-            [UIHint("Hidden"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Value { get; set; }
-            [UIHint("Text40"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Caption { get; set; }
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Description { get; set; }
         }
         public class StringData {
-            [UIHint("Hidden"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Name { get; set; }
-            [UIHint("Text80"), StringLength(MaxString)]
+            [StringLength(MaxString)]
             public string Text { get; set; }
+        }
+
+        public class ResourceProvider {
+
+        }
+        public class Resource {
+            public string Caption { get; set; }
+            public string Description { get; set; }
         }
 
         [StringLength(MaxComment)]
@@ -201,7 +202,7 @@ namespace YetaWF.Core.Localize {
         public static Func<Package, string, Location, LocalizationData> Load { get; set; }
         public static Func<Package, string, Location, LocalizationData, Task> SaveAsync { get; set; }
         public static Func<Package, string, Task> ClearPackageDataAsync { get; set; }
-        public static Func<Package, string, Task<List<string>>> GetFilesAsync { get; set; }
+        public static Func<Package, string, bool, Task<List<string>>> GetFilesAsync { get; set; }
 
         static LocalizationSupport() {
             Load = DefaultLoad;
@@ -219,7 +220,7 @@ namespace YetaWF.Core.Localize {
         private static Task DefaultClearPackageDataAsync(Package package, string language) {
             throw new NotImplementedException();
         }
-        private static Task<List<string>> DefaultGetFilesAsync(Package package, string language) {
+        private static Task<List<string>> DefaultGetFilesAsync(Package package, string language, bool rawName) {
             throw new NotImplementedException();
         }
     }
