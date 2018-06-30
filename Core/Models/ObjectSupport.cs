@@ -171,10 +171,14 @@ namespace YetaWF.Core.Models {
         /// <remarks>If the ResourceRedirectAttribute is used, GetCaption returns the redirected caption, otherwise the localized caption derived from the CaptionAttribute is returned.</remarks>
         public string GetCaption(object container) {
             if (container == null) return Caption;
-            if (Redirect != null)
-                return Redirect.GetCaption(container);
-            if (Redirect1 != null)
-                return Redirect1.GetCaption(container);
+            if (Redirect != null) {
+                string caption = Redirect.GetCaption(container);
+                if (caption != null) return caption;
+            }
+            if (Redirect1 != null) {
+                string caption = Redirect1.GetCaption(container);
+                if (caption != null) return caption;
+            }
             return Caption;
         }
         /// <summary>
@@ -185,10 +189,14 @@ namespace YetaWF.Core.Models {
         /// <remarks>If the ResourceRedirectAttribute is used, GetDescription returns the redirected description, otherwise the localized description derived from the DescriptionAttribute is returned.</remarks>
         public string GetDescription(object container) {
             if (container == null) return Description;
-            if (Redirect != null)
-                return Redirect.GetDescription(container);
-            if (Redirect1 != null)
-                return Redirect1.GetDescription(container);
+            if (Redirect != null) {
+                string description = Redirect.GetDescription(container);
+                if (description != null) return description;
+            }
+            if (Redirect1 != null) {
+                string description = Redirect1.GetDescription(container);
+                if (description != null) return description;
+            }
             return Description;
         }
         /// <summary>
@@ -199,10 +207,14 @@ namespace YetaWF.Core.Models {
         /// <remarks>If the ResourceRedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
         public string GetHelpLink(object container) {
             if (container == null) return HelpLink;
-            if (Redirect != null)
-                return Redirect.GetHelpLink(container);
-            if (Redirect1 != null)
-                return Redirect1.GetHelpLink(container);
+            if (Redirect != null) {
+                string helplink = Redirect.GetHelpLink(container);
+                if (helplink != null) return helplink;
+            }
+            if (Redirect1 != null) {
+                string helplink = Redirect1.GetHelpLink(container);
+                if (helplink != null) return helplink;
+            }
             return HelpLink;
         }
 
