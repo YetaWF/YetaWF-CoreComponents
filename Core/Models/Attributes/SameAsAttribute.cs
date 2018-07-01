@@ -12,7 +12,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class SameAsAttribute : ValidationAttribute, YIClientValidation {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         private string RequiredPropertyName { get; set; }

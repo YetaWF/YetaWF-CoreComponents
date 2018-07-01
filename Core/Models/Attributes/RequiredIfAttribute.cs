@@ -12,7 +12,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfAttribute : RequiredAttribute, YIClientValidation {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public String RequiredPropertyName { get; private set; }
@@ -53,7 +52,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfNotAttribute : RequiredAttribute, YIClientValidation {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public String RequiredPropertyName { get; private set; }
@@ -93,7 +91,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfInRangeAttribute : RequiredAttribute, YIClientValidation {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public String RequiredPropertyName { get; private set; }

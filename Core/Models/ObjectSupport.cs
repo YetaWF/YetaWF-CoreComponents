@@ -1123,7 +1123,7 @@ namespace YetaWF.Core.Models {
 
         public static async Task<bool> TranslateObject(object data, string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync, List<PropertyInfo> props = null) {
 
-            bool FORCE = false;//$$$$$
+            bool FORCE = false; // Set to True to force re-translation of everything, even if there already is a translation
             if (props == null)
                 props = ObjectSupport.GetProperties(data.GetType());
 

@@ -767,9 +767,8 @@ namespace YetaWF.Core.Controllers {
             public override void ExecuteResult(ControllerContext context) {
 
                 TextWriter sw = context.HttpContext.Response.Output;
-                //$$$ use RequestingController?
-                ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
-                IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
+                ViewContext vc = new ViewContext(context, new ViewImpl(), RequestingController.ViewData, RequestingController.TempData, sw);
+                IViewDataContainer vdc = new ViewDataContainer() { ViewData = RequestingController.ViewData };
                 HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
 
                 try {

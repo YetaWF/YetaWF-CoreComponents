@@ -15,7 +15,7 @@ namespace YetaWF.Core.Localize {
 
     public class LocalizationData {
 
-        public const int MaxString = 10000; //$$a bit long maybe?
+        public const int MaxString = 1000;
         public const int MaxComment = 1000;
 
         public class ClassData {

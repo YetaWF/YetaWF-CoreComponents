@@ -8,7 +8,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class PackageDomainValidationAttribute : RegexValidationBaseAttribute {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public PackageDomainValidationAttribute() : base(@"^\s*[a-zA-Z0-9]{1,50}\s*$",

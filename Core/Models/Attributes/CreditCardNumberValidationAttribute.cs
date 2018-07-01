@@ -12,7 +12,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CreditCardNumberValidationAttribute : RegexValidationBaseAttribute {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public CreditCardNumberValidationAttribute() : base(@"^\s*([1-9][0-9]{11,15})\s*$",

@@ -16,7 +16,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class UrlValidationAttribute : RegexValidationBaseAttribute {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public UrlValidationAttribute(SchemaEnum remoteSchema = SchemaEnum.Any, UrlTypeEnum urlType = UrlTypeEnum.Remote) : base(@"", "") {

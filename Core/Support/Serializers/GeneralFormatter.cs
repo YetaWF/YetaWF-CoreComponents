@@ -116,7 +116,7 @@ namespace YetaWF.Core.Support.Serializers {
             } else if (Format == Style.Simple2) {
                 throw new InternalError("This format is not supported for file streams");
             } else {
-                fmt = new BinaryFormatter { AssemblyFormat = 0/*$$FormatterAssemblyStyle.Simple*/ };
+                fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
             }
             fmt.Serialize(fs, obj);
         }
@@ -131,7 +131,7 @@ namespace YetaWF.Core.Support.Serializers {
             } else if (Format == Style.Simple) {
                 fmt = new SimpleFormatter();
             } else {
-                fmt = new BinaryFormatter { AssemblyFormat = 0/*$$FormatterAssemblyStyle.Simple*/ };
+                fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
             }
             using (MemoryStream ms = new MemoryStream()) {
                 fmt.Serialize(ms, obj);

@@ -239,7 +239,6 @@ namespace YetaWF.Core.Packages {
         }
 
         private static readonly Regex csClassRegex = new Regex("(?'leadspace'[\t ]*)public\\s+(static\\s+|partial\\s+){0,1}class\\s+(?'class'[A-Za-z0-9_]+)\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex csCombResRegex = new Regex(@"\[\s*CombinedResources\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
 
         /// <summary>
         /// Get the least indented or last class in this file.
@@ -248,13 +247,8 @@ namespace YetaWF.Core.Packages {
             string cls = null;
             int lead = int.MaxValue;
 
-            //[CombinedResources] //$$$ this can be eliminated because we extract the class from the static __ResStr method
-            Match m = csCombResRegex.Match(fileText);
-            if (m.Success)
-                return "Resources";
-
             // find a public class xxxx
-            m = csClassRegex.Match(fileText);
+            Match m = csClassRegex.Match(fileText);
             while (m.Success) {
                 string newCls = m.Groups["class"].Value;
                 int newLead = m.Groups["leadspace"].Value.Length;

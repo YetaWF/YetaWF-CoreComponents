@@ -16,14 +16,7 @@ namespace YetaWF.Core.Localize {
         // access resources from static class
         // helper function to be added to static class
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return xResourceAccess.GetResourceString(typeof(yourstaticClass), name, defaultValue, parms); }
-
-        // combine resources from several classes (static or instantiated)
-        //[CombinedResources]  // typeof(Resources) must remain UNCHANGED below
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return xResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
     }
-
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class CombinedResourcesAttribute : Attribute { }
 
     public static class ResourceAccess {
 

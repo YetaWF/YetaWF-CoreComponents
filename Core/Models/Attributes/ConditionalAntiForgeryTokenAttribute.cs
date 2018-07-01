@@ -37,7 +37,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public sealed class ConditionalAntiForgeryTokenAttribute : FilterAttribute, IAuthorizationFilter {
 #endif
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         private YetaWFManager Manager { get { return YetaWFManager.Manager; } }
