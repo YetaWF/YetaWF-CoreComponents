@@ -219,7 +219,7 @@ namespace YetaWF.Core.Components {
             Type containerType = container.GetType();
             if (propertyName == null) {
                 // Container
-                component.SetRenderInfo(htmlHelper, container, null, null, null, htmlAttributes, validation);
+                component.SetRenderInfo(htmlHelper, container, null, null, htmlAttributes, validation);
                 // Invoke IncludeAsync
                 MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
                 if (miAsync == null)
@@ -237,8 +237,7 @@ namespace YetaWF.Core.Components {
                 // Component
                 if (propData == null)
                     propData = ObjectSupport.GetPropertyData(containerType, propertyName);
-                string fieldName = GetFieldName(htmlHelper, propertyName);
-                component.SetRenderInfo(htmlHelper, container, propertyName, propData, fieldName, htmlAttributes, validation);
+                component.SetRenderInfo(htmlHelper, container, propertyName, propData, htmlAttributes, validation);
                 // Invoke IncludeAsync
                 MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFComponent<object>.IncludeAsync), new Type[] { });
                 if (miAsync == null)
@@ -262,31 +261,6 @@ namespace YetaWF.Core.Components {
 #endif
                 return yhtml;
             }
-        }
-#if MVC6
-        private static string GetFieldName(IHtmlHelper htmlHelper, string name)
-#else
-        private static string GetFieldName(HtmlHelper htmlHelper, string name)
-#endif
-        {
-            string fieldName = TryGetFieldName(htmlHelper, name);
-            if (String.IsNullOrEmpty(fieldName))
-                throw new InternalError("Missing field name");
-            return fieldName;
-        }
-#if MVC6
-        private static string TryGetFieldName(IHtmlHelper htmlHelper, string name)
-#else
-        private static string TryGetFieldName(HtmlHelper htmlHelper, string name)
-#endif
-        {
-            string fieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(name);
-            if (String.IsNullOrEmpty(fieldName))
-                return null;
-            // remove known grid prefix
-            const string prefix1 = "GridProductEntries.GridDataRecords.record.";
-            if (fieldName.StartsWith(prefix1)) fieldName = fieldName.Substring(prefix1.Length);
-            return fieldName;
         }
     }
 }

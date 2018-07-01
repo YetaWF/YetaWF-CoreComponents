@@ -38,15 +38,15 @@ namespace YetaWF.Core.Components {
 #else
         public void SetRenderInfo(HtmlHelper htmlHelper,
 #endif
-             object container, string propertyName, PropertyData propData, string fieldName, object htmlAttributes, bool validation)
+             object container, string propertyName, PropertyData propData, object htmlAttributes, bool validation)
         {
             HtmlHelper = htmlHelper;
             Container = container;
             PropertyName = propertyName;
             PropData = propData;
             FieldNamePrefix = Manager.NestedComponentPrefix;
-            FieldName = fieldName;
-            if (!string.IsNullOrWhiteSpace(FieldNamePrefix) && fieldName != null)
+            FieldName = propertyName;
+            if (!string.IsNullOrWhiteSpace(FieldNamePrefix) && propertyName != null)
                 FieldName = FieldNamePrefix + "." + FieldName;
             HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
