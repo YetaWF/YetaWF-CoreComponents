@@ -61,11 +61,9 @@ namespace YetaWF.Core.Addons {
 
         public const string AjaxJavascriptErrorReturn = "JSERROR:";
 
-        public async Task AddSupportAsync(YetaWFManager manager) {
+        public Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
-
-            await manager.AddOnManager.AddAddOnGlobalAsync("no-margin-for-errors.com", "prettyLoader");
 
             // Site settings
             scripts.AddVolatileOption("Basics", "JSLocation", manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top);
@@ -135,7 +133,6 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "DefaultTooltipWidth", DefaultTooltipWidth);
             scripts.AddConfigOption("Basics", "DefaultTooltipPosition", DefaultTooltipPosition);
 
-            scripts.AddConfigOption("Basics", "LoaderGif", manager.GetCDNUrl(AddOnManager.GetAddOnGlobalUrl("no-margin-for-errors.com", "prettyLoader", AddOnManager.UrlType.Css) + "images/prettyLoader/ajax-loader.gif"));
             scripts.AddConfigOption("Basics", "CookieDoneCssAttr", CookieDoneCssAttr);
             scripts.AddConfigOption("Basics", "CookieDone", CookieDone);
             scripts.AddConfigOption("Basics", "CookieToReturn", CookieToReturn);
@@ -149,6 +146,8 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModule", AjaxJavascriptReloadModule);
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModuleParts", AjaxJavascriptReloadModuleParts);
             scripts.AddLocalization("Basics", "IncorrectServerResp", this.__ResStr("IncorrectServerResp", "Incorrect server response: Expecting a javascript return"));
+
+            return Task.CompletedTask;
         }
     }
 }

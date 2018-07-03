@@ -164,22 +164,6 @@ namespace YetaWF.Core.Pages {
             await AddFromFileListAsync(version, productUrl, args);
         }
 
-        /// <summary>
-        /// Add a specific file for an addon product - This is normally only used for addons that are known to exist but don't automatically add all required files.
-        /// </summary>
-        /// <remarks>This is a bad pattern. Don't use it!</remarks>
-        public async Task AddSpecificJsFileAsync(VersionManager.AddOnProduct version, string file) {
-            string productJsUrl = version.GetAddOnJsUrl();
-            string url = productJsUrl + file;
-            await AddAsync(url, true, true, false, false, false);
-        }
-        public async Task AddKendoUICoreJsFileAsync(string file) {
-            if (Manager.IsPostRequest) return;// can't add this while processing a post request
-            if (VersionManager.KendoAddonType == VersionManager.KendoAddonTypeEnum.Pro) return;// everything is already included
-            if (Manager.CurrentSite.CanUseCDNComponents) return;// already included
-            await AddSpecificJsFileAsync(VersionManager.KendoAddon, file);
-        }
-
         // Add localizations and configurations
         private async Task AddFromSupportTypesAsync(VersionManager.AddOnProduct version) {
             foreach (var type in version.SupportTypes) {
@@ -207,7 +191,6 @@ namespace YetaWF.Core.Pages {
                 bool last = false;
                 bool async = false, defer = false;
                 bool allowCustom = false;
-                bool kendoUICore = false;
                 string[] parts = info.Split(new Char[] { ',' });
                 int count = parts.Length;
                 string file;
@@ -234,7 +217,6 @@ namespace YetaWF.Core.Pages {
                             else if (part == "cdn") cdn = true;
                             else if (part == "nocdn") cdn = false;
                             else if (part == "allowcustom") allowCustom = true;
-                            else if (part == "kendouicore") kendoUICore = true;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
                     }
@@ -245,58 +227,52 @@ namespace YetaWF.Core.Pages {
                     else if (cdn == false && Manager.CurrentSite.CanUseCDNComponents)
                         continue;
                     // check if we want to send this file
-                    if (kendoUICore) {
-                        if (nominify || bundle != null || cdn != null || editonly || last || async || defer || allowCustom)
-                            throw new InternalError("Can't use keywords on statement '{0}' ({1}/{2})'.", info, version.Domain, version.Product);
-                        await AddKendoUICoreJsFileAsync(file);
-                    } else {
-                        string filePathURL;
-                        if (file.IsAbsoluteUrl()) {
-                            filePathURL = file;
-                            if (bundle == true)
-                                throw new InternalError("Can't use bundle with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
-                            if (allowCustom)
-                                throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
-                            bundle = false;
-                        } else if (file.StartsWith("\\")) {
-                            string f;
+                    string filePathURL;
+                    if (file.IsAbsoluteUrl()) {
+                        filePathURL = file;
+                        if (bundle == true)
+                            throw new InternalError("Can't use bundle with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        if (allowCustom)
+                            throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        bundle = false;
+                    } else if (file.StartsWith("\\")) {
+                        string f;
 #if MVC6
-                            if (file.StartsWith("\\" + Globals.NodeModulesFolder + "\\"))
-                                f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                            else if (file.StartsWith("\\" + Globals.BowerComponentsFolder + "\\"))
-                                f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                            else
+                        if (file.StartsWith("\\" + Globals.NodeModulesFolder + "\\"))
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                        else if (file.StartsWith("\\" + Globals.BowerComponentsFolder + "\\"))
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                        else
 #endif
-                            f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                                throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
-                            filePathURL = YetaWFManager.PhysicalToUrl(f);
-                        } else {
-                            filePathURL = string.Format("{0}{1}", productUrl, file);
-                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(filePathURL)))
-                                throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
-                        }
-                        if (allowCustom) {
-                            string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
-                            string f = YetaWFManager.UrlToPhysical(customUrl);
-                            if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                                filePathURL = customUrl;
-                        }
-                        if (bundle == true || last) {
-                            if (async || defer)
-                                throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
-                        }
-                        if (bundle == null) {
-                            if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl) || filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
-                                /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
-                                bundle = false;
-                            } else {
-                                bundle = true;
-                            }
-                        }
-                        if (!await AddAsync(filePathURL, !nominify, (bool)bundle, last, async, defer))
-                            version.JsFiles.Remove(info);// remove empty file
+                        f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
+                            throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
+                        filePathURL = YetaWFManager.PhysicalToUrl(f);
+                    } else {
+                        filePathURL = string.Format("{0}{1}", productUrl, file);
+                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(filePathURL)))
+                            throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
+                    if (allowCustom) {
+                        string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
+                        string f = YetaWFManager.UrlToPhysical(customUrl);
+                        if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
+                            filePathURL = customUrl;
+                    }
+                    if (bundle == true || last) {
+                        if (async || defer)
+                            throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
+                    }
+                    if (bundle == null) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl)) {
+                            /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
+                            bundle = false;
+                        } else {
+                            bundle = true;
+                        }
+                    }
+                    if (!await AddAsync(filePathURL, !nominify, (bool)bundle, last, async, defer))
+                        version.JsFiles.Remove(info);// remove empty file
                 }
             }
         }

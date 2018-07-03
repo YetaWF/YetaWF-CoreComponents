@@ -1,4 +1,0 @@
-﻿https://code.jquery.com/ui/1.12.1/jquery-ui.min.js,CDN
-\node_modules\jquery-ui-dist\jquery-ui.min.js,noCDN
-prefixup.js
-postfixup.js,bundle,last

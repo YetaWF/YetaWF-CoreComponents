@@ -33,21 +33,23 @@ namespace YetaWF.Core.Addons {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
 
-            await manager.AddOnManager.AddAddOnGlobalAsync("bassistance.de", "jquery-validation");//$$$$This does not belong here (same as all other AddAddOnGlobalAsync)
-            await manager.AddOnManager.AddAddOnGlobalAsync("microsoft.com", "jquery_unobtrusive_validation");
-            await manager.AddOnManager.AddAddOnGlobalAsync("gist.github.com_remi_957732", "jquery_validate_hooks");
+            // Global form related items (not implementation specific)
 
             scripts.AddLocalization("Forms", "AjaxError", this.__ResStr("AjaxError", "An error occurred processing this form:(+nl)(+nl){0} - {1}"));
             scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Form Error"));
             scripts.AddLocalization("Forms", "FormErrors", this.__ResStr("FormErrors", ""));
 
-            scripts.AddConfigOption("Forms", "UniqueIdPrefix", UniqueIdPrefix);
-            scripts.AddConfigOption("Forms", "RequestVerificationToken", "__RequestVerificationToken");
+            scripts.AddConfigOption("Forms", "UniqueIdPrefix", UniqueIdPrefix);//$$ move to ComponentsHTML?
+            scripts.AddConfigOption("Forms", "RequestVerificationToken", "__RequestVerificationToken");//$$ move to ComponentsHTML?
+
+            // Validation (not implementation specific) used by validation attributes
 
             scripts.AddConfigOption("Forms", "ConditionPropertyName", ConditionPropertyName);
             scripts.AddConfigOption("Forms", "ConditionPropertyValue", ConditionPropertyValue);
             scripts.AddConfigOption("Forms", "ConditionPropertyValueLow", ConditionPropertyValueLow);
             scripts.AddConfigOption("Forms", "ConditionPropertyValueHigh", ConditionPropertyValueHigh);
+
+            // Css used which is global to YetaWF (not implementation specific)
 
             scripts.AddConfigOption("Forms", "CssFormPartial", CssFormPartial);
             scripts.AddConfigOption("Forms", "CssFormAjax", CssFormAjax);
@@ -56,8 +58,11 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Forms", "CssFormCancel", CssFormCancel);
             scripts.AddConfigOption("Forms", "CssDataApplyButton", CssDataApplyButton);
             scripts.AddConfigOption("Forms", "CssWarningIcon", CssWarningIcon);
+
             string url = await skinImages.FindIcon_PackageAsync("#Warning", package);
             scripts.AddConfigOption("Forms", "CssWarningIconUrl", url);
+
+            // UI settings - global to YetaWF
 
             scripts.AddVolatileOption("Forms", "TabStyle", (int)manager.CurrentSite.TabStyle);
         }

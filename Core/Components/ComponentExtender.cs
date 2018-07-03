@@ -185,24 +185,57 @@ namespace YetaWF.Core.Components {
             PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, true);
         }
+
+        public static async Task MarkUsedDisplayAsync(string UIHint) {
+            await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, UIHint);
+        }
+        public static async Task MarkUsedEditAsync(string UIHint = null) {
+            await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, UIHint);
+        }
+        private static async Task MarkUsedAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, string uIHint) {
+            if (string.IsNullOrWhiteSpace(uIHint))
+                throw new InternalError($"UIHint missing");
+            Type compType;
+            if (!components.TryGetValue(uIHint, out compType))
+                throw new InternalError($"Template {uIHint} ({renderType}) not found");
+            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
+
+            // Get standard support for this package
+            if (!Manager.ComponentPackagesSeen.Contains(component.Package)) {
+                if (renderType == YetaWFComponentBase.ComponentType.Edit)
+                    await component.IncludeStandardEditAsync();
+                else
+                    await component.IncludeStandardDisplayAsync();
+                try {
+                    Manager.ComponentPackagesSeen.Add(component.Package);
+                } catch (Exception) { }
+            }
+
+            // Invoke IncludeAsync
+            MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
+            if (miAsync == null)
+                throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method");
+            Task methRetvalTask = (Task)miAsync.Invoke(component, null);
+            await methRetvalTask;
+        }
 #if MVC6
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, IHtmlHelper htmlHelper,
 #else
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, HtmlHelper htmlHelper,
 #endif
-             object container, string propertyName, PropertyData propData, object model, string templateName, object htmlAttributes, bool validation)
+             object container, string propertyName, PropertyData propData, object model, string uiHint, object htmlAttributes, bool validation)
         {
 #if MVC6
 #else
             if (!YetaWFManager.IsSync())
                 throw new InternalError("Rendering on MVC5 cannot be async");
 #endif
-            if (string.IsNullOrWhiteSpace(templateName))
+            if (string.IsNullOrWhiteSpace(uiHint))
                 throw new InternalError($"No UIHint found for {(propertyName ?? "(Container)")} in {container.GetType().FullName}");
 
             Type compType;
-            if (!components.TryGetValue(templateName, out compType))
-                throw new InternalError($"Template {templateName} ({renderType}) not found");
+            if (!components.TryGetValue(uiHint, out compType))
+                throw new InternalError($"Template {uiHint} ({renderType}) not found");
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
 
             // Get standard support for this package
@@ -255,9 +288,9 @@ namespace YetaWF.Core.Components {
 #if DEBUG
                 string s = yhtml.ToString();
                 if (s.Contains("System.Threading.Tasks.Task"))
-                    throw new InternalError($"Component {templateName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{s}\"");
+                    throw new InternalError($"Component {uiHint} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{s}\"");
                 if (s.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                    throw new InternalError($"Component {templateName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{s}\"");
+                    throw new InternalError($"Component {uiHint} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{s}\"");
 #endif
                 return yhtml;
             }

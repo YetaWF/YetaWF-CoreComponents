@@ -112,10 +112,13 @@ namespace YetaWF.Core.Components {
         // FORM
         // FORM
 
+        // TODO: investigate if this should be part of YetaWFCoreRendering and in ComponentsHTML
         protected async Task<string> RenderBeginFormAsync(object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null, string ControllerName = null, bool Pure = false) {
 
-            Manager.NextUniqueIdPrefix();
+            await YetaWFCoreRendering.AddFormsAddOns();
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");//$$$ not good here
+
+            Manager.NextUniqueIdPrefix();
 
             if (string.IsNullOrWhiteSpace(ActionName))
                 ActionName = GetViewName();

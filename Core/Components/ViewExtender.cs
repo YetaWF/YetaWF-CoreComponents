@@ -57,7 +57,7 @@ namespace YetaWF.Core.Components {
             if (view.Package.IsCorePackage || view.Package.Product.StartsWith("Components")) {
                 shortName = v;
             } else {
-                string[] s = v.Split(new char[] { '_' });
+                string[] s = v.Split(new char[] { '_' }, 3);
 #if DEBUG
                 if (s.Length != 3) throw new InternalError($"Invalid view name {viewName}");
                 if (s[0] != view.Package.Domain) throw new InternalError($"Invalid domain in view name {viewName}");

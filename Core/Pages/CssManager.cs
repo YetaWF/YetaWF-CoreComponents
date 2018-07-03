@@ -108,7 +108,7 @@ namespace YetaWF.Core.Pages {
                             filePathURL = customUrl;
                     }
                     if (bundle == null) {
-                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl) || filePathURL.ContainsIgnoreCase("/" + Globals.GlobalJavaScript + "/")) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl)) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {

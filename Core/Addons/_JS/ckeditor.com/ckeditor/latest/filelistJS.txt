@@ -1,3 +1,0 @@
-﻿//cdn.ckeditor.com/4.9.2/standard/ckeditor.js,CDN
-\node_modules\ckeditor\ckeditor.js,nominify,noCDN,nobundle
-

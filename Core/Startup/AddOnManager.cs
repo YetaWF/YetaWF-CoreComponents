@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
-using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.IO;
 using YetaWF.Core.Components;
@@ -64,6 +63,17 @@ namespace YetaWF.Core.Addons {
             await Manager.CssManager.AddAddOnAsync(version, args);
         }
         /// <summary>
+        /// Returns the Url of a named addon.
+        /// </summary>
+        /// <param name="domainName">The domain name of the addon owner.</param>
+        /// <param name="productName">The product name of the addon.</param>
+        /// <param name="name">The name of the addon.</param>
+        /// <returns></returns>
+        public string GetAddOnNamedUrl(string domainName, string productName, string name) {
+            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(domainName, productName, name);
+            return version.GetAddOnUrl();
+        }
+        /// <summary>
         /// Add a named addon (normal) if it exists.
         /// </summary>
         /// <param name="domainName">The package domain name.</param>
@@ -80,42 +90,11 @@ namespace YetaWF.Core.Addons {
             await Manager.ScriptManager.AddAddOnAsync(version, args);
             await Manager.CssManager.AddAddOnAsync(version, args);
         }
-        /// <summary>
-        /// Add an addon (global).
-        /// </summary>
-        /// <param name="domainName">The domain name of the addon owner.</param>
-        /// <param name="productName">The product name of the addon.</param>
-        /// <param name="args">Any optional arguments supported by the addon.</param>
-        /// <remarks>Global addons are located in the Core package folder ./Addons/_JS/domainname/productname.</remarks>
-        public async Task AddAddOnGlobalAsync(string domainName, string productName, params object[] args) {
-            if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnGlobalVersion(domainName, productName);
-            if (_AddedProducts.Contains(version)) return;
-            _AddedProducts.Add(version);
-            await Manager.ScriptManager.AddAddOnAsync(version, args);
-            await Manager.CssManager.AddAddOnAsync(version, args);
-        }
 
         public enum UrlType {
             Js = 0, // the location of the javascript files
             Css = 1, // the location of the css/scss/less files
             Base = 2, // the location of filelistJS/CSS.txt
-        }
-        /// <summary>
-        /// Returns the Url of a global addon.
-        /// </summary>
-        /// <param name="domainName">The domain name of the addon owner.</param>
-        /// <param name="productName">The product name of the addon.</param>
-        /// <param name="type">Defines the requested information for the addon.</param>
-        /// <returns></returns>
-        public static string GetAddOnGlobalUrl(string domainName, string productName, UrlType type) {
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnGlobalVersion(domainName, productName);
-            switch (type) {
-                case UrlType.Js: return version.GetAddOnJsUrl();
-                case UrlType.Css: return version.GetAddOnCssUrl();
-                default:
-                case UrlType.Base: return version.GetAddOnUrl();
-            }
         }
         /// <summary>
         /// Add a template - ignores non-existent templates.
@@ -241,25 +220,6 @@ namespace YetaWF.Core.Addons {
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url)))
                     await Manager.CssManager.AddFileAsync(true, url);
             }
-        }
-
-        public async Task AddSkinBasedAddOnsAsync() {
-            SkinAccess skinAccess = new SkinAccess();
-
-            // Find the jquery theme
-            string skin = Manager.CurrentPage.jQueryUISkin;
-            if (string.IsNullOrWhiteSpace(skin))
-                skin = Manager.CurrentSite.jQueryUISkin;
-            string themeFolder = await skinAccess.FindJQueryUISkinAsync(skin);
-            await AddAddOnGlobalAsync("jqueryui.com", "jqueryui-themes", themeFolder);
-
-            // Find Kendo UI theme
-            skin = Manager.CurrentPage.KendoUISkin;
-            if (string.IsNullOrWhiteSpace(skin))
-                skin = Manager.CurrentSite.KendoUISkin;
-            string internalTheme = await skinAccess.FindKendoUISkinAsync(skin);
-            await Manager.ScriptManager.AddAddOnAsync(VersionManager.KendoAddon, internalTheme);
-            await Manager.CssManager.AddAddOnAsync(VersionManager.KendoAddon, internalTheme);
         }
 
         public void AddUniqueInvokedCssModule(Type modType, Guid guid, List<string> templates, string invokingCss, bool AllowInPopup, bool AllowInAjax) {

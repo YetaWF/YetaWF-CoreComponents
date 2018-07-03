@@ -15,6 +15,8 @@ namespace YetaWF.Core.Components {
     public interface IYetaWFCoreRendering {
         Package GetImplementingPackage();
         Task AddStandardAddOns();
+        Task AddSkinAddOns();
+        Task AddFormsAddOns();
         Task<YHtmlString> RenderModuleLinksAsync(ModuleDefinition mod, ModuleAction.RenderModeEnum renderMode, string cssClass);
         Task<YHtmlString> RenderModuleMenuAsync(ModuleDefinition mod);
 
@@ -56,6 +58,12 @@ namespace YetaWF.Core.Components {
 
         public static Task AddStandardAddOns() {
             return Render.AddStandardAddOns();
+        }
+        public static Task AddSkinAddOns() {
+            return Render.AddSkinAddOns();
+        }
+        public static Task AddFormsAddOns() {
+            return Render.AddFormsAddOns();
         }
     }
 }

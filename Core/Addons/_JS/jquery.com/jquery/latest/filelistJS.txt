@@ -1,3 +1,0 @@
-https://code.jquery.com/jquery-3.3.1.min.js,CDN
-\node_modules\jquery\dist\jquery.min.js,noCDN
-

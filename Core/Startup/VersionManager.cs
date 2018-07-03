@@ -32,15 +32,12 @@ namespace YetaWF.Core.Addons {
             Skin = 2,
             [EnumDescription("Javascript", "Named Addon")]
             AddonNamed = 3,
-            [EnumDescription("Javascript (Global)", "Javascript Global Addon")]
-            AddonJSGlobal = 4,
         }
 
         private const string SkinPrefix = "_sk+";
         private const string TemplatePrefix = "_t+";
         private const string PackagePrefix = "_pkg+";
         private const string AddonPrefix = "_add+";
-        private const string AddonGlobalPrefix = "_gl+";
 
         private const string NotUsedPrefix = "notused_";
 
@@ -61,7 +58,6 @@ namespace YetaWF.Core.Addons {
 
             public string Domain { get; set; }
             public string Product { get; set; }
-            public string Version { get; set; }
             public string Name { get; set; }
             public string Url { get; set; }
 
@@ -78,14 +74,13 @@ namespace YetaWF.Core.Addons {
                     case AddOnType.Package: return PackagePrefix;
                     case AddOnType.Template: return TemplatePrefix;
                     case AddOnType.AddonNamed: return AddonPrefix;
-                    case AddOnType.AddonJSGlobal: return AddonGlobalPrefix;
                     case AddOnType.Skin: return SkinPrefix;
                     default: throw new InternalError("Invalid entry type {0}", type);
                 }
             }
 
             internal static string MakeAddOnKey(AddOnType type, string domain, string product, string name = null) {
-                if (type != AddOnType.AddonNamed && type != AddOnType.AddonJSGlobal)
+                if (type != AddOnType.AddonNamed)
                     if (name == null)
                         throw new InternalError("A name is required");
                 return $"{GetPrefix(type)}{domain}+{product}{(name != null ? $"+{name}" : "")}".ToLower();
@@ -175,63 +170,6 @@ namespace YetaWF.Core.Addons {
                 throw new InternalError("Addon Domain/Product/Name {0}/{1}/{2} not registered.", domainName, productName, name);
             return version;
         }
-
-        /// <summary>
-        /// Returns a specific global addon's installed and used version.
-        /// </summary>
-        public static AddOnProduct TryFindAddOnGlobalVersion(string domainName, string productName) {
-            AddOnProduct product;
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.AddonJSGlobal, domainName, productName), out product))
-                return null;
-            return product;
-        }
-        /// <summary>
-        /// Returns a specific global addon's installed and used version information.
-        /// </summary>
-        public static AddOnProduct FindAddOnGlobalVersion(string domainName, string productName) {
-            AddOnProduct version = TryFindAddOnGlobalVersion(domainName, productName);
-            if (version == null)
-                throw new InternalError("Global addon Domain/Product {0}/{1} not registered.", domainName, productName);
-            return version;
-        }
-
-        public enum KendoAddonTypeEnum {
-            Core = 0,
-            Pro = 1,
-        }
-
-        /// <summary>
-        /// Returns the installed Kendo addon
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public static AddOnProduct KendoAddon {
-            get {
-                if (_kendoAddon == null) {
-                    AddOnProduct addonCore = TryFindAddOnGlobalVersion("telerik.com", "Kendo_UI_Core");
-                    AddOnProduct addonPro = TryFindAddOnGlobalVersion("telerik.com", "Kendo_UI_Pro");
-                    if (addonPro != null) {
-                        _kendoAddonType = KendoAddonTypeEnum.Pro;
-                        _kendoAddon = addonPro;
-                    } else if (addonCore != null) {
-                        _kendoAddonType = KendoAddonTypeEnum.Core;
-                        _kendoAddon = addonCore;
-                    } else
-                        throw new InternalError("Found neither Kendo UI Pro nor Kendo UI Core");
-                }
-                return _kendoAddon;
-            }
-        }
-        /// <summary>
-        /// Returns the installed Kendo addon type (Core or Pro)
-        /// </summary>
-        public static KendoAddonTypeEnum KendoAddonType {
-            get {
-                AddOnProduct prod = KendoAddon;// side effect - determine Kendo type
-                return _kendoAddonType;
-            }
-        }
-        private static AddOnProduct _kendoAddon = null;
-        private static KendoAddonTypeEnum _kendoAddonType;
 
         /// <summary>
         /// Returns a specific template's installed and used version information.
@@ -453,25 +391,6 @@ namespace YetaWF.Core.Addons {
                                     throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                             }
                         }
-                        //// Make a symlink to the views for this package
-                        //{
-                        //    string to = Path.Combine(package.PackageSourceRoot, Globals.ViewsFolder);
-                        //    if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(to)) {// skins and some modules don't have views
-                        //        string viewsPath = Path.Combine(AreasFolder, package.AreaName);
-                        //        if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath))
-                        //            await FileSystem.FileSystemProvider.CreateDirectoryAsync(viewsPath);
-                        //        viewsPath = Path.Combine(viewsPath, Globals.ViewsFolder);
-                        //        if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(viewsPath) || !await Package.IsPackageSymLinkAsync(viewsPath)) {
-                        //            await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
-                        //            if (!await Package.CreatePackageSymLinkAsync(viewsPath, to))
-                        //                throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", viewsPath, to);
-                        //        }
-                        //    } else {
-                        //        // remove any symlinks that may point to a Views folder in source that no longer exists
-                        //        string viewsPath = Path.Combine(AreasFolder, package.AreaName, Globals.ViewsFolder);
-                        //        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(viewsPath);
-                        //    }
-                        //}
                     } else {
                         // no source
                     }
@@ -497,8 +416,6 @@ namespace YetaWF.Core.Addons {
                     await RegisterAddonsAsync(package, folder);
                 } else if (string.Compare(directoryName, "_Skins", true) == 0) {
                     await RegisterSkinsAsync(package, folder);
-                } else if (string.Compare(directoryName, Globals.GlobalJavaScript, true) == 0) {
-                    await RegisterGlobalAddonsAsync(package, folder);
                 } else if (string.Compare(directoryName, "_SiteTemplates", true) == 0) {
                     await CopySiteTemplatesAsync(folder);
                 } else if (directoryName.StartsWith("_")) {
@@ -539,35 +456,6 @@ namespace YetaWF.Core.Addons {
                 await RegisterNamedAddonAsync(package, folder, directoryName);
             }
         }
-
-        private static async Task RegisterGlobalAddonsAsync(Package package, string asmFolder) {
-            List<string> domainFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
-            foreach (var domainFolder in domainFolders) {
-                string domain = Path.GetFileName(domainFolder);
-                List<string> productFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(domainFolder);
-                foreach (var productFolder in productFolders) {
-                    string product = Path.GetFileName(productFolder);
-                    List<string> versionFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(productFolder);
-                    foreach (var versionFolder in versionFolders) {
-                        string versionNumber = Path.GetFileName(versionFolder);
-                        if (versionNumber.StartsWith(NotUsedPrefix, StringComparison.InvariantCultureIgnoreCase))
-                            continue;
-
-                        string key = AddOnProduct.MakeAddOnKey(AddOnType.AddonJSGlobal, domain, product);
-                        AddOnProduct version = new AddOnProduct {
-                            Type = AddOnType.AddonJSGlobal,
-                            Domain = domain,
-                            Product = product,
-                            Version = versionNumber,
-                            Url = YetaWFManager.PhysicalToUrl(versionFolder),
-                        };
-                        await AddFileListsAsync(version, null, versionFolder);
-                        Products.Add(key, version);
-                        Logging.AddLog("added {0} in {1}", version.AddonKey, versionFolder);
-                    }
-                }
-            }
-        }
         private static async Task RegisterTemplatesAsync(Package package, string asmFolder) {
             List<string> templateFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var folder in templateFolders) {
@@ -598,7 +486,6 @@ namespace YetaWF.Core.Addons {
                 Domain = package.Domain,
                 Product = package.Product,
                 Name = name,
-                Version = null,
                 Url = YetaWFManager.PhysicalToUrl(folder),
             };
             await AddFileListsAsync(version, package, folder);
@@ -624,7 +511,7 @@ namespace YetaWF.Core.Addons {
 
             List<Type> types = new List<Type>();
 
-            if (version.Type == AddOnType.Skin || version.Type == AddOnType.AddonJSGlobal) return types;
+            if (version.Type == AddOnType.Skin) return types;
             if (package == null) throw new InternalError("Package required");
 
             // build a type name based on domain name and product name - if it exists, add it
@@ -702,8 +589,6 @@ namespace YetaWF.Core.Addons {
 #endif
                 string path = (from l in lines where l.StartsWith("Folder ") select l.Trim()).FirstOrDefault();
                 if (path != null) {
-                    if (version.Type != AddOnType.AddonJSGlobal)
-                        throw new InternalError("The Folder directive can only be used in a global addon");
                     path = path.Substring(6).Trim();
                     if (path.StartsWith("\\")) {
                         if (!path.EndsWith("\\")) path = path + "\\";

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
@@ -29,7 +30,7 @@ namespace YetaWF.Core.Skins {
         private static JQueryTheme _jQueryThemeDefault;
 
         private async Task<List<JQueryTheme>> LoadJQueryUIThemesAsync() {
-            string url = AddOnManager.GetAddOnGlobalUrl("jqueryui.com", "jqueryui-themes", AddOnManager.UrlType.Base);
+            string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "jqueryui.com.jqueryui-themes");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);
@@ -68,7 +69,7 @@ namespace YetaWF.Core.Skins {
             return (from theme in jqList orderby theme.Name select theme).ToList();
         }
 
-        internal async Task<string> FindJQueryUISkinAsync(string themeName) {
+        public async Task<string> FindJQueryUISkinAsync(string themeName) {
             string folder = (from th in await GetJQueryThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(folder))
                 return folder;

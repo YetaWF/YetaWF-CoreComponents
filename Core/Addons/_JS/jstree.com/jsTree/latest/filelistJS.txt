@@ -1,2 +1,0 @@
-//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/jstree.min.js,CDN
-\node_modules\jstree\dist\jstree.min.js,noCDN

@@ -1,2 +1,0 @@
-﻿//cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.3/css/ui.jqgrid.css,CDN
-\node_modules\free-jqgrid\dist\css\ui.jqgrid.css,noCDN

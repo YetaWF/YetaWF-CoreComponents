@@ -134,6 +134,7 @@ namespace YetaWF.Core.Controllers {
 
                 await YetaWFCoreRendering.AddStandardAddOns();
                 await Manager.SetSkinOptions();
+                await YetaWFCoreRendering.AddSkinAddOns();
                 await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
                 await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");//$$$ move?

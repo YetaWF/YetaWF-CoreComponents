@@ -54,7 +54,6 @@ namespace YetaWF.Core {
         // Data Folder
         public const string DataFolder = "Data";
         public const string SitesFolder = "Sites";
-        public const string GlobalJavaScript = "_JS";
         public const string TempFiles = "TempFiles";
         public const string SiteTemplates = "SiteTemplates";
         public const string SiteTemplatesData = SiteTemplates + "\\Data";

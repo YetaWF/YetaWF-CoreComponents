@@ -1,9 +1,0 @@
-//kendo.cdn.telerik.com/2018.1.221/js/kendo.all.min.js,CDN
-
-Folder \bower_components\kendo-ui\js\
-kendo.core.min.js,noCDN
-# Basics (Window)
-kendo.userevents.min.js,bundle,noCDN
-kendo.draganddrop.min.js,bundle,noCDN
-kendo.popup.min.js,bundle,noCDN
-kendo.window.min.js,bundle,noCDN
