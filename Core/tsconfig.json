@@ -1,21 +1,29 @@
 {
   "compilerOptions": {
     "noImplicitAny": false,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "removeComments": false,
-    "sourceMap": true,
+    "sourceMap": false,
     "target": "es5",
     "module": "none",
-    "declaration": true,
+    "declaration": false,
     "importHelpers": true,
     "skipLibCheck": true,
     "noEmitHelpers": false,
     "jsx": "react",
+    "jsxFactory": "YetaWF_Basics.createElement",
     "strict": true,
+    "alwaysStrict": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "alwaysStrict": false,
-    "jsxFactory": "YetaWF_Basics.createElement"
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "preserveSymlinks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true
+
   },
-  "compileOnSave": true
+  "compileOnSave": true,
+  "typeAcquisition": { "enable": false }
 }

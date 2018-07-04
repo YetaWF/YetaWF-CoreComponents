@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <TypeScriptToolsVersion>2.4</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>2.8.3</TypeScriptToolsVersion>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -396,6 +396,7 @@
     <Folder Include="Startup\MVC6\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.tsx" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />
     <TypeScriptCompile Include="Addons\_Addons\Forms\Forms2.tsx" />
   </ItemGroup>

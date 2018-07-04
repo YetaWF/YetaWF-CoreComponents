@@ -39,8 +39,8 @@ namespace YetaWF.Core.Addons {
             scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Form Error"));
             scripts.AddLocalization("Forms", "FormErrors", this.__ResStr("FormErrors", ""));
 
-            scripts.AddConfigOption("Forms", "UniqueIdPrefix", UniqueIdPrefix);//$$ move to ComponentsHTML?
-            scripts.AddConfigOption("Forms", "RequestVerificationToken", "__RequestVerificationToken");//$$ move to ComponentsHTML?
+            scripts.AddConfigOption("Forms", "UniqueIdPrefix", UniqueIdPrefix);//$$$ move to ComponentsHTML?
+            scripts.AddConfigOption("Forms", "RequestVerificationToken", "__RequestVerificationToken");//$$$ move to ComponentsHTML?
 
             // Validation (not implementation specific) used by validation attributes
 
