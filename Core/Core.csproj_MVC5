@@ -186,7 +186,7 @@
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
-    <Compile Include="Pages\RazorView.cs" />
+    <Compile Include="Pages\PostProcessView.cs" />
     <Compile Include="Components\FormButton.cs" />
     <Compile Include="Components\TemplateAction.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
@@ -331,6 +331,9 @@
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
+    <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
+    <Content Include="Addons\_Addons\Basics\Basics.js" />
+    <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\bootstrap.css" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\filelistCSS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\filelistJS.txt" />
@@ -341,6 +344,8 @@
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\themelist.txt" />
     <Content Include="Addons\_Addons\Image\NoImage.png" />
     <Content Include="Addons\_Addons\jqueryui.com.jqueryui-themes\themelist.txt" />
+    <Content Include="Addons\_Addons\smartresize\SmartResize.js" />
+    <Content Include="Addons\_Addons\smartresize\filelistJS.txt" />
     <Content Include="Addons\_Addons\telerik.com.Kendo_UI_Core\themelist.txt" />
     <Content Include="Addons\_Skins\Standard\Popups\PopupContent.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
@@ -349,21 +354,12 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Addons\_Addons\Basics\Basics.js" />
     <Content Include="Addons\_Addons\Basics\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Basics\filelistJS.txt" />
     <Content Include="Addons\_Addons\Basics\Basics.css" />
-    <Content Include="Addons\_Addons\Basics\Globals.js" />
-    <Content Include="Addons\_Addons\Forms\docs.txt" />
-    <Content Include="Addons\_Addons\Forms\filelistCSS.txt" />
-    <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Forms\forms.css" />
-    <Content Include="Addons\_Addons\Forms\forms.js" />
-    <Content Include="Addons\_Addons\Forms\validation.js" />
     <Content Include="Addons\_Addons\Popups\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Popups\filelistJS.txt" />
     <Content Include="Addons\_Addons\Popups\popups.css" />
-    <Content Include="Addons\_Addons\Popups\popups.js" />
     <Content Include="Addons\_Main\Emails\SMTPServer Test Message.txt" />
     <Content Include="Addons\_Main\Emails\Text Message.txt" />
     <Content Include="Addons\_Skins\Standard\filelistCSS.txt" />
@@ -398,7 +394,8 @@
   <ItemGroup>
     <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.tsx" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />
-    <TypeScriptCompile Include="Addons\_Addons\Forms\Forms2.tsx" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Forms.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Popups\Popups.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
