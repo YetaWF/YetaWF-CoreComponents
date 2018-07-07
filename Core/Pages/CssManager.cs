@@ -226,8 +226,9 @@ namespace YetaWF.Core.Pages {
             }
 
             foreach (CssEntry entry in externalList) {
+                string url = Manager.GetCDNUrl(entry.Url);
                 if (cr == null) {
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", YetaWFManager.HtmlAttributeEncode(entry.Url), YetaWFManager.HtmlAttributeEncode(entry.Url)));
+                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", YetaWFManager.HtmlAttributeEncode(entry.Url), YetaWFManager.HtmlAttributeEncode(url)));
                 } else {
                     if (KnownCss == null || !KnownCss.Contains(entry.Url)) {
                         cr.CssFiles.Add(new Controllers.PageContentController.UrlEntry {

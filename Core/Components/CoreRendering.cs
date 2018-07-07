@@ -14,9 +14,15 @@ namespace YetaWF.Core.Components {
 
     public interface IYetaWFCoreRendering {
         Package GetImplementingPackage();
-        Task AddStandardAddOns();
-        Task AddSkinAddOns();
-        Task AddFormsAddOns();
+        Task AddStandardAddOnsAsync();
+        Task AddSkinAddOnsAsync();
+        Task AddFormsAddOnsAsync();
+        Task AddPopupsAddOnsAsync();
+#if MVC6
+        Task<YHtmlString> RenderViewAsync(IHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
+#else
+        Task<YHtmlString> RenderViewAsync(HtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
+#endif
         Task<YHtmlString> RenderModuleLinksAsync(ModuleDefinition mod, ModuleAction.RenderModeEnum renderMode, string cssClass);
         Task<YHtmlString> RenderModuleMenuAsync(ModuleDefinition mod);
 
@@ -54,16 +60,6 @@ namespace YetaWF.Core.Components {
                 Package package = Render.GetImplementingPackage();
                 await Manager.AddOnManager.AddTemplateAsync(package.Domain, package.Product, uiHintTemplate);
             }
-        }
-
-        public static Task AddStandardAddOns() {
-            return Render.AddStandardAddOns();
-        }
-        public static Task AddSkinAddOns() {
-            return Render.AddSkinAddOns();
-        }
-        public static Task AddFormsAddOns() {
-            return Render.AddFormsAddOns();
         }
     }
 }

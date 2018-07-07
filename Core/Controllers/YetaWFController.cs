@@ -17,6 +17,7 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using System.IO;
+using YetaWF.Core.Views;
 #if MVC6
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
@@ -163,7 +164,7 @@ namespace YetaWF.Core.Controllers
             filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
             filterContext.ExceptionHandled = true;
             ContentResult cr = Content(
-                string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.JsonSerialize(msg)));
+                string.Format(Basics.AjaxJavascriptErrorReturn + "YetaWF_Basics.Y_Error({0});", YetaWFManager.JsonSerialize(msg)));
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
@@ -630,13 +631,12 @@ namespace YetaWF.Core.Controllers
                     if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
 
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Module.ReferencedModules);
-                    viewHtml = viewHtml + (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
-                    viewHtml = YetaWF.Core.Views.RazorViewExtensions.PostProcessViewHtml(htmlHelper, Module, viewHtml);
 
-                    Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
-                    viewHtml = vars.ReplaceVariables(viewHtml);// variable substitution
+                    viewHtml = viewHtml + (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
+                    viewHtml = await PostProcessView.ProcessAsync(htmlHelper, Module, viewHtml);
 
                     if (Script != null)
                         Manager.ScriptManager.AddLastDocumentReady(Script);

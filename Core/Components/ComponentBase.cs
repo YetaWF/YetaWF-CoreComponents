@@ -156,6 +156,16 @@ namespace YetaWF.Core.Components {
             return Manager.UniqueId(name);
         }
 
+        public string HAE(string text) {
+            return YetaWFManager.HtmlAttributeEncode(text);
+        }
+        public string HE(string text) {
+            return YetaWFManager.HtmlEncode(text);
+        }
+        public string JE(string text) {
+            return YetaWFManager.JserEncode(text);
+        }
+
         public abstract Package GetPackage();
         public abstract string GetTemplateName();
         public abstract ComponentType GetComponentType();

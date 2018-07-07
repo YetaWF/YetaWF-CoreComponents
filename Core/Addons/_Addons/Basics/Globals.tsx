@@ -5,5 +5,5 @@
 
 declare var YVolatile: any;
 declare var YConfigs: any;
-
-declare var YetaWF_Forms: any;
+declare var YLocs: any;
+declare var YGlobals: any;

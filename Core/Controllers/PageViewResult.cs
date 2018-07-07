@@ -132,14 +132,10 @@ namespace YetaWF.Core.Controllers {
                 }
                 Manager.LastUpdated = requestedPage.Updated;
 
-                await YetaWFCoreRendering.AddStandardAddOns();
+                await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
                 await Manager.SetSkinOptions();
-                await YetaWFCoreRendering.AddSkinAddOns();
+                await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
                 await Manager.AddOnManager.AddSkinAsync(skinCollection);
-
-                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");//$$$ move?
-                if (Manager.IsInPopup)
-                    await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");//$$$ move?
 
                 string pageHtml;
 #if MVC6
@@ -154,7 +150,7 @@ namespace YetaWF.Core.Controllers {
 #endif
                 if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
                     pageHtml = ProcessInlineScripts(pageHtml);
-                Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
+                Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization //$$$$
 
                 await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
                 Manager.PopCharSize();

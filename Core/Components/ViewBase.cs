@@ -57,7 +57,7 @@ namespace YetaWF.Core.Components {
         private HtmlHelper _htmlHelper;
 #endif
 
-        private ModuleDefinition ModuleBase { get; set; }
+        protected ModuleDefinition ModuleBase { get; set; }
 
         public void SetRenderInfo(
 #if MVC6
@@ -108,65 +108,6 @@ namespace YetaWF.Core.Components {
         public abstract Package GetPackage();
         public abstract string GetViewName();
 
-        // FORM
-        // FORM
-        // FORM
-
-        // TODO: investigate if this should be part of YetaWFCoreRendering and in ComponentsHTML
-        protected async Task<string> RenderBeginFormAsync(object HtmlAttributes = null, bool SaveReturnUrl = false, bool ValidateImmediately = false, string ActionName = null, string ControllerName = null, bool Pure = false) {
-
-            await YetaWFCoreRendering.AddFormsAddOns();
-            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Forms");//$$$ not good here
-
-            Manager.NextUniqueIdPrefix();
-
-            if (string.IsNullOrWhiteSpace(ActionName))
-                ActionName = GetViewName();
-            if (!ActionName.EndsWith(YetaWFViewExtender.PartialSuffix))
-                ActionName += YetaWFViewExtender.PartialSuffix;
-            if (string.IsNullOrWhiteSpace(ControllerName))
-                ControllerName = ModuleBase.Controller;
-
-            IDictionary<string, object> rvd = AnonymousObjectToHtmlAttributes(HtmlAttributes);
-            if (SaveReturnUrl)
-                rvd.Add(Basics.CssSaveReturnUrl, "");
-
-            if (!Pure) {
-                string css = null;
-                if (Manager.CurrentSite.FormErrorsImmed)
-                    css = YetaWFManager.CombineCss(css, "yValidateImmediately");
-                css = YetaWFManager.CombineCss(css, Forms.CssFormAjax);
-                rvd.Add("class", css);
-            }
-
-            YTagBuilder tagBuilder = new YTagBuilder("form");
-            tagBuilder.MergeAttributes(rvd, true);
-            string formAction;
-#if MVC6
-            IServiceProvider services = HtmlHelper.ViewContext.HttpContext.RequestServices;
-            IUrlHelper urlHelper = services.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(HtmlHelper.ViewContext);
-            formAction = urlHelper.Action(action: ActionName, controller: ControllerName);
-#else
-            formAction = UrlHelper.GenerateUrl(null /* routeName */, ActionName, ControllerName, null, HtmlHelper.RouteCollection, HtmlHelper.ViewContext.RequestContext, true /* includeImplicitMvcValues */);
-#endif
-            tagBuilder.MergeAttribute("action", formAction, true);
-            tagBuilder.MergeAttribute("method", "post", true);
-
-            return tagBuilder.ToString(YTagRenderMode.StartTag);
-        }
-        protected Task<string> RenderEndFormAsync() {
-            return Task.FromResult("</form>");
-        }
-        private IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
-            if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
-            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
-#if MVC6
-            return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-#else
-            return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-#endif
-        }
-
         // PartialForm rendering called during regular form processing (not ajax)
         public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, bool UsePartialFormCss = true, bool ShowView = true) {
             if (Manager.InPartialView)
@@ -186,7 +127,7 @@ namespace YetaWF.Core.Components {
             } finally {
                 Manager.InPartialView = false;
             }
-            string html = RazorViewExtensions.PostProcessViewHtml(HtmlHelper, ModuleBase, viewHtml.ToString(), UsePartialFormCss: UsePartialFormCss);
+            string html = await PostProcessView.ProcessAsync(HtmlHelper, ModuleBase, viewHtml.ToString(), UsePartialFormCss: UsePartialFormCss);
             return new YHtmlString(html);
         }
 

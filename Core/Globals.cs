@@ -47,7 +47,7 @@ namespace YetaWF.Core {
 
         public async Task InitializeApplicationStartupAsync() {
             // Generate globals javascript equivalent
-            string outputUrl = VersionManager.GetAddOnNamedUrl("YetaWF", "Core", "Basics") + "Globals.js";
+            string outputUrl = VersionManager.GetAddOnNamedUrl("YetaWF", "Core", "Basics") + "YGlobals.js";
             await ConvertGlobalsToJavascript.ConvertAsync(YetaWFManager.UrlToPhysical(outputUrl), this, "YGlobals"); // this will happen for each node startup, which is OK as it just overwrites the file with the same data
         }
 

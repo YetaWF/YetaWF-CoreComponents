@@ -1,3 +1,6 @@
-﻿Globals.js
+﻿YGlobals.js
+BasicsProto.js
+Globals.js
 Basics2.tsx
 Basics.js
+Forms.ts

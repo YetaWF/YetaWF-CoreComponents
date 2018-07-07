@@ -1,3 +1,1 @@
-﻿Validation.js
-Forms.js
-Forms2.js
+﻿# No actual files listed. We just need the addon-specific configs, localizations
