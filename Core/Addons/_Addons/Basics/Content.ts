@@ -185,7 +185,7 @@ namespace YetaWF {
                         this.closemenus();
                         if (result.Status != null && result.Status.length > 0) {
                             YetaWF_Basics.setLoading(false);
-                            YetaWF_Basics.Y_Alert(result.Status, YLocs.Forms.AjaxErrorTitle);
+                            YetaWF_Basics.alert(result.Status, YLocs.Forms.AjaxErrorTitle);
                             return;
                         }
                         if (result.Redirect != null && result.Redirect.length > 0) {
@@ -320,7 +320,7 @@ namespace YetaWF {
                     },
                     error: (jqXHR: JQuery.jqXHR, textStatus: string, errorThrown: string) => {
                         YetaWF_Basics.setLoading(false);
-                        YetaWF_Basics.Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
+                        YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
                         debugger;
                     }
                 });

@@ -110,7 +110,7 @@ var YetaWF;
                     // this is a file download
                     var confirm = $t.attr(YConfigs.Basics.CssConfirm);
                     if (confirm) {
-                        YetaWF_Basics.Y_AlertYesNo(confirm, undefined, function () {
+                        YetaWF_Basics.alertYesNo(confirm, undefined, function () {
                             window.location.assign(url);
                             YetaWF_Basics.setLoading();
                             _this.waitForCookie(cookieToReturn);
@@ -124,17 +124,17 @@ var YetaWF;
                     // this means that it's posted by definition
                     var confirm = $t.attr(YConfigs.Basics.CssConfirm);
                     if (confirm) {
-                        YetaWF_Basics.Y_AlertYesNo(confirm, undefined, function () {
+                        YetaWF_Basics.alertYesNo(confirm, undefined, function () {
                             _this.postLink(url, $t, cookieToReturn);
                             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                                YetaWF_Basics.Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
+                                YetaWF_Basics.pleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
                             return false;
                         });
                         return false;
                     }
                     else if (post) {
                         if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                            YetaWF_Basics.Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
+                            YetaWF_Basics.pleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
                         _this.postLink(url, $t, cookieToReturn);
                         return false;
                     }
@@ -142,7 +142,7 @@ var YetaWF;
                 if (target == "_self") {
                     // add overlay if desired
                     if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
-                        YetaWF_Basics.Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
+                        YetaWF_Basics.pleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
                     }
                 }
                 _this.waitForCookie(cookieToReturn); // if any
@@ -196,7 +196,7 @@ var YetaWF;
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     YetaWF_Basics.setLoading(false);
-                    YetaWF_Basics.Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
+                    YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
                     debugger;
                 }
             });

@@ -95,36 +95,36 @@ var YetaWF;
         BasicsServices.prototype.setLoading = function (on) {
             YetaWF_BasicsImpl.setLoading(on);
             if (on == false)
-                this.Y_PleaseWaitClose();
+                this.pleaseWaitClose();
         };
         /**
          * Displays an informational message, usually in a popup.
          */
-        BasicsServices.prototype.Y_Message = function (message, title, onOK, options) { YetaWF_BasicsImpl.Y_Message(message, title, onOK, options); };
+        BasicsServices.prototype.message = function (message, title, onOK, options) { YetaWF_BasicsImpl.message(message, title, onOK, options); };
         /**
          * Displays an error message, usually in a popup.
          */
-        BasicsServices.prototype.Y_Error = function (message, title, onOK, options) { YetaWF_BasicsImpl.Y_Error(message, title, onOK, options); };
+        BasicsServices.prototype.error = function (message, title, onOK, options) { YetaWF_BasicsImpl.error(message, title, onOK, options); };
         /**
          * Displays a confirmation message, usually in a popup.
          */
-        BasicsServices.prototype.Y_Confirm = function (message, title, onOK, options) { YetaWF_BasicsImpl.Y_Confirm(message, title, onOK, options); };
+        BasicsServices.prototype.confirm = function (message, title, onOK, options) { YetaWF_BasicsImpl.confirm(message, title, onOK, options); };
         /**
          * Displays an alert message, usually in a popup.
          */
-        BasicsServices.prototype.Y_Alert = function (message, title, onOK, options) { YetaWF_BasicsImpl.Y_Alert(message, title, onOK, options); };
+        BasicsServices.prototype.alert = function (message, title, onOK, options) { YetaWF_BasicsImpl.alert(message, title, onOK, options); };
         /**
          * Displays an alert message with Yes/No buttons, usually in a popup.
          */
-        BasicsServices.prototype.Y_AlertYesNo = function (message, title, onYes, onNo, options) { YetaWF_BasicsImpl.Y_AlertYesNo(message, title, onYes, onNo, options); };
+        BasicsServices.prototype.alertYesNo = function (message, title, onYes, onNo, options) { YetaWF_BasicsImpl.alertYesNo(message, title, onYes, onNo, options); };
         /**
          * Displays a "Please Wait" message
          */
-        BasicsServices.prototype.Y_PleaseWait = function (message, title) { YetaWF_BasicsImpl.Y_PleaseWait(message, title); };
+        BasicsServices.prototype.pleaseWait = function (message, title) { YetaWF_BasicsImpl.pleaseWait(message, title); };
         /**
          * Closes the "Please Wait" message (if any).
          */
-        BasicsServices.prototype.Y_PleaseWaitClose = function () { YetaWF_BasicsImpl.Y_PleaseWaitClose(); };
+        BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
         // Focus
         /**
          * Set focus to a suitable field within the specified element.
@@ -429,13 +429,13 @@ var YetaWF;
             }
             else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                eval(script); // if this uses YetaWF_Basics.Y_Alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                eval(script); // if this uses YetaWF_Basics.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                 YetaWF_Basics.reloadPage(true);
                 return true;
             }
             else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                eval(script); // if this uses YetaWF_Basics.Y_Alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                eval(script); // if this uses YetaWF_Basics.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                 this.reloadModule();
                 return true;
             }
@@ -452,7 +452,7 @@ var YetaWF;
                     onHandleResult(result);
                 }
                 else {
-                    YetaWF_Basics.Y_Error(YLocs.Basics.IncorrectServerResp);
+                    YetaWF_Basics.error(YLocs.Basics.IncorrectServerResp);
                 }
                 return false;
             }

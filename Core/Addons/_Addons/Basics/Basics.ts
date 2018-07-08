@@ -45,31 +45,31 @@ namespace YetaWF {
         /**
          * Displays an informational message, usually in a popup.
          */
-        Y_Message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
+        message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
          * Displays an error message, usually in a popup.
          */
-        Y_Error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
+        error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
          * Displays a confirmation message, usually in a popup.
          */
-        Y_Confirm(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
+        confirm(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
          * Displays an alert message, usually in a popup.
          */
-        Y_Alert(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
+        alert(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
          * Displays an alert message, usually in a popup.
          */
-        Y_AlertYesNo(message: string, title?: string, onYes?: () => void, onNo?: () => void, options?: MessageOptions): void;
+        alertYesNo(message: string, title?: string, onYes?: () => void, onNo?: () => void, options?: MessageOptions): void;
         /**
          * Displays a "Please Wait" message.
          */
-        Y_PleaseWait(message?: string, title?: string): void;
+        pleaseWait(message?: string, title?: string): void;
         /**
          * Closes the "Please Wait" message (if any).
          */
-        Y_PleaseWaitClose(): void;
+        pleaseWaitClose(): void;
 
     }
 
@@ -98,37 +98,37 @@ namespace YetaWF {
         public setLoading(on?: boolean): void {
             YetaWF_BasicsImpl.setLoading(on);
             if (on == false)
-                this.Y_PleaseWaitClose();
+                this.pleaseWaitClose();
         }
 
         /**
          * Displays an informational message, usually in a popup.
          */
-        public Y_Message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.Y_Message(message, title, onOK, options); }
+        public message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.message(message, title, onOK, options); }
         /**
          * Displays an error message, usually in a popup.
          */
-        public Y_Error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.Y_Error(message, title, onOK, options); }
+        public error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.error(message, title, onOK, options); }
         /**
          * Displays a confirmation message, usually in a popup.
          */
-        public Y_Confirm(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.Y_Confirm(message, title, onOK, options); }
+        public confirm(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.confirm(message, title, onOK, options); }
         /**
          * Displays an alert message, usually in a popup.
          */
-        public Y_Alert(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.Y_Alert(message, title, onOK, options); }
+        public alert(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.alert(message, title, onOK, options); }
         /**
          * Displays an alert message with Yes/No buttons, usually in a popup.
          */
-        public Y_AlertYesNo(message: string, title?: string, onYes?: () => void, onNo?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.Y_AlertYesNo(message, title, onYes, onNo, options); }
+        public alertYesNo(message: string, title?: string, onYes?: () => void, onNo?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.alertYesNo(message, title, onYes, onNo, options); }
         /**
          * Displays a "Please Wait" message
          */
-        public Y_PleaseWait(message?: string, title?: string) { YetaWF_BasicsImpl.Y_PleaseWait(message, title); }
+        public pleaseWait(message?: string, title?: string) { YetaWF_BasicsImpl.pleaseWait(message, title); }
         /**
          * Closes the "Please Wait" message (if any).
          */
-        Y_PleaseWaitClose(): void { YetaWF_BasicsImpl.Y_PleaseWaitClose(); }
+        pleaseWaitClose(): void { YetaWF_BasicsImpl.pleaseWaitClose(); }
 
         // Implemented by YetaWF
         // Implemented by YetaWF
@@ -495,12 +495,12 @@ namespace YetaWF {
                 return false;
             } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                eval(script);// if this uses YetaWF_Basics.Y_Alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                 YetaWF_Basics.reloadPage(true);
                 return true;
             } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                eval(script);// if this uses YetaWF_Basics.Y_Alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                 this.reloadModule();
                 return true;
             } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
@@ -514,7 +514,7 @@ namespace YetaWF {
                 if (onHandleResult != undefined) {
                     onHandleResult(result);
                 } else {
-                    YetaWF_Basics.Y_Error(YLocs.Basics.IncorrectServerResp);
+                    YetaWF_Basics.error(YLocs.Basics.IncorrectServerResp);
                 }
                 return false;
             }
