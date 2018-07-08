@@ -37,7 +37,7 @@ var YetaWF;
             else
                 url += "&";
             url += new Date().getUTCMilliseconds();
-            url += "&" + YGlobals.Link_ToPopup + "=y"; // we're now going into a popup
+            url += "&" + YConfigs.Basics.Link_ToPopup + "=y"; // we're now going into a popup
             if (!forceIframe) {
                 if (YetaWF_Basics.ContentHandling.setContent(new URI(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
                     // contents set in dynamic popup
@@ -99,3 +99,5 @@ var YetaWF;
  * Popup services available throughout YetaWF.
  */
 var YetaWF_Popups = new YetaWF.PopupsServices();
+
+//# sourceMappingURL=Popups.js.map

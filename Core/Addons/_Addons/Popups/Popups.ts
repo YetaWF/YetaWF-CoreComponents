@@ -90,7 +90,7 @@ namespace YetaWF {
             else
                 url += "&";
             url += new Date().getUTCMilliseconds();
-            url += "&" + YGlobals.Link_ToPopup + "=y";// we're now going into a popup
+            url += "&" + YConfigs.Basics.Link_ToPopup + "=y";// we're now going into a popup
 
             if (!forceIframe) {
                 if (YetaWF_Basics.ContentHandling.setContent(new URI(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {

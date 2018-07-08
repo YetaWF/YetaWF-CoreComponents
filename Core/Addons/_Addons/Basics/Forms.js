@@ -105,8 +105,8 @@ var YetaWF;
                 var originList = YVolatile.Basics.OriginList;
                 if ($form.attr(YConfigs.Basics.CssSaveReturnUrl) != undefined) { // form says we need to save the return address on submit
                     var currUri = new URI(window.location.href);
-                    currUri.removeSearch(YGlobals.Link_OriginList); // remove originlist from current URL
-                    currUri.removeSearch(YGlobals.Link_InPopup); // remove popup info from current URL
+                    currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
+                    currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
                     originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
                     var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                     originList.push(newOrigin);
@@ -116,15 +116,15 @@ var YetaWF;
                 // include the character dimension info
                 {
                     var charSize = YetaWF_Basics.getCharSizeFromTag($form);
-                    formData = formData + "&" + YGlobals.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
+                    formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
                 }
-                formData = formData + "&" + YGlobals.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
+                formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
                 // add the status of the Pagecontrol
                 if (YVolatile.Basics.PageControlVisible)
-                    formData = formData + "&" + YGlobals.Link_PageControl + "=y";
+                    formData = formData + "&" + YConfigs.Basics.Link_PageControl + "=y";
                 // add if we're in a popup
                 if (YetaWF_Basics.isInPopup())
-                    formData = formData + "&" + YGlobals.Link_InPopup + "=y";
+                    formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
                 $.ajax({
                     url: form.action,
                     type: form.method,
@@ -196,7 +196,7 @@ var YetaWF;
         };
         ;
         Forms.prototype.submitTemplate = function (tag, useValidation, templateName, templateAction, templateExtraData) {
-            var qs = YConfigs.Basics.TemplateName + "=" + templateName + "&" + YGlobals.Link_SubmitIsApply;
+            var qs = YConfigs.Basics.TemplateName + "=" + templateName + "&" + YConfigs.Basics.Link_SubmitIsApply;
             if (templateAction)
                 qs += "&" + YConfigs.Basics.TemplateAction + "=" + encodeURIComponent(templateAction);
             if (templateExtraData)
@@ -310,20 +310,20 @@ var YetaWF;
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag) {
             var $form = this.getForm(tag);
-            var req = $("input[name=\"'" + YConfigs.Forms.RequestVerificationToken + "'\"]", $form).val();
-            if (req == undefined || req.length == 0)
+            var req = $("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", $form).val();
+            if (!req || req.length == 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var pre = $("input[name=\"'" + YConfigs.Forms.UniqueIdPrefix + "'\"]", $form).val();
-            if (pre == undefined || pre.length == 0)
+            var pre = $("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", $form).val();
+            if (!pre || pre.length == 0)
                 throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix; /*DEBUG*/
-            var guid = $("input[name=\"'" + YConfigs.Basics.ModuleGuid + "'\"]", $form).val();
-            if (guid == undefined || guid.length == 0)
+            var guid = $("input[name='" + YConfigs.Basics.ModuleGuid + "']", $form).val();
+            if (!guid || guid.length == 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
             var charSize = YetaWF_Basics.getCharSizeFromTag($form);
             var qs = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
-                "&" + YGlobals.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
+                "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
             var info = {
                 RequestVerificationToken: req,
                 UniqueIdPrefix: pre,
@@ -372,7 +372,7 @@ var YetaWF;
         };
         Forms.prototype.applyFormOnChange = function () {
             clearInterval(this.submitFormTimer);
-            this.submit(this.submitForm, false, YGlobals.Link_SubmitIsApply + "=y");
+            this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsApply + "=y");
         };
         /**
          * Initialize to handle Submit, Apply, Cancel buttons
@@ -390,12 +390,12 @@ var YetaWF;
                     if (originList.length > 0) {
                         var origin = originList.pop();
                         var uri = new URI(origin.Url);
-                        uri.removeSearch(YGlobals.Link_ToEditMode);
+                        uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
                         if (origin.EditMode != YVolatile.Basics.EditModeActive)
-                            uri.addSearch(YGlobals.Link_ToEditMode, !YVolatile.Basics.EditModeActive);
-                        uri.removeSearch(YGlobals.Link_OriginList);
+                            uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive);
+                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (originList.length > 0)
-                            uri.addSearch(YGlobals.Link_OriginList, JSON.stringify(originList));
+                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                         if (!YetaWF_Basics.ContentHandling.setContent(uri, true))
                             window.location.assign(uri);
                     }
@@ -409,7 +409,7 @@ var YetaWF;
             $(document).on('click', "form input[type=\"button\"][" + YConfigs.Forms.CssDataApplyButton + "]", function (e) {
                 e.preventDefault();
                 var $form = YetaWF_Forms.getForm(e.currentTarget);
-                YetaWF_Forms.submit($form, true, YGlobals.Link_SubmitIsApply + "=y");
+                YetaWF_Forms.submit($form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
             });
             // Submit the form when a submit button is clicked
             $(document).on('submit', 'form.' + YConfigs.Forms.CssFormAjax, function (e) {
@@ -427,3 +427,5 @@ var YetaWF_Forms = new YetaWF.Forms();
 YetaWF_Forms.initSubmitOnChange();
 // initialize  Submit, Apply, Cancel button handling
 YetaWF_Forms.initHandleFormsButtons();
+
+//# sourceMappingURL=Forms.js.map

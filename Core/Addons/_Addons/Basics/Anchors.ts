@@ -46,15 +46,15 @@ namespace YetaWF {
                 if (uri.path().length == 0 || url.startsWith('javascript:') || url.startsWith('mailto:') || url.startsWith('tel:')) return true;
 
                 // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
-                if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {
+                if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
                     var currUri = new URI(window.location.href);
-                    if (currUri.hasSearch(YGlobals.Link_EditMode))
-                        uri.addSearch(YGlobals.Link_EditMode, 'y');
+                    if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
+                        uri.addSearch(YConfigs.Basics.Link_EditMode, 'y');
                 }
                 // add status/visibility of page control module
-                uri.removeSearch(YGlobals.Link_PageControl);
+                uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
-                    uri.addSearch(YGlobals.Link_PageControl, 'y');
+                    uri.addSearch(YConfigs.Basics.Link_PageControl, 'y');
 
                 // add our module context info (if requested)
                 if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
@@ -67,8 +67,8 @@ namespace YetaWF {
                 // pass along the charsize
                 {
                     var charSize = YetaWF_Basics.getCharSizeFromTag($t);
-                    uri.removeSearch(YGlobals.Link_CharInfo);
-                    uri.addSearch(YGlobals.Link_CharInfo, charSize.width + ',' + charSize.height);
+                    uri.removeSearch(YConfigs.Basics.Link_CharInfo);
+                    uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + ',' + charSize.height);
                 }
 
                 // fix the url to include where we came from
@@ -76,10 +76,10 @@ namespace YetaWF {
                 if ((target == undefined || target == "" || target == "_self") && $t.attr(YConfigs.Basics.CssSaveReturnUrl) != undefined) {
                     // add where we currently are so we can save it in case we need to return to this page
                     var currUri = new URI(window.location.href);
-                    currUri.removeSearch(YGlobals.Link_OriginList);// remove originlist from current URL
-                    currUri.removeSearch(YGlobals.Link_InPopup);// remove popup info from current URL
+                    currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
+                    currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
                     // now update url (where we're going with originlist)
-                    uri.removeSearch(YGlobals.Link_OriginList);
+                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     var originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
 
                     if ($t.attr(YConfigs.Basics.CssDontAddToOriginList) == undefined) {
@@ -88,7 +88,7 @@ namespace YetaWF {
                         if (originList.length > 5)// only keep the last 5 urls
                             originList = originList.slice(originList.length - 5);
                     }
-                    uri.addSearch(YGlobals.Link_OriginList, JSON.stringify(originList));
+                    uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
                 if (target == undefined || target == "" || target == "_self")
@@ -110,12 +110,12 @@ namespace YetaWF {
                 var cookieToReturn: number | null = null;
                 var post: boolean = false;
 
-                if ($t.attr(YConfigs.Basics.CookieDoneCssAttr) != undefined) {
+                if ($t.attr(YConfigs.Basics.CookieDoneCssAttr) !== undefined) {
                     cookieToReturn = (new Date()).getTime();
                     uri.removeSearch(YConfigs.Basics.CookieToReturn);
                     uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
                 }
-                if ($t.attr(YConfigs.Basics.PostAttr))
+                if ($t.attr(YConfigs.Basics.PostAttr) !== undefined)
                     post = true;
 
                 if (cookieToReturn) {

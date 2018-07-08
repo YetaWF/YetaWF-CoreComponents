@@ -3,30 +3,11 @@
 /* TODO: While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, these defs are all global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
 
-declare var YGlobals: YetaWF.IGlobals;
 declare var YVolatile: YetaWF.IVolatile;
 declare var YConfigs: YetaWF.IConfigs;
 declare var YLocs: YetaWF.ILocs;
 
 namespace YetaWF {
-
-    // GLOBALS
-    // GLOBALS
-    // GLOBALS
-
-    export interface IGlobals {
-        Link_OriginList: string;    // chain of urls
-        Link_InPopup: string;       // we're in a popup
-        Link_ToEditMode: string;    // force this mode
-        Link_ToPopup: string;       // we're going into a popup
-        Link_PageControl: string;   // show page control module
-        Link_CharInfo: string;      // character info (char width, char height) for module issuing req.
-        Link_SubmitIsApply: string; // a submit button was clicked and should be handled as Apply
-        Link_EditMode: string;      // site edit mode
-        Link_NoEditMode: string;    // site display mode
-        Link_ScrollLeft: string;
-        Link_ScrollTop: string;
-    }
 
     // VOLATILE
     // VOLATILE
@@ -120,6 +101,18 @@ namespace YetaWF {
         Basics: IConfigsBasics;
     }
     export interface IConfigsBasics {
+
+        Link_OriginList: string;    // chain of urls
+        Link_InPopup: string;       // we're in a popup
+        Link_ToEditMode: string;    // force this mode
+        Link_ToPopup: string;       // we're going into a popup
+        Link_PageControl: string;   // show page control module
+        Link_CharInfo: string;      // character info (char width, char height) for module issuing req.
+        Link_SubmitIsApply: string; // a submit button was clicked and should be handled as Apply
+        Link_EditMode: string;      // site edit mode
+        Link_NoEditMode: string;    // site display mode
+        Link_ScrollLeft: string;
+        Link_ScrollTop: string;
 
         // Css
         CssTooltip: string;

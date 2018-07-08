@@ -1,5 +1,4 @@
-﻿YGlobals.js
-BasicsProto.js
+﻿BasicsProto.js
 Globals.js
 Anchors.ts
 Content.ts

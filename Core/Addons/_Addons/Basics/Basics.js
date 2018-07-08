@@ -58,7 +58,7 @@ var YetaWF;
             this.suppressPopState = false;
             this.reloadingModule_TagInModule = null;
             // Usage:
-            // YetaWF_Basics.reloadInfo.push({  //$$$$ revisit this
+            // YetaWF_Basics.reloadInfo.push({  // TODO: revisit this (not a nice interface, need add(), but only used in grid for now)
             //   module: $mod,              // module <div> to be refreshed
             //   callback: function() {}    // function to be called
             // });
@@ -202,13 +202,13 @@ var YetaWF;
             // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
             var uri = new URI(window.location.href);
             var data = uri.search(true);
-            var v = data[YGlobals.Link_ScrollLeft];
+            var v = data[YConfigs.Basics.Link_ScrollLeft];
             var scrolled = false;
             if (v != undefined) {
                 $(window).scrollLeft(Number(v));
                 scrolled = true;
             }
-            v = data[YGlobals.Link_ScrollTop];
+            v = data[YConfigs.Basics.Link_ScrollTop];
             if (v != undefined) {
                 $(window).scrollTop(Number(v));
                 scrolled = true;
@@ -254,15 +254,15 @@ var YetaWF;
             if (!keepPosition)
                 keepPosition = false;
             var uri = new URI(w.location.href);
-            uri.removeSearch(YGlobals.Link_ScrollLeft);
-            uri.removeSearch(YGlobals.Link_ScrollTop);
+            uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
+            uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
             if (keepPosition) {
                 var v = $(w).scrollLeft();
                 if (v)
-                    uri.addSearch(YGlobals.Link_ScrollLeft, v);
+                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, v);
                 v = $(w).scrollTop();
                 if (v)
-                    uri.addSearch(YGlobals.Link_ScrollTop, v);
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, v);
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", (new Date()).getTime()); // cache buster
@@ -291,7 +291,7 @@ var YetaWF;
             var $form = $('form', $mod);
             if ($form.length == 0)
                 throw "No form found"; /*DEBUG*/
-            YetaWF_Forms.submit($form, false, YGlobals.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
+            YetaWF_Forms.submit($form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
         BasicsServices.prototype.refreshModule = function ($mod) {
             for (var entry in YetaWF_Basics.reloadInfo) {
@@ -748,3 +748,5 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF.BasicsServices();
+
+//# sourceMappingURL=Basics.js.map

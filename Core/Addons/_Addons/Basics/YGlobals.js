@@ -1,1 +1,0 @@
-var YGlobals={'Link_OriginList':"!OriginList",'Link_InPopup':"!InPopup",'Link_ToEditMode':"!ToEditMode",'Link_ToPopup':"!ToPopup",'Link_PageControl':"!Pagectl",'Link_CharInfo':"!ci",'Link_SubmitIsApply':"!Apply",'Link_EditMode':"!Edit",'Link_NoEditMode':"!Noedit",'Link_ScrollLeft':"!Left",'Link_ScrollTop':"!Top"};

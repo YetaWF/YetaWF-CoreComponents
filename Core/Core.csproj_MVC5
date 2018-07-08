@@ -301,7 +301,6 @@
     <Compile Include="Support\Serializers\SimpleFormatter.cs" />
     <Compile Include="Support\Serializers\TextFormatter.cs" />
     <Compile Include="Support\BrowserCaps.cs" />
-    <Compile Include="Support\ConvertGlobalsToJavascript.cs" />
     <Compile Include="Support\Error.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Support\Localize\ResourceAccess.cs" />
@@ -331,7 +330,6 @@
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
-    <TypeScriptCompile Include="Addons\_Addons\Basics\BasicsProto.d.ts" />
     <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
     <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\bootstrap.css" />
