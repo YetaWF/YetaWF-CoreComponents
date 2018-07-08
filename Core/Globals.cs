@@ -45,7 +45,7 @@ namespace YetaWF.Core {
         public const int ChIPAddressWithLookup = 20;
         public const int ChTimeZone = 20;
 
-        public async Task InitializeApplicationStartupAsync() {
+        public async Task InitializeApplicationStartupAsync() {//$$$ this is crappy, remove
             // Generate globals javascript equivalent
             string outputUrl = VersionManager.GetAddOnNamedUrl("YetaWF", "Core", "Basics") + "YGlobals.js";
             await ConvertGlobalsToJavascript.ConvertAsync(YetaWFManager.UrlToPhysical(outputUrl), this, "YGlobals"); // this will happen for each node startup, which is OK as it just overwrites the file with the same data

@@ -43,7 +43,7 @@ var YetaWF;
                     loaded = true;
                     _this.processScript(scripts, payload, total, ix, run);
                 };
-                if (YVolatile.Basics.JSLocation) { // location doesn't really matter, but done for consistency
+                if (YVolatile.Basics.JSLocation == YetaWF.JSLocationEnum.Top) { // location doesn't really matter, but done for consistency
                     var head = document.getElementsByTagName('head')[0];
                     head.insertBefore(js, head.lastChild);
                 }
@@ -68,17 +68,17 @@ var YetaWF;
             var _this = this;
             if (YVolatile.Basics.EditModeActive)
                 return false; // edit mode
-            if (YVolatile.Basics.UnifiedMode == 0)
+            if (YVolatile.Basics.UnifiedMode == YetaWF.UnifiedModeEnum.None)
                 return false; // not unified mode
             if (popupCB) {
-                if (YVolatile.Basics.UnifiedMode !== 3 /*UnifiedModeEnum.DynamicContent*/ && YVolatile.Basics.UnifiedMode !== 4 /*UnifiedModeEnum.SkinDynamicContent*/)
+                if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.SkinDynamicContent)
                     return false; // popups can only be used with some unified modes
                 if (!YVolatile.Basics.UnifiedPopups)
                     return false; // popups not wanted for this UPS
             }
             // check if we're clicking a link which is part of this unified page
             var path = uri.path();
-            if (YVolatile.Basics.UnifiedMode === 3 /*UnifiedModeEnum.DynamicContent*/ || YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
+            if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
                 // find all panes that support dynamic content and replace with new modules
                 var $divs = $('.yUnified[data-pane]');
                 // build data context (like scripts, css files we have)
@@ -97,7 +97,7 @@ var YetaWF;
                     KnownCss: [],
                     KnownScripts: []
                 };
-                if (YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
+                if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
                     data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
                     data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
                 }
@@ -163,7 +163,7 @@ var YetaWF;
                             var urlEntry = result.CssFiles[i];
                             var found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
                             if (found.length > 0) {
-                                if (YVolatile.Basics.CssLocation) {
+                                if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
                                     $('head').append($('<style />').attr('type', 'text/css').attr('data-name', found[0].Name).html(found[0].Text));
                                 }
                                 else {
@@ -171,7 +171,7 @@ var YetaWF;
                                 }
                             }
                             else {
-                                if (YVolatile.Basics.CssLocation) {
+                                if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
                                     $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('data-name', urlEntry.Name).attr('href', urlEntry.Url));
                                 }
                                 else {
@@ -297,7 +297,7 @@ var YetaWF;
                         }
                         catch (err) { }
                     }
-                    if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
+                    if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.HideDivs) {
                         $('.yUnified').hide();
                         $divs.show();
                         // send event that a new section became active/visible
@@ -310,7 +310,7 @@ var YetaWF;
                         }
                         YetaWF_Basics.setFocus();
                     }
-                    else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
+                    else if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
                         //element.scrollIntoView() as an alternative (check compatibility/options)
                         // calculate an approximate animation time so the shorter the distance, the shorter the animation
                         var h = $('body').height();
@@ -349,5 +349,3 @@ var YetaWF;
     }());
     YetaWF.Content = Content;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Content.js.map

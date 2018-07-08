@@ -392,7 +392,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Addons\_Addons\Basics\Content.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Anchors.ts" />
-    <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.tsx" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Basics.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Forms.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Popups\Popups.ts" />

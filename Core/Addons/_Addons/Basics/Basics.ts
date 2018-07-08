@@ -13,6 +13,8 @@ declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
 interface String {
     startsWith: (text: string) => boolean;
     endWith: (text: string) => boolean;
+    isValidInt(s: number, e: number): boolean;
+    format(...args: any[]): string;
 }
 
 /**
@@ -248,8 +250,9 @@ namespace YetaWF {
 
             var scrolled = this.setScrollPosition();
             if (!scrolled) {
-                if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
-                    var $divs: JQuery<HTMLElement> = $('xyzx');//$$$ $(`.yUnified[data-url="${uri.path()}"]`);  $$$uri is not defined
+                if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
+                    var uri = new URI(window.location.href);
+                    var $divs: JQuery<HTMLElement> = $(`.yUnified[data-url="${uri.path()}"]`);
                     if ($divs && $divs.length > 0) {
                         $(window).scrollTop((($divs.eq(0)).offset() as JQuery.Coordinates).top);
                         scrolled = true;
@@ -337,7 +340,7 @@ namespace YetaWF {
             uri.removeSearch("!rand");
             uri.addSearch("!rand", (new Date()).getTime());// cache buster
 
-            if (YVolatile.Basics.UnifiedMode != 0) {
+            if (YVolatile.Basics.UnifiedMode != UnifiedModeEnum.None) {
                 if (this.ContentHandling.setContent(uri, true))
                     return;
             }
@@ -432,13 +435,17 @@ namespace YetaWF {
          * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
          */
         public getCharSizeFromTag($t: JQuery<HTMLElement> | null): CharSize{
-            var width, height;
+            var width: number, height: number;
             var $mod: JQuery<HTMLElement> | null = null;
             if ($t)
                 $mod = YetaWF_Basics.getModuleFromTagCond($t);
             if ($mod) {
-                width = $mod.attr('data-charwidthavg');
-                height = $mod.attr('data-charheight');
+                var w = $mod.attr('data-charwidthavg');
+                if (!w) throw "missing data-charwidthavg attribute";/*DEBUG*/
+                width = Number(w);
+                var h = $mod.attr('data-charheight');
+                if (!h) throw "missing data-charheight attribute";/*DEBUG*/
+                height = Number(h);
             } else {
                 width = YVolatile.Basics.CharWidthAvg;
                 height = YVolatile.Basics.CharHeight;

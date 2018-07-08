@@ -224,8 +224,9 @@ var YetaWF;
             var _this = this;
             var scrolled = this.setScrollPosition();
             if (!scrolled) {
-                if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
-                    var $divs = $('xyzx'); //$$$ $(`.yUnified[data-url="${uri.path()}"]`);  $$$uri is not defined
+                if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
+                    var uri = new URI(window.location.href);
+                    var $divs = $(".yUnified[data-url=\"" + uri.path() + "\"]");
                     if ($divs && $divs.length > 0) {
                         $(window).scrollTop(($divs.eq(0)).offset().top);
                         scrolled = true;
@@ -265,7 +266,7 @@ var YetaWF;
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", (new Date()).getTime()); // cache buster
-            if (YVolatile.Basics.UnifiedMode != 0) {
+            if (YVolatile.Basics.UnifiedMode != YetaWF.UnifiedModeEnum.None) {
                 if (this.ContentHandling.setContent(uri, true))
                     return;
             }
@@ -371,8 +372,14 @@ var YetaWF;
             if ($t)
                 $mod = YetaWF_Basics.getModuleFromTagCond($t);
             if ($mod) {
-                width = $mod.attr('data-charwidthavg');
-                height = $mod.attr('data-charheight');
+                var w = $mod.attr('data-charwidthavg');
+                if (!w)
+                    throw "missing data-charwidthavg attribute"; /*DEBUG*/
+                width = Number(w);
+                var h = $mod.attr('data-charheight');
+                if (!h)
+                    throw "missing data-charheight attribute"; /*DEBUG*/
+                height = Number(h);
             }
             else {
                 width = YVolatile.Basics.CharWidthAvg;
@@ -741,5 +748,3 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF.BasicsServices();
-
-//# sourceMappingURL=Basics.js.map

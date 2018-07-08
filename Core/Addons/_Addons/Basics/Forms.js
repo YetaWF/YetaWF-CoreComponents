@@ -2,6 +2,11 @@
 /* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF;
 (function (YetaWF) {
+    var TabStyleEnum;
+    (function (TabStyleEnum) {
+        TabStyleEnum[TabStyleEnum["JQuery"] = 0] = "JQuery";
+        TabStyleEnum[TabStyleEnum["Kendo"] = 1] = "Kendo";
+    })(TabStyleEnum = YetaWF.TabStyleEnum || (YetaWF.TabStyleEnum = {}));
     var Forms /* implements IFormsImpl */ = /** @class */ (function () {
         function Forms() {
             // Partial Form
@@ -103,7 +108,7 @@ var YetaWF;
                     currUri.removeSearch(YGlobals.Link_OriginList); // remove originlist from current URL
                     currUri.removeSearch(YGlobals.Link_InPopup); // remove popup info from current URL
                     originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive != 0, InPopup: YetaWF_Basics.isInPopup() };
+                    var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                     originList.push(newOrigin);
                     if (originList.length > 5) // only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
@@ -171,9 +176,9 @@ var YetaWF;
                         var $te = $('ul.t_tabstrip > li', $tabctrl).eq(panel);
                         if ($te.length == 0)
                             throw "We couldn't find the tab entry for panel " + panel; /*DEBUG*/
-                        if (YVolatile.Forms.TabStyle == 0) //jquery ui
+                        if (YVolatile.Forms.TabStyle === TabStyleEnum.JQuery)
                             $tabctrl.tabs("option", "active", panel);
-                        else if (YVolatile.Forms.TabStyle == 1) //Kendo UI
+                        else if (YVolatile.Forms.TabStyle === TabStyleEnum.Kendo)
                             $tabctrl.data("kendoTabStrip").activateTab($te);
                         else
                             throw "Unknown tab style"; /*DEBUG*/
@@ -305,13 +310,13 @@ var YetaWF;
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag) {
             var $form = this.getForm(tag);
-            var req = $('input[name="' + YConfigs.Forms.RequestVerificationToken + '"]', $form).val();
+            var req = $("input[name=\"'" + YConfigs.Forms.RequestVerificationToken + "'\"]", $form).val();
             if (req == undefined || req.length == 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var pre = $('input[name="' + YConfigs.Forms.UniqueIdPrefix + '"]', $form).val();
+            var pre = $("input[name=\"'" + YConfigs.Forms.UniqueIdPrefix + "'\"]", $form).val();
             if (pre == undefined || pre.length == 0)
                 throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix; /*DEBUG*/
-            var guid = $('input[name="' + YConfigs.Basics.ModuleGuid + '"]', $form).val();
+            var guid = $("input[name=\"'" + YConfigs.Basics.ModuleGuid + "'\"]", $form).val();
             if (guid == undefined || guid.length == 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
             var charSize = YetaWF_Basics.getCharSizeFromTag($form);
@@ -422,5 +427,3 @@ var YetaWF_Forms = new YetaWF.Forms();
 YetaWF_Forms.initSubmitOnChange();
 // initialize  Submit, Apply, Cancel button handling
 YetaWF_Forms.initHandleFormsButtons();
-
-//# sourceMappingURL=Forms.js.map

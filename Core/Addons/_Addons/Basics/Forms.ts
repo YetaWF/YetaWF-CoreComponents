@@ -29,6 +29,53 @@ namespace YetaWF {
         showErrors($form: JQuery<HTMLElement>): void;
     }
 
+    export interface IVolatile {
+        Forms: IVolatileForms;
+    }
+    export interface IVolatileForms {
+        TabStyle: TabStyleEnum;
+    }
+    export enum TabStyleEnum {
+        JQuery = 0,
+        Kendo = 1,
+    }
+
+    export interface IConfigs {
+        Forms: IConfigsForms;
+    }
+    export interface IConfigsForms {
+
+        // Global form related items (not implementation specific)
+        UniqueIdPrefix: string;
+        RequestVerificationToken: string;
+
+        // Validation (not implementation specific) used by validation attributes
+        ConditionPropertyName: string;
+        ConditionPropertyValue: string;
+        ConditionPropertyValueLow: string;
+        ConditionPropertyValueHigh: string;
+
+        // Css used which is global to YetaWF (not implementation specific)
+
+        CssFormPartial: string;
+        CssFormAjax: string;
+        CssFormNoSubmit: string;
+        CssFormNoSubmitContents: string;
+        CssFormCancel: string;
+        CssDataApplyButton: string;
+        CssWarningIcon: string;
+
+        CssWarningIconUrl: string;
+    }
+    export interface ILocs {
+        Forms: ILocsForms;
+    }
+    export interface ILocsForms {
+        AjaxError: string;
+        AjaxErrorTitle: string;
+        FormErrors: string;
+    }
+
     export interface SubmitHandlerEntry {
         form: JQuery<HTMLElement>;  // form <div> to be processed
         callback: (entry: SubmitHandlerEntry) => void;       // function to be called - the callback returns extra data appended to the submit url
@@ -118,7 +165,7 @@ namespace YetaWF {
                     currUri.removeSearch(YGlobals.Link_OriginList);// remove originlist from current URL
                     currUri.removeSearch(YGlobals.Link_InPopup);// remove popup info from current URL
                     originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
-                    var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive != 0, InPopup: YetaWF_Basics.isInPopup() };
+                    var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                     originList.push(newOrigin);
                     if (originList.length > 5)// only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
@@ -184,9 +231,9 @@ namespace YetaWF {
                         // get the tab entry
                         var $te = $('ul.t_tabstrip > li', $tabctrl).eq(panel);
                         if ($te.length == 0) throw "We couldn't find the tab entry for panel " + panel;/*DEBUG*/
-                        if (YVolatile.Forms.TabStyle == 0)//jquery ui
+                        if (YVolatile.Forms.TabStyle === TabStyleEnum.JQuery)
                             $tabctrl.tabs("option", "active", panel);
-                        else if (YVolatile.Forms.TabStyle == 1)//Kendo UI
+                        else if (YVolatile.Forms.TabStyle === TabStyleEnum.Kendo)
                             $tabctrl.data("kendoTabStrip").activateTab($te);
                         else throw "Unknown tab style";/*DEBUG*/
                     }
@@ -355,11 +402,11 @@ namespace YetaWF {
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         public getFormInfo(tag: HTMLElement | JQuery<HTMLElement>) {
             var $form = this.getForm(tag);
-            var req: string | undefined = <string|undefined> $('input[name="' + YConfigs.Forms.RequestVerificationToken + '"]', $form).val();
+            var req: string | undefined = <string|undefined> $(`input[name="'${YConfigs.Forms.RequestVerificationToken}'"]`, $form).val();
             if (req == undefined || req.length == 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
-            var pre: string | undefined = <string|undefined> $('input[name="' + YConfigs.Forms.UniqueIdPrefix + '"]', $form).val();
+            var pre: string | undefined = <string|undefined> $(`input[name="'${YConfigs.Forms.UniqueIdPrefix}'"]`, $form).val();
             if (pre == undefined || pre.length == 0) throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix;/*DEBUG*/
-            var guid: string | undefined = <string|undefined> $('input[name="' + YConfigs.Basics.ModuleGuid + '"]', $form).val();
+            var guid: string | undefined = <string|undefined> $(`input[name="'${YConfigs.Basics.ModuleGuid}'"]`, $form).val();
             if (guid == undefined || guid.length == 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
 
             var charSize = YetaWF_Basics.getCharSizeFromTag($form);
@@ -444,7 +491,7 @@ namespace YetaWF {
                     // go to the last entry in the origin list, pop that entry and pass it in the url
                     var originList = YVolatile.Basics.OriginList;
                     if (originList.length > 0) {
-                        var origin = originList.pop();
+                        var origin = originList.pop() as OriginListEntry;
                         var uri = new URI(origin.Url);
                         uri.removeSearch(YGlobals.Link_ToEditMode);
                         if (origin.EditMode != YVolatile.Basics.EditModeActive)

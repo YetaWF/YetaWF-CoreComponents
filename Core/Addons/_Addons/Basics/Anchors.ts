@@ -83,7 +83,7 @@ namespace YetaWF {
                     var originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
 
                     if ($t.attr(YConfigs.Basics.CssDontAddToOriginList) == undefined) {
-                        var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive != 0, InPopup: YetaWF_Basics.isInPopup() };
+                        var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                         originList.push(newOrigin);
                         if (originList.length > 5)// only keep the last 5 urls
                             originList = originList.slice(originList.length - 5);
@@ -115,12 +115,12 @@ namespace YetaWF {
                     uri.removeSearch(YConfigs.Basics.CookieToReturn);
                     uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
                 }
-                if ($t.attr(<string/*$$$*/>YConfigs.Basics.PostAttr))
+                if ($t.attr(YConfigs.Basics.PostAttr))
                     post = true;
 
                 if (cookieToReturn) {
                     // this is a file download
-                    var confirm = $t.attr(<string /*$$$*/>YConfigs.Basics.CssConfirm);
+                    var confirm = $t.attr(YConfigs.Basics.CssConfirm);
                     if (confirm) {
                         YetaWF_Basics.Y_AlertYesNo(confirm, undefined, () => {
                             window.location.assign(url);
@@ -133,18 +133,18 @@ namespace YetaWF {
                 } else {
                     // if a confirmation is wanted, show it
                     // this means that it's posted by definition
-                    var confirm= $t.attr(<string/*$$$*/>YConfigs.Basics.CssConfirm);
+                    var confirm= $t.attr(YConfigs.Basics.CssConfirm);
                     if (confirm) {
                         YetaWF_Basics.Y_AlertYesNo(confirm, undefined, () => {
                             this.postLink(url, $t, cookieToReturn);
                             if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                                YetaWF_Basics.Y_PleaseWait($t.attr(<string/*$$$$*/>YConfigs.Basics.CssPleaseWait))
+                                YetaWF_Basics.Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
                             return false;
                         });
                         return false;
                     } else if (post) {
                         if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                            YetaWF_Basics.Y_PleaseWait($t.attr(<string/*$$$$*/>YConfigs.Basics.CssPleaseWait))
+                            YetaWF_Basics.Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
                         this.postLink(url, $t, cookieToReturn);
                         return false;
                     }
@@ -153,7 +153,7 @@ namespace YetaWF {
                 if (target == "_self") {
                     // add overlay if desired
                     if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
-                        YetaWF_Basics.Y_PleaseWait($t.attr(<string/*$$$$*/>YConfigs.Basics.CssPleaseWait))
+                        YetaWF_Basics.Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
                     }
                 }
                 this.waitForCookie(cookieToReturn); // if any

@@ -75,7 +75,7 @@ var YetaWF;
                     uri.removeSearch(YGlobals.Link_OriginList);
                     var originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
                     if ($t.attr(YConfigs.Basics.CssDontAddToOriginList) == undefined) {
-                        var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive != 0, InPopup: YetaWF_Basics.isInPopup() };
+                        var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                         originList.push(newOrigin);
                         if (originList.length > 5) // only keep the last 5 urls
                             originList = originList.slice(originList.length - 5);
@@ -205,5 +205,3 @@ var YetaWF;
     }());
     YetaWF.Anchors = Anchors;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Anchors.js.map

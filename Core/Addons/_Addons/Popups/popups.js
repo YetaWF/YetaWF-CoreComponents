@@ -99,5 +99,3 @@ var YetaWF;
  * Popup services available throughout YetaWF.
  */
 var YetaWF_Popups = new YetaWF.PopupsServices();
-
-//# sourceMappingURL=Popups.js.map

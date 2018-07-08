@@ -38,6 +38,21 @@ namespace YetaWF {
         openStaticPopup(url: string): void;
     }
 
+    export interface IVolatile {
+        Popups: IVolatilePopups;
+    }
+    export interface IVolatilePopups {
+        AllowPopups: boolean;
+    }
+
+    export interface IConfigs {
+        Popups: IConfigsPopups;
+    }
+    export interface IConfigsPopups {
+        DefaultPopupWidth: number;
+        DefaultPopupHeight: number;
+    }
+
     export class PopupsServices {
 
         // Implemented by renderer
