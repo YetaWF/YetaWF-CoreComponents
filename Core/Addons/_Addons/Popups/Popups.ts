@@ -128,7 +128,7 @@ namespace YetaWF {
                 return false;
             if (!YetaWF_Basics.isInPopup()) return false; // this shouldn't really happen
             YetaWF_Basics.setLoading(true);
-            if (!(window.parent as any).YetaWF_Basics.ContentHandling.setContent(new URI($elem[0].href), true)) //$$$ any
+            if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI($elem[0].href), true))
                 window.parent.location.assign($elem[0].href);
             return true;
         };

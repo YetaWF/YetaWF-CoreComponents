@@ -83,7 +83,7 @@ namespace YetaWF {
         callback?(elem: HTMLElement): void;
     }
 
-    export class BasicsServices implements IBasicsImpl { //$$$ doesn't need to implement IBasicImpl, done for type checking only
+    export class BasicsServices /* implements IBasicsImpl */ { // doesn't need to implement IBasicImpl, used for type checking only
 
         // Implemented by renderer
         // Implemented by renderer
@@ -358,9 +358,9 @@ namespace YetaWF {
             }
             var $mod = this.getModuleFromTag($tag);
             if ($mod.length == 0) throw "No module found";/*DEBUG*/
-            var $form = $('form', $mod);
-            if ($mod.length == 0) throw "No form found";/*DEBUG*/
-            (YetaWF_Forms as any /*$$$*/).submit($form, false, YGlobals.Link_SubmitIsApply + "=y");// the form must support a simple Apply
+            var $form = $('form', $mod) as JQuery<HTMLFormElement>;
+            if ($form.length == 0) throw "No form found";/*DEBUG*/
+            YetaWF_Forms.submit($form, false, YGlobals.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
 
         private reloadingModule_TagInModule: JQuery<HTMLElement> | null = null;
@@ -646,7 +646,7 @@ namespace YetaWF {
         }
 
         /**
-         * Process all callbacks for the specified element being cleared. This is used by YetaWF.Core only.
+         * Process all callbacks for the specified element being cleared.
          * @param elem The element being cleared.
          */
         public processClearDiv(tag: HTMLElement): void {
@@ -838,3 +838,6 @@ namespace YetaWF {
  */
 var YetaWF_Basics: YetaWF.BasicsServices = new YetaWF.BasicsServices();
 
+interface Window { // expose this as a known Window property
+    YetaWF_Basics: YetaWF.BasicsServices
+}

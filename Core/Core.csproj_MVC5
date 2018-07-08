@@ -331,8 +331,8 @@
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\BasicsProto.d.ts" />
     <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
-    <Content Include="Addons\_Addons\Basics\Basics.js" />
     <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\bootstrap.css" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\filelistCSS.txt" />
@@ -357,9 +357,7 @@
     <Content Include="Addons\_Addons\Basics\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Basics\filelistJS.txt" />
     <Content Include="Addons\_Addons\Basics\Basics.css" />
-    <Content Include="Addons\_Addons\Popups\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Popups\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Popups\popups.css" />
     <Content Include="Addons\_Main\Emails\SMTPServer Test Message.txt" />
     <Content Include="Addons\_Main\Emails\Text Message.txt" />
     <Content Include="Addons\_Skins\Standard\filelistCSS.txt" />
@@ -392,8 +390,10 @@
     <Folder Include="Startup\MVC6\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Content.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Anchors.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.tsx" />
-    <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Basics.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Forms.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Popups\Popups.ts" />
   </ItemGroup>

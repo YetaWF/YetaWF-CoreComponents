@@ -1,1 +1,1 @@
-﻿# No actual files listed. We just need the addon-specific configs, localizations
+﻿﻿# No actual files listed. We just need the addon-specific configs, localizations

@@ -24,7 +24,7 @@ var YetaWF;
                     var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
                     if ($f.length == 1) {
                         var data = { 'url': url };
-                        var info = YetaWF_Forms /*$$$*/.getFormInfo($f);
+                        var info = YetaWF_Forms.getFormInfo($f);
                         data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                         data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
@@ -205,3 +205,5 @@ var YetaWF;
     }());
     YetaWF.Anchors = Anchors;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Anchors.js.map

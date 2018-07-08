@@ -12,11 +12,6 @@ if (typeof String.prototype.endsWith != 'function') {
         return this.indexOf(str) == this.length - str.length;
     };
 }
-// string compare that considers null == ""
-function StringYCompare(str1, str2) {
-    if (!str1 && !str2) return true;
-    return str1 == str2;
-};
 
 // string.isValidInt - check for valid int
 String.prototype.isValidInt = function (start, end) { // http://stackoverflow.com/questions/10834796/validate-that-a-string-is-a-positive-integer
@@ -25,15 +20,19 @@ String.prototype.isValidInt = function (start, end) { // http://stackoverflow.co
 }
 
 // String.format
-if (!String.prototype.format) {
-    String.prototype.format = function () {
-        var args = arguments;
-        return this.replace(/{(\d+)}/g, function (match, number) {
-            return typeof args[number] != 'undefined'
-              ? args[number]
-              : match
-            ;
-        });
-    };
-}
+String.prototype.format = function () {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function (match, number) {
+        return typeof args[number] != 'undefined'
+            ? args[number]
+            : match
+        ;
+    });
+};
+
+// string compare that considers null == ""
+function StringYCompare(str1, str2) {
+    if (!str1 && !str2) return true;
+    return str1 == str2;
+};
 

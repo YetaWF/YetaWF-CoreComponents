@@ -5,7 +5,7 @@
  */
 var YetaWF;
 (function (YetaWF) {
-    var BasicsServices = /** @class */ (function () {
+    var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
         function BasicsServices() {
             // Implemented by renderer
             // Implemented by renderer
@@ -288,9 +288,9 @@ var YetaWF;
             if ($mod.length == 0)
                 throw "No module found"; /*DEBUG*/
             var $form = $('form', $mod);
-            if ($mod.length == 0)
+            if ($form.length == 0)
                 throw "No form found"; /*DEBUG*/
-            YetaWF_Forms /*$$$*/.submit($form, false, YGlobals.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
+            YetaWF_Forms.submit($form, false, YGlobals.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
         BasicsServices.prototype.refreshModule = function ($mod) {
             for (var entry in YetaWF_Basics.reloadInfo) {
@@ -553,7 +553,7 @@ var YetaWF;
             this.clearDiv.push({ callback: callback });
         };
         /**
-         * Process all callbacks for the specified element being cleared. This is used by YetaWF.Core only.
+         * Process all callbacks for the specified element being cleared.
          * @param elem The element being cleared.
          */
         BasicsServices.prototype.processClearDiv = function (tag) {
@@ -741,3 +741,5 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF.BasicsServices();
+
+//# sourceMappingURL=Basics.js.map
