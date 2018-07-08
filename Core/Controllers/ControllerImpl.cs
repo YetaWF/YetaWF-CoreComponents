@@ -846,7 +846,7 @@ namespace YetaWF.Core.Controllers {
                 popupText = YetaWFManager.JsonSerialize(popupText);
                 popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }});", popupText, popupTitle);
+                sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ YetaWF_Basics.reloadPage(true); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -860,7 +860,7 @@ namespace YetaWF.Core.Controllers {
                 popupText = YetaWFManager.JsonSerialize(popupText);
                 popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ Y_ReloadModule(); }});", popupText, popupTitle);
+                sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ YetaWF_Basics.reloadModule(); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -1054,14 +1054,14 @@ namespace YetaWF.Core.Controllers {
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
                             "YetaWF_Basics.setLoading();" +
-                            "if (!window.parent._YetaWF_Basics.setContent(new URI({0}), true))" +
+                            "if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
                                 "window.parent.location.assign({0});",
                                 url);
                     } else {
                         sb.Append(
                             "YetaWF_Basics.Y_Alert({0}, {1}, function() {{" +
                                 "YetaWF_Basics.setLoading();" +
-                                "if (!window.parent._YetaWF_Basics.setContent(new URI({2}), true))" +
+                                "if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI({2}), true))" +
                                 "window.parent.location.assign({2});" +
                             "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
@@ -1076,14 +1076,14 @@ namespace YetaWF.Core.Controllers {
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
                             "YetaWF_Basics.setLoading();" +
-                            "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                            "if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
                               "window.location.assign({0});",
                                 url);
                     } else {
                         sb.Append(
                            "YetaWF_Basics.Y_Alert({0}, {1}, function() {{" +
                              "YetaWF_Basics.setLoading();" +
-                             "if (!_YetaWF_Basics.setContent(new URI({2}), true))" +
+                             "if (!YetaWF_Basics.ContentHandling.setContent(new URI({2}), true))" +
                                "window.location.assign({2});" +
                            "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
@@ -1163,11 +1163,11 @@ namespace YetaWF.Core.Controllers {
                             } else {
                                 url = YetaWFManager.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
-                                    sb.Append("if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                                    sb.Append("if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
                                             "window.location.assign({0});", url);
                                 } else {
                                     sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{" +
-                                        "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                                        "if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
                                           "window.location.assign({2});" +
                                       "}}, {3});", popupText, popupTitle, url, PopupOptions);
                                 }
@@ -1181,9 +1181,9 @@ namespace YetaWF.Core.Controllers {
                             break;
                         case OnCloseEnum.ReloadPage:
                             if (string.IsNullOrWhiteSpace(popupText))
-                                sb.Append("Y_ReloadPage(true);");
+                                sb.Append("YetaWF_Basics.reloadPage(true);");
                             else
-                                sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ YetaWF_Basics.reloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         default:
                             throw new InternalError("Invalid OnClose value {0}", OnClose);
@@ -1192,9 +1192,9 @@ namespace YetaWF.Core.Controllers {
                 if (isApply) {
                     if (OnApply == OnApplyEnum.ReloadPage) {
                         if (string.IsNullOrWhiteSpace(popupText))
-                            sb.Append("Y_ReloadPage(true);");
+                            sb.Append("YetaWF_Basics.reloadPage(true);");
                         else
-                            sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
+                            sb.Append("YetaWF_Basics.Y_Alert({0}, {1}, function() {{ YetaWF_Basics.reloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                     } else {
                         if (sb.Length == Basics.AjaxJavascriptReturn.Length)
                             return PartialView(model);// no javascript after all
@@ -1300,7 +1300,7 @@ namespace YetaWF.Core.Controllers {
                         sb.Append(
                             "YetaWF_Basics.setLoading();" +
                             "{1}" +
-                            "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                            "if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
                               "window.location.assign({0});",
                                 url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
                     }

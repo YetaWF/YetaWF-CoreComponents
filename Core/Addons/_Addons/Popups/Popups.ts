@@ -5,8 +5,6 @@
 
 /* Popups API, to be implemented by rendering-specific code - rendering code must define a YetaWF_PopupsImpl object implementing IPopupsImpl */
 
-declare var _YetaWF_Basics: any;//$$$
-
 /**
     Implemented by custom rendering.
  */
@@ -32,7 +30,7 @@ namespace YetaWF {
         /**
          * Opens a dynamic popup, usually a div added to the current document.
          */
-        openDynamicPopup(result: any): JQuery<HTMLElement>; //$$any
+        openDynamicPopup(result: ContentResult): JQuery<HTMLElement>;
 
         /**
          * Open a static popup, usually a popup based on iframe.
@@ -40,7 +38,7 @@ namespace YetaWF {
         openStaticPopup(url: string): void;
     }
 
-    export class YetaWF_PopupsServices {
+    export class PopupsServices {
 
         // Implemented by renderer
         // Implemented by renderer
@@ -80,7 +78,7 @@ namespace YetaWF {
             url += "&" + YGlobals.Link_ToPopup + "=y";// we're now going into a popup
 
             if (!forceIframe) {
-                if (_YetaWF_Basics.setContent(new URI(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
+                if (YetaWF_Basics.ContentHandling.setContent(new URI(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
                     // contents set in dynamic popup
                     return true;
                 }
@@ -130,7 +128,7 @@ namespace YetaWF {
                 return false;
             if (!YetaWF_Basics.isInPopup()) return false; // this shouldn't really happen
             YetaWF_Basics.setLoading(true);
-            if (!(window.parent as any)._YetaWF_Basics.setContent(new URI($elem[0].href), true)) //$$$ any
+            if (!(window.parent as any).YetaWF_Basics.ContentHandling.setContent(new URI($elem[0].href), true)) //$$$ any
                 window.parent.location.assign($elem[0].href);
             return true;
         };
@@ -140,4 +138,4 @@ namespace YetaWF {
 /**
  * Popup services available throughout YetaWF.
  */
-var YetaWF_Popups: YetaWF.YetaWF_PopupsServices = new YetaWF.YetaWF_PopupsServices();
+var YetaWF_Popups: YetaWF.PopupsServices = new YetaWF.PopupsServices();
