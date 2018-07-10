@@ -229,7 +229,7 @@ var YetaWF;
                                 }
                             }
                             else {
-                                tags.push(popupCB(result)[0]); //$$$
+                                tags.push(popupCB(result));
                             }
                             // add addons
                             $('body').append(result.Addons);

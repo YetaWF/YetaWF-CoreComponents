@@ -15,11 +15,12 @@ var YetaWF;
             var _this = this;
             // For an <a> link clicked, add the page we're coming from (not for popup links though)
             $("body").on("click", "a.yaction-link,area.yaction-link", function (e) {
-                var $t = $(e.currentTarget);
-                var uri = $t.uri();
-                var url = $t[0].href;
+                var anchor = e.currentTarget;
+                var $anchor = $(anchor);
+                var uri = $anchor.uri();
+                var url = anchor.href;
                 // send tracking info
-                if ($t.hasClass('yTrack')) {
+                if (YetaWF_Basics.elementHasClass(anchor, 'yTrack')) {
                     // find the unique skinvisitor module so we have antiforgery tokens and other context info
                     var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
                     if ($f.length == 1) {
@@ -52,21 +53,21 @@ var YetaWF;
                 if (YVolatile.Basics.PageControlVisible)
                     uri.addSearch(YConfigs.Basics.Link_PageControl, 'y');
                 // add our module context info (if requested)
-                if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
+                if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext)) {
                     if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                        var guid = YetaWF_Basics.getModuleGuidFromTag($t[0]);
+                        var guid = YetaWF_Basics.getModuleGuidFromTag(anchor);
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
                     }
                 }
                 // pass along the charsize
                 {
-                    var charSize = YetaWF_Basics.getCharSizeFromTag($t[0]);
+                    var charSize = YetaWF_Basics.getCharSizeFromTag(anchor);
                     uri.removeSearch(YConfigs.Basics.Link_CharInfo);
                     uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + ',' + charSize.height);
                 }
                 // fix the url to include where we came from
-                var target = $t.attr("target");
-                if ((target == undefined || target == "" || target == "_self") && $t.attr(YConfigs.Basics.CssSaveReturnUrl) != undefined) {
+                var target = anchor.getAttribute("target");
+                if ((!target || target == "" || target == "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl)) {
                     // add where we currently are so we can save it in case we need to return to this page
                     var currUri = new URI(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
@@ -74,7 +75,7 @@ var YetaWF;
                     // now update url (where we're going with originlist)
                     uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     var originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    if ($t.attr(YConfigs.Basics.CssDontAddToOriginList) == undefined) {
+                    if (!anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList)) {
                         var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                         originList.push(newOrigin);
                         if (originList.length > 5) // only keep the last 5 urls
@@ -83,32 +84,32 @@ var YetaWF;
                     uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
-                if (target == undefined || target == "" || target == "_self")
+                if (!target || target == "" || target == "_self")
                     target = "_self";
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined) {
-                    if (YetaWF_Popups.handleOuterWindow($t))
+                    if (YetaWF_Popups.handleOuterWindow(anchor))
                         return false;
                 }
                 // try to handle this as a popup link
                 if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined) {
-                    if (YetaWF_Popups.handlePopupLink($t))
+                    if (YetaWF_Popups.handlePopupLink(anchor))
                         return false;
                 }
                 _this.cookiePattern = null;
                 _this.cookieTimer = null;
                 var cookieToReturn = null;
                 var post = false;
-                if ($t.attr(YConfigs.Basics.CookieDoneCssAttr) !== undefined) {
+                if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr)) {
                     cookieToReturn = (new Date()).getTime();
                     uri.removeSearch(YConfigs.Basics.CookieToReturn);
                     uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
                 }
-                if ($t.attr(YConfigs.Basics.PostAttr) !== undefined)
+                if (anchor.getAttribute(YConfigs.Basics.PostAttr))
                     post = true;
                 if (cookieToReturn) {
                     // this is a file download
-                    var confirm = $t.attr(YConfigs.Basics.CssConfirm);
+                    var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
                         YetaWF_Basics.alertYesNo(confirm, undefined, function () {
                             window.location.assign(url);
@@ -122,28 +123,30 @@ var YetaWF;
                 else {
                     // if a confirmation is wanted, show it
                     // this means that it's posted by definition
-                    var confirm = $t.attr(YConfigs.Basics.CssConfirm);
+                    var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
                         YetaWF_Basics.alertYesNo(confirm, undefined, function () {
-                            _this.postLink(url, $t, cookieToReturn);
-                            if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                                YetaWF_Basics.pleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
+                            _this.postLink(url, anchor, cookieToReturn);
+                            var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
+                            if (s)
+                                YetaWF_Basics.pleaseWait(s);
                             return false;
                         });
                         return false;
                     }
                     else if (post) {
-                        if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                            YetaWF_Basics.pleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
-                        _this.postLink(url, $t, cookieToReturn);
+                        var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
+                        if (s)
+                            YetaWF_Basics.pleaseWait(s);
+                        _this.postLink(url, anchor, cookieToReturn);
                         return false;
                     }
                 }
                 if (target == "_self") {
                     // add overlay if desired
-                    if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
-                        YetaWF_Basics.pleaseWait($t.attr(YConfigs.Basics.CssPleaseWait));
-                    }
+                    var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
+                    if (s)
+                        YetaWF_Basics.pleaseWait(s);
                 }
                 _this.waitForCookie(cookieToReturn); // if any
                 // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
@@ -183,7 +186,7 @@ var YetaWF;
                 this.cookieTimer = setInterval(this.checkCookies, 500);
             }
         };
-        Anchors.prototype.postLink = function (url, $elem, cookieToReturn) {
+        Anchors.prototype.postLink = function (url, elem, cookieToReturn) {
             YetaWF_Basics.setLoading();
             this.waitForCookie(cookieToReturn);
             $.ajax({
@@ -192,7 +195,7 @@ var YetaWF;
                 data: {},
                 success: function (result, textStatus, jqXHR) {
                     YetaWF_Basics.setLoading(false);
-                    YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $elem[0]);
+                    YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, elem);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     YetaWF_Basics.setLoading(false);

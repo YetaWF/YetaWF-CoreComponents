@@ -50,10 +50,10 @@ var YetaWF;
         /**
          * Handles links that invoke a popup window.
          */
-        PopupsServices.prototype.handlePopupLink = function ($elem) {
-            var url = $elem[0].href;
+        PopupsServices.prototype.handlePopupLink = function (elem) {
+            var url = elem.href;
             // check if this is a popup link
-            if (!$elem.hasClass(YConfigs.Basics.CssPopupLink))
+            if (!YetaWF_Basics.elementHasClass(elem, YConfigs.Basics.CssPopupLink))
                 return false;
             // check whether we allow popups at all
             if (!YVolatile.Popups.AllowPopups)
@@ -68,7 +68,7 @@ var YetaWF;
                 return false;
             if (YVolatile.Basics.EditModeActive || YVolatile.Basics.PageControlVisible) {
                 //if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
-                if ($elem.attr(YConfigs.Basics.CssAttrDataSpecialEdit) == undefined)
+                if (!elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit))
                     return false;
             }
             return YetaWF_Popups.openPopup(url, false);
@@ -76,18 +76,16 @@ var YetaWF;
         ;
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.
-         * @param $elem
          */
-        PopupsServices.prototype.handleOuterWindow = function ($elem) {
-            'use strict';
+        PopupsServices.prototype.handleOuterWindow = function (elem) {
             // check if this is a popup link
-            if ($elem.attr(YConfigs.Basics.CssOuterWindow) == undefined)
+            if (!elem.getAttribute(YConfigs.Basics.CssOuterWindow))
                 return false;
             if (!YetaWF_Basics.isInPopup())
                 return false; // this shouldn't really happen
             YetaWF_Basics.setLoading(true);
-            if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI($elem[0].href), true))
-                window.parent.location.assign($elem[0].href);
+            if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI(elem.href), true))
+                window.parent.location.assign(elem.href);
             return true;
         };
         ;

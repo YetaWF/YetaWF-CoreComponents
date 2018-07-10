@@ -113,7 +113,7 @@ namespace YetaWF {
         // Change the current page to the specified Uri (may not be part of the unified page set)
         // returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
         // returns true if the page is now shown and is part of the unified page set
-        public setContent(uri: uri.URI, setState: boolean, popupCB?: (result: ContentResult) => JQuery<HTMLElement>): boolean {
+        public setContent(uri: uri.URI, setState: boolean, popupCB?: (result: ContentResult) => HTMLElement): boolean {
 
             if (YVolatile.Basics.EditModeActive) return false; // edit mode
             if (YVolatile.Basics.UnifiedMode == UnifiedModeEnum.None) return false; // not unified mode
@@ -272,7 +272,7 @@ namespace YetaWF {
                                     tags.push($pane[0]);
                                 }
                             } else {
-                                tags.push(popupCB(result)[0]);//$$$
+                                tags.push(popupCB(result));
                             }
                             // add addons
                             $('body').append(result.Addons);

@@ -30,7 +30,7 @@ namespace YetaWF {
         /**
          * Opens a dynamic popup, usually a div added to the current document.
          */
-        openDynamicPopup(result: ContentResult): JQuery<HTMLElement>;
+        openDynamicPopup(result: ContentResult): HTMLElement;
 
         /**
          * Open a static popup, usually a popup based on iframe.
@@ -105,12 +105,12 @@ namespace YetaWF {
         /**
          * Handles links that invoke a popup window.
          */
-        public handlePopupLink($elem: JQuery<HTMLAnchorElement>): boolean {
+        public handlePopupLink(elem: HTMLAnchorElement): boolean {
 
-            var url = $elem[0].href;
+            var url = elem.href;
 
             // check if this is a popup link
-            if (!$elem.hasClass(YConfigs.Basics.CssPopupLink))
+            if (!YetaWF_Basics.elementHasClass(elem, YConfigs.Basics.CssPopupLink))
                 return false;
             // check whether we allow popups at all
             if (!YVolatile.Popups.AllowPopups)
@@ -125,7 +125,7 @@ namespace YetaWF {
                 return false;
             if (YVolatile.Basics.EditModeActive || YVolatile.Basics.PageControlVisible) {
                 //if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
-                if ($elem.attr(YConfigs.Basics.CssAttrDataSpecialEdit) == undefined)
+                if (!elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit))
                     return false;
             }
 
@@ -134,17 +134,15 @@ namespace YetaWF {
 
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.
-         * @param $elem
          */
-        public handleOuterWindow($elem: JQuery<HTMLAnchorElement>): boolean {
-            'use strict';
+        public handleOuterWindow(elem: HTMLAnchorElement): boolean {
             // check if this is a popup link
-            if ($elem.attr(YConfigs.Basics.CssOuterWindow) == undefined)
+            if (!elem.getAttribute(YConfigs.Basics.CssOuterWindow))
                 return false;
             if (!YetaWF_Basics.isInPopup()) return false; // this shouldn't really happen
             YetaWF_Basics.setLoading(true);
-            if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI($elem[0].href), true))
-                window.parent.location.assign($elem[0].href);
+            if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI(elem.href), true))
+                window.parent.location.assign(elem.href);
             return true;
         };
     }
