@@ -77,7 +77,7 @@ var YetaWF;
                     return false; // popups not wanted for this UPS
             }
             // check if we're clicking a link which is part of this unified page
-            var path = uri.path();
+            var path = uri.getPath();
             if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
                 // find all panes that support dynamic content and replace with new modules
                 var $divs = $('.yUnified[data-pane]');
@@ -85,7 +85,7 @@ var YetaWF;
                 var data = {
                     CacheVersion: YVolatile.Basics.CacheVersion,
                     Path: path,
-                    QueryString: uri.query(),
+                    QueryString: uri.getQuery(),
                     UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,
                     UnifiedMode: YVolatile.Basics.UnifiedMode,
                     UnifiedAddonMods: YetaWF_Basics.UnifiedAddonModsLoaded,
@@ -122,7 +122,7 @@ var YetaWF;
                 data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles); // add known javascript files that were added via bundles
                 YetaWF_Basics.setLoading();
                 $.ajax({
-                    url: '/YetaWF_Core/PageContent/Show?' + uri.query(),
+                    url: '/YetaWF_Core/PageContent/Show' + uri.getQuery(true),
                     type: 'POST',
                     data: JSON.stringify(data),
                     dataType: 'json',
@@ -152,7 +152,7 @@ var YetaWF;
                             return;
                         }
                         if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                            _this.setContent(new URI(result.RedirectContent), setState, popupCB);
+                            _this.setContent(YetaWF_Basics.parseUrl(result.RedirectContent), setState, popupCB);
                             return;
                         }
                         // run all global scripts (YConfigs, etc.)
@@ -194,7 +194,7 @@ var YetaWF;
                                 if (setState) {
                                     try {
                                         var stateObj = {};
-                                        history.pushState(stateObj, "", uri.toString());
+                                        history.pushState(stateObj, "", uri.toUrl());
                                     }
                                     catch (err) { }
                                 }
@@ -270,7 +270,7 @@ var YetaWF;
                                 $.globalEval(result.AnalyticsContent);
                             }
                             catch (e) { }
-                            $(document).trigger('YetaWF_Basics_NewPage', [uri.toString()]); // notify listeners that there is a new page
+                            $(document).trigger('YetaWF_Basics_NewPage', [uri.toUrl()]); // notify listeners that there is a new page
                             // done, set focus
                             YetaWF_Basics.setFocus(tags);
                             YetaWF_Basics.setLoading(false);
@@ -293,7 +293,7 @@ var YetaWF;
                     if (setState) {
                         try {
                             var stateObj = {};
-                            history.pushState(stateObj, "", uri.toString());
+                            history.pushState(stateObj, "", uri.toUrl());
                         }
                         catch (err) { }
                     }

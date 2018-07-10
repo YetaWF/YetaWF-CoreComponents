@@ -125,6 +125,12 @@ var YetaWF;
          * Closes the "Please Wait" message (if any).
          */
         BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
+        // Url parsing
+        BasicsServices.prototype.parseUrl = function (url) {
+            var uri = new YetaWF.Url();
+            uri.parse(url);
+            return uri;
+        };
         // Focus
         /**
          * Set focus to a suitable field within the specified elements.
@@ -205,15 +211,14 @@ var YetaWF;
         // Scrolling
         BasicsServices.prototype.setScrollPosition = function () {
             // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
-            var uri = new URI(window.location.href);
-            var data = uri.search(true);
-            var v = data[YConfigs.Basics.Link_ScrollLeft];
+            var uri = YetaWF_Basics.parseUrl(window.location.href);
+            var v = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
             var scrolled = false;
             if (v != undefined) {
                 $(window).scrollLeft(Number(v)); // JQuery use
                 scrolled = true;
             }
-            v = data[YConfigs.Basics.Link_ScrollTop];
+            v = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
             if (v != undefined) {
                 $(window).scrollTop(Number(v)); // JQuery use
                 scrolled = true;
@@ -230,8 +235,8 @@ var YetaWF;
             var scrolled = this.setScrollPosition();
             if (!scrolled) {
                 if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
-                    var uri = new URI(window.location.href);
-                    var $divs = $(".yUnified[data-url=\"" + uri.path() + "\"]");
+                    var uri = YetaWF_Basics.parseUrl(window.location.href);
+                    var $divs = $(".yUnified[data-url=\"" + uri.getPath() + "\"]");
                     if ($divs && $divs.length > 0) {
                         $(window).scrollTop(($divs.eq(0)).offset().top);
                         scrolled = true;
@@ -258,25 +263,25 @@ var YetaWF;
                 w = window;
             if (!keepPosition)
                 keepPosition = false;
-            var uri = new URI(w.location.href);
+            var uri = YetaWF_Basics.parseUrl(w.location.href);
             uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
             uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
             if (keepPosition) {
                 var v = $(w).scrollLeft();
                 if (v)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, v);
+                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, v.toString());
                 v = $(w).scrollTop();
                 if (v)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, v);
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, v.toString());
             }
             uri.removeSearch("!rand");
-            uri.addSearch("!rand", (new Date()).getTime()); // cache buster
+            uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
             if (YVolatile.Basics.UnifiedMode != YetaWF.UnifiedModeEnum.None) {
                 if (this.ContentHandling.setContent(uri, true))
                     return;
             }
             if (keepPosition) {
-                w.location.assign(uri.toString());
+                w.location.assign(uri.toUrl());
                 return;
             }
             w.location.reload(true);
@@ -775,11 +780,11 @@ var YetaWF;
     });
     // Navigation
     $(window).on("popstate", function (ev) {
-        var uri = new URI(window.location.href);
         if (YetaWF_Basics.suppressPopState) {
             YetaWF_Basics.suppressPopState = false;
             return;
         }
+        var uri = YetaWF_Basics.parseUrl(window.location.href);
         return !YetaWF_Basics.ContentHandling.setContent(uri, false);
     });
     // <a> links that only have a hash are intercepted so we don't go through content handling

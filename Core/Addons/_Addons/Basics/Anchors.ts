@@ -18,9 +18,7 @@ namespace YetaWF {
             $("body").on("click", "a.yaction-link,area.yaction-link", (e) => {
 
                 var anchor = e.currentTarget as HTMLAnchorElement;
-                var $anchor: JQuery<HTMLAnchorElement> = $(anchor) as JQuery<HTMLAnchorElement>;
 
-                var uri = $anchor.uri();
                 var url = anchor.href;
 
                 // send tracking info
@@ -44,11 +42,12 @@ namespace YetaWF {
                     }
                 }
 
-                if (uri.path().length == 0 || url.startsWith('javascript:') || url.startsWith('mailto:') || url.startsWith('tel:')) return true;
+                var uri = YetaWF_Basics.parseUrl(url);
+                if (uri.getPath().length == 0 || (!uri.getScheme().startsWith('http:') && !uri.getScheme().startsWith('https:'))) return true;
 
                 // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
                 if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
-                    var currUri = new URI(window.location.href);
+                    var currUri = YetaWF_Basics.parseUrl(window.location.href);
                     if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
                         uri.addSearch(YConfigs.Basics.Link_EditMode, 'y');
                 }
@@ -76,7 +75,7 @@ namespace YetaWF {
                 var target = anchor.getAttribute("target");
                 if ((!target || target == "" || target == "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl)) {
                     // add where we currently are so we can save it in case we need to return to this page
-                    var currUri = new URI(window.location.href);
+                    var currUri = YetaWF_Basics.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
                     // now update url (where we're going with originlist)
@@ -163,7 +162,7 @@ namespace YetaWF {
 
                 // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
                 if (cookieToReturn) return true; // expecting cookie return
-                if (uri.domain() !== "" && uri.hostname() !== window.document.domain) return true; // wrong domain
+                if (uri.getDomain() !== "" && uri.getDomain() !== window.document.domain) return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set
                 if (!url.startsWith("http") || !window.document.location.href.startsWith("http")) return true; // neither http nor https
                 if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||

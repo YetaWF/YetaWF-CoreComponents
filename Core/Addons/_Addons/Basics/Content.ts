@@ -113,7 +113,7 @@ namespace YetaWF {
         // Change the current page to the specified Uri (may not be part of the unified page set)
         // returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
         // returns true if the page is now shown and is part of the unified page set
-        public setContent(uri: uri.URI, setState: boolean, popupCB?: (result: ContentResult) => HTMLElement): boolean {
+        public setContent(uri: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult) => HTMLElement): boolean {
 
             if (YVolatile.Basics.EditModeActive) return false; // edit mode
             if (YVolatile.Basics.UnifiedMode == UnifiedModeEnum.None) return false; // not unified mode
@@ -125,7 +125,7 @@ namespace YetaWF {
             }
 
             // check if we're clicking a link which is part of this unified page
-            var path = uri.path();
+            var path = uri.getPath();
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
                 // find all panes that support dynamic content and replace with new modules
                 var $divs = $('.yUnified[data-pane]');
@@ -133,7 +133,7 @@ namespace YetaWF {
                 var data: ContentData = {
                     CacheVersion: YVolatile.Basics.CacheVersion,
                     Path: path,
-                    QueryString: uri.query(),
+                    QueryString: uri.getQuery(),
                     UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,
                     UnifiedMode: YVolatile.Basics.UnifiedMode,
                     UnifiedAddonMods: YetaWF_Basics.UnifiedAddonModsLoaded,
@@ -171,7 +171,7 @@ namespace YetaWF {
 
                 YetaWF_Basics.setLoading();
                 $.ajax({
-                    url: '/YetaWF_Core/PageContent/Show?' + uri.query(),
+                    url: '/YetaWF_Core/PageContent/Show' + uri.getQuery(true),
                     type: 'POST',
                     data: JSON.stringify(data),
                     dataType: 'json',
@@ -200,7 +200,7 @@ namespace YetaWF {
                             return;
                         }
                         if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                            this.setContent(new URI(result.RedirectContent), setState, popupCB);
+                            this.setContent(YetaWF_Basics.parseUrl(result.RedirectContent), setState, popupCB);
                             return;
                         }
                         // run all global scripts (YConfigs, etc.)
@@ -239,7 +239,7 @@ namespace YetaWF {
                                 if (setState) {
                                     try {
                                         var stateObj = {};
-                                        history.pushState(stateObj, "", uri.toString());
+                                        history.pushState(stateObj, "", uri.toUrl());
                                     } catch (err) { }
                                 }
                                 // remove all pane contents
@@ -312,7 +312,7 @@ namespace YetaWF {
                             try {
                                 $.globalEval(result.AnalyticsContent);
                             } catch (e) { }
-                            $(document).trigger('YetaWF_Basics_NewPage', [uri.toString()]);// notify listeners that there is a new page
+                            $(document).trigger('YetaWF_Basics_NewPage', [uri.toUrl()]);// notify listeners that there is a new page
                             // done, set focus
                             YetaWF_Basics.setFocus(tags);
                             YetaWF_Basics.setLoading(false);
@@ -334,7 +334,7 @@ namespace YetaWF {
                     if (setState) {
                         try {
                             var stateObj = {};
-                            history.pushState(stateObj, "", uri.toString());
+                            history.pushState(stateObj, "", uri.toUrl());
                         } catch (err) { }
                     }
                     if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {

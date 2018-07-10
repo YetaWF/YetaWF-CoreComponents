@@ -91,11 +91,11 @@ var YetaWF;
                 // add the origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
                 if ($form.attr(YConfigs.Basics.CssSaveReturnUrl) != undefined) { // form says we need to save the return address on submit
-                    var currUri = new URI(window.location.href);
+                    var currUri = YetaWF_Basics.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
                     originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
+                    var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                     originList.push(newOrigin);
                     if (originList.length > 5) // only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
@@ -395,15 +395,15 @@ var YetaWF;
                     var originList = YVolatile.Basics.OriginList;
                     if (originList.length > 0) {
                         var origin = originList.pop();
-                        var uri = new URI(origin.Url);
+                        var uri = YetaWF_Basics.parseUrl(origin.Url);
                         uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
                         if (origin.EditMode != YVolatile.Basics.EditModeActive)
-                            uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive);
+                            uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0" : "1");
                         uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (originList.length > 0)
                             uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                         if (!YetaWF_Basics.ContentHandling.setContent(uri, true))
-                            window.location.assign(uri);
+                            window.location.assign(uri.toUrl());
                     }
                     else {
                         // we don't know where to return so just close the browser

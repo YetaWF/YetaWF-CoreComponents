@@ -1054,14 +1054,14 @@ namespace YetaWF.Core.Controllers {
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
                             "YetaWF_Basics.setLoading();" +
-                            "if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
+                            "if (!window.parent.YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({0}), true))" +
                                 "window.parent.location.assign({0});",
                                 url);
                     } else {
                         sb.Append(
                             "YetaWF_Basics.alert({0}, {1}, function() {{" +
                                 "YetaWF_Basics.setLoading();" +
-                                "if (!window.parent.YetaWF_Basics.ContentHandling.setContent(new URI({2}), true))" +
+                                "if (!window.parent.YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({2}), true))" +
                                 "window.parent.location.assign({2});" +
                             "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
@@ -1076,14 +1076,14 @@ namespace YetaWF.Core.Controllers {
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
                             "YetaWF_Basics.setLoading();" +
-                            "if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
+                            "if (!YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({0}), true))" +
                               "window.location.assign({0});",
                                 url);
                     } else {
                         sb.Append(
                            "YetaWF_Basics.alert({0}, {1}, function() {{" +
                              "YetaWF_Basics.setLoading();" +
-                             "if (!YetaWF_Basics.ContentHandling.setContent(new URI({2}), true))" +
+                             "if (!YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({2}), true))" +
                                "window.location.assign({2});" +
                            "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
@@ -1163,11 +1163,11 @@ namespace YetaWF.Core.Controllers {
                             } else {
                                 url = YetaWFManager.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
-                                    sb.Append("if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
+                                    sb.Append("if (!YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({0}), true))" +
                                             "window.location.assign({0});", url);
                                 } else {
                                     sb.Append("YetaWF_Basics.alert({0}, {1}, function() {{" +
-                                        "if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
+                                        "if (!YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({0}), true))" +
                                           "window.location.assign({2});" +
                                       "}}, {3});", popupText, popupTitle, url, PopupOptions);
                                 }
@@ -1300,7 +1300,7 @@ namespace YetaWF.Core.Controllers {
                         sb.Append(
                             "YetaWF_Basics.setLoading();" +
                             "{1}" +
-                            "if (!YetaWF_Basics.ContentHandling.setContent(new URI({0}), true))" +
+                            "if (!YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl({0}), true))" +
                               "window.location.assign({0});",
                                 url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
                     }
