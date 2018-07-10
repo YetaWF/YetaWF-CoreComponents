@@ -102,21 +102,21 @@ var YetaWF;
                     data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
                 }
                 $divs.each(function () {
-                    data.Panes.push($(this).attr('data-pane'));
+                    data.Panes.push(this.getAttribute('data-pane'));
                 });
                 data.KnownCss = [];
                 var $css = $('link[rel="stylesheet"][data-name]');
                 $css.each(function () {
-                    data.KnownCss.push($(this).attr('data-name'));
+                    data.KnownCss.push(this.getAttribute('data-name'));
                 });
                 $css = $('style[type="text/css"][data-name]');
                 $css.each(function () {
-                    data.KnownCss.push($(this).attr('data-name'));
+                    data.KnownCss.push(this.getAttribute('data-name'));
                 });
                 data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles); // add known css files that were added via bundles
                 var $scripts = $('script[src][data-name]');
                 $scripts.each(function () {
-                    data.KnownScripts.push($(this).attr('data-name'));
+                    data.KnownScripts.push(this.getAttribute('data-name'));
                 });
                 data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic); // known javascript files that were added by content pages
                 data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles); // add known javascript files that were added via bundles
@@ -215,7 +215,7 @@ var YetaWF;
                                 $body.addClass(result.PageCssClasses);
                                 $body.attr('data-pagecss', result.PageCssClasses); // remember so we can remove them for the next page
                             }
-                            var $tags = $(); // collect all panes
+                            var tags = []; // collect all panes
                             if (!popupCB) {
                                 // add pane content
                                 var contentLength = result.Content.length;
@@ -225,11 +225,11 @@ var YetaWF;
                                     $pane.show(); // show in case this is a conditional pane
                                     $pane.append(result.Content[i].HTML);
                                     // run all registered initializations for the pane
-                                    $tags = $tags.add($pane);
+                                    tags.push($pane[0]);
                                 }
                             }
                             else {
-                                $tags = popupCB(result);
+                                tags.push(popupCB(result)[0]); //$$$
                             }
                             // add addons
                             $('body').append(result.Addons);
@@ -253,8 +253,8 @@ var YetaWF;
                             YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonMods;
                             YVolatile.Basics.UnifiedAddonMods = [];
                             // call ready handlers
-                            YetaWF_Basics.processAllReady($tags);
-                            YetaWF_Basics.processAllReadyOnce($tags);
+                            YetaWF_Basics.processAllReady(tags);
+                            YetaWF_Basics.processAllReadyOnce(tags);
                             if (!popupCB) {
                                 // scroll
                                 var scrolled = YetaWF_Basics.setScrollPosition();
@@ -272,7 +272,7 @@ var YetaWF;
                             catch (e) { }
                             $(document).trigger('YetaWF_Basics_NewPage', [uri.toString()]); // notify listeners that there is a new page
                             // done, set focus
-                            YetaWF_Basics.setFocus($tags);
+                            YetaWF_Basics.setFocus(tags);
                             YetaWF_Basics.setLoading(false);
                         });
                     },

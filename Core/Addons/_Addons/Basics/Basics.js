@@ -59,7 +59,7 @@ var YetaWF;
             this.reloadingModule_TagInModule = null;
             // Usage:
             // YetaWF_Basics.reloadInfo.push({  // TODO: revisit this (not a nice interface, need add(), but only used in grid for now)
-            //   module: $mod,              // module <div> to be refreshed
+            //   module: mod,               // module <div> to be refreshed
             //   callback: function() {}    // function to be called
             // });
             this.reloadInfo = [];
@@ -67,7 +67,7 @@ var YetaWF;
             /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) - Once transitioned, make whenReady private and remove $tag support */
             // Usage:
             // YetaWF_Basics.whenReady.push({
-            //   callback: function($tag) {}    // function to be called
+            //   callback: function(tag) {}    // function to be called
             // });
             //   or
             // YetaWF_Basics.whenReady.push({
@@ -75,10 +75,10 @@ var YetaWF;
             // });
             this.whenReady = [];
             // WhenReadyOnce
-            /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) - Once transitioned, make whenReadyOnce private and remove $tag support */
+            /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
             // Usage:
             // YetaWF_Basics.whenReadyOnce.push({
-            //   callback: function($tag) {}    // function to be called
+            //   callback: function(tag) {}    // function to be called
             // });
             //   or
             // YetaWF_Basics.whenReadyOnce.push({
@@ -127,27 +127,32 @@ var YetaWF;
         BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
         // Focus
         /**
-         * Set focus to a suitable field within the specified element.
+         * Set focus to a suitable field within the specified elements.
          */
-        BasicsServices.prototype.setFocus = function ($elem) {
+        BasicsServices.prototype.setFocus = function (tags) {
             //TODO: this should also consider input fields with validation errors (although that seems to magically work right now)
-            if ($elem == undefined)
-                $elem = $('body');
-            var $items = $('.focusonme:visible', $elem);
-            var $f = null;
-            $items.each(function (index) {
-                var item = this;
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
+            var f = null;
+            var items = this.getElementsBySelector('.focusonme', tags);
+            items = this.limitToVisibleOnly(items); //:visible
+            for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+                var item = items_1[_i];
                 if (item.tagName == "DIV") { // if we found a div, find the edit element instead
-                    var $i = $('input:visible,select:visible,.yt_dropdownlist_base:visible', $(item)).not("input[type='hidden']");
-                    if ($i.length > 0) {
-                        $f = $i.eq(0);
-                        return false;
+                    var i = this.getElementsBySelector('input,select,.yt_dropdownlist_base', [item]);
+                    i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
+                    i = this.limitToVisibleOnly(i); // :visible
+                    if (i.length > 0) {
+                        f = i[0];
+                        break;
                     }
                 }
-            });
+            }
             // We probably don't want to set the focus to any control - made OPT-IN for now
             //if ($f == null) {
-            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something useable
+            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something usable
             //    // filter out anything in a grid (filters, pager, etc)
             //    $items.each(function (index) {
             //        var $i = $(this)
@@ -157,9 +162,9 @@ var YetaWF;
             //        }
             //    });
             //}
-            if ($f != null) {
+            if (f != null) {
                 try {
-                    $f[0].focus();
+                    f.focus();
                 }
                 catch (e) { }
             }
@@ -172,14 +177,14 @@ var YetaWF;
          * doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
          * a more condensed appearance.
          */
-        BasicsServices.prototype.setCondense = function ($tag, width) {
+        BasicsServices.prototype.setCondense = function (tag, width) {
             if (width < YVolatile.Skin.MinWidthForPopups) {
-                $tag.addClass('yCondense');
-                $tag.removeClass('yNoCondense');
+                this.elementAddClass(tag, 'yCondense');
+                this.elementRemoveClass(tag, 'yNoCondense');
             }
             else {
-                $tag.addClass('yNoCondense');
-                $tag.removeClass('yCondense');
+                this.elementAddClass(tag, 'yNoCondense');
+                this.elementRemoveClass(tag, 'yCondense');
             }
         };
         // Popup
@@ -205,12 +210,12 @@ var YetaWF;
             var v = data[YConfigs.Basics.Link_ScrollLeft];
             var scrolled = false;
             if (v != undefined) {
-                $(window).scrollLeft(Number(v));
+                $(window).scrollLeft(Number(v)); // JQuery use
                 scrolled = true;
             }
             v = data[YConfigs.Basics.Link_ScrollTop];
             if (v != undefined) {
-                $(window).scrollTop(Number(v));
+                $(window).scrollTop(Number(v)); // JQuery use
                 scrolled = true;
             }
             return scrolled;
@@ -279,32 +284,30 @@ var YetaWF;
         /**
          * Reloads a module in place, defined by the specified tag (any tag within the module).
          */
-        BasicsServices.prototype.reloadModule = function ($tag) {
-            if (!$tag) {
+        BasicsServices.prototype.reloadModule = function (tag) {
+            if (!tag) {
                 if (!this.reloadingModule_TagInModule)
                     throw "No module found"; /*DEBUG*/
-                $tag = this.reloadingModule_TagInModule;
+                tag = this.reloadingModule_TagInModule;
             }
-            var $mod = this.getModuleFromTag($tag);
-            if ($mod.length == 0)
-                throw "No module found"; /*DEBUG*/
-            var $form = $('form', $mod);
+            var mod = this.getModuleFromTag(tag);
+            var $form = $('form', $(mod));
             if ($form.length == 0)
                 throw "No form found"; /*DEBUG*/
-            YetaWF_Forms.submit($form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
+            YetaWF_Forms.submit($form[0], false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
-        BasicsServices.prototype.refreshModule = function ($mod) {
+        BasicsServices.prototype.refreshModule = function (mod) {
             for (var entry in YetaWF_Basics.reloadInfo) {
-                if (YetaWF_Basics.reloadInfo[entry].module == $mod) {
+                if (YetaWF_Basics.reloadInfo[entry].module == mod) {
                     YetaWF_Basics.reloadInfo[entry].callback();
                 }
             }
         };
         ;
-        BasicsServices.prototype.refreshModuleByAnyTag = function ($t) {
-            var $mod = YetaWF_Basics.getModuleFromTag($t);
+        BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
+            var mod = YetaWF_Basics.getModuleFromTag(elem);
             for (var entry in YetaWF_Basics.reloadInfo) {
-                if (YetaWF_Basics.reloadInfo[entry].module[0].id == $mod[0].id) {
+                if (YetaWF_Basics.reloadInfo[entry].module[0].id == mod.id) {
                     YetaWF_Basics.reloadInfo[entry].callback();
                 }
             }
@@ -320,37 +323,27 @@ var YetaWF;
         /**
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
-        BasicsServices.prototype.getModuleFromTagCond = function ($t) {
-            $t = $($t);
-            if ($t.length != 1) {
-                debugger;
-                throw "Invalid tag";
-            } /*DEBUG*/
-            var $mod = $t.closest('.yModule');
+        BasicsServices.prototype.getModuleFromTagCond = function (tag) {
+            var $mod = $(tag).closest('.yModule');
             if ($mod.length == 0)
                 return null;
-            return $mod;
+            return $mod[0];
         };
         ;
         /**
          * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
          */
-        BasicsServices.prototype.getModuleFromTag = function ($t) {
-            var $mod = YetaWF_Basics.getModuleFromTagCond($t);
-            if ($mod == null || $mod.length != 1) {
+        BasicsServices.prototype.getModuleFromTag = function (tag) {
+            var mod = YetaWF_Basics.getModuleFromTagCond(tag);
+            if (mod == null) {
                 debugger;
                 throw "Can't find containing module";
             } /*DEBUG*/
-            return $mod;
+            return mod;
         };
         ;
-        BasicsServices.prototype.getModuleGuidFromTag = function ($t) {
-            var $t = $($t);
-            if ($t.length != 1) {
-                debugger;
-                throw "Invalid tag";
-            } /*DEBUG*/
-            var $mod = $t.closest('.yModule');
+        BasicsServices.prototype.getModuleGuidFromTag = function (tag) {
+            var $mod = $(tag).closest('.yModule');
             if ($mod.length != 1) {
                 debugger;
                 throw "Can't find containing module";
@@ -366,17 +359,18 @@ var YetaWF;
         /**
          * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
          */
-        BasicsServices.prototype.getCharSizeFromTag = function ($t) {
+        BasicsServices.prototype.getCharSizeFromTag = function (tag) {
             var width, height;
-            var $mod = null;
-            if ($t)
-                $mod = YetaWF_Basics.getModuleFromTagCond($t);
-            if ($mod) {
-                var w = $mod.attr('data-charwidthavg');
+            var mod = null;
+            if (tag) {
+                var mod = YetaWF_Basics.getModuleFromTagCond(tag);
+            }
+            if (mod) {
+                var w = mod.getAttribute('data-charwidthavg');
                 if (!w)
                     throw "missing data-charwidthavg attribute"; /*DEBUG*/
                 width = Number(w);
-                var h = $mod.attr('data-charheight');
+                var h = mod.getAttribute('data-charheight');
                 if (!h)
                     throw "missing data-charheight attribute"; /*DEBUG*/
                 height = Number(h);
@@ -484,31 +478,29 @@ var YetaWF;
         };
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-         * or after a partial form is rendered. The callee must honor $tag/elem and only manipulate child objects.
+         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
          * Callback functions are registered by whomever needs this type of processing. For example, a grid can
          * process all whenReady requests after reloading the grid with data (which doesn't run any javascript automatically).
          * @param def
          */
         BasicsServices.prototype.addWhenReady = function (callback) {
-            this.whenReady.push({ callbackTS: callback });
+            this.whenReady.push({ callback: callback });
         };
-        //TODO: This should take an elem, not a jquery object
         /**
          * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
          * @param elem The element for which all callbacks should be called to initialize children.
          */
-        BasicsServices.prototype.processAllReady = function ($tag) {
-            if (!$tag)
-                $tag = $("body");
+        BasicsServices.prototype.processAllReady = function (tags) {
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
             for (var _i = 0, _a = this.whenReady; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 try { // catch errors to insure all callbacks are called
-                    if (entry.callback != null)
-                        entry.callback($tag);
-                    else if (entry.callbackTS != null) {
-                        $tag.each(function (ix, val) {
-                            entry.callbackTS(val);
-                        });
+                    for (var _b = 0, tags_1 = tags; _b < tags_1.length; _b++) {
+                        var tag = tags_1[_b];
+                        entry.callback(tag);
                     }
                 }
                 catch (err) {
@@ -518,32 +510,30 @@ var YetaWF;
         };
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-         * or after a partial form is rendered. The callee must honor $tag/elem and only manipulate child objects.
+         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
          * Callback functions are registered by whomever needs this type of processing. For example, a grid can
          * process all whenReadyOnce requests after reloading the grid with data (which doesn't run any javascript automatically).
          * The callback is called for ONCE. Then the callback is removed.
          * @param def
          */
         BasicsServices.prototype.addWhenReadyOnce = function (callback) {
-            this.whenReadyOnce.push({ callbackTS: callback });
+            this.whenReadyOnce.push({ callback: callback });
         };
-        //TODO: This should take an elem, not a jquery object
         /**
          * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
          * @param elem The element for which all callbacks should be called to initialize children.
          */
-        BasicsServices.prototype.processAllReadyOnce = function ($tag) {
-            if (!$tag)
-                $tag = $("body");
+        BasicsServices.prototype.processAllReadyOnce = function (tags) {
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
             for (var _i = 0, _a = this.whenReadyOnce; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 try { // catch errors to insure all callbacks are called
-                    if (entry.callback !== undefined)
-                        entry.callback($tag);
-                    else {
-                        $tag.each(function (ix, elem) {
-                            entry.callbackTS(this);
-                        });
+                    for (var _b = 0, tags_2 = tags; _b < tags_2.length; _b++) {
+                        var tag = tags_2[_b];
+                        entry.callback(tag);
                     }
                 }
                 catch (err) {
@@ -637,7 +627,55 @@ var YetaWF;
                 }
             });
         };
-        // Selectors - APIs to detach selectors from jQuery so this could be replaced with a smaller library (like sizzle).
+        // Selectors
+        /**
+         * Get an element by id.
+         */
+        BasicsServices.prototype.getElementById = function (elemId) {
+            var div = document.querySelector("#" + elemId);
+            if (!div)
+                throw "Element with id " + elemId + " not found"; /*DEBUG*/
+            return div;
+        };
+        /**
+         * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        BasicsServices.prototype.getElementsBySelector = function (selector, elems) {
+            var all = [];
+            for (var _i = 0, elems_1 = elems; _i < elems_1.length; _i++) {
+                var elem = elems_1[_i];
+                var list = elem.querySelectorAll(selector);
+                var len = list.length;
+                for (var i = 0; i < len; ++i) {
+                    all.push(list[i]);
+                }
+            }
+            return all;
+        };
+        /**
+         * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
+         */
+        BasicsServices.prototype.limitToNotTypeHidden = function (elems) {
+            var all = [];
+            for (var _i = 0, elems_2 = elems; _i < elems_2.length; _i++) {
+                var elem = elems_2[_i];
+                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden") //$$$check casing
+                    all.push(elem);
+            }
+            return all;
+        };
+        /**
+         * Returns items that are visible. (similar to jquery var x = elems.filter(':visible'); )
+         */
+        BasicsServices.prototype.limitToVisibleOnly = function (elems) {
+            var all = [];
+            for (var _i = 0, elems_3 = elems; _i < elems_3.length; _i++) {
+                var elem = elems_3[_i];
+                if (elem.clientWidth > 0 && elem.clientHeight > 0)
+                    all.push(elem);
+            }
+            return all;
+        };
         /**
          * Tests whether the specified element matches the selector.
          * @param elem - The element to test.
@@ -645,9 +683,10 @@ var YetaWF;
          */
         BasicsServices.prototype.elementMatches = function (elem, selector) {
             if (elem)
-                return $(elem).is(selector);
+                return $(elem).is(selector); // JQuery use
             return false;
         };
+        // Element Css
         /**
          * Tests whether the specified element has the given css class.
          * @param elem The element to test.
@@ -661,6 +700,18 @@ var YetaWF;
                 return elem.classList.contains(css);
             else
                 return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
+        };
+        BasicsServices.prototype.elementAddClass = function (elem, className) {
+            if (elem.classList)
+                elem.classList.add(className);
+            else
+                elem.className += ' ' + className;
+        };
+        BasicsServices.prototype.elementRemoveClass = function (elem, className) {
+            if (elem.classList)
+                elem.classList.remove(className);
+            else
+                elem.className = elem.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         };
         // CONTENTCHANGE
         // CONTENTCHANGE
@@ -717,10 +768,10 @@ var YetaWF;
     YetaWF.BasicsServices = BasicsServices;
     // screen size yCondense/yNoCondense support
     $(window).on('resize', function () {
-        YetaWF_Basics.setCondense($('body'), window.innerWidth);
+        YetaWF_Basics.setCondense(document.body, window.innerWidth);
     });
     $(document).ready(function () {
-        YetaWF_Basics.setCondense($('body'), window.innerWidth);
+        YetaWF_Basics.setCondense(document.body, window.innerWidth);
     });
     // Navigation
     $(window).on("popstate", function (ev) {

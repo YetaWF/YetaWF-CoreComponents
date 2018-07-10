@@ -5,6 +5,8 @@
 
 /* Basics API, to be implemented by rendering-specific code - rendering code must define a YetaWF_BasicsImpl object implementing IBasicsImpl */
 
+/* %%%%%%% TODO: There are JQuery references in Basics/Forms/Popups which will be eliminated. */
+
 /**
     Implemented by custom rendering.
  */
@@ -26,7 +28,7 @@ namespace YetaWF {
         encoded: boolean;
     }
     export interface ReloadInfo {
-        module: JQuery<HTMLElement>;
+        module: HTMLElement;
         callback(): void;
     }
     export interface CharSize {
@@ -74,12 +76,7 @@ namespace YetaWF {
     }
 
     export interface IWhenReady {
-        /**
-         * @deprecated
-         */
-        callback?($tag: JQuery<HTMLElement>): void;
-
-        callbackTS?(elem: HTMLElement): void;
+        callback(tag: HTMLElement): void;
     }
     export interface IClearDiv {
         callback?(elem: HTMLElement): void;
@@ -141,27 +138,31 @@ namespace YetaWF {
         // Focus
 
         /**
-         * Set focus to a suitable field within the specified element.
+         * Set focus to a suitable field within the specified elements.
          */
-        public setFocus($elem?: JQuery<HTMLElement>): void {
+        public setFocus(tags?: HTMLElement[]): void {
             //TODO: this should also consider input fields with validation errors (although that seems to magically work right now)
-            if ($elem == undefined)
-                $elem = $('body')
-            var $items = $('.focusonme:visible', $elem)
-            var $f: JQuery<HTMLElement> | null = null;
-            $items.each(function (index): false | void {
-                var item = this;
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
+            var f: HTMLElement | null = null;
+            var items = this.getElementsBySelector('.focusonme', tags);
+            items = this.limitToVisibleOnly(items); //:visible
+            for (let item of items) {
                 if (item.tagName == "DIV") { // if we found a div, find the edit element instead
-                    var $i = $('input:visible,select:visible,.yt_dropdownlist_base:visible', $(item)).not("input[type='hidden']")
-                    if ($i.length > 0) {
-                        $f = $i.eq(0);
-                        return false;
+                    var i = this.getElementsBySelector('input,select,.yt_dropdownlist_base', [item]);
+                    i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
+                    i = this.limitToVisibleOnly(i); // :visible
+                    if (i.length > 0) {
+                        f = i[0];
+                        break;
                     }
                 }
-            });
+            }
             // We probably don't want to set the focus to any control - made OPT-IN for now
             //if ($f == null) {
-            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something useable
+            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something usable
             //    // filter out anything in a grid (filters, pager, etc)
             //    $items.each(function (index) {
             //        var $i = $(this)
@@ -171,9 +172,9 @@ namespace YetaWF {
             //        }
             //    });
             //}
-            if ($f != null) {
+            if (f != null) {
                 try {
-                    $f[0].focus();
+                    f.focus();
                 } catch (e) { }
             }
         }
@@ -187,13 +188,13 @@ namespace YetaWF {
          * doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
          * a more condensed appearance.
          */
-        public setCondense($tag: JQuery<HTMLElement>, width: number) {
+        public setCondense(tag: HTMLElement, width: number) {
             if (width < YVolatile.Skin.MinWidthForPopups) {
-                $tag.addClass('yCondense');
-                $tag.removeClass('yNoCondense');
+                this.elementAddClass(tag, 'yCondense');
+                this.elementRemoveClass(tag, 'yNoCondense');
             } else {
-                $tag.addClass('yNoCondense');
-                $tag.removeClass('yCondense');
+                this.elementAddClass(tag, 'yNoCondense');
+                this.elementRemoveClass(tag, 'yCondense');
             }
         }
 
@@ -223,12 +224,12 @@ namespace YetaWF {
             var v = data[YConfigs.Basics.Link_ScrollLeft];
             var scrolled = false;
             if (v != undefined) {
-                $(window).scrollLeft(Number(v));
+                $(window).scrollLeft(Number(v)); // JQuery use
                 scrolled = true;
             }
             v = data[YConfigs.Basics.Link_ScrollTop];
             if (v != undefined) {
-                $(window).scrollTop(Number(v));
+                $(window).scrollTop(Number(v)); // JQuery use
                 scrolled = true;
             }
             return scrolled;
@@ -354,39 +355,38 @@ namespace YetaWF {
         /**
          * Reloads a module in place, defined by the specified tag (any tag within the module).
          */
-        public reloadModule($tag?: JQuery<HTMLElement>) {
-            if (!$tag) {
+        public reloadModule(tag?: HTMLElement) {
+            if (!tag) {
                 if (!this.reloadingModule_TagInModule) throw "No module found";/*DEBUG*/
-                $tag = this.reloadingModule_TagInModule;
+                tag = this.reloadingModule_TagInModule;
             }
-            var $mod = this.getModuleFromTag($tag);
-            if ($mod.length == 0) throw "No module found";/*DEBUG*/
-            var $form = $('form', $mod) as JQuery<HTMLFormElement>;
+            var mod = this.getModuleFromTag(tag);
+            var $form = $('form', $(mod)) as JQuery<HTMLFormElement>;
             if ($form.length == 0) throw "No form found";/*DEBUG*/
-            YetaWF_Forms.submit($form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
+            YetaWF_Forms.submit($form[0], false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
 
-        private reloadingModule_TagInModule: JQuery<HTMLElement> | null = null;
+        private reloadingModule_TagInModule: HTMLElement | null = null;
 
         // Usage:
         // YetaWF_Basics.reloadInfo.push({  // TODO: revisit this (not a nice interface, need add(), but only used in grid for now)
-        //   module: $mod,              // module <div> to be refreshed
+        //   module: mod,               // module <div> to be refreshed
         //   callback: function() {}    // function to be called
         // });
 
         public reloadInfo: ReloadInfo[] = [];
 
-        public refreshModule($mod: JQuery<HTMLElement>) {
+        public refreshModule(mod: HTMLElement) {
             for (var entry in YetaWF_Basics.reloadInfo) {
-                if (YetaWF_Basics.reloadInfo[entry].module == $mod) {
+                if (YetaWF_Basics.reloadInfo[entry].module == mod) {
                     YetaWF_Basics.reloadInfo[entry].callback();
                 }
             }
         };
-        public refreshModuleByAnyTag($t: JQuery<HTMLElement>) {
-            var $mod = YetaWF_Basics.getModuleFromTag($t);
+        public refreshModuleByAnyTag(elem: HTMLElement) {
+            var mod = YetaWF_Basics.getModuleFromTag(elem);
             for (var entry in YetaWF_Basics.reloadInfo) {
-                if (YetaWF_Basics.reloadInfo[entry].module[0].id == $mod[0].id) {
+                if (YetaWF_Basics.reloadInfo[entry].module[0].id == mod.id) {
                     YetaWF_Basics.reloadInfo[entry].callback();
                 }
             }
@@ -402,26 +402,22 @@ namespace YetaWF {
         /**
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
-        private getModuleFromTagCond($t: JQuery<HTMLElement>): JQuery<HTMLElement> | null {
-            $t = $($t);
-            if ($t.length != 1) { debugger; throw "Invalid tag"; }/*DEBUG*/
-            var $mod = $t.closest('.yModule');
+        private getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
+            var $mod = $(tag).closest('.yModule');
             if ($mod.length == 0) return null;
-            return $mod;
+            return $mod[0];
         };
         /**
          * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
          */
-        private getModuleFromTag($t: JQuery<HTMLElement>): JQuery<HTMLElement> {
-            var $mod = YetaWF_Basics.getModuleFromTagCond($t);
-            if ($mod == null || $mod.length != 1) { debugger; throw "Can't find containing module"; }/*DEBUG*/
-            return $mod;
+        private getModuleFromTag(tag: HTMLElement): HTMLElement {
+            var mod = YetaWF_Basics.getModuleFromTagCond(tag);
+            if (mod == null) { debugger; throw "Can't find containing module"; }/*DEBUG*/
+            return mod;
         };
 
-        public getModuleGuidFromTag($t: JQuery<HTMLElement>): string {
-            var $t = $($t);
-            if ($t.length != 1) { debugger; throw "Invalid tag"; }/*DEBUG*/
-            var $mod = $t.closest('.yModule');
+        public getModuleGuidFromTag(tag: HTMLElement): string {
+            var $mod = $(tag).closest('.yModule');
             if ($mod.length != 1) { debugger; throw "Can't find containing module"; }/*DEBUG*/
             var guid = $mod.attr('data-moduleguid');
             if (guid == undefined || guid == "") throw "Can't find module guid";/*DEBUG*/
@@ -434,16 +430,17 @@ namespace YetaWF {
         /**
          * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
          */
-        public getCharSizeFromTag($t: JQuery<HTMLElement> | null): CharSize{
+        public getCharSizeFromTag(tag: HTMLElement | null): CharSize{
             var width: number, height: number;
-            var $mod: JQuery<HTMLElement> | null = null;
-            if ($t)
-                $mod = YetaWF_Basics.getModuleFromTagCond($t);
-            if ($mod) {
-                var w = $mod.attr('data-charwidthavg');
+            var mod: HTMLElement | null = null;
+            if (tag) {
+                var mod = YetaWF_Basics.getModuleFromTagCond(tag);
+            }
+            if (mod) {
+                var w = mod.getAttribute('data-charwidthavg');
                 if (!w) throw "missing data-charwidthavg attribute";/*DEBUG*/
                 width = Number(w);
-                var h = $mod.attr('data-charheight');
+                var h = mod.getAttribute('data-charheight');
                 if (!h) throw "missing data-charheight attribute";/*DEBUG*/
                 height = Number(h);
             } else {
@@ -477,7 +474,7 @@ namespace YetaWF {
 
         // Ajax result handling
 
-        public processAjaxReturn(result: string, textStatus: string, jqXHR, tagInModule?: JQuery<HTMLElement>, onSuccess?: () => void, onHandleResult?: (string) => void) : boolean {
+        public processAjaxReturn(result: string, textStatus: string, jqXHR, tagInModule?: HTMLElement, onSuccess?: () => void, onHandleResult?: (string) => void) : boolean {
             YetaWF_Basics.reloadingModule_TagInModule = tagInModule || null;
             if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
@@ -551,7 +548,7 @@ namespace YetaWF {
         /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) - Once transitioned, make whenReady private and remove $tag support */
         // Usage:
         // YetaWF_Basics.whenReady.push({
-        //   callback: function($tag) {}    // function to be called
+        //   callback: function(tag) {}    // function to be called
         // });
         //   or
         // YetaWF_Basics.whenReady.push({
@@ -561,31 +558,28 @@ namespace YetaWF {
 
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-         * or after a partial form is rendered. The callee must honor $tag/elem and only manipulate child objects.
+         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
          * Callback functions are registered by whomever needs this type of processing. For example, a grid can
          * process all whenReady requests after reloading the grid with data (which doesn't run any javascript automatically).
          * @param def
          */
         public addWhenReady(callback: (section: HTMLElement) => void): void {
-            this.whenReady.push({ callbackTS: callback });
+            this.whenReady.push({ callback: callback });
         }
 
-        //TODO: This should take an elem, not a jquery object
         /**
          * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
          * @param elem The element for which all callbacks should be called to initialize children.
          */
-        public processAllReady($tag?: JQuery<HTMLElement>): void {
-            if (!$tag) $tag = $("body");
+        public processAllReady(tags?: HTMLElement[]): void {
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
             for (var entry of this.whenReady) {
                 try { // catch errors to insure all callbacks are called
-                    if (entry.callback != null)
-                        entry.callback($tag);
-                    else if (entry.callbackTS != null) {
-                        $tag.each(function (ix: number, val: HTMLElement): void {
-                            (entry.callbackTS as any)(val);
-                        });
-                    }
+                    for (var tag of tags)
+                        entry.callback(tag);
                 } catch (err) {
                     console.log(err.message);
                 }
@@ -594,10 +588,10 @@ namespace YetaWF {
 
         // WhenReadyOnce
 
-        /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) - Once transitioned, make whenReadyOnce private and remove $tag support */
+        /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
         // Usage:
         // YetaWF_Basics.whenReadyOnce.push({
-        //   callback: function($tag) {}    // function to be called
+        //   callback: function(tag) {}    // function to be called
         // });
         //   or
         // YetaWF_Basics.whenReadyOnce.push({
@@ -607,32 +601,29 @@ namespace YetaWF {
 
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-         * or after a partial form is rendered. The callee must honor $tag/elem and only manipulate child objects.
+         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
          * Callback functions are registered by whomever needs this type of processing. For example, a grid can
          * process all whenReadyOnce requests after reloading the grid with data (which doesn't run any javascript automatically).
          * The callback is called for ONCE. Then the callback is removed.
          * @param def
          */
         public addWhenReadyOnce(callback: (section: HTMLElement) => void): void {
-            this.whenReadyOnce.push({ callbackTS: callback });
+            this.whenReadyOnce.push({ callback: callback });
         }
 
-        //TODO: This should take an elem, not a jquery object
         /**
          * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
          * @param elem The element for which all callbacks should be called to initialize children.
          */
-        public processAllReadyOnce($tag?: JQuery<HTMLElement>): void {
-            if (!$tag) $tag = $("body");
+        public processAllReadyOnce(tags?: HTMLElement[]): void {
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
             for (var entry of this.whenReadyOnce) {
                 try { // catch errors to insure all callbacks are called
-                    if (entry.callback !== undefined)
-                        entry.callback($tag);
-                    else {
-                        $tag.each(function (ix: number, elem: HTMLElement): void {
-                            (entry.callbackTS as any)(this);
-                        });
-                    }
+                    for (var tag of tags)
+                        entry.callback(tag);
                 } catch (err) {
                     console.log(err.message);
                 }
@@ -723,7 +714,52 @@ namespace YetaWF {
             });
         }
 
-        // Selectors - APIs to detach selectors from jQuery so this could be replaced with a smaller library (like sizzle).
+        // Selectors
+
+        /**
+         * Get an element by id.
+         */
+        public getElementById(elemId: string): HTMLElement {
+            var div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
+            if (!div) throw `Element with id ${elemId} not found`;/*DEBUG*/
+            return div;
+        }
+        /**
+         * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        public getElementsBySelector(selector: string, elems: HTMLElement[]): HTMLElement[] {
+            var all: HTMLElement[] = [];
+            for (let elem of elems) {
+                var list: NodeListOf<Element> = elem.querySelectorAll(selector);
+                var len: number = list.length;
+                for (var i: number = 0; i < len; ++i) {
+                    all.push(list[i] as HTMLElement);
+                }
+            }
+            return all;
+        }
+        /**
+         * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
+         */
+        public limitToNotTypeHidden(elems: HTMLElement[]): HTMLElement[] {
+            var all: HTMLElement[] = [];
+            for (let elem of elems) {
+                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden") //$$$check casing
+                    all.push(elem);
+            }
+            return all;
+        }
+        /**
+         * Returns items that are visible. (similar to jquery var x = elems.filter(':visible'); )
+         */
+        public limitToVisibleOnly(elems: HTMLElement[]): HTMLElement[] {
+            var all: HTMLElement[] = [];
+            for (let elem of elems) {
+                if (elem.clientWidth > 0 && elem.clientHeight > 0)
+                    all.push(elem);
+            }
+            return all;
+        }
 
         /**
          * Tests whether the specified element matches the selector.
@@ -731,9 +767,12 @@ namespace YetaWF {
          * @param selector - The selector to match.
          */
         public elementMatches(elem: Element | null, selector: string): boolean {
-            if (elem) return $(elem).is(selector);
+            if (elem) return $(elem).is(selector); // JQuery use
             return false;
         }
+
+        // Element Css
+
         /**
          * Tests whether the specified element has the given css class.
          * @param elem The element to test.
@@ -746,6 +785,19 @@ namespace YetaWF {
                 return elem.classList.contains(css);
             else
                 return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
+        }
+
+        public elementAddClass(elem: Element, className: string): void {
+            if (elem.classList)
+                elem.classList.add(className);
+            else
+                elem.className += ' ' + className;
+        }
+        public elementRemoveClass(elem: Element, className: string): void {
+            if (elem.classList)
+                elem.classList.remove(className);
+            else
+                elem.className = elem.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
 
         // CONTENTCHANGE
@@ -805,10 +857,10 @@ namespace YetaWF {
     // screen size yCondense/yNoCondense support
 
     $(window).on('resize', function () {
-        YetaWF_Basics.setCondense($('body'), window.innerWidth);
+        YetaWF_Basics.setCondense(document.body, window.innerWidth);
     });
     $(document).ready(function () {
-        YetaWF_Basics.setCondense($('body'), window.innerWidth);
+        YetaWF_Basics.setCondense(document.body, window.innerWidth);
     });
 
     // Navigation

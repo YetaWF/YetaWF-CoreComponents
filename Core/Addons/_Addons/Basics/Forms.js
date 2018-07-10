@@ -7,31 +7,17 @@ var YetaWF;
         TabStyleEnum[TabStyleEnum["JQuery"] = 0] = "JQuery";
         TabStyleEnum[TabStyleEnum["Kendo"] = 1] = "Kendo";
     })(TabStyleEnum = YetaWF.TabStyleEnum || (YetaWF.TabStyleEnum = {}));
-    var Forms /* implements IFormsImpl */ = /** @class */ (function () {
+    var Forms = /** @class */ (function () {
         function Forms() {
             // Partial Form
             // Submit
             this.DATACLASS = 'yetawf_forms_data'; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
-            this.serializeForm = function ($form) {
-                // disable all fields that we don't want to submit (marked with YConfigs.Forms.CssFormNoSubmit)
-                var $disabledFields = $('.' + YConfigs.Forms.CssFormNoSubmit, $form).not(':disabled');
-                $disabledFields.attr('disabled', 'disabled');
-                // disable all input fields in containers (usually grids) - we don't want to submit them - they're collected separately
-                var $disabledGridFields = $("." + YConfigs.Forms.CssFormNoSubmitContents + " input,." + YConfigs.Forms.CssFormNoSubmitContents + " select", $form).not(':disabled');
-                $disabledGridFields.attr('disabled', 'disabled');
-                // serialize the form
-                var formData = $form.serialize();
-                // and enable all the input fields we just disabled
-                $disabledFields.removeAttr('disabled');
-                $disabledGridFields.removeAttr('disabled');
-                return formData;
-            };
             // Pre/post submit
             // When a form is about to be submitted, all the functions in YPreSubmitHandler are called one by one
             // This is used to add control-specific data to the data submitted by the form
             // Usage:
             // YetaWF_Forms.addPreSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
-            //   form: $form,               // form <div> to be processed
+            //   form: form,                // form <div> to be processed
             //   callback: function() {}    // function to be called - the callback returns extra data appended to the submit url
             //   userdata: callback-data,   // any data suitable to callback
             // });
@@ -40,7 +26,7 @@ var YetaWF;
             // When a form has been successfully submitted, all the functions in YPostSubmitHandler are called one by one
             // Usage:
             // YetaWF_Forms.addPostSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
-            //   form: $form,               // form <div> to be processed - may be null
+            //   form: form,                // form <div> to be processed - may be null
             //   callback: function() {}    // function to be called
             //   userdata: callback-data,   // any data suitable to callback
             // });
@@ -52,52 +38,53 @@ var YetaWF;
         /**
          * Initialize a partial form.
          */
-        Forms.prototype.initPartialForm = function ($partialForm) {
+        Forms.prototype.initPartialForm = function (elemId) {
+            var partialForm = YetaWF_Basics.getElementById(elemId);
             // run registered actions (usually javascript initialization, similar to $doc.ready()
-            YetaWF_Basics.processAllReady($partialForm);
-            YetaWF_Basics.processAllReadyOnce($partialForm);
-            YetaWF_FormsImpl.initPartialForm($partialForm);
+            YetaWF_Basics.processAllReady([partialForm]);
+            YetaWF_Basics.processAllReadyOnce([partialForm]);
+            YetaWF_FormsImpl.initPartialForm(partialForm);
             // show error popup
-            var hasErrors = this.hasErrors($partialForm);
+            var hasErrors = this.hasErrors(partialForm);
             if (hasErrors)
-                this.showErrors($partialForm);
+                this.showErrors(partialForm);
         };
         /**
          * Validates one elements.
          */
-        Forms.prototype.validateElement = function ($ctrl) {
-            YetaWF_FormsImpl.validateElement($ctrl);
+        Forms.prototype.validateElement = function (ctrl) {
+            YetaWF_FormsImpl.validateElement(ctrl);
         };
         /**
          * Re-validate all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
          */
-        Forms.prototype.updateValidation = function ($div) {
-            YetaWF_FormsImpl.updateValidation($div);
+        Forms.prototype.updateValidation = function (div) {
+            YetaWF_FormsImpl.updateValidation(div);
         };
         /**
         * Returns whether the form has errors.
         */
-        Forms.prototype.hasErrors = function ($form) {
-            return YetaWF_FormsImpl.hasErrors($form);
+        Forms.prototype.hasErrors = function (elem) {
+            return YetaWF_FormsImpl.hasErrors(elem);
         };
         /**
          * Shows all form errors in a popup.
          */
-        Forms.prototype.showErrors = function ($form) {
-            YetaWF_FormsImpl.showErrors($form);
+        Forms.prototype.showErrors = function (elem) {
+            YetaWF_FormsImpl.showErrors(elem);
         };
-        Forms.prototype.submit = function ($form, useValidation, extraData, successFunc, failFunc) {
+        Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc) {
             var _this = this;
             $('div.' + this.DATACLASS).remove();
-            var form = $form.get(0);
+            var $form = $(form);
             var onSubmitExtraData = extraData ? extraData : "";
-            onSubmitExtraData = this.callPreSubmitHandler($form, onSubmitExtraData);
+            onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
             if (useValidation)
                 $form.validate();
             YetaWF_Basics.setLoading(true);
             if (!useValidation || $form.valid()) {
                 // serialize the form
-                var formData = this.serializeForm($form);
+                var formData = this.serializeForm(form);
                 // add extra data
                 if (onSubmitExtraData)
                     formData = onSubmitExtraData + "&" + formData;
@@ -115,7 +102,7 @@ var YetaWF;
                 }
                 // include the character dimension info
                 {
-                    var charSize = YetaWF_Basics.getCharSizeFromTag($form);
+                    var charSize = YetaWF_Basics.getCharSizeFromTag($form[0]);
                     formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
                 }
                 formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
@@ -131,7 +118,7 @@ var YetaWF;
                     data: formData,
                     success: function (result, textStatus, jqXHR) {
                         YetaWF_Basics.setLoading(false);
-                        YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $form, undefined, function () {
+                        YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $form[0], undefined, function () {
                             _this.YPreSubmitHandler1 = [];
                             var $partForm = $('.' + YConfigs.Forms.CssFormPartial, $form);
                             if ($partForm.length > 0) {
@@ -144,9 +131,9 @@ var YetaWF;
                                 $partForm[0].className = cls;
                             }
                         });
-                        _this.callPostSubmitHandler($form);
+                        _this.callPostSubmitHandler(form);
                         if (successFunc) // executed on successful ajax submit
-                            successFunc(_this.hasErrors($form));
+                            successFunc(_this.hasErrors(form));
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         YetaWF_Basics.setLoading(false);
@@ -184,12 +171,12 @@ var YetaWF;
                             throw "Unknown tab style"; /*DEBUG*/
                     }
                 });
-                var hasErrors = this.hasErrors($form);
+                var hasErrors = this.hasErrors(form);
                 if (hasErrors)
-                    this.showErrors($form);
+                    this.showErrors(form);
                 // call callback (if any)
                 if (successFunc)
-                    successFunc(this.hasErrors($form));
+                    successFunc(this.hasErrors(form));
             }
             $('div.' + this.DATACLASS).remove();
             return false;
@@ -201,18 +188,32 @@ var YetaWF;
                 qs += "&" + YConfigs.Basics.TemplateAction + "=" + encodeURIComponent(templateAction);
             if (templateExtraData)
                 qs += "&" + YConfigs.Basics.TemplateExtraData + "=" + encodeURIComponent(templateExtraData);
-            this.submit(this.getForm($(tag)), useValidation, qs);
+            this.submit(this.getForm(tag), useValidation, qs);
         };
         ;
-        Forms.prototype.serializeFormArray = function ($form) {
+        Forms.prototype.serializeFormArray = function (form) {
             // disable all fields that we don't want to submit (marked with YConfigs.Forms.CssFormNoSubmit)
-            var $disabledFields = $('.' + YConfigs.Forms.CssFormNoSubmit, $form).not(':disabled');
+            var $disabledFields = $('.' + YConfigs.Forms.CssFormNoSubmit, $(form)).not(':disabled');
             $disabledFields.attr('disabled', 'disabled');
             // disable all input fields in containers (usually grids) - we don't want to submit them - they're collected separately
-            var $disabledGridFields = $("." + YConfigs.Forms.CssFormNoSubmitContents + " input,." + YConfigs.Forms.CssFormNoSubmitContents + " select", $form).not(':disabled');
+            var $disabledGridFields = $("." + YConfigs.Forms.CssFormNoSubmitContents + " input,." + YConfigs.Forms.CssFormNoSubmitContents + " select", $(form)).not(':disabled');
             $disabledGridFields.attr('disabled', 'disabled');
             // serialize the form
-            var formData = $form.serializeArray();
+            var formData = $(form).serializeArray();
+            // and enable all the input fields we just disabled
+            $disabledFields.removeAttr('disabled');
+            $disabledGridFields.removeAttr('disabled');
+            return formData;
+        };
+        Forms.prototype.serializeForm = function (form) {
+            // disable all fields that we don't want to submit (marked with YConfigs.Forms.CssFormNoSubmit)
+            var $disabledFields = $('.' + YConfigs.Forms.CssFormNoSubmit, form).not(':disabled');
+            $disabledFields.attr('disabled', 'disabled');
+            // disable all input fields in containers (usually grids) - we don't want to submit them - they're collected separately
+            var $disabledGridFields = $("." + YConfigs.Forms.CssFormNoSubmitContents + " input,." + YConfigs.Forms.CssFormNoSubmitContents + " select", $(form)).not(':disabled');
+            $disabledGridFields.attr('disabled', 'disabled');
+            // serialize the form
+            var formData = $(form).serialize();
             // and enable all the input fields we just disabled
             $disabledFields.removeAttr('disabled');
             $disabledGridFields.removeAttr('disabled');
@@ -232,10 +233,10 @@ var YetaWF;
         /**
          * Call all callbacks for a form that is about to be submitted.
          */
-        Forms.prototype.callPreSubmitHandler = function ($form, onSubmitExtraData) {
+        Forms.prototype.callPreSubmitHandler = function (form, onSubmitExtraData) {
             for (var index in this.YPreSubmitHandlerAll) {
                 var entry = this.YPreSubmitHandlerAll[index];
-                if (entry.form[0] == $form[0]) {
+                if (entry.form == form) {
                     // form specific
                     var extra = entry.callback(entry);
                     if (extra != undefined) {
@@ -247,7 +248,7 @@ var YetaWF;
             }
             for (var index in this.YPreSubmitHandler1) {
                 var entry = this.YPreSubmitHandler1[index];
-                if (entry.form[0] == $form[0]) {
+                if (entry.form == form) {
                     var extra = entry.callback(entry);
                     if (extra != undefined) {
                         if (onSubmitExtraData.length > 0)
@@ -272,21 +273,21 @@ var YetaWF;
         /**
          * Call all callbacks for a form that has been successfully submitted.
          */
-        Forms.prototype.callPostSubmitHandler = function ($form, onSubmitExtraData) {
+        Forms.prototype.callPostSubmitHandler = function (form, onSubmitExtraData) {
             for (var index in this.YPostSubmitHandlerAll) {
                 var entry = this.YPostSubmitHandlerAll[index];
                 if (entry.form == null) {
                     // global
                     entry.callback(entry);
                 }
-                else if (entry.form[0] == $form[0]) {
+                else if (entry.form[0] == form) {
                     // form specific
                     entry.callback(entry);
                 }
             }
             for (var index in this.YPostSubmitHandler1) {
                 var entry = this.YPostSubmitHandler1[index];
-                if (entry.form[0] == $form[0])
+                if (entry.form == form)
                     entry.callback(entry);
             }
             this.YPostSubmitHandler1 = [];
@@ -297,19 +298,20 @@ var YetaWF;
             var $form = $(tag).closest('form');
             if ($form.length == 0)
                 throw "Can't locate enclosing form"; /*DEBUG*/
-            return $form;
+            return $form[0];
         };
         ;
         Forms.prototype.getFormCond = function (tag) {
             var $form = $(tag).closest('form');
             if ($form.length == 0)
                 return null;
-            return $form;
+            return $form[0];
         };
         ;
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag) {
-            var $form = this.getForm(tag);
+            var form = this.getForm(tag);
+            var $form = $(form);
             var req = $("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", $form).val();
             if (!req || req.length == 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
@@ -319,7 +321,7 @@ var YetaWF;
             var guid = $("input[name='" + YConfigs.Basics.ModuleGuid + "']", $form).val();
             if (!guid || guid.length == 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
-            var charSize = YetaWF_Basics.getCharSizeFromTag($form);
+            var charSize = YetaWF_Basics.getCharSizeFromTag(form);
             var qs = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
@@ -368,10 +370,14 @@ var YetaWF;
         };
         Forms.prototype.submitFormOnChange = function () {
             clearInterval(this.submitFormTimer);
+            if (!this.submitForm)
+                return;
             this.submit(this.submitForm, false);
         };
         Forms.prototype.applyFormOnChange = function () {
             clearInterval(this.submitFormTimer);
+            if (!this.submitForm)
+                return;
             this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsApply + "=y");
         };
         /**
@@ -408,14 +414,13 @@ var YetaWF;
             // Submit the form when an apply button is clicked
             $(document).on('click', "form input[type=\"button\"][" + YConfigs.Forms.CssDataApplyButton + "]", function (e) {
                 e.preventDefault();
-                var $form = YetaWF_Forms.getForm(e.currentTarget);
-                YetaWF_Forms.submit($form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
+                var form = YetaWF_Forms.getForm(e.currentTarget);
+                YetaWF_Forms.submit(form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
             });
             // Submit the form when a submit button is clicked
             $(document).on('submit', 'form.' + YConfigs.Forms.CssFormAjax, function (e) {
-                var $form = $(e.currentTarget);
                 e.preventDefault();
-                YetaWF_Forms.submit($form, true);
+                YetaWF_Forms.submit(e.currentTarget, true);
             });
         };
         return Forms;

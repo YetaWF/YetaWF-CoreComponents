@@ -24,7 +24,7 @@ var YetaWF;
                     var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
                     if ($f.length == 1) {
                         var data = { 'url': url };
-                        var info = YetaWF_Forms.getFormInfo($f);
+                        var info = YetaWF_Forms.getFormInfo($f[0]);
                         data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                         data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
@@ -54,13 +54,13 @@ var YetaWF;
                 // add our module context info (if requested)
                 if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
                     if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                        var guid = YetaWF_Basics.getModuleGuidFromTag($t);
+                        var guid = YetaWF_Basics.getModuleGuidFromTag($t[0]);
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
                     }
                 }
                 // pass along the charsize
                 {
-                    var charSize = YetaWF_Basics.getCharSizeFromTag($t);
+                    var charSize = YetaWF_Basics.getCharSizeFromTag($t[0]);
                     uri.removeSearch(YConfigs.Basics.Link_CharInfo);
                     uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + ',' + charSize.height);
                 }
@@ -192,7 +192,7 @@ var YetaWF;
                 data: {},
                 success: function (result, textStatus, jqXHR) {
                     YetaWF_Basics.setLoading(false);
-                    YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $elem);
+                    YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $elem[0]);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     YetaWF_Basics.setLoading(false);

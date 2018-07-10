@@ -728,7 +728,7 @@ namespace YetaWF.Core.Pages {
                     }
                 }
                 if (_SavedNamedScriptsDocReady.Count > 0) {
-                    hb.Append("YetaWF_Basics.whenReadyOnce.push({ callback: function($tag) {\n");
+                    hb.Append("YetaWF_Basics.whenReadyOnce.push({ callback: function(tag) {\n");
                     foreach (var script in _SavedNamedScriptsDocReady) {
                         hb.Append(TrimScript(Manager, script.Value));
                     }
