@@ -68,7 +68,7 @@ var YetaWF;
                 return false;
             if (YVolatile.Basics.EditModeActive || YVolatile.Basics.PageControlVisible) {
                 //if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
-                if (!elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit))
+                if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
             return YetaWF_Popups.openPopup(url, false);
@@ -97,5 +97,3 @@ var YetaWF;
  * Popup services available throughout YetaWF.
  */
 var YetaWF_Popups = new YetaWF.PopupsServices();
-
-//# sourceMappingURL=Popups.js.map

@@ -1,7 +1,7 @@
 ﻿BasicsProto.js
 Globals.js
-Anchors.ts
 Content.ts
+Anchors.ts
 Basics.ts
 Forms.ts
 Url.ts

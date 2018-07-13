@@ -8,15 +8,15 @@ var YetaWF;
      */
     var Url = /** @class */ (function () {
         function Url() {
-            this.Scheme = '';
+            this.Schema = '';
             this.UserInfo = '';
             this.Domain = '';
-            this.Path = '';
+            this.Path = [];
             this.Hash = '';
             this.QSEntries = [];
         }
-        Url.prototype.getScheme = function () {
-            return this.Scheme;
+        Url.prototype.getSchema = function () {
+            return this.Schema;
         };
         Url.prototype.getHostName = function () {
             return this.Domain;
@@ -25,13 +25,20 @@ var YetaWF;
             return this.UserInfo + (withAt && this.UserInfo.length > 0 ? "@" : "");
         };
         Url.prototype.getDomain = function () {
-            return this.Domain;
+            return encodeURIComponent(this.Domain);
         };
         Url.prototype.getPath = function () {
-            return this.Path;
+            var path = '';
+            for (var _i = 0, _a = this.Path; _i < _a.length; _i++) {
+                var part = _a[_i];
+                path += '/' + encodeURIComponent(part);
+            }
+            return path;
         };
         Url.prototype.getHash = function (withHash) {
-            return (withHash && this.Hash.length > 0 ? "#" : "") + this.Hash;
+            if (this.Hash.length == 0)
+                return '';
+            return (withHash ? "#" : "") + encodeURIComponent(this.Hash);
         };
         Url.prototype.hasSearch = function (key) {
             key = key.toLowerCase();
@@ -84,18 +91,21 @@ var YetaWF;
                     qs += "&";
                 else if (withQuestion)
                     qs += "?";
-                qs += entry.key + "=" + entry.value;
+                qs += encodeURIComponent(entry.key) + "=" + encodeURIComponent(entry.value);
             }
             return qs;
         };
         Url.prototype.toUrl = function () {
-            return this.getScheme() + "//" + this.getUserInfo(true) + this.getDomain() + this.getPath() + this.getQuery(true) + this.getHash(true);
+            if (this.Schema.length == 0 && this.UserInfo.length == 0 && this.Domain.length == 0)
+                return "" + this.getPath() + this.getQuery(true) + this.getHash(true);
+            else
+                return this.getSchema() + "//" + this.getUserInfo(true) + this.getDomain() + this.getPath() + this.getQuery(true) + this.getHash(true);
         };
         Url.prototype.parse = function (url) {
-            this.Scheme = '';
+            this.Schema = '';
             this.UserInfo = '';
             this.Domain = '';
-            this.Path = '';
+            this.Path = [];
             this.Hash = '';
             this.QSEntries = [];
             // remove hash
@@ -104,7 +114,7 @@ var YetaWF;
                 return;
             url = parts[0];
             if (parts.length > 1)
-                this.Hash = parts.slice(1).join();
+                this.Hash = decodeURIComponent(parts.slice(1).join());
             // remove qs
             parts = url.split('?');
             url = parts[0];
@@ -115,7 +125,7 @@ var YetaWF;
             // scheme
             parts = url.split('//');
             if (parts.length > 1) {
-                this.Scheme = parts[0];
+                this.Schema = parts[0];
                 url = parts.slice(1).join('//');
             }
             else {
@@ -124,18 +134,21 @@ var YetaWF;
             // extract everything left of user info
             parts = url.split('@');
             if (parts.length > 1) {
-                this.UserInfo = parts[0];
+                this.UserInfo = parts[0]; // do not decode because we're not encoding, changes not supported
                 url = parts.slice(1).join('@');
             }
             else
                 url = parts[0];
             parts = url.split('/');
             if (parts.length > 1) {
-                this.Domain = parts[0];
-                this.Path = "/" + parts.slice(1).join('/');
+                this.Domain = decodeURIComponent(parts[0]);
+                parts = parts.slice(1);
+                for (var i in parts)
+                    parts[i] = decodeURIComponent(parts[i]);
+                this.Path = parts;
             }
             else
-                this.Path = "/";
+                this.Path = [''];
             // split up query string
             if (qs.length > 0) {
                 var qsArr = qs.split('&');
@@ -144,7 +157,8 @@ var YetaWF;
                     var entryParts = qsEntry.split('=');
                     if (entryParts.length > 2)
                         throw "Url has malformed query string entry " + qsEntry;
-                    this.QSEntries.push({ key: entryParts[0], keyLower: entryParts[0].toLowerCase(), value: entryParts.length > 1 ? entryParts[1] : '' });
+                    var key = decodeURIComponent(entryParts[0]);
+                    this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: entryParts.length > 1 ? decodeURIComponent(entryParts[1]) : '' });
                 }
             }
         };
@@ -152,5 +166,3 @@ var YetaWF;
     }());
     YetaWF.Url = Url;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Url.js.map

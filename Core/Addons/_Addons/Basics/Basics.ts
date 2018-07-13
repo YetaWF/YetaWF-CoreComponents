@@ -7,16 +7,23 @@
 
 /* %%%%%%% TODO: There are JQuery references in Basics/Forms/Popups which will be eliminated. */
 
+//$$ https://github.com/nefe/You-Dont-Need-jQuery
+
 /**
     Implemented by custom rendering.
  */
 declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
+declare var YetaWF_Basics: YetaWF.BasicsServices;
 
 interface String {
     startsWith: (text: string) => boolean;
     endWith: (text: string) => boolean;
     isValidInt(s: number, e: number): boolean;
     format(...args: any[]): string;
+}
+
+interface Window { // expose this as a known window property
+    YetaWF_Basics: YetaWF.BasicsServices
 }
 
 /**
@@ -133,7 +140,11 @@ namespace YetaWF {
 
         // Content handling (Unified Page Sets)
 
-        public ContentHandling: YetaWF.Content = new YetaWF.Content();
+        public ContentHandling: YetaWF.Content;
+
+        // Anchor handling
+
+        public AnchorHandling: YetaWF.Anchors;
 
         // Url parsing
 
@@ -227,7 +238,7 @@ namespace YetaWF {
 
         public setScrollPosition(): boolean {
             // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
-            var uri = YetaWF_Basics.parseUrl(window.location.href);
+            var uri = this.parseUrl(window.location.href);
             var v = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
             var scrolled = false;
             if (v != undefined) {
@@ -259,10 +270,10 @@ namespace YetaWF {
             var scrolled = this.setScrollPosition();
             if (!scrolled) {
                 if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
-                    var uri = YetaWF_Basics.parseUrl(window.location.href);
-                    var $divs: JQuery<HTMLElement> = $(`.yUnified[data-url="${uri.getPath()}"]`);
-                    if ($divs && $divs.length > 0) {
-                        $(window).scrollTop((($divs.eq(0)).offset() as JQuery.Coordinates).top);
+                    var uri = this.parseUrl(window.location.href);
+                    var divs = this.getElementsBySelector(`.yUnified[data-url="${uri.getPath()}"]`);
+                    if (divs.length > 0) {
+                        $(window).scrollTop(($(divs).offset() as JQuery.Coordinates).top);
                         scrolled = true;
                     }
                 }
@@ -272,7 +283,7 @@ namespace YetaWF {
             // FOCUS
             // FOCUS
 
-            $(document).ready(() => { // only needed during full page load
+            this.registerDocumentReady(() => { // only needed during full page load
                 if (!scrolled && location.hash.length <= 1)
                     this.setFocus();
             });
@@ -284,17 +295,18 @@ namespace YetaWF {
 
         // Panes
 
-        public showPaneSet = function (id: string, editMode: boolean, equalHeights: boolean) {
+        public showPaneSet(id: string, editMode: boolean, equalHeights: boolean) {
 
-            var $div = $(`#${id}`);// the pane
+            var div = this.getElementById(id);
             var shown = false;
             if (editMode) {
-                $div.show();
+                div.style.display = 'block';
                 shown = true;
             } else {
                 // show the pane if it has modules
-                if ($('div.yModule', $div).length > 0) {
-                    $div.show();
+                var mod = this.getElement1BySelectorCond('div.yModule', [div]);
+                if (mod) {
+                    div.style.display = 'block';
                     shown = true;
                 }
             }
@@ -302,18 +314,27 @@ namespace YetaWF {
                 // make all panes the same height
                 // this should happen late in case the content is changed dynamically (use with caution)
                 // if it does, the pane will still expand because we're only setting the minimum height
-                $(document).ready(function () { // TODO: This only works for full page loads
-                    var $panes = $(`#${id} > div:visible`);// get all immediate child divs (i.e., the panes)
-                    $panes = $panes.not('.y_cleardiv');
+                this.registerDocumentReady(() => { // TODO: This only works for full page loads
+                    var panes = this.getElementsBySelector(`#${id} > div:visible`);// get all immediate child divs (i.e., the panes)
+                    // exclude panes that have .y_cleardiv
+                    var newPanes: HTMLElement[] = [];
+                    for (let pane of panes) {
+                        if (!this.elementHasClass(pane, 'y_cleardiv'))
+                            newPanes.push(pane);
+                    }
+                    panes = newPanes;
+
                     var height = 0;
                     // calc height
-                    $panes.each(function () {
-                        var h = $(this).height() || 0;
+                    for (let pane of panes) {
+                        var h = $(pane).height() || 0;
                         if (h > height)
                             height = h;
-                    });
+                    }
                     // set each pane's height
-                    $panes.css('min-height', height);
+                    for (let pane of panes) {
+                        pane.style.minHeight = `${height}px`;
+                    }
                 });
             }
         }
@@ -334,7 +355,7 @@ namespace YetaWF {
             if (!keepPosition)
                 keepPosition = false;
 
-            var uri = YetaWF_Basics.parseUrl(w.location.href);
+            var uri = this.parseUrl(w.location.href);
             uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
             uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
             if (keepPosition) {
@@ -368,9 +389,8 @@ namespace YetaWF {
                 tag = this.reloadingModule_TagInModule;
             }
             var mod = this.getModuleFromTag(tag);
-            var $form = $('form', $(mod)) as JQuery<HTMLFormElement>;
-            if ($form.length == 0) throw "No form found";/*DEBUG*/
-            YetaWF_Forms.submit($form[0], false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
+            var form = this.getElement1BySelector('form', [mod]) as HTMLFormElement;
+            YetaWF_Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
 
         private reloadingModule_TagInModule: HTMLElement | null = null;
@@ -384,23 +404,23 @@ namespace YetaWF {
         public reloadInfo: ReloadInfo[] = [];
 
         public refreshModule(mod: HTMLElement) {
-            for (var entry in YetaWF_Basics.reloadInfo) {
-                if (YetaWF_Basics.reloadInfo[entry].module == mod) {
-                    YetaWF_Basics.reloadInfo[entry].callback();
+            for (let entry of this.reloadInfo) {
+                if (entry.module.id == mod.id) {
+                    entry.callback();
                 }
             }
         };
         public refreshModuleByAnyTag(elem: HTMLElement) {
-            var mod = YetaWF_Basics.getModuleFromTag(elem);
-            for (var entry in YetaWF_Basics.reloadInfo) {
-                if (YetaWF_Basics.reloadInfo[entry].module[0].id == mod.id) {
-                    YetaWF_Basics.reloadInfo[entry].callback();
+            var mod = this.getModuleFromTag(elem);
+            for (let entry of this.reloadInfo) {
+                if (entry.module.id == mod.id) {
+                    entry.callback();
                 }
             }
         };
         public refreshPage(): void {
-            for (var entry in YetaWF_Basics.reloadInfo) {
-                YetaWF_Basics.reloadInfo[entry].callback();
+            for (let entry of this.reloadInfo) {
+                entry.callback();
             }
         };
 
@@ -410,24 +430,23 @@ namespace YetaWF {
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
         private getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
-            var $mod = $(tag).closest('.yModule');
-            if ($mod.length == 0) return null;
-            return $mod[0];
+            var mod = this.elementClosest(tag, '.yModule');
+            if (mod) return null;
+            return mod;
         };
         /**
          * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
          */
         private getModuleFromTag(tag: HTMLElement): HTMLElement {
-            var mod = YetaWF_Basics.getModuleFromTagCond(tag);
+            var mod = this.getModuleFromTagCond(tag);
             if (mod == null) { debugger; throw "Can't find containing module"; }/*DEBUG*/
             return mod;
         };
 
         public getModuleGuidFromTag(tag: HTMLElement): string {
-            var $mod = $(tag).closest('.yModule');
-            if ($mod.length != 1) { debugger; throw "Can't find containing module"; }/*DEBUG*/
-            var guid = $mod.attr('data-moduleguid');
-            if (guid == undefined || guid == "") throw "Can't find module guid";/*DEBUG*/
+            var mod = this.getModuleFromTag(tag);
+            var guid = mod.getAttribute('data-moduleguid');
+            if (!guid) throw "Can't find module guid";/*DEBUG*/
             return guid;
         };
 
@@ -437,12 +456,11 @@ namespace YetaWF {
         /**
          * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
          */
-        public getCharSizeFromTag(tag: HTMLElement | null): CharSize{
+        public getCharSizeFromTag(tag: HTMLElement | null): CharSize {
             var width: number, height: number;
             var mod: HTMLElement | null = null;
-            if (tag) {
-                var mod = YetaWF_Basics.getModuleFromTagCond(tag);
-            }
+            if (tag)
+                mod = this.getModuleFromTagCond(tag);
             if (mod) {
                 var w = mod.getAttribute('data-charwidthavg');
                 if (!w) throw "missing data-charwidthavg attribute";/*DEBUG*/
@@ -459,7 +477,7 @@ namespace YetaWF {
 
         // Utility functions
 
-        public htmlEscape(s: string|undefined, preserveCR?: string): string {
+        public htmlEscape(s: string | undefined, preserveCR?: string): string {
             preserveCR = preserveCR ? '&#13;' : '\n';
             return ('' + s) /* Forces the conversion to string. */
                 .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
@@ -481,45 +499,56 @@ namespace YetaWF {
 
         // Ajax result handling
 
-        public processAjaxReturn(result: string, textStatus: string, jqXHR, tagInModule?: HTMLElement, onSuccess?: () => void, onHandleResult?: (string) => void) : boolean {
-            YetaWF_Basics.reloadingModule_TagInModule = tagInModule || null;
-            if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
-                var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-                if (script.length == 0) { // all is well, but no script to execute
-                    if (onSuccess != undefined) {
-                        onSuccess();
+        public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement, onSuccessNoData?: () => void, onHandleErrorResult?: (string) => void): boolean {
+            //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
+            var result: string;
+            try {
+                result = <string>eval(result);
+            } catch (e) { }
+            result = result || '(??)';
+            if (xhr.status === 200) {
+                this.reloadingModule_TagInModule = tagInModule || null;
+                if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                    if (script.length == 0) { // all is well, but no script to execute
+                        if (onSuccessNoData != undefined) {
+                            onSuccessNoData();
+                        }
+                    } else {
+                        eval(script);
                     }
-                } else {
+                    return true;
+                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
                     eval(script);
-                }
-                return true;
-            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
-                var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-                eval(script);
-                return false;
-            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
-                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
-                YetaWF_Basics.reloadPage(true);
-                return true;
-            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
-                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
-                this.reloadModule();
-                return true;
-            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
-                //if (!YetaWF_Basics.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
-                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
-                eval(script);
-                if (tagInModule)
-                    YetaWF_Basics.refreshModuleByAnyTag(tagInModule);
-                return true;
-            } else {
-                if (onHandleResult != undefined) {
-                    onHandleResult(result);
+                    return false;
+                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                    eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    this.reloadPage(true);
+                    return true;
+                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                    eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    this.reloadModule();
+                    return true;
+                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                    //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                    eval(script);
+                    if (tagInModule)
+                        this.refreshModuleByAnyTag(tagInModule);
+                    return true;
                 } else {
-                    YetaWF_Basics.error(YLocs.Basics.IncorrectServerResp);
+                    if (onHandleErrorResult != undefined) {
+                        onHandleErrorResult(result);
+                    } else {
+                        this.error(YLocs.Basics.IncorrectServerResp);
+                    }
+                    return false;
                 }
+            } else {
+                YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
                 return false;
             }
         };
@@ -552,16 +581,10 @@ namespace YetaWF {
 
         // WhenReady
 
-        /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) - Once transitioned, make whenReady private and remove $tag support */
         // Usage:
-        // YetaWF_Basics.whenReady.push({
-        //   callback: function(tag) {}    // function to be called
-        // });
-        //   or
-        // YetaWF_Basics.whenReady.push({
-        //   callbackTS: function(elem) {}    // function to be called
-        // });
-        public whenReady: IWhenReady[] = [];
+        // YetaWF_Basics.addWhenReady((tag) => {});
+
+        private whenReady: IWhenReady[] = [];
 
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
@@ -583,9 +606,9 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
-            for (var entry of this.whenReady) {
+            for (let entry of this.whenReady) {
                 try { // catch errors to insure all callbacks are called
-                    for (var tag of tags)
+                    for (let tag of tags)
                         entry.callback(tag);
                 } catch (err) {
                     console.log(err.message);
@@ -627,9 +650,9 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
-            for (var entry of this.whenReadyOnce) {
+            for (let entry of this.whenReadyOnce) {
                 try { // catch errors to insure all callbacks are called
-                    for (var tag of tags)
+                    for (let tag of tags)
                         entry.callback(tag);
                 } catch (err) {
                     console.log(err.message);
@@ -655,7 +678,7 @@ namespace YetaWF {
          * @param elem The element being cleared.
          */
         public processClearDiv(tag: HTMLElement): void {
-            for (var entry of this.clearDiv) {
+            for (let entry of this.clearDiv) {
                 try { // catch errors to insure all callbacks are called
                     if (entry.callback != null)
                         entry.callback(tag);
@@ -675,11 +698,10 @@ namespace YetaWF {
          * @param obj - the object to attach
          */
         public addObjectDataById(templateClass: string, divId: string, obj: any): void {
-            var $el: JQuery<HTMLElement> = $(`#${divId}`);
-            if (!$el.hasClass(templateClass)) throw `addObjectDataById called with class ${templateClass} - tag with id ${divId} does not have that css class`;/*DEBUG*/
-            var data: any = $el.data("__Y_Data");
+            var el = this.getElementById(divId);
+            var data: any = $(el).data("__Y_Data");
             if (data) throw `addObjectDataById - tag with id ${divId} already has data`;/*DEBUG*/
-            $el.data("__Y_Data", obj);
+            $(el).data("__Y_Data", obj);
             this.addClearDivForObjects(templateClass);
         }
         /**
@@ -687,9 +709,8 @@ namespace YetaWF {
          * @param divId - The div id (DOM) that where the object is attached
          */
         public getObjectDataById(divId: string): any {
-            var $el: JQuery<HTMLElement> = $(`#${divId}`);
-            if ($el.length === 0) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
-            var data: any = $el.data("__Y_Data");
+            var el = this.getElementById(divId);
+            var data: any = $(el).data("__Y_Data");
             if (!data) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
             return data;
         }
@@ -698,11 +719,10 @@ namespace YetaWF {
          * @param divId - The div id (DOM) that where the object is attached
          */
         public removeObjectDataById(divId: string): void {
-            var $el: JQuery<HTMLElement> = $(`#${divId}`);
-            if ($el.length === 0) throw `removeObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
-            var data: any = $el.data("__Y_Data");
+            var el = this.getElementById(divId);
+            var data: any = $(el).data("__Y_Data");
             if (data) data.term();
-            $el.data("__Y_Data", null);
+            $(el).data("__Y_Data", null);
         }
         /**
          * Register a cleanup (typically used by templates) to terminate any objects that may be
@@ -710,11 +730,9 @@ namespace YetaWF {
          * @param templateClass - The template css class (without leading .)
          */
         public addClearDivForObjects(templateClass: string): void {
-            YetaWF_Basics.addClearDiv(function (tag: HTMLElement): void {
-                var list: NodeListOf<Element> = tag.querySelectorAll(`.${templateClass}`);
-                var len: number = list.length;
-                for (var i: number = 0; i < len; ++i) {
-                    var el: HTMLElement = list[i] as HTMLElement;
+            this.addClearDiv((tag: HTMLElement) => {
+                var list = this.getElementsBySelector(`.${templateClass}`, [tag]);
+                for (let el of list) {
                     var obj: any = $(el).data("__Y_Data");
                     if (obj) obj.term();
                 }
@@ -734,8 +752,10 @@ namespace YetaWF {
         /**
          * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
          */
-        public getElementsBySelector(selector: string, elems: HTMLElement[]): HTMLElement[] {
+        public getElementsBySelector(selector: string, elems?: HTMLElement[]): HTMLElement[] {
             var all: HTMLElement[] = [];
+            if (!elems)
+                elems = [document.body];
             for (let elem of elems) {
                 var list: NodeListOf<Element> = elem.querySelectorAll(selector);
                 var len: number = list.length;
@@ -744,6 +764,28 @@ namespace YetaWF {
                 }
             }
             return all;
+        }
+        /**
+         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        public getElement1BySelectorCond(selector: string, elems?: HTMLElement[]): HTMLElement | null {
+            if (!elems)
+                elems = [document.body];
+            for (let elem of elems) {
+                var list: NodeListOf<Element> = elem.querySelectorAll(selector);
+                if (list.length > 0)
+                    return list[0] as HTMLElement;
+            }
+            return null;
+        }
+        /**
+         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        public getElement1BySelector(selector: string, elems?: HTMLElement[]): HTMLElement {
+            var elem = this.getElement1BySelectorCond(selector, elems);
+            if (elem == null)
+                throw `Element with selector ${selector} not found`;
+            return elem;
         }
         /**
          * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
@@ -774,8 +816,35 @@ namespace YetaWF {
          * @param selector - The selector to match.
          */
         public elementMatches(elem: Element | null, selector: string): boolean {
-            if (elem) return $(elem).is(selector); // JQuery use
+            if (elem)
+                return elem.matches(selector);
             return false;
+        }
+        /**
+         * Finds the closest element up the DOM hierarchy that matches the selector (including the starting element)
+         * @param elem - The element to test.
+         * @param selector - The selector to match.
+         */
+        public elementClosest(elem: HTMLElement, selector: string): HTMLElement | null {
+            var e: HTMLElement | null = elem;
+            while (e) {
+                if (this.elementMatches(e, selector))
+                    return e;
+                else
+                    e = e.parentElement;
+            }
+            return null;
+        }
+
+        // DOM manipulation
+
+        /**
+         * Removes the specified element.
+         * @param elem - The element to remove.
+         */
+        public removeElement(elem: HTMLElement) {
+            if (!elem.parentElement) return;
+            elem.parentElement.removeChild(elem);
         }
 
         // Element Css
@@ -807,21 +876,73 @@ namespace YetaWF {
                 elem.className = elem.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
 
-        // CONTENTCHANGE
-        // CONTENTCHANGE
-        // CONTENTCHANGE
-        // APIs to detach custom event handling from jQuery so this could be replaced with a native mechanism
+        // Events
 
-        public RegisterContentChange(callback: (event: Event, addonGuid: string, on: boolean) => void): void {
+        public registerDocumentReady(callback: () => void): void {
+            if ((document as any).attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+                callback();
+            } else {
+                document.addEventListener('DOMContentLoaded', callback);
+            }
+        }
+        public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
+            window.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
+        }
+        public registerEventHandlerWindow<K extends keyof HTMLFrameSetElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLFrameSetElementEventMap[K]) => boolean): void {
+            window.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
+        }
+        public registerEventHandlerBody<K extends keyof HTMLElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
+            this.registerEventHandler(document.body, eventName, selector, callback);
+        }
+        public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
+            tag.addEventListener(eventName, (ev) => this.handleEvent(tag, ev, selector, callback));
+        }
+        private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
+            // about event handling https://www.sitepoint.com/event-bubbling-javascript/
+            // srcElement should be target//$$$$ srcElement is non-standard
+            console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
+            if (ev.eventPhase == ev.CAPTURING_PHASE) {
+                if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
+            } else if (ev.eventPhase == ev.BUBBLING_PHASE) {
+                if (!selector) return;
+                // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
+                var elem: HTMLElement | null = ev.srcElement as HTMLElement | null;
+                while (elem) {
+                    if (YetaWF_Basics.elementMatches(elem, selector))
+                        break;
+                    if (listening == elem)
+                        return;// checked all elements
+                    elem = elem.parentElement;
+                    if (elem == null)
+                        return;
+                }
+            } else
+                return;
+            console.log(`event ${ev.type} selector ${selector} match`);
+            var result: boolean = callback(ev);
+            if (!result) {
+                console.log(`event ${ev.type} selector ${selector} stop bubble`);
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
+        }
+
+
+        // CONTENTCHANGE
+        // CONTENTCHANGE
+        // CONTENTCHANGE
+        // APIs to detach custom event handling from jQuery so this can be replaced with a native mechanism
+
+        public registerContentChange(callback: (event: Event, addonGuid: string, on: boolean) => void): void {
             $(document).on("YetaWF_Basics_Addon", function (event: any, addonGuid: string, on: boolean): void { callback(event, addonGuid, on); });
         }
 
         // NEWPAGE
         // NEWPAGE
         // NEWPAGE
-        // APIs to detach custom event handling from jQuery so this could be replaced with a native mechanism
+        // APIs to detach custom event handling from jQuery so this can be replaced with a native mechanism
 
-        public RegisterNewPage(callback: (event: Event, url: string) => void): void {
+        public registerNewPage(callback: (event: Event, url: string) => void): void {
             $(document).on("YetaWF_Basics_NewPage", function (event: any, url: string): void { callback(event, url); });
         }
 
@@ -833,77 +954,81 @@ namespace YetaWF {
          * @param collapsedId - The <div> to hide/show.
          * @param expandedId - The <div> to show/hide.
          */
-        public ExpandCollapse(divId: string, collapsedId: string, expandedId: string): void {
-            var div: HTMLElement = document.querySelector(`#${divId}`) as HTMLElement;
-            if (!div) throw `#${divId} not found`;/*DEBUG*/
-            var collapsedDiv: HTMLElement = document.querySelector(`#${collapsedId}`) as HTMLElement;
-            if (!collapsedDiv) throw `#${collapsedId} not found`;/*DEBUG*/
-            var expandedDiv: HTMLElement = document.querySelector(`#${expandedId}`) as HTMLElement;
-            if (!expandedDiv) throw `#${expandedId} not found`;/*DEBUG*/
+        public expandCollapseHandling(divId: string, collapsedId: string, expandedId: string): void {
+            var div = this.getElementById(divId);
+            var collapsedDiv = this.getElementById(collapsedId);
+            var expandedDiv = this.getElementById(expandedId);
 
-            var expLink: HTMLElement = div.querySelector("a[data-name='Expand']") as HTMLElement;
-            if (!expLink) throw "a[data-name=\"Expand\"] not found";/*DEBUG*/
-            var collLink: HTMLElement = div.querySelector("a[data-name='Collapse']") as HTMLElement;
-            if (!collLink) throw "a[data-name=\"Expand\"] not found";/*DEBUG*/
+            var expLink = this.getElement1BySelector("a[data-name='Expand']", [div]);
+            var collLink = this.getElement1BySelector("a[data-name='Collapse']", [div]);
 
-            function expandHandler(event: Event): void {
+            this.registerEventHandler(expLink, "click", null, (ev: Event) => {
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
                 $(document).trigger("YetaWF_PropertyList_PanelSwitched", $(expandedDiv));
-            }
-            function collapseHandler(event: Event): void {
+                return true;
+            });
+            this.registerEventHandler(collLink, "click", null, (ev: Event) => {
                 collapsedDiv.style.display = "";
                 expandedDiv.style.display = "none";
-            }
-            expLink.addEventListener("click", expandHandler, false);
-            collLink.addEventListener("click", collapseHandler, false);
+                return true;
+            });
+        }
+
+        constructor() {
+
+            YetaWF_Basics = this;// set global so we can initialize anchor/content
+            this.AnchorHandling = new YetaWF.Anchors();
+            this.ContentHandling = new YetaWF.Content();
+
+            // screen size yCondense/yNoCondense support
+
+            this.registerEventHandlerWindow("resize", null, (ev) => {
+                this.setCondense(document.body, window.innerWidth);
+                return true;
+            });
+
+            this.registerDocumentReady(() => {
+                this.setCondense(document.body, window.innerWidth);
+            });
+
+            // Navigation
+
+            this.registerEventHandlerWindow("popstate", null, (ev) => {
+                if (this.suppressPopState) {
+                    this.suppressPopState = false;
+                    return true;
+                }
+                var uri = this.parseUrl(window.location.href);
+                return !this.ContentHandling.setContent(uri, false);
+            });
+
+            // <a> links that only have a hash are intercepted so we don't go through content handling
+            this.registerEventHandlerBody("click", "a[href^='#']", (ev) => {
+
+                // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
+                if (!ev.srcElement) return true;
+                var anchor = YetaWF_Basics.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
+                if (!anchor) return true;
+
+                this.suppressPopState = true;
+                return true;
+            });
+
+            // <A> links
+
+            // WhenReady
+
+            this.registerDocumentReady(() => {
+                this.processAllReady();
+                this.processAllReadyOnce();
+            });
         }
     }
-
-    // screen size yCondense/yNoCondense support
-
-    $(window).on('resize', function () {
-        YetaWF_Basics.setCondense(document.body, window.innerWidth);
-    });
-    $(document).ready(function () {
-        YetaWF_Basics.setCondense(document.body, window.innerWidth);
-    });
-
-    // Navigation
-
-    $(window).on("popstate", function (ev) {
-        if (YetaWF_Basics.suppressPopState) {
-            YetaWF_Basics.suppressPopState = false;
-            return;
-        }
-        var uri = YetaWF_Basics.parseUrl(window.location.href);
-        return !YetaWF_Basics.ContentHandling.setContent(uri, false);
-    });
-
-    // <a> links that only have a hash are intercepted so we don't go through content handling
-    $("body").on("click", "a[href^='#']", function (e) {
-        YetaWF_Basics.suppressPopState = true;
-    });
-
-    // <A> links
-
-    var AnchorHandling: YetaWF.Anchors = new YetaWF.Anchors();
-    AnchorHandling.init();
-
-    // WhenReady
-
-    $(document).ready(() => {
-        YetaWF_Basics.processAllReady();
-        YetaWF_Basics.processAllReadyOnce();
-    });
 }
 
 /**
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics: YetaWF.BasicsServices = new YetaWF.BasicsServices();
-
-interface Window { // expose this as a known Window property
-    YetaWF_Basics: YetaWF.BasicsServices
-}

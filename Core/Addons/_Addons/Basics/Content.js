@@ -157,11 +157,8 @@ var YetaWF;
                         }
                         // run all global scripts (YConfigs, etc.)
                         $.globalEval(result.Scripts);
-                        // add all new css files
-                        var cssLength = result.CssFiles.length;
-                        for (var i = 0; i < cssLength; i++) {
-                            var urlEntry = result.CssFiles[i];
-                            var found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
+                        var _loop_1 = function (urlEntry) {
+                            found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
                             if (found.length > 0) {
                                 if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
                                     $('head').append($('<style />').attr('type', 'text/css').attr('data-name', found[0].Name).html(found[0].Text));
@@ -178,6 +175,12 @@ var YetaWF;
                                     $('body').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('data-name', urlEntry.Name).attr('href', urlEntry.Url));
                                 }
                             }
+                        };
+                        var found;
+                        // add all new css files
+                        for (var _i = 0, _a = result.CssFiles; _i < _a.length; _i++) {
+                            var urlEntry = _a[_i];
+                            _loop_1(urlEntry);
                         }
                         if (result.CssBundleFiles != null) {
                             YVolatile.Basics.UnifiedCssBundleFiles = YVolatile.Basics.UnifiedCssBundleFiles || [];
@@ -218,12 +221,12 @@ var YetaWF;
                             var tags = []; // collect all panes
                             if (!popupCB) {
                                 // add pane content
-                                var contentLength = result.Content.length;
-                                for (var i = 0; i < contentLength; i++) {
+                                for (var _i = 0, _a = result.Content; _i < _a.length; _i++) {
+                                    var content = _a[_i];
                                     // replace the pane
-                                    var $pane = $(".yUnified[data-pane=\"" + result.Content[i].Pane + "\"]");
+                                    var $pane = $(".yUnified[data-pane=\"" + content.Pane + "\"]");
                                     $pane.show(); // show in case this is a conditional pane
-                                    $pane.append(result.Content[i].HTML);
+                                    $pane.append(content.HTML);
                                     // run all registered initializations for the pane
                                     tags.push($pane[0]);
                                 }
@@ -349,5 +352,3 @@ var YetaWF;
     }());
     YetaWF.Content = Content;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Content.js.map

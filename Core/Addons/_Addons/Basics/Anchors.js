@@ -4,30 +4,33 @@
 var YetaWF;
 (function (YetaWF) {
     var Anchors = /** @class */ (function () {
-        function Anchors() {
-            this.cookiePattern = null;
-            this.cookieTimer = null;
-        }
         /**
          * Handles all navigation using <a> tags.
          */
-        Anchors.prototype.init = function () {
+        function Anchors() {
             var _this = this;
+            this.cookiePattern = null;
+            this.cookieTimer = null;
             // For an <a> link clicked, add the page we're coming from (not for popup links though)
-            $("body").on("click", "a.yaction-link,area.yaction-link", function (e) {
-                var anchor = e.currentTarget;
+            YetaWF_Basics.registerEventHandlerBody("click", "a.yaction-link,area.yaction-link", function (ev) {
+                // find the real anchor, ev.srcElement was clicked but it may not be the anchor itself
+                if (!ev.srcElement)
+                    return true;
+                var anchor = YetaWF_Basics.elementClosest(ev.srcElement, "a");
+                if (!anchor)
+                    return true;
                 var url = anchor.href;
                 // send tracking info
                 if (YetaWF_Basics.elementHasClass(anchor, 'yTrack')) {
                     // find the unique skinvisitor module so we have antiforgery tokens and other context info
-                    var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
-                    if ($f.length == 1) {
+                    var f = YetaWF_Basics.getElement1BySelectorCond('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
+                    if (f) {
                         var data = { 'url': url };
-                        var info = YetaWF_Forms.getFormInfo($f[0]);
+                        var info = YetaWF_Forms.getFormInfo(f);
                         data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                         data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
-                        var urlTrack = $f.attr('data-track');
+                        var urlTrack = f.getAttribute('data-track');
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         $.ajax({
@@ -39,7 +42,7 @@ var YetaWF;
                     }
                 }
                 var uri = YetaWF_Basics.parseUrl(url);
-                if (uri.getPath().length == 0 || (!uri.getScheme().startsWith('http:') && !uri.getScheme().startsWith('https:')))
+                if (uri.getPath().length == 0 || (!uri.getSchema().startsWith('http:') && !uri.getSchema().startsWith('https:')))
                     return true;
                 // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
                 if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
@@ -52,7 +55,7 @@ var YetaWF;
                 if (YVolatile.Basics.PageControlVisible)
                     uri.addSearch(YConfigs.Basics.Link_PageControl, 'y');
                 // add our module context info (if requested)
-                if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext)) {
+                if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext) != null) {
                     if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
                         var guid = YetaWF_Basics.getModuleGuidFromTag(anchor);
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
@@ -66,7 +69,7 @@ var YetaWF;
                 }
                 // fix the url to include where we came from
                 var target = anchor.getAttribute("target");
-                if ((!target || target == "" || target == "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl)) {
+                if ((!target || target == "" || target == "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
                     // add where we currently are so we can save it in case we need to return to this page
                     var currUri = YetaWF_Basics.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
@@ -74,8 +77,8 @@ var YetaWF;
                     // now update url (where we're going with originlist)
                     uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     var originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    if (!anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList)) {
-                        var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
+                    if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
+                        var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
                         originList.push(newOrigin);
                         if (originList.length > 5) // only keep the last 5 urls
                             originList = originList.slice(originList.length - 5);
@@ -85,6 +88,7 @@ var YetaWF;
                 }
                 if (!target || target == "" || target == "_self")
                     target = "_self";
+                anchor.href = uri.toUrl(); // update original href in case let default handling take place
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined) {
                     if (YetaWF_Popups.handleOuterWindow(anchor))
@@ -99,17 +103,18 @@ var YetaWF;
                 _this.cookieTimer = null;
                 var cookieToReturn = null;
                 var post = false;
-                if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr)) {
+                if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr) != null) {
                     cookieToReturn = (new Date()).getTime();
                     uri.removeSearch(YConfigs.Basics.CookieToReturn);
                     uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
                 }
-                if (anchor.getAttribute(YConfigs.Basics.PostAttr))
+                if (anchor.getAttribute(YConfigs.Basics.PostAttr) != null)
                     post = true;
+                anchor.href = uri.toUrl(); // update original href in case let default handling take place
                 if (cookieToReturn) {
                     // this is a file download
                     var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
-                    if (confirm) {
+                    if (confirm != null) {
                         YetaWF_Basics.alertYesNo(confirm, undefined, function () {
                             window.location.assign(url);
                             YetaWF_Basics.setLoading();
@@ -163,7 +168,7 @@ var YetaWF;
                     return !YetaWF_Basics.ContentHandling.setContent(uri, true);
                 return true;
             });
-        };
+        }
         Anchors.prototype.checkCookies = function () {
             if (this.cookiePattern == undefined)
                 throw "cookie pattern not defined"; /*DEBUG*/
@@ -188,24 +193,19 @@ var YetaWF;
         Anchors.prototype.postLink = function (url, elem, cookieToReturn) {
             YetaWF_Basics.setLoading();
             this.waitForCookie(cookieToReturn);
-            $.ajax({
-                'url': url,
-                type: 'post',
-                data: {},
-                success: function (result, textStatus, jqXHR) {
+            var request = new XMLHttpRequest();
+            request.open("POST", url, true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            request.onreadystatechange = function (ev) {
+                var req = this;
+                if (req.readyState === 4 /*DONE*/) {
                     YetaWF_Basics.setLoading(false);
-                    YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, elem);
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    YetaWF_Basics.setLoading(false);
-                    YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
-                    debugger;
+                    YetaWF_Basics.processAjaxReturn(req.responseText, req.statusText, req, elem);
                 }
-            });
+            };
+            request.send("");
         };
         return Anchors;
     }());
     YetaWF.Anchors = Anchors;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Anchors.js.map

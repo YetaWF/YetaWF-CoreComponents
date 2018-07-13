@@ -206,9 +206,7 @@ namespace YetaWF {
                         // run all global scripts (YConfigs, etc.)
                         $.globalEval(result.Scripts);
                         // add all new css files
-                        var cssLength = result.CssFiles.length;
-                        for (var i = 0; i < cssLength; i++) {
-                            var urlEntry = result.CssFiles[i];
+                        for (let urlEntry of result.CssFiles) {
                             var found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
                             if (found.length > 0) {
                                 if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
@@ -262,12 +260,11 @@ namespace YetaWF {
                             var tags : HTMLElement[] = []; // collect all panes
                             if (!popupCB) {
                                 // add pane content
-                                var contentLength = result.Content.length;
-                                for (var i = 0; i < contentLength; i++) {
+                                for (let content of result.Content) {
                                     // replace the pane
-                                    var $pane = $(`.yUnified[data-pane="${result.Content[i].Pane}"]`);
+                                    var $pane = $(`.yUnified[data-pane="${content.Pane}"]`);
                                     $pane.show();// show in case this is a conditional pane
-                                    $pane.append(result.Content[i].HTML);
+                                    $pane.append(content.HTML);
                                     // run all registered initializations for the pane
                                     tags.push($pane[0]);
                                 }
