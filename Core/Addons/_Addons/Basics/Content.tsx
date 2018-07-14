@@ -1,15 +1,65 @@
-"use strict";
-/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
 // %%%%%%% TODO: There are JQuery references
+
 // Anchor handling, navigation
-var YetaWF;
-(function (YetaWF) {
-    ;
-    var Content = /** @class */ (function () {
-        function Content() {
-        }
+
+namespace YetaWF {
+
+    interface ContentData {
+        CacheVersion: string;
+        Path: string;
+        QueryString: string;
+        UnifiedSetGuid: string;
+        UnifiedMode: number;
+        UnifiedAddonMods: string[];
+        UniqueIdPrefixCounter: number;
+        IsMobile: boolean;
+        UnifiedSkinCollection: string | null;
+        UnifiedSkinFileName: string | null
+        Panes: string[];
+        KnownCss: string[];
+        KnownScripts: string[];
+    };
+
+    export interface ContentResult {
+        Status: string;
+        Redirect: string;
+        RedirectContent: string;
+        Content: PaneContent[];
+        Addons: string;
+        PageTitle: string;
+        PageCssClasses: string;
+        CanonicalUrl: string;
+        LocalUrl: string;
+        Scripts: string;
+        EndOfPageScripts: string;
+        ScriptFiles: UrlEntry[];
+        ScriptFilesPayload: Payload[];
+        CssFiles: UrlEntry[];
+        CssFilesPayload: Payload[];
+        ScriptBundleFiles: string[];
+        CssBundleFiles: string[];
+        AnalyticsContent: string;
+    }
+    export interface PaneContent {
+        Pane: string;
+        HTML: string;
+    }
+    export interface Payload {
+        Name: string;
+        Text: string;
+    }
+    export interface UrlEntry {
+        Name: string;
+        Url: string;
+    }
+
+    export class Content {
+
         // loads all scripts - we need to preserve the order of initialization hence the recursion
-        Content.prototype.loadScripts = function (scripts, payload, run) {
+        private loadScripts(scripts: UrlEntry[], payload: Payload[], run: () => void): void {
+
             YVolatile.Basics.KnownScriptsDynamic = YVolatile.Basics.KnownScriptsDynamic || [];
             var total = scripts.length;
             if (total == 0) {
@@ -17,18 +67,19 @@ var YetaWF;
                 return;
             }
             this.loadNextScript(scripts, payload, total, 0, run);
-        };
-        Content.prototype.loadNextScript = function (scripts, payload, total, ix, run) {
-            var _this = this;
+        }
+
+        private loadNextScript(scripts: UrlEntry[], payload: Payload[], total: number, ix: number, run: () => void) {
+
             var urlEntry = scripts[ix];
             var name = urlEntry.Name;
+
             var found = payload.filter(function (elem) { return elem.Name == name; });
             if (found.length > 0) {
                 YetaWF_Basics.runGlobalScript(found[0].Text);
-                YVolatile.Basics.KnownScriptsDynamic.push(name); // save as dynamically loaded script
+                YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
                 this.processScript(scripts, payload, total, ix, run);
-            }
-            else {
+            } else {
                 var loaded;
                 var js = document.createElement('script');
                 js.type = 'text/javascript';
@@ -38,53 +89,51 @@ var YetaWF;
                 //$$ var dataName = document.createAttribute("data-name");
                 // dataName.value = name;
                 // js.setAttributeNode(dataName);
-                js.onload = js.onerror = js['onreadystatechange'] = function () {
-                    if ((js['readyState'] && !(/^c|loade/.test(js['readyState']))) || loaded)
-                        return;
+                js.onload = js.onerror = js['onreadystatechange'] = () => {
+                    if ((js['readyState'] && !(/^c|loade/.test(js['readyState']))) || loaded) return;
                     js.onload = js['onreadystatechange'] = null;
                     loaded = true;
-                    _this.processScript(scripts, payload, total, ix, run);
+                    this.processScript(scripts, payload, total, ix, run);
                 };
-                if (YVolatile.Basics.JSLocation == YetaWF.JSLocationEnum.Top) { // location doesn't really matter, but done for consistency
+                if (YVolatile.Basics.JSLocation == JSLocationEnum.Top) {// location doesn't really matter, but done for consistency
                     var head = document.getElementsByTagName('head')[0];
-                    head.insertBefore(js, head.lastChild);
-                }
-                else {
+                    head.insertBefore(js, head.lastChild)
+                } else {
                     var body = document.getElementsByTagName('body')[0];
-                    body.insertBefore(js, body.lastChild);
+                    body.insertBefore(js, body.lastChild)
                 }
             }
-        };
-        Content.prototype.processScript = function (scripts, payload, total, ix, run) {
+        }
+
+        private processScript(scripts: UrlEntry[], payload: Payload[], total: number, ix: number, run: () => void): void {
             if (ix >= total - 1) {
-                run(); // we're all done
-            }
-            else {
+                run();// we're all done
+            } else {
                 this.loadNextScript(scripts, payload, total, ix + 1, run);
             }
-        };
+        }
+
         // Change the current page to the specified Uri (may not be part of the unified page set)
         // returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
         // returns true if the page is now shown and is part of the unified page set
-        Content.prototype.setContent = function (uri, setState, popupCB) {
-            var _this = this;
-            if (YVolatile.Basics.EditModeActive)
-                return false; // edit mode
-            if (YVolatile.Basics.UnifiedMode == YetaWF.UnifiedModeEnum.None)
-                return false; // not unified mode
+        public setContent(uri: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult) => HTMLElement): boolean {
+
+            if (YVolatile.Basics.EditModeActive) return false; // edit mode
+            if (YVolatile.Basics.UnifiedMode == UnifiedModeEnum.None) return false; // not unified mode
             if (popupCB) {
-                if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.SkinDynamicContent)
+                if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.SkinDynamicContent)
                     return false; // popups can only be used with some unified modes
                 if (!YVolatile.Basics.UnifiedPopups)
                     return false; // popups not wanted for this UPS
             }
+
             // check if we're clicking a link which is part of this unified page
             var path = uri.getPath();
-            if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
+            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
                 // find all panes that support dynamic content and replace with new modules
                 var divs = YetaWF_Basics.getElementsBySelector('.yUnified[data-pane]');
                 // build data context (like scripts, css files we have)
-                var data = {
+                var data: ContentData = {
                     CacheVersion: YVolatile.Basics.CacheVersion,
                     Path: path,
                     QueryString: uri.getQuery(),
@@ -99,46 +148,43 @@ var YetaWF;
                     KnownCss: [],
                     KnownScripts: []
                 };
-                if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
+                if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
                     data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
                     data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
                 }
-                for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
-                    var div = divs_1[_i];
-                    data.Panes.push(div.getAttribute('data-pane'));
+                for (var div of divs) {
+                    data.Panes.push(div.getAttribute('data-pane') as string);
                 }
                 var css = YetaWF_Basics.getElementsBySelector('link[rel="stylesheet"][data-name]');
-                for (var _a = 0, css_1 = css; _a < css_1.length; _a++) {
-                    var c = css_1[_a];
-                    data.KnownCss.push(c.getAttribute('data-name'));
+                for (var c of css) {
+                    data.KnownCss.push(c.getAttribute('data-name') as string);
                 }
                 css = YetaWF_Basics.getElementsBySelector('style[type="text/css"][data-name]');
-                for (var _b = 0, css_2 = css; _b < css_2.length; _b++) {
-                    var c = css_2[_b];
-                    data.KnownCss.push(c.getAttribute('data-name'));
+                for (var c of css) {
+                    data.KnownCss.push(c.getAttribute('data-name') as string);
                 }
-                data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []); // add known css files that were added via bundles
+                data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
                 var scripts = YetaWF_Basics.getElementsBySelector('script[src][data-name]');
-                for (var _c = 0, scripts_1 = scripts; _c < scripts_1.length; _c++) {
-                    var s = scripts_1[_c];
-                    data.KnownScripts.push(s.getAttribute('data-name'));
+                for (var s of scripts) {
+                    data.KnownScripts.push(s.getAttribute('data-name') as string);
                 }
-                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []); // known javascript files that were added by content pages
-                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []); // add known javascript files that were added via bundles
+                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
+                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []);// add known javascript files that were added via bundles
+
                 YetaWF_Basics.setLoading();
-                var request = new XMLHttpRequest();
+
+                var request: XMLHttpRequest = new XMLHttpRequest();
                 request.open('POST', '/YetaWF_Core/PageContent/Show' + uri.getQuery(true), true);
                 request.setRequestHeader("Content-Type", "application/json");
-                request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
+                request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
                 request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                request.onreadystatechange = function (ev) {
+                request.onreadystatechange = (ev: Event) => {
                     if (request.readyState === 4 /*DONE*/) {
                         YetaWF_Basics.setLoading(false);
                         if (request.status === 200) {
-                            var result = JSON.parse(request.responseText);
-                            _this.processReceivedContent(result, uri, divs, setState, popupCB);
-                        }
-                        else {
+                            var result: ContentResult = JSON.parse(request.responseText)
+                            this.processReceivedContent(result, uri, divs, setState, popupCB);
+                        } else {
                             YetaWF_Basics.setLoading(false);
                             YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
                             debugger;
@@ -147,11 +193,10 @@ var YetaWF;
                 };
                 request.send(JSON.stringify(data));
                 return true;
-            }
-            else {
+            } else {
                 // check if we have anything with that path as a unified pane and activate the panes
-                var divs = YetaWF_Basics.getElementsBySelector(".yUnified[data-url=\"" + path + "\"]");
-                var $divs = $(".yUnified[data-url=\"" + path + "\"]"); //$$
+                var divs = YetaWF_Basics.getElementsBySelector(`.yUnified[data-url="${path}"]`);
+                var $divs = $(`.yUnified[data-url="${path}"]`);//$$
                 if (divs.length > 0) {
                     this.closemenus();
                     // Update the browser address bar with the new path
@@ -159,19 +204,16 @@ var YetaWF;
                         try {
                             var stateObj = {};
                             history.pushState(stateObj, "", uri.toUrl());
-                        }
-                        catch (err) { }
+                        } catch (err) { }
                     }
-                    if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.HideDivs) {
+                    if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {
                         // hide all unified sections
                         var uni = YetaWF_Basics.getElementsBySelector('.yUnified');
-                        for (var _d = 0, uni_1 = uni; _d < uni_1.length; _d++) {
-                            var u = uni_1[_d];
+                        for (var u of uni) {
                             u.style.display = "none";
                         }
                         // show all unified sections that are on the current page
-                        for (var _e = 0, divs_2 = divs; _e < divs_2.length; _e++) {
-                            var d = divs_2[_e];
+                        for (var d of divs) {
                             d.style.display = "block";
                         }
                         // send event that a new section became active/visible
@@ -183,19 +225,17 @@ var YetaWF;
                             $(window).scrollTop(0);
                         }
                         YetaWF_Basics.setFocus();
-                    }
-                    else if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
+                    } else if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
                         //element.scrollIntoView() as an alternative (check compatibility/options)
                         // calculate an approximate animation time so the shorter the distance, the shorter the animation
-                        var h = $('body').height();
-                        var t = $divs.eq(0).offset().top;
+                        var h = $('body').height() as number;
+                        var t = ($divs.eq(0).offset() as any).top;
                         var anim = YVolatile.Basics.UnifiedAnimation * t / h;
                         $('body,html').animate({
                             scrollTop: t
                         }, anim);
-                    }
-                    else
-                        throw "Invalid UnifiedMode " + YVolatile.Basics.UnifiedMode;
+                    } else
+                        throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
                     YetaWF_Basics.setLoading(false);
                     return true;
                 }
@@ -203,8 +243,9 @@ var YetaWF;
                 return false;
             }
         };
-        ;
-        Content.prototype.processReceivedContent = function (result, uri, divs, setState, popupCB) {
+
+        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult) => HTMLElement) : void {
+
             this.closemenus();
             if (result.Status != null && result.Status.length > 0) {
                 YetaWF_Basics.setLoading(false);
@@ -216,8 +257,7 @@ var YetaWF;
                 if (popupCB) {
                     // we want a popup and get a redirect, redirect to iframe popup
                     YetaWF_Popups.openPopup(result.Redirect, true);
-                }
-                else {
+                } else {
                     // simple redirect
                     window.location.assign(result.Redirect);
                 }
@@ -229,37 +269,30 @@ var YetaWF;
             }
             // run all global scripts (YConfigs, etc.)
             YetaWF_Basics.runGlobalScript(result.Scripts);
-            var _loop_1 = function (urlEntry) {
-                found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
-                if (found.length > 0) {
-                    elem = YetaWF_Basics.createElement("style", { type: 'text/css', "data-name": found[0].Name }, found[0].Text);
-                    if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
-                        document.head.appendChild(elem);
-                    }
-                    else {
-                        document.body.appendChild(elem);
-                    }
-                }
-                else {
-                    elem = YetaWF_Basics.createElement("link", { rel: "stylesheet", type: 'text/css', "data-name": urlEntry.Name, href: urlEntry.Url });
-                    if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
-                        document.head.appendChild(elem);
-                    }
-                    else {
-                        document.body.appendChild(elem);
-                    }
-                }
-            };
-            var found, elem, elem;
             // add all new css files
-            for (var _i = 0, _a = result.CssFiles; _i < _a.length; _i++) {
-                var urlEntry = _a[_i];
-                _loop_1(urlEntry);
+            for (let urlEntry of result.CssFiles) {
+                var found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
+                if (found.length > 0) {
+                    var elem = <style type='text/css' data-name={found[0].Name}>{found[0].Text}</style>;
+                    if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
+                        document.head.appendChild(elem);
+                    } else {
+                        document.body.appendChild(elem);
+                    }
+                } else {
+                    var elem = <link rel="stylesheet" type='text/css' data-name={urlEntry.Name} href={urlEntry.Url} />;
+                    if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
+                        document.head.appendChild(elem);
+                    } else {
+                        document.body.appendChild(elem);
+                    }
+                }
             }
             YVolatile.Basics.UnifiedCssBundleFiles = YVolatile.Basics.UnifiedCssBundleFiles || [];
             YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles || []);
+
             // add all new script files
-            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, function () {
+            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, () => {
                 YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
                 YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
                 if (!popupCB) {
@@ -270,41 +303,37 @@ var YetaWF;
                         try {
                             var stateObj = {};
                             history.pushState(stateObj, "", uri.toUrl());
-                        }
-                        catch (err) { }
+                        } catch (err) { }
                     }
                     // remove all pane contents
-                    for (var _i = 0, divs_3 = divs; _i < divs_3.length; _i++) {
-                        var div = divs_3[_i];
+                    for (var div of divs) {
                         YetaWF_Basics.processClearDiv(div);
                         div.innerHTML = '';
                         if (div.getAttribute("data-conditional")) {
-                            div.style.display = "none"; // hide, it's a conditional pane
+                            div.style.display = "none";// hide, it's a conditional pane
                         }
                     }
                     // Notify that page is changing
-                    $(document).trigger('YetaWF_Basics_PageChange', []); //$$$
+                    $(document).trigger('YetaWF_Basics_PageChange', []);//$$$
                     // remove prior page css classes
                     YetaWF_Basics.elementRemoveClasses(document.body, document.body.getAttribute('data-pagecss'));
                     // add new css classes
                     YetaWF_Basics.elementAddClasses(document.body, result.PageCssClasses);
-                    document.body.setAttribute('data-pagecss', result.PageCssClasses); // remember so we can remove them for the next page
+                    document.body.setAttribute('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
                 }
-                var tags = []; // collect all panes
+                var tags: HTMLElement[] = []; // collect all panes
                 if (!popupCB) {
                     // add pane content
-                    for (var _a = 0, _b = result.Content; _a < _b.length; _a++) {
-                        var content = _b[_a];
+                    for (let content of result.Content) {
                         // replace the pane
-                        var pane = YetaWF_Basics.getElement1BySelector(".yUnified[data-pane=\"" + content.Pane + "\"]");
-                        pane.style.display = "block"; // show in case this is a conditional pane
+                        var pane = YetaWF_Basics.getElement1BySelector(`.yUnified[data-pane="${content.Pane}"]`);
+                        pane.style.display = "block";// show in case this is a conditional pane
                         // add pane (can contain mixed html/scripts)
                         YetaWF_Basics.appendMixedHTML(pane, content.HTML);
                         // run all registered initializations for the pane
                         tags.push(pane);
                     }
-                }
-                else {
+                } else {
                     tags.push(popupCB(result));
                 }
                 // add addons (can contain mixed html/scripts)
@@ -345,16 +374,16 @@ var YetaWF;
                 }
                 try {
                     YetaWF_Basics.runGlobalScript(result.AnalyticsContent);
-                }
-                catch (e) { }
+                } catch (e) { }
                 YetaWF_Basics.processNewPage(uri.toUrl());
                 // done, set focus
                 YetaWF_Basics.setFocus(tags);
                 YetaWF_Basics.setLoading(false);
             });
-        };
+        }
+
         //$$$$ MOVE THIS TO COMPONENTSHTML
-        Content.prototype.closemenus = function () {
+        private closemenus(): void {
             // Close open bootstrap nav menus (if any) by clicking on the page
             $('body').trigger('click');
             // Close any open kendo menus (if any)
@@ -365,13 +394,8 @@ var YetaWF;
             });
             // Close any open smartmenus
             try {
-                $('.YetaWF_Menus').collapse('hide'); //$$$$
-            }
-            catch (e) { }
-        };
-        return Content;
-    }());
-    YetaWF.Content = Content;
-})(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Content.js.map
+                ($('.YetaWF_Menus') as any).collapse('hide'); //$$$$
+            } catch (e) { }
+        }
+    }
+}

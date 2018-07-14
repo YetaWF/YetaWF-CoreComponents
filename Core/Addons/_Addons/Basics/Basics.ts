@@ -585,6 +585,16 @@ namespace YetaWF {
             return element;
         }
 
+        // Global script eval
+
+        public runGlobalScript(script: string) : void {
+            var elem = document.createElement("script");
+            elem.text = script;
+
+            var newElem = document.head.appendChild(elem);// add to execute script
+            (newElem.parentNode as HTMLElement).removeChild(newElem);// and remove - we're done with it
+        }
+
         // WhenReady
 
         // Usage:
@@ -853,6 +863,39 @@ namespace YetaWF {
             elem.parentElement.removeChild(elem);
         }
 
+        /**
+         * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        public appendMixedHTML(elem: HTMLElement, content: string): void {
+
+            // convert the string to DOM representation
+            var temp = document.createElement('YetaWFTemp');
+            temp.innerHTML = content;
+            // extract all <script> tags
+            var scripts: HTMLScriptElement[] = YetaWF_Basics.getElementsBySelector('script', [temp]) as HTMLScriptElement[];
+            for (var script of scripts) {
+                YetaWF_Basics.removeElement(script); // remove the script element
+            }
+            // insert all the html bits
+            while (temp.childElementCount > 0)
+                elem.insertAdjacentElement('beforeend', temp.children[0]);
+
+            // run/load all scripts we found
+            for (var script of scripts) {
+                if (script.src) {
+                    script.async = false;
+                    script.defer = false;
+                    var js = document.createElement('script');
+                    js.type = 'text/javascript';
+                    js.async = false; // need to preserve execution order
+                    js.defer = false;
+                    js.src = script.src;
+                    document.body.appendChild(js);
+                } else
+                    this.runGlobalScript(script.innerHTML);
+            }
+        }
+
         // Element Css
 
         /**
@@ -868,13 +911,38 @@ namespace YetaWF {
             else
                 return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
         }
-
+        /**
+         * Add a space separated list of css classes to an element.
+         */
+        public elementAddClasses(elem: Element, classNames: string | null): void {
+            if (!classNames) return;
+            for (var s of classNames.split(" ")) {
+                if (s.length > 0)
+                    this.elementAddClass(elem, s);
+            }
+        }
+        /**
+         * Add css class to an element.
+         */
         public elementAddClass(elem: Element, className: string): void {
             if (elem.classList)
                 elem.classList.add(className);
             else
                 elem.className += ' ' + className;
         }
+        /**
+         * Remove a space separated list of css classes from an element.
+         */
+        public elementRemoveClasses(elem: Element, classNames: string | null): void {
+            if (!classNames) return;
+            for (var s of classNames.split(" ")) {
+                if (s.length > 0)
+                    this.elementRemoveClass(elem, s);
+            }
+        }
+        /**
+         * Remove a css class from an element.
+         */
         public elementRemoveClass(elem: Element, className: string): void {
             if (elem.classList)
                 elem.classList.remove(className);

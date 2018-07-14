@@ -539,6 +539,13 @@ var YetaWF;
             }
             return element;
         };
+        // Global script eval
+        BasicsServices.prototype.runGlobalScript = function (script) {
+            var elem = document.createElement("script");
+            elem.text = script;
+            var newElem = document.head.appendChild(elem); // add to execute script
+            newElem.parentNode.removeChild(newElem); // and remove - we're done with it
+        };
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
          * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
@@ -793,6 +800,39 @@ var YetaWF;
                 return;
             elem.parentElement.removeChild(elem);
         };
+        /**
+         * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        BasicsServices.prototype.appendMixedHTML = function (elem, content) {
+            // convert the string to DOM representation
+            var temp = document.createElement('YetaWFTemp');
+            temp.innerHTML = content;
+            // extract all <script> tags
+            var scripts = YetaWF_Basics.getElementsBySelector('script', [temp]);
+            for (var _i = 0, scripts_1 = scripts; _i < scripts_1.length; _i++) {
+                var script = scripts_1[_i];
+                YetaWF_Basics.removeElement(script); // remove the script element
+            }
+            // insert all the html bits
+            while (temp.childElementCount > 0)
+                elem.insertAdjacentElement('beforeend', temp.children[0]);
+            // run/load all scripts we found
+            for (var _a = 0, scripts_2 = scripts; _a < scripts_2.length; _a++) {
+                var script = scripts_2[_a];
+                if (script.src) {
+                    script.async = false;
+                    script.defer = false;
+                    var js = document.createElement('script');
+                    js.type = 'text/javascript';
+                    js.async = false; // need to preserve execution order
+                    js.defer = false;
+                    js.src = script.src;
+                    document.body.appendChild(js);
+                }
+                else
+                    this.runGlobalScript(script.innerHTML);
+            }
+        };
         // Element Css
         /**
          * Tests whether the specified element has the given css class.
@@ -808,12 +848,42 @@ var YetaWF;
             else
                 return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
         };
+        /**
+         * Add a space separated list of css classes to an element.
+         */
+        BasicsServices.prototype.elementAddClasses = function (elem, classNames) {
+            if (!classNames)
+                return;
+            for (var _i = 0, _a = classNames.split(" "); _i < _a.length; _i++) {
+                var s = _a[_i];
+                if (s.length > 0)
+                    this.elementAddClass(elem, s);
+            }
+        };
+        /**
+         * Add css class to an element.
+         */
         BasicsServices.prototype.elementAddClass = function (elem, className) {
             if (elem.classList)
                 elem.classList.add(className);
             else
                 elem.className += ' ' + className;
         };
+        /**
+         * Remove a space separated list of css classes from an element.
+         */
+        BasicsServices.prototype.elementRemoveClasses = function (elem, classNames) {
+            if (!classNames)
+                return;
+            for (var _i = 0, _a = classNames.split(" "); _i < _a.length; _i++) {
+                var s = _a[_i];
+                if (s.length > 0)
+                    this.elementRemoveClass(elem, s);
+            }
+        };
+        /**
+         * Remove a css class from an element.
+         */
         BasicsServices.prototype.elementRemoveClass = function (elem, className) {
             if (elem.classList)
                 elem.classList.remove(className);
