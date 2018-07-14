@@ -1,11 +1,11 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+// %%%%%%% TODO: There are JQuery references
+
 /* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, these defs are all global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
 
 /* Basics API, to be implemented by rendering-specific code - rendering code must define a YetaWF_BasicsImpl object implementing IBasicsImpl */
-
-/* %%%%%%% TODO: There are JQuery references in Basics/Forms/Popups which will be eliminated. */
 
 //$$ https://github.com/nefe/You-Dont-Need-jQuery
 
@@ -42,6 +42,12 @@ namespace YetaWF {
         width: number;
         height: number;
     }
+    export interface ContentChangeEntry {
+        callback(addonGuid: string, on: boolean);
+    };
+    export interface NewPageEntry {
+        callback(url: string);
+    };
 
     export interface IBasicsImpl {
 
@@ -900,7 +906,7 @@ namespace YetaWF {
         private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             // srcElement should be target//$$$$ srcElement is non-standard
-            console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
+            //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
             if (ev.eventPhase == ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase == ev.BUBBLING_PHASE) {
@@ -918,10 +924,10 @@ namespace YetaWF {
                 }
             } else
                 return;
-            console.log(`event ${ev.type} selector ${selector} match`);
+            //console.log(`event ${ev.type} selector ${selector} match`);
             var result: boolean = callback(ev);
             if (!result) {
-                console.log(`event ${ev.type} selector ${selector} stop bubble`);
+                //console.log(`event ${ev.type} selector ${selector} stop bubble`);
                 ev.stopPropagation();
                 ev.preventDefault();
             }
@@ -931,19 +937,31 @@ namespace YetaWF {
         // CONTENTCHANGE
         // CONTENTCHANGE
         // CONTENTCHANGE
-        // APIs to detach custom event handling from jQuery so this can be replaced with a native mechanism
 
-        public registerContentChange(callback: (event: Event, addonGuid: string, on: boolean) => void): void {
-            $(document).on("YetaWF_Basics_Addon", function (event: any, addonGuid: string, on: boolean): void { callback(event, addonGuid, on); });
+        private ContentChangeHandlers: ContentChangeEntry[] = [];
+
+        public registerContentChange(callback: (addonGuid: string, on: boolean) => void): void {
+            this.ContentChangeHandlers.push({ callback: callback });
+        }
+        public processContentChange(addonGuid: string, on: boolean) {
+            for (var entry of this.ContentChangeHandlers) {
+                entry.callback(addonGuid, on);
+            }
         }
 
         // NEWPAGE
         // NEWPAGE
         // NEWPAGE
-        // APIs to detach custom event handling from jQuery so this can be replaced with a native mechanism
 
-        public registerNewPage(callback: (event: Event, url: string) => void): void {
-            $(document).on("YetaWF_Basics_NewPage", function (event: any, url: string): void { callback(event, url); });
+        private NewPageHandlers: NewPageEntry[] = [];
+
+        public registerNewPage(callback: (url: string) => void): void {
+            this.NewPageHandlers.push({ callback: callback });
+        }
+        public processNewPage(url: string): void {
+            for (var entry of this.NewPageHandlers) {
+                entry.callback(url);
+            }
         }
 
         // Expand/collapse Support

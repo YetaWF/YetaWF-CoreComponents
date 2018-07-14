@@ -145,7 +145,7 @@ var YetaWF;
                                 YetaWF_Basics.processClearDiv(partForm);
                                 // preserve the original css classes on the partial form (PartialFormCss)
                                 var cls = partForm.className;
-                                $(partForm).replaceWith(req.responseText);
+                                partForm.outerHTML = req.responseText;
                                 partForm = YetaWF_Basics.getElement1BySelectorCond('.' + YConfigs.Forms.CssFormPartial, [form]);
                                 if (partForm)
                                     partForm.className = cls;
@@ -297,14 +297,13 @@ var YetaWF;
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag) {
             var form = this.getForm(tag);
-            var $form = $(form);
-            var req = $("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", $form).val();
+            var req = YetaWF_Basics.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
             if (!req || req.length == 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var pre = $("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", $form).val();
+            var pre = YetaWF_Basics.getElement1BySelector("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", [form]).value;
             if (!pre || pre.length == 0)
                 throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix; /*DEBUG*/
-            var guid = $("input[name='" + YConfigs.Basics.ModuleGuid + "']", $form).val();
+            var guid = YetaWF_Basics.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
             if (!guid || guid.length == 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
             var charSize = YetaWF_Basics.getCharSizeFromTag(form);
@@ -429,3 +428,5 @@ var YetaWF_Forms = new YetaWF.Forms();
 YetaWF_Forms.initSubmitOnChange();
 // initialize  Submit, Apply, Cancel button handling
 YetaWF_Forms.initHandleFormsButtons();
+
+//# sourceMappingURL=Forms.js.map

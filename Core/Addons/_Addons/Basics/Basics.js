@@ -5,6 +5,8 @@
  */
 var YetaWF;
 (function (YetaWF) {
+    ;
+    ;
     var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
         function BasicsServices() {
             var _this = this;
@@ -39,6 +41,14 @@ var YetaWF;
             this.whenReadyOnce = [];
             // ClearDiv
             this.clearDiv = [];
+            // CONTENTCHANGE
+            // CONTENTCHANGE
+            // CONTENTCHANGE
+            this.ContentChangeHandlers = [];
+            // NEWPAGE
+            // NEWPAGE
+            // NEWPAGE
+            this.NewPageHandlers = [];
             YetaWF_Basics = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
@@ -837,7 +847,7 @@ var YetaWF;
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             // srcElement should be target//$$$$ srcElement is non-standard
-            console.log("event " + ev.type + " selector " + selector + " srcElement " + ev.srcElement.outerHTML);
+            //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
             if (ev.eventPhase == ev.CAPTURING_PHASE) {
                 if (selector)
                     return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
@@ -859,27 +869,31 @@ var YetaWF;
             }
             else
                 return;
-            console.log("event " + ev.type + " selector " + selector + " match");
+            //console.log(`event ${ev.type} selector ${selector} match`);
             var result = callback(ev);
             if (!result) {
-                console.log("event " + ev.type + " selector " + selector + " stop bubble");
+                //console.log(`event ${ev.type} selector ${selector} stop bubble`);
                 ev.stopPropagation();
                 ev.preventDefault();
             }
         };
-        // CONTENTCHANGE
-        // CONTENTCHANGE
-        // CONTENTCHANGE
-        // APIs to detach custom event handling from jQuery so this can be replaced with a native mechanism
         BasicsServices.prototype.registerContentChange = function (callback) {
-            $(document).on("YetaWF_Basics_Addon", function (event, addonGuid, on) { callback(event, addonGuid, on); });
+            this.ContentChangeHandlers.push({ callback: callback });
         };
-        // NEWPAGE
-        // NEWPAGE
-        // NEWPAGE
-        // APIs to detach custom event handling from jQuery so this can be replaced with a native mechanism
+        BasicsServices.prototype.processContentChange = function (addonGuid, on) {
+            for (var _i = 0, _a = this.ContentChangeHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(addonGuid, on);
+            }
+        };
         BasicsServices.prototype.registerNewPage = function (callback) {
-            $(document).on("YetaWF_Basics_NewPage", function (event, url) { callback(event, url); });
+            this.NewPageHandlers.push({ callback: callback });
+        };
+        BasicsServices.prototype.processNewPage = function (url) {
+            for (var _i = 0, _a = this.NewPageHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(url);
+            }
         };
         // Expand/collapse Support
         /**
@@ -915,3 +929,5 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var YetaWF_Basics = new YetaWF.BasicsServices();
+
+//# sourceMappingURL=Basics.js.map

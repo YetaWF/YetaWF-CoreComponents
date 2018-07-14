@@ -1,5 +1,6 @@
 "use strict";
 /* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+// jquery-free
 var YetaWF;
 (function (YetaWF) {
     /**
@@ -166,3 +167,5 @@ var YetaWF;
     }());
     YetaWF.Url = Url;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Url.js.map

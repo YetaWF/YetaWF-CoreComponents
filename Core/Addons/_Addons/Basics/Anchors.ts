@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+// jquery-free
 // Anchor handling, navigation
 
 namespace YetaWF {
@@ -36,11 +37,11 @@ namespace YetaWF {
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
                         var urlTrack = f.getAttribute('data-track');
                         if (!urlTrack) throw "data-track not defined";/*DEBUG*/
-                        $.ajax({
-                            'url': urlTrack,
-                            'type': 'post',
-                            'data': data,
-                        });
+
+                        var request: XMLHttpRequest = new XMLHttpRequest();
+                        request.open("POST", urlTrack, true);
+                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                        request.send(data);
                         // no response handling
                     }
                 }

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+// %%%%%%% TODO: There are JQuery references
+
 // Anchor handling, navigation
 
 namespace YetaWF {
@@ -128,7 +130,8 @@ namespace YetaWF {
             var path = uri.getPath();
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
                 // find all panes that support dynamic content and replace with new modules
-                var $divs = $('.yUnified[data-pane]');
+                var divs = YetaWF_Basics.getElementsBySelector('.yUnified[data-pane]');
+                var $divs = $(divs);
                 // build data context (like scripts, css files we have)
                 var data: ContentData = {
                     CacheVersion: YVolatile.Basics.CacheVersion,
@@ -149,23 +152,23 @@ namespace YetaWF {
                     data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
                     data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
                 }
-                $divs.each(function () {
-                    data.Panes.push(this.getAttribute('data-pane') as string);
-                });
+                for (var div of divs) {
+                    data.Panes.push(div.getAttribute('data-pane') as string);
+                }
                 data.KnownCss = [];
-                var $css = $('link[rel="stylesheet"][data-name]');
-                $css.each(function () {
-                    data.KnownCss.push(this.getAttribute('data-name') as string);
-                });
-                $css = $('style[type="text/css"][data-name]');
-                $css.each(function () {
-                    data.KnownCss.push(this.getAttribute('data-name') as string);
-                });
+                var css = YetaWF_Basics.getElementsBySelector('link[rel="stylesheet"][data-name]');
+                for (var c of css) {
+                    data.KnownCss.push(c.getAttribute('data-name') as string);
+                }
+                css = YetaWF_Basics.getElementsBySelector('style[type="text/css"][data-name]');
+                for (var c of css) {
+                    data.KnownCss.push(c.getAttribute('data-name') as string);
+                }
                 data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
-                var $scripts = $('script[src][data-name]');
-                $scripts.each(function () {
-                    data.KnownScripts.push(this.getAttribute('data-name') as string);
-                });
+                var scripts = YetaWF_Basics.getElementsBySelector('script[src][data-name]');
+                for (var s of scripts) {
+                    data.KnownScripts.push(s.getAttribute('data-name') as string);
+                }
                 data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic);// known javascript files that were added by content pages
                 data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
 
@@ -241,13 +244,13 @@ namespace YetaWF {
                                     } catch (err) { }
                                 }
                                 // remove all pane contents
-                                $divs.each(function () {
-                                    YetaWF_Basics.processClearDiv(this);
-                                    var $div = $(this);
+                                for (var div of divs) {
+                                    YetaWF_Basics.processClearDiv(div);
+                                    var $div = $(div);
                                     $div.empty();
-                                    if ($div.attr("data-conditional") !== undefined)
+                                    if (div.getAttribute("data-conditional"))
                                         $div.hide();// hide, it's a conditional pane
-                                });
+                                }
                                 // Notify that page is changing
                                 $(document).trigger('YetaWF_Basics_PageChange', []);
                                 // remove prior page css classes
@@ -280,13 +283,13 @@ namespace YetaWF {
                             // turn off all previously active modules that are no longer active
                             YVolatile.Basics.UnifiedAddonModsPrevious.forEach(function (guid) {
                                 if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
-                                    $(document).trigger('YetaWF_Basics_Addon', [guid, false]);
+                                    YetaWF_Basics.processContentChange(guid, false);
                             });
                             // turn on all newly active modules (if they were previously loaded)
                             // new referenced modules that were just loaded now are already active and don't need to be called
                             YVolatile.Basics.UnifiedAddonMods.forEach(function (guid) {
                                 if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
-                                    $(document).trigger('YetaWF_Basics_Addon', [guid, true]);
+                                    YetaWF_Basics.processContentChange(guid, true);
                                 if (YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) < 0)
                                     YetaWF_Basics.UnifiedAddonModsLoaded.push(guid);
                             });
@@ -309,7 +312,7 @@ namespace YetaWF {
                             try {
                                 $.globalEval(result.AnalyticsContent);
                             } catch (e) { }
-                            $(document).trigger('YetaWF_Basics_NewPage', [uri.toUrl()]);// notify listeners that there is a new page
+                            YetaWF_Basics.processNewPage(uri.toUrl());
                             // done, set focus
                             YetaWF_Basics.setFocus(tags);
                             YetaWF_Basics.setLoading(false);
@@ -324,6 +327,7 @@ namespace YetaWF {
                 return true;
             } else {
                 // check if we have anything with that path as a unified pane and activate the panes
+                //$$$ var divs = YetaWF_Basics.getElementsBySelector(`.yUnified[data-url="${path}"]`);
                 var $divs = $(`.yUnified[data-url="${path}"]`);
                 if ($divs.length > 0) {
                     this.closemenus();

@@ -1,5 +1,6 @@
 "use strict";
 /* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+// jquery-free
 // Anchor handling, navigation
 var YetaWF;
 (function (YetaWF) {
@@ -33,11 +34,10 @@ var YetaWF;
                         var urlTrack = f.getAttribute('data-track');
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
-                        $.ajax({
-                            'url': urlTrack,
-                            'type': 'post',
-                            'data': data,
-                        });
+                        var request = new XMLHttpRequest();
+                        request.open("POST", urlTrack, true);
+                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                        request.send(data);
                         // no response handling
                     }
                 }
@@ -209,3 +209,5 @@ var YetaWF;
     }());
     YetaWF.Anchors = Anchors;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Anchors.js.map

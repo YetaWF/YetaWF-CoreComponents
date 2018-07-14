@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+// jquery-free
 /* Forms API, to be implemented by rendering-specific code - rendering code must define a YetaWF_FormsImpl object implementing IFormsImpl */
 
 declare var YetaWF_FormsImpl: YetaWF.IFormsImpl;
@@ -241,7 +242,7 @@ namespace YetaWF {
                                 YetaWF_Basics.processClearDiv(partForm);
                                 // preserve the original css classes on the partial form (PartialFormCss)
                                 var cls = partForm.className;
-                                $(partForm).replaceWith(req.responseText);
+                                partForm.outerHTML = req.responseText;
                                 partForm = YetaWF_Basics.getElement1BySelectorCond('.' + YConfigs.Forms.CssFormPartial, [form]);
                                 if (partForm)
                                     partForm.className = cls;
@@ -410,14 +411,12 @@ namespace YetaWF {
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         public getFormInfo(tag: HTMLElement) {
             var form = this.getForm(tag);
-            var $form = $(form);
-            var req: string | undefined = <string|undefined> $(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, $form).val();
+            var req = (YetaWF_Basics.getElement1BySelector(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement).value;
             if (!req || req.length == 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
-            var pre: string | undefined = <string|undefined> $(`input[name='${YConfigs.Forms.UniqueIdPrefix}']`, $form).val();
+            var pre = (YetaWF_Basics.getElement1BySelector(`input[name='${YConfigs.Forms.UniqueIdPrefix}']`, [form]) as HTMLInputElement).value;
             if (!pre || pre.length == 0) throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix;/*DEBUG*/
-            var guid: string | undefined = <string|undefined> $(`input[name='${YConfigs.Basics.ModuleGuid}']`, $form).val();
+            var guid = (YetaWF_Basics.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
             if (!guid || guid.length == 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
-
             var charSize = YetaWF_Basics.getCharSizeFromTag(form);
 
             var qs : string = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +

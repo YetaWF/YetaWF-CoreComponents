@@ -1,4 +1,5 @@
 /* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+// jquery-free
 
 // string.startsWith
 if (typeof String.prototype.startsWith != 'function') {
