@@ -12,7 +12,8 @@ var YetaWF;
     ;
     var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
         function BasicsServices() {
-            var _this = this;
+            // Form handling
+            this._Forms = null;
             // Page
             /**
              * currently loaded addons
@@ -21,24 +22,19 @@ var YetaWF;
             // Navigation
             this.suppressPopState = false;
             this.reloadingModule_TagInModule = null;
-            // Usage:
-            // YetaWF_Basics.reloadInfo.push({  // TODO: revisit this (not a nice interface, need add(), but only used in grid for now)
-            //   module: mod,               // module <div> to be refreshed
-            //   callback: function() {}    // function to be called
-            // });
             this.reloadInfo = [];
             // WhenReady
             // Usage:
-            // YetaWF_Basics.addWhenReady((tag) => {});
+            // $YetaWF.addWhenReady((tag) => {});
             this.whenReady = [];
             // WhenReadyOnce
             /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
             // Usage:
-            // YetaWF_Basics.whenReadyOnce.push({
+            // $YetaWF.whenReadyOnce.push({
             //   callback: function(tag) {}    // function to be called
             // });
             //   or
-            // YetaWF_Basics.whenReadyOnce.push({
+            // $YetaWF.whenReadyOnce.push({
             //   callbackTS: function(elem) {}    // function to be called
             // });
             this.whenReadyOnce = [];
@@ -64,43 +60,9 @@ var YetaWF;
             // PAGECHANGE
             // PAGECHANGE
             this.PageChangeHandlers = [];
-            YetaWF_Basics = this; // set global so we can initialize anchor/content
+            $YetaWF = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
-            // screen size yCondense/yNoCondense support
-            this.registerEventHandlerWindow("resize", null, function (ev) {
-                _this.setCondense(document.body, window.innerWidth);
-                return true;
-            });
-            this.registerDocumentReady(function () {
-                _this.setCondense(document.body, window.innerWidth);
-            });
-            // Navigation
-            this.registerEventHandlerWindow("popstate", null, function (ev) {
-                if (_this.suppressPopState) {
-                    _this.suppressPopState = false;
-                    return true;
-                }
-                var uri = _this.parseUrl(window.location.href);
-                return !_this.ContentHandling.setContent(uri, false);
-            });
-            // <a> links that only have a hash are intercepted so we don't go through content handling
-            this.registerEventHandlerBody("click", "a[href^='#']", function (ev) {
-                // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
-                if (!ev.srcElement)
-                    return true;
-                var anchor = YetaWF_Basics.elementClosest(ev.srcElement, "a");
-                if (!anchor)
-                    return true;
-                _this.suppressPopState = true;
-                return true;
-            });
-            // <A> links
-            // WhenReady
-            this.registerDocumentReady(function () {
-                _this.processAllReady();
-                _this.processAllReadyOnce();
-            });
         }
         // Implemented by renderer
         // Implemented by renderer
@@ -142,6 +104,17 @@ var YetaWF;
          * Closes the "Please Wait" message (if any).
          */
         BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
+        Object.defineProperty(BasicsServices.prototype, "Forms", {
+            get: function () {
+                if (!this._Forms) {
+                    this._Forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
+                    this.Forms.init();
+                }
+                return this._Forms;
+            },
+            enumerable: true,
+            configurable: true
+        });
         // Url parsing
         BasicsServices.prototype.parseUrl = function (url) {
             var uri = new YetaWF.Url();
@@ -247,8 +220,9 @@ var YetaWF;
          * Initialize the current page (full page load) - runs during page load, before document ready
          */
         BasicsServices.prototype.initPage = function () {
-            // page position
             var _this = this;
+            this.init();
+            // page position
             var scrolled = this.setScrollPosition();
             if (!scrolled) {
                 if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
@@ -293,7 +267,8 @@ var YetaWF;
                 // this should happen late in case the content is changed dynamically (use with caution)
                 // if it does, the pane will still expand because we're only setting the minimum height
                 this.registerDocumentReady(function () {
-                    var panes = _this.getElementsBySelector("#" + id + " > div:visible"); // get all immediate child divs (i.e., the panes)
+                    var panes = _this.getElementsBySelector("#" + id + " > div"); // get all immediate child divs (i.e., the panes)
+                    panes = _this.limitToVisibleOnly(panes); //:visible
                     // exclude panes that have .y_cleardiv
                     var newPanes = [];
                     for (var _i = 0, panes_1 = panes; _i < panes_1.length; _i++) {
@@ -361,7 +336,7 @@ var YetaWF;
             }
             var mod = this.getModuleFromTag(tag);
             var form = this.getElement1BySelector('form', [mod]);
-            YetaWF_Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
+            this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
         BasicsServices.prototype.refreshModule = function (mod) {
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
@@ -496,13 +471,13 @@ var YetaWF;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                    eval(script); // if this uses YetaWF_Basics.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                    eval(script); // if this uses YetaWF_Basics.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 }
@@ -525,7 +500,7 @@ var YetaWF;
                 }
             }
             else {
-                YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
+                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
                 return false;
             }
         };
@@ -819,19 +794,35 @@ var YetaWF;
          * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
         BasicsServices.prototype.appendMixedHTML = function (elem, content) {
+            this.calcMixedHTMLRunScripts(content, undefined, function (elems) {
+                while (elems.length > 0)
+                    elem.insertAdjacentElement('beforeend', elems[0]);
+            });
+        };
+        /**
+         * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        BasicsServices.prototype.setMixedOuterHTML = function (elem, content) {
+            this.calcMixedHTMLRunScripts(content, function (html) {
+                elem.outerHTML = content;
+            });
+        };
+        BasicsServices.prototype.calcMixedHTMLRunScripts = function (content, callbackHTML, callbackChildren) {
             // convert the string to DOM representation
             var temp = document.createElement('YetaWFTemp');
             temp.innerHTML = content;
             // extract all <script> tags
-            var scripts = YetaWF_Basics.getElementsBySelector('script', [temp]);
+            var scripts = this.getElementsBySelector('script', [temp]);
             for (var _i = 0, scripts_1 = scripts; _i < scripts_1.length; _i++) {
                 var script = scripts_1[_i];
-                YetaWF_Basics.removeElement(script); // remove the script element
+                this.removeElement(script); // remove the script element
             }
-            // insert all the html bits
-            while (temp.childElementCount > 0)
-                elem.insertAdjacentElement('beforeend', temp.children[0]);
-            // run/load all scripts we found
+            // call callback so caller can update whatever needs to be updated
+            if (callbackHTML)
+                callbackHTML(temp.innerHTML);
+            else if (callbackChildren)
+                callbackChildren(temp.children);
+            // now run/load all scripts we found in the HTML
             for (var _a = 0, scripts_2 = scripts; _a < scripts_2.length; _a++) {
                 var script = scripts_2[_a];
                 if (script.src) {
@@ -914,16 +905,16 @@ var YetaWF;
                 document.addEventListener('DOMContentLoaded', callback);
             }
         };
+        BasicsServices.prototype.registerEventHandlerBody = function (eventName, selector, callback) {
+            this.registerEventHandler(document.body, eventName, selector, callback);
+        };
         BasicsServices.prototype.registerEventHandlerDocument = function (eventName, selector, callback) {
             var _this = this;
-            window.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+            document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
         };
         BasicsServices.prototype.registerEventHandlerWindow = function (eventName, selector, callback) {
             var _this = this;
             window.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
-        };
-        BasicsServices.prototype.registerEventHandlerBody = function (eventName, selector, callback) {
-            this.registerEventHandler(document.body, eventName, selector, callback);
         };
         BasicsServices.prototype.registerEventHandler = function (tag, eventName, selector, callback) {
             var _this = this;
@@ -943,7 +934,7 @@ var YetaWF;
                 // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
                 var elem = ev.srcElement;
                 while (elem) {
-                    if (YetaWF_Basics.elementMatches(elem, selector))
+                    if (this.elementMatches(elem, selector))
                         break;
                     if (listening == elem)
                         return; // checked all elements
@@ -1039,6 +1030,7 @@ var YetaWF;
          * @param expandedId - The <div> to show/hide.
          */
         BasicsServices.prototype.expandCollapseHandling = function (divId, collapsedId, expandedId) {
+            var _this = this;
             var div = this.getElementById(divId);
             var collapsedDiv = this.getElementById(collapsedId);
             var expandedDiv = this.getElementById(expandedId);
@@ -1048,13 +1040,53 @@ var YetaWF;
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
-                YetaWF_Basics.processActivateDivs([expandedDiv]);
+                _this.processActivateDivs([expandedDiv]);
                 return true;
             });
             this.registerEventHandler(collLink, "click", null, function (ev) {
                 collapsedDiv.style.display = "";
                 expandedDiv.style.display = "none";
                 return true;
+            });
+        };
+        BasicsServices.prototype.init = function () {
+            var _this = this;
+            this.AnchorHandling.init();
+            this.ContentHandling.init();
+            this.Forms.init();
+            // screen size yCondense/yNoCondense support
+            this.registerEventHandlerWindow("resize", null, function (ev) {
+                _this.setCondense(document.body, window.innerWidth);
+                return true;
+            });
+            this.registerDocumentReady(function () {
+                _this.setCondense(document.body, window.innerWidth);
+            });
+            // Navigation
+            this.registerEventHandlerWindow("popstate", null, function (ev) {
+                if (_this.suppressPopState) {
+                    _this.suppressPopState = false;
+                    return true;
+                }
+                var uri = _this.parseUrl(window.location.href);
+                return !_this.ContentHandling.setContent(uri, false);
+            });
+            // <a> links that only have a hash are intercepted so we don't go through content handling
+            this.registerEventHandlerBody("click", "a[href^='#']", function (ev) {
+                // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
+                if (!ev.srcElement)
+                    return true;
+                var anchor = $YetaWF.elementClosest(ev.srcElement, "a");
+                if (!anchor)
+                    return true;
+                _this.suppressPopState = true;
+                return true;
+            });
+            // <A> links
+            // WhenReady
+            this.registerDocumentReady(function () {
+                _this.processAllReady();
+                _this.processAllReadyOnce();
             });
         };
         return BasicsServices;
@@ -1064,6 +1096,6 @@ var YetaWF;
 /**
  * Basic services available throughout YetaWF.
  */
-var YetaWF_Basics = new YetaWF.BasicsServices();
+var $YetaWF = new YetaWF.BasicsServices();
 
 //# sourceMappingURL=Basics.js.map

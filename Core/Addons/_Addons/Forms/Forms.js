@@ -16,7 +16,7 @@ var YetaWF;
             // When a form is about to be submitted, all the functions in YPreSubmitHandler are called one by one
             // This is used to add control-specific data to the data submitted by the form
             // Usage:
-            // YetaWF_Forms.addPreSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
+            // $YetaWF.Forms.addPreSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
             //   form: form,                // form <div> to be processed
             //   callback: function() {}    // function to be called - the callback returns extra data appended to the submit url
             //   userdata: callback-data,   // any data suitable to callback
@@ -25,7 +25,7 @@ var YetaWF;
             this.YPreSubmitHandler1 = []; // done once before submit, then cleared - used in partial forms
             // When a form has been successfully submitted, all the functions in YPostSubmitHandler are called one by one
             // Usage:
-            // YetaWF_Forms.addPostSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
+            // $YetaWF.Forms.addPostSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
             //   form: form,                // form <div> to be processed - may be null
             //   callback: function() {}    // function to be called
             //   userdata: callback-data,   // any data suitable to callback
@@ -39,10 +39,10 @@ var YetaWF;
          * Initialize a partial form.
          */
         Forms.prototype.initPartialForm = function (elemId) {
-            var partialForm = YetaWF_Basics.getElementById(elemId);
+            var partialForm = $YetaWF.getElementById(elemId);
             // run registered actions (usually javascript initialization, similar to $doc.ready()
-            YetaWF_Basics.processAllReady([partialForm]);
-            YetaWF_Basics.processAllReadyOnce([partialForm]);
+            $YetaWF.processAllReady([partialForm]);
+            $YetaWF.processAllReadyOnce([partialForm]);
             YetaWF_FormsImpl.initPartialForm(partialForm);
             // show error popup
             var hasErrors = this.hasErrors(partialForm);
@@ -92,15 +92,16 @@ var YetaWF;
             return YetaWF_FormsImpl.isValid(form);
         };
         Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc) {
-            var dc = YetaWF_Basics.getElement1BySelectorCond('div.' + this.DATACLASS);
+            var _this = this;
+            var dc = $YetaWF.getElement1BySelectorCond('div.' + this.DATACLASS);
             if (dc)
-                YetaWF_Basics.removeElement(dc);
+                $YetaWF.removeElement(dc);
             var onSubmitExtraData = extraData ? extraData : "";
             onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
             if (useValidation)
-                YetaWF_Forms.validate(form);
-            YetaWF_Basics.setLoading(true);
-            if (!useValidation || YetaWF_Forms.isValid(form)) {
+                this.validate(form);
+            $YetaWF.setLoading(true);
+            if (!useValidation || this.isValid(form)) {
                 // serialize the form
                 var formData = this.serializeForm(form);
                 // add extra data
@@ -109,18 +110,18 @@ var YetaWF;
                 // add the origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
                 if (form.getAttribute(YConfigs.Basics.CssSaveReturnUrl)) { // form says we need to save the return address on submit
-                    var currUri = YetaWF_Basics.parseUrl(window.location.href);
+                    var currUri = $YetaWF.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
                     originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
+                    var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
                     originList.push(newOrigin);
                     if (originList.length > 5) // only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
                 }
                 // include the character dimension info
                 {
-                    var charSize = YetaWF_Basics.getCharSizeFromTag(form);
+                    var charSize = $YetaWF.getCharSizeFromTag(form);
                     formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + ',' + charSize.height.toString();
                 }
                 formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
@@ -128,31 +129,31 @@ var YetaWF;
                 if (YVolatile.Basics.PageControlVisible)
                     formData = formData + "&" + YConfigs.Basics.Link_PageControl + "=y";
                 // add if we're in a popup
-                if (YetaWF_Basics.isInPopup())
+                if ($YetaWF.isInPopup())
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
                 var request = new XMLHttpRequest();
                 request.open(form.method, form.action, true);
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                 request.onreadystatechange = function (ev) {
-                    var req = this;
+                    var req = request;
                     if (req.readyState === 4 /*DONE*/) {
-                        YetaWF_Basics.setLoading(false);
-                        if (YetaWF_Basics.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, function (result) {
-                            YetaWF_Forms.YPreSubmitHandler1 = [];
-                            var partForm = YetaWF_Basics.getElement1BySelectorCond('.' + YConfigs.Forms.CssFormPartial, [form]);
+                        $YetaWF.setLoading(false);
+                        if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, function (result) {
+                            _this.YPreSubmitHandler1 = [];
+                            var partForm = $YetaWF.getElement1BySelectorCond('.' + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
                                 // clean up everything that's about to be removed
-                                YetaWF_Basics.processClearDiv(partForm);
+                                $YetaWF.processClearDiv(partForm);
                                 // preserve the original css classes on the partial form (PartialFormCss)
                                 var cls = partForm.className;
-                                partForm.outerHTML = req.responseText;
-                                partForm = YetaWF_Basics.getElement1BySelectorCond('.' + YConfigs.Forms.CssFormPartial, [form]);
+                                $YetaWF.setMixedOuterHTML(partForm, req.responseText);
+                                partForm = $YetaWF.getElement1BySelectorCond('.' + YConfigs.Forms.CssFormPartial, [form]);
                                 if (partForm)
                                     partForm.className = cls;
                             }
-                            YetaWF_Forms.callPostSubmitHandler(form);
+                            _this.callPostSubmitHandler(form);
                             if (successFunc) // executed on successful ajax submit
-                                successFunc(YetaWF_Forms.hasErrors(form));
+                                successFunc(_this.hasErrors(form));
                         })) {
                             // ok
                         }
@@ -165,10 +166,10 @@ var YetaWF;
                 request.send(formData);
             }
             else {
-                YetaWF_Basics.setLoading(false);
+                $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
-                var elems = YetaWF_Basics.getElementsBySelector("div.yt_propertylisttabbed", [form]);
+                var elems = $YetaWF.getElementsBySelector("div.yt_propertylisttabbed", [form]);
                 elems.forEach(function (tabctrl, index) {
                     YetaWF_FormsImpl.setErrorInTab(tabctrl);
                 });
@@ -179,9 +180,9 @@ var YetaWF;
                 if (successFunc)
                     successFunc(this.hasErrors(form));
             }
-            var dc = YetaWF_Basics.getElement1BySelectorCond('div.' + this.DATACLASS);
+            var dc = $YetaWF.getElement1BySelectorCond('div.' + this.DATACLASS);
             if (dc)
-                YetaWF_Basics.removeElement(dc);
+                $YetaWF.removeElement(dc);
             return false;
         };
         ;
@@ -281,14 +282,14 @@ var YetaWF;
         };
         // Forms retrieval
         Forms.prototype.getForm = function (tag) {
-            var form = YetaWF_Basics.elementClosest(tag, 'form');
+            var form = $YetaWF.elementClosest(tag, 'form');
             if (!form)
                 throw "Can't locate enclosing form"; /*DEBUG*/
             return form;
         };
         ;
         Forms.prototype.getFormCond = function (tag) {
-            var form = YetaWF_Basics.elementClosest(tag, 'form');
+            var form = $YetaWF.elementClosest(tag, 'form');
             if (!form)
                 return null;
             return form;
@@ -297,16 +298,16 @@ var YetaWF;
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag) {
             var form = this.getForm(tag);
-            var req = YetaWF_Basics.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
+            var req = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
             if (!req || req.length == 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var pre = YetaWF_Basics.getElement1BySelector("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", [form]).value;
+            var pre = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", [form]).value;
             if (!pre || pre.length == 0)
                 throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix; /*DEBUG*/
-            var guid = YetaWF_Basics.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
+            var guid = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
             if (!guid || guid.length == 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
-            var charSize = YetaWF_Basics.getCharSizeFromTag(form);
+            var charSize = $YetaWF.getCharSizeFromTag(form);
             var qs = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
@@ -327,7 +328,7 @@ var YetaWF;
         Forms.prototype.initSubmitOnChange = function () {
             // submit
             var _this = this;
-            YetaWF_Basics.registerEventHandlerBody("keyup", '.ysubmitonchange select', function (ev) {
+            $YetaWF.registerEventHandlerBody("keyup", '.ysubmitonchange select', function (ev) {
                 if (ev.keyCode == 13) {
                     _this.submitForm = _this.getForm(ev.srcElement);
                     _this.submitFormOnChange();
@@ -335,15 +336,15 @@ var YetaWF;
                 }
                 return true;
             });
-            YetaWF_Basics.registerEventHandlerBody("change", '.ysubmitonchange select,.ysubmitonchange input[type="checkbox"]', function (ev) {
+            $YetaWF.registerEventHandlerBody("change", '.ysubmitonchange select,.ysubmitonchange input[type="checkbox"]', function (ev) {
                 clearInterval(_this.submitFormTimer);
                 _this.submitForm = _this.getForm(ev.srcElement);
                 _this.submitFormTimer = setInterval(function () { return _this.submitFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
-                YetaWF_Basics.setLoading(true);
+                $YetaWF.setLoading(true);
                 return false;
             });
             // apply
-            YetaWF_Basics.registerEventHandlerBody("keyup", '.yapplyonchange select', function (ev) {
+            $YetaWF.registerEventHandlerBody("keyup", '.yapplyonchange select', function (ev) {
                 if (ev.keyCode == 13) {
                     _this.submitForm = _this.getForm(ev.srcElement);
                     _this.applyFormOnChange();
@@ -351,11 +352,11 @@ var YetaWF;
                 }
                 return true;
             });
-            YetaWF_Basics.registerEventHandlerBody("change", '.yapplyonchange select,.yapplyonchange input[type="checkbox"]', function (ev) {
+            $YetaWF.registerEventHandlerBody("change", '.yapplyonchange select,.yapplyonchange input[type="checkbox"]', function (ev) {
                 clearInterval(_this.submitFormTimer);
                 _this.submitForm = _this.getForm(ev.srcElement);
                 _this.submitFormTimer = setInterval(function () { return _this.applyFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
-                YetaWF_Basics.setLoading(true);
+                $YetaWF.setLoading(true);
                 return false;
             });
         };
@@ -376,24 +377,25 @@ var YetaWF;
          */
         Forms.prototype.initHandleFormsButtons = function () {
             // Cancel the form when a Cancel button is clicked
-            YetaWF_Basics.registerEventHandlerDocument('click', 'form .' + YConfigs.Forms.CssFormCancel, function (ev) {
-                if (YetaWF_Basics.isInPopup()) {
+            var _this = this;
+            $YetaWF.registerEventHandlerBody('click', 'form .' + YConfigs.Forms.CssFormCancel, function (ev) {
+                if ($YetaWF.isInPopup()) {
                     // we're in a popup, just close it
-                    YetaWF_Basics.closePopup();
+                    $YetaWF.closePopup();
                 }
                 else {
                     // go to the last entry in the origin list, pop that entry and pass it in the url
                     var originList = YVolatile.Basics.OriginList;
                     if (originList.length > 0) {
                         var origin = originList.pop();
-                        var uri = YetaWF_Basics.parseUrl(origin.Url);
+                        var uri = $YetaWF.parseUrl(origin.Url);
                         uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
                         if (origin.EditMode != YVolatile.Basics.EditModeActive)
                             uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0" : "1");
                         uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (originList.length > 0)
                             uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
-                        if (!YetaWF_Basics.ContentHandling.setContent(uri, true))
+                        if (!$YetaWF.ContentHandling.setContent(uri, true))
                             window.location.assign(uri.toUrl());
                     }
                     else {
@@ -407,26 +409,27 @@ var YetaWF;
                 return false;
             });
             // Submit the form when an apply button is clicked
-            YetaWF_Basics.registerEventHandlerBody("click", "form input[type=\"button\"][" + YConfigs.Forms.CssDataApplyButton + "]", function (ev) {
-                var form = YetaWF_Forms.getForm(ev.srcElement);
-                YetaWF_Forms.submit(form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
+            $YetaWF.registerEventHandlerBody("click", "form input[type=\"button\"][" + YConfigs.Forms.CssDataApplyButton + "]", function (ev) {
+                var form = _this.getForm(ev.srcElement);
+                _this.submit(form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
                 return false;
             });
             // Submit the form when a submit button is clicked
-            YetaWF_Basics.registerEventHandlerBody("submit", 'form.' + YConfigs.Forms.CssFormAjax, function (ev) {
-                var form = YetaWF_Forms.getForm(ev.srcElement);
-                YetaWF_Forms.submit(form, true);
+            $YetaWF.registerEventHandlerBody("submit", 'form.' + YConfigs.Forms.CssFormAjax, function (ev) {
+                var form = _this.getForm(ev.srcElement);
+                _this.submit(form, true);
                 return false;
             });
+        };
+        Forms.prototype.init = function () {
+            // initialize submit on change
+            this.initSubmitOnChange();
+            // initialize  Submit, Apply, Cancel button handling
+            this.initHandleFormsButtons();
         };
         return Forms;
     }());
     YetaWF.Forms = Forms;
 })(YetaWF || (YetaWF = {}));
-var YetaWF_Forms = new YetaWF.Forms();
-// initialize submit on change
-YetaWF_Forms.initSubmitOnChange();
-// initialize  Submit, Apply, Cancel button handling
-YetaWF_Forms.initHandleFormsButtons();
 
 //# sourceMappingURL=Forms.js.map

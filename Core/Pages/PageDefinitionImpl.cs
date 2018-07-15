@@ -574,7 +574,7 @@ namespace YetaWF.Core.Pages {
                 hb.Append("<div class='y_cleardiv'></div>");
                 hb.Append(DivTag.ToString(TagRenderMode.EndTag));
                 hb.Append("<script>");
-                hb.Append("YetaWF_Basics.showPaneSet('{0}', {1}, {2});", Id, Manager.EditMode ? 1 : 0, SameHeight ? 1 : 0);
+                hb.Append("$YetaWF.showPaneSet('{0}', {1}, {2});", Id, Manager.EditMode ? 1 : 0, SameHeight ? 1 : 0);
                 hb.Append("</script>");
                 Html.ViewContext.Writer.Write(hb.ToString());
             }

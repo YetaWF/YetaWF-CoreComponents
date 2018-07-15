@@ -148,9 +148,9 @@ namespace YetaWF.Core.Controllers {
                     pageHtml = writer.ToString();
                 }
 #endif
+                Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs
                 if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
                     pageHtml = ProcessInlineScripts(pageHtml);
-                Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
 
                 await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
                 Manager.PopCharSize();

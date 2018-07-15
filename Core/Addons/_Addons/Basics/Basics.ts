@@ -5,7 +5,7 @@
 /* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, these defs are all global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
 
-/* Basics API, to be implemented by rendering-specific code - rendering code must define a YetaWF_BasicsImpl object implementing IBasicsImpl */
+/* Basics API, to be implemented by rendering-specific code - rendering code must define a global YetaWF_BasicsImpl object implementing IBasicsImpl */
 
 //$$ https://github.com/nefe/You-Dont-Need-jQuery
 
@@ -13,7 +13,6 @@
     Implemented by custom rendering.
  */
 declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
-declare var YetaWF_Basics: YetaWF.BasicsServices;
 
 interface String {
     startsWith: (text: string) => boolean;
@@ -23,7 +22,7 @@ interface String {
 }
 
 interface Window { // expose this as a known window property
-    YetaWF_Basics: YetaWF.BasicsServices
+    $YetaWF: YetaWF.BasicsServices;
 }
 
 /**
@@ -42,22 +41,26 @@ namespace YetaWF {
         width: number;
         height: number;
     }
-    export interface ContentChangeEntry {
+
+    interface ContentChangeEntry {
         callback(addonGuid: string, on: boolean): void;
     };
-    export interface PanelSwitchedEntry {
+    interface PanelSwitchedEntry {
         callback(panel: HTMLElement): void;
     };
-    export interface ActivateDivsEntry {
+    interface ActivateDivsEntry {
         callback(tags: HTMLElement[]): void;
     };
-    export interface NewPageEntry {
+    interface NewPageEntry {
         callback(url: string): void;
     };
-    export interface PageChangeEntry {
+    interface PageChangeEntry {
         callback() : void;
     };
 
+    /**
+     * Implemented by rendered (such as ComponentsHTML)
+     */
     export interface IBasicsImpl {
 
         /**
@@ -94,6 +97,10 @@ namespace YetaWF {
          * Closes the "Please Wait" message (if any).
          */
         pleaseWaitClose(): void;
+        /**
+         * Closes any open overlays, menus, dropdownlists, etc. (Popup windows are not handled and are explicitly closed using YetaWF_Popups)
+         */
+        closeOverlays(): void;
 
     }
 
@@ -160,6 +167,18 @@ namespace YetaWF {
         // Anchor handling
 
         public AnchorHandling: YetaWF.Anchors;
+
+        // Form handling
+        private _Forms: YetaWF.Forms | null = null;
+
+        get Forms(): YetaWF.Forms {
+            if (!this._Forms) {
+                this._Forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
+                this.Forms.init();
+            }
+            return this._Forms;
+        }
+
 
         // Url parsing
 
@@ -280,6 +299,8 @@ namespace YetaWF {
          */
         public initPage(): void {
 
+            this.init();
+
             // page position
 
             var scrolled = this.setScrollPosition();
@@ -330,7 +351,8 @@ namespace YetaWF {
                 // this should happen late in case the content is changed dynamically (use with caution)
                 // if it does, the pane will still expand because we're only setting the minimum height
                 this.registerDocumentReady(() => { // TODO: This only works for full page loads
-                    var panes = this.getElementsBySelector(`#${id} > div:visible`);// get all immediate child divs (i.e., the panes)
+                    var panes = this.getElementsBySelector(`#${id} > div`);// get all immediate child divs (i.e., the panes)
+                    panes = this.limitToVisibleOnly(panes); //:visible
                     // exclude panes that have .y_cleardiv
                     var newPanes: HTMLElement[] = [];
                     for (let pane of panes) {
@@ -405,16 +427,10 @@ namespace YetaWF {
             }
             var mod = this.getModuleFromTag(tag);
             var form = this.getElement1BySelector('form', [mod]) as HTMLFormElement;
-            YetaWF_Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
+            this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
 
         private reloadingModule_TagInModule: HTMLElement | null = null;
-
-        // Usage:
-        // YetaWF_Basics.reloadInfo.push({  // TODO: revisit this (not a nice interface, need add(), but only used in grid for now)
-        //   module: mod,               // module <div> to be refreshed
-        //   callback: function() {}    // function to be called
-        // });
 
         public reloadInfo: ReloadInfo[] = [];
 
@@ -539,12 +555,12 @@ namespace YetaWF {
                     return false;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                    eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                    eval(script);// if this uses YetaWF_Basics.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
@@ -563,7 +579,7 @@ namespace YetaWF {
                     return false;
                 }
             } else {
-                YetaWF_Basics.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
+                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
                 return false;
             }
         };
@@ -607,7 +623,7 @@ namespace YetaWF {
         // WhenReady
 
         // Usage:
-        // YetaWF_Basics.addWhenReady((tag) => {});
+        // $YetaWF.addWhenReady((tag) => {});
 
         private whenReady: IWhenReady[] = [];
 
@@ -645,11 +661,11 @@ namespace YetaWF {
 
         /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
         // Usage:
-        // YetaWF_Basics.whenReadyOnce.push({
+        // $YetaWF.whenReadyOnce.push({
         //   callback: function(tag) {}    // function to be called
         // });
         //   or
-        // YetaWF_Basics.whenReadyOnce.push({
+        // $YetaWF.whenReadyOnce.push({
         //   callbackTS: function(elem) {}    // function to be called
         // });
         public whenReadyOnce: IWhenReady[] = [];
@@ -876,20 +892,39 @@ namespace YetaWF {
          * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
         public appendMixedHTML(elem: HTMLElement, content: string): void {
+            this.calcMixedHTMLRunScripts(content, undefined, (elems: HTMLCollection): void => {
+                while (elems.length > 0)
+                    elem.insertAdjacentElement('beforeend', elems[0]);
+            });
+        }
+
+        /**
+         * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        public setMixedOuterHTML(elem: HTMLElement, content: string): void {
+            this.calcMixedHTMLRunScripts(content, (html: string): void => {
+                elem.outerHTML = content;
+            });
+        }
+
+        private calcMixedHTMLRunScripts(content: string, callbackHTML?: (html: string) => void, callbackChildren?: (elems: HTMLCollection) => void): void {
 
             // convert the string to DOM representation
             var temp = document.createElement('YetaWFTemp');
             temp.innerHTML = content;
             // extract all <script> tags
-            var scripts: HTMLScriptElement[] = YetaWF_Basics.getElementsBySelector('script', [temp]) as HTMLScriptElement[];
+            var scripts: HTMLScriptElement[] = this.getElementsBySelector('script', [temp]) as HTMLScriptElement[];
             for (var script of scripts) {
-                YetaWF_Basics.removeElement(script); // remove the script element
+                this.removeElement(script); // remove the script element
             }
-            // insert all the html bits
-            while (temp.childElementCount > 0)
-                elem.insertAdjacentElement('beforeend', temp.children[0]);
 
-            // run/load all scripts we found
+            // call callback so caller can update whatever needs to be updated
+            if (callbackHTML)
+                callbackHTML(temp.innerHTML);
+            else if (callbackChildren)
+                callbackChildren(temp.children);
+
+            // now run/load all scripts we found in the HTML
             for (var script of scripts) {
                 if (script.src) {
                     script.async = false;
@@ -968,14 +1003,15 @@ namespace YetaWF {
                 document.addEventListener('DOMContentLoaded', callback);
             }
         }
+
+        public registerEventHandlerBody<K extends keyof HTMLElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
+            this.registerEventHandler(document.body, eventName, selector, callback);
+        }
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
-            window.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
+            document.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
         }
         public registerEventHandlerWindow<K extends keyof HTMLFrameSetElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLFrameSetElementEventMap[K]) => boolean): void {
             window.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
-        }
-        public registerEventHandlerBody<K extends keyof HTMLElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
-            this.registerEventHandler(document.body, eventName, selector, callback);
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             tag.addEventListener(eventName, (ev) => this.handleEvent(tag, ev, selector, callback));
@@ -991,7 +1027,7 @@ namespace YetaWF {
                 // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
                 var elem: HTMLElement | null = ev.srcElement as HTMLElement | null;
                 while (elem) {
-                    if (YetaWF_Basics.elementMatches(elem, selector))
+                    if (this.elementMatches(elem, selector))
                         break;
                     if (listening == elem)
                         return;// checked all elements
@@ -1130,7 +1166,7 @@ namespace YetaWF {
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
-                YetaWF_Basics.processActivateDivs([expandedDiv]);
+                this.processActivateDivs([expandedDiv]);
                 return true;
             });
             this.registerEventHandler(collLink, "click", null, (ev: Event) => {
@@ -1142,9 +1178,17 @@ namespace YetaWF {
 
         constructor() {
 
-            YetaWF_Basics = this;// set global so we can initialize anchor/content
+            $YetaWF = this;// set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
+
+        }
+
+        public init() {
+
+            this.AnchorHandling.init();
+            this.ContentHandling.init();
+            this.Forms.init();
 
             // screen size yCondense/yNoCondense support
 
@@ -1173,7 +1217,7 @@ namespace YetaWF {
 
                 // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
                 if (!ev.srcElement) return true;
-                var anchor = YetaWF_Basics.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
+                var anchor = $YetaWF.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 this.suppressPopState = true;
@@ -1195,4 +1239,4 @@ namespace YetaWF {
 /**
  * Basic services available throughout YetaWF.
  */
-var YetaWF_Basics: YetaWF.BasicsServices = new YetaWF.BasicsServices();
+var $YetaWF = new YetaWF.BasicsServices();

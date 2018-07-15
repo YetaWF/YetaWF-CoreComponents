@@ -13,25 +13,25 @@ namespace YetaWF {
         /**
          * Handles all navigation using <a> tags.
          */
-        constructor() {
+        public init() {
 
             // For an <a> link clicked, add the page we're coming from (not for popup links though)
-            YetaWF_Basics.registerEventHandlerBody("click", "a.yaction-link,area.yaction-link", (ev: Event) => {
+            $YetaWF.registerEventHandlerBody("click", "a.yaction-link,area.yaction-link", (ev: Event) => {
 
                 // find the real anchor, ev.srcElement was clicked but it may not be the anchor itself
                 if (!ev.srcElement) return true;
-                var anchor = YetaWF_Basics.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
+                var anchor = $YetaWF.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 var url = anchor.href;
 
                 // send tracking info
-                if (YetaWF_Basics.elementHasClass(anchor, 'yTrack')) {
+                if ($YetaWF.elementHasClass(anchor, 'yTrack')) {
                     // find the unique skinvisitor module so we have antiforgery tokens and other context info
-                    var f = YetaWF_Basics.getElement1BySelectorCond('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
+                    var f = $YetaWF.getElement1BySelectorCond('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
                     if (f) {
                         var data = { 'url': url };
-                        var info = YetaWF_Forms.getFormInfo(f);
+                        var info = $YetaWF.Forms.getFormInfo(f);
                         data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                         data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
@@ -46,12 +46,12 @@ namespace YetaWF {
                     }
                 }
 
-                var uri = YetaWF_Basics.parseUrl(url);
+                var uri = $YetaWF.parseUrl(url);
                 if (uri.getPath().length == 0 || (!uri.getSchema().startsWith('http:') && !uri.getSchema().startsWith('https:'))) return true;
 
                 // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
                 if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
-                    var currUri = YetaWF_Basics.parseUrl(window.location.href);
+                    var currUri = $YetaWF.parseUrl(window.location.href);
                     if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
                         uri.addSearch(YConfigs.Basics.Link_EditMode, 'y');
                 }
@@ -63,14 +63,14 @@ namespace YetaWF {
                 // add our module context info (if requested)
                 if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext) != null) {
                     if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                        var guid = YetaWF_Basics.getModuleGuidFromTag(anchor);
+                        var guid = $YetaWF.getModuleGuidFromTag(anchor);
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
                     }
                 }
 
                 // pass along the charsize
                 {
-                    var charSize = YetaWF_Basics.getCharSizeFromTag(anchor);
+                    var charSize = $YetaWF.getCharSizeFromTag(anchor);
                     uri.removeSearch(YConfigs.Basics.Link_CharInfo);
                     uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + ',' + charSize.height);
                 }
@@ -79,7 +79,7 @@ namespace YetaWF {
                 var target = anchor.getAttribute("target");
                 if ((!target || target == "" || target == "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
                     // add where we currently are so we can save it in case we need to return to this page
-                    var currUri = YetaWF_Basics.parseUrl(window.location.href);
+                    var currUri = $YetaWF.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
                     // now update url (where we're going with originlist)
@@ -87,7 +87,7 @@ namespace YetaWF {
                     var originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
 
                     if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
-                        var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: YetaWF_Basics.isInPopup() };
+                        var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
                         originList.push(newOrigin);
                         if (originList.length > 5)// only keep the last 5 urls
                             originList = originList.slice(originList.length - 5);
@@ -130,9 +130,9 @@ namespace YetaWF {
                     // this is a file download
                     var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm != null) {
-                        YetaWF_Basics.alertYesNo(confirm, undefined, () => {
+                        $YetaWF.alertYesNo(confirm, undefined, () => {
                             window.location.assign(url);
-                            YetaWF_Basics.setLoading();
+                            $YetaWF.setLoading();
                             this.waitForCookie(cookieToReturn);
                         });
                         return false;
@@ -143,18 +143,18 @@ namespace YetaWF {
                     // this means that it's posted by definition
                     var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
-                        YetaWF_Basics.alertYesNo(confirm, undefined, () => {
+                        $YetaWF.alertYesNo(confirm, undefined, () => {
                             this.postLink(url, anchor, cookieToReturn);
                             var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
-                                YetaWF_Basics.pleaseWait(s);
+                                $YetaWF.pleaseWait(s);
                             return false;
                         });
                         return false;
                     } else if (post) {
                         var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait)
                         if (s)
-                            YetaWF_Basics.pleaseWait(s);
+                            $YetaWF.pleaseWait(s);
                         this.postLink(url, anchor, cookieToReturn);
                         return false;
                     }
@@ -164,7 +164,7 @@ namespace YetaWF {
                     // add overlay if desired
                     var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                     if (s)
-                        YetaWF_Basics.pleaseWait(s);
+                        $YetaWF.pleaseWait(s);
                 }
                 this.waitForCookie(cookieToReturn); // if any
 
@@ -177,7 +177,7 @@ namespace YetaWF {
                     (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
                 if (target == "_self")
-                    return !YetaWF_Basics.ContentHandling.setContent(uri, true);
+                    return !$YetaWF.ContentHandling.setContent(uri, true);
 
                 return true;
             });
@@ -187,7 +187,7 @@ namespace YetaWF {
             if (this.cookieTimer == undefined) throw "cookie timer not defined";/*DEBUG*/
             if (document.cookie.search(this.cookiePattern) >= 0) {
                 clearInterval(this.cookieTimer);
-                YetaWF_Basics.setLoading(false);// turn off loading indicator
+                $YetaWF.setLoading(false);// turn off loading indicator
                 console.log("Download complete!!");
                 return false;
             }
@@ -202,7 +202,7 @@ namespace YetaWF {
             }
         }
         private postLink(url: string, elem: HTMLAnchorElement, cookieToReturn: number | null) : void {
-            YetaWF_Basics.setLoading();
+            $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
 
             var request: XMLHttpRequest = new XMLHttpRequest();
@@ -211,8 +211,8 @@ namespace YetaWF {
             request.onreadystatechange = function (ev: Event) {
                 var req = this;
                 if (req.readyState === 4 /*DONE*/) {
-                    YetaWF_Basics.setLoading(false);
-                    YetaWF_Basics.processAjaxReturn(req.responseText, req.statusText, req, elem);
+                    $YetaWF.setLoading(false);
+                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, elem);
                 }
 
             };

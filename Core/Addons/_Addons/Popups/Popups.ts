@@ -83,7 +83,7 @@ namespace YetaWF {
          */
         public openPopup(url: string, forceIframe: boolean): boolean {
 
-            YetaWF_Basics.setLoading(true);
+            $YetaWF.setLoading(true);
 
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
             if (url.indexOf('?') < 0)
@@ -94,7 +94,7 @@ namespace YetaWF {
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y";// we're now going into a popup
 
             if (!forceIframe) {
-                if (YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
+                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
                     // contents set in dynamic popup
                     return true;
                 }
@@ -111,7 +111,7 @@ namespace YetaWF {
             var url = elem.href;
 
             // check if this is a popup link
-            if (!YetaWF_Basics.elementHasClass(elem, YConfigs.Basics.CssPopupLink))
+            if (!$YetaWF.elementHasClass(elem, YConfigs.Basics.CssPopupLink))
                 return false;
             // check whether we allow popups at all
             if (!YVolatile.Popups.AllowPopups)
@@ -140,9 +140,9 @@ namespace YetaWF {
             // check if this is a popup link
             if (!elem.getAttribute(YConfigs.Basics.CssOuterWindow))
                 return false;
-            if (!YetaWF_Basics.isInPopup()) return false; // this shouldn't really happen
-            YetaWF_Basics.setLoading(true);
-            if (!window.parent.YetaWF_Basics.ContentHandling.setContent(YetaWF_Basics.parseUrl(elem.href), true))
+            if (!$YetaWF.isInPopup()) return false; // this shouldn't really happen
+            $YetaWF.setLoading(true);
+            if (!window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl(elem.href), true))
                 window.parent.location.assign(elem.href);
             return true;
         };
