@@ -86,9 +86,6 @@ namespace YetaWF {
                 js.async = false; // need to preserve execution order
                 js.src = urlEntry.Url;
                 js.setAttribute("data-name", name);
-                //$$ var dataName = document.createAttribute("data-name");
-                // dataName.value = name;
-                // js.setAttributeNode(dataName);
                 js.onload = js.onerror = js['onreadystatechange'] = () => {
                     if ((js['readyState'] && !(/^c|loade/.test(js['readyState']))) || loaded) return;
                     js.onload = js['onreadystatechange'] = null;
@@ -196,7 +193,6 @@ namespace YetaWF {
             } else {
                 // check if we have anything with that path as a unified pane and activate the panes
                 var divs = YetaWF_Basics.getElementsBySelector(`.yUnified[data-url="${path}"]`);
-                var $divs = $(`.yUnified[data-url="${path}"]`);//$$
                 if (divs.length > 0) {
                     this.closemenus();
                     // Update the browser address bar with the new path
@@ -216,8 +212,8 @@ namespace YetaWF {
                         for (var d of divs) {
                             d.style.display = "block";
                         }
-                        // send event that a new section became active/visible
-                        $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs); //$$$
+                        // send event that a new sections became active/visible
+                        YetaWF_Basics.processActivateDivs(divs);
                         // scroll
                         var scrolled = YetaWF_Basics.setScrollPosition();
                         if (!scrolled) {
@@ -229,7 +225,7 @@ namespace YetaWF {
                         //element.scrollIntoView() as an alternative (check compatibility/options)
                         // calculate an approximate animation time so the shorter the distance, the shorter the animation
                         var h = $('body').height() as number;
-                        var t = ($divs.eq(0).offset() as any).top;
+                        var t = ($(divs[0]).offset() as any).top;//$$$
                         var anim = YVolatile.Basics.UnifiedAnimation * t / h;
                         $('body,html').animate({
                             scrollTop: t
@@ -313,8 +309,8 @@ namespace YetaWF {
                             div.style.display = "none";// hide, it's a conditional pane
                         }
                     }
-                    // Notify that page is changing
-                    $(document).trigger('YetaWF_Basics_PageChange', []);//$$$
+                    // Notify that the page is changing
+                    YetaWF_Basics.processPageChange();
                     // remove prior page css classes
                     YetaWF_Basics.elementRemoveClasses(document.body, document.body.getAttribute('data-pagecss'));
                     // add new css classes

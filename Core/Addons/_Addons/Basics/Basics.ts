@@ -43,10 +43,19 @@ namespace YetaWF {
         height: number;
     }
     export interface ContentChangeEntry {
-        callback(addonGuid: string, on: boolean);
+        callback(addonGuid: string, on: boolean): void;
+    };
+    export interface PanelSwitchedEntry {
+        callback(panel: HTMLElement): void;
+    };
+    export interface ActivateDivsEntry {
+        callback(tags: HTMLElement[]): void;
     };
     export interface NewPageEntry {
-        callback(url: string);
+        callback(url: string): void;
+    };
+    export interface PageChangeEntry {
+        callback() : void;
     };
 
     export interface IBasicsImpl {
@@ -1017,18 +1026,87 @@ namespace YetaWF {
             }
         }
 
+        // PANELSWITCHED
+        // PANELSWITCHED
+        // PANELSWITCHED
+
+        private PanelSwitchedHandlers: PanelSwitchedEntry[] = [];
+
+        /**
+         * Register a callback to be called when a panel in a tab control has become active (i.e., visible).
+         */
+        public registerPanelSwitched(callback: (panel: HTMLElement) => void): void {
+            this.PanelSwitchedHandlers.push({ callback: callback });
+        }
+        /**
+         * Called to call all registered callbacks when a panel in a tab control has become active (i.e., visible).
+         */
+        public processPanelSwitched(panel: HTMLElement) {
+            for (let entry of this.PanelSwitchedHandlers) {
+                entry.callback(panel);
+            }
+        }
+
+        // ACTIVATEDIV
+        // ACTIVATEDIV
+        // ACTIVATEDIV
+
+        private ActivateDivsHandlers: ActivateDivsEntry[] = [];
+
+        /**
+         * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
+         */
+        public registerActivateDivs(callback: (tags: HTMLElement[]) => void): void {
+            this.ActivateDivsHandlers.push({ callback: callback });
+        }
+        /**
+         * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
+         */
+        public processActivateDivs(tags: HTMLElement[]) {
+            for (let entry of this.ActivateDivsHandlers) {
+                entry.callback(tags);
+            }
+        }
+
         // NEWPAGE
         // NEWPAGE
         // NEWPAGE
 
         private NewPageHandlers: NewPageEntry[] = [];
 
+        /**
+         * Register a callback to be called when a new page has become active.
+         */
         public registerNewPage(callback: (url: string) => void): void {
             this.NewPageHandlers.push({ callback: callback });
         }
+        /**
+         * Called to call all registered callbacks when a new page has become active.
+         */
         public processNewPage(url: string): void {
             for (var entry of this.NewPageHandlers) {
                 entry.callback(url);
+            }
+        }
+
+        // PAGECHANGE
+        // PAGECHANGE
+        // PAGECHANGE
+
+        private PageChangeHandlers: PageChangeEntry[] = [];
+
+        /**
+         * Register a callback to be called when the current page is going away (about to be replaced by a new page).
+         */
+        public registerPageChange(callback: () => void): void {
+            this.PageChangeHandlers.push({ callback: callback });
+        }
+        /**
+         * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
+         */
+        public processPageChange(): void {
+            for (var entry of this.PageChangeHandlers) {
+                entry.callback();
             }
         }
 
@@ -1052,7 +1130,7 @@ namespace YetaWF {
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
-                $(document).trigger("YetaWF_PropertyList_PanelSwitched", $(expandedDiv));
+                YetaWF_Basics.processActivateDivs([expandedDiv]);
                 return true;
             });
             this.registerEventHandler(collLink, "click", null, (ev: Event) => {

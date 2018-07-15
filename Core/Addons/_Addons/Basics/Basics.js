@@ -7,6 +7,9 @@ var YetaWF;
 (function (YetaWF) {
     ;
     ;
+    ;
+    ;
+    ;
     var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
         function BasicsServices() {
             var _this = this;
@@ -45,10 +48,22 @@ var YetaWF;
             // CONTENTCHANGE
             // CONTENTCHANGE
             this.ContentChangeHandlers = [];
+            // PANELSWITCHED
+            // PANELSWITCHED
+            // PANELSWITCHED
+            this.PanelSwitchedHandlers = [];
+            // ACTIVATEDIV
+            // ACTIVATEDIV
+            // ACTIVATEDIV
+            this.ActivateDivsHandlers = [];
             // NEWPAGE
             // NEWPAGE
             // NEWPAGE
             this.NewPageHandlers = [];
+            // PAGECHANGE
+            // PAGECHANGE
+            // PAGECHANGE
+            this.PageChangeHandlers = [];
             YetaWF_Basics = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
@@ -956,13 +971,64 @@ var YetaWF;
                 entry.callback(addonGuid, on);
             }
         };
+        /**
+         * Register a callback to be called when a panel in a tab control has become active (i.e., visible).
+         */
+        BasicsServices.prototype.registerPanelSwitched = function (callback) {
+            this.PanelSwitchedHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when a panel in a tab control has become active (i.e., visible).
+         */
+        BasicsServices.prototype.processPanelSwitched = function (panel) {
+            for (var _i = 0, _a = this.PanelSwitchedHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(panel);
+            }
+        };
+        /**
+         * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
+         */
+        BasicsServices.prototype.registerActivateDivs = function (callback) {
+            this.ActivateDivsHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
+         */
+        BasicsServices.prototype.processActivateDivs = function (tags) {
+            for (var _i = 0, _a = this.ActivateDivsHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(tags);
+            }
+        };
+        /**
+         * Register a callback to be called when a new page has become active.
+         */
         BasicsServices.prototype.registerNewPage = function (callback) {
             this.NewPageHandlers.push({ callback: callback });
         };
+        /**
+         * Called to call all registered callbacks when a new page has become active.
+         */
         BasicsServices.prototype.processNewPage = function (url) {
             for (var _i = 0, _a = this.NewPageHandlers; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 entry.callback(url);
+            }
+        };
+        /**
+         * Register a callback to be called when the current page is going away (about to be replaced by a new page).
+         */
+        BasicsServices.prototype.registerPageChange = function (callback) {
+            this.PageChangeHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
+         */
+        BasicsServices.prototype.processPageChange = function () {
+            for (var _i = 0, _a = this.PageChangeHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback();
             }
         };
         // Expand/collapse Support
@@ -982,7 +1048,7 @@ var YetaWF;
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
-                $(document).trigger("YetaWF_PropertyList_PanelSwitched", $(expandedDiv));
+                YetaWF_Basics.processActivateDivs([expandedDiv]);
                 return true;
             });
             this.registerEventHandler(collLink, "click", null, function (ev) {
