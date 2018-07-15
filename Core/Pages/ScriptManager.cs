@@ -728,11 +728,11 @@ namespace YetaWF.Core.Pages {
                     }
                 }
                 if (_SavedNamedScriptsDocReady.Count > 0) {
-                    hb.Append("$YetaWF.whenReadyOnce.push({ callback: function(tag) {\n");
+                    hb.Append("$YetaWF.addWhenReadyOnce(function(tag) {\n");
                     foreach (var script in _SavedNamedScriptsDocReady) {
                         hb.Append(TrimScript(Manager, script.Value));
                     }
-                    hb.Append("}});\n");
+                    hb.Append("});\n");
                 }
                 if (sbB.Length > 0)
                     hb.Append(sbB.ToString());

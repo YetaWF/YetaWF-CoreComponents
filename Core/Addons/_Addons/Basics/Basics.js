@@ -31,16 +31,11 @@ var YetaWF;
             // WhenReadyOnce
             /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
             // Usage:
-            // $YetaWF.whenReadyOnce.push({
-            //   callback: function(tag) {}    // function to be called
-            // });
-            //   or
-            // $YetaWF.whenReadyOnce.push({
-            //   callbackTS: function(elem) {}    // function to be called
-            // });
+            // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
             this.whenReadyOnce = [];
             // ClearDiv
             this.clearDiv = [];
+            this.DataObjectCache = [];
             // CONTENTCHANGE
             // CONTENTCHANGE
             // CONTENTCHANGE
@@ -627,62 +622,56 @@ var YetaWF;
                     console.log(err.message);
                 }
             }
+            // also release any attached objects
+            for (var i = 0; i < this.DataObjectCache.length;) {
+                var doe = this.DataObjectCache[i];
+                if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
+                    debugger; //TODO: This hasn't been tested
+                    this.DataObjectCache.splice(i, 1);
+                    continue;
+                }
+                ++i;
+            }
         };
         /**
          * Adds an object (a Typescript class) to a tag. Used for cleanup when a parent div is removed.
          * Typically used by templates.
          * Objects attached to divs are terminated by processClearDiv which calls any handlers that registered a
          * template class using addClearDivForObjects.
-         * @param templateClass - The template css class (without leading .)
-         * @param divId - The div id (DOM) that where the object is attached
+         * @param tagId - The element id (DOM) where the object is attached
          * @param obj - the object to attach
          */
-        BasicsServices.prototype.addObjectDataById = function (templateClass, divId, obj) {
-            var el = this.getElementById(divId);
-            var data = $(el).data("__Y_Data");
-            if (data)
-                throw "addObjectDataById - tag with id " + divId + " already has data"; /*DEBUG*/
-            $(el).data("__Y_Data", obj);
-            this.addClearDivForObjects(templateClass);
+        BasicsServices.prototype.addObjectDataById = function (tagId, obj) {
+            this.getElementById(tagId); // used to validate the existence of the element
+            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId == tagId; });
+            if (doe)
+                throw "addObjectDataById - tag with id " + tagId + " already has data"; /*DEBUG*/
         };
         /**
          * Retrieves a data object (a Typescript class) from a tag
-         * @param divId - The div id (DOM) that where the object is attached
+         * @param tagId - The element id (DOM) where the object is attached
          */
-        BasicsServices.prototype.getObjectDataById = function (divId) {
-            var el = this.getElementById(divId);
-            var data = $(el).data("__Y_Data");
-            if (!data)
-                throw "getObjectDataById - tag with id " + divId + " has no data"; /*DEBUG*/
-            return data;
+        BasicsServices.prototype.getObjectDataById = function (tagId) {
+            this.getElementById(tagId); // used to validate the existence of the element
+            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId == tagId; });
+            if (doe.length == 0)
+                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+            return doe[0].Data;
         };
         /**
          * Removes a data object (a Typescript class) from a tag.
-         * @param divId - The div id (DOM) that where the object is attached
+         * @param tagId - The element id (DOM) where the object is attached
          */
-        BasicsServices.prototype.removeObjectDataById = function (divId) {
-            var el = this.getElementById(divId);
-            var data = $(el).data("__Y_Data");
-            if (data)
-                data.term();
-            $(el).data("__Y_Data", null);
-        };
-        /**
-         * Register a cleanup (typically used by templates) to terminate any objects that may be
-         * attached to the template tag.
-         * @param templateClass - The template css class (without leading .)
-         */
-        BasicsServices.prototype.addClearDivForObjects = function (templateClass) {
-            var _this = this;
-            this.addClearDiv(function (tag) {
-                var list = _this.getElementsBySelector("." + templateClass, [tag]);
-                for (var _i = 0, list_1 = list; _i < list_1.length; _i++) {
-                    var el = list_1[_i];
-                    var obj = $(el).data("__Y_Data");
-                    if (obj)
-                        obj.term();
+        BasicsServices.prototype.removeObjectDataById = function (tagId) {
+            this.getElementById(tagId); // used to validate the existence of the element
+            for (var i = 0; i < this.DataObjectCache.length; ++i) {
+                var doe = this.DataObjectCache[i];
+                if (doe.DivId == tagId) {
+                    this.DataObjectCache.splice(i, 1);
+                    return;
                 }
-            });
+            }
+            throw "Element with id " + tagId + " doesn't have attached data"; /*DEBUG*/
         };
         // Selectors
         /**
@@ -1100,5 +1089,3 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
-
-//# sourceMappingURL=Basics.js.map

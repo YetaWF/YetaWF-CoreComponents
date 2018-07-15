@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-// %%%%%%% TODO: There are JQuery references
-
 /* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, some defs are global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
 
@@ -55,6 +53,10 @@ namespace YetaWF {
     interface PageChangeEntry {
         callback() : void;
     };
+    interface DataObjectEntry {
+        DivId: string;
+        Data: any;
+    }
 
     /**
      * Implemented by rendered (such as ComponentsHTML)
@@ -660,14 +662,8 @@ namespace YetaWF {
 
         /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
         // Usage:
-        // $YetaWF.whenReadyOnce.push({
-        //   callback: function(tag) {}    // function to be called
-        // });
-        //   or
-        // $YetaWF.whenReadyOnce.push({
-        //   callbackTS: function(elem) {}    // function to be called
-        // });
-        public whenReadyOnce: IWhenReady[] = [];
+        // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
+        private whenReadyOnce: IWhenReady[] = [];
 
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
@@ -726,6 +722,16 @@ namespace YetaWF {
                     console.log(err.message);
                 }
             }
+            // also release any attached objects
+            for (var i = 0; i < this.DataObjectCache.length; ) {
+                var doe = this.DataObjectCache[i];
+                if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
+debugger;//TODO: This hasn't been tested
+                    this.DataObjectCache.splice(i, 1);
+                    continue;
+                }
+                ++i;
+            }
         }
 
         /**
@@ -733,51 +739,42 @@ namespace YetaWF {
          * Typically used by templates.
          * Objects attached to divs are terminated by processClearDiv which calls any handlers that registered a
          * template class using addClearDivForObjects.
-         * @param templateClass - The template css class (without leading .)
-         * @param divId - The div id (DOM) that where the object is attached
+         * @param tagId - The element id (DOM) where the object is attached
          * @param obj - the object to attach
          */
-        public addObjectDataById(templateClass: string, divId: string, obj: any): void {
-            var el = this.getElementById(divId);
-            var data: any = $(el).data("__Y_Data");
-            if (data) throw `addObjectDataById - tag with id ${divId} already has data`;/*DEBUG*/
-            $(el).data("__Y_Data", obj);
-            this.addClearDivForObjects(templateClass);
+        public addObjectDataById(tagId: string, obj: any): void {
+            this.getElementById(tagId); // used to validate the existence of the element
+            var doe = this.DataObjectCache.filter((entry) => entry.DivId == tagId);
+            if (doe) throw `addObjectDataById - tag with id ${tagId} already has data`;/*DEBUG*/
+
         }
         /**
          * Retrieves a data object (a Typescript class) from a tag
-         * @param divId - The div id (DOM) that where the object is attached
+         * @param tagId - The element id (DOM) where the object is attached
          */
-        public getObjectDataById(divId: string): any {
-            var el = this.getElementById(divId);
-            var data: any = $(el).data("__Y_Data");
-            if (!data) throw `getObjectDataById - tag with id ${divId} has no data`;/*DEBUG*/
-            return data;
+        public getObjectDataById(tagId: string): any {
+            this.getElementById(tagId); // used to validate the existence of the element
+            var doe = this.DataObjectCache.filter((entry) => entry.DivId == tagId);
+            if (doe.length == 0) throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+            return doe[0].Data;
         }
         /**
          * Removes a data object (a Typescript class) from a tag.
-         * @param divId - The div id (DOM) that where the object is attached
+         * @param tagId - The element id (DOM) where the object is attached
          */
-        public removeObjectDataById(divId: string): void {
-            var el = this.getElementById(divId);
-            var data: any = $(el).data("__Y_Data");
-            if (data) data.term();
-            $(el).data("__Y_Data", null);
-        }
-        /**
-         * Register a cleanup (typically used by templates) to terminate any objects that may be
-         * attached to the template tag.
-         * @param templateClass - The template css class (without leading .)
-         */
-        public addClearDivForObjects(templateClass: string): void {
-            this.addClearDiv((tag: HTMLElement) => {
-                var list = this.getElementsBySelector(`.${templateClass}`, [tag]);
-                for (let el of list) {
-                    var obj: any = $(el).data("__Y_Data");
-                    if (obj) obj.term();
+        public removeObjectDataById(tagId: string): void {
+            this.getElementById(tagId); // used to validate the existence of the element
+            for (var i = 0; i < this.DataObjectCache.length; ++i) {
+                var doe = this.DataObjectCache[i];
+                if (doe.DivId == tagId) {
+                    this.DataObjectCache.splice(i, 1);
+                    return;
                 }
-            });
+            }
+            throw `Element with id ${tagId} doesn't have attached data`;/*DEBUG*/
         }
+
+        private DataObjectCache: DataObjectEntry[] = [];
 
         // Selectors
 
