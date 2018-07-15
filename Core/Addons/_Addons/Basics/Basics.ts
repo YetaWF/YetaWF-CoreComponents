@@ -2,12 +2,10 @@
 
 // %%%%%%% TODO: There are JQuery references
 
-/* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, these defs are all global rather than in their own namespace.
+/* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, some defs are global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
 
 /* Basics API, to be implemented by rendering-specific code - rendering code must define a global YetaWF_BasicsImpl object implementing IBasicsImpl */
-
-//$$ https://github.com/nefe/You-Dont-Need-jQuery
 
 /**
     Implemented by custom rendering.
@@ -178,7 +176,9 @@ namespace YetaWF {
             }
             return this._Forms;
         }
-
+        public FormsAvailable() {
+            return this._Forms != null;
+        }
 
         // Url parsing
 
@@ -273,18 +273,13 @@ namespace YetaWF {
         public setScrollPosition(): boolean {
             // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
             var uri = this.parseUrl(window.location.href);
-            var v = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
-            var scrolled = false;
-            if (v != undefined) {
-                $(window).scrollLeft(Number(v)); // JQuery use
-                scrolled = true;
-            }
-            v = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
-            if (v != undefined) {
-                $(window).scrollTop(Number(v)); // JQuery use
-                scrolled = true;
-            }
-            return scrolled;
+            var left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
+            var top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
+            if (left || top) {
+                window.scroll(left ? parseInt(left) : 0, top ? parseInt(top) : 0);
+                return true;
+            } else
+                return false;
         };
 
         // Page
@@ -309,7 +304,7 @@ namespace YetaWF {
                     var uri = this.parseUrl(window.location.href);
                     var divs = this.getElementsBySelector(`.yUnified[data-url="${uri.getPath()}"]`);
                     if (divs.length > 0) {
-                        $(window).scrollTop(($(divs).offset() as JQuery.Coordinates).top);
+                        window.scroll(0, divs[0].offsetTop);
                         scrolled = true;
                     }
                 }
@@ -364,7 +359,7 @@ namespace YetaWF {
                     var height = 0;
                     // calc height
                     for (let pane of panes) {
-                        var h = $(pane).height() || 0;
+                        var h = pane.clientHeight
                         if (h > height)
                             height = h;
                     }
@@ -396,12 +391,12 @@ namespace YetaWF {
             uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
             uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
             if (keepPosition) {
-                var v = $(w).scrollLeft();
-                if (v)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, v.toString());
-                v = $(w).scrollTop();
-                if (v)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, v.toString());
+                var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
+                if (left)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, left.toString());
+                var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+                if (top)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString());// cache buster
@@ -525,8 +520,12 @@ namespace YetaWF {
                 .replace(/[\r\n]/g, preserveCR);
         }
         public htmlAttrEscape(s: string): string {
-            return $('<div/>').text(s).html();
+            this.escElement.textContent = s;
+            s = this.escElement.innerHTML;
+            return s.replace(/'/g, '&apos;')
+                    .replace(/"/g, '&quot;');
         }
+        private escElement = document.createElement("div");
 
         // Ajax result handling
 

@@ -23,6 +23,7 @@ var YetaWF;
             this.suppressPopState = false;
             this.reloadingModule_TagInModule = null;
             this.reloadInfo = [];
+            this.escElement = document.createElement("div");
             // WhenReady
             // Usage:
             // $YetaWF.addWhenReady((tag) => {});
@@ -115,6 +116,9 @@ var YetaWF;
             enumerable: true,
             configurable: true
         });
+        BasicsServices.prototype.FormsAvailable = function () {
+            return this._Forms != null;
+        };
         // Url parsing
         BasicsServices.prototype.parseUrl = function (url) {
             var uri = new YetaWF.Url();
@@ -202,18 +206,14 @@ var YetaWF;
         BasicsServices.prototype.setScrollPosition = function () {
             // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
             var uri = this.parseUrl(window.location.href);
-            var v = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
-            var scrolled = false;
-            if (v != undefined) {
-                $(window).scrollLeft(Number(v)); // JQuery use
-                scrolled = true;
+            var left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
+            var top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
+            if (left || top) {
+                window.scroll(left ? parseInt(left) : 0, top ? parseInt(top) : 0);
+                return true;
             }
-            v = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
-            if (v != undefined) {
-                $(window).scrollTop(Number(v)); // JQuery use
-                scrolled = true;
-            }
-            return scrolled;
+            else
+                return false;
         };
         ;
         /**
@@ -229,7 +229,7 @@ var YetaWF;
                     var uri = this.parseUrl(window.location.href);
                     var divs = this.getElementsBySelector(".yUnified[data-url=\"" + uri.getPath() + "\"]");
                     if (divs.length > 0) {
-                        $(window).scrollTop($(divs).offset().top);
+                        window.scroll(0, divs[0].offsetTop);
                         scrolled = true;
                     }
                 }
@@ -281,7 +281,7 @@ var YetaWF;
                     // calc height
                     for (var _a = 0, panes_2 = panes; _a < panes_2.length; _a++) {
                         var pane = panes_2[_a];
-                        var h = $(pane).height() || 0;
+                        var h = pane.clientHeight;
                         if (h > height)
                             height = h;
                     }
@@ -306,12 +306,12 @@ var YetaWF;
             uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
             uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
             if (keepPosition) {
-                var v = $(w).scrollLeft();
-                if (v)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, v.toString());
-                v = $(w).scrollTop();
-                if (v)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, v.toString());
+                var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
+                if (left)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, left.toString());
+                var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+                if (top)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
@@ -439,7 +439,10 @@ var YetaWF;
                 .replace(/[\r\n]/g, preserveCR);
         };
         BasicsServices.prototype.htmlAttrEscape = function (s) {
-            return $('<div/>').text(s).html();
+            this.escElement.textContent = s;
+            s = this.escElement.innerHTML;
+            return s.replace(/'/g, '&apos;')
+                .replace(/"/g, '&quot;');
         };
         // Ajax result handling
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onHandleErrorResult) {

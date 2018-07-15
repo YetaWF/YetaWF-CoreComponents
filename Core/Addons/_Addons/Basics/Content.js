@@ -1,6 +1,6 @@
 "use strict";
 /* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
-// %%%%%%% TODO: There are JQuery references
+// jquery-free
 // Anchor handling, navigation
 var YetaWF;
 (function (YetaWF) {
@@ -174,21 +174,30 @@ var YetaWF;
                         $YetaWF.processActivateDivs(divs);
                         // scroll
                         var scrolled = $YetaWF.setScrollPosition();
-                        if (!scrolled) {
-                            $(window).scrollLeft(0);
-                            $(window).scrollTop(0);
-                        }
+                        if (!scrolled)
+                            window.scroll(0, 0);
                         $YetaWF.setFocus();
                     }
                     else if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
-                        //element.scrollIntoView() as an alternative (check compatibility/options)
-                        // calculate an approximate animation time so the shorter the distance, the shorter the animation
-                        var h = $('body').height();
-                        var t = $(divs[0]).offset().top; //$$$
-                        var anim = YVolatile.Basics.UnifiedAnimation * t / h;
-                        $('body,html').animate({
-                            scrollTop: t
-                        }, anim);
+                        divs[0].scrollIntoView({ behavior: "smooth", block: "start" });
+                        //// calculate an approximate animation time so the shorter the distance, the shorter the animation
+                        //var h = document.body.scrollHeight;
+                        //var newTop = divs[0].offsetTop;
+                        //var scrollDuration = YVolatile.Basics.UnifiedAnimation * (Math.abs(newTop - window.scrollY) / h);
+                        //var scrollStep = (newTop - window.scrollY) / (scrollDuration / 15);
+                        //if (!isNaN(scrollStep)) {
+                        //    console.log(`scrolling ${scrollDuration} ${scrollStep}`);
+                        //    var scrollInterval = setInterval(function () {
+                        //        if (scrollStep > 0 ? window.scrollY + scrollStep > newTop : window.scrollY + scrollStep < newTop) {
+                        //            console.log(`scrolling done`);
+                        //            window.scrollTo(0, newTop);
+                        //            clearInterval(scrollInterval);
+                        //        } else {
+                        //            console.log(`scrolling step`);
+                        //            window.scrollBy(0, scrollStep);
+                        //        }
+                        //    }, scrollDuration / 15);
+                        //}
                     }
                     else
                         throw "Invalid UnifiedMode " + YVolatile.Basics.UnifiedMode;
@@ -331,10 +340,8 @@ var YetaWF;
                 if (!popupCB) {
                     // scroll
                     var scrolled = $YetaWF.setScrollPosition();
-                    if (!scrolled) {
-                        $(window).scrollLeft(0);
-                        $(window).scrollTop(0);
-                    }
+                    if (!scrolled)
+                        window.scroll(0, 0);
                     // in case there is a popup open, close it now (typically when returning to the page from a popup)
                     if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined)
                         YetaWF_Popups.closeInnerPopup();
