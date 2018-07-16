@@ -1089,3 +1089,5 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+
+//# sourceMappingURL=Basics.js.map

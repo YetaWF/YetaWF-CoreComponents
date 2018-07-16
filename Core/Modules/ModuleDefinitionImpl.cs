@@ -646,10 +646,9 @@ namespace YetaWF.Core.Modules {
                 if (!string.IsNullOrWhiteSpace(this.TempPageCssClass)) {
                     string tempCss = YetaWFManager.JserEncode(this.TempPageCssClass);
                     Manager.ScriptManager.AddLast(
-$"var $body = $('body');" +
-$"$body.removeClass($body.attr('data-pagecss'));" + // remove existing page specific classes
-$"$body.addClass('{tempCss}');" + // add our new class(es)
-$"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for the next page
+$"$YetaWF.elementRemoveClass(document.body, 'data-pagecss');" + // remove existing page specific classes
+$"$YetaWF.elementAddClass(document.body, '{tempCss}');" + // add our new class(es)
+$"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can remove them for the next page
                     );
                 }
             }

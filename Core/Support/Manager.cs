@@ -1557,7 +1557,7 @@ namespace YetaWF.Core.Support {
             if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                 // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
                 ScriptBuilder sb = new Support.ScriptBuilder();
-                sb.Append("$('body').attr('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
+                sb.Append("document.body.setAttribute('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
                 Manager.ScriptManager.AddLast(sb.ToString());
             }
             return new HtmlString(CombineCss(s, cssClasses));
