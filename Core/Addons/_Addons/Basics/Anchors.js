@@ -23,16 +23,16 @@ var YetaWF;
                     return true;
                 var url = anchor.href;
                 // send tracking info
-                if ($YetaWF.elementHasClass(anchor, 'yTrack')) {
+                if ($YetaWF.elementHasClass(anchor, "yTrack")) {
                     // find the unique skinvisitor module so we have antiforgery tokens and other context info
-                    var f = $YetaWF.getElement1BySelectorCond('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
+                    var f = $YetaWF.getElement1BySelectorCond(".YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form");
                     if (f) {
-                        var data = { 'url': url };
+                        var data = { "url": url };
                         var info = $YetaWF.Forms.getFormInfo(f);
                         data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                         data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
-                        var urlTrack = f.getAttribute('data-track');
+                        var urlTrack = f.getAttribute("data-track");
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         var request = new XMLHttpRequest();
@@ -43,18 +43,18 @@ var YetaWF;
                     }
                 }
                 var uri = $YetaWF.parseUrl(url);
-                if (uri.getPath().length == 0 || (!uri.getSchema().startsWith('http:') && !uri.getSchema().startsWith('https:')))
+                if (uri.getPath().length === 0 || (!uri.getSchema().startsWith("http:") && !uri.getSchema().startsWith("https:")))
                     return true;
                 // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
                 if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
                     var currUri = $YetaWF.parseUrl(window.location.href);
                     if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
-                        uri.addSearch(YConfigs.Basics.Link_EditMode, 'y');
+                        uri.addSearch(YConfigs.Basics.Link_EditMode, "y");
                 }
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
-                    uri.addSearch(YConfigs.Basics.Link_PageControl, 'y');
+                    uri.addSearch(YConfigs.Basics.Link_PageControl, "y");
                 // add our module context info (if requested)
                 if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext) != null) {
                     if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
@@ -66,11 +66,11 @@ var YetaWF;
                 {
                     var charSize = $YetaWF.getCharSizeFromTag(anchor);
                     uri.removeSearch(YConfigs.Basics.Link_CharInfo);
-                    uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + ',' + charSize.height);
+                    uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + "," + charSize.height);
                 }
                 // fix the url to include where we came from
                 var target = anchor.getAttribute("target");
-                if ((!target || target == "" || target == "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
+                if ((!target || target === "" || target === "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
                     // add where we currently are so we can save it in case we need to return to this page
                     var currUri = $YetaWF.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
@@ -87,16 +87,16 @@ var YetaWF;
                     uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
-                if (!target || target == "" || target == "_self")
+                if (!target || target === "" || target === "_self")
                     target = "_self";
                 anchor.href = uri.toUrl(); // update original href in case let default handling take place
                 // first try to handle this as a link to the outer window (only used in a popup)
-                if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined) {
+                if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined) {
                     if (YetaWF_Popups.handleOuterWindow(anchor))
                         return false;
                 }
                 // try to handle this as a popup link
-                if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined) {
+                if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined) {
                     if (YetaWF_Popups.handlePopupLink(anchor))
                         return false;
                 }
@@ -147,7 +147,7 @@ var YetaWF;
                         return false;
                     }
                 }
-                if (target == "_self") {
+                if (target === "_self") {
                     // add overlay if desired
                     var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                     if (s)
@@ -162,18 +162,18 @@ var YetaWF;
                 // if we're switching from https->http or from http->https don't use a unified page set
                 if (!url.startsWith("http") || !window.document.location.href.startsWith("http"))
                     return true; // neither http nor https
-                if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
-                    (url.startsWith("https://") != window.document.location.href.startsWith("https://")))
+                if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||
+                    (url.startsWith("https://") !== window.document.location.href.startsWith("https://")))
                     return true; // switching http<>https
-                if (target == "_self")
+                if (target === "_self")
                     return !$YetaWF.ContentHandling.setContent(uri, true);
                 return true;
             });
         };
         Anchors.prototype.checkCookies = function () {
-            if (this.cookiePattern == undefined)
+            if (!this.cookiePattern)
                 throw "cookie pattern not defined"; /*DEBUG*/
-            if (this.cookieTimer == undefined)
+            if (!this.cookieTimer)
                 throw "cookie timer not defined"; /*DEBUG*/
             if (document.cookie.search(this.cookiePattern) >= 0) {
                 clearInterval(this.cookieTimer);
@@ -198,7 +198,7 @@ var YetaWF;
             request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.onreadystatechange = function (ev) {
-                var req = this;
+                var req = request;
                 if (req.readyState === 4 /*DONE*/) {
                     $YetaWF.setLoading(false);
                     $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, elem);

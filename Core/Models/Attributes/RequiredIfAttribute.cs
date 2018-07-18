@@ -83,7 +83,7 @@ namespace YetaWF.Core.Models.Attributes {
             string msg = __ResStr("requiredIfNot", "The {0} field is required", propData.GetCaption(container));
             tag.MergeAttribute("data-val-requiredifnot", msg);
             tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
-            tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
+            tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyValue, RequiredValue?.ToString());
             tag.MergeAttribute("data-val", "true");
         }
     }

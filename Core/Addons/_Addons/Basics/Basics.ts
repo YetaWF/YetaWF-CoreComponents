@@ -6,7 +6,7 @@
 /* Basics API, to be implemented by rendering-specific code - rendering code must define a global YetaWF_BasicsImpl object implementing IBasicsImpl */
 
 /**
-    Implemented by custom rendering.
+ * Implemented by custom rendering.
  */
 declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
 
@@ -40,19 +40,19 @@ namespace YetaWF {
 
     interface ContentChangeEntry {
         callback(addonGuid: string, on: boolean): void;
-    };
+    }
     interface PanelSwitchedEntry {
         callback(panel: HTMLElement): void;
-    };
+    }
     interface ActivateDivsEntry {
         callback(tags: HTMLElement[]): void;
-    };
+    }
     interface NewPageEntry {
         callback(url: string): void;
-    };
+    }
     interface PageChangeEntry {
         callback() : void;
-    };
+    }
     interface DataObjectEntry {
         DivId: string;
         Data: any;
@@ -123,7 +123,7 @@ namespace YetaWF {
          */
         public setLoading(on?: boolean): void {
             YetaWF_BasicsImpl.setLoading(on);
-            if (on == false)
+            if (on === false)
                 this.pleaseWaitClose();
         }
 
@@ -150,7 +150,7 @@ namespace YetaWF {
         /**
          * Displays a "Please Wait" message
          */
-        public pleaseWait(message?: string, title?: string) { YetaWF_BasicsImpl.pleaseWait(message, title); }
+        public pleaseWait(message?: string, title?: string): void { YetaWF_BasicsImpl.pleaseWait(message, title); }
         /**
          * Closes the "Please Wait" message (if any).
          */
@@ -169,17 +169,17 @@ namespace YetaWF {
         public AnchorHandling: YetaWF.Anchors;
 
         // Form handling
-        private _Forms: YetaWF.Forms | null = null;
+        private forms: YetaWF.Forms | null = null;
 
         get Forms(): YetaWF.Forms {
-            if (!this._Forms) {
-                this._Forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
-                this.Forms.init();
+            if (!this.forms) {
+                this.forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
+                this.forms.init();
             }
-            return this._Forms;
+            return this.forms;
         }
-        public FormsAvailable() {
-            return this._Forms != null;
+        public FormsAvailable() : boolean {
+            return this.forms != null;
         }
 
         // Url parsing
@@ -202,11 +202,11 @@ namespace YetaWF {
                 tags.push(document.body);
             }
             var f: HTMLElement | null = null;
-            var items = this.getElementsBySelector('.focusonme', tags);
+            var items = this.getElementsBySelector(".focusonme", tags);
             items = this.limitToVisibleOnly(items); //:visible
             for (let item of items) {
-                if (item.tagName == "DIV") { // if we found a div, find the edit element instead
-                    var i = this.getElementsBySelector('input,select,.yt_dropdownlist_base', [item]);
+                if (item.tagName === "DIV") { // if we found a div, find the edit element instead
+                    var i = this.getElementsBySelector("input,select,.yt_dropdownlist_base", [item]);
                     i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
                     i = this.limitToVisibleOnly(i); // :visible
                     if (i.length > 0) {
@@ -243,13 +243,13 @@ namespace YetaWF {
          * doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
          * a more condensed appearance.
          */
-        public setCondense(tag: HTMLElement, width: number) {
+        public setCondense(tag: HTMLElement, width: number): void {
             if (width < YVolatile.Skin.MinWidthForPopups) {
-                this.elementAddClass(tag, 'yCondense');
-                this.elementRemoveClass(tag, 'yNoCondense');
+                this.elementAddClass(tag, "yCondense");
+                this.elementRemoveClass(tag, "yNoCondense");
             } else {
-                this.elementAddClass(tag, 'yNoCondense');
-                this.elementRemoveClass(tag, 'yCondense');
+                this.elementAddClass(tag, "yNoCondense");
+                this.elementRemoveClass(tag, "yCondense");
             }
         }
 
@@ -266,7 +266,7 @@ namespace YetaWF {
          * Close any popup window.
          */
         public closePopup(forceReload?: boolean): void {
-            if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined)
+            if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined)
                 YetaWF_Popups.closePopup(forceReload);
         }
 
@@ -278,11 +278,11 @@ namespace YetaWF {
             var left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
             var top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
             if (left || top) {
-                window.scroll(left ? parseInt(left) : 0, top ? parseInt(top) : 0);
+                window.scroll(left ? parseInt(left, 10) : 0, top ? parseInt(top, 10) : 0);
                 return true;
             } else
                 return false;
-        };
+        }
 
         // Page
 
@@ -324,22 +324,22 @@ namespace YetaWF {
             // content navigation
 
             this.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
-        };
+        }
 
         // Panes
 
-        public showPaneSet(id: string, editMode: boolean, equalHeights: boolean) {
+        public showPaneSet(id: string, editMode: boolean, equalHeights: boolean): void {
 
             var div = this.getElementById(id);
             var shown = false;
             if (editMode) {
-                div.style.display = 'block';
+                div.style.display = "block";
                 shown = true;
             } else {
                 // show the pane if it has modules
-                var mod = this.getElement1BySelectorCond('div.yModule', [div]);
+                var mod = this.getElement1BySelectorCond("div.yModule", [div]);
                 if (mod) {
-                    div.style.display = 'block';
+                    div.style.display = "block";
                     shown = true;
                 }
             }
@@ -353,7 +353,7 @@ namespace YetaWF {
                     // exclude panes that have .y_cleardiv
                     var newPanes: HTMLElement[] = [];
                     for (let pane of panes) {
-                        if (!this.elementHasClass(pane, 'y_cleardiv'))
+                        if (!this.elementHasClass(pane, "y_cleardiv"))
                             newPanes.push(pane);
                     }
                     panes = newPanes;
@@ -361,7 +361,7 @@ namespace YetaWF {
                     var height = 0;
                     // calc height
                     for (let pane of panes) {
-                        var h = pane.clientHeight
+                        var h = pane.clientHeight;
                         if (h > height)
                             height = h;
                     }
@@ -403,7 +403,7 @@ namespace YetaWF {
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString());// cache buster
 
-            if (YVolatile.Basics.UnifiedMode != UnifiedModeEnum.None) {
+            if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.None) {
                 if (this.ContentHandling.setContent(uri, true))
                     return;
             }
@@ -417,40 +417,40 @@ namespace YetaWF {
         /**
          * Reloads a module in place, defined by the specified tag (any tag within the module).
          */
-        public reloadModule(tag?: HTMLElement) {
+        public reloadModule(tag?: HTMLElement): void {
             if (!tag) {
-                if (!this.reloadingModule_TagInModule) throw "No module found";/*DEBUG*/
-                tag = this.reloadingModule_TagInModule;
+                if (!this.reloadingModuleTagInModule) throw "No module found";/*DEBUG*/
+                tag = this.reloadingModuleTagInModule;
             }
             var mod = this.getModuleFromTag(tag);
-            var form = this.getElement1BySelector('form', [mod]) as HTMLFormElement;
+            var form = this.getElement1BySelector("form", [mod]) as HTMLFormElement;
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
 
-        private reloadingModule_TagInModule: HTMLElement | null = null;
+        private reloadingModuleTagInModule: HTMLElement | null = null;
 
         public reloadInfo: ReloadInfo[] = [];
 
-        public refreshModule(mod: HTMLElement) {
+        public refreshModule(mod: HTMLElement) : void {
             for (let entry of this.reloadInfo) {
-                if (entry.module.id == mod.id) {
+                if (entry.module.id === mod.id) {
                     entry.callback();
                 }
             }
-        };
-        public refreshModuleByAnyTag(elem: HTMLElement) {
+        }
+        public refreshModuleByAnyTag(elem: HTMLElement): void {
             var mod = this.getModuleFromTag(elem);
             for (let entry of this.reloadInfo) {
-                if (entry.module.id == mod.id) {
+                if (entry.module.id === mod.id) {
                     entry.callback();
                 }
             }
-        };
+        }
         public refreshPage(): void {
             for (let entry of this.reloadInfo) {
                 entry.callback();
             }
-        };
+        }
 
         // Module locator
 
@@ -458,25 +458,26 @@ namespace YetaWF {
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
         private getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
-            var mod = this.elementClosest(tag, '.yModule');
+            var mod = this.elementClosest(tag, ".yModule");
             if (mod) return null;
             return mod;
-        };
+        }
         /**
          * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
          */
         private getModuleFromTag(tag: HTMLElement): HTMLElement {
             var mod = this.getModuleFromTagCond(tag);
+            // tslint:disable-next-line:no-debugger
             if (mod == null) { debugger; throw "Can't find containing module"; }/*DEBUG*/
             return mod;
-        };
+        }
 
         public getModuleGuidFromTag(tag: HTMLElement): string {
             var mod = this.getModuleFromTag(tag);
-            var guid = mod.getAttribute('data-moduleguid');
+            var guid = mod.getAttribute("data-moduleguid");
             if (!guid) throw "Can't find module guid";/*DEBUG*/
             return guid;
-        };
+        }
 
         // Get character size
 
@@ -490,10 +491,10 @@ namespace YetaWF {
             if (tag)
                 mod = this.getModuleFromTagCond(tag);
             if (mod) {
-                var w = mod.getAttribute('data-charwidthavg');
+                var w = mod.getAttribute("data-charwidthavg");
                 if (!w) throw "missing data-charwidthavg attribute";/*DEBUG*/
                 width = Number(w);
-                var h = mod.getAttribute('data-charheight');
+                var h = mod.getAttribute("data-charheight");
                 if (!h) throw "missing data-charheight attribute";/*DEBUG*/
                 height = Number(h);
             } else {
@@ -506,13 +507,13 @@ namespace YetaWF {
         // Utility functions
 
         public htmlEscape(s: string | undefined, preserveCR?: string): string {
-            preserveCR = preserveCR ? '&#13;' : '\n';
-            return ('' + s) /* Forces the conversion to string. */
-                .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-                .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-                .replace(/"/g, '&quot;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
+            preserveCR = preserveCR ? "&#13;" : "\n";
+            return ("" + s) /* Forces the conversion to string. */
+                .replace(/&/g, "&amp;") /* This MUST be the 1st replacement. */
+                .replace(/'/g, "&apos;") /* The 4 other predefined entities, required. */
+                .replace(/"/g, "&quot;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
                 /*
                 You may add other replacements here for HTML only
                 (but it's not necessary).
@@ -524,55 +525,61 @@ namespace YetaWF {
         public htmlAttrEscape(s: string): string {
             this.escElement.textContent = s;
             s = this.escElement.innerHTML;
-            return s.replace(/'/g, '&apos;')
-                    .replace(/"/g, '&quot;');
+            return s.replace(/'/g, "&apos;")
+                    .replace(/"/g, "&quot;");
         }
-        private escElement = document.createElement("div");
+        private escElement : HTMLDivElement = document.createElement("div");
 
         // Ajax result handling
 
-        public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement, onSuccessNoData?: () => void, onHandleErrorResult?: (string) => void): boolean {
+        public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement, onSuccessNoData?: () => void, onHandleErrorResult?: (result: string) => void): boolean {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             var result: string;
             try {
+                // tslint:disable-next-line:no-eval
                 result = <string>eval(result);
             } catch (e) { }
-            result = result || '(??)';
+            result = result || "(??)";
             if (xhr.status === 200) {
-                this.reloadingModule_TagInModule = tagInModule || null;
+                this.reloadingModuleTagInModule = tagInModule || null;
                 if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-                    if (script.length == 0) { // all is well, but no script to execute
-                        if (onSuccessNoData != undefined) {
+                    if (script.length === 0) { // all is well, but no script to execute
+                        if (onSuccessNoData !== undefined) {
                             onSuccessNoData();
                         }
                     } else {
+                        // tslint:disable-next-line:no-eval
                         eval(script);
                     }
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script);
                     return false;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script);// if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script);// if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
                     //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script);
                     if (tagInModule)
                         this.refreshModuleByAnyTag(tagInModule);
                     return true;
                 } else {
-                    if (onHandleErrorResult != undefined) {
+                    if (onHandleErrorResult !== undefined) {
                         onHandleErrorResult(result);
                     } else {
                         this.error(YLocs.Basics.IncorrectServerResp);
@@ -583,7 +590,7 @@ namespace YetaWF {
                 $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
                 return false;
             }
-        };
+        }
 
         // JSX
 
@@ -592,7 +599,7 @@ namespace YetaWF {
          */
         public createElement(tag: string, attrs: any, children: any): HTMLElement {
             var element: HTMLElement = document.createElement(tag);
-            for (let name in attrs) {
+            for (const name in attrs) {
                 if (name && attrs.hasOwnProperty(name)) {
                     var value: string | null | boolean = attrs[name];
                     if (value === true) {
@@ -603,7 +610,7 @@ namespace YetaWF {
                 }
             }
             for (let i: number = 2; i < arguments.length; i++) {
-                let child: any = arguments[i];
+                const child: any = arguments[i];
                 element.appendChild(
                     child.nodeType == null ?
                         document.createTextNode(child.toString()) : child);
@@ -648,9 +655,9 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
-            for (let entry of this.whenReady) {
+            for (const entry of this.whenReady) {
                 try { // catch errors to insure all callbacks are called
-                    for (let tag of tags)
+                    for (const tag of tags)
                         entry.callback(tag);
                 } catch (err) {
                     console.log(err.message);
@@ -686,9 +693,9 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
-            for (let entry of this.whenReadyOnce) {
+            for (const entry of this.whenReadyOnce) {
                 try { // catch errors to insure all callbacks are called
-                    for (let tag of tags)
+                    for (const tag of tags)
                         entry.callback(tag);
                 } catch (err) {
                     console.log(err.message);
@@ -714,7 +721,7 @@ namespace YetaWF {
          * @param elem The element being cleared.
          */
         public processClearDiv(tag: HTMLElement): void {
-            for (let entry of this.clearDiv) {
+            for (const entry of this.clearDiv) {
                 try { // catch errors to insure all callbacks are called
                     if (entry.callback != null)
                         entry.callback(tag);
@@ -726,6 +733,7 @@ namespace YetaWF {
             for (var i = 0; i < this.DataObjectCache.length; ) {
                 var doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
+// tslint:disable-next-line:no-debugger
 debugger;//TODO: This hasn't been tested
                     this.DataObjectCache.splice(i, 1);
                     continue;
@@ -744,9 +752,9 @@ debugger;//TODO: This hasn't been tested
          */
         public addObjectDataById(tagId: string, obj: any): void {
             this.getElementById(tagId); // used to validate the existence of the element
-            var doe = this.DataObjectCache.filter((entry) => entry.DivId == tagId);
-            if (doe) throw `addObjectDataById - tag with id ${tagId} already has data`;/*DEBUG*/
-
+            var doe = this.DataObjectCache.filter((entry:DataObjectEntry): boolean => entry.DivId === tagId);
+            if (doe.length > 0) throw `addObjectDataById - tag with id ${tagId} already has data`;/*DEBUG*/
+            this.DataObjectCache.push({ DivId: tagId, Data: obj });
         }
         /**
          * Retrieves a data object (a Typescript class) from a tag
@@ -754,8 +762,8 @@ debugger;//TODO: This hasn't been tested
          */
         public getObjectDataById(tagId: string): any {
             this.getElementById(tagId); // used to validate the existence of the element
-            var doe = this.DataObjectCache.filter((entry) => entry.DivId == tagId);
-            if (doe.length == 0) throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+            var doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
+            if (doe.length === 0) throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
             return doe[0].Data;
         }
         /**
@@ -766,7 +774,7 @@ debugger;//TODO: This hasn't been tested
             this.getElementById(tagId); // used to validate the existence of the element
             for (var i = 0; i < this.DataObjectCache.length; ++i) {
                 var doe = this.DataObjectCache[i];
-                if (doe.DivId == tagId) {
+                if (doe.DivId === tagId) {
                     this.DataObjectCache.splice(i, 1);
                     return;
                 }
@@ -793,7 +801,7 @@ debugger;//TODO: This hasn't been tested
             var all: HTMLElement[] = [];
             if (!elems)
                 elems = [document.body];
-            for (let elem of elems) {
+            for (const elem of elems) {
                 var list: NodeListOf<Element> = elem.querySelectorAll(selector);
                 var len: number = list.length;
                 for (var i: number = 0; i < len; ++i) {
@@ -808,7 +816,7 @@ debugger;//TODO: This hasn't been tested
         public getElement1BySelectorCond(selector: string, elems?: HTMLElement[]): HTMLElement | null {
             if (!elems)
                 elems = [document.body];
-            for (let elem of elems) {
+            for (const elem of elems) {
                 var list: NodeListOf<Element> = elem.querySelectorAll(selector);
                 if (list.length > 0)
                     return list[0] as HTMLElement;
@@ -829,7 +837,7 @@ debugger;//TODO: This hasn't been tested
          */
         public limitToNotTypeHidden(elems: HTMLElement[]): HTMLElement[] {
             var all: HTMLElement[] = [];
-            for (let elem of elems) {
+            for (const elem of elems) {
                 if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden") //$$$check casing
                     all.push(elem);
             }
@@ -840,7 +848,7 @@ debugger;//TODO: This hasn't been tested
          */
         public limitToVisibleOnly(elems: HTMLElement[]): HTMLElement[] {
             var all: HTMLElement[] = [];
-            for (let elem of elems) {
+            for (const elem of elems) {
                 if (elem.clientWidth > 0 && elem.clientHeight > 0)
                     all.push(elem);
             }
@@ -879,7 +887,7 @@ debugger;//TODO: This hasn't been tested
          * Removes the specified element.
          * @param elem - The element to remove.
          */
-        public removeElement(elem: HTMLElement) {
+        public removeElement(elem: HTMLElement): void {
             if (!elem.parentElement) return;
             elem.parentElement.removeChild(elem);
         }
@@ -890,7 +898,7 @@ debugger;//TODO: This hasn't been tested
         public appendMixedHTML(elem: HTMLElement, content: string): void {
             this.calcMixedHTMLRunScripts(content, undefined, (elems: HTMLCollection): void => {
                 while (elems.length > 0)
-                    elem.insertAdjacentElement('beforeend', elems[0]);
+                    elem.insertAdjacentElement("beforeend", elems[0]);
             });
         }
 
@@ -906,10 +914,10 @@ debugger;//TODO: This hasn't been tested
         private calcMixedHTMLRunScripts(content: string, callbackHTML?: (html: string) => void, callbackChildren?: (elems: HTMLCollection) => void): void {
 
             // convert the string to DOM representation
-            var temp = document.createElement('YetaWFTemp');
+            var temp = document.createElement("YetaWFTemp");
             temp.innerHTML = content;
             // extract all <script> tags
-            var scripts: HTMLScriptElement[] = this.getElementsBySelector('script', [temp]) as HTMLScriptElement[];
+            var scripts: HTMLScriptElement[] = this.getElementsBySelector("script", [temp]) as HTMLScriptElement[];
             for (var script of scripts) {
                 this.removeElement(script); // remove the script element
             }
@@ -925,8 +933,8 @@ debugger;//TODO: This hasn't been tested
                 if (script.src) {
                     script.async = false;
                     script.defer = false;
-                    var js = document.createElement('script');
-                    js.type = 'text/javascript';
+                    var js = document.createElement("script");
+                    js.type = "text/javascript";
                     js.async = false; // need to preserve execution order
                     js.defer = false;
                     js.src = script.src;
@@ -968,7 +976,7 @@ debugger;//TODO: This hasn't been tested
             if (elem.classList)
                 elem.classList.add(className);
             else
-                elem.className += ' ' + className;
+                elem.className += " " + className;
         }
         /**
          * Remove a space separated list of css classes from an element.
@@ -987,7 +995,7 @@ debugger;//TODO: This hasn't been tested
             if (elem.classList)
                 elem.classList.remove(className);
             else
-                elem.className = elem.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+                elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
         }
 
         // Events
@@ -996,7 +1004,7 @@ debugger;//TODO: This hasn't been tested
             if ((document as any).attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
                 callback();
             } else {
-                document.addEventListener('DOMContentLoaded', callback);
+                document.addEventListener("DOMContentLoaded", callback);
             }
         }
 
@@ -1004,28 +1012,28 @@ debugger;//TODO: This hasn't been tested
             this.registerEventHandler(document.body, eventName, selector, callback);
         }
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
-            document.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
+            document.addEventListener(eventName, (ev: DocumentEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
         public registerEventHandlerWindow<K extends keyof HTMLFrameSetElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLFrameSetElementEventMap[K]) => boolean): void {
-            window.addEventListener(eventName, (ev) => this.handleEvent(null, ev, selector, callback));
+            window.addEventListener(eventName, (ev: HTMLFrameSetElementEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
-            tag.addEventListener(eventName, (ev) => this.handleEvent(tag, ev, selector, callback));
+            tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback));
         }
         private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             // srcElement should be target//$$$$ srcElement is non-standard
             //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
-            if (ev.eventPhase == ev.CAPTURING_PHASE) {
+            if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
-            } else if (ev.eventPhase == ev.BUBBLING_PHASE) {
+            } else if (ev.eventPhase === ev.BUBBLING_PHASE) {
                 if (!selector) return;
                 // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
                 var elem: HTMLElement | null = ev.srcElement as HTMLElement | null;
                 while (elem) {
                     if (this.elementMatches(elem, selector))
                         break;
-                    if (listening == elem)
+                    if (listening === elem)
                         return;// checked all elements
                     elem = elem.parentElement;
                     if (elem == null)
@@ -1052,7 +1060,7 @@ debugger;//TODO: This hasn't been tested
         public registerContentChange(callback: (addonGuid: string, on: boolean) => void): void {
             this.ContentChangeHandlers.push({ callback: callback });
         }
-        public processContentChange(addonGuid: string, on: boolean) {
+        public processContentChange(addonGuid: string, on: boolean): void {
             for (var entry of this.ContentChangeHandlers) {
                 entry.callback(addonGuid, on);
             }
@@ -1073,8 +1081,8 @@ debugger;//TODO: This hasn't been tested
         /**
          * Called to call all registered callbacks when a panel in a tab control has become active (i.e., visible).
          */
-        public processPanelSwitched(panel: HTMLElement) {
-            for (let entry of this.PanelSwitchedHandlers) {
+        public processPanelSwitched(panel: HTMLElement): void {
+            for (const entry of this.PanelSwitchedHandlers) {
                 entry.callback(panel);
             }
         }
@@ -1094,8 +1102,8 @@ debugger;//TODO: This hasn't been tested
         /**
          * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
          */
-        public processActivateDivs(tags: HTMLElement[]) {
-            for (let entry of this.ActivateDivsHandlers) {
+        public processActivateDivs(tags: HTMLElement[]): void {
+            for (const entry of this.ActivateDivsHandlers) {
                 entry.callback(tags);
             }
         }
@@ -1180,15 +1188,14 @@ debugger;//TODO: This hasn't been tested
 
         }
 
-        public init() {
+        public init(): void {
 
             this.AnchorHandling.init();
             this.ContentHandling.init();
-            this.Forms.init();
 
             // screen size yCondense/yNoCondense support
 
-            this.registerEventHandlerWindow("resize", null, (ev) => {
+            this.registerEventHandlerWindow("resize", null, (ev: UIEvent) => {
                 this.setCondense(document.body, window.innerWidth);
                 return true;
             });
@@ -1199,7 +1206,7 @@ debugger;//TODO: This hasn't been tested
 
             // Navigation
 
-            this.registerEventHandlerWindow("popstate", null, (ev) => {
+            this.registerEventHandlerWindow("popstate", null, (ev: PopStateEvent) => {
                 if (this.suppressPopState) {
                     this.suppressPopState = false;
                     return true;
@@ -1209,7 +1216,7 @@ debugger;//TODO: This hasn't been tested
             });
 
             // <a> links that only have a hash are intercepted so we don't go through content handling
-            this.registerEventHandlerBody("click", "a[href^='#']", (ev) => {
+            this.registerEventHandlerBody("click", "a[href^='#']", (ev: MouseEvent) => {
 
                 // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
                 if (!ev.srcElement) return true;

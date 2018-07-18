@@ -5,15 +5,10 @@
  */
 var YetaWF;
 (function (YetaWF) {
-    ;
-    ;
-    ;
-    ;
-    ;
     var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
         function BasicsServices() {
             // Form handling
-            this._Forms = null;
+            this.forms = null;
             // Page
             /**
              * currently loaded addons
@@ -21,7 +16,7 @@ var YetaWF;
             this.UnifiedAddonModsLoaded = [];
             // Navigation
             this.suppressPopState = false;
-            this.reloadingModule_TagInModule = null;
+            this.reloadingModuleTagInModule = null;
             this.reloadInfo = [];
             this.escElement = document.createElement("div");
             // WhenReady
@@ -69,7 +64,7 @@ var YetaWF;
          */
         BasicsServices.prototype.setLoading = function (on) {
             YetaWF_BasicsImpl.setLoading(on);
-            if (on == false)
+            if (on === false)
                 this.pleaseWaitClose();
         };
         /**
@@ -102,17 +97,17 @@ var YetaWF;
         BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
         Object.defineProperty(BasicsServices.prototype, "Forms", {
             get: function () {
-                if (!this._Forms) {
-                    this._Forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
-                    this.Forms.init();
+                if (!this.forms) {
+                    this.forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
+                    this.forms.init();
                 }
-                return this._Forms;
+                return this.forms;
             },
             enumerable: true,
             configurable: true
         });
         BasicsServices.prototype.FormsAvailable = function () {
-            return this._Forms != null;
+            return this.forms != null;
         };
         // Url parsing
         BasicsServices.prototype.parseUrl = function (url) {
@@ -131,12 +126,12 @@ var YetaWF;
                 tags.push(document.body);
             }
             var f = null;
-            var items = this.getElementsBySelector('.focusonme', tags);
+            var items = this.getElementsBySelector(".focusonme", tags);
             items = this.limitToVisibleOnly(items); //:visible
             for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
                 var item = items_1[_i];
-                if (item.tagName == "DIV") { // if we found a div, find the edit element instead
-                    var i = this.getElementsBySelector('input,select,.yt_dropdownlist_base', [item]);
+                if (item.tagName === "DIV") { // if we found a div, find the edit element instead
+                    var i = this.getElementsBySelector("input,select,.yt_dropdownlist_base", [item]);
                     i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
                     i = this.limitToVisibleOnly(i); // :visible
                     if (i.length > 0) {
@@ -174,12 +169,12 @@ var YetaWF;
          */
         BasicsServices.prototype.setCondense = function (tag, width) {
             if (width < YVolatile.Skin.MinWidthForPopups) {
-                this.elementAddClass(tag, 'yCondense');
-                this.elementRemoveClass(tag, 'yNoCondense');
+                this.elementAddClass(tag, "yCondense");
+                this.elementRemoveClass(tag, "yNoCondense");
             }
             else {
-                this.elementAddClass(tag, 'yNoCondense');
-                this.elementRemoveClass(tag, 'yCondense');
+                this.elementAddClass(tag, "yNoCondense");
+                this.elementRemoveClass(tag, "yCondense");
             }
         };
         // Popup
@@ -194,7 +189,7 @@ var YetaWF;
          * Close any popup window.
          */
         BasicsServices.prototype.closePopup = function (forceReload) {
-            if (typeof YetaWF_Popups !== 'undefined' && YetaWF_Popups != undefined)
+            if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined)
                 YetaWF_Popups.closePopup(forceReload);
         };
         // Scrolling
@@ -204,13 +199,12 @@ var YetaWF;
             var left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
             var top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
             if (left || top) {
-                window.scroll(left ? parseInt(left) : 0, top ? parseInt(top) : 0);
+                window.scroll(left ? parseInt(left, 10) : 0, top ? parseInt(top, 10) : 0);
                 return true;
             }
             else
                 return false;
         };
-        ;
         /**
          * Initialize the current page (full page load) - runs during page load, before document ready
          */
@@ -239,21 +233,20 @@ var YetaWF;
             // content navigation
             this.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious; // save loaded addons
         };
-        ;
         // Panes
         BasicsServices.prototype.showPaneSet = function (id, editMode, equalHeights) {
             var _this = this;
             var div = this.getElementById(id);
             var shown = false;
             if (editMode) {
-                div.style.display = 'block';
+                div.style.display = "block";
                 shown = true;
             }
             else {
                 // show the pane if it has modules
-                var mod = this.getElement1BySelectorCond('div.yModule', [div]);
+                var mod = this.getElement1BySelectorCond("div.yModule", [div]);
                 if (mod) {
-                    div.style.display = 'block';
+                    div.style.display = "block";
                     shown = true;
                 }
             }
@@ -268,7 +261,7 @@ var YetaWF;
                     var newPanes = [];
                     for (var _i = 0, panes_1 = panes; _i < panes_1.length; _i++) {
                         var pane = panes_1[_i];
-                        if (!_this.elementHasClass(pane, 'y_cleardiv'))
+                        if (!_this.elementHasClass(pane, "y_cleardiv"))
                             newPanes.push(pane);
                     }
                     panes = newPanes;
@@ -310,7 +303,7 @@ var YetaWF;
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
-            if (YVolatile.Basics.UnifiedMode != YetaWF.UnifiedModeEnum.None) {
+            if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.None) {
                 if (this.ContentHandling.setContent(uri, true))
                     return;
             }
@@ -325,71 +318,66 @@ var YetaWF;
          */
         BasicsServices.prototype.reloadModule = function (tag) {
             if (!tag) {
-                if (!this.reloadingModule_TagInModule)
+                if (!this.reloadingModuleTagInModule)
                     throw "No module found"; /*DEBUG*/
-                tag = this.reloadingModule_TagInModule;
+                tag = this.reloadingModuleTagInModule;
             }
             var mod = this.getModuleFromTag(tag);
-            var form = this.getElement1BySelector('form', [mod]);
+            var form = this.getElement1BySelector("form", [mod]);
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
         BasicsServices.prototype.refreshModule = function (mod) {
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                if (entry.module.id == mod.id) {
+                if (entry.module.id === mod.id) {
                     entry.callback();
                 }
             }
         };
-        ;
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
             var mod = this.getModuleFromTag(elem);
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                if (entry.module.id == mod.id) {
+                if (entry.module.id === mod.id) {
                     entry.callback();
                 }
             }
         };
-        ;
         BasicsServices.prototype.refreshPage = function () {
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 entry.callback();
             }
         };
-        ;
         // Module locator
         /**
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
         BasicsServices.prototype.getModuleFromTagCond = function (tag) {
-            var mod = this.elementClosest(tag, '.yModule');
+            var mod = this.elementClosest(tag, ".yModule");
             if (mod)
                 return null;
             return mod;
         };
-        ;
         /**
          * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
          */
         BasicsServices.prototype.getModuleFromTag = function (tag) {
             var mod = this.getModuleFromTagCond(tag);
+            // tslint:disable-next-line:no-debugger
             if (mod == null) {
                 debugger;
                 throw "Can't find containing module";
             } /*DEBUG*/
             return mod;
         };
-        ;
         BasicsServices.prototype.getModuleGuidFromTag = function (tag) {
             var mod = this.getModuleFromTag(tag);
-            var guid = mod.getAttribute('data-moduleguid');
+            var guid = mod.getAttribute("data-moduleguid");
             if (!guid)
                 throw "Can't find module guid"; /*DEBUG*/
             return guid;
         };
-        ;
         // Get character size
         // CHARSIZE (from module or page/YVolatile)
         /**
@@ -401,11 +389,11 @@ var YetaWF;
             if (tag)
                 mod = this.getModuleFromTagCond(tag);
             if (mod) {
-                var w = mod.getAttribute('data-charwidthavg');
+                var w = mod.getAttribute("data-charwidthavg");
                 if (!w)
                     throw "missing data-charwidthavg attribute"; /*DEBUG*/
                 width = Number(w);
-                var h = mod.getAttribute('data-charheight');
+                var h = mod.getAttribute("data-charheight");
                 if (!h)
                     throw "missing data-charheight attribute"; /*DEBUG*/
                 height = Number(h);
@@ -418,13 +406,13 @@ var YetaWF;
         };
         // Utility functions
         BasicsServices.prototype.htmlEscape = function (s, preserveCR) {
-            preserveCR = preserveCR ? '&#13;' : '\n';
-            return ('' + s) /* Forces the conversion to string. */
-                .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-                .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-                .replace(/"/g, '&quot;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
+            preserveCR = preserveCR ? "&#13;" : "\n";
+            return ("" + s) /* Forces the conversion to string. */
+                .replace(/&/g, "&amp;") /* This MUST be the 1st replacement. */
+                .replace(/'/g, "&apos;") /* The 4 other predefined entities, required. */
+                .replace(/"/g, "&quot;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
                 /*
                 You may add other replacements here for HTML only
                 (but it's not necessary).
@@ -436,45 +424,50 @@ var YetaWF;
         BasicsServices.prototype.htmlAttrEscape = function (s) {
             this.escElement.textContent = s;
             s = this.escElement.innerHTML;
-            return s.replace(/'/g, '&apos;')
-                .replace(/"/g, '&quot;');
+            return s.replace(/'/g, "&apos;")
+                .replace(/"/g, "&quot;");
         };
         // Ajax result handling
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onHandleErrorResult) {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             var result;
             try {
+                // tslint:disable-next-line:no-eval
                 result = eval(result);
             }
             catch (e) { }
-            result = result || '(??)';
+            result = result || "(??)";
             if (xhr.status === 200) {
-                this.reloadingModule_TagInModule = tagInModule || null;
+                this.reloadingModuleTagInModule = tagInModule || null;
                 if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-                    if (script.length == 0) { // all is well, but no script to execute
-                        if (onSuccessNoData != undefined) {
+                    if (script.length === 0) { // all is well, but no script to execute
+                        if (onSuccessNoData !== undefined) {
                             onSuccessNoData();
                         }
                     }
                     else {
+                        // tslint:disable-next-line:no-eval
                         eval(script);
                     }
                     return true;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script);
                     return false;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
@@ -482,13 +475,14 @@ var YetaWF;
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
                     //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                    // tslint:disable-next-line:no-eval
                     eval(script);
                     if (tagInModule)
                         this.refreshModuleByAnyTag(tagInModule);
                     return true;
                 }
                 else {
-                    if (onHandleErrorResult != undefined) {
+                    if (onHandleErrorResult !== undefined) {
                         onHandleErrorResult(result);
                     }
                     else {
@@ -502,7 +496,6 @@ var YetaWF;
                 return false;
             }
         };
-        ;
         // JSX
         /**
          * React-like createElement function so we can use JSX in our TypeScript/JavaScript code.
@@ -626,6 +619,7 @@ var YetaWF;
             for (var i = 0; i < this.DataObjectCache.length;) {
                 var doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
+                    // tslint:disable-next-line:no-debugger
                     debugger; //TODO: This hasn't been tested
                     this.DataObjectCache.splice(i, 1);
                     continue;
@@ -643,9 +637,10 @@ var YetaWF;
          */
         BasicsServices.prototype.addObjectDataById = function (tagId, obj) {
             this.getElementById(tagId); // used to validate the existence of the element
-            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId == tagId; });
-            if (doe)
+            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
+            if (doe.length > 0)
                 throw "addObjectDataById - tag with id " + tagId + " already has data"; /*DEBUG*/
+            this.DataObjectCache.push({ DivId: tagId, Data: obj });
         };
         /**
          * Retrieves a data object (a Typescript class) from a tag
@@ -653,8 +648,8 @@ var YetaWF;
          */
         BasicsServices.prototype.getObjectDataById = function (tagId) {
             this.getElementById(tagId); // used to validate the existence of the element
-            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId == tagId; });
-            if (doe.length == 0)
+            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
+            if (doe.length === 0)
                 throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
             return doe[0].Data;
         };
@@ -666,7 +661,7 @@ var YetaWF;
             this.getElementById(tagId); // used to validate the existence of the element
             for (var i = 0; i < this.DataObjectCache.length; ++i) {
                 var doe = this.DataObjectCache[i];
-                if (doe.DivId == tagId) {
+                if (doe.DivId === tagId) {
                     this.DataObjectCache.splice(i, 1);
                     return;
                 }
@@ -788,7 +783,7 @@ var YetaWF;
         BasicsServices.prototype.appendMixedHTML = function (elem, content) {
             this.calcMixedHTMLRunScripts(content, undefined, function (elems) {
                 while (elems.length > 0)
-                    elem.insertAdjacentElement('beforeend', elems[0]);
+                    elem.insertAdjacentElement("beforeend", elems[0]);
             });
         };
         /**
@@ -801,10 +796,10 @@ var YetaWF;
         };
         BasicsServices.prototype.calcMixedHTMLRunScripts = function (content, callbackHTML, callbackChildren) {
             // convert the string to DOM representation
-            var temp = document.createElement('YetaWFTemp');
+            var temp = document.createElement("YetaWFTemp");
             temp.innerHTML = content;
             // extract all <script> tags
-            var scripts = this.getElementsBySelector('script', [temp]);
+            var scripts = this.getElementsBySelector("script", [temp]);
             for (var _i = 0, scripts_1 = scripts; _i < scripts_1.length; _i++) {
                 var script = scripts_1[_i];
                 this.removeElement(script); // remove the script element
@@ -820,8 +815,8 @@ var YetaWF;
                 if (script.src) {
                     script.async = false;
                     script.defer = false;
-                    var js = document.createElement('script');
-                    js.type = 'text/javascript';
+                    var js = document.createElement("script");
+                    js.type = "text/javascript";
                     js.async = false; // need to preserve execution order
                     js.defer = false;
                     js.src = script.src;
@@ -865,7 +860,7 @@ var YetaWF;
             if (elem.classList)
                 elem.classList.add(className);
             else
-                elem.className += ' ' + className;
+                elem.className += " " + className;
         };
         /**
          * Remove a space separated list of css classes from an element.
@@ -886,7 +881,7 @@ var YetaWF;
             if (elem.classList)
                 elem.classList.remove(className);
             else
-                elem.className = elem.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+                elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
         };
         // Events
         BasicsServices.prototype.registerDocumentReady = function (callback) {
@@ -894,7 +889,7 @@ var YetaWF;
                 callback();
             }
             else {
-                document.addEventListener('DOMContentLoaded', callback);
+                document.addEventListener("DOMContentLoaded", callback);
             }
         };
         BasicsServices.prototype.registerEventHandlerBody = function (eventName, selector, callback) {
@@ -916,11 +911,11 @@ var YetaWF;
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             // srcElement should be target//$$$$ srcElement is non-standard
             //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
-            if (ev.eventPhase == ev.CAPTURING_PHASE) {
+            if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector)
                     return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             }
-            else if (ev.eventPhase == ev.BUBBLING_PHASE) {
+            else if (ev.eventPhase === ev.BUBBLING_PHASE) {
                 if (!selector)
                     return;
                 // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
@@ -928,7 +923,7 @@ var YetaWF;
                 while (elem) {
                     if (this.elementMatches(elem, selector))
                         break;
-                    if (listening == elem)
+                    if (listening === elem)
                         return; // checked all elements
                     elem = elem.parentElement;
                     if (elem == null)
@@ -1045,7 +1040,6 @@ var YetaWF;
             var _this = this;
             this.AnchorHandling.init();
             this.ContentHandling.init();
-            this.Forms.init();
             // screen size yCondense/yNoCondense support
             this.registerEventHandlerWindow("resize", null, function (ev) {
                 _this.setCondense(document.body, window.innerWidth);

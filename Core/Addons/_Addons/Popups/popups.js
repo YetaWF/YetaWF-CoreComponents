@@ -32,8 +32,8 @@ var YetaWF;
         PopupsServices.prototype.openPopup = function (url, forceIframe) {
             $YetaWF.setLoading(true);
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
-            if (url.indexOf('?') < 0)
-                url += '?';
+            if (url.indexOf("?") < 0)
+                url += "?";
             else
                 url += "&";
             url += new Date().getUTCMilliseconds();
@@ -63,8 +63,8 @@ var YetaWF;
             // if we're switching from https->http or from http->https don't use a popup
             if (!url.startsWith("http") || !window.document.location.href.startsWith("http"))
                 return false;
-            if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
-                (url.startsWith("https://") != window.document.location.href.startsWith("https://")))
+            if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||
+                (url.startsWith("https://") !== window.document.location.href.startsWith("https://")))
                 return false;
             if (YVolatile.Basics.EditModeActive || YVolatile.Basics.PageControlVisible) {
                 //if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
@@ -73,7 +73,6 @@ var YetaWF;
             }
             return YetaWF_Popups.openPopup(url, false);
         };
-        ;
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.
          */
@@ -88,7 +87,6 @@ var YetaWF;
                 window.parent.location.assign(elem.href);
             return true;
         };
-        ;
         return PopupsServices;
     }());
     YetaWF.PopupsServices = PopupsServices;
@@ -96,6 +94,6 @@ var YetaWF;
 /**
  * Popup services available throughout YetaWF.
  */
+//$$$$$ get rid of this (like $YetaWF.Forms)
+// tslint:disable-next-line:variable-name
 var YetaWF_Popups = new YetaWF.PopupsServices();
-
-//# sourceMappingURL=Popups.js.map
