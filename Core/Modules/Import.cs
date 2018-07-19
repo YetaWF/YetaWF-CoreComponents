@@ -46,7 +46,7 @@ namespace YetaWF.Core.Modules {
                 }
                 SerializableModule serModule;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serModule = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);

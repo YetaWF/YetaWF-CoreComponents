@@ -45,7 +45,7 @@ namespace YetaWF.Core.Packages {
                 }
                 SerializableData serData;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serData = (SerializableData)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serData = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableData>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
@@ -119,7 +119,7 @@ namespace YetaWF.Core.Packages {
                                 object obj = null;
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                                     try {
-                                        obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                                        obj = new GeneralFormatter(Package.ExportFormat).Deserialize<object>(fs.GetFileStream());
                                     } catch (Exception exc) {
                                         errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.Name, exc));
                                         return false;

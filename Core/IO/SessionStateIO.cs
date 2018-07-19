@@ -24,8 +24,8 @@ namespace YetaWF.Core.IO {
             byte[] data;
             data = Manager.CurrentSession.GetBytes(Key);
             if (data == null) return default(TObj);
-            Data = new GeneralFormatter(GeneralFormatter.Style.Simple).Deserialize(data);
-            return (TObj) (object) Data;
+            Data = new GeneralFormatter(GeneralFormatter.Style.Simple).Deserialize<TObj>(data);
+            return (TObj) Data;
         }
 
         /// <summary>

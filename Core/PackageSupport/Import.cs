@@ -48,7 +48,7 @@ namespace YetaWF.Core.Packages {
                 }
                 SerializablePackage serPackage;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serPackage = (SerializablePackage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serPackage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePackage>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);

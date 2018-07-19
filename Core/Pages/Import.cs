@@ -54,7 +54,7 @@ namespace YetaWF.Core.Pages {
                 }
                 SerializablePage serPage;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serPage = (SerializablePage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serPage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePage>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
@@ -119,7 +119,7 @@ namespace YetaWF.Core.Pages {
                     await fs.CloseAsync();
                 }
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serModule = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);

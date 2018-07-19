@@ -38,6 +38,10 @@ namespace YetaWF.Core.Support.Serializers {
             /// Used for small amounts of data that is in memory (usually cache and small data files)
             /// </summary>
             Simple2 = 3,
+            /// <summary>
+            /// JSON serialization
+            /// </summary>
+            JSON = 4,
         };
 
         public GeneralFormatter(Style format) {
@@ -56,21 +60,25 @@ namespace YetaWF.Core.Support.Serializers {
         public Style Format { get; set; }
         public bool FormatExplicit { get; set; }// whether the format was explicitly set by caller (used for serialization, deserialization still tries to guess)
 
-        public object Deserialize(byte[] btes) {
-            if (btes == null || btes.Length <= 6) return null;
+        public TObj Deserialize<TObj>(byte[] btes) {
+            if (btes == null || btes.Length <= 6) return default(TObj);
             IFormatter fmt;
             if (btes[0] == (char)239 && btes[1] == (char)187)
                 fmt = new TextFormatter();
             else if (btes[0] == Simple2Formatter.MARKER1 && btes[1] == Simple2Formatter.MARKER2) {
                 Simple2Formatter simpleFmt = new Simple2Formatter();
                 try {
-                    return simpleFmt.Deserialize(btes);
+                    object data = simpleFmt.Deserialize(btes);
+                    return (TObj)data;
                 } catch (Exception exc) {
                     throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
                 }
-            } else if (btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b') // looking for object
+            } else if (btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b') {// looking for object
                 fmt = new SimpleFormatter();
-            else
+            } else if (btes[0] == '{') {
+                string s = System.Text.Encoding.UTF8.GetString(btes);
+                return YetaWFManager.JsonDeserialize<TObj>(s);
+            } else
                 fmt = new BinaryFormatter();// truly binary
             using (MemoryStream ms = new MemoryStream(btes)) {
                 object data;
@@ -79,59 +87,87 @@ namespace YetaWF.Core.Support.Serializers {
                 } catch (Exception exc) {
                     throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
                 }
-                return data;
+                return (TObj)data;
             }
         }
         /// <summary>
         /// Deserialize from FileStream
         /// </summary>
         /// <remarks>Does NOT guess the format</remarks>
-        public object Deserialize(FileStream fs) {
+        public TObj Deserialize<TObj>(FileStream fs) {
             if (!FormatExplicit)
                 throw new InternalError("The format for this stream was not explicitly specified");
-            IFormatter fmt;
-            if (Format == Style.Simple)
-                fmt = new SimpleFormatter();
-            else if (Format == Style.Simple2)
-                throw new InternalError("This format is not supported for file streams");
-            else if (Format == Style.Xml)
-                fmt = new TextFormatter();
-            else
-                fmt = new BinaryFormatter();// truly binary
+
+            IFormatter fmt = null;
+            switch (Format) {
+                case Style.Xml:
+                    fmt = new TextFormatter();
+                    break;
+                case Style.Simple:
+                    fmt = new SimpleFormatter();
+                    break;
+                case Style.Simple2:
+                    throw new InternalError("This format is not supported for file streams");
+                case Style.Binary:
+                    fmt = new BinaryFormatter();// truly binary
+                    break;
+                case Style.JSON:
+                    byte[] btes = new byte[fs.Length];
+                    fs.Read(btes, 0, (int) fs.Length);
+                    string s = System.Text.Encoding.UTF8.GetString(btes);
+                    return YetaWFManager.JsonDeserialize<TObj>(s);
+            }
             object data;
             try {
                 data = fmt.Deserialize(fs);
             } catch (Exception exc) {
                 throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
             }
-            return data;
+            return (TObj)data;
         }
 
-        public void Serialize(FileStream fs, object obj) {
+        public void Serialize<TObj>(FileStream fs, TObj obj) {
             IFormatter fmt = null;
-            if (Format == Style.Xml) {
-                fmt = new TextFormatter();
-            } else if (Format == Style.Simple) {
-                fmt = new SimpleFormatter();
-            } else if (Format == Style.Simple2) {
-                throw new InternalError("This format is not supported for file streams");
-            } else {
-                fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
+            switch (Format) {
+                case Style.Xml:
+                    fmt = new TextFormatter();
+                    break;
+                case Style.Simple:
+                    fmt = new SimpleFormatter();
+                    break;
+                case Style.Simple2:
+                    throw new InternalError("This format is not supported for file streams");
+                case Style.Binary:
+                    fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
+                    break;
+                case Style.JSON:
+                    string s = YetaWFManager.JsonSerialize(obj, true);
+                    byte[] btes = System.Text.Encoding.UTF8.GetBytes(s);
+                    fs.Write(btes, 0, btes.Length);
+                    return;
             }
             fmt.Serialize(fs, obj);
         }
-        public byte[] Serialize(object obj) {
+        public byte[] Serialize<TObj>(TObj obj) {
             if (obj == null) return new byte[] { };
             IFormatter fmt = null;
-            if (Format == Style.Xml) {
-                fmt = new TextFormatter();
-            } else if (Format == Style.Simple2) {
-                Simple2Formatter simpleFmt = new Simple2Formatter();
-                return simpleFmt.Serialize(obj);
-            } else if (Format == Style.Simple) {
-                fmt = new SimpleFormatter();
-            } else {
-                fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
+
+            switch (Format) {
+                case Style.Xml:
+                    fmt = new TextFormatter();
+                    break;
+                case Style.Simple:
+                    fmt = new SimpleFormatter();
+                    break;
+                case Style.Simple2:
+                    Simple2Formatter simpleFmt = new Simple2Formatter();
+                    return simpleFmt.Serialize(obj);
+                case Style.Binary:
+                    fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
+                    break;
+                case Style.JSON:
+                    string s = YetaWFManager.JsonSerialize(obj, true);
+                    return System.Text.Encoding.UTF8.GetBytes(s);
             }
             using (MemoryStream ms = new MemoryStream()) {
                 fmt.Serialize(ms, obj);
