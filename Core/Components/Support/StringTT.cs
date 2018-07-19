@@ -1,4 +1,5 @@
-﻿
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
 namespace YetaWF.Core.Components {
 
     public class StringTT {

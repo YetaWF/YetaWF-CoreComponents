@@ -1,4 +1,6 @@
-﻿using System;
+﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +40,7 @@ namespace YetaWF.Core.Support {
                 _parent = parent;
 #if DEBUG
                 _disposed = false;
-#endif                
+#endif
             }
 
             internal async Task ObtainLockAsync() {
