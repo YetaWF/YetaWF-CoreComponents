@@ -97,3 +97,5 @@ var YetaWF;
 //$$$$$ get rid of this (like $YetaWF.Forms)
 // tslint:disable-next-line:variable-name
 var YetaWF_Popups = new YetaWF.PopupsServices();
+
+//# sourceMappingURL=Popups.js.map

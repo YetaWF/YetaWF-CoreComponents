@@ -1014,8 +1014,8 @@ debugger;//TODO: This hasn't been tested
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
             document.addEventListener(eventName, (ev: DocumentEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
-        public registerEventHandlerWindow<K extends keyof HTMLFrameSetElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLFrameSetElementEventMap[K]) => boolean): void {
-            window.addEventListener(eventName, (ev: HTMLFrameSetElementEventMap[K]) => this.handleEvent(null, ev, selector, callback));
+        public registerEventHandlerWindow<K extends keyof WindowEventMap>(eventName: K, selector: string | null, callback: (ev: WindowEventMap[K]) => boolean): void {
+            window.addEventListener(eventName, (ev: WindowEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback));
@@ -1025,6 +1025,8 @@ debugger;//TODO: This hasn't been tested
             // srcElement should be target//$$$$ srcElement is non-standard
             //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
+                if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
+            } else if (ev.eventPhase === ev.AT_TARGET) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase === ev.BUBBLING_PHASE) {
                 if (!selector) return;
@@ -1207,6 +1209,7 @@ debugger;//TODO: This hasn't been tested
             // Navigation
 
             this.registerEventHandlerWindow("popstate", null, (ev: PopStateEvent) => {
+                debugger;
                 if (this.suppressPopState) {
                     this.suppressPopState = false;
                     return true;

@@ -915,6 +915,10 @@ var YetaWF;
                 if (selector)
                     return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             }
+            else if (ev.eventPhase === ev.AT_TARGET) {
+                if (selector)
+                    return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
+            }
             else if (ev.eventPhase === ev.BUBBLING_PHASE) {
                 if (!selector)
                     return;
@@ -1050,6 +1054,7 @@ var YetaWF;
             });
             // Navigation
             this.registerEventHandlerWindow("popstate", null, function (ev) {
+                debugger;
                 if (_this.suppressPopState) {
                     _this.suppressPopState = false;
                     return true;
