@@ -68,7 +68,7 @@
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Linq.Dynamic.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0f07ec44de6ac832, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Linq.Dynamic.Core.1.0.8.7\lib\net46\System.Linq.Dynamic.Core.dll</HintPath>
+      <HintPath>..\..\packages\System.Linq.Dynamic.Core.1.0.8.11\lib\net46\System.Linq.Dynamic.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http" />
@@ -342,8 +342,6 @@
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\themelist.txt" />
     <Content Include="Addons\_Addons\Image\NoImage.png" />
     <Content Include="Addons\_Addons\jqueryui.com.jqueryui-themes\themelist.txt" />
-    <Content Include="Addons\_Addons\smartresize\SmartResize.js" />
-    <Content Include="Addons\_Addons\smartresize\filelistJS.txt" />
     <Content Include="Addons\_Addons\telerik.com.Kendo_UI_Core\themelist.txt" />
     <Content Include="Addons\_Skins\Standard\Popups\PopupContent.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
@@ -388,14 +386,20 @@
     <Folder Include="Startup\MVC6\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Addons\_Addons\Basics\Content.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Content.tsx" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Anchors.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Basics.ts" />
-    <TypeScriptCompile Include="Addons\_Addons\Basics\Forms.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Forms\Forms.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Url.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Popups\Popups.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties tslint_1json__JSONSchema="JSON ABC Sorts JSON alphabetically Buy me a coffee Buy me a coffee" />
+    </VisualStudio>
+  </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
