@@ -459,7 +459,7 @@ namespace YetaWF {
          */
         private getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
             var mod = this.elementClosest(tag, ".yModule");
-            if (mod) return null;
+            if (!mod) return null;
             return mod;
         }
         /**
@@ -534,7 +534,6 @@ namespace YetaWF {
 
         public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement, onSuccessNoData?: () => void, onHandleErrorResult?: (result: string) => void): boolean {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
-            var result: string;
             try {
                 // tslint:disable-next-line:no-eval
                 result = <string>eval(result);
@@ -1209,7 +1208,6 @@ debugger;//TODO: This hasn't been tested
             // Navigation
 
             this.registerEventHandlerWindow("popstate", null, (ev: PopStateEvent) => {
-                debugger;
                 if (this.suppressPopState) {
                     this.suppressPopState = false;
                     return true;

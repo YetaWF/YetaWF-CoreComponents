@@ -23,7 +23,7 @@ namespace YetaWF.Core.Packages {
 
         public const string PackageIDFile = "Package.txt";
         public const string PackageIDDataFile = "PackageData.txt";
-        public const string PackageContentsFile = "Contents.xml";
+        public const string PackageContentsFile = "Contents.json";
         public static string[] ExcludedFilesAddons = new string[] { };
         public static string[] ExcludedFoldersNoSource = new string[] { };
         public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
@@ -32,7 +32,7 @@ namespace YetaWF.Core.Packages {
         public static string[] ExcludedBinFolders = new string[] { "Debug" };
         public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };// not necessary any longer (since 2.0.0) as all code was moved to ViewsCode
 
-        public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.Xml;
+        public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.JSON;
 
         public async Task<YetaWFZipFile> ExportPackageAsync(bool SourceCode = false) {
 

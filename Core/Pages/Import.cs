@@ -20,7 +20,7 @@ namespace YetaWF.Core.Pages {
 
         /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); } */
 
-        private static readonly string ModuleContentsFile = "Contents.xml";
+        private static readonly string ModuleContentsFile = "Contents.json";
 
         public class ImportInfo {
             public bool Success { get; set; }

@@ -14,7 +14,7 @@ namespace YetaWF.Core.Pages {
 
         /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); } */
 
-        public const string PageContentsFile = "Contents.xml";
+        public const string PageContentsFile = "Contents.json";
         public const string PageIDFile = "Page.txt";
 
         public async Task<YetaWFZipFile> ExportAsync() {

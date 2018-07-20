@@ -355,7 +355,7 @@ var YetaWF;
          */
         BasicsServices.prototype.getModuleFromTagCond = function (tag) {
             var mod = this.elementClosest(tag, ".yModule");
-            if (mod)
+            if (!mod)
                 return null;
             return mod;
         };
@@ -430,7 +430,6 @@ var YetaWF;
         // Ajax result handling
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onHandleErrorResult) {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
-            var result;
             try {
                 // tslint:disable-next-line:no-eval
                 result = eval(result);
@@ -1054,7 +1053,6 @@ var YetaWF;
             });
             // Navigation
             this.registerEventHandlerWindow("popstate", null, function (ev) {
-                debugger;
                 if (_this.suppressPopState) {
                     _this.suppressPopState = false;
                     return true;

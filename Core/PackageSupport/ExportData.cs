@@ -62,7 +62,7 @@ namespace YetaWF.Core.Packages {
                                     await fs.CloseAsync();
                                 }
 
-                                zipFile.AddFile(fileName, string.Format("{0}_{1}.xml", modelType.Name, chunk));
+                                zipFile.AddFile(fileName, string.Format("{0}_{1}.json", modelType.Name, chunk));
                             }
 
                             serModel.Class = modelType.Name;

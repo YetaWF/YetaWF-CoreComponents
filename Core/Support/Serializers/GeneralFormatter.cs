@@ -76,8 +76,7 @@ namespace YetaWF.Core.Support.Serializers {
             } else if (btes[2] == 0 && btes[3] == 0 && btes[4] == 'O' && btes[5] == 'b') {// looking for object
                 fmt = new SimpleFormatter();
             } else if (btes[0] == '{') {
-                string s = System.Text.Encoding.UTF8.GetString(btes);
-                return YetaWFManager.JsonDeserialize<TObj>(s);
+                return new JSONFormatter().Deserialize<TObj>(btes);
             } else
                 fmt = new BinaryFormatter();// truly binary
             using (MemoryStream ms = new MemoryStream(btes)) {
@@ -114,10 +113,7 @@ namespace YetaWF.Core.Support.Serializers {
                     fmt = new BinaryFormatter();// truly binary
                     break;
                 case Style.JSON:
-                    byte[] btes = new byte[fs.Length];
-                    fs.Read(btes, 0, (int) fs.Length);
-                    string s = System.Text.Encoding.UTF8.GetString(btes);
-                    return YetaWFManager.JsonDeserialize<TObj>(s);
+                    return new JSONFormatter().Deserialize<TObj>(fs);
             }
             object data;
             try {
@@ -145,9 +141,7 @@ namespace YetaWF.Core.Support.Serializers {
                     fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
                     break;
                 case Style.JSON:
-                    string s = YetaWFManager.JsonSerialize(obj, true);
-                    byte[] btes = System.Text.Encoding.UTF8.GetBytes(s);
-                    fs.Write(btes, 0, btes.Length);
+                    new JSONFormatter().Serialize(fs, obj);
                     return;
             }
             fmt.Serialize(fs, obj);
@@ -172,8 +166,7 @@ namespace YetaWF.Core.Support.Serializers {
                     fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
                     break;
                 case Style.JSON:
-                    string s = YetaWFManager.JsonSerialize(obj, true);
-                    return System.Text.Encoding.UTF8.GetBytes(s);
+                    return new JSONFormatter().Serialize(obj);
             }
             using (MemoryStream ms = new MemoryStream()) {
                 fmt.Serialize(ms, obj);

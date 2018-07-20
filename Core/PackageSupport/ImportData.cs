@@ -102,7 +102,7 @@ namespace YetaWF.Core.Packages {
 
                             // unzip data
                             {
-                                string zipFileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
+                                string zipFileName = string.Format("{0}_{1}.json", modelType.Name, chunk);
                                 ZipEntry e = zip.GetEntry(zipFileName);
                                 if (e == null) {
                                     errorList.Add(__ResStr("errDataCorrupt", "Zip file {1} corrupted - file {0} not found.", zipFileName, displayFileName));

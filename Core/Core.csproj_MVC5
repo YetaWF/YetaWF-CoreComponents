@@ -166,6 +166,7 @@
     <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\Lock\AsyncLock.cs" />
     <Compile Include="Support\MimeSection\MimeSection.cs" />
+    <Compile Include="Support\Serializers\JSONFormatter.cs" />
     <Compile Include="Support\Serializers\Simple2Formatter.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
