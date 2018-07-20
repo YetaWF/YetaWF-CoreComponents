@@ -108,7 +108,9 @@ namespace YetaWF.Core.Support.Serializers {
                     break;
                 case Style.Simple2:
                     throw new InternalError("This format is not supported for file streams");
+#pragma warning disable CS0612 // warning CS0612: 'GeneralFormatter.Style.Binary' is obsolete
                 case Style.Binary:
+#pragma warning restore CS0612
                     fmt = new BinaryFormatter();// truly binary
                     break;
                 case Style.JSON:
@@ -137,7 +139,9 @@ namespace YetaWF.Core.Support.Serializers {
                     break;
                 case Style.Simple2:
                     throw new InternalError("This format is not supported for file streams");
+#pragma warning disable CS0612 // warning CS0612: 'GeneralFormatter.Style.Binary' is obsolete
                 case Style.Binary:
+#pragma warning restore CS0612
                     fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
                     break;
                 case Style.JSON:
@@ -162,7 +166,9 @@ namespace YetaWF.Core.Support.Serializers {
                 case Style.Simple2:
                     Simple2Formatter simpleFmt = new Simple2Formatter();
                     return simpleFmt.Serialize(obj);
+#pragma warning disable CS0612 // warning CS0612: 'GeneralFormatter.Style.Binary' is obsolete
                 case Style.Binary:
+#pragma warning restore CS0612
                     fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
                     break;
                 case Style.JSON:

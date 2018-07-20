@@ -785,9 +785,10 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
                 using (dataProvider) {
                     Type typeDP = dataProvider.GetType();
                     // get the config data
-                    MethodInfo mi = typeDP.GetMethod("GetConfig");
-                    if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
-                    object config = mi.Invoke(dataProvider, null);
+                    MethodInfo mi = typeDP.GetMethod("GetConfigAsync");
+                    if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfigAsync method for a configuration module", typeDP.FullName);
+                    dynamic configRetVal = mi.Invoke(dataProvider, null);
+                    object config = configRetVal.Result; // only used in site templates so don't care about using Result
                     return config;
                 }
            }
@@ -798,18 +799,20 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             using (DataProviderImpl dataProvider = GetConfigDataProvider()) {
                 Type typeDP = dataProvider.GetType();
                 // get the config data
-                MethodInfo mi = typeDP.GetMethod("GetConfig");
-                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
-                object config = mi.Invoke(dataProvider, null);
+                MethodInfo mi = typeDP.GetMethod("GetConfigAsync");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfigAsync method for a configuration module", typeDP.FullName);
+                dynamic configRetVal = mi.Invoke(dataProvider, null);
+                object config = configRetVal.Result; // only used in site templates so don't care about using Result
                 // update the property
                 Type configType = config.GetType();
                 PropertyInfo pi = ObjectSupport.TryGetProperty(configType, name);
                 if (pi == null) throw new InternalError("Configuration {0} doesn't offer a {1} property", configType.FullName, name);
                 pi.SetValue(config, value);
 
-                mi = typeDP.GetMethod("UpdateConfig");
-                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfig method for a configuration module", typeDP.FullName);
-                mi.Invoke(dataProvider, new object[] { config });
+                mi = typeDP.GetMethod("UpdateConfigAsync");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfigAsync method for a configuration module", typeDP.FullName);
+                Task retVal = (Task) mi.Invoke(dataProvider, new object[] { config });
+                retVal.Wait();// only used in site templates so don't care about using Wait
             }
         }
 
