@@ -26,7 +26,6 @@ var YetaWF;
             // $YetaWF.addWhenReady((tag) => {});
             this.whenReady = [];
             // WhenReadyOnce
-            /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
             // Usage:
             // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
             this.whenReadyOnce = [];

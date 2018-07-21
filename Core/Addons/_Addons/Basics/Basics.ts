@@ -688,7 +688,6 @@ namespace YetaWF {
 
         // WhenReadyOnce
 
-        /* TODO: This is public and push() is used to add callbacks (legacy Javascript ONLY) */
         // Usage:
         // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
         private whenReadyOnce: IWhenReady[] = [];
