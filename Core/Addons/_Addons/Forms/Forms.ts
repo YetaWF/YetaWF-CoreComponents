@@ -430,50 +430,27 @@ namespace YetaWF {
             return info;
         }
 
+        // Submit/apply on change/keydown
 
-        // submit form on change
-
-        /**
-         * Handles submitonchange/applyonchange
-         */
-        public initSubmitOnChange(): void {
-
-            // submit
-
-            $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", (ev: KeyboardEvent) => {
-                if (ev.keyCode === 13) {
-                    this.submitForm = this.getForm(ev.target as HTMLElement);
-                    this.submitFormOnChange();
-                    return false;
-                }
-                return true;
-            });
-            $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", (ev: Event) => {
-                clearInterval(this.submitFormTimer);
-                this.submitForm = this.getForm(ev.target as HTMLElement);
-                this.submitFormTimer = setInterval(() => this.submitFormOnChange(), 1000);// wait 1 second and automatically submit the form
-                $YetaWF.setLoading(true);
-                return false;
-            });
-
-
-            // apply
-
-            $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", (ev: KeyboardEvent) => {
-                if (ev.keyCode === 13) {
-                    this.submitForm = this.getForm(ev.target as HTMLElement);
-                    this.applyFormOnChange();
-                    return false;
-                }
-                return true;
-            });
-            $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", (ev: Event) => {
-                clearInterval(this.submitFormTimer);
-                this.submitForm = this.getForm(ev.target as HTMLElement);
-                this.submitFormTimer = setInterval(() => this.applyFormOnChange(), 1000);// wait 1 second and automatically submit the form
-                $YetaWF.setLoading(true);
-                return false;
-            });
+        public submitOnChange(elem: HTMLElement): void {
+            clearInterval(this.submitFormTimer);
+            this.submitForm = this.getForm(elem);
+            this.submitFormTimer = setInterval(() : void => this.submitFormOnChange(), 1000);// wait 1 second and automatically submit the form
+            $YetaWF.setLoading(true);
+        }
+        public submitOnReturnKey(elem: HTMLElement) : void {
+            this.submitForm = this.getForm(elem);
+            this.submitFormOnChange();
+        }
+        public applyOnChange(elem: HTMLElement) : void {
+            clearInterval(this.submitFormTimer);
+            this.submitForm = this.getForm(elem);
+            this.submitFormTimer = setInterval(() => this.applyFormOnChange(), 1000);// wait 1 second and automatically submit the form
+            $YetaWF.setLoading(true);
+        }
+        public applyOnReturnKey(elem: HTMLElement) : void {
+            this.submitForm = this.getForm(elem);
+            this.applyFormOnChange();
         }
 
         private submitFormTimer: number | undefined = undefined;
@@ -488,6 +465,41 @@ namespace YetaWF {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm) return;
             this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsApply + "=y");
+        }
+
+        // submit form on change
+
+        /**
+         * Handles submitonchange/applyonchange
+         */
+        public initSubmitOnChange(): void {
+
+            // submit
+            $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", (ev: Event) => {
+                this.submitOnChange(ev.target as HTMLElement);
+                return false;
+            });
+            $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", (ev: KeyboardEvent) => {
+                if (ev.keyCode === 13) {
+                    this.submitOnChange(ev.target as HTMLElement);
+                    return false;
+                }
+                return true;
+            });
+
+            // apply
+
+            $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", (ev: Event) => {
+                this.applyOnChange(ev.target as HTMLElement);
+                return false;
+            });
+            $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", (ev: KeyboardEvent) => {
+                if (ev.keyCode === 13) {
+                    this.applyOnChange(ev.target as HTMLElement);
+                    return false;
+                }
+                return true;
+            });
         }
 
         /**
@@ -541,7 +553,6 @@ namespace YetaWF {
             });
         }
         public init() : void {
-
             // initialize submit on change
             this.initSubmitOnChange();
             // initialize  Submit, Apply, Cancel button handling
@@ -549,6 +560,8 @@ namespace YetaWF {
 
         }
     }
+    // tslint:disable-next-line:no-unused-expression
+    $YetaWF.Forms; // need to evaluate for side effect to initialize forms
 }
 
 

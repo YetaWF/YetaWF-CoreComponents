@@ -314,44 +314,28 @@ var YetaWF;
             };
             return info;
         };
-        // submit form on change
-        /**
-         * Handles submitonchange/applyonchange
-         */
-        Forms.prototype.initSubmitOnChange = function () {
-            // submit
+        // Submit/apply on change/keydown
+        Forms.prototype.submitOnChange = function (elem) {
             var _this = this;
-            $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", function (ev) {
-                if (ev.keyCode === 13) {
-                    _this.submitForm = _this.getForm(ev.target);
-                    _this.submitFormOnChange();
-                    return false;
-                }
-                return true;
-            });
-            $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", function (ev) {
-                clearInterval(_this.submitFormTimer);
-                _this.submitForm = _this.getForm(ev.target);
-                _this.submitFormTimer = setInterval(function () { return _this.submitFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
-                $YetaWF.setLoading(true);
-                return false;
-            });
-            // apply
-            $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", function (ev) {
-                if (ev.keyCode === 13) {
-                    _this.submitForm = _this.getForm(ev.target);
-                    _this.applyFormOnChange();
-                    return false;
-                }
-                return true;
-            });
-            $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", function (ev) {
-                clearInterval(_this.submitFormTimer);
-                _this.submitForm = _this.getForm(ev.target);
-                _this.submitFormTimer = setInterval(function () { return _this.applyFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
-                $YetaWF.setLoading(true);
-                return false;
-            });
+            clearInterval(this.submitFormTimer);
+            this.submitForm = this.getForm(elem);
+            this.submitFormTimer = setInterval(function () { return _this.submitFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
+            $YetaWF.setLoading(true);
+        };
+        Forms.prototype.submitOnReturnKey = function (elem) {
+            this.submitForm = this.getForm(elem);
+            this.submitFormOnChange();
+        };
+        Forms.prototype.applyOnChange = function (elem) {
+            var _this = this;
+            clearInterval(this.submitFormTimer);
+            this.submitForm = this.getForm(elem);
+            this.submitFormTimer = setInterval(function () { return _this.applyFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
+            $YetaWF.setLoading(true);
+        };
+        Forms.prototype.applyOnReturnKey = function (elem) {
+            this.submitForm = this.getForm(elem);
+            this.applyFormOnChange();
         };
         Forms.prototype.submitFormOnChange = function () {
             clearInterval(this.submitFormTimer);
@@ -364,6 +348,37 @@ var YetaWF;
             if (!this.submitForm)
                 return;
             this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsApply + "=y");
+        };
+        // submit form on change
+        /**
+         * Handles submitonchange/applyonchange
+         */
+        Forms.prototype.initSubmitOnChange = function () {
+            var _this = this;
+            // submit
+            $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", function (ev) {
+                _this.submitOnChange(ev.target);
+                return false;
+            });
+            $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", function (ev) {
+                if (ev.keyCode === 13) {
+                    _this.submitOnChange(ev.target);
+                    return false;
+                }
+                return true;
+            });
+            // apply
+            $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", function (ev) {
+                _this.applyOnChange(ev.target);
+                return false;
+            });
+            $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", function (ev) {
+                if (ev.keyCode === 13) {
+                    _this.applyOnChange(ev.target);
+                    return false;
+                }
+                return true;
+            });
         };
         /**
          * Initialize to handle Submit, Apply, Cancel buttons
@@ -423,6 +438,8 @@ var YetaWF;
         return Forms;
     }());
     YetaWF.Forms = Forms;
+    // tslint:disable-next-line:no-unused-expression
+    $YetaWF.Forms; // need to evaluate for side effect to initialize forms
 })(YetaWF || (YetaWF = {}));
 
 //# sourceMappingURL=Forms.js.map

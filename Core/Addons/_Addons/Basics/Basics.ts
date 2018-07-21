@@ -549,7 +549,7 @@ namespace YetaWF {
          */
         public stringCompare(str1: string | null, str2: string | null): boolean {
             if (!str1 && !str2) return true;
-            return str1 == str2;
+            return str1 === str2;
         }
 
         // Ajax result handling
