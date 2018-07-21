@@ -104,8 +104,6 @@ namespace YetaWF.Core.Models {
         public object ResourceRedirect { get; set; } // redirect for Caption/Description attributes
 
         // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
-        public string CachedSortCol { get; set; }
-        public GridDefinition.SortBy CachedSortDir { get; set; }
         public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
 
 
