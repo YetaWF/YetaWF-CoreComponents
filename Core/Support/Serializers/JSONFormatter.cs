@@ -40,14 +40,8 @@ namespace YetaWF.Core.Serializers {
                     }
                 }
                 property.Ignored = !shouldSerialize;
-                //$$property.ShouldSerialize = instance => { return shouldSerialize; };
                 return property;
             }
-            //public override JsonContract ResolveContract(Type type) {
-            //    JsonContract contract = base.CreateContract(type);
-            //    contract.Converter = new ObjectConverter();
-            //    return contract;
-            //}
         }
 
         public void Serialize(FileStream fs, object obj) {

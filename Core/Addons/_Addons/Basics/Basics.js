@@ -9,6 +9,8 @@ var YetaWF;
         function BasicsServices() {
             // Form handling
             this.forms = null;
+            // Popup handling
+            this.popups = null;
             // Page
             /**
              * currently loaded addons
@@ -109,6 +111,20 @@ var YetaWF;
         BasicsServices.prototype.FormsAvailable = function () {
             return this.forms != null;
         };
+        Object.defineProperty(BasicsServices.prototype, "Popups", {
+            get: function () {
+                if (!this.popups) {
+                    this.popups = new YetaWF.Popups(); // if this fails, popups.*.js was not included automatically
+                    this.popups.init();
+                }
+                return this.popups;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BasicsServices.prototype.PopupsAvailable = function () {
+            return this.popups != null;
+        };
         // Url parsing
         BasicsServices.prototype.parseUrl = function (url) {
             var uri = new YetaWF.Url();
@@ -189,8 +205,8 @@ var YetaWF;
          * Close any popup window.
          */
         BasicsServices.prototype.closePopup = function (forceReload) {
-            if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined)
-                YetaWF_Popups.closePopup(forceReload);
+            if (this.PopupsAvailable())
+                this.Popups.closePopup(forceReload);
         };
         // Scrolling
         BasicsServices.prototype.setScrollPosition = function () {
@@ -426,6 +442,14 @@ var YetaWF;
             s = this.escElement.innerHTML;
             return s.replace(/'/g, "&apos;")
                 .replace(/"/g, "&quot;");
+        };
+        /**
+         * string compare that considers null == ""
+         */
+        BasicsServices.prototype.stringCompare = function (str1, str2) {
+            if (!str1 && !str2)
+                return true;
+            return str1 == str2;
         };
         // Ajax result handling
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onHandleErrorResult) {
@@ -724,7 +748,7 @@ var YetaWF;
             var all = [];
             for (var _i = 0, elems_3 = elems; _i < elems_3.length; _i++) {
                 var elem = elems_3[_i];
-                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden") //$$$check casing
+                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden")
                     all.push(elem);
             }
             return all;
@@ -908,8 +932,7 @@ var YetaWF;
         };
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
-            // srcElement should be target//$$$$ srcElement is non-standard
-            //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
+            //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector)
                     return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
@@ -922,7 +945,7 @@ var YetaWF;
                 if (!selector)
                     return;
                 // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
-                var elem = ev.srcElement;
+                var elem = ev.target;
                 while (elem) {
                     if (this.elementMatches(elem, selector))
                         break;
@@ -1062,10 +1085,10 @@ var YetaWF;
             });
             // <a> links that only have a hash are intercepted so we don't go through content handling
             this.registerEventHandlerBody("click", "a[href^='#']", function (ev) {
-                // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
-                if (!ev.srcElement)
+                // find the real anchor, ev.target was clicked, but it may not be the anchor itself
+                if (!ev.target)
                     return true;
-                var anchor = $YetaWF.elementClosest(ev.srcElement, "a");
+                var anchor = $YetaWF.elementClosest(ev.target, "a");
                 if (!anchor)
                     return true;
                 _this.suppressPopState = true;

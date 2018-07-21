@@ -98,7 +98,7 @@ namespace YetaWF {
          */
         pleaseWaitClose(): void;
         /**
-         * Closes any open overlays, menus, dropdownlists, etc. (Popup windows are not handled and are explicitly closed using YetaWF_Popups)
+         * Closes any open overlays, menus, dropdownlists, etc. (Popup windows are not handled and are explicitly closed using $YetaWF.Popups)
          */
         closeOverlays(): void;
 
@@ -180,6 +180,20 @@ namespace YetaWF {
         }
         public FormsAvailable() : boolean {
             return this.forms != null;
+        }
+
+        // Popup handling
+        private popups: YetaWF.Popups | null = null;
+
+        get Popups(): YetaWF.Popups {
+            if (!this.popups) {
+                this.popups = new YetaWF.Popups(); // if this fails, popups.*.js was not included automatically
+                this.popups.init();
+            }
+            return this.popups;
+        }
+        public PopupsAvailable(): boolean {
+            return this.popups != null;
         }
 
         // Url parsing
@@ -266,8 +280,8 @@ namespace YetaWF {
          * Close any popup window.
          */
         public closePopup(forceReload?: boolean): void {
-            if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined)
-                YetaWF_Popups.closePopup(forceReload);
+            if (this.PopupsAvailable())
+                this.Popups.closePopup(forceReload);
         }
 
         // Scrolling
@@ -529,6 +543,14 @@ namespace YetaWF {
                     .replace(/"/g, "&quot;");
         }
         private escElement : HTMLDivElement = document.createElement("div");
+
+        /**
+         * string compare that considers null == ""
+         */
+        public stringCompare(str1: string | null, str2: string | null): boolean {
+            if (!str1 && !str2) return true;
+            return str1 == str2;
+        }
 
         // Ajax result handling
 
@@ -837,7 +859,7 @@ debugger;//TODO: This hasn't been tested
         public limitToNotTypeHidden(elems: HTMLElement[]): HTMLElement[] {
             var all: HTMLElement[] = [];
             for (const elem of elems) {
-                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden") //$$$check casing
+                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden")
                     all.push(elem);
             }
             return all;
@@ -1021,8 +1043,7 @@ debugger;//TODO: This hasn't been tested
         }
         private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
-            // srcElement should be target//$$$$ srcElement is non-standard
-            //console.log(`event ${ev.type} selector ${selector} srcElement ${(ev.srcElement as HTMLElement).outerHTML}`);
+            //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase === ev.AT_TARGET) {
@@ -1030,7 +1051,7 @@ debugger;//TODO: This hasn't been tested
             } else if (ev.eventPhase === ev.BUBBLING_PHASE) {
                 if (!selector) return;
                 // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
-                var elem: HTMLElement | null = ev.srcElement as HTMLElement | null;
+                var elem: HTMLElement | null = ev.target as HTMLElement | null;
                 while (elem) {
                     if (this.elementMatches(elem, selector))
                         break;
@@ -1219,9 +1240,9 @@ debugger;//TODO: This hasn't been tested
             // <a> links that only have a hash are intercepted so we don't go through content handling
             this.registerEventHandlerBody("click", "a[href^='#']", (ev: MouseEvent) => {
 
-                // find the real anchor, ev.srcElement was clicked, but it may not be the anchor itself
-                if (!ev.srcElement) return true;
-                var anchor = $YetaWF.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
+                // find the real anchor, ev.target was clicked, but it may not be the anchor itself
+                if (!ev.target) return true;
+                var anchor = $YetaWF.elementClosest(ev.target as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 this.suppressPopState = true;

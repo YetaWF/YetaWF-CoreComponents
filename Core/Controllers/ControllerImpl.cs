@@ -1284,10 +1284,10 @@ namespace YetaWF.Core.Controllers {
                     url = YetaWFManager.JsonSerialize(url);
                     if (Manager.IsInPopup) {
                         // simply replace the current popup with the new popup
-                        sb.Append("window.parent.YetaWF_Popups.openPopup({0}, false);", url);
+                        sb.Append("window.parent.$YetaWF.Popups.openPopup({0}, false);", url);
                     } else {
                         // create the popup client-side
-                        sb.Append("YetaWF_Popups.openPopup({0}, false);", url);
+                        sb.Append("$YetaWF.Popups.openPopup({0}, false);", url);
                     }
                 } else {
                     url = YetaWFManager.JsonSerialize(url);

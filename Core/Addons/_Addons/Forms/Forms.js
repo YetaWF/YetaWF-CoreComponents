@@ -323,7 +323,7 @@ var YetaWF;
             var _this = this;
             $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", function (ev) {
                 if (ev.keyCode === 13) {
-                    _this.submitForm = _this.getForm(ev.srcElement);
+                    _this.submitForm = _this.getForm(ev.target);
                     _this.submitFormOnChange();
                     return false;
                 }
@@ -331,7 +331,7 @@ var YetaWF;
             });
             $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", function (ev) {
                 clearInterval(_this.submitFormTimer);
-                _this.submitForm = _this.getForm(ev.srcElement);
+                _this.submitForm = _this.getForm(ev.target);
                 _this.submitFormTimer = setInterval(function () { return _this.submitFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
                 $YetaWF.setLoading(true);
                 return false;
@@ -339,7 +339,7 @@ var YetaWF;
             // apply
             $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", function (ev) {
                 if (ev.keyCode === 13) {
-                    _this.submitForm = _this.getForm(ev.srcElement);
+                    _this.submitForm = _this.getForm(ev.target);
                     _this.applyFormOnChange();
                     return false;
                 }
@@ -347,7 +347,7 @@ var YetaWF;
             });
             $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", function (ev) {
                 clearInterval(_this.submitFormTimer);
-                _this.submitForm = _this.getForm(ev.srcElement);
+                _this.submitForm = _this.getForm(ev.target);
                 _this.submitFormTimer = setInterval(function () { return _this.applyFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
                 $YetaWF.setLoading(true);
                 return false;
@@ -403,13 +403,13 @@ var YetaWF;
             });
             // Submit the form when an apply button is clicked
             $YetaWF.registerEventHandlerBody("click", "form input[type=\"button\"][" + YConfigs.Forms.CssDataApplyButton + "]", function (ev) {
-                var form = _this.getForm(ev.srcElement);
+                var form = _this.getForm(ev.target);
                 _this.submit(form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
                 return false;
             });
             // Submit the form when a submit button is clicked
             $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, function (ev) {
-                var form = _this.getForm(ev.srcElement);
+                var form = _this.getForm(ev.target);
                 _this.submit(form, true);
                 return false;
             });

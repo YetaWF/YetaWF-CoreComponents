@@ -30,13 +30,6 @@ String.prototype.format = function () {
     });
 };
 
-// string compare that considers null == ""
-function StringYCompare(str1, str2) { //$$$ this is crap
-    if (!str1 && !str2) return true;
-    return str1 == str2;
-};
-
-
 // Element.prototype.matches Polyfill
 if (!Element.prototype.matches) {
     Element.prototype.matches =

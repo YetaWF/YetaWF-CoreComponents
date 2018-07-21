@@ -53,7 +53,7 @@ namespace YetaWF {
         DefaultPopupHeight: number;
     }
 
-    export class PopupsServices {
+    export class Popups {
 
         // Implemented by renderer
         // Implemented by renderer
@@ -129,7 +129,7 @@ namespace YetaWF {
                     return false;
             }
 
-            return YetaWF_Popups.openPopup(url, false);
+            return this.openPopup(url, false);
         }
 
         /**
@@ -145,12 +145,7 @@ namespace YetaWF {
                 window.parent.location.assign(elem.href);
             return true;
         }
+
+        public init(): void { }
     }
 }
-
-/**
- * Popup services available throughout YetaWF.
- */
-//$$$$$ get rid of this (like $YetaWF.Forms)
-// tslint:disable-next-line:variable-name
-var YetaWF_Popups: YetaWF.PopupsServices = new YetaWF.PopupsServices();

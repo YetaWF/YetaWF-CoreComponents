@@ -19,9 +19,9 @@ namespace YetaWF {
             // For an <a> link clicked, add the page we're coming from (not for popup links though)
             $YetaWF.registerEventHandlerBody("click", "a.yaction-link,area.yaction-link", (ev: Event) => {
 
-                // find the real anchor, ev.srcElement was clicked but it may not be the anchor itself
-                if (!ev.srcElement) return true;
-                var anchor = $YetaWF.elementClosest(ev.srcElement as HTMLElement, "a") as HTMLAnchorElement;
+                // find the real anchor, ev.target was clicked but it may not be the anchor itself
+                if (!ev.target) return true;
+                var anchor = $YetaWF.elementClosest(ev.target as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 var url = anchor.href;
@@ -102,13 +102,13 @@ namespace YetaWF {
                 anchor.href = uri.toUrl(); // update original href in case let default handling take place
 
                 // first try to handle this as a link to the outer window (only used in a popup)
-                if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined) {
-                    if (YetaWF_Popups.handleOuterWindow(anchor))
+                if ($YetaWF.PopupsAvailable()) {
+                    if ($YetaWF.Popups.handleOuterWindow(anchor))
                         return false;
                 }
                 // try to handle this as a popup link
-                if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined) {
-                    if (YetaWF_Popups.handlePopupLink(anchor))
+                if ($YetaWF.PopupsAvailable()) {
+                    if ($YetaWF.Popups.handlePopupLink(anchor))
                         return false;
                 }
 

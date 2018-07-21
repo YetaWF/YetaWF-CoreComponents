@@ -267,7 +267,7 @@ namespace YetaWF {
                 //$YetaWF.setLoading(false);
                 if (popupCB) {
                     // we want a popup and get a redirect, redirect to iframe popup
-                    YetaWF_Popups.openPopup(result.Redirect, true);
+                    $YetaWF.Popups.openPopup(result.Redirect, true);
                 } else {
                     // simple redirect
                     window.location.assign(result.Redirect);
@@ -378,8 +378,8 @@ namespace YetaWF {
                     if (!scrolled)
                         window.scroll(0, 0);
                     // in case there is a popup open, close it now (typically when returning to the page from a popup)
-                    if (typeof YetaWF_Popups !== "undefined" && YetaWF_Popups !== undefined)
-                        YetaWF_Popups.closeInnerPopup();
+                    if ($YetaWF.PopupsAvailable())
+                        $YetaWF.Popups.closeInnerPopup();
                 }
                 try {
                     $YetaWF.runGlobalScript(result.AnalyticsContent);

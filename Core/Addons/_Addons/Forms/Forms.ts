@@ -442,7 +442,7 @@ namespace YetaWF {
 
             $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", (ev: KeyboardEvent) => {
                 if (ev.keyCode === 13) {
-                    this.submitForm = this.getForm(ev.srcElement as HTMLElement);
+                    this.submitForm = this.getForm(ev.target as HTMLElement);
                     this.submitFormOnChange();
                     return false;
                 }
@@ -450,7 +450,7 @@ namespace YetaWF {
             });
             $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", (ev: Event) => {
                 clearInterval(this.submitFormTimer);
-                this.submitForm = this.getForm(ev.srcElement as HTMLElement);
+                this.submitForm = this.getForm(ev.target as HTMLElement);
                 this.submitFormTimer = setInterval(() => this.submitFormOnChange(), 1000);// wait 1 second and automatically submit the form
                 $YetaWF.setLoading(true);
                 return false;
@@ -461,7 +461,7 @@ namespace YetaWF {
 
             $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", (ev: KeyboardEvent) => {
                 if (ev.keyCode === 13) {
-                    this.submitForm = this.getForm(ev.srcElement as HTMLElement);
+                    this.submitForm = this.getForm(ev.target as HTMLElement);
                     this.applyFormOnChange();
                     return false;
                 }
@@ -469,7 +469,7 @@ namespace YetaWF {
             });
             $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", (ev: Event) => {
                 clearInterval(this.submitFormTimer);
-                this.submitForm = this.getForm(ev.srcElement as HTMLElement);
+                this.submitForm = this.getForm(ev.target as HTMLElement);
                 this.submitFormTimer = setInterval(() => this.applyFormOnChange(), 1000);// wait 1 second and automatically submit the form
                 $YetaWF.setLoading(true);
                 return false;
@@ -527,7 +527,7 @@ namespace YetaWF {
 
             // Submit the form when an apply button is clicked
             $YetaWF.registerEventHandlerBody("click", `form input[type="button"][${YConfigs.Forms.CssDataApplyButton}]`, (ev: MouseEvent) : boolean => {
-                var form = this.getForm(ev.srcElement as HTMLElement);
+                var form = this.getForm(ev.target as HTMLElement);
                 this.submit(form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
                 return false;
             });
@@ -535,7 +535,7 @@ namespace YetaWF {
             // Submit the form when a submit button is clicked
 
             $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, (ev: Event) : boolean => {
-                var form = this.getForm(ev.srcElement as HTMLElement);
+                var form = this.getForm(ev.target as HTMLElement);
                 this.submit(form, true);
                 return false;
             });

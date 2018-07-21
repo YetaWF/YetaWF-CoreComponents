@@ -5,8 +5,8 @@
  */
 var YetaWF;
 (function (YetaWF) {
-    var PopupsServices = /** @class */ (function () {
-        function PopupsServices() {
+    var Popups = /** @class */ (function () {
+        function Popups() {
         }
         // Implemented by renderer
         // Implemented by renderer
@@ -14,13 +14,13 @@ var YetaWF;
         /**
          * Close the popup - this can only be used by code that is running within the popup (not the parent document/page)
          */
-        PopupsServices.prototype.closePopup = function (forceReload) {
+        Popups.prototype.closePopup = function (forceReload) {
             YetaWF_PopupsImpl.closePopup(forceReload);
         };
         /**
          * Close the popup - this can only be used by code that is running on the main page (not within the popup)
          */
-        PopupsServices.prototype.closeInnerPopup = function () {
+        Popups.prototype.closeInnerPopup = function () {
             YetaWF_PopupsImpl.closeInnerPopup();
         };
         // Implemented by YetaWF
@@ -29,7 +29,7 @@ var YetaWF;
         /**
          * opens a popup given a url
          */
-        PopupsServices.prototype.openPopup = function (url, forceIframe) {
+        Popups.prototype.openPopup = function (url, forceIframe) {
             $YetaWF.setLoading(true);
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
             if (url.indexOf("?") < 0)
@@ -50,7 +50,7 @@ var YetaWF;
         /**
          * Handles links that invoke a popup window.
          */
-        PopupsServices.prototype.handlePopupLink = function (elem) {
+        Popups.prototype.handlePopupLink = function (elem) {
             var url = elem.href;
             // check if this is a popup link
             if (!$YetaWF.elementHasClass(elem, YConfigs.Basics.CssPopupLink))
@@ -71,12 +71,12 @@ var YetaWF;
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-            return YetaWF_Popups.openPopup(url, false);
+            return this.openPopup(url, false);
         };
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.
          */
-        PopupsServices.prototype.handleOuterWindow = function (elem) {
+        Popups.prototype.handleOuterWindow = function (elem) {
             // check if this is a popup link
             if (!elem.getAttribute(YConfigs.Basics.CssOuterWindow))
                 return false;
@@ -87,15 +87,10 @@ var YetaWF;
                 window.parent.location.assign(elem.href);
             return true;
         };
-        return PopupsServices;
+        Popups.prototype.init = function () { };
+        return Popups;
     }());
-    YetaWF.PopupsServices = PopupsServices;
+    YetaWF.Popups = Popups;
 })(YetaWF || (YetaWF = {}));
-/**
- * Popup services available throughout YetaWF.
- */
-//$$$$$ get rid of this (like $YetaWF.Forms)
-// tslint:disable-next-line:variable-name
-var YetaWF_Popups = new YetaWF.PopupsServices();
 
 //# sourceMappingURL=Popups.js.map
