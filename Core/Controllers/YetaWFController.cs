@@ -551,6 +551,7 @@ namespace YetaWF.Core.Controllers
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
 
                     bool inPartialView = Manager.InPartialView;
+                    Manager.InPartialView = true;
                     try {
 #if MVC6
                         viewHtml = (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
