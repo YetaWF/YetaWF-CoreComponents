@@ -94,6 +94,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
 
                 Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
+                Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", Manager.CurrentPage.Temporary);
                 ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
 
                 await Manager.CssManager.RenderAsync(cr, DataIn.KnownCss);

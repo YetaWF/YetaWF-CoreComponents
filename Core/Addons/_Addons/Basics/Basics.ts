@@ -869,10 +869,13 @@ debugger;//TODO: This hasn't been tested
         public limitToVisibleOnly(elems: HTMLElement[]): HTMLElement[] {
             var all: HTMLElement[] = [];
             for (const elem of elems) {
-                if (elem.clientWidth > 0 && elem.clientHeight > 0)
+                if (this.isVisible(elem))
                     all.push(elem);
             }
             return all;
+        }
+        public isVisible(elem: HTMLElement): boolean {
+            return (elem.clientWidth > 0 && elem.clientHeight > 0);
         }
 
         /**
@@ -1048,18 +1051,26 @@ debugger;//TODO: This hasn't been tested
             } else if (ev.eventPhase === ev.AT_TARGET) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase === ev.BUBBLING_PHASE) {
-                if (!selector) return;
-                // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
                 var elem: HTMLElement | null = ev.target as HTMLElement | null;
-                while (elem) {
-                    if (this.elementMatches(elem, selector))
-                        break;
-                    if (listening === elem)
-                        return;// checked all elements
-                    elem = elem.parentElement;
-                    if (elem == null)
-                        return;
+                if (selector) {
+                    // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
+                    while (elem) {
+                        if (this.elementMatches(elem, selector))
+                            break;
+                        if (listening === elem)
+                            return;// checked all elements
+                        elem = elem.parentElement;
+                    }
+                } else {
+                    // check whether the target or one of its parents is the listening element
+                    while (elem) {
+                        if (listening === elem)
+                            break;
+                        elem = elem.parentElement;
+                    }
                 }
+                if (!elem)
+                    return;
             } else
                 return;
             //console.log(`event ${ev.type} selector ${selector} match`);

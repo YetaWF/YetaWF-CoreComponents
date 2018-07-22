@@ -163,8 +163,7 @@ namespace YetaWF.Core.Controllers
             filterContext.HttpContext.Response.StatusCode = 200;
             filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
             filterContext.ExceptionHandled = true;
-            ContentResult cr = Content(
-                YetaWFManager.JsonSerialize(Basics.AjaxJavascriptErrorReturn + $"$YetaWF.error({YetaWFManager.JsonSerialize(msg)});"));
+            ContentResult cr = Content(Basics.AjaxJavascriptErrorReturn + $"$YetaWF.error({YetaWFManager.JsonSerialize(msg)});");
             cr.ExecuteResult(filterContext);
         }
         /// <summary>

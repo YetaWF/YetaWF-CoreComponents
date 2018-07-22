@@ -103,6 +103,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
                 Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
+                Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
 
                 bool staticPage = false;
                 if (Manager.Deployed)

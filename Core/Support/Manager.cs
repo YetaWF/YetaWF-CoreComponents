@@ -1157,18 +1157,20 @@ namespace YetaWF.Core.Support {
 #if MVC6
                 context.Response.Headers.Add("Cache-Control", string.Format("max-age={0}", StaticCacheDuration * 60));
 #else
-                response.Cache.SetCacheability(HttpCacheability.Public);
-                response.Cache.SetMaxAge(new TimeSpan(0, duration, 0));
-#endif
-            } else {
-#if MVC6
-#else
+                context.Response.Cache.SetCacheability(HttpCacheability.Public);
+                context.Response.Cache.SetMaxAge(new TimeSpan(0, StaticCacheDuration, 0));
 #endif
             }
             // add CORS header for static site
+#if MVC6
             SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
             if (site != null)
                 context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Scheme}://{site.SiteDomain.ToLower()}");
+#else
+            SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Url.Host).Result;// cached, so ok to use result
+            if (site != null)
+                context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Url.Scheme}://{site.SiteDomain.ToLower()}");
+#endif
         }
         public static int StaticCacheDuration {
             get {
