@@ -1168,7 +1168,7 @@ namespace YetaWF.Core.Support {
             // add CORS header for static site
             SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
             if (site != null)
-                context.Response.Headers.Add("Access-Control-Allow-Origin", site.SiteDomain);
+                context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Scheme}://{site.SiteDomain.ToLower()}");
         }
         public static int StaticCacheDuration {
             get {
