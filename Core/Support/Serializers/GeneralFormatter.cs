@@ -138,7 +138,7 @@ namespace YetaWF.Core.Support.Serializers {
 #pragma warning disable CS0612 // warning CS0612: 'GeneralFormatter.Style.Binary' is obsolete
                 case Style.Binary:
 #pragma warning restore CS0612
-                    fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
+                    fmt = new BinaryFormatter { AssemblyFormat = 0 /*System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple*/ };
                     break;
                 case Style.JSON:
                     new JSONFormatter().Serialize(fs, obj);
@@ -163,7 +163,7 @@ namespace YetaWF.Core.Support.Serializers {
 #pragma warning disable CS0612 // warning CS0612: 'GeneralFormatter.Style.Binary' is obsolete
                 case Style.Binary:
 #pragma warning restore CS0612
-                    fmt = new BinaryFormatter { AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple };
+                    fmt = new BinaryFormatter { AssemblyFormat = 0 /*System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple*/ };
                     break;
                 case Style.JSON:
                     return new JSONFormatter().Serialize(obj);

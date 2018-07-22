@@ -166,7 +166,7 @@ namespace YetaWF.Core.HttpHandler {
                         DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(filePath);
                         context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
-                        YetaWFManager.SetStaticCacheInfo(context.Response);
+                        YetaWFManager.SetStaticCacheInfo(context);
                         context.Response.ContentType = contentType;
                         string ifNoneMatch = context.Request.Headers["If-None-Match"];
                         if (ifNoneMatch.TruncateStart("W/") != GetETag(filePath, lastMod)) {
@@ -191,7 +191,7 @@ namespace YetaWF.Core.HttpHandler {
                         else if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg) contentType = "image/jpeg";
                         else contentType = "image/jpeg";
 
-                        YetaWFManager.SetStaticCacheInfo(context.Response);
+                        YetaWFManager.SetStaticCacheInfo(context);
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
                         context.Response.ContentType = contentType;

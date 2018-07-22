@@ -155,8 +155,10 @@ namespace YetaWF.Core.Packages {
                 _availablePackages = new List<Package>();
                 foreach (Assembly assembly in assemblies) {
                     Package package = new Package(assembly);
-                    if (package.IsValid)
-                        _availablePackages.Add(package);
+                    if (package.IsValid) {
+                        if ((from p in _availablePackages where p.Name == package.Name select p).FirstOrDefault() == null)
+                            _availablePackages.Add(package);
+                    }
                 }
             }
             return (from p in _availablePackages select p).ToList();// copy

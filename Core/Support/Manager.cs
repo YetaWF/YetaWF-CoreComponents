@@ -1152,11 +1152,10 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        public static void SetStaticCacheInfo(HttpResponse response) {
-            int duration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0);// duration in minutes
-            if (GetDeployed() && duration > 0) {
+        public static void SetStaticCacheInfo(HttpContext context) {
+            if (GetDeployed() && StaticCacheDuration > 0) {
 #if MVC6
-                response.Headers.Add("Cache-Control", string.Format("max-age={0}", duration*60));
+                context.Response.Headers.Add("Cache-Control", string.Format("max-age={0}", StaticCacheDuration * 60));
 #else
                 response.Cache.SetCacheability(HttpCacheability.Public);
                 response.Cache.SetMaxAge(new TimeSpan(0, duration, 0));
@@ -1166,7 +1165,20 @@ namespace YetaWF.Core.Support {
 #else
 #endif
             }
+            // add CORS header for static site
+            SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
+            if (site != null)
+                context.Response.Headers.Add("Access-Control-Allow-Origin", site.SiteDomain);
         }
+        public static int StaticCacheDuration {
+            get {
+                if (staticCacheDuration == null) {
+                    staticCacheDuration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0);
+                }
+                return (int)staticCacheDuration;
+            }
+        }
+        private static int? staticCacheDuration = null;
 
         public bool HaveCurrentSession {
             get {
