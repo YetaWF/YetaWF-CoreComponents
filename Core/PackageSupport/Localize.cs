@@ -172,6 +172,7 @@ namespace YetaWF.Core.Packages {
             if (path.EndsWith("\\AddonsCustom", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Properties", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\bin", StringComparison.OrdinalIgnoreCase)) return;
+            if (path.EndsWith("\\bower_components", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Data", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\DataXFER", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Docs", StringComparison.OrdinalIgnoreCase)) return;
