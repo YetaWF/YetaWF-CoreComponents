@@ -19,9 +19,7 @@ using System.Web;
 using System.Web.SessionState;
 #endif
 
-namespace YetaWF.Core.HttpHandler
-{
-
+namespace YetaWF.Core.HttpHandler {
 
 #if MVC6
 
@@ -104,8 +102,8 @@ namespace YetaWF.Core.HttpHandler
                     // if there is no image, use a default image
                     if ((img == null || bytes == null) && (filePath == null || !await FileSystem.FileSystemProvider.FileExistsAsync(filePath))) {
                         Package package = Package.GetPackageFromType(typeof(YetaWFManager));// get the core package
-                        string addonUrl = VersionManager.GetAddOnTemplateUrl(package.Domain, package.Product, "Image");// and the Url of the Image template
-                        filePath = YetaWFManager.UrlToPhysical(Path.Combine(addonUrl, "Images", "NoImage.png"));
+                        string addonUrl = VersionManager.GetAddOnNamedUrl(package.Domain, package.Product, "Image");// and the Url of the Image template
+                        filePath = YetaWFManager.UrlToPhysical(Path.Combine(addonUrl, "NoImage.png"));
                         if (!await FileSystem.FileSystemProvider.FileExistsAsync(filePath))
                             throw new InternalError("The image {0} is missing", filePath);
                     }
@@ -168,7 +166,7 @@ namespace YetaWF.Core.HttpHandler
                         DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(filePath);
                         context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
-                        YetaWFManager.SetStaticCacheInfo(context.Response);
+                        YetaWFManager.SetStaticCacheInfo(context);
                         context.Response.ContentType = contentType;
                         string ifNoneMatch = context.Request.Headers["If-None-Match"];
                         if (ifNoneMatch.TruncateStart("W/") != GetETag(filePath, lastMod)) {
@@ -193,7 +191,7 @@ namespace YetaWF.Core.HttpHandler
                         else if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg) contentType = "image/jpeg";
                         else contentType = "image/jpeg";
 
-                        YetaWFManager.SetStaticCacheInfo(context.Response);
+                        YetaWFManager.SetStaticCacheInfo(context);
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
                         context.Response.ContentType = contentType;

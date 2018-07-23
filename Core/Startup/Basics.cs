@@ -61,11 +61,9 @@ namespace YetaWF.Core.Addons {
 
         public const string AjaxJavascriptErrorReturn = "JSERROR:";
 
-        public async Task AddSupportAsync(YetaWFManager manager) {
+        public Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
-
-            await manager.AddOnManager.AddAddOnGlobalAsync("no-margin-for-errors.com", "prettyLoader");
 
             // Site settings
             scripts.AddVolatileOption("Basics", "JSLocation", manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top);
@@ -135,7 +133,6 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "DefaultTooltipWidth", DefaultTooltipWidth);
             scripts.AddConfigOption("Basics", "DefaultTooltipPosition", DefaultTooltipPosition);
 
-            scripts.AddConfigOption("Basics", "LoaderGif", manager.GetCDNUrl(AddOnManager.GetAddOnGlobalUrl("no-margin-for-errors.com", "prettyLoader", AddOnManager.UrlType.Css) + "images/prettyLoader/ajax-loader.gif"));
             scripts.AddConfigOption("Basics", "CookieDoneCssAttr", CookieDoneCssAttr);
             scripts.AddConfigOption("Basics", "CookieDone", CookieDone);
             scripts.AddConfigOption("Basics", "CookieToReturn", CookieToReturn);
@@ -149,6 +146,20 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModule", AjaxJavascriptReloadModule);
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModuleParts", AjaxJavascriptReloadModuleParts);
             scripts.AddLocalization("Basics", "IncorrectServerResp", this.__ResStr("IncorrectServerResp", "Incorrect server response: Expecting a javascript return"));
+
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_OriginList), Globals.Link_OriginList); // chain of urls
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_InPopup), Globals.Link_InPopup); // we're in a popup
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_ToEditMode), Globals.Link_ToEditMode); // force this mode
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_ToPopup), Globals.Link_ToPopup); // we're going into a popup
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_PageControl), Globals.Link_PageControl); // show page control module
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_CharInfo), Globals.Link_CharInfo); // character info (char width, char height) for module issuing req.
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsApply), Globals.Link_SubmitIsApply); // a submit button was clicked and should be handled as Apply
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_EditMode), Globals.Link_EditMode); // site edit mode
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_NoEditMode), Globals.Link_NoEditMode); // site display mode
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_ScrollLeft), Globals.Link_ScrollLeft);
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_ScrollTop), Globals.Link_ScrollTop);
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -12,24 +12,27 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Modules;
-using YetaWF.Core.Views.Shared;
 using YetaWF.Core.Models;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
+using System.IO;
+using YetaWF.Core.Views;
 #if MVC6
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using YetaWF.Core.Pages;
 #else
-using System.IO;
 using System.IO.Compression;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Filters;
-using System.Web.Mvc.Html;
 #endif
 
 namespace YetaWF.Core.Controllers
@@ -51,6 +54,7 @@ namespace YetaWF.Core.Controllers
         /// <summary>
         /// Constructor.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         protected YetaWFController() {
             // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
             // This also means we don't need AllowHtml attributes
@@ -78,6 +82,7 @@ namespace YetaWF.Core.Controllers
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller (if any). Can be used with a base class to get the derived module's module definitions.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected virtual ModuleDefinition CurrentModule {
             get {
                 if (_currentModule == null) throw new InternalError("No saved module");
@@ -95,18 +100,15 @@ namespace YetaWF.Core.Controllers
         protected async Task<ModuleDefinition> GetModuleAsync() {
             if (_currentModule == null) {
                 ModuleDefinition mod = null;
-                if (Manager.IsGetRequest) {
-                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
-                    if (mod == null) {
+                mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
+                if (mod == null) {
+                    if (Manager.IsGetRequest) {
                         string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             return null;
                         Guid guid = new Guid(moduleGuid);
                         mod = await ModuleDefinition.LoadAsync(guid);
-                    }
-                } else if (Manager.IsPostRequest) {
-                    mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
-                    if (mod == null) {
+                    } else if (Manager.IsPostRequest) {
                         string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
@@ -161,8 +163,7 @@ namespace YetaWF.Core.Controllers
             filterContext.HttpContext.Response.StatusCode = 200;
             filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
             filterContext.ExceptionHandled = true;
-            ContentResult cr = Content(
-                string.Format(Basics.AjaxJavascriptErrorReturn + "Y_Error({0});", YetaWFManager.JsonSerialize(msg)));
+            ContentResult cr = Content(Basics.AjaxJavascriptErrorReturn + $"$YetaWF.error({YetaWFManager.JsonSerialize(msg)});");
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
@@ -370,7 +371,7 @@ namespace YetaWF.Core.Controllers
                 await HandlePropertiesAsync(item);
         }
         private async Task HandlePropertiesAsync(object data) {
-            await ObjectSupport.HandlePropertyAsync<Menus.MenuList>("Commands", "__GetCommandsAsync", data);
+            await ObjectSupport.HandlePropertyAsync<MenuList>("Commands", "__GetCommandsAsync", data);
         }
 
         // PARTIAL VIEW
@@ -505,7 +506,7 @@ namespace YetaWF.Core.Controllers
                     if (Module == null) throw new InternalError("Can't use AreaViewName without module context");
                     if (String.IsNullOrEmpty(ViewName)) {
                         if (!string.IsNullOrWhiteSpace(Module.DefaultViewName))
-                            ViewName = Module.DefaultViewName + "_Partial";
+                            ViewName = Module.DefaultViewName + YetaWFViewExtender.PartialSuffix;
                     } else {
                         ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
                     }
@@ -528,50 +529,57 @@ namespace YetaWF.Core.Controllers
                 if (!string.IsNullOrEmpty(ContentType))
                     response.ContentType = ContentType;
 
+                ModuleDefinition oldMod = Manager.CurrentModule;
+                Manager.CurrentModule = Module;
+
                 string viewHtml;
-#if MVC6
-                bool inPartialView = Manager.InPartialView;
-                Manager.InPartialView = true;
-                try {
-                    IViewRenderService _viewRenderService = (IViewRenderService)YetaWFManager.ServiceProvider.GetService(typeof(IViewRenderService));
-                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
-                    viewHtml = await _viewRenderService.RenderToStringAsync(context, ViewName, ViewData, PostRenderAsync);
-                } catch (Exception) {
-                    throw;
-                } finally {
-                    Manager.InPartialView = inPartialView;
-                }
-#else
-                ViewEngineResult viewEngine = null;
-
-                if (View == null) {
-                    viewEngine = FindView(context);
-                    View = viewEngine.View;
-                }
-                IView view = FindView(context).View;
-
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
-                    ViewContext vc = new ViewContext(context, view, context.Controller.ViewData, context.Controller.TempData, sw);
+
+#if MVC6
+                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    if (htmlHelper is IViewContextAware contextable) {
+                        ViewContext viewContext = new ViewContext(context, NullView.Instance, this.ViewData, this.TempData, sw, new HtmlHelperOptions());
+                        contextable.Contextualize(viewContext);
+                    }
+#else
+                    ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
                     IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
                     HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+#endif
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
 
                     bool inPartialView = Manager.InPartialView;
                     Manager.InPartialView = true;
                     try {
-                        viewHtml = htmlHelper.Partial(base.ViewName, Model).ToString();
+#if MVC6
+                        viewHtml = (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
+#else
+                        viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                            return (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
+                        });
+#endif
                     } catch (Exception) {
                         throw;
                     } finally {
                         Manager.InPartialView = inPartialView;
                     }
+#if MVC6
+                    viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
+#else
                     YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
                         viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
                     });
-                }
 #endif
-                if (Gzip) {
+                }
+#if DEBUG
+                if (sb.Length > 0)
+                    throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sb.ToString()}\"");
+#endif
+
+                    Manager.CurrentModule = oldMod;
+
+                    if (Gzip) {
                     // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
                     // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
 #if MVC6
@@ -586,8 +594,6 @@ namespace YetaWF.Core.Controllers
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
                 response.Output.Write(viewHtml);
-                if (viewEngine != null)
-                    viewEngine.ViewEngine.ReleaseView(context, View);
 #endif
             }
 
@@ -595,6 +601,11 @@ namespace YetaWF.Core.Controllers
 #else
             private class ViewDataContainer : IViewDataContainer {
                 public ViewDataDictionary ViewData { get; set; }
+            }
+            private class ViewImpl : IView {
+                public void Render(ViewContext viewContext, TextWriter writer) {
+                    throw new NotImplementedException();
+                }
             }
 #endif
 
@@ -620,13 +631,12 @@ namespace YetaWF.Core.Controllers
                     if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
 
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Module.ReferencedModules);
-                    viewHtml = viewHtml + (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
-                    viewHtml = YetaWF.Core.Views.RazorViewExtensions.PostProcessViewHtml(htmlHelper, Module, viewHtml);
 
-                    Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
-                    viewHtml = vars.ReplaceVariables(viewHtml);// variable substitution
+                    viewHtml = viewHtml + (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
+                    viewHtml = await PostProcessView.ProcessAsync(htmlHelper, Module, viewHtml);
 
                     if (Script != null)
                         Manager.ScriptManager.AddLastDocumentReady(Script);

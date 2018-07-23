@@ -20,7 +20,7 @@ namespace YetaWF.Core.Packages {
 
         public const string SiteIDFile = "Site.txt";
         public const string SiteIDDataFile = "SiteData.txt";
-        public const string SiteContentsFile = "Contents.xml";
+        public const string SiteContentsFile = "Contents.json";
         public const string BackupFolder = "Backups";
         public const string BackupFileFormat = "Backup {0}";
         public const string BackupDateTimeFormat = "yyyy-MM-dd HH-mm-ss";

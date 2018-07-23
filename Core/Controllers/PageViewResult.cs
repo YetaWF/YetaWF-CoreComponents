@@ -10,6 +10,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -102,6 +103,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
                 Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
+                Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
 
                 bool staticPage = false;
                 if (Manager.Deployed)
@@ -131,13 +133,10 @@ namespace YetaWF.Core.Controllers {
                 }
                 Manager.LastUpdated = requestedPage.Updated;
 
-                await Manager.AddOnManager.AddStandardAddOnsAsync();
+                await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
                 await Manager.SetSkinOptions();
+                await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
                 await Manager.AddOnManager.AddSkinAsync(skinCollection);
-
-                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Basics");
-                if (Manager.IsInPopup)
-                    await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");
 
                 string pageHtml;
 #if MVC6
@@ -150,9 +149,9 @@ namespace YetaWF.Core.Controllers {
                     pageHtml = writer.ToString();
                 }
 #endif
+                Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs
                 if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
                     pageHtml = ProcessInlineScripts(pageHtml);
-                Manager.ScriptManager.AddLast("YetaWF_Basics", "YetaWF_Basics.initPage();");// end of page initialization
 
                 await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
                 Manager.PopCharSize();

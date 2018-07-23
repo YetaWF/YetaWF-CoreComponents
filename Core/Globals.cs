@@ -1,16 +1,8 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.Threading.Tasks;
-using YetaWF.Core.Addons;
-using YetaWF.Core.Support;
-
 namespace YetaWF.Core {
 
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class JSAttribute : Attribute { }
-
-    public class Globals : IInitializeApplicationStartup {
+    public class Globals {
 
 #if MVC6
         public const string RUNTIME = "netcoreapp2.0"; // runtime
@@ -45,16 +37,9 @@ namespace YetaWF.Core {
         public const int ChIPAddressWithLookup = 20;
         public const int ChTimeZone = 20;
 
-        public async Task InitializeApplicationStartupAsync() {
-            // Generate globals javascript equivalent
-            string outputUrl = VersionManager.GetAddOnNamedUrl("YetaWF", "Core", "Basics") + "Globals.js";
-            await ConvertGlobalsToJavascript.ConvertAsync(YetaWFManager.UrlToPhysical(outputUrl), this, "YGlobals"); // this will happen for each node startup, which is OK as it just overwrites the file with the same data
-        }
-
         // Data Folder
         public const string DataFolder = "Data";
         public const string SitesFolder = "Sites";
-        public const string GlobalJavaScript = "_JS";
         public const string TempFiles = "TempFiles";
         public const string SiteTemplates = "SiteTemplates";
         public const string SiteTemplatesData = SiteTemplates + "\\Data";
@@ -72,22 +57,22 @@ namespace YetaWF.Core {
         public const string DefaultCountry = "United States";
 
         // Url parts
-             public const string PageUrl = "/!Page/";
-             public const string ModuleUrl = "/!Mod/";
-        [JS] public const string Link_OriginList = "!OriginList"; // chain of urls
-        [JS] public const string Link_InPopup = "!InPopup"; // we're in a popup
-        [JS] public const string Link_ToEditMode = "!ToEditMode"; // force this mode
-        [JS] public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
-        [JS] public const string Link_PageControl = "!Pagectl"; // show page control module
-             public const string Link_NoPageControl = "!Nopagectl"; // no page control module
-        [JS] public const string Link_CharInfo = "!ci"; // character info (char width, char height) for module issuing req.
-        [JS] public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
-        [JS] public const string Link_EditMode = "!Edit"; // site edit mode
-        [JS] public const string Link_NoEditMode = "!Noedit"; // site display mode
-             public const string Link_ForceSite = "!Domain"; // force a specific site
-        [JS] public const string Link_ScrollLeft = "!Left";
-        [JS] public const string Link_ScrollTop = "!Top";
-             public const string Link_Language = "!Lang"; // site language
+        public const string PageUrl = "/!Page/";
+        public const string ModuleUrl = "/!Mod/";
+        public const string Link_OriginList = "!OriginList"; // chain of urls
+        public const string Link_InPopup = "!InPopup"; // we're in a popup
+        public const string Link_ToEditMode = "!ToEditMode"; // force this mode
+        public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
+        public const string Link_PageControl = "!Pagectl"; // show page control module
+        public const string Link_NoPageControl = "!Nopagectl"; // no page control module
+        public const string Link_CharInfo = "!ci"; // character info (char width, char height) for module issuing req.
+        public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
+        public const string Link_EditMode = "!Edit"; // site edit mode
+        public const string Link_NoEditMode = "!Noedit"; // site display mode
+        public const string Link_ForceSite = "!Domain"; // force a specific site
+        public const string Link_ScrollLeft = "!Left";
+        public const string Link_ScrollTop = "!Top";
+        public const string Link_Language = "!Lang"; // site language
 
         public const string Session_Permanent = "##perm##_";
         public const string Session_Superuser = Session_Permanent + "superuser"; // this is a superuser (saved in session state)
@@ -118,11 +103,15 @@ namespace YetaWF.Core {
         public const string Addons_TemplatesDirectoryName = "_Templates";
         public const string Addons_ModulesDirectoryName = "_Modules";
         public const string Addons_SkinsDirectoryName = "_Skins";
+
+        public const string Addons_JSFileList = "filelistJS.txt";
+        public const string Addons_CSSFileList = "filelistCSS.txt";
+        public const string Addons_SupportFileList = "Support.txt";
+
         public const string SiteFilesUrl = "/SiteFiles/";
         public const string VaultUrl = "/" + VaultFolder + "/";
         public const string VaultPrivateUrl = "/" + VaultPrivateFolder + "/";
 
-        public const string LibUrl = "/lib/";
         public const string LibFolder = "lib";
 
         public const string NodeModulesFolder = "node_modules";
@@ -131,14 +120,6 @@ namespace YetaWF.Core {
         public const string BowerComponentsUrl = "/bower_components/";
 
         public const string TempImagesFolder = "_img_";
-
-        public const string Addons_JSFileList = "filelistJS.txt";
-        public const string Addons_CSSFileList = "filelistCSS.txt";
-        public const string Addons_SupportFileList = "Support.txt";
-
-        // Areas
-        public const string AreasFolder = "Areas";
-        public const string ViewsFolder = "Views";
 
         // Module format strings
         public const string PermanentModuleNameFormat = "{0}.{1}";

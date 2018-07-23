@@ -1,2 +1,0 @@
-https://github.com/danielm/uploader
-http://danielm.herokuapp.com/demos/dnd/simple.php

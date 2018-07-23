@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -27,7 +26,7 @@ namespace YetaWF.Core.Packages {
         /// <returns></returns>
         public async Task<bool> LocalizeAsync(List<string> errorList) {
 
-            await LocalizationSupport.ClearPackageDataAsync(this);
+            await LocalizationSupport.ClearPackageDataAsync(this, MultiString.DefaultLanguage);
 
             // parse all source files to extract strings
             await ParseSourceFilesAsync(PackageSourceRoot);
@@ -173,9 +172,11 @@ namespace YetaWF.Core.Packages {
             if (path.EndsWith("\\AddonsCustom", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Properties", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\bin", StringComparison.OrdinalIgnoreCase)) return;
+            if (path.EndsWith("\\bower_components", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Data", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\DataXFER", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Docs", StringComparison.OrdinalIgnoreCase)) return;
+            if (path.EndsWith("\\node_modules", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\obj", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Properties", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\Sites", StringComparison.OrdinalIgnoreCase)) return;
@@ -184,9 +185,6 @@ namespace YetaWF.Core.Packages {
             List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.cs");
             foreach (string file in files)
                 await ParseCsSourceFileAsync(file);
-            files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.cshtml");
-            foreach (string file in files)
-                await ParseCshtmlSourceFileAsync(file);
             List<string> dirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(path);
             foreach (string dir in dirs)
                 await ParseSourceFilesAsync(dir);
@@ -201,13 +199,17 @@ namespace YetaWF.Core.Packages {
             string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
             string ns = GetCsFileNamespace(file, fileText);
             string cls = GetCsFileClass(file, fileText);
+            string explicitClass = GetCsFileExplicitClass(file, fileText);
 
-            List<LocalizationData.StringData> strings = GetCsFileStrings(file, fileText);
+            if (!string.IsNullOrWhiteSpace(explicitClass))
+                cls = explicitClass;
+
+            List<LocalizationData.StringData> strings = GetCsFileStrings(file, fileText, !string.IsNullOrWhiteSpace(explicitClass));
 
             if (strings.Count > 0) {
 
                 if (string.IsNullOrWhiteSpace(cls))
-                    throw new InternalError("File {0} can't contain resource string definitions because its class doesn't support resource access");
+                    throw new InternalError($"File {file} can't contain resource string definitions because its class doesn't support resource access");
 
                 string filename = string.Format("{0}.{1}", ns, cls);
                 LocalizationData data = LocalizationSupport.Load(this, filename, LocalizationSupport.Location.DefaultResources);
@@ -227,6 +229,9 @@ namespace YetaWF.Core.Packages {
 
         private static readonly Regex csNsRegex = new Regex("namespace\\s+(?'namespace'[A-Za-z0-9_\\.]+)\\s*\\{", RegexOptions.Compiled | RegexOptions.Multiline);
 
+        /// <summary>
+        /// Get the namespace used in this file.
+        /// </summary>
         private string GetCsFileNamespace(string fileName, string fileText) {
             Match m = csNsRegex.Match(fileText);
             if (!m.Success)
@@ -235,19 +240,16 @@ namespace YetaWF.Core.Packages {
         }
 
         private static readonly Regex csClassRegex = new Regex("(?'leadspace'[\t ]*)public\\s+(static\\s+|partial\\s+){0,1}class\\s+(?'class'[A-Za-z0-9_]+)\\s*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex csCombResRegex = new Regex(@"\[\s*CombinedResources\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
 
+        /// <summary>
+        /// Get the least indented or last class in this file.
+        /// </summary>
         private string GetCsFileClass(string fileName, string fileText) {
             string cls = null;
             int lead = int.MaxValue;
 
-            //[CombinedResources]
-            Match m = csCombResRegex.Match(fileText);
-            if (m.Success)
-                return "Resources";
-
             // find a public class xxxx
-            m = csClassRegex.Match(fileText);
+            Match m = csClassRegex.Match(fileText);
             while (m.Success) {
                 string newCls = m.Groups["class"].Value;
                 int newLead = m.Groups["leadspace"].Value.Length;
@@ -262,9 +264,31 @@ namespace YetaWF.Core.Packages {
             return cls;
         }
 
+        /// <summary>
+        /// Get the class name used in a static __ResStr definition.
+        /// </summary>
+        private string GetCsFileExplicitClass(string file, string fileText) {
+            string cls = null;
+
+            Match m = csExplResRegex.Match(fileText);
+            while (m.Success) {
+                string newCls = m.Groups["explCls"].Value;
+                if (!string.IsNullOrWhiteSpace(cls) && cls != newCls)
+                    throw new InternalError($"File {file} has multiple explicit classes ({cls}, {newCls}) defined in __ResStr() methods");
+                cls = newCls;
+                m = m.NextMatch();
+            }
+            return cls;
+        }
+
+        private static readonly Regex csExplResRegex = new Regex(@"(private|protected)\s+static\s+string\s+__ResStr\s*\(\s*string\s+[a-zA-Z0-9_]+\s*,\s*string\s+[a-zA-Z0-9_]+\s*,\s*params\s+object\s*\[\s*\]\s+[a-zA-Z0-9_]+\s*\)\s*\{\s*return\s+ResourceAccess\s*\.\s*GetResourceString\s*\(\s*typeof\s*\((?'explCls'[a-zA-Z0-9_]+)\)", RegexOptions.Compiled | RegexOptions.Multiline);
+
         private static readonly Regex csResstrRegex = new Regex(@"((?'object'[A-Za-z0-9_]+)\s*\.\s*){0,1}\s*__ResStr\s*\(\s*""(?'name'[^""]*)""\s*,\s*""(?'text'(\\""|[^""])*)""\s*(,|\))", RegexOptions.Compiled | RegexOptions.Multiline);
 
-        private List<LocalizationData.StringData> GetCsFileStrings(string fileName, string fileText) {
+        /// <summary>
+        /// Extract all __ResStr() string definitions
+        /// </summary>
+        private List<LocalizationData.StringData> GetCsFileStrings(string fileName, string fileText, bool explicitClass) {
 
             Dictionary<string,string> dict = new Dictionary<string,string>();
 
@@ -275,10 +299,15 @@ namespace YetaWF.Core.Packages {
                 string text = m.Groups["text"].Value;
 
                 if (name == "something" && text == "something") {
-                    ; // ignore this, it's form the generated template
+                    ; // ignore this, it's from a generated template
                 } else {
                     if (obj != "this" && obj != "")
-                        throw new InternalError("Invalid use of __ResStr(): The instance {0} can't be used. Use this or the static function __ResStr (see ResourceAccess.cs for info)", obj);
+                        throw new InternalError($"Invalid use of __ResStr() in file {fileName} - The instance {obj} can't be used. Use this or the static method __ResStr (see ResourceAccess.cs for info)");
+                    if (obj == "this" && explicitClass)
+                        throw new InternalError($"Invalid use of this.__ResStr() in file {fileName} - Use the static method __ResStr instead");
+                    if (obj == "" && !explicitClass)
+                        throw new InternalError($"Invalid use of the static method __ResStr() in file {fileName} - Use this.__ResStr() instead");
+
                     text = FixNL(text);
                     if (dict.ContainsKey(name)) {
                         if (dict[name] != text)
@@ -286,84 +315,6 @@ namespace YetaWF.Core.Packages {
                     } else
                         dict.Add(name, text);
                 }
-                m = m.NextMatch();
-            }
-            List<LocalizationData.StringData> list = (from d in dict select new LocalizationData.StringData { Name = d.Key, Text = d.Value }).ToList();
-            return list;
-        }
-
-        // CSHTML
-
-        private async Task ParseCshtmlSourceFileAsync(string file) {
-
-            string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
-            string cls = GetCshtmlFileClass(file, fileText);
-
-            List<LocalizationData.StringData> strings = GetCshtmlFileStrings(file, fileText);
-
-            if (strings.Count > 0) {
-
-                if (string.IsNullOrWhiteSpace(cls))
-                    throw new InternalError("File {0} can't contain resource string definitions because its class doesn't support resource access", file);
-
-                string filename = cls;
-                LocalizationData data = LocalizationSupport.Load(this, filename, LocalizationSupport.Location.DefaultResources);
-                if (data == null)
-                    data = new LocalizationData();
-                foreach (LocalizationData.StringData sd in strings) {
-                    string text = data.FindString(sd.Name);
-                    if (!string.IsNullOrWhiteSpace(text)) {
-                        if (text != sd.Text)
-                            throw new InternalError("The key {0} occurs more than once with different values in file {1}", sd.Name, file);
-                    }
-                    data.Strings.Add(sd);
-                }
-                await LocalizationSupport.SaveAsync(this, filename, LocalizationSupport.Location.DefaultResources, data);
-            }
-        }
-
-        private static readonly Regex cshtmlClassRegex = new Regex(@"\s*@\s*inherits\s*(?'base'[A-Za-z0-9_.]+)\s*\<(?'class'[A-Za-z0-9_\?\<\>.]+)\s*(?'more'(,|\>))", RegexOptions.Compiled | RegexOptions.Multiline);
-
-        private string GetCshtmlFileClass(string fileName, string fileText) {
-
-            // a template:  @inherits YetaWF.Modules.Identity.Views.Shared.LoginUsersHelper<int>
-            //              @inherits YetaWF.Modules.Identity.Views.Shared.UsersHelper<YetaWF.Core.Serializers.SerializableList<YetaWF.Core.Identity.User>>
-            // a view:      @inherits YetaWF.Core.Views.RazorView<YetaWF.Modules.Identity.Modules.RolesEditModule, YetaWF.Modules.Identity.Controllers.RolesEditModuleController.EditModel>
-            //              @inherits YetaWF.Core.Views.RazorView<YetaWF.Modules.Identity.Modules.RolesBrowseModule, YetaWF.Modules.Identity.Controllers.RolesBrowseModuleController.BrowseModel>
-            //DEBUG: if (fileText.Contains("@inherits YetaWF.Core.Views.Shared.Url<System.String>"))
-            //DEBUG:    fileName = fileName;
-
-            Match m = cshtmlClassRegex.Match(fileText);
-            if (!m.Success)
-                throw new InternalError("No class found in {0}", fileName);
-            string pageCls = m.Groups["base"].Value;
-            string moduleCls = m.Groups["class"].Value;
-            string more = m.Groups["more"].Value;
-            if (pageCls == "YetaWF.Core.Pages.RazorTemplate") // these can't have resources
-                return null;
-            if (more.Contains(","))
-                return moduleCls;// it's a regular view, so we return the module's class as the class for resources
-            else
-                return pageCls;// it's a template
-        }
-
-        private static readonly Regex cshtmlResstrRegex = new Regex(@"__ResStr(Html){0,1}\s*\(\s*""(?'name'[^""]*)""\s*,\s*""(?'text'(\\""|[^""])*)""\s*(,|\))", RegexOptions.Compiled | RegexOptions.Multiline);
-
-        private List<LocalizationData.StringData> GetCshtmlFileStrings(string fileName, string fileText) {
-
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-
-            Match m = cshtmlResstrRegex.Match(fileText);
-            while (m.Success) {
-                string name = m.Groups["name"].Value;
-                string text = m.Groups["text"].Value;
-
-                text = FixNL(text);
-                if (dict.ContainsKey(name)) {
-                    if (dict[name] != text)
-                        throw new InternalError("The key {0} occurs more than once with different values in file {1}", name, fileName);
-                } else
-                    dict.Add(name, text);
                 m = m.NextMatch();
             }
             List<LocalizationData.StringData> list = (from d in dict select new LocalizationData.StringData { Name = d.Key, Text = d.Value }).ToList();

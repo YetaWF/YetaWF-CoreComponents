@@ -5,12 +5,10 @@ using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Routing;
@@ -198,7 +196,7 @@ namespace YetaWF.Core.Modules {
         public bool Separator { get; set; } // gap (if used, all other properties are ignored)
 
         [Caption("Url"), Description("The Url")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlHelperEx.UrlTypeEnum.Local | UrlHelperEx.UrlTypeEnum.Remote)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string Url { get; set; } // The Url to cause this action
 
@@ -278,12 +276,12 @@ namespace YetaWF.Core.Modules {
         [UIHint("Boolean")]
         public bool AuthorizationIgnore { get; set; }
 
-        [Description("The confirmation text displayed before the action takes place")]
-        [Caption("Confirmation Text"), StringLength(MaxConfirmationText)]
+        [Caption("Confirmation Text"), Description("The confirmation text displayed before the action takes place")]
+        [UIHint("MultiString"), StringLength(MaxConfirmationText)]
         public MultiString ConfirmationText { get; set; } // confirmation popup text before action takes place
 
-        [Description("If specified, the \"Please Wait\" dialog is shown when the action is selected - Only available for actions with Style=Normal")]
-        [Caption("Please Wait"), StringLength(MaxPleaseWaitText)]
+        [Caption("Please Wait"), Description("If specified, the \"Please Wait\" dialog is shown when the action is selected - Only available for actions with Style=Normal")]
+        [UIHint("MultiString"), StringLength(MaxPleaseWaitText)]
         public MultiString PleaseWaitText { get; set; }
 
         [Caption("Save Return Url"), Description("Defines whether this action will preserve the origin list (past Urls visited) and save the current Url - This is typically used for actions that display a form with a Cancel or Return button, which would return to the current Url if Save Return Url is selected")]

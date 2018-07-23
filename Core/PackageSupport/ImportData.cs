@@ -17,7 +17,7 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         public static async Task<bool> ImportDataAsync(string zipFileName, List<string> errorList) {
 
@@ -45,7 +45,7 @@ namespace YetaWF.Core.Packages {
                 }
                 SerializableData serData;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serData = (SerializableData)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serData = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableData>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
@@ -102,7 +102,7 @@ namespace YetaWF.Core.Packages {
 
                             // unzip data
                             {
-                                string zipFileName = string.Format("{0}_{1}.xml", modelType.Name, chunk);
+                                string zipFileName = string.Format("{0}_{1}.json", modelType.Name, chunk);
                                 ZipEntry e = zip.GetEntry(zipFileName);
                                 if (e == null) {
                                     errorList.Add(__ResStr("errDataCorrupt", "Zip file {1} corrupted - file {0} not found.", zipFileName, displayFileName));
@@ -119,7 +119,7 @@ namespace YetaWF.Core.Packages {
                                 object obj = null;
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                                     try {
-                                        obj = new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                                        obj = new GeneralFormatter(Package.ExportFormat).Deserialize<object>(fs.GetFileStream());
                                     } catch (Exception exc) {
                                         errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.Name, exc));
                                         return false;

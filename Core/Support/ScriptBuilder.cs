@@ -49,6 +49,9 @@ namespace YetaWF.Core.Support {
         public HtmlString ToHtmlString() {
             return new HtmlString(_sb.ToString());
         }
+        public YHtmlString ToYHtmlString() {
+            return new YHtmlString(_sb.ToString());
+        }
         public int Length {
             get { return _sb.Length; }
             set { _sb.Length = value; }

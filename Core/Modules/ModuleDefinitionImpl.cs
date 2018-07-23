@@ -19,12 +19,13 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Search;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.IO;
+using YetaWF.Core.Views;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using YetaWF.Core.Controllers.Shared;
+using YetaWF.Core.Controllers;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -51,9 +52,8 @@ namespace YetaWF.Core.Modules {
         // MODULE INFO
         // MODULE INFO
 
-        [Category("About")]
-        [Description("The internal, permanent module name")]
-        [Caption("Permanent Module Name")]
+        [Category("About"), Description("The internal, permanent module name"), Caption("Permanent Module Name")]
+        [UIHint("String"), ReadOnly]
         public string PermanentModuleName {
             get {
                 GetModuleInfo();
@@ -61,63 +61,56 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        [Category("About")]
-        [Description("The displayable module name")]
-        [Caption("Module Display Name")]
+        [Category("About"), Description("The displayable module name"), Caption("Module Display Name")]
+        [UIHint("String"), ReadOnly]
         public string ModuleDisplayName {
             get {
                 GetModuleInfo();
                 return ModuleName;
             }
         }
-        [Category("About")]
-        [Description("The internal company name of the module's publisher")]
-        [Caption("Company Name")]
+        [Category("About"), Description("The internal company name of the module's publisher"), Caption("Company Name")]
+        [UIHint("String"), ReadOnly]
         public string CompanyName {
             get {
                 GetModuleInfo();
                 return _CompanyName;
             }
         }
-        [Category("About")]
-        [Description("The displayable company name of the module's publisher")]
-        [Caption("Company Display Name")]
+        [Category("About"), Description("The displayable company name of the module's publisher"), Caption("Company Display Name")]
+        [UIHint("String"), ReadOnly]
         public string CompanyDisplayName {
             get {
                 GetModuleInfo();
                 return _CompanyDisplayName;
             }
         }
-        [Category("About")]
-        [Description("The domain name of the product or company publishing the module")]
-        [Caption("Domain")]
+        [Category("About"), Description("The domain name of the product or company publishing the module"), Caption("Domain")]
+        [UIHint("String"), ReadOnly]
         public string Domain {
             get {
                 GetModuleInfo();
                 return _Domain;
             }
         }
-        [Category("About")]
-        [Description("The MVC area name of the module")]
-        [Caption("Area")]
+        [Category("About"), Description("The MVC area name of the module"), Caption("Area")]
+        [UIHint("String"), ReadOnly]
         public string Area {
             get {
                 GetModuleInfo();
                 return _Area;
             }
         }
-        [Category("About")]
-        [Description("The module's product name")]
-        [Caption("Product")]
+        [Category("About"), Description("The module's product name"), Caption("Product")]
+        [UIHint("String"), ReadOnly]
         public string Product {
             get {
                 GetModuleInfo();
                 return _Product;
             }
         }
-        [Category("About")]
-        [Description("The module version")]
-        [Caption("Version")]
+        [Category("About"), Description("The module version"), Caption("Version")]
+        [UIHint("String"), ReadOnly]
         public string Version {
             get {
                 GetModuleInfo();
@@ -125,9 +118,8 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        [Category("About")]
-        [Description("The module's class name")]
-        [Caption("Class Name")]
+        [Category("About"), Description("The module's class name"), Caption("Class Name")]
+        [UIHint("String"), ReadOnly]
         public string ClassName {
             get {
                 if (string.IsNullOrEmpty(_ClassName)) {
@@ -138,18 +130,16 @@ namespace YetaWF.Core.Modules {
         }
         private string _ClassName { get; set; }
 
-        [Category("About")]
-        [Description("The module's full class name")]
-        [Caption("Class Name (Full)")]
+        [Category("About"), Description("The module's full class name"), Caption("Class Name (Full)")]
+        [UIHint("String"), ReadOnly]
         public string FullClassName {
             get {
                 return GetType().FullName;
             }
         }
 
-        [Category("About")]
-        [Description("The module name")]
-        [Caption("Module Name")]
+        [Category("About"), Description("The module name"), Caption("Module Name")]
+        [UIHint("String"), ReadOnly]
         public string ModuleName {
             get {
                 GetModuleInfo();
@@ -207,9 +197,8 @@ namespace YetaWF.Core.Modules {
         private string _Version { get; set; }
         private string _CompanyDisplayName { get; set; }
 
-        [Category("Variables")]
-        [Description("Displays whether the module is a unique module")]
-        [Caption("IsModuleUnique")]
+        [Category("Variables"), Description("Displays whether the module is a unique module"), Caption("IsModuleUnique")]
+        [UIHint("Boolean"), ReadOnly]
         public bool IsModuleUnique {
             get {
                 UniqueModuleAttribute attr = (UniqueModuleAttribute) Attribute.GetCustomAttribute(GetType(), typeof(UniqueModuleAttribute));
@@ -283,9 +272,8 @@ namespace YetaWF.Core.Modules {
         // LOAD/SAVE
         // LOAD/SAVE
 
-        [Category("Variables")]
-        [Caption("Has Settings")]
-        [Description("Defines whether the module has settings that can be edited and saved")]
+        [Category("Variables"), Caption("Has Settings"), Description("Defines whether the module has settings that can be edited and saved")]
+        [UIHint("Boolean"), ReadOnly]
         [DontSave]
         public virtual bool ModuleHasSettings { get { return true; } }
 
@@ -461,9 +449,8 @@ namespace YetaWF.Core.Modules {
         public static string GetModuleDataFolder(Guid modGuid) {
             return Path.Combine(Manager.SiteFolder, ModuleDefinition.BaseFolderName, modGuid.ToString()) + "_Data";
         }
-        [Category("Variables")]
-        [Description("The module's data folder used to store additional data")]
-        [Caption("Data Folder")]
+        [Category("Variables"), Description("The module's data folder used to store additional data"), Caption("Data Folder")]
+        [UIHint("String"), ReadOnly]
         public string ModuleDataFolder {
             get {
                 return ModuleDefinition.GetModuleDataFolder(ModuleGuid);
@@ -471,9 +458,8 @@ namespace YetaWF.Core.Modules {
         }
         public static string BaseFolderName { get { return "YetaWF_Modules"; } }
 
-        [Category("Variables")]
-        [Description("The Url of the module's addon folder")]
-        [Caption("AddOn Folder")]
+        [Category("Variables"), Description("The Url of the module's addon folder"), Caption("AddOn Folder")]
+        [UIHint("String"), ReadOnly]
         public string AddOnModuleUrl {
             get {
                 return VersionManager.TryGetAddOnPackageUrl(Domain, Product);
@@ -618,16 +604,10 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                if (!string.IsNullOrEmpty(Area))
-                    moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
-                else
-                    moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
+                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
-                YetaWFManager.Syncify(() => {
-                    if (!string.IsNullOrEmpty(Area))
-                        rvd.Add("Area", Area);
-                    moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-                    return Task.CompletedTask;
+                YetaWFManager.Syncify(async () => {
+                    moduleHtml = await htmlHelper.ActionAsync(Action, Controller, Area, rvd);
                 });
 #endif
             } catch (Exception exc) {
@@ -666,10 +646,9 @@ namespace YetaWF.Core.Modules {
                 if (!string.IsNullOrWhiteSpace(this.TempPageCssClass)) {
                     string tempCss = YetaWFManager.JserEncode(this.TempPageCssClass);
                     Manager.ScriptManager.AddLast(
-$"var $body = $('body');" +
-$"$body.removeClass($body.attr('data-pagecss'));" + // remove existing page specific classes
-$"$body.addClass('{tempCss}');" + // add our new class(es)
-$"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for the next page
+$"$YetaWF.elementRemoveClass(document.body, 'data-pagecss');" + // remove existing page specific classes
+$"$YetaWF.elementAddClass(document.body, '{tempCss}');" + // add our new class(es)
+$"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can remove them for the next page
                     );
                 }
             }
@@ -727,16 +706,10 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
 
             string moduleHtml = null;
 #if MVC6
-            if (!string.IsNullOrEmpty(Area))
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
-            else
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, rvd)).ToString();
+            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
-            YetaWFManager.Syncify(() => {
-                if (!string.IsNullOrEmpty(Area))
-                    rvd.Add("Area", Area);
-                moduleHtml = htmlHelper.Action(Action, Controller, rvd).ToString();
-                return Task.CompletedTask;
+            YetaWFManager.Syncify(async () => {
+                moduleHtml = await htmlHelper.ActionAsync(Action, Controller, Area, rvd);
             });
 #endif
             Manager.CurrentModule = oldMod;
@@ -755,7 +728,7 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", YetaWFManager.HtmlEncode(name)));
 #endif
             // skip first exception (because it's not user friendly)
-            if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;            
+            if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;
             hb.Append(YetaWFManager.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
             hb.Append("</div>");
             if (Manager.CurrentResponse.StatusCode == 200)
@@ -773,32 +746,12 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             }
         }
 
-        public async Task<string> GetModuleMenuHtmlAsync() {
-            if (ShowModuleMenu)
-                return (await RenderModuleMenuAsync()).ToString();
-            else
-                return "";
-        }
-
-        public async Task<string> GetActionMenuHtmlAsync() {
-            if (ShowActionMenu)
-                return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)).ToString();
-            else
-                return "";
-        }
-        public async Task<string> GetActionTopMenuHtmlAsync() {
-            if (ShowTitle && ShowTitleActions)
-                return (await RenderModuleLinksAsync(ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer)).ToString();
-            else
-                return "";
-        }
-
         [Category("Variables"), Caption("Show Module Menu"), Description("Displays whether the module menu is shown for this module")]
+        [UIHint("Boolean")]
         public virtual bool ShowModuleMenu { get { return true; } }
 
-        [Category("Variables")]
-        [Description("Displays whether the action menu is shown for this module")]
-        [Caption("Show Action Menu")]
+        [Category("Variables"), Description("Displays whether the action menu is shown for this module"), Caption("Show Action Menu")]
+        [UIHint("Boolean")]
         public virtual bool ShowActionMenu { get { return true; } }
 
         // CONFIGURATION (only used for Configuration modules)
@@ -832,9 +785,10 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
                 using (dataProvider) {
                     Type typeDP = dataProvider.GetType();
                     // get the config data
-                    MethodInfo mi = typeDP.GetMethod("GetConfig");
-                    if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
-                    object config = mi.Invoke(dataProvider, null);
+                    MethodInfo mi = typeDP.GetMethod("GetConfigAsync");
+                    if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfigAsync method for a configuration module", typeDP.FullName);
+                    dynamic configRetVal = mi.Invoke(dataProvider, null);
+                    object config = configRetVal.Result; // only used in site templates so don't care about using Result
                     return config;
                 }
            }
@@ -845,18 +799,20 @@ $"$body.attr('data-pagecss', '{tempCss}');"// remember so we can remove them for
             using (DataProviderImpl dataProvider = GetConfigDataProvider()) {
                 Type typeDP = dataProvider.GetType();
                 // get the config data
-                MethodInfo mi = typeDP.GetMethod("GetConfig");
-                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfig method for a configuration module", typeDP.FullName);
-                object config = mi.Invoke(dataProvider, null);
+                MethodInfo mi = typeDP.GetMethod("GetConfigAsync");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfigAsync method for a configuration module", typeDP.FullName);
+                dynamic configRetVal = mi.Invoke(dataProvider, null);
+                object config = configRetVal.Result; // only used in site templates so don't care about using Result
                 // update the property
                 Type configType = config.GetType();
                 PropertyInfo pi = ObjectSupport.TryGetProperty(configType, name);
                 if (pi == null) throw new InternalError("Configuration {0} doesn't offer a {1} property", configType.FullName, name);
                 pi.SetValue(config, value);
 
-                mi = typeDP.GetMethod("UpdateConfig");
-                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfig method for a configuration module", typeDP.FullName);
-                mi.Invoke(dataProvider, new object[] { config });
+                mi = typeDP.GetMethod("UpdateConfigAsync");
+                if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfigAsync method for a configuration module", typeDP.FullName);
+                Task retVal = (Task) mi.Invoke(dataProvider, new object[] { config });
+                retVal.Wait();// only used in site templates so don't care about using Wait
             }
         }
 

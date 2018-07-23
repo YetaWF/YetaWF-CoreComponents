@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <TypeScriptToolsVersion>2.4</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>2.8.3</TypeScriptToolsVersion>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -39,10 +39,6 @@
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.AspNet.SignalR.Core.2.2.3\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Owin, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -72,7 +68,7 @@
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Linq.Dynamic.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0f07ec44de6ac832, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Linq.Dynamic.Core.1.0.8.7\lib\net46\System.Linq.Dynamic.Core.dll</HintPath>
+      <HintPath>..\..\packages\System.Linq.Dynamic.Core.1.0.8.11\lib\net46\System.Linq.Dynamic.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http" />
@@ -115,21 +111,31 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\ViewExtender.cs" />
+    <Compile Include="Components\ViewBase.cs" />
+    <Compile Include="Components\CoreRendering.cs" />
+    <Compile Include="Components\ComponentStartup.cs" />
+    <Compile Include="Components\ComponentExtender.cs" />
+    <Compile Include="Components\ComponentBase.cs" />
+    <Compile Include="Components\HtmlString.cs" />
+    <Compile Include="Components\Support\DropDown.cs" />
+    <Compile Include="Components\Support\Grid\DataSourceResult.cs" />
+    <Compile Include="Components\Support\Grid\Grid.cs" />
+    <Compile Include="Components\Support\ImageHTML.cs" />
+    <Compile Include="Components\Support\StringTT.cs" />
+    <Compile Include="Controllers\Support\GridSaveSettings.cs" />
     <Compile Include="IO\FileSystem.cs" />
     <Compile Include="IO\Caching.cs" />
     <Compile Include="Controllers\PageLogging.cs" />
     <Compile Include="Controllers\PageContentController.cs" />
     <Compile Include="Controllers\PageContentViewResult.cs" />
     <Compile Include="Controllers\PageViewResult.cs" />
-    <Compile Include="Controllers\Shared\ActionHelper.cs" />
-    <Compile Include="Controllers\Shared\ControllerErrorHandlingFilterAttribute.cs" />
-    <Compile Include="Controllers\Shared\ModuleSelectionHelper.cs" />
+    <Compile Include="Controllers\Support\ControllerErrorHandlingFilterAttribute.cs" />
     <Compile Include="Controllers\YetaWFApplicationModelProvider.cs" />
     <Compile Include="DataProvider\DataProviderImpl.cs" />
     <Compile Include="DataProvider\ExternalDataProviders.cs" />
     <Compile Include="DataProvider\SortsFilters.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
-    <Compile Include="Extensions\HtmlString.cs" />
     <Compile Include="Identity\Setup.cs" />
     <Compile Include="Models\Attributes\AllowHttpMethods.cs" />
     <Compile Include="Models\Attributes\RequiresPageReloadAttribute.cs" />
@@ -146,22 +152,21 @@
     <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
     <Compile Include="Models\GridSupport.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
+    <Compile Include="Pages\ActionHelperMVC6.cs" />
     <Compile Include="Pages\ErrorHandlingMiddleware.cs" />
     <Compile Include="Pages\Export.cs" />
     <Compile Include="Pages\Import.cs" />
-    <Compile Include="Pages\RazorPageLifetime.cs" />
     <Compile Include="Pages\ViewServiceRender.cs" />
-    <Compile Include="Pages\YetaWFRazorView.cs" />
     <Compile Include="Search\Search.cs" />
     <Compile Include="Skins\BootstrapSkins.cs" />
     <Compile Include="Startup\StartupLogging.cs" />
     <Compile Include="Startup\StartupRequest.cs" />
-    <Compile Include="Startup\StartupSignalr.cs" />
     <Compile Include="Startup\StartupOwin.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
     <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\Lock\AsyncLock.cs" />
     <Compile Include="Support\MimeSection\MimeSection.cs" />
+    <Compile Include="Support\Serializers\JSONFormatter.cs" />
     <Compile Include="Support\Serializers\Simple2Formatter.cs" />
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
@@ -169,69 +174,22 @@
     <Compile Include="Support\Shims\HtmlString.cs" />
     <Compile Include="Support\Shims\IHtmlContent.cs" />
     <Compile Include="Support\Shims\JsonResult.cs" />
-    <Compile Include="Support\Shims\MvcHtmlString.cs" />
     <Compile Include="Support\Shims\QueryHelper.cs" />
     <Compile Include="Support\Shims\SessionState.cs" />
     <Compile Include="Support\Shims\TagBuilder.cs" />
     <Compile Include="Support\StaticPages\StaticPageManager.cs" />
+    <Compile Include="Components\TagBuilder.cs" />
+    <Compile Include="Components\Support\CountryISO3166.cs" />
+    <Compile Include="Components\Support\CurrencyISO4217.cs" />
+    <Compile Include="Components\Support\FileUpload1.cs" />
+    <Compile Include="Components\Support\RecaptchaV2.cs" />
+    <Compile Include="Components\Support\USStateHelper.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
-    <Compile Include="Templates\RecaptchaV2.cs" />
-    <Compile Include="Templates\Text.cs" />
-    <Compile Include="ViewsCode\FieldHelper.cs" />
-    <Compile Include="ViewsCode\HtmlHelperExtender.cs" />
-    <Compile Include="ViewsCode\RazorView.cs" />
-    <Compile Include="ViewsCode\Shared\FormButton.cs" />
-    <Compile Include="ViewsCode\Shared\TemplateAction.cs" />
-    <Compile Include="ViewsCode\Support\ActionHelper.cs" />
-    <Compile Include="ViewsCode\Support\BooleanHelper.cs" />
-    <Compile Include="ViewsCode\Support\CurrencyISO4217Helper.cs" />
-    <Compile Include="ViewsCode\Support\CurrencyHelper.cs" />
-    <Compile Include="ViewsCode\Support\DateHelper.cs" />
-    <Compile Include="ViewsCode\Support\DateTimeHelper.cs" />
-    <Compile Include="ViewsCode\Support\DecimalHelper.cs" />
-    <Compile Include="ViewsCode\Support\DropDownHelper.cs" />
-    <Compile Include="ViewsCode\Support\ExtHiddenHelper.cs" />
-    <Compile Include="ViewsCode\Support\ExtLabelHelper.cs" />
-    <Compile Include="ViewsCode\Support\FileUploadDanielm1Helper.cs" />
-    <Compile Include="ViewsCode\Support\GridDataOneRecordHelper.cs" />
-    <Compile Include="ViewsCode\Support\GridDeleteEntryHelper.cs" />
-    <Compile Include="ViewsCode\Support\GridHelper.cs" />
-    <Compile Include="ViewsCode\Support\GridjqGridHelper.cs" />
-    <Compile Include="ViewsCode\Support\GuidHelper.cs" />
-    <Compile Include="ViewsCode\Support\ImageHelper.cs" />
-    <Compile Include="ViewsCode\Support\IntValueHelper.cs" />
-    <Compile Include="ViewsCode\Support\IPAddressHelper.cs" />
-    <Compile Include="ViewsCode\Support\BootstrapSkinsHelper.cs" />
-    <Compile Include="ViewsCode\Support\JQueryUISkinsHelper.cs" />
-    <Compile Include="ViewsCode\Support\KendoUISkinsHelper.cs" />
-    <Compile Include="ViewsCode\Support\CountryISO3166Helper.cs" />
-    <Compile Include="ViewsCode\Support\LanguageIdHelper.cs" />
-    <Compile Include="ViewsCode\Support\ListOfStringsHelper.cs" />
-    <Compile Include="ViewsCode\Support\LongValueHelper.cs" />
-    <Compile Include="ViewsCode\Support\MenuListHelper.cs" />
-    <Compile Include="ViewsCode\Support\ModuleSelectionHelper.cs" />
-    <Compile Include="ViewsCode\Support\MultiStringHelper.cs" />
-    <Compile Include="ViewsCode\Support\PageDefinitions.cs" />
-    <Compile Include="ViewsCode\Support\PageSelectionHelper.cs" />
-    <Compile Include="ViewsCode\Support\PageSkinHelper.cs" />
-    <Compile Include="ViewsCode\Support\PasswordHelper.cs" />
-    <Compile Include="ViewsCode\Support\PropertyListHelper.cs" />
-    <Compile Include="ViewsCode\Support\RecaptchaHelper.cs" />
-    <Compile Include="ViewsCode\Support\RecaptchaV2Helper.cs" />
-    <Compile Include="ViewsCode\Support\ReferencedModules.cs" />
-    <Compile Include="ViewsCode\Support\ScrollerHelper.cs" />
-    <Compile Include="ViewsCode\Support\SiteIdHelper.cs" />
-    <Compile Include="ViewsCode\Support\StringHelper.cs" />
-    <Compile Include="ViewsCode\Support\StringTTHelper.cs" />
-    <Compile Include="ViewsCode\Support\TextAreaHelper.cs" />
-    <Compile Include="ViewsCode\Support\TextAreaSimpleHelper.cs" />
-    <Compile Include="ViewsCode\Support\TextBoxHelper.cs" />
-    <Compile Include="ViewsCode\Support\TimeSpan.cs" />
-    <Compile Include="ViewsCode\Support\TimeZoneHelper.cs" />
-    <Compile Include="ViewsCode\Support\UrlHelper.cs" />
-    <Compile Include="ViewsCode\Support\USStateHelper.cs" />
+    <Compile Include="Pages\PostProcessView.cs" />
+    <Compile Include="Components\FormButton.cs" />
+    <Compile Include="Components\TemplateAction.cs" />
     <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
     <Compile Include="PackageSupport\SiteTemplateData.cs" />
     <Compile Include="PackageSupport\Upgrade.cs" />
@@ -243,17 +201,6 @@
     <Compile Include="Startup\Popups.cs" />
     <Compile Include="Support\Image\FileImageHandler.cs" />
     <Compile Include="Support\Serializers\GeneralFormatter.cs" />
-    <Compile Include="Templates\ActionIcons.cs" />
-    <Compile Include="Templates\Currency.cs" />
-    <Compile Include="Templates\DateTime.cs" />
-    <Compile Include="Templates\FileUpload.cs" />
-    <Compile Include="Templates\GridjqGrid.cs" />
-    <Compile Include="Templates\Image.cs" />
-    <Compile Include="Templates\Date.cs" />
-    <Compile Include="Templates\MultiStringInfo.cs" />
-    <Compile Include="Templates\PropertyList.cs" />
-    <Compile Include="Templates\PropertyListTabbed.cs" />
-    <Compile Include="Templates\UrlRemote.cs" />
     <Compile Include="Startup\VersionManager.cs" />
     <Compile Include="Controllers\CorsJsonResult.cs" />
     <Compile Include="Extensions\String.cs" />
@@ -274,10 +221,7 @@
     <Compile Include="Controllers\ControllerImpl.cs" />
     <Compile Include="Controllers\YetaWFController.cs" />
     <Compile Include="Controllers\PageController.cs" />
-    <Compile Include="Controllers\Shared\SkinHelper.cs" />
-    <Compile Include="Controllers\Shared\SMTPEmail.cs" />
-    <Compile Include="Controllers\Shared\ImageHelper.cs" />
-    <Compile Include="Controllers\Shared\GridSaveSettings.cs" />
+    <Compile Include="Controllers\Support\SMTPEmail.cs" />
     <Compile Include="DataProvider\IDataProvider.cs" />
     <Compile Include="DataProvider\DataAttributes.cs" />
     <Compile Include="Identity\Role.cs" />
@@ -294,7 +238,7 @@
     </Compile>
     <Compile Include="Support\Localize\UserSettings.cs" />
     <Compile Include="Log\SetupLogging.cs" />
-    <Compile Include="Menus\Menu.cs" />
+    <Compile Include="Components\Support\Menu.cs" />
     <Compile Include="Models\AttributeHelper.cs" />
     <Compile Include="Models\Attributes\RequiredAttribute.cs" />
     <Compile Include="Models\Attributes\UrlValidationAttribute.cs" />
@@ -358,7 +302,6 @@
     <Compile Include="Support\Serializers\SimpleFormatter.cs" />
     <Compile Include="Support\Serializers\TextFormatter.cs" />
     <Compile Include="Support\BrowserCaps.cs" />
-    <Compile Include="Support\ConvertGlobalsToJavascript.cs" />
     <Compile Include="Support\Error.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Support\Localize\ResourceAccess.cs" />
@@ -381,44 +324,37 @@
     <Compile Include="Support\WebConfig.cs" />
     <Compile Include="ActionResults\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
-    <Compile Include="Models\Attributes\RecaptchaAttribute.cs" />
-    <Compile Include="ViewsCode\YetaWFDefaultHtmlGenerator.cs" />
+    <Compile Include="Pages\ActionHelperMVC5.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
-    <None Include="Addons\_Main\Grids\PageDefinitionsHelper.GridDisplay" />
-    <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridDisplay" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
+    <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
+    <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\bootstrap.css" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\filelistCSS.txt" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\filelistJS.txt" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\fixup.js" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\filelistCSS.txt" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\filelistJS.txt" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\fixup.js" />
+    <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\themelist.txt" />
+    <Content Include="Addons\_Addons\Image\NoImage.png" />
+    <Content Include="Addons\_Addons\jqueryui.com.jqueryui-themes\themelist.txt" />
+    <Content Include="Addons\_Addons\telerik.com.Kendo_UI_Core\themelist.txt" />
     <Content Include="Addons\_Skins\Standard\Popups\PopupContent.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\Popup.cshtml" />
-    <None Include="Addons\_Main\Grids\ReferencedModulesHelper.GridEdit" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Addons\_Addons\Basics\Basics.js" />
     <Content Include="Addons\_Addons\Basics\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Basics\filelistJS.txt" />
     <Content Include="Addons\_Addons\Basics\Basics.css" />
-    <Content Include="Addons\_Addons\Basics\Globals.js" />
-    <Content Include="Addons\_Addons\Forms\docs.txt" />
-    <Content Include="Addons\_Addons\Forms\filelistCSS.txt" />
-    <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Forms\forms.css" />
-    <Content Include="Addons\_Addons\Forms\forms.js" />
-    <Content Include="Addons\_Addons\Forms\validation.js" />
-    <Content Include="Addons\_Addons\ModuleMenu\filelistJS.txt" />
-    <Content Include="Addons\_Addons\ModuleMenu\ModuleMenu.js" />
-    <Content Include="Addons\_Addons\Modules\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Modules\images\ModuleMenuEditIcon.png" />
-    <Content Include="Addons\_Addons\Modules\modules.js" />
-    <Content Include="Addons\_Addons\Popups\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Popups\filelistJS.txt" />
-    <Content Include="Addons\_Addons\Popups\popups.css" />
-    <Content Include="Addons\_Addons\Popups\popups.js" />
     <Content Include="Addons\_Main\Emails\SMTPServer Test Message.txt" />
     <Content Include="Addons\_Main\Emails\Text Message.txt" />
     <Content Include="Addons\_Skins\Standard\filelistCSS.txt" />
@@ -437,269 +373,34 @@
     <Content Include="Addons\_Skins\Standard\skin.css" />
     <Content Include="Addons\_Skins\Standard\skin.js" />
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
-    <Content Include="Addons\_Templates\ActionIcons\ActionIcons.css" />
-    <Content Include="Addons\_Templates\ActionIcons\filelistCSS.txt" />
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
-    <Content Include="Addons\_Templates\ActionIcons\ActionIcons.js" />
-    <Content Include="Addons\_Templates\ActionIcons\filelistJS.txt" />
-    <Content Include="Addons\_Templates\DropDownList\dropdownlist.css" />
-    <Content Include="Addons\_Templates\DropDownList\filelistJS.txt" />
-    <Content Include="Addons\_Templates\DropDownList\DropDownList.js" />
-    <Content Include="Addons\_Templates\FileUpload\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\FileUpload\filelistJS.txt" />
-    <Content Include="Addons\_Templates\FileUpload\fileupload1.css" />
-    <Content Include="Addons\_Templates\FileUpload\fileupload1.js" />
-    <Content Include="Addons\_Templates\Grid\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Grid\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Grid\Grid.css" />
-    <Content Include="Addons\_Templates\Grid\Grid.js" />
-    <Content Include="Addons\_Templates\Guid\Guid.css" />
-    <Content Include="Addons\_Templates\Guid\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Decimal\Decimal.css" />
-    <Content Include="Addons\_Templates\Decimal\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Decimal\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Currency\Currency.css" />
-    <Content Include="Addons\_Templates\Currency\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Currency\filelistJS.txt" />
-    <Content Include="Addons\_Templates\DateTime\DateTime.css" />
-    <Content Include="Addons\_Templates\DateTime\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\DateTime\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Date\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Date\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Date\Date.css" />
-    <Content Include="Addons\_Templates\DropDownList\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ExtLabel\Icons\HelpLink.png" />
-    <Content Include="Addons\_Templates\KendoUISkin\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\KendoUISkin\KendoUISkin.css" />
-    <Content Include="Addons\_Templates\JQueryUISkin\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\JQueryUISkin\JQueryUISkin.css" />
-    <Content Include="Addons\_Templates\IntValue\IntValue.js" />
-    <Content Include="Addons\_Templates\IntValue\filelistJS.txt" />
-    <Content Include="Addons\_Templates\ModuleAction\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleAction\ModuleAction.css" />
-    <Content Include="Addons\_Templates\ModuleActions\ModuleActions.css" />
-    <Content Include="Addons\_Templates\ModuleActions\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Email\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Email\Email.css" />
-    <Content Include="Addons\_Templates\Image\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Image\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Image\image.css" />
-    <Content Include="Addons\_Templates\Image\image.js" />
-    <Content Include="Addons\_Templates\Image\Images\NoImage.png" />
-    <Content Include="Addons\_Templates\IntValue\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\IntValue\intvalue.css" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedRoles\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedRoles\moduleedit.css" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleEdit_AllowedUsers\moduleedit.css" />
-    <Content Include="Addons\_Templates\PageSelection\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\PageSelection\filelistJS.txt" />
-    <Content Include="Addons\_Templates\PageSelection\Icons\PagePreview.png" />
-    <Content Include="Addons\_Templates\PageSelection\PageSelection.css" />
-    <Content Include="Addons\_Templates\PageSelection\PageSelection.js" />
-    <Content Include="Addons\_Templates\MultiString\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\MultiString\filelistJS.txt" />
-    <Content Include="Addons\_Templates\MultiString\multistring.css" />
-    <Content Include="Addons\_Templates\MultiString\multistring.js" />
-    <Content Include="Addons\_Templates\ModuleSkins\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleSkins\ModuleSkins.css" />
-    <Content Include="Addons\_Templates\PageSkin\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\PageSkin\filelistJS.txt" />
-    <Content Include="Addons\_Templates\PageSkin\PageSkin.css" />
-    <Content Include="Addons\_Templates\PageSkin\PageSkin.js" />
-    <Content Include="Addons\_Templates\Password\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Password\password.css" />
-    <Content Include="Addons\_Templates\PropertyList\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\PropertyList\filelistJS.txt" />
-    <Content Include="Addons\_Templates\PropertyList\propertylist.js" />
-    <None Include="Addons\_Templates\PropertyList\propertylist.scss" />
-    <Content Include="Addons\_Templates\RecaptchaV2\filelistJS.txt" />
-    <Content Include="Addons\_Templates\RecaptchaV2\recaptchav2.js" />
-    <Content Include="Addons\_Templates\Recaptcha\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Scroller\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Scroller\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Scroller\Images\arrows.png" />
-    <Content Include="Addons\_Templates\Scroller\scroller.css" />
-    <Content Include="Addons\_Templates\Scroller\scroller.js" />
-    <Content Include="Addons\_Templates\SMTPServer\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\SMTPServer\filelistJS.txt" />
-    <Content Include="Addons\_Templates\SMTPServer\smtpserver.css" />
-    <Content Include="Addons\_Templates\SMTPServer\smtpserver.js" />
-    <Content Include="Addons\_Templates\TextArea\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\TextArea\filelistJS.txt" />
-    <Content Include="Addons\_Templates\TextArea\Images\toolbarImg.png" />
-    <Content Include="Addons\_Templates\TextArea\textarea.css" />
-    <Content Include="Addons\_Templates\TextArea\textarea.js" />
-    <Content Include="Addons\_Templates\Text\text.css" />
-    <Content Include="Addons\_Templates\Text\text.js" />
-    <Content Include="Addons\_Templates\Text\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Text\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Text\Icons\Copy.png" />
-    <Content Include="Addons\_Templates\TimeSpan\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\TimeSpan\filelistJS.txt" />
-    <Content Include="Addons\_Templates\TimeSpan\timespan.css" />
-    <Content Include="Addons\_Templates\TimeSpan\timespan.js" />
-    <Content Include="Addons\_Templates\ModuleSelection\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\ModuleSelection\filelistJS.txt" />
-    <Content Include="Addons\_Templates\ModuleSelection\Icons\ModulePreview.png" />
-    <None Include="Addons\_Templates\ModuleSelection\ModuleSelection.scss" />
-    <Content Include="Addons\_Templates\ModuleSelection\ModuleSelection.js" />
-    <Content Include="Addons\_Templates\TimeZone\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\TimeZone\TimeZone.css" />
-    <Content Include="Addons\_Templates\Url\filelistCSS.txt" />
-    <Content Include="Addons\_Templates\Url\filelistJS.txt" />
-    <Content Include="Addons\_Templates\Url\Icons\UrlRemote.png" />
-    <None Include="Addons\_Templates\Url\Url.scss" />
-    <Content Include="Addons\_Templates\Url\Url.js" />
     <Content Include="Addons\_Templates\USState\USStates.txt" />
-    <Content Include="Views\Shared\DisplayTemplates\ActionIcons.cshtml">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="Views\Shared\DisplayTemplates\Text.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text10.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text20.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text40.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Text80.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text10.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text20.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text40.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Text80.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PropertyListTabbed.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ModuleSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PaneSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Enum.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PropertyList.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Hidden.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TextArea.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PropertyList.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\TextArea.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Raw.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\String.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue4.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\TimeSpan.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Enum.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString80.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString40.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString10.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\MultiString20.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Recaptcha.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Password20.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\StringTT.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PageSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PopupSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue2.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ModuleSkins.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\JQueryUISkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\KendoUISkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\LanguageId.cshtml" />
-    <Content Include="Views\Shared\ShowMessage.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\GridDeleteEntry.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\USState.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\USState.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Image.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Scroller.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DropDownList.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ModuleAction.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Url.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Currency.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\GridDataOneRecord.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\MultiString.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Date.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\SMTPServer.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ListOfStrings.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TimeSpan.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Url.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PageSkin.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PopupSkin.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ModuleSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Email.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Email.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FileSize.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Guid.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\JQueryUISkin.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\KendoUISkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Boolean.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ModuleActions.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntValue6.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Boolean.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ReferencedModules.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\ReferencedModules.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Currency.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Decimal.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Guid.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\RawInt.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PageDefinitions.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\LongValue.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\LongValue.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IPAddress.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\Grid.cshtml" />
-    <Content Include="Views\Shared\GridData.cshtml" />
-    <Content Include="Views\Shared\GridEntry.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\GridDataRecords.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\RawBool.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\FileUpload1.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FloatValue.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TextAreaSimple.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue2.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue6.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\IntValue4.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DropDownListInt.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\TimeZone.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\TimeZone.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PageSelection.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\RecaptchaV2.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FormButton.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\SiteId.cshtml" />
-    <Content Include="Views\Shared\Browse.cshtml" />
-    <Content Include="Views\Shared\Browse_Partial.cshtml" />
-    <Content Include="Views\Shared\Add.cshtml" />
-    <Content Include="Views\Shared\Add_Partial.cshtml" />
-    <Content Include="Views\Shared\Display.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\PropertyListTabbed.cshtml" />
-    <Content Include="Views\Shared\EditApply.cshtml" />
-    <Content Include="Views\Shared\Edit.cshtml" />
-    <Content Include="Views\Shared\Display_Partial.cshtml" />
-    <Content Include="Views\Shared\EditApply_Partial.cshtml" />
-    <Content Include="Views\Shared\Edit_Partial.cshtml" />
-    <Content Include="Views\Shared\PropertyList_Display.cshtml" />
-    <Content Include="Views\Shared\PropertyList_Edit.cshtml" />
-    <Content Include="Views\Shared\PropertyList_Edit_Partial.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\FileFolderSize.cshtml" />
     <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\CountryISO3166.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\CurrencyISO4217.cshtml" />
-    <Content Include="Views\Shared\DisplayTemplates\CurrencyISO4217.cshtml" />
     <None Include="tsconfig.json" />
     <None Include="tslint.json" />
-    <Content Include="Views\Shared\DisplayTemplates\BootstrapSkin.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\BootstrapSkin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Addons\_JS\" />
-    <Folder Include="Addons\_Main\Icons\" />
-    <Folder Include="Addons\_Templates\PropertyListTabbed\" />
+    <Folder Include="Startup\MVC6\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Addons\_Addons\Basics\Basics2.tsx" />
-    <TypeScriptCompile Include="Addons\_Addons\Forms\Forms2.tsx" />
-    <TypeScriptCompile Include="Addons\_Templates\Currency\Currency.tsx" />
-    <TypeScriptCompile Include="Addons\_Templates\DateTime\DateTime.tsx" />
-    <TypeScriptCompile Include="Addons\_Templates\Date\Date.tsx" />
-    <TypeScriptCompile Include="Addons\_Templates\Decimal\Decimal.tsx" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Content.tsx" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Anchors.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Basics.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Forms\Forms.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Basics\Url.ts" />
+    <TypeScriptCompile Include="Addons\_Addons\Popups\Popups.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties tslint_1json__JSONSchema="JSON ABC Sorts JSON alphabetically Buy me a coffee Buy me a coffee" />
+    </VisualStudio>
+  </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

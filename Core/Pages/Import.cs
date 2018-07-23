@@ -18,7 +18,9 @@ namespace YetaWF.Core.Pages {
 
     public partial class PageDefinition {
 
-        private static readonly string ModuleContentsFile = "Contents.xml";
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); } */
+
+        private static readonly string ModuleContentsFile = "Contents.json";
 
         public class ImportInfo {
             public bool Success { get; set; }
@@ -52,7 +54,7 @@ namespace YetaWF.Core.Pages {
                 }
                 SerializablePage serPage;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serPage = (SerializablePage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serPage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePage>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
@@ -117,7 +119,7 @@ namespace YetaWF.Core.Pages {
                     await fs.CloseAsync();
                 }
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serModule = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);

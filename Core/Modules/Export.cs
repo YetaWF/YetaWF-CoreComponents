@@ -11,8 +11,10 @@ namespace YetaWF.Core.Modules {
 
     public partial class ModuleDefinition {
 
-        public const string ModuleContentsFile = "Contents.xml";
+        public const string ModuleContentsFile = "Contents.json";
         public const string ModuleIDFile = "Module.txt";
+
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
 
         public async Task<YetaWFZipFile> ExportDataAsync() {
 

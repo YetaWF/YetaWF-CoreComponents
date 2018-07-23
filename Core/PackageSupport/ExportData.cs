@@ -14,7 +14,7 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         public async Task<YetaWFZipFile> ExportDataAsync(bool takingBackup = false) {
 
@@ -62,7 +62,7 @@ namespace YetaWF.Core.Packages {
                                     await fs.CloseAsync();
                                 }
 
-                                zipFile.AddFile(fileName, string.Format("{0}_{1}.xml", modelType.Name, chunk));
+                                zipFile.AddFile(fileName, string.Format("{0}_{1}.json", modelType.Name, chunk));
                             }
 
                             serModel.Class = modelType.Name;

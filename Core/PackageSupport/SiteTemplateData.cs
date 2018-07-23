@@ -8,6 +8,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Support.Zip;
 
 namespace YetaWF.Core.Packages {
+
     public class SiteTemplateData {
 
         private List<string> PackageNames = new List<string> {
@@ -17,6 +18,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Blog",
             "YetaWF.BootstrapCarousel",
             "YetaWF.Caching",
+            "YetaWF.ComponentsHTML",
             "YetaWF.Core",
             "YetaWF.CurrencyConverter",
             "YetaWF.Dashboard",
@@ -43,7 +45,6 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Security",
             "YetaWF.SiteProperties",
             "YetaWF.Sites",
-            "YetaWF.SlideShow",
             "YetaWF.SyntaxHighlighter",
             "YetaWF.TawkTo",
             "YetaWF.Text",

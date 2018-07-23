@@ -179,7 +179,10 @@ namespace YetaWF.Core.Models {
         // PROPERTIES
 
         public string DefaultText { get { return this[MultiString.DefaultLanguage]; } }
-
+        public bool HasLanguageText(string id) {
+            string val;
+            return TryGetValue(id, out val);
+        }
         public new string this[string id] {
             get {
                 string val;

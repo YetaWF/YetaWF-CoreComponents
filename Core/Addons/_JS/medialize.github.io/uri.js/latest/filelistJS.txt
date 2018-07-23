@@ -1,7 +1,0 @@
-﻿\node_modules\urijs\src\URI.js,bundle
-\node_modules\urijs\src\IPv6.js,bundle
-\node_modules\urijs\src\punycode.js,bundle
-\node_modules\urijs\src\SecondLevelDomains.js,bundle
-\node_modules\urijs\src\URITemplate.js,bundle
-\node_modules\urijs\src\jquery.URI.js,bundle
-

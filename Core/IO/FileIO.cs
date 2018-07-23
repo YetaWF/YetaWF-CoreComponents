@@ -67,13 +67,14 @@ namespace YetaWF.Core.IO {
                 try {
                     fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(FullPath);
                 } catch (Exception exc) {
+                    if (exc is System.IO.IOException) return default(TObj); // this can happen if we're trying to load properties while serializing the same properties (file in use)
                     if (!(exc is FileNotFoundException || exc is DirectoryNotFoundException)) throw;
                     return default(TObj);
                 }
                 byte[] btes = new byte[fs.GetLength()];
                 await fs.ReadAsync(btes, 0, (int)fs.GetLength());
                 await fs.CloseAsync();
-                data = new GeneralFormatter(Format).Deserialize(btes);
+                data = new GeneralFormatter(Format).Deserialize<TObj>(btes);
             }
             if (SpecificTypeOnly) {
                 if (data != null && typeof(TObj) == data.GetType()) {

@@ -1,21 +1,15 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
-    public class RegexValidationBaseAttribute : DataTypeAttribute, YIClientValidatable {
+    public class RegexValidationBaseAttribute : DataTypeAttribute, YIClientValidation {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public RegexValidationBaseAttribute(string pattern, string message, string errorMessageWithFieldFormat = null, string errorMessageWithDataFormat = null) : base(DataType.Text) {
@@ -64,18 +58,11 @@ namespace YetaWF.Core.Models.Attributes {
             } else
                 throw new InternalError("Invalid type used for RegexValidationBaseAttribute - {0}", value.GetType().FullName);
         }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = string.Format(ErrorMessageWithFieldFormat, AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-regex-pattern", Pattern);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = string.Format(ErrorMessageWithFieldFormat, propData.GetCaption(container));
+            tag.MergeAttribute("data-val-regex", msg);
+            tag.MergeAttribute("data-val-regex-pattern", Pattern);
+            tag.MergeAttribute("data-val", "true");
         }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            ErrorMessage = string.Format(ErrorMessageWithFieldFormat, AttributeHelper.GetPropertyCaption(metadata));
-            return new[] { new ModelClientValidationRegexRule(ErrorMessage, Pattern) };
-        }
-#endif
     }
 }

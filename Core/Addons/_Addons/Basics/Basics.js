@@ -1,1380 +1,1123 @@
-/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
-
-var _YetaWF_Basics = {};
-
-// Extend string type
-if (typeof String.prototype.startsWith != 'function') {
-    String.prototype.startsWith = function (str) {
-        return this.indexOf(str) == 0;
-    };
-}
-if (typeof String.prototype.endsWith != 'function') {
-    String.prototype.endsWith = function (str) {
-        return this.indexOf(str) == this.length - str.length;
-    };
-}
-
-// string compare that considers null == ""
-function StringYCompare(str1, str2) {
-    if (!str1 && !str2) return true;
-    return str1 == str2;
-};
-
-// String.format
-if (!String.prototype.format) {
-    String.prototype.format = function () {
-        var args = arguments;
-        return this.replace(/{(\d+)}/g, function (match, number) {
-            return typeof args[number] != 'undefined'
-              ? args[number]
-              : match
-            ;
-        });
-    };
-}
-
-// check for valid int
-String.prototype.isValidInt = function (start, end) { // http://stackoverflow.com/questions/10834796/validate-that-a-string-is-a-positive-integer
-    var n = ~~Number(this);
-    return String(n) == this && n >= start && (end == undefined || n <= end);
-}
-
-function YZeroPad(num, places) {
-    var zero = places - num.toString().length + 1;
-    return Array(+(zero > 0 && zero)).join("0") + num;
-}
-
-function Y_AttrEscape(s) {
-    return $('<div/>').text(s).html();
-}
-
-// escape data for html attributes
-function Y_HtmlEscape(s, preserveCR) {
-    'use strict';
-    preserveCR = preserveCR ? '&#13;' : '\n';
-    return ('' + s) /* Forces the conversion to string. */
-        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        /*
-        You may add other replacements here for HTML only
-        (but it's not necessary).
-        Or for XML, only if the named entities are defined in its DTD.
-        */
-        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-        .replace(/[\r\n]/g, preserveCR);
-}
-
-// escape data for javascript/json strings
-function Y_Escape(s) {
-    return ('' + s) /* Forces the conversion to string. */
-        .replace(/\\/g, '\\\\') /* This MUST be the 1st replacement. */
-        .replace(/\t/g, '\\t') /* These 2 replacements protect whitespaces. */
-        .replace(/\n/g, '\\n')
-        .replace(/\u00A0/g, '\\u00A0') /* Useful but not absolutely necessary. */
-        .replace(/&/g, '\\x26') /* These 5 replacements protect from HTML/XML. */
-        .replace(/'/g, '\\x27')
-        .replace(/"/g, '\\x22')
-        .replace(/</g, '\\x3C')
-        .replace(/>/g, '\\x3E')
-    ;
-}
-
-function Y_UrlEncodePath(s) { //like manager.cs UrlEncodePath()
-    'use strict';
-    s = s.replace("&", "-"); // can't use &
-    s = s.replace("*", "-"); // can't use *
-    s = s.replace("/", "-"); // can't use /
-    s = s.replace(".", "-"); // http can't find a page if the url has a period
-    return encodeURIComponent(s);
-}
-
-/* Show alerts, please wait windows */
-function Y_Message(text, onOk, options) {
-    Y_Alert(text, YLocs.Basics.DefaultSuccessTitle, onOk, options);
-}
-
-function Y_Error(text, onOk) {
-    Y_Alert(text, YLocs.Basics.DefaultErrorTitle, onOk);
-}
-
-function Y_Alert(text, title, onOk, options) {
-    'use strict';
-
-    function closeDialog() {
-        var $dialog = $("#yalert");
-        if ($dialog.length == 0) return;
-        if ($dialog.attr('data-closing')) return;
-        $dialog.attr('data-closing', true);
-        var endFunc = onOk;
-        onOk = undefined; // clear this so close function doesn't call onOK handler also
-        $dialog.dialog("close");
-        $dialog.dialog("destroy");
-        $dialog.remove();
-        if (endFunc)
-            endFunc();
-    }
-
-    // check if we already have a popup (and close it)
-    closeDialog();
-
-    $("body").prepend("<div id='yalert'></div>");
-    var $dialog = $("#yalert");
-
-    options = options || {};
-
-    if (!options.encoded) {
-        // change \n to <br/>
-        $dialog.text(text);
-        var s = $dialog.html();
-        s = s.replace(/\(\+nl\)/g, '<br/>');
-        $dialog.html(s);
-    } else {
-        $dialog.html(text);
-    }
-
-    if (title == undefined)
-        title = YLocs.Basics.DefaultAlertTitle;
-
-    $dialog.dialog({
-        autoOpen: true,
-        modal: true,
-        width: YConfigs.Basics.DefaultAlertWaitWidth,
-        height: YConfigs.Basics.DefaultAlertWaitHeight == 0 ? "auto" : YConfigs.Basics.DefaultAlertWaitHeight,
-        closeOnEscape: true,
-        closeText: YLocs.Basics.CloseButtonText,
-        close: function (event, ui) {
-            closeDialog();
-        },
-        draggable: true,
-        resizable: false,
-        'title': title,
-        buttons: [{
-            text: YLocs.Basics.OKButtonText,
-            click: function () {
-                $dialog.dialog("close");
-            }
-        }]
-    });
-}
-function Y_Confirm(text, title, onOk) {
-    if (title == undefined)
-        title = YLocs.Basics.DefaultSuccessTitle;
-    Y_Alert(text, title, onOk)
-}
-
-function Y_AlertYesNo(text, title, onYes, onNo) {
-    'use strict';
-    var $body = $("body");
-    $body.prepend("<div id='yalert'></div>");
-    var $dialog = $("#yalert", $body);
-
-    // change \n to <br/>
-    $dialog.text(text);
-    var s = $dialog.html();
-    s = s.replace(/\(\+nl\)/g, '<br/>');
-    $dialog.html(s);
-
-    if (title == undefined)
-        title = YLocs.Basics.DefaultAlertYesNoTitle;
-
-    $dialog.dialog({
-        autoOpen: true,
-        modal: true,
-        width: YConfigs.Basics.DefaultAlertYesNoWidth,
-        height: YConfigs.Basics.DefaultAlertYesNoHeight == 0 ? "auto" : YConfigs.Basics.DefaultAlertYesNoHeight,
-        closeOnEscape: true,
-        closeText: YLocs.Basics.CloseButtonText,
-        close: function () {
-            $dialog.dialog("destroy");
-            $dialog.remove();
-            if (onNo != undefined)
-                onNo();
-        },
-        draggable: true,
-        resizable: false,
-        'title': title,
-        buttons: [
-            {
-                text: YLocs.Basics.YesButtonText,
-                click: function () {
-                    var endFunc = onYes;
-                    onYes = undefined;// clear this so close function doesn't try do call these
-                    onNo = undefined;
-                    $dialog.dialog("destroy");
-                    $dialog.remove();
-                    if (endFunc)
-                        endFunc();
-                }
-            },
-            {
-                text: YLocs.Basics.NoButtonText,
-                click: function () {
-                    var endFunc = onNo;
-                    onYes = undefined;// clear this so close function doesn't try do call these
-                    onNo = undefined;
-                    $dialog.dialog("destroy");
-                    $dialog.remove();
-                    if (endFunc)
-                        endFunc();
-                }
-            }
-        ],
-    });
-}
-
-function Y_PleaseWait(text, title) {
-    'use strict';
-
-    // insert <div id="yplwait"></div> at top of page for the window
-    // this is automatically removed when destroy() is called
-    $("body").prepend("<div id='yplwait'></div>");
-    var $popupwin = $("#yplwait");
-    var popup = null;
-
-    if (text == undefined)
-        text = YLocs.Basics.PleaseWaitText;
-    if (title == undefined)
-        title = YLocs.Basics.PleaseWaitTitle;
-    $popupwin.text(text);
-
-    // Create the window
-    $popupwin.kendoWindow({
-        actions: [],
-        width: YConfigs.Basics.DefaultPleaseWaitWidth,
-        height: YConfigs.Basics.DefaultPleaseWaitHeight,
-        draggable: true,
-        iframe: true,
-        modal: true,
-        resizable: false,
-        'title': Y_HtmlEscape(title),
-        visible: false,
-        close: function () {
-            var popup = $popupwin.data("kendoWindow");
-            popup.destroy();
-            popup = null;
-        },
-    });
-
-    // show and center the window
-    popup = $popupwin.data("kendoWindow");
-    popup.open().center();
-
-    return false;//e.preventDefault();
-}
-
-function Y_PleaseWaitClose() {
-    'use string';
-    var $popupwin = $("#yplwait");
-    if ($popupwin.length == 0) return
-    var popup = $popupwin.data("kendoWindow");
-    popup.destroy();
-}
-
-// check if we're in a popup window
-function Y_InPopup() {
-    return YVolatile.Basics.IsInPopup;
-}
-
-// close any popup window
-function Y_ClosePopup(forceReload) {
-    if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
-        return YetaWF_Popup.closePopup(forceReload);
-    return false;
-}
-
-function Y_Loading(starting) {
-    if (starting != false) {
-        $.prettyLoader.show();
-    } else {
-        $.prettyLoader.hide();
-        Y_PleaseWaitClose();
-    }
-}
-
-function Y_ReloadWindowPage(w, keepPosition) {
-    'use strict';
-
-    var uri = new URI(w.location.href);
-    uri.removeSearch(YGlobals.Link_ScrollLeft);
-    uri.removeSearch(YGlobals.Link_ScrollTop);
-    if (keepPosition == true) {
-        var v = $(w).scrollLeft();
-        if (v != 0)
-            uri.addSearch(YGlobals.Link_ScrollLeft, v);
-        v = $(w).scrollTop();
-        if (v != 0)
-            uri.addSearch(YGlobals.Link_ScrollTop, v);
-    }
-    uri.removeSearch("!rand");
-    uri.addSearch("!rand", (new Date()).getTime());// cache buster
-
-    if (YVolatile.Basics.UnifiedMode != 0) {
-        if (_YetaWF_Basics.setContent(uri, true))
-            return;
-    }
-    if (keepPosition == true) {
-        w.location.assign(uri.toString());
-        return;
-    }
-    w.location.reload(true);
-}
-
-function Y_ReloadPage(keepPosition) {
-    Y_ReloadWindowPage(window, keepPosition);
-}
-
-function Y_ReloadModule(tag) {
-    'use strict';
-    if (tag == undefined) tag = YetaWF_Basics.reloadingModule_TagInModule;
-    var $mod = YetaWF_Basics.getModuleFromTag(tag);
-    if ($mod.length == 0) throw "No module found";/*DEBUG*/
-    var $form = $('form', $mod);
-    if ($mod.length == 0) throw "No form found";/*DEBUG*/
-    YetaWF_Forms.submit($form, false, YGlobals.Link_SubmitIsApply + "=y");// the form must support a simple Apply
-}
-
-// RESIZE
-// RESIZE
-// RESIZE
-
-// usage:
-//$(window).smartresize(function () {
-//    // code that makes it easy...
-//});
-
-(function ($, sr) {
-    // debouncing function from John Hann
-    // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-    var debounce = function (func, threshold, execAsap) {
-        var timeout;
-
-        return function debounced() {
-            var obj = this, args = arguments;
-            function delayed() {
-                if (!execAsap)
-                    func.apply(obj, args);
-                timeout = null;
-            };
-
-            if (timeout)
-                clearTimeout(timeout);
-            else if (execAsap)
-                func.apply(obj, args);
-
-            timeout = setTimeout(delayed, threshold || 100);
+"use strict";
+/* Copyright Â© 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/**
+ * Class implementing basic services used throughout YetaWF.
+ */
+var YetaWF;
+(function (YetaWF) {
+    var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
+        function BasicsServices() {
+            // Form handling
+            this.forms = null;
+            // Popup handling
+            this.popups = null;
+            // Page
+            /**
+             * currently loaded addons
+             */
+            this.UnifiedAddonModsLoaded = [];
+            // Navigation
+            this.suppressPopState = false;
+            this.reloadingModuleTagInModule = null;
+            this.reloadInfo = [];
+            this.escElement = document.createElement("div");
+            // WhenReady
+            // Usage:
+            // $YetaWF.addWhenReady((tag) => {});
+            this.whenReady = [];
+            // WhenReadyOnce
+            // Usage:
+            // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
+            this.whenReadyOnce = [];
+            // ClearDiv
+            this.clearDiv = [];
+            this.DataObjectCache = [];
+            // CONTENTCHANGE
+            // CONTENTCHANGE
+            // CONTENTCHANGE
+            this.ContentChangeHandlers = [];
+            // PANELSWITCHED
+            // PANELSWITCHED
+            // PANELSWITCHED
+            this.PanelSwitchedHandlers = [];
+            // ACTIVATEDIV
+            // ACTIVATEDIV
+            // ACTIVATEDIV
+            this.ActivateDivsHandlers = [];
+            // NEWPAGE
+            // NEWPAGE
+            // NEWPAGE
+            this.NewPageHandlers = [];
+            // PAGECHANGE
+            // PAGECHANGE
+            // PAGECHANGE
+            this.PageChangeHandlers = [];
+            $YetaWF = this; // set global so we can initialize anchor/content
+            this.AnchorHandling = new YetaWF.Anchors();
+            this.ContentHandling = new YetaWF.Content();
+        }
+        // Implemented by renderer
+        // Implemented by renderer
+        // Implemented by renderer
+        /**
+         * Turns a loading indicator on/off.
+         * @param on
+         */
+        BasicsServices.prototype.setLoading = function (on) {
+            YetaWF_BasicsImpl.setLoading(on);
+            if (on === false)
+                this.pleaseWaitClose();
         };
-    }
-    // smartresize
-    jQuery.fn[sr] = function (fn) { return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr); };
-
-})(jQuery, 'smartresize');
-
-// FOCUS
-// FOCUS
-// FOCUS
-
-function Y_SetFocus($obj) {
-    'use strict';
-    //TODO: this should also consider input fields with validation errors (although that seems to magically work right now)
-    if ($obj == undefined)
-        $obj = $('body')
-    var $items = $('.focusonme:visible', $obj)
-    var $f = null
-    $items.each(function (index) {
-        var item = this;
-        if (item.tagName == "DIV") { // if we found a div, find the edit element instead
-            var $i = $('input:visible,select:visible,.yt_dropdownlist_base:visible', $(item)).not("input[type='hidden']")
-            if ($i.length > 0) {
-                $f = $i.eq(0);
+        /**
+         * Displays an informational message, usually in a popup.
+         */
+        BasicsServices.prototype.message = function (message, title, onOK, options) { YetaWF_BasicsImpl.message(message, title, onOK, options); };
+        /**
+         * Displays an error message, usually in a popup.
+         */
+        BasicsServices.prototype.error = function (message, title, onOK, options) { YetaWF_BasicsImpl.error(message, title, onOK, options); };
+        /**
+         * Displays a confirmation message, usually in a popup.
+         */
+        BasicsServices.prototype.confirm = function (message, title, onOK, options) { YetaWF_BasicsImpl.confirm(message, title, onOK, options); };
+        /**
+         * Displays an alert message, usually in a popup.
+         */
+        BasicsServices.prototype.alert = function (message, title, onOK, options) { YetaWF_BasicsImpl.alert(message, title, onOK, options); };
+        /**
+         * Displays an alert message with Yes/No buttons, usually in a popup.
+         */
+        BasicsServices.prototype.alertYesNo = function (message, title, onYes, onNo, options) { YetaWF_BasicsImpl.alertYesNo(message, title, onYes, onNo, options); };
+        /**
+         * Displays a "Please Wait" message
+         */
+        BasicsServices.prototype.pleaseWait = function (message, title) { YetaWF_BasicsImpl.pleaseWait(message, title); };
+        /**
+         * Closes the "Please Wait" message (if any).
+         */
+        BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
+        Object.defineProperty(BasicsServices.prototype, "Forms", {
+            get: function () {
+                if (!this.forms) {
+                    this.forms = new YetaWF.Forms(); // if this fails, forms.*.js was not included automatically
+                    this.forms.init();
+                }
+                return this.forms;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BasicsServices.prototype.FormsAvailable = function () {
+            return this.forms != null;
+        };
+        Object.defineProperty(BasicsServices.prototype, "Popups", {
+            get: function () {
+                if (!this.popups) {
+                    this.popups = new YetaWF.Popups(); // if this fails, popups.*.js was not included automatically
+                    this.popups.init();
+                }
+                return this.popups;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BasicsServices.prototype.PopupsAvailable = function () {
+            return this.popups != null;
+        };
+        // Url parsing
+        BasicsServices.prototype.parseUrl = function (url) {
+            var uri = new YetaWF.Url();
+            uri.parse(url);
+            return uri;
+        };
+        // Focus
+        /**
+         * Set focus to a suitable field within the specified elements.
+         */
+        BasicsServices.prototype.setFocus = function (tags) {
+            //TODO: this should also consider input fields with validation errors (although that seems to magically work right now)
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
+            var f = null;
+            var items = this.getElementsBySelector(".focusonme", tags);
+            items = this.limitToVisibleOnly(items); //:visible
+            for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+                var item = items_1[_i];
+                if (item.tagName === "DIV") { // if we found a div, find the edit element instead
+                    var i = this.getElementsBySelector("input,select,.yt_dropdownlist_base", [item]);
+                    i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
+                    i = this.limitToVisibleOnly(i); // :visible
+                    if (i.length > 0) {
+                        f = i[0];
+                        break;
+                    }
+                }
+            }
+            // We probably don't want to set the focus to any control - made OPT-IN for now
+            //if ($f == null) {
+            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something usable
+            //    // filter out anything in a grid (filters, pager, etc)
+            //    $items.each(function (index) {
+            //        var $i = $(this)
+            //        if ($i.parents('.ui-jqgrid').length == 0) {
+            //            $f = $i;
+            //            return false; // not in a grid, so it's ok
+            //        }
+            //    });
+            //}
+            if (f != null) {
+                try {
+                    f.focus();
+                }
+                catch (e) { }
+            }
+        };
+        // Screen size
+        /**
+         * Sets yCondense/yNoCondense css class on popup or body to indicate screen size.
+         * Sets rendering mode based on window size
+         * we can't really use @media (max-width:...) in css because popups (in Unified Page Sets) don't use iframes so their size may be small but
+         * doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
+         * a more condensed appearance.
+         */
+        BasicsServices.prototype.setCondense = function (tag, width) {
+            if (width < YVolatile.Skin.MinWidthForPopups) {
+                this.elementAddClass(tag, "yCondense");
+                this.elementRemoveClass(tag, "yNoCondense");
+            }
+            else {
+                this.elementAddClass(tag, "yNoCondense");
+                this.elementRemoveClass(tag, "yCondense");
+            }
+        };
+        // Popup
+        /**
+         * Returns whether a popup is active
+         */
+        BasicsServices.prototype.isInPopup = function () {
+            return YVolatile.Basics.IsInPopup;
+        };
+        //
+        /**
+         * Close any popup window.
+         */
+        BasicsServices.prototype.closePopup = function (forceReload) {
+            if (this.PopupsAvailable())
+                this.Popups.closePopup(forceReload);
+        };
+        // Scrolling
+        BasicsServices.prototype.setScrollPosition = function () {
+            // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
+            var uri = this.parseUrl(window.location.href);
+            var left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
+            var top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
+            if (left || top) {
+                window.scroll(left ? parseInt(left, 10) : 0, top ? parseInt(top, 10) : 0);
+                return true;
+            }
+            else
+                return false;
+        };
+        /**
+         * Initialize the current page (full page load) - runs during page load, before document ready
+         */
+        BasicsServices.prototype.initPage = function () {
+            var _this = this;
+            this.init();
+            // page position
+            var scrolled = this.setScrollPosition();
+            if (!scrolled) {
+                if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
+                    var uri = this.parseUrl(window.location.href);
+                    var divs = this.getElementsBySelector(".yUnified[data-url=\"" + uri.getPath() + "\"]");
+                    if (divs.length > 0) {
+                        window.scroll(0, divs[0].offsetTop);
+                        scrolled = true;
+                    }
+                }
+            }
+            // FOCUS
+            // FOCUS
+            // FOCUS
+            this.registerDocumentReady(function () {
+                if (!scrolled && location.hash.length <= 1)
+                    _this.setFocus();
+            });
+            // content navigation
+            this.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious; // save loaded addons
+        };
+        // Panes
+        BasicsServices.prototype.showPaneSet = function (id, editMode, equalHeights) {
+            var _this = this;
+            var div = this.getElementById(id);
+            var shown = false;
+            if (editMode) {
+                div.style.display = "block";
+                shown = true;
+            }
+            else {
+                // show the pane if it has modules
+                var mod = this.getElement1BySelectorCond("div.yModule", [div]);
+                if (mod) {
+                    div.style.display = "block";
+                    shown = true;
+                }
+            }
+            if (shown && equalHeights) {
+                // make all panes the same height
+                // this should happen late in case the content is changed dynamically (use with caution)
+                // if it does, the pane will still expand because we're only setting the minimum height
+                this.registerDocumentReady(function () {
+                    var panes = _this.getElementsBySelector("#" + id + " > div"); // get all immediate child divs (i.e., the panes)
+                    panes = _this.limitToVisibleOnly(panes); //:visible
+                    // exclude panes that have .y_cleardiv
+                    var newPanes = [];
+                    for (var _i = 0, panes_1 = panes; _i < panes_1.length; _i++) {
+                        var pane = panes_1[_i];
+                        if (!_this.elementHasClass(pane, "y_cleardiv"))
+                            newPanes.push(pane);
+                    }
+                    panes = newPanes;
+                    var height = 0;
+                    // calc height
+                    for (var _a = 0, panes_2 = panes; _a < panes_2.length; _a++) {
+                        var pane = panes_2[_a];
+                        var h = pane.clientHeight;
+                        if (h > height)
+                            height = h;
+                    }
+                    // set each pane's height
+                    for (var _b = 0, panes_3 = panes; _b < panes_3.length; _b++) {
+                        var pane = panes_3[_b];
+                        pane.style.minHeight = height + "px";
+                    }
+                });
+            }
+        };
+        // Reload, refresh
+        /**
+         * Reloads the current page - in its entirety (full page load)
+         */
+        BasicsServices.prototype.reloadPage = function (keepPosition, w) {
+            if (!w)
+                w = window;
+            if (!keepPosition)
+                keepPosition = false;
+            var uri = this.parseUrl(w.location.href);
+            uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
+            uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
+            if (keepPosition) {
+                var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
+                if (left)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollLeft, left.toString());
+                var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+                if (top)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
+            }
+            uri.removeSearch("!rand");
+            uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
+            if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.None) {
+                if (this.ContentHandling.setContent(uri, true))
+                    return;
+            }
+            if (keepPosition) {
+                w.location.assign(uri.toUrl());
+                return;
+            }
+            w.location.reload(true);
+        };
+        /**
+         * Reloads a module in place, defined by the specified tag (any tag within the module).
+         */
+        BasicsServices.prototype.reloadModule = function (tag) {
+            if (!tag) {
+                if (!this.reloadingModuleTagInModule)
+                    throw "No module found"; /*DEBUG*/
+                tag = this.reloadingModuleTagInModule;
+            }
+            var mod = this.getModuleFromTag(tag);
+            var form = this.getElement1BySelector("form", [mod]);
+            this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
+        };
+        BasicsServices.prototype.refreshModule = function (mod) {
+            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.module.id === mod.id) {
+                    entry.callback();
+                }
+            }
+        };
+        BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
+            var mod = this.getModuleFromTag(elem);
+            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.module.id === mod.id) {
+                    entry.callback();
+                }
+            }
+        };
+        BasicsServices.prototype.refreshPage = function () {
+            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback();
+            }
+        };
+        // Module locator
+        /**
+         * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
+         */
+        BasicsServices.prototype.getModuleFromTagCond = function (tag) {
+            var mod = this.elementClosest(tag, ".yModule");
+            if (!mod)
+                return null;
+            return mod;
+        };
+        /**
+         * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
+         */
+        BasicsServices.prototype.getModuleFromTag = function (tag) {
+            var mod = this.getModuleFromTagCond(tag);
+            // tslint:disable-next-line:no-debugger
+            if (mod == null) {
+                debugger;
+                throw "Can't find containing module";
+            } /*DEBUG*/
+            return mod;
+        };
+        BasicsServices.prototype.getModuleGuidFromTag = function (tag) {
+            var mod = this.getModuleFromTag(tag);
+            var guid = mod.getAttribute("data-moduleguid");
+            if (!guid)
+                throw "Can't find module guid"; /*DEBUG*/
+            return guid;
+        };
+        // Get character size
+        // CHARSIZE (from module or page/YVolatile)
+        /**
+         * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
+         */
+        BasicsServices.prototype.getCharSizeFromTag = function (tag) {
+            var width, height;
+            var mod = null;
+            if (tag)
+                mod = this.getModuleFromTagCond(tag);
+            if (mod) {
+                var w = mod.getAttribute("data-charwidthavg");
+                if (!w)
+                    throw "missing data-charwidthavg attribute"; /*DEBUG*/
+                width = Number(w);
+                var h = mod.getAttribute("data-charheight");
+                if (!h)
+                    throw "missing data-charheight attribute"; /*DEBUG*/
+                height = Number(h);
+            }
+            else {
+                width = YVolatile.Basics.CharWidthAvg;
+                height = YVolatile.Basics.CharHeight;
+            }
+            return { width: width, height: height };
+        };
+        // Utility functions
+        BasicsServices.prototype.htmlEscape = function (s, preserveCR) {
+            preserveCR = preserveCR ? "&#13;" : "\n";
+            return ("" + s) /* Forces the conversion to string. */
+                .replace(/&/g, "&amp;") /* This MUST be the 1st replacement. */
+                .replace(/'/g, "&apos;") /* The 4 other predefined entities, required. */
+                .replace(/"/g, "&quot;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                /*
+                You may add other replacements here for HTML only
+                (but it's not necessary).
+                Or for XML, only if the named entities are defined in its DTD.
+                */
+                .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
+                .replace(/[\r\n]/g, preserveCR);
+        };
+        BasicsServices.prototype.htmlAttrEscape = function (s) {
+            this.escElement.textContent = s;
+            s = this.escElement.innerHTML;
+            return s.replace(/'/g, "&apos;")
+                .replace(/"/g, "&quot;");
+        };
+        /**
+         * string compare that considers null == ""
+         */
+        BasicsServices.prototype.stringCompare = function (str1, str2) {
+            if (!str1 && !str2)
+                return true;
+            return str1 === str2;
+        };
+        // Ajax result handling
+        BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onHandleErrorResult) {
+            //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
+            try {
+                // tslint:disable-next-line:no-eval
+                result = eval(result);
+            }
+            catch (e) { }
+            result = result || "(??)";
+            if (xhr.status === 200) {
+                this.reloadingModuleTagInModule = tagInModule || null;
+                if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                    if (script.length === 0) { // all is well, but no script to execute
+                        if (onSuccessNoData !== undefined) {
+                            onSuccessNoData();
+                        }
+                    }
+                    else {
+                        // tslint:disable-next-line:no-eval
+                        eval(script);
+                    }
+                    return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                    // tslint:disable-next-line:no-eval
+                    eval(script);
+                    return false;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                    // tslint:disable-next-line:no-eval
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    this.reloadPage(true);
+                    return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                    // tslint:disable-next-line:no-eval
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    this.reloadModule();
+                    return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                    //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                    // tslint:disable-next-line:no-eval
+                    eval(script);
+                    if (tagInModule)
+                        this.refreshModuleByAnyTag(tagInModule);
+                    return true;
+                }
+                else {
+                    if (onHandleErrorResult !== undefined) {
+                        onHandleErrorResult(result);
+                    }
+                    else {
+                        this.error(YLocs.Basics.IncorrectServerResp);
+                    }
+                    return false;
+                }
+            }
+            else {
+                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
                 return false;
             }
-        }
-    });
-    // We probably don't want to set the focus to any control - made OPT-IN for now
-    //if ($f == null) {
-    //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something useable
-    //    // filter out anything in a grid (filters, pager, etc)
-    //    $items.each(function (index) {
-    //        var $i = $(this)
-    //        if ($i.parents('.ui-jqgrid').length == 0) {
-    //            $f = $i;
-    //            return false; // not in a grid, so it's ok
-    //        }
-    //    });
-    //}
-    if ($f != null) {
-        try {
-            $f[0].focus();
-        } catch (e) { }
-    }
-}
-
-// PANES
-// PANES
-// PANES
-
-YetaWF_Basics.showPaneSet = function (id, editMode, equalHeights) {
-    'use strict';
-    var $div = $('#{0}'.format(id));// the pane
-    var shown = false;
-    if (editMode) {
-        $div.show();
-        shown = true;
-    } else {
-        // show the pane if it has modules
-        if ($('div.yModule', $div).length > 0) {
-            $div.show();
-            shown = true;
-        }
-    }
-    if (shown && equalHeights) {
-        // make all panes the same height
-        // this should happen late in case the content is changed dynamically (use with caution)
-        // if it does, the pane will still expand because we're only setting the minimum height
-        $(document).ready(function () {
-            var $panes = $('#{0} > div:visible'.format(id));// get all immediate child divs (i.e., the panes)
-            $panes = $panes.not('.y_cleardiv');
-            var height = 0;
-            // calc height
-            $panes.each(function () {
-                var h = $(this).height();
-                if (h > height)
-                    height = h;
-            });
-            // set each pane's height
-            $panes.css('min-height', height);
-        });
-    }
-}
-
-// PAGE/MODULE REFRESH
-// PAGE/MODULE REFRESH
-// PAGE/MODULE REFRESH
-
-// Usage:
-// reloadInfo.push({
-//   module: $mod,              // module <div> to be refreshed
-//   callback: function() {}    // function to be called
-// });
-
-YetaWF_Basics.reloadInfo = [];
-
-YetaWF_Basics.getModuleFromTag_Cond = function (t) {
-    var $t = $(t);
-    if ($t.length != 1) { debugger; throw "Invalid tag"; }/*DEBUG*/
-    var $mod = $t.closest('.yModule');
-    if ($mod.length == 0) return null;
-    return $mod;
-};
-YetaWF_Basics.getModuleFromTag = function (t) {
-    var $mod = YetaWF_Basics.getModuleFromTag_Cond(t);
-    if ($mod == null || $mod.length != 1) { debugger; throw "Can't find containing module"; }/*DEBUG*/
-    return $mod;
-};
-
-YetaWF_Basics.getModuleGuidFromTag = function (t) {
-    var $t = $(t);
-    if ($t.length != 1) { debugger; throw "Invalid tag"; }/*DEBUG*/
-    var $mod = $t.closest('.yModule');
-    if ($mod.length != 1) { debugger; throw "Can't find containing module"; }/*DEBUG*/
-    var guid = $mod.attr('data-moduleguid');
-    if (guid == undefined || guid == "") throw "Can't find module guid";/*DEBUG*/
-    return guid;
-};
-
-YetaWF_Basics.refreshModule = function ($mod) {
-    for (var entry in YetaWF_Basics.reloadInfo) {
-        if (YetaWF_Basics.reloadInfo[entry].module == $mod) {
-            YetaWF_Basics.reloadInfo[entry].callback();
-        }
-    }
-};
-YetaWF_Basics.refreshModuleByAnyTag = function (t) {
-    var $mod = YetaWF_Basics.getModuleFromTag(t);
-    for (var entry in YetaWF_Basics.reloadInfo) {
-        if (YetaWF_Basics.reloadInfo[entry].module[0].id == $mod[0].id) {
-            YetaWF_Basics.reloadInfo[entry].callback();
-        }
-    }
-};
-YetaWF_Basics.refreshPage = function () {
-    for (var entry in YetaWF_Basics.reloadInfo) {
-        YetaWF_Basics.reloadInfo[entry].callback();
-    }
-};
-
-// BEAUTIFY BUTTONS
-// BEAUTIFY BUTTONS
-// BEAUTIFY BUTTONS
-
-_YetaWF_Basics.initButtons = function ($tag) {
-    'use strict';
-    if (YVolatile.Skin.Bootstrap && YVolatile.Skin.BootstrapButtons) {
-        // bootstrap
-        $("input[type=submit],input[type=button],input[type=reset],input[type=file]", $tag).not('.y_jqueryui,.btn').addClass('btn btn-primary')
-        $("button", $tag).not('.y_jqueryui,.yt_actionicons,.btn').addClass('btn')
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_jqueryui,.btn').addClass('btn btn-primary') // action link as a button
-        // explicitly marked for jquery
-        $("input[type=submit].y_jqueryui,input[type=button].y_jqueryui,input[type=reset].y_jqueryui,input[type=file].y_jqueryui,button.y_jqueryui", $tag).button()
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_jqueryui", $tag).button() // action link as a button
-    } else {
-        // jquery-ui
-        $("input[type=submit],input[type=button],input[type=reset],input[type=file],button", $tag).not('.y_bootstrap').button() // beautify all buttons
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "]", $tag).not('.y_bootstrap').button() // action link as a button
-        // explicitly marked for bootstrap
-        $("input[type=submit].y_bootstrap,input[type=button].y_bootstrap,input[type=reset].y_bootstrap,input[type=file].y_bootstrap", $tag).addClass('btn btn-primary')
-        $("button.y_bootstrap", $tag).addClass('btn btn-primary')
-        $("a[" + YConfigs.Basics.CssAttrActionButton + "].y_bootstrap", $tag).addClass('btn btn-primary') // action link as a button
-    }
-};
-
-// AJAX RETURN
-// AJAX RETURN
-// AJAX RETURN
-
-YetaWF_Basics.reloadingModule_TagInModule = null;
-
-YetaWF_Basics.processAjaxReturn = function (result, textStatus, jqXHR, tagInModule, onSuccess, onHandleResult) {
-    'use strict';
-    YetaWF_Basics.reloadingModule_TagInModule = tagInModule;
-    if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
-        var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-        if (script.length == 0) { // all is well, but no script to execute
-            if (onSuccess != undefined) {
-                onSuccess();
-            }
-        } else {
-            eval(script);
-        }
-        return true;
-    } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
-        var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-        eval(script);
-        return false;
-    } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
-        var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-        eval(script);// if this uses Y_Alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explictly reload page in your javascript)
-        Y_ReloadPage(true);
-        return true;
-    } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
-        var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-        eval(script);// if this uses Y_Alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explictly reload module in your javascript)
-        Y_ReloadModule();
-        return true;
-    } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
-        //if (!Y_InPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
-        var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
-        eval(script);
-        YetaWF_Basics.refreshModuleByAnyTag(tagInModule);
-        return true;
-    } else {
-        if (onHandleResult != undefined) {
-            onHandleResult(result);
-        } else {
-            Y_Error(YLocs.Basics.IncorrectServerResp);
-        }
-        return false;
-    }
-};
-
-// TOOLTIPS
-// TOOLTIPS
-// TOOLTIPS
-
-function Y_KillTooltips() {
-    $('.ui-tooltip').remove();
-}
-
-// CHARSIZE (from module or page/YVolatile)
-
-YetaWF_Basics.getCharSizeFromTag = function ($t) {
-    var width, height;
-    var $mod = YetaWF_Basics.getModuleFromTag_Cond($t);
-    if ($mod != null) {
-        width = $mod.attr('data-charwidthavg');
-        height = $mod.attr('data-charheight');
-    } else {
-        width = YVolatile.Basics.CharWidthAvg;
-        height = YVolatile.Basics.CharHeight;
-    }
-    return { width: width, height: height };
-}
-
-// CONTENT
-// CONTENT
-// CONTENT
-
-// loads all scripts - we need to preserve the order of initialization hence the recursion
-_YetaWF_Basics.loadScripts = function (scripts, payload, run) {
-    YVolatile.Basics.KnownScriptsDynamic = YVolatile.Basics.KnownScriptsDynamic || [];
-    var total = scripts.length;
-    if (total == 0) {
-        run();
-        return;
-    }
-    _YetaWF_Basics.loadNextScript(scripts, payload, total, 0, run);
-};
-
-_YetaWF_Basics.loadNextScript = function (scripts, payload, total, ix, run) {
-    var urlEntry = scripts[ix];
-    var name = urlEntry.Name;
-
-    function process() {
-        if (ix >= total - 1) {
-            run();// we're all done
-        } else {
-            _YetaWF_Basics.loadNextScript(scripts, payload, total, ix + 1, run);
-        }
-    }
-    var found = payload.filter(function (elem) { return elem.Name == name; });
-    if (found.length > 0) {
-        $.globalEval(found[0].Text);
-        YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
-        process();
-    } else {
-        var loaded;
-        var js = document.createElement('script');
-        js.type = 'text/javascript';
-        js.async = false; // need to preserve execution order
-        js.src = urlEntry.Url;
-        var dataName = document.createAttribute("data-name");
-        dataName.value = name;
-        js.setAttributeNode(dataName);
-        js.onload = js.onerror = js['onreadystatechange'] = function () {
-            if ((js['readyState'] && !(/^c|loade/.test(js['readyState']))) || loaded) return;
-            js.onload = js['onreadystatechange'] = null;
-            loaded = true;
-            process();
         };
-        if (YVolatile.Basics.JSLocation) {// location doesn't really matter, but done for consistency
-            var head = document.getElementsByTagName('head')[0];
-            head.insertBefore(js, head.lastChild)
-        } else {
-            var body = document.getElementsByTagName('body')[0];
-            body.insertBefore(js, body.lastChild)
-        }
-    }
-};
-
-_YetaWF_Basics.UnifiedAddonModsLoaded = [];// currently loaded addons
-
-// Change the current page to the specified Uri (may not be part of the unified page set)
-// returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
-// returns true if the page is now shown and is part of the unified page set
-_YetaWF_Basics.setContent = function (uri, setState, popupCB) {
-    'use strict';
-
-    function closemenus() {
-        // Close open bootstrap nav menus (if any) by clicking on the page
-        $('body').trigger('click');
-        // Close any open kendo menus (if any)
-        var $menus = $(".k-menu");
-        $menus.each(function () {
-            var menu = $(this).data("kendoMenu");
-            menu.close("li.k-item");
-        });
-        // Close any open smartmenus
-        try {
-            $('.YetaWF_Menus').collapse('hide');
-        } catch (e) { }
-    }
-
-    if (YVolatile.Basics.EditModeActive) return false; // edit mode
-    if (YVolatile.Basics.UnifiedMode == 0) return false; // not unified mode
-    if (popupCB !== undefined) {
-        if (YVolatile.Basics.UnifiedMode !== 3 /*UnifiedModeEnum.DynamicContent*/ && YVolatile.Basics.UnifiedMode !== 4 /*UnifiedModeEnum.SkinDynamicContent*/)
-            return false; // popups can only be used with some unified modes
-        if (!YVolatile.Basics.UnifiedPopups)
-            return false; // popups not wanted for this UPS
-    }
-
-    // check if we're clicking a link which is part of this unified page
-    var path = uri.path();
-    if (YVolatile.Basics.UnifiedMode === 3 /*UnifiedModeEnum.DynamicContent*/ || YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
-        // find all panes that support dynamic content and replace with new modules
-        var $divs = $('.yUnified[data-pane]');
-        // build data context (like scripts, css files we have)
-        var data = {};
-        data.CacheVersion = YVolatile.Basics.CacheVersion;
-        data.Path = path;
-        data.QueryString = uri.query();
-        data.UnifiedSetGuid = YVolatile.Basics.UnifiedSetGuid;
-        data.UnifiedMode = YVolatile.Basics.UnifiedMode;
-        if (YVolatile.Basics.UnifiedMode === 4 /*UnifiedModeEnum.SkinDynamicContent*/) {
-            data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
-            data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
-        }
-        data.UnifiedAddonMods = _YetaWF_Basics.UnifiedAddonModsLoaded;// active addons
-        data.UniqueIdPrefixCounter = YVolatile.Basics.UniqueIdPrefixCounter;
-        data.IsMobile = YVolatile.Skin.MinWidthForPopups > window.outerWidth;
-        data.Panes = [];
-        $divs.each(function () {
-            data.Panes.push($(this).attr('data-pane'));
-        });
-        data.KnownCss = [];
-        var $css = $('link[rel="stylesheet"][data-name]');
-        $css.each(function () {
-            data.KnownCss.push($(this).attr('data-name'));
-        });
-        $css = $('style[type="text/css"][data-name]');
-        $css.each(function () {
-            data.KnownCss.push($(this).attr('data-name'));
-        });
-        data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles);// add known css files that were added via bundles
-        data.KnownScripts = [];
-        //var $scripts = $('script[type="text/javascript"][src][data-name]');
-        var $scripts = $('script[src][data-name]');
-        $scripts.each(function () {
-            data.KnownScripts.push($(this).attr('data-name'));
-        });
-        data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic);// known javascript files that were added by content pages
-        data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles);// add known javascript files that were added via bundles
-
-        Y_Loading();
-        $.ajax({
-            url: '/YetaWF_Core/PageContent/Show?' + uri.query(),
-            type: 'POST',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            traditional: true,
-            contentType: "application/json",
-            processData: false,
-            headers: {
-                "X-HTTP-Method-Override": "GET" // server has to think this is a GET request so all actions that are invoked actually work
-            },
-            success: function (result, textStatus, jqXHR) {
-                closemenus();
-                if (result.Status != null && result.Status.length > 0) {
-                    Y_Loading(false);
-                    Y_Alert(result.Status, YLocs.Forms.AjaxErrorTitle);
+        // JSX
+        /**
+         * React-like createElement function so we can use JSX in our TypeScript/JavaScript code.
+         */
+        BasicsServices.prototype.createElement = function (tag, attrs, children) {
+            var element = document.createElement(tag);
+            for (var name_1 in attrs) {
+                if (name_1 && attrs.hasOwnProperty(name_1)) {
+                    var value = attrs[name_1];
+                    if (value === true) {
+                        element.setAttribute(name_1, name_1);
+                    }
+                    else if (value !== false && value != null) {
+                        element.setAttribute(name_1, value.toString());
+                    }
+                }
+            }
+            for (var i = 2; i < arguments.length; i++) {
+                var child = arguments[i];
+                element.appendChild(child.nodeType == null ?
+                    document.createTextNode(child.toString()) : child);
+            }
+            return element;
+        };
+        // Global script eval
+        BasicsServices.prototype.runGlobalScript = function (script) {
+            var elem = document.createElement("script");
+            elem.text = script;
+            var newElem = document.head.appendChild(elem); // add to execute script
+            newElem.parentNode.removeChild(newElem); // and remove - we're done with it
+        };
+        /**
+         * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
+         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
+         * Callback functions are registered by whomever needs this type of processing. For example, a grid can
+         * process all whenReady requests after reloading the grid with data (which doesn't run any javascript automatically).
+         * @param def
+         */
+        BasicsServices.prototype.addWhenReady = function (callback) {
+            this.whenReady.push({ callback: callback });
+        };
+        /**
+         * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
+         * @param elem The element for which all callbacks should be called to initialize children.
+         */
+        BasicsServices.prototype.processAllReady = function (tags) {
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
+            for (var _i = 0, _a = this.whenReady; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                try { // catch errors to insure all callbacks are called
+                    for (var _b = 0, tags_1 = tags; _b < tags_1.length; _b++) {
+                        var tag = tags_1[_b];
+                        entry.callback(tag);
+                    }
+                }
+                catch (err) {
+                    console.log(err.message);
+                }
+            }
+        };
+        /**
+         * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
+         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
+         * Callback functions are registered by whomever needs this type of processing. For example, a grid can
+         * process all whenReadyOnce requests after reloading the grid with data (which doesn't run any javascript automatically).
+         * The callback is called for ONCE. Then the callback is removed.
+         * @param def
+         */
+        BasicsServices.prototype.addWhenReadyOnce = function (callback) {
+            this.whenReadyOnce.push({ callback: callback });
+        };
+        /**
+         * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
+         * @param elem The element for which all callbacks should be called to initialize children.
+         */
+        BasicsServices.prototype.processAllReadyOnce = function (tags) {
+            if (!tags) {
+                tags = [];
+                tags.push(document.body);
+            }
+            for (var _i = 0, _a = this.whenReadyOnce; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                try { // catch errors to insure all callbacks are called
+                    for (var _b = 0, tags_2 = tags; _b < tags_2.length; _b++) {
+                        var tag = tags_2[_b];
+                        entry.callback(tag);
+                    }
+                }
+                catch (err) {
+                    console.log(err.message);
+                }
+            }
+            this.whenReadyOnce = [];
+        };
+        /**
+         * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
+         * callback so elements can be destroyed when a div is emptied (used by UPS).
+         */
+        BasicsServices.prototype.addClearDiv = function (callback) {
+            this.clearDiv.push({ callback: callback });
+        };
+        /**
+         * Process all callbacks for the specified element being cleared.
+         * @param elem The element being cleared.
+         */
+        BasicsServices.prototype.processClearDiv = function (tag) {
+            for (var _i = 0, _a = this.clearDiv; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                try { // catch errors to insure all callbacks are called
+                    if (entry.callback != null)
+                        entry.callback(tag);
+                }
+                catch (err) {
+                    console.log(err.message);
+                }
+            }
+            // also release any attached objects
+            for (var i = 0; i < this.DataObjectCache.length;) {
+                var doe = this.DataObjectCache[i];
+                if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
+                    // tslint:disable-next-line:no-debugger
+                    debugger; //TODO: This hasn't been tested
+                    this.DataObjectCache.splice(i, 1);
+                    continue;
+                }
+                ++i;
+            }
+        };
+        /**
+         * Adds an object (a Typescript class) to a tag. Used for cleanup when a parent div is removed.
+         * Typically used by templates.
+         * Objects attached to divs are terminated by processClearDiv which calls any handlers that registered a
+         * template class using addClearDivForObjects.
+         * @param tagId - The element id (DOM) where the object is attached
+         * @param obj - the object to attach
+         */
+        BasicsServices.prototype.addObjectDataById = function (tagId, obj) {
+            this.getElementById(tagId); // used to validate the existence of the element
+            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
+            if (doe.length > 0)
+                throw "addObjectDataById - tag with id " + tagId + " already has data"; /*DEBUG*/
+            this.DataObjectCache.push({ DivId: tagId, Data: obj });
+        };
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.getObjectDataById = function (tagId) {
+            this.getElementById(tagId); // used to validate the existence of the element
+            var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
+            if (doe.length === 0)
+                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+            return doe[0].Data;
+        };
+        /**
+         * Removes a data object (a Typescript class) from a tag.
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.removeObjectDataById = function (tagId) {
+            this.getElementById(tagId); // used to validate the existence of the element
+            for (var i = 0; i < this.DataObjectCache.length; ++i) {
+                var doe = this.DataObjectCache[i];
+                if (doe.DivId === tagId) {
+                    this.DataObjectCache.splice(i, 1);
                     return;
                 }
-                if (result.Redirect != null && result.Redirect.length > 0) {
-                    //Y_Loading(false);
-                    if (popupCB) {
-                        // we want a popup and get a redirect, redirect to iframe popup
-                        YetaWF_Popup.openPopup(result.Redirect, true);
-                    } else {
-                        // simple redirect
-                        window.location.assign(result.Redirect);
-                    }
-                    return;
-                }
-                if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                    _YetaWF_Basics.setContent(new URI(result.RedirectContent), setState, popupCB);
-                    return;
-                }
-                // run all global scripts (YConfigs, etc.)
-                $.globalEval(result.Scripts);
-                // add all new css files
-                var cssLength = result.CssFiles.length;
-                for (var i = 0; i < cssLength; i++) {
-                    var urlEntry = result.CssFiles[i];
-                    var found = result.CssFilesPayload.filter(function (elem) { return elem.Name == urlEntry.Name; });
-                    if (found.length > 0) {
-                        if (YVolatile.Basics.CssLocation) {
-                            $('head').append($('<style />').attr('type', 'text/css').attr('data-name', found[0].Name).html(found[0].Text));
-                        } else {
-                            $('body').append($('<style />').attr('type', 'text/css').attr('data-name', found[0].Name).html(found[0].Text));
-                        }
-                    } else {
-                        if (YVolatile.Basics.CssLocation) {
-                            $('head').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('data-name', urlEntry.Name).attr('href', urlEntry.Url));
-                        } else {
-                            $('body').append($('<link />').attr('rel', 'stylesheet').attr('type', 'text/css').attr('data-name', urlEntry.Name).attr('href', urlEntry.Url));
-                        }
-                    }
-                }
-                if (result.CssBundleFiles != null) {
-                    YVolatile.Basics.UnifiedCssBundleFiles = YVolatile.Basics.UnifiedCssBundleFiles || [];
-                    YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles);
-                }
-                // add all new script files
-                _YetaWF_Basics.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, function () {
-                    YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
-                    YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles);
-                    if (!popupCB) {
-                        // Update the browser page title
-                        document.title = result.PageTitle;
-                        // Update the browser address bar with the new path
-                        if (setState) {
-                            try {
-                                var stateObj = {};
-                                history.pushState(stateObj, "", uri.toString());
-                            } catch (err) { }
-                        }
-                        // remove all pane contents
-                        $divs.each(function () {
-                            YetaWF_Basics.processClearDiv(this);
-                            var $div = $(this);
-                            $div.empty();
-                            if ($div.attr("data-conditional") !== undefined)
-                                $div.hide();// hide, it's a conditional pane
-                        });
-                        // Notify that page is changing
-                        $(document).trigger('YetaWF_Basics_PageChange', []);
-                        // remove prior page css classes
-                        var $body = $('body');
-                        $body.removeClass($body.attr('data-pagecss'));
-                        // add new css classes
-                        $body.addClass(result.PageCssClasses);
-                        $body.attr('data-pagecss', result.PageCssClasses);// remember so we can remove them for the next page
-                    }
-                    var $tags = $(); // collect all panes
-                    if (!popupCB) {
-                        // add pane content
-                        var contentLength = result.Content.length;
-                        for (var i = 0; i < contentLength; i++) {
-                            // replace the pane
-                            var $pane = $('.yUnified[data-pane="{0}"]'.format(result.Content[i].Pane));
-                            $pane.show();// show in case this is a conditional pane
-                            $pane.append(result.Content[i].HTML);
-                            // run all registered initializations for the pane
-                            $tags = $tags.add($pane);
-                        }
-                    } else {
-                        $tags = popupCB(result);
-                    }
-                    // add addons
-                    $('body').append(result.Addons);
-                    YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonModsPrevious || [];
-                    YVolatile.Basics.UnifiedAddonMods = YVolatile.Basics.UnifiedAddonMods || [];
-                    // end of page scripts
-                    $.globalEval(result.EndOfPageScripts);
-                    // turn off all previously active modules that are no longer active
-                    YVolatile.Basics.UnifiedAddonModsPrevious.forEach(function (guid) {
-                        if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
-                            $(document).trigger('YetaWF_Basics_Addon', [guid, false]);
-                    });
-                    // turn on all newly active modules (if they were previously loaded)
-                    // new referenced modules that were just loaded now are already active and don't need to be called
-                    YVolatile.Basics.UnifiedAddonMods.forEach(function (guid) {
-                        if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && _YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
-                            $(document).trigger('YetaWF_Basics_Addon', [guid, true]);
-                        if (_YetaWF_Basics.UnifiedAddonModsLoaded.indexOf(guid) < 0)
-                            _YetaWF_Basics.UnifiedAddonModsLoaded.push(guid);
-                    });
-                    YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonMods;
-                    YVolatile.Basics.UnifiedAddonMods = [];
-                    // call ready handlers
-                    YetaWF_Basics.processAllReady($tags);
-                    YetaWF_Basics.processAllReadyOnce($tags);
-                    if (!popupCB) {
-                        // scroll
-                        var scrolled = YetaWF_Basics.setScrollPosition();
-                        if (!scrolled) {
-                            $(window).scrollLeft(0);
-                            $(window).scrollTop(0);
-                        }
-                        // in case there is a popup open, close it now (typically when returning to the page from a popup)
-                        if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.closePopup != undefined)
-                            YetaWF_Popup.closeInnerPopup();
-                    }
-                    try {
-                        $.globalEval(result.AnalyticsContent);
-                    } catch (e) { }
-                    $(document).trigger('YetaWF_Basics_NewPage', [uri.toString()]);// notify listeners that there is a new page
-                    // done, set focus
-                    Y_SetFocus($tags);
-                    Y_Loading(false);
-                });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                Y_Loading(false);
-                Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
-                debugger;
             }
-        });
-        return true;
-    } else {
-        // check if we have anything with that path as a unified pane and activate the panes
-        var $divs = $('.yUnified[data-url="{0}"]'.format(path));
-        if ($divs.length > 0) {
-            closemenus();
-            // Update the browser address bar with the new path
-            if (setState) {
-                try {
-                    var stateObj = {};
-                    history.pushState(stateObj, "", uri.toString());
-                } catch (err) { }
-            }
-            if (YVolatile.Basics.UnifiedMode === 1 /*UnifiedModeEnum.HideDivs*/) {
-                $('.yUnified').hide();
-                $divs.show();
-                // send event that a new section became active/visible
-                $('body').trigger('YetaWF_PropertyList_PanelSwitched', $divs);
-                // scroll
-                var scrolled = YetaWF_Basics.setScrollPosition();
-                if (!scrolled) {
-                    $(window).scrollLeft(0);
-                    $(window).scrollTop(0);
+            throw "Element with id " + tagId + " doesn't have attached data"; /*DEBUG*/
+        };
+        // Selectors
+        /**
+         * Get an element by id.
+         */
+        BasicsServices.prototype.getElementById = function (elemId) {
+            var div = document.querySelector("#" + elemId);
+            if (!div)
+                throw "Element with id " + elemId + " not found"; /*DEBUG*/
+            return div;
+        };
+        /**
+         * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        BasicsServices.prototype.getElementsBySelector = function (selector, elems) {
+            var all = [];
+            if (!elems)
+                elems = [document.body];
+            for (var _i = 0, elems_1 = elems; _i < elems_1.length; _i++) {
+                var elem = elems_1[_i];
+                var list = elem.querySelectorAll(selector);
+                var len = list.length;
+                for (var i = 0; i < len; ++i) {
+                    all.push(list[i]);
                 }
-                Y_SetFocus();
-            } else if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
-                //element.scrollIntoView() as an alternative (check compatibility/options)
-                // calculate an approximate animation time so the shorter the distance, the shorter the animation
-                var h = $('body').height();
-                var t = $divs.eq(0).offset().top;
-                var anim = YVolatile.Basics.UnifiedAnimation * t / h;
-                $('body,html').animate({
-                    scrollTop: t
-                }, anim);
-            } else
-                throw "Invalid UnifiedMode {0}".format(YVolatile.Basics.UnifiedMode);
-            Y_Loading(false);
-            return true;
-        }
-        //Y_Loading(false); // don't hide, let new page take over
-        return false;
-    }
-    return false;
-};
-
-// DOCUMENT READY
-// DOCUMENT READY
-// DOCUMENT READY
-
-$(document).ready(function () {
-    'use strict';
-
-    // SKIN
-    // SKIN
-    // SKIN
-
-    if (YVolatile.Skin == undefined) throw "SetSkinOptions call missing in page skin";/*DEBUG*/
-
-    // TOOLTIPS
-    // TOOLTIPS
-    // TOOLTIPS
-
-    var selectors = 'img:not("{0}"),label,input:not(".ui-button-disabled"),a:not("{0},.ui-button-disabled"),i,.ui-jqgrid span[{1}],span[{2}],li[{1}],div[{1}]';
-    var ddsel = '.k-list-container.k-popup li[data-offset-index]';
-    $('body').tooltip({
-        items: (selectors + ',' + ddsel).format(YVolatile.Basics.CssNoTooltips, YConfigs.Basics.CssTooltip, YConfigs.Basics.CssTooltipSpan),
-        content: function (a, b, c) {
-            var $this = $(this);
-            if ($this.is(ddsel)) {
-                // dropdown list - find who owns this and get the matching tooltip
-                // this is a bit hairy - we save all the tooltips for a dropdown list in a variable
-                // named ..id.._tooltips. The popup/dropdown is named ..id..-list so we deduce the
-                // variable name from the popup/dropdown. This is going to break at some point...
-                var ttindex = $this.attr("data-offset-index");
-                if (ttindex === undefined) return null;
-                var $container = $this.closest('.k-list-container.k-popup');
-                if ($container.length != 1) return null;
-                var id = $container.attr("id");
-                id = id.replace("-list", "");
-                var tip = YetaWF_TemplateDropDownList.getTitleFromId(id, ttindex);
-                if (tip == null) return null;
-                return Y_HtmlEscape(tip);
             }
-            for (; ;) {
-                if (!$this.is(':hover') && $this.is(':focus'))
-                    return null;
-                if ($this.attr("disabled") !== undefined)
-                    return null;
-                var s = $this.attr(YConfigs.Basics.CssTooltip);
-                if (s != undefined)
-                    return Y_HtmlEscape(s);
-                s = $this.attr(YConfigs.Basics.CssTooltipSpan);
-                if (s != undefined)
-                    return Y_HtmlEscape(s);
-                s = $this.attr('title');
-                if (s != undefined)
-                    return Y_HtmlEscape(s);
-                if ($this[0].tagName != "IMG" && $this[0].tagName != "I")
-                    break;
-                // we're in an IMG or I tag, find enclosing A (if any) and try again
-                $this = $this.closest('a:not("{0}")'.format(YVolatile.Basics.CssNoTooltips));
-                if ($this.length == 0) return null;
-                // if the a link is a menu, don't show a tooltip for the image because the tooltip would be in a bad location
-                if ($this.closest('.k-menu').length > 0) return null;
-            }
-            if ($this[0].tagName == "A") {
-                var href = $this[0].href;
-                if (href == undefined || href.startsWith('javascript') || href.startsWith('#') || href.startsWith('mailto:'))
-                    return null;
-                var target = $this[0].target;
-                if (target === '_blank') {
-                    var uri = new URI(href);
-                    return Y_HtmlEscape(YLocs.Basics.OpenNewWindowTT.format(uri.hostname()));
-                }
+            return all;
+        };
+        /**
+         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        BasicsServices.prototype.getElement1BySelectorCond = function (selector, elems) {
+            if (!elems)
+                elems = [document.body];
+            for (var _i = 0, elems_2 = elems; _i < elems_2.length; _i++) {
+                var elem = elems_2[_i];
+                var list = elem.querySelectorAll(selector);
+                if (list.length > 0)
+                    return list[0];
             }
             return null;
-        },
-        position: { my: "left top", at: "right bottom", collision: "flipfit" }
-    });
-
-    // <A> LINKS
-    // <A> LINKS
-    // <A> LINKS
-
-    $("body").on("mousedown", 'a', function () {
-        // when we click on an <a> link, we don't want the next tooltip
-        // this may be a bug because after clicking an a link, the tooltip will be created (again?) so we want to suppress this
-        // Repro steps (without hack): right click on an a link (that COULD have a tooltip) and open a new tab/window. On return to this page we'll get a tooltip
-        Y_KillTooltips();
-    });
-
-    // <a> links that only have a hash are intercepted so we don't go through content handling
-    $("body").on("click", "a[href^='#']", function (e) {
-        YetaWF_Basics.suppressPopState = true;
-    });
-
-    // For an <a> link clicked, add the page we're coming from (not for popup links though)
-    $("body").on("click", "a.yaction-link,area.yaction-link", function (e) {
-        var $t = $(this);
-
-        var uri = $t.uri();
-        var url = $t[0].href;
-
-        // send tracking info
-        if ($t.hasClass('yTrack')) {
-            // find the unique skinvisitor module so we have antiforgery tokens and other context info
-            var $f = $('.YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form');
-            if ($f.length == 1) {
-                var data = { 'url': url };
-                var info = YetaWF_Forms.getFormInfo($f);
-                data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
-                data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
-                data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
-                var urlTrack = $f.attr('data-track');
-                if (urlTrack == undefined) throw "data-track not defined";/*DEBUG*/
-                $.ajax({
-                    'url': urlTrack,
-                    'type': 'post',
-                    'data': data,
-                });
+        };
+        /**
+         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         */
+        BasicsServices.prototype.getElement1BySelector = function (selector, elems) {
+            var elem = this.getElement1BySelectorCond(selector, elems);
+            if (elem == null)
+                throw "Element with selector " + selector + " not found";
+            return elem;
+        };
+        /**
+         * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
+         */
+        BasicsServices.prototype.limitToNotTypeHidden = function (elems) {
+            var all = [];
+            for (var _i = 0, elems_3 = elems; _i < elems_3.length; _i++) {
+                var elem = elems_3[_i];
+                if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden")
+                    all.push(elem);
             }
-        }
-
-        if (uri.path().length == 0 || url.startsWith('javascript:') || url.startsWith('mailto:') || url.startsWith('tel:')) return true;
-
-        // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
-        if (!uri.hasSearch(YGlobals.Link_EditMode) && !uri.hasSearch(YGlobals.Link_NoEditMode)) {
-            var currUri = new URI(window.location.href);
-            if (currUri.hasSearch(YGlobals.Link_EditMode))
-                uri.addSearch(YGlobals.Link_EditMode, 'y');
-        }
-        // add status/visibility of page control module
-        uri.removeSearch(YGlobals.Link_PageControl);
-        if (YVolatile.Basics.PageControlVisible)
-            uri.addSearch(YGlobals.Link_PageControl, 'y');
-
-        // add our module context info (if requested)
-        if ($t.attr(YConfigs.Basics.CssAddModuleContext) != undefined) {
-            if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                var guid = YetaWF_Basics.getModuleGuidFromTag($t);
-                uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
+            return all;
+        };
+        /**
+         * Returns items that are visible. (similar to jquery var x = elems.filter(':visible'); )
+         */
+        BasicsServices.prototype.limitToVisibleOnly = function (elems) {
+            var all = [];
+            for (var _i = 0, elems_4 = elems; _i < elems_4.length; _i++) {
+                var elem = elems_4[_i];
+                if (this.isVisible(elem))
+                    all.push(elem);
             }
-        }
-
-        // pass along the charsize
-        {
-            var charSize = YetaWF_Basics.getCharSizeFromTag($t);
-            uri.removeSearch(YGlobals.Link_CharInfo);
-            uri.addSearch(YGlobals.Link_CharInfo, charSize.width + ',' + charSize.height);
-        }
-
-        // fix the url to include where we came from
-        var target = $t.attr("target");
-        if ((target == undefined || target == "" || target == "_self") && $t.attr(YConfigs.Basics.CssSaveReturnUrl) != undefined) {
-            // add where we currently are so we can save it in case we need to return to this page
-            var currUri = new URI(window.location.href);
-            currUri.removeSearch(YGlobals.Link_OriginList);// remove originlist from current URL
-            currUri.removeSearch(YGlobals.Link_InPopup);// remove popup info from current URL
-            // now update url (where we're going with originlist)
-            uri.removeSearch(YGlobals.Link_OriginList);
-            var originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
-
-            if ($t.attr(YConfigs.Basics.CssDontAddToOriginList) == undefined) {
-                var newOrigin = { Url: currUri.toString(), EditMode: YVolatile.Basics.EditModeActive != 0, InPopup: Y_InPopup() };
-                originList.push(newOrigin);
-                if (originList.length > 5)// only keep the last 5 urls
-                    originList = originList.slice(originList.length - 5);
+            return all;
+        };
+        BasicsServices.prototype.isVisible = function (elem) {
+            return (elem.clientWidth > 0 && elem.clientHeight > 0);
+        };
+        /**
+         * Tests whether the specified element matches the selector.
+         * @param elem - The element to test.
+         * @param selector - The selector to match.
+         */
+        BasicsServices.prototype.elementMatches = function (elem, selector) {
+            if (elem)
+                return elem.matches(selector);
+            return false;
+        };
+        /**
+         * Finds the closest element up the DOM hierarchy that matches the selector (including the starting element)
+         * @param elem - The element to test.
+         * @param selector - The selector to match.
+         */
+        BasicsServices.prototype.elementClosest = function (elem, selector) {
+            var e = elem;
+            while (e) {
+                if (this.elementMatches(e, selector))
+                    return e;
+                else
+                    e = e.parentElement;
             }
-            uri.addSearch(YGlobals.Link_OriginList, JSON.stringify(originList));
-            target = "_self";
-        }
-        if (target == undefined || target == "" || target == "_self")
-            target = "_self";
-
-        // first try to handle this as a link to the outer window (only used in a popup)
-        if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.handleOuterWindow != undefined) {
-            if (YetaWF_Popup.handleOuterWindow($t))
-                return false;
-        }
-        // try to handle this as a popup link
-        if (typeof YetaWF_Popup !== 'undefined' && YetaWF_Popup.handlePopupLink != undefined) {
-            if (YetaWF_Popup.handlePopupLink($t))
-                return false;
-        }
-
-        var cookieToReturn = undefined;
-        var cookiePattern = undefined;
-        var cookieTimer = undefined;
-        var post = undefined;
-
-        if ($t.attr(YConfigs.Basics.CookieDoneCssAttr) != undefined) {
-            cookieToReturn = (new Date()).getTime();
-            uri.removeSearch(YConfigs.Basics.CookieToReturn);
-            uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
-        }
-        if ($t.attr(YConfigs.Basics.PostAttr) != undefined) {
-            post = true;
-        }
-
-        function checkCookies() {
-            if (cookiePattern == undefined) throw "cookie pattern not defined";/*DEBUG*/
-            if (cookieTimer == undefined) throw "cookie timer not defined";/*DEBUG*/
-            if (document.cookie.search(cookiePattern) >= 0) {
-                clearInterval(cookieTimer);
-                Y_Loading(false);// turn off loading indicator
-                console.log("Download complete!!");
-                return false;
-            }
-            console.log("File still downloading...", new Date().getTime());
-        }
-        function waitForCookie() {
-            if (cookieToReturn) {
-                // check for cookie to see whether download started
-                cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
-                cookieTimer = setInterval(checkCookies, 500);
-            }
-        }
-        function postLink() {
-            Y_Loading();
-            waitForCookie();
-
-            $.ajax({
-                'url': url,
-                type: 'post',
-                data: {},
-                success: function (result, textStatus, jqXHR) {
-                    Y_Loading(false);
-                    YetaWF_Basics.processAjaxReturn(result, textStatus, jqXHR, $t);
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    Y_Loading(false);
-                    Y_Alert(YLocs.Forms.AjaxError.format(jqXHR.status, jqXHR.statusText), YLocs.Forms.AjaxErrorTitle);
-                    debugger;
-                }
+            return null;
+        };
+        // DOM manipulation
+        /**
+         * Removes the specified element.
+         * @param elem - The element to remove.
+         */
+        BasicsServices.prototype.removeElement = function (elem) {
+            if (!elem.parentElement)
+                return;
+            elem.parentElement.removeChild(elem);
+        };
+        /**
+         * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        BasicsServices.prototype.appendMixedHTML = function (elem, content) {
+            this.calcMixedHTMLRunScripts(content, undefined, function (elems) {
+                while (elems.length > 0)
+                    elem.insertAdjacentElement("beforeend", elems[0]);
             });
-        }
-
-        if (cookieToReturn) {
-            // this is a file download
-            var confirm = $t.attr(YConfigs.Basics.CssConfirm);
-            if (confirm != undefined) {
-                Y_AlertYesNo(confirm, null, function () {
-                    window.location.assign(url);
-                    Y_Loading();
-                    waitForCookie();
-                });
+        };
+        /**
+         * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        BasicsServices.prototype.setMixedOuterHTML = function (elem, content) {
+            this.calcMixedHTMLRunScripts(content, function (html) {
+                elem.outerHTML = content;
+            });
+        };
+        BasicsServices.prototype.calcMixedHTMLRunScripts = function (content, callbackHTML, callbackChildren) {
+            // convert the string to DOM representation
+            var temp = document.createElement("YetaWFTemp");
+            temp.innerHTML = content;
+            // extract all <script> tags
+            var scripts = this.getElementsBySelector("script", [temp]);
+            for (var _i = 0, scripts_1 = scripts; _i < scripts_1.length; _i++) {
+                var script = scripts_1[_i];
+                this.removeElement(script); // remove the script element
+            }
+            // call callback so caller can update whatever needs to be updated
+            if (callbackHTML)
+                callbackHTML(temp.innerHTML);
+            else if (callbackChildren)
+                callbackChildren(temp.children);
+            // now run/load all scripts we found in the HTML
+            for (var _a = 0, scripts_2 = scripts; _a < scripts_2.length; _a++) {
+                var script = scripts_2[_a];
+                if (script.src) {
+                    script.async = false;
+                    script.defer = false;
+                    var js = document.createElement("script");
+                    js.type = "text/javascript";
+                    js.async = false; // need to preserve execution order
+                    js.defer = false;
+                    js.src = script.src;
+                    document.body.appendChild(js);
+                }
+                else
+                    this.runGlobalScript(script.innerHTML);
+            }
+        };
+        // Element Css
+        /**
+         * Tests whether the specified element has the given css class.
+         * @param elem The element to test.
+         * @param css - The css class being tested.
+         */
+        BasicsServices.prototype.elementHasClass = function (elem, css) {
+            css = css.trim();
+            if (!elem)
                 return false;
+            if (elem.classList)
+                return elem.classList.contains(css);
+            else
+                return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
+        };
+        /**
+         * Add a space separated list of css classes to an element.
+         */
+        BasicsServices.prototype.elementAddClasses = function (elem, classNames) {
+            if (!classNames)
+                return;
+            for (var _i = 0, _a = classNames.split(" "); _i < _a.length; _i++) {
+                var s = _a[_i];
+                if (s.length > 0)
+                    this.elementAddClass(elem, s);
             }
-            window.location.assign(url);
-        } else {
-            // if a confirmation is wanted, show it
-            // this means that it's posted by definition
-            var confirm = $t.attr(YConfigs.Basics.CssConfirm);
-            if (confirm != undefined) {
-                Y_AlertYesNo(confirm, null, function () {
-                    postLink();
-                    if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                        Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
-                    return false;
-                });
-                return false;
-            } else if (post) {
-                if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined)
-                    Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
-                postLink();
-                return false;
+        };
+        /**
+         * Add css class to an element.
+         */
+        BasicsServices.prototype.elementAddClass = function (elem, className) {
+            if (elem.classList)
+                elem.classList.add(className);
+            else
+                elem.className += " " + className;
+        };
+        /**
+         * Remove a space separated list of css classes from an element.
+         */
+        BasicsServices.prototype.elementRemoveClasses = function (elem, classNames) {
+            if (!classNames)
+                return;
+            for (var _i = 0, _a = classNames.split(" "); _i < _a.length; _i++) {
+                var s = _a[_i];
+                if (s.length > 0)
+                    this.elementRemoveClass(elem, s);
             }
-        }
-
-        if (target == "_self") {
-            // add overlay if desired
-            if ($t.attr(YConfigs.Basics.CssPleaseWait) != undefined) {
-                Y_PleaseWait($t.attr(YConfigs.Basics.CssPleaseWait))
+        };
+        /**
+         * Remove a css class from an element.
+         */
+        BasicsServices.prototype.elementRemoveClass = function (elem, className) {
+            if (elem.classList)
+                elem.classList.remove(className);
+            else
+                elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+        };
+        // Events
+        BasicsServices.prototype.registerDocumentReady = function (callback) {
+            if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+                callback();
             }
-        }
-        waitForCookie(); // if any
-
-        // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
-        if (cookieToReturn) return true; // expecting cookie return
-        if (uri.domain() !== "" && uri.hostname() !== window.document.domain) return true; // wrong domain
-        // if we're switching from https->http or from http->https don't use a unified page set
-        if (!url.startsWith("http") || !window.document.location.href.startsWith("http")) return true; // neither http nor https
-        if ((url.startsWith("http://") != window.document.location.href.startsWith("http://")) ||
-              (url.startsWith("https://") != window.document.location.href.startsWith("https://"))) return true; // switching http<>https
-
-        if (target == "_self")
-            return !_YetaWF_Basics.setContent(uri, true);
-        return true;
-    });
-
-    // SUBMITFORMONCHANGE
-    // SUBMITFORMONCHANGE
-    // SUBMITFORMONCHANGE
-
-    var submitFormTimer = undefined;
-    var submitForm = null;
-    /* SUBMIT */
-    var submitFormOnChange = function () {
-        clearInterval(submitFormTimer);
-        YetaWF_Forms.submit(submitForm, false);
-    }
-    $('body').on('keyup', '.ysubmitonchange select', function (e) {
-        if (e.keyCode == 13) {
-            submitForm = YetaWF_Forms.getForm(this);
-            submitFormOnChange();
-        }
-    });
-    $('body').on('change', '.ysubmitonchange select,.ysubmitonchange input[type="checkbox"]', function (e) {
-        clearInterval(submitFormTimer);
-        submitForm = YetaWF_Forms.getForm(this);
-        submitFormTimer = setInterval(submitFormOnChange, 1000);// wait 1 second and automatically submit the form
-        Y_Loading(true);
-    });
-    /* APPLY */
-    var applyFormOnChange = function () {
-        clearInterval(submitFormTimer);
-        YetaWF_Forms.submit(submitForm, false, YGlobals.Link_SubmitIsApply + "=y");
-    }
-    $('body').on('keyup', '.yapplyonchange select,.yapplyonchange input[type="checkbox"]', function (e) {
-        if (e.keyCode == 13) {
-            submitForm = YetaWF_Forms.getForm(this);
-            applyFormOnChange();
-        }
-    });
-    $('body').on('change', '.yapplyonchange select', function (e) {
-        clearInterval(submitFormTimer);
-        submitForm = YetaWF_Forms.getForm(this);
-        submitFormTimer = setInterval(applyFormOnChange, 1000);// wait 1 second and automatically submit the form
-        Y_Loading(true);
-    });
-
-    // PRETTYLOADER
-    // PRETTYLOADER
-    // PRETTYLOADER
-
-    $.prettyLoader({
-        animation_speed: 'fast', /* fast/normal/slow/integer */
-        bind_to_ajax: true, /* true/false */
-        delay: false, /* false OR time in milliseconds (ms) */
-        loader: YConfigs.Basics.LoaderGif, /* Path to your loader gif */
-        offset_top: 13, /* integer */
-        offset_left: 10 /* integer */
-    });
-
-    // WHENREADY
-    // WHENREADY
-    // WHENREADY
-
-    YetaWF_Basics.processAllReady();
-    YetaWF_Basics.processAllReadyOnce();
-});
-
-// BUTTONS
-// BUTTONS
-// BUTTONS
-
-YetaWF_Basics.whenReady.push({
-    callback: _YetaWF_Basics.initButtons
-});
-
-// PAGE
-// PAGE
-// PAGE
-
-YetaWF_Basics.setScrollPosition = function () {
-    'use strict';
-    // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
-    var uri = new URI(window.location.href);
-    var data = uri.search(true);
-    var v = data[YGlobals.Link_ScrollLeft];
-    var scrolled = false;
-    if (v != undefined) {
-        $(window).scrollLeft(Number(v));
-        scrolled = true;
-    }
-    v = data[YGlobals.Link_ScrollTop];
-    if (v != undefined) {
-        $(window).scrollTop(Number(v));
-        scrolled = true;
-    }
-    return scrolled;
-};
-
-YetaWF_Basics.initPage = function () {
-    'use strict';
-
-    // PAGE POSITION
-    // PAGE POSITION
-    // PAGE POSITION
-
-    // check if we have anything with that path as a unified pane
-    var scrolled = YetaWF_Basics.setScrollPosition();
-    if (!scrolled) {
-        if (YVolatile.Basics.UnifiedMode === 2 /*UnifiedModeEnum.ShowDivs*/) {
-            var $divs = $('.yUnified[data-url="{0}"]'.format(uri.path()));
-            if ($divs.length > 0) {
-                $(window).scrollTop($divs.eq(0).offset().top);
-                scrolled = true;
+            else {
+                document.addEventListener("DOMContentLoaded", callback);
             }
-        }
-    }
+        };
+        BasicsServices.prototype.registerEventHandlerBody = function (eventName, selector, callback) {
+            this.registerEventHandler(document.body, eventName, selector, callback);
+        };
+        BasicsServices.prototype.registerEventHandlerDocument = function (eventName, selector, callback) {
+            var _this = this;
+            document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+        };
+        BasicsServices.prototype.registerEventHandlerWindow = function (eventName, selector, callback) {
+            var _this = this;
+            window.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+        };
+        BasicsServices.prototype.registerEventHandler = function (tag, eventName, selector, callback) {
+            var _this = this;
+            tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
+        };
+        BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
+            // about event handling https://www.sitepoint.com/event-bubbling-javascript/
+            //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            if (ev.eventPhase === ev.CAPTURING_PHASE) {
+                if (selector)
+                    return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
+            }
+            else if (ev.eventPhase === ev.AT_TARGET) {
+                if (selector)
+                    return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
+            }
+            else if (ev.eventPhase === ev.BUBBLING_PHASE) {
+                var elem = ev.target;
+                if (selector) {
+                    // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
+                    while (elem) {
+                        if (this.elementMatches(elem, selector))
+                            break;
+                        if (listening === elem)
+                            return; // checked all elements
+                        elem = elem.parentElement;
+                    }
+                }
+                else {
+                    // check whether the target or one of its parents is the listening element
+                    while (elem) {
+                        if (listening === elem)
+                            break;
+                        elem = elem.parentElement;
+                    }
+                }
+                if (!elem)
+                    return;
+            }
+            else
+                return;
+            //console.log(`event ${ev.type} selector ${selector} match`);
+            var result = callback(ev);
+            if (!result) {
+                //console.log(`event ${ev.type} selector ${selector} stop bubble`);
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
+        };
+        BasicsServices.prototype.registerContentChange = function (callback) {
+            this.ContentChangeHandlers.push({ callback: callback });
+        };
+        BasicsServices.prototype.processContentChange = function (addonGuid, on) {
+            for (var _i = 0, _a = this.ContentChangeHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(addonGuid, on);
+            }
+        };
+        /**
+         * Register a callback to be called when a panel in a tab control has become active (i.e., visible).
+         */
+        BasicsServices.prototype.registerPanelSwitched = function (callback) {
+            this.PanelSwitchedHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when a panel in a tab control has become active (i.e., visible).
+         */
+        BasicsServices.prototype.processPanelSwitched = function (panel) {
+            for (var _i = 0, _a = this.PanelSwitchedHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(panel);
+            }
+        };
+        /**
+         * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
+         */
+        BasicsServices.prototype.registerActivateDivs = function (callback) {
+            this.ActivateDivsHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
+         */
+        BasicsServices.prototype.processActivateDivs = function (tags) {
+            for (var _i = 0, _a = this.ActivateDivsHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(tags);
+            }
+        };
+        /**
+         * Register a callback to be called when a new page has become active.
+         */
+        BasicsServices.prototype.registerNewPage = function (callback) {
+            this.NewPageHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when a new page has become active.
+         */
+        BasicsServices.prototype.processNewPage = function (url) {
+            for (var _i = 0, _a = this.NewPageHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback(url);
+            }
+        };
+        /**
+         * Register a callback to be called when the current page is going away (about to be replaced by a new page).
+         */
+        BasicsServices.prototype.registerPageChange = function (callback) {
+            this.PageChangeHandlers.push({ callback: callback });
+        };
+        /**
+         * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
+         */
+        BasicsServices.prototype.processPageChange = function () {
+            for (var _i = 0, _a = this.PageChangeHandlers; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                entry.callback();
+            }
+        };
+        // Expand/collapse Support
+        /**
+         * Expand/collapse support using 2 action links (Name=Expand/Collapse) which make 2 divs hidden/visible  (alternating)
+         * @param divId The <div> containing the 2 action links.
+         * @param collapsedId - The <div> to hide/show.
+         * @param expandedId - The <div> to show/hide.
+         */
+        BasicsServices.prototype.expandCollapseHandling = function (divId, collapsedId, expandedId) {
+            var _this = this;
+            var div = this.getElementById(divId);
+            var collapsedDiv = this.getElementById(collapsedId);
+            var expandedDiv = this.getElementById(expandedId);
+            var expLink = this.getElement1BySelector("a[data-name='Expand']", [div]);
+            var collLink = this.getElement1BySelector("a[data-name='Collapse']", [div]);
+            this.registerEventHandler(expLink, "click", null, function (ev) {
+                collapsedDiv.style.display = "none";
+                expandedDiv.style.display = "";
+                // init any controls that just became visible
+                _this.processActivateDivs([expandedDiv]);
+                return true;
+            });
+            this.registerEventHandler(collLink, "click", null, function (ev) {
+                collapsedDiv.style.display = "";
+                expandedDiv.style.display = "none";
+                return true;
+            });
+        };
+        BasicsServices.prototype.init = function () {
+            var _this = this;
+            this.AnchorHandling.init();
+            this.ContentHandling.init();
+            // screen size yCondense/yNoCondense support
+            this.registerEventHandlerWindow("resize", null, function (ev) {
+                _this.setCondense(document.body, window.innerWidth);
+                return true;
+            });
+            this.registerDocumentReady(function () {
+                _this.setCondense(document.body, window.innerWidth);
+            });
+            // Navigation
+            this.registerEventHandlerWindow("popstate", null, function (ev) {
+                if (_this.suppressPopState) {
+                    _this.suppressPopState = false;
+                    return true;
+                }
+                var uri = _this.parseUrl(window.location.href);
+                return !_this.ContentHandling.setContent(uri, false);
+            });
+            // <a> links that only have a hash are intercepted so we don't go through content handling
+            this.registerEventHandlerBody("click", "a[href^='#']", function (ev) {
+                // find the real anchor, ev.target was clicked, but it may not be the anchor itself
+                if (!ev.target)
+                    return true;
+                var anchor = $YetaWF.elementClosest(ev.target, "a");
+                if (!anchor)
+                    return true;
+                _this.suppressPopState = true;
+                return true;
+            });
+            // <A> links
+            // WhenReady
+            this.registerDocumentReady(function () {
+                _this.processAllReady();
+                _this.processAllReadyOnce();
+            });
+        };
+        return BasicsServices;
+    }());
+    YetaWF.BasicsServices = BasicsServices;
+})(YetaWF || (YetaWF = {}));
+/**
+ * Basic services available throughout YetaWF.
+ */
+var $YetaWF = new YetaWF.BasicsServices();
 
-    // FOCUS
-    // FOCUS
-    // FOCUS
-
-    $(document).ready(function () {
-        if (!scrolled && location.hash.length <= 1)
-            Y_SetFocus();
-    });
-
-    // CONTENT NAVIGATION
-    // CONTENT NAVIGATION
-    // CONTENT NAVIGATION
-
-    _YetaWF_Basics.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious;// save loaded addons
-};
-
-YetaWF_Basics.suppressPopState = 0;
-
-$(window).on("popstate", function (ev) {
-    var uri = new URI(window.location.href);
-    if (YetaWF_Basics.suppressPopState) {
-        YetaWF_Basics.suppressPopState = 0;
-        return;
-    }
-    return !_YetaWF_Basics.setContent(uri, false);
-});
-
-// Set rendering mode based on window size
-// we can't really use @media (max-width:...) in css because popups (in Unified Page Sets) don't use iframes so their size may be small but
-// doesn't match @media screen (ie. the window). So, instead we add the css class yCondense to the <body> or popup <div> to indicate we want
-// a more condensed appearance.
-
-YetaWF_Basics.setCondense = function ($tag, width) {
-    if (width < YVolatile.Skin.MinWidthForPopups) {
-        $tag.addClass('yCondense');
-        $tag.removeClass('yNoCondense');
-    } else {
-        $tag.addClass('yNoCondense');
-        $tag.removeClass('yCondense');
-    }
-}
-
-$(window).on('resize', function () {
-    YetaWF_Basics.setCondense($('body'), window.innerWidth);
-});
-$(document).ready(function () {
-    YetaWF_Basics.setCondense($('body'), window.innerWidth);
-});
+//# sourceMappingURL=Basics.js.map

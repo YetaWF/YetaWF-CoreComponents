@@ -19,7 +19,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Pages {
 
     public interface IViewRenderService {
-        Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, Task<string>> postRenderAsync = null);
+        Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData);
     }
 
     public class ViewRenderService : IViewRenderService {
@@ -35,14 +35,14 @@ namespace YetaWF.Core.Pages {
             _modelMetaDataProvider = modelMetaDataProvider;
         }
 
-        public async Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData, Func<IHtmlHelper, ActionContext, string, Task<string>> postRenderAsync = null) {
+        public async Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData) {
 
             using (var sw = new StringWriter()) {
                 ViewEngineResult viewResult;
-                if (viewName.StartsWith("~/"))
-                    viewResult = _razorViewEngine.GetView(executingFilePath: viewName, viewPath: viewName, isMainPage: true);
-                else
-                    viewResult = _razorViewEngine.FindView(actionContext, viewName, true);
+                if (!viewName.StartsWith("~/"))
+                    throw new InternalError($"nameof(RenderToStringAsync) can only be used with pages");
+
+                viewResult = _razorViewEngine.GetView(executingFilePath: viewName, viewPath: viewName, isMainPage: true);
                 if (viewResult.View == null)
                     throw new InternalError("{0} does not match any available view", viewName);
 
@@ -55,13 +55,6 @@ namespace YetaWF.Core.Pages {
                     new HtmlHelperOptions()
                 );
                 await viewResult.View.RenderAsync(viewContext);
-                if (postRenderAsync != null) {
-                    YetaWFRazorView razorView = viewResult.View as YetaWFRazorView;
-                    if (razorView != null) {
-                        dynamic page = razorView.RazorPage;// we can't access Html directly because the page/template is derived from YetaWF.Core.Views.RazorView<,>
-                        return await postRenderAsync(page.Html, actionContext, sw.ToString());
-                    }
-                }
                 return sw.ToString();
             }
         }

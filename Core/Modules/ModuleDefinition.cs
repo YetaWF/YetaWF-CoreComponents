@@ -11,19 +11,20 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
-using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
+using YetaWF.Core.Components;
 #if MVC6
+using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Modules
-{  // This namespace breaks naming standards so it can properly return module company/name for localization
+namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization
 
     [ModuleGuidAttribute("00000000-0000-0000-0000-000000000000")]
     [Trim]
     public partial class ModuleDefinition {
+
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
 
         public const int MaxName = 80;
         public const int MaxDescription = 200;
@@ -106,6 +107,7 @@ namespace YetaWF.Core.Modules
         public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
 
         [Category("Variables"), Caption("Permanent Guid"), Description("Displays a unique identifier for this type of module. This is typically used for development purposes only and can be used to uniquely identify this module type. This id never changes")]
+        [UIHint("Guid"), ReadOnly]
         public Guid PermanentGuid {
             get {
                 return GetPermanentGuid(GetType());
@@ -149,6 +151,7 @@ namespace YetaWF.Core.Modules
             return Globals.ModuleUrl + GetModuleGuidName(guid);
         }
         [Category("Variables"), Caption("Permanent Url"), Description("The Url used to uniquely and permanently identify this module")]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), ReadOnly]
         public string ModulePermanentUrl {
             get {
                 return GetModulePermanentUrl(GetType());
@@ -160,7 +163,7 @@ namespace YetaWF.Core.Modules
         public MultiString Description { get; set; }
 
         [Category("Variables"), Caption("Module Guid"), Description("Displays a unique identifier for this instance of a module. This is typically used for development purposes only and can be used to uniquely identify this module. This id never changes, even if the module is later renamed", Order = -100)]
-        [ReadOnly, CopyAttribute]
+        [UIHint("Guid"), ReadOnly, CopyAttribute]
         [Data_PrimaryKey]
         public Guid ModuleGuid { get; set; }
 
@@ -177,10 +180,10 @@ namespace YetaWF.Core.Modules
         }
 
         [Category("Variables"), Caption("Date Created"), Description("The date/time this module was created", Order = -96)]
-        [ReadOnly]
+        [UIHint("DateTime"), ReadOnly]
         public DateTime DateCreated { get; set; }
         [Category("Variables"), Caption("Date Updated"), Description("The date/time this module was last updated", Order = -95)]
-        [ReadOnly]
+        [UIHint("DateTime"), ReadOnly]
         public DateTime DateUpdated { get; set; }
 
         /// <summary>
@@ -202,7 +205,7 @@ namespace YetaWF.Core.Modules
         private string _moduleHtmlId;
 
         [Category("Variables"), Caption("Temporary"), Description("Defines whether the module is a temporary (generated) module", Order = -92)]
-        [ReadOnly, DontSave]
+        [UIHint("Boolean"), ReadOnly, DontSave]
         public bool Temporary { get; set; }
 
         // SKIN
@@ -435,35 +438,42 @@ namespace YetaWF.Core.Modules
         public class GridAllowedRole {
 
             [DontSave]
+            [UIHint("Boolean")]
             public bool __editable { get; set; }
 
             [Caption("Role"), Description("Role Description", Order = -100)]
             [UIHint("StringTT"), ReadOnly]
             public StringTT RoleName { get; set; }
 
-            [Caption("View"), ResourceRedirect("RolesDefinitions", 0, "RoleResource"), Description("The role has permission to view the module", Order = -99)]
+            [Caption("View"), ResourceRedirectList(nameof(RolesDefinitions), 0, nameof(RoleDefinition.RoleResource)), Description("The role has permission to view the module", Order = -99)]
             [UIHint("Enum")]
             public AllowedEnum View { get; set; }
 
-            [Caption("Edit"), ResourceRedirect("RolesDefinitions", 1, "RoleResource"), Description("The role has permission to edit the module", Order = -98)]
+            [Caption("Edit"), ResourceRedirectList(nameof(RolesDefinitions), 1, nameof(RoleDefinition.RoleResource)), Description("The role has permission to edit the module", Order = -98)]
             [UIHint("Enum")]
             public AllowedEnum Edit { get; set; }
 
-            [Caption("Remove"), ResourceRedirect("RolesDefinitions", 2, "RoleResource"), Description("The role has permission to remove the module", Order = -97)]
+            [Caption("Remove"), ResourceRedirectList(nameof(RolesDefinitions), 2, nameof(RoleDefinition.RoleResource)), Description("The role has permission to remove the module", Order = -97)]
             [UIHint("Enum")]
             public AllowedEnum Remove { get; set; }
 
-            [ResourceRedirect("RolesDefinitions", 3, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 3, nameof(RoleDefinition.RoleResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra1 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 4, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 4, nameof(RoleDefinition.RoleResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra2 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 5, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 5, nameof(RoleDefinition.RoleResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra3 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 6, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 6, nameof(RoleDefinition.RoleResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra4 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 7, "RoleResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 7, nameof(RoleDefinition.RoleResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
+            [UIHint("IntValue")]
             public int RoleId { get; set; }
 
             public GridAllowedRole() { __editable = true;  }
@@ -479,27 +489,32 @@ namespace YetaWF.Core.Modules
             [UIHint("YetaWF_Identity_UserId"), ReadOnly]
             public int DisplayUserId { get; set; }
 
-            [Caption("View"), ResourceRedirect("RolesDefinitions", 0, "UserResource"), Description("The user has permission to view the module", Order = -98)]
+            [Caption("View"), ResourceRedirectList(nameof(RolesDefinitions), 0, nameof(RoleDefinition.UserResource)), Description("The user has permission to view the module", Order = -98)]
             [UIHint("Enum")]
             public AllowedEnum View { get; set; }
 
-            [Caption("Edit"), ResourceRedirect("RolesDefinitions", 1, "UserResource"), Description("The user has permission to edit the module", Order = -97)]
+            [Caption("Edit"), ResourceRedirectList(nameof(RolesDefinitions), 1, nameof(RoleDefinition.UserResource)), Description("The user has permission to edit the module", Order = -97)]
             [UIHint("Enum")]
             public AllowedEnum Edit { get; set; }
 
-            [Caption("Remove"), ResourceRedirect("RolesDefinitions", 2, "UserResource"), Description("The user has permission to remove the module", Order = -96)]
+            [Caption("Remove"), ResourceRedirectList(nameof(RolesDefinitions), 2, nameof(RoleDefinition.UserResource)), Description("The user has permission to remove the module", Order = -96)]
             [UIHint("Enum")]
             public AllowedEnum Remove { get; set; }
 
-            [ResourceRedirect("RolesDefinitions", 3, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 3, nameof(RoleDefinition.UserResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra1 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 4, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 4, nameof(RoleDefinition.UserResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra2 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 5, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 5, nameof(RoleDefinition.UserResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra3 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 6, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 6, nameof(RoleDefinition.UserResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra4 { get; set; }
-            [ResourceRedirect("RolesDefinitions", 7, "UserResource")]
+            [ResourceRedirectList(nameof(RolesDefinitions), 7, nameof(RoleDefinition.UserResource))]
+            [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
             [UIHint("RawInt"), ReadOnly]
@@ -535,11 +550,13 @@ namespace YetaWF.Core.Modules
         public string InvokingCss { get; protected set; }
 
         [Category("Variables"), Caption("Use In Popup"), Description("Defines whether this module can be injected in a popup")]
+        [UIHint("Boolean")]
         [DontSave, ReadOnly]
         public bool InvokeInPopup { get; protected set; }
 
         [Category("Variables"), Caption("Use In Ajax"), Description("Defines whether this module can be injected in an Ajax request/partial view")]
         [DontSave, ReadOnly]
+        [UIHint("Boolean")]
         public bool InvokeInAjax { get; protected set; }
 
         public class ReferencedModule {

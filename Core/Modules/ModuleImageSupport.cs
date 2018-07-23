@@ -11,10 +11,6 @@ namespace YetaWF.Core.Modules {
 
     public class ModuleImageSupport : IInitializeApplicationStartup {
 
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-
         public const string ImageType = "YetaWF_Core_ModuleImage";
 
         public Task InitializeApplicationStartupAsync() {

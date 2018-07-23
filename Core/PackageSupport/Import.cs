@@ -20,7 +20,7 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         public static async Task<bool> ImportAsync(string zipFileName, List<string> errorList) {
 
@@ -48,7 +48,7 @@ namespace YetaWF.Core.Packages {
                 }
                 SerializablePackage serPackage;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serPackage = (SerializablePackage)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serPackage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePackage>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
@@ -56,6 +56,10 @@ namespace YetaWF.Core.Packages {
                 if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
                     errorList.Add(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",
                         YetaWFManager.GetAspNetMvcName(serPackage.AspNetMvcVersion), YetaWFManager.GetAspNetMvcName(YetaWFManager.AspNetMvc)));
+                    return false;
+                }
+                if (Package.CompareVersion("4.0.0", serPackage.CoreVersion) > 0) {
+                    errorList.Add(__ResStr("need400", $"This package was created using an earlier YetaWF version {serPackage.CoreVersion} - With YetaWF 4.0.0 a new package format was introduced, making older packages incompatible"));
                     return false;
                 }
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serPackage.CoreVersion) < 0) {
@@ -124,20 +128,6 @@ namespace YetaWF.Core.Packages {
                         return false;
                     }
                 }
-                string viewsPath;
-#if MVC6
-                viewsPath = Path.Combine(YetaWFManager.RootFolderWebProject, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-#else
-                viewsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-#endif
-                try {
-                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(viewsPath));
-                } catch (Exception exc) {
-                    if (!(exc is DirectoryNotFoundException)) {
-                        errorList.Add(__ResStr("cantDeleteViews", "Site Views folder {0} could not be deleted: {1}", viewsPath, ErrorHandling.FormatExceptionMessage(exc)));
-                        return false;
-                    }
-                }
 
                 // copy bin files to website
                 {
@@ -196,19 +186,6 @@ namespace YetaWF.Core.Packages {
                             await ExtractAsync(YetaWFManager.RootFolder, e.Name, entryStream);
                         }
                     }
-                    // Views
-                    foreach (var file in serPackage.Views) {
-                        ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
-                        using (Stream entryStream = zip.GetInputStream(e)) {
-                            string rootFolder;
-#if MVC6
-                            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                            rootFolder = YetaWFManager.RootFolder;
-#endif
-                            await ExtractAsync(rootFolder, e.Name, entryStream);
-                        }
-                    }
                 } else {
                     // bin
                     foreach (var file in serPackage.BinFiles) {
@@ -238,6 +215,13 @@ namespace YetaWF.Core.Packages {
                         errorList.Add(__ResStr("errSymlink", "Couldn't create symbolic link/junction from {0} to {1} - You will have to investigate the failure and manually create the link using:(+nl)mklink /D \"{0}\",\"{1}\"", from, to));
 #endif
                     errorList.Add(__ResStr("addProject", "You now have to add the project to your Visual Studio solution and add a project reference to the YetaWF site (Website) so it is built correctly. Without this reference the site will not use the new package when it's rebuilt using Visual Studio."));
+                }
+                // localization
+                foreach (var file in serPackage.LocalizationFiles) {
+                    ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
+                    using (Stream entryStream = zip.GetInputStream(e)) {
+                        await ExtractAsync(YetaWFManager.RootFolderWebProject, e.Name, entryStream);
+                    }
                 }
             } catch (Exception exc) {
                 errorList.Add(__ResStr("errCantImport", "Package {0}({1}) cannot be imported - {2}", serPackage.PackageName, serPackage.PackageVersion, ErrorHandling.FormatExceptionMessage(exc)));

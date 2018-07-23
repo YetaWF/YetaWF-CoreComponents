@@ -83,7 +83,7 @@ namespace YetaWF.Core.Scheduler {
         public TimeUnitEnum TimeUnits { get; set; }
 
         [Caption("Value"), Description("Value combined with TimeUnits defines the frequency with which the scheduler event is invoked")]
-        [UIHint("IntValue4"), Range(1, 999)]
+        [UIHint("IntValue4"), Range(1, 999), Required]
         public int Value { get; set; }
 
         [DontSave]
@@ -110,15 +110,15 @@ namespace YetaWF.Core.Scheduler {
         public const int MaxImplementingType = 100;
 
         [Caption("Event"), Description("The event name")]
-        [UIHint("Text40"), StringLength(MaxName)]
+        [UIHint("Hidden"), StringLength(MaxName)]
         public string Name { get; set; }
 
         [Caption("Assembly"), Description("The name of the assembly implementing this scheduler event")]
-        [UIHint("String"), StringLength(MaxImplementingAssembly)]
+        [UIHint("Hidden"), StringLength(MaxImplementingAssembly)]
         public string ImplementingAssembly { get; set; }
 
         [Caption("Type"), Description("The type of the assembly implementing this scheduler event")]
-        [UIHint("String"), StringLength(MaxImplementingType)]
+        [UIHint("Hidden"), StringLength(MaxImplementingType)]
         public string ImplementingType { get; set; }
 
         [DontSave]// only used for UI purposes

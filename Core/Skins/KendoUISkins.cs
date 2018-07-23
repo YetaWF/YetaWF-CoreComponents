@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
@@ -29,9 +30,9 @@ namespace YetaWF.Core.Skins {
         private static KendoTheme _kendoThemeDefault;
 
         private async Task<List<KendoTheme>> LoadKendoUIThemesAsync() {
-            string url = VersionManager.KendoAddon.GetAddOnUrl();
-            string customUrl = VersionManager.GetCustomUrlFromUrl(url);
-            string path = YetaWFManager.UrlToPhysical(url);
+            string kendoUIUrl = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "telerik.com.Kendo_UI_Core");
+            string customUrl = VersionManager.GetCustomUrlFromUrl(kendoUIUrl);
+            string path = YetaWFManager.UrlToPhysical(kendoUIUrl);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);
 
             // use custom or default theme list
@@ -50,15 +51,6 @@ namespace YetaWF.Core.Skins {
                 if (s.Length < 2)
                     throw new InternalError("Invalid Kendo theme entry: {0}", line);
                 string file = s[1].Trim();
-                if (file.StartsWith("\\")) {
-                    string f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                        throw new InternalError("Kendo theme file not found: {0} - {1}", line, f);
-                } else {
-                    string f = Path.Combine(YetaWFManager.UrlToPhysical(VersionManager.KendoAddon.GetAddOnCssUrl()), file);
-                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                        throw new InternalError("Kendo theme folder not found: {0} - {1}", line, f);
-                }
                 string description = null;
                 if (s.Length > 2)
                     description = s[2].Trim();
@@ -77,7 +69,7 @@ namespace YetaWF.Core.Skins {
             return (from theme in kendoList orderby theme.Name select theme).ToList();
         }
 
-        internal async Task<string> FindKendoUISkinAsync(string themeName) {
+        public async Task<string> FindKendoUISkinAsync(string themeName) {
             string intName = (from th in await GetKendoThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(intName))
                 return intName;

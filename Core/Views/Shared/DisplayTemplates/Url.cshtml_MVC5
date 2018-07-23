@@ -1,7 +1,0 @@
-﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
-@inherits YetaWF.Core.Views.Shared.Url<System.String>
-@if (!string.IsNullOrWhiteSpace(Model)) {
-    <div class="yt_url t_display">
-        @Html.RenderUrlDisplayAsync("", Model).Result
-    </div>
-}

@@ -1,10 +1,14 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
+using YetaWF.Core.Language;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -15,11 +19,11 @@ namespace YetaWF.Core.Packages {
 
     public partial class Package {
 
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         public const string PackageIDFile = "Package.txt";
         public const string PackageIDDataFile = "PackageData.txt";
-        public const string PackageContentsFile = "Contents.xml";
+        public const string PackageContentsFile = "Contents.json";
         public static string[] ExcludedFilesAddons = new string[] { };
         public static string[] ExcludedFoldersNoSource = new string[] { };
         public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
@@ -28,7 +32,7 @@ namespace YetaWF.Core.Packages {
         public static string[] ExcludedBinFolders = new string[] { "Debug" };
         public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };// not necessary any longer (since 2.0.0) as all code was moved to ViewsCode
 
-        public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.Xml;
+        public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.JSON;
 
         public async Task<YetaWFZipFile> ExportPackageAsync(bool SourceCode = false) {
 
@@ -69,26 +73,27 @@ namespace YetaWF.Core.Packages {
                         zipFile.AddFile(file.AbsFileName, file.FileName);
                     }
                 }
-                // Views
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
-                string viewsPath = Path.Combine(rootFolder, Globals.AreasFolder, serPackage.PackageName.Replace(".", "_"), Globals.ViewsFolder);
-                serPackage.Views.AddRange(await ProcessAllFilesAsync(viewsPath, ExcludedFilesViewsNoSource));
-                foreach (var file in serPackage.Views) {
-                    zipFile.AddFile(file.AbsFileName, file.FileName);
-                }
             }
             // Source code
             if (SourceCode) {
+                // package source
                 serPackage.SourceFiles.AddRange(await ProcessAllFilesAsync(PackageSourceRoot, ExcludedFilesSource, ExcludedFoldersSource, ExternalRoot: PackageSourceRoot));
                 await ProcessSourceFilesAsync(zipFile, serPackage.SourceFiles);
                 foreach (var file in serPackage.SourceFiles) {
                     zipFile.AddFile(file.AbsFileName, file.FileName);
                 }
+            }
+            // localization
+            foreach (LanguageData languageData in MultiString.Languages) {
+                List<string> files = await LocalizationSupport.GetFilesAsync(this, languageData.Id, true);
+                foreach (string file in files) {
+                    SerializableFile serFile = new SerializableFile(file, ExternalRoot: YetaWFManager.RootFolderWebProject);
+                    serFile.FileDate = await FileSystem.FileSystemProvider.GetCreationTimeUtcAsync(serFile.AbsFileName);
+                    serPackage.LocalizationFiles.Add(serFile);
+                }
+            }
+            foreach (SerializableFile file in serPackage.LocalizationFiles) {
+                zipFile.AddFile(file.AbsFileName, file.FileName);
             }
 
             // serialize package contents

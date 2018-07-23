@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Controllers;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
@@ -29,7 +30,7 @@ namespace YetaWF.Core.Skins {
         private static BootstrapTheme _BootstrapThemeDefault;
 
         private async Task<List<BootstrapTheme>> LoadBootstrapThemesAsync() {
-            string url = AddOnManager.GetAddOnGlobalUrl("getbootstrap.com", "bootswatch", AddOnManager.UrlType.Base);
+            string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "getbootstrap.com.bootswatch");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

@@ -4,23 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Audit;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-using YetaWF.Core.Audit;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Localize {
 
     public class LocalizationData {
 
-        public const int MaxString = 10000;
+        public const int MaxString = 1000;
         public const int MaxComment = 1000;
 
         public class ClassData {
@@ -89,6 +84,14 @@ namespace YetaWF.Core.Localize {
             public string Name { get; set; }
             [StringLength(MaxString)]
             public string Text { get; set; }
+        }
+
+        public class ResourceProvider {
+
+        }
+        public class Resource {
+            public string Caption { get; set; }
+            public string Description { get; set; }
         }
 
         [StringLength(MaxComment)]
@@ -198,8 +201,8 @@ namespace YetaWF.Core.Localize {
 
         public static Func<Package, string, Location, LocalizationData> Load { get; set; }
         public static Func<Package, string, Location, LocalizationData, Task> SaveAsync { get; set; }
-        public static Func<Package, Task> ClearPackageDataAsync { get; set; }
-        public static Func<Package, Task<List<string>>> GetFilesAsync { get; set; }
+        public static Func<Package, string, Task> ClearPackageDataAsync { get; set; }
+        public static Func<Package, string, bool, Task<List<string>>> GetFilesAsync { get; set; }
 
         static LocalizationSupport() {
             Load = DefaultLoad;
@@ -214,10 +217,10 @@ namespace YetaWF.Core.Localize {
         private static Task DefaultSaveAsync(Package package, string type, Location location, LocalizationData data) {
             throw new NotImplementedException();
         }
-        private static Task DefaultClearPackageDataAsync(Package package) {
+        private static Task DefaultClearPackageDataAsync(Package package, string language) {
             throw new NotImplementedException();
         }
-        private static Task<List<string>> DefaultGetFilesAsync(Package package) {
+        private static Task<List<string>> DefaultGetFilesAsync(Package package, string language, bool rawName) {
             throw new NotImplementedException();
         }
     }

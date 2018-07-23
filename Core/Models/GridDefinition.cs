@@ -2,13 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Models {
 
@@ -61,6 +60,7 @@ namespace YetaWF.Core.Models {
                 Model = model;
             }
             public string Prefix { get; private set; }
+            [UIHint("GridDataOneRecord")]
             public object Model { get; private set; }
             public int RecNumber { get; private set; }
         }
@@ -104,8 +104,6 @@ namespace YetaWF.Core.Models {
         public object ResourceRedirect { get; set; } // redirect for Caption/Description attributes
 
         // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
-        public string CachedSortCol { get; set; }
-        public GridDefinition.SortBy CachedSortDir { get; set; }
         public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
 
 
@@ -134,13 +132,5 @@ namespace YetaWF.Core.Models {
         }
         [UIHint("GridDataRecords")]
         public List<object> GridDataRecords { get { return Data.Data; } }
-
-        public Task FinalizeSettingsAsync() {
-            if (ShowFilter == null)
-                ShowFilter = YetaWF.Core.Localize.UserSettings.GetProperty<bool>("ShowGridSearchToolbar");
-            if (DropdownActionWidth == null)
-                DropdownActionWidth = ActionHelper.GetDropdownActionWidthInChars();
-            return Task.CompletedTask;
-        }
     }
 }

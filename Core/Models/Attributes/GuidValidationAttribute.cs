@@ -8,7 +8,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class GuidValidationAttribute : RegexValidationBaseAttribute {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public GuidValidationAttribute() : base(@"^\s*([a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12})\s*$",

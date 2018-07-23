@@ -155,6 +155,10 @@ namespace YetaWF.Core.DataProvider {
             if (GetDataProvider() == null) return Task.CompletedTask;
             return GetDataProvider().ImportChunkAsync(chunk, fileList, obj);
         }
+        public Task LocalizeModelAsync(string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync) {
+            if (GetDataProvider() == null) return Task.CompletedTask;
+            return GetDataProvider().LocalizeModelAsync(language, isHtml, translateStringsAsync, translateComplexStringAsync);
+        }
 
         // IMAGE HANDLING
         // IMAGE HANDLING

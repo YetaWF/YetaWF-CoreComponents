@@ -9,7 +9,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class MinimumDateAttribute : DataTypeAttribute {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public DateTime MinDate { get; set; }
@@ -28,7 +27,6 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class MaximumDateAttribute : DataTypeAttribute {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public DateTime MaxDate { get; set; }

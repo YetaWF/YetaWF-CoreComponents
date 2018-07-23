@@ -15,15 +15,8 @@ namespace YetaWF.Core.Localize {
         }
         // access resources from static class
         // helper function to be added to static class
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(yourstaticClass), name, defaultValue, parms); }
-
-        // combine resources from several classes (static or instantiated)
-        //[CombinedResources]  // typeof(Resources) must remain UNCHANGED below
-        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        //private static string __ResStr(string name, string defaultValue, params object[] parms) { return xResourceAccess.GetResourceString(typeof(yourstaticClass), name, defaultValue, parms); }
     }
-
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class CombinedResourcesAttribute : Attribute { }
 
     public static class ResourceAccess {
 
@@ -35,10 +28,10 @@ namespace YetaWF.Core.Localize {
         {
             if (LocalizationSupport.UseLocalizationResources) {
                 string fullName = type.FullName;
-                if (fullName.Contains("_Shared_DisplayTemplates_") || fullName.Contains("_Shared_EditorTemplates_") || fullName.Contains(".Shared.DisplayTemplates.") || fullName.Contains(".Shared.EditorTemplates.")) {
-                    // template implementations use the base class to store resources
-                    type = type.BaseType;
-                }
+                //if (...) {
+                //    // use the base class to store resources
+                //    type = type.BaseType;
+                //}
                 fullName = type.FullName.Split(new char[] { '`' }).First(); // chop off any generics <>
                 string text;
                 LocalizationData locData = LocalizationSupport.Load(Package.GetPackageFromAssembly(type.Assembly), fullName, LocalizationSupport.Location.Merge);

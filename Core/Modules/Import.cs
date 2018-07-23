@@ -15,7 +15,10 @@ using YetaWF.Core.Support.Zip;
 using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.Modules {
+
     public partial class ModuleDefinition {
+
+        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
 
         public static async Task<bool> ImportAsync(string zipFileName, Guid pageGuid, bool newModule, string pane, bool top, List<string> errorList) {
 
@@ -43,7 +46,7 @@ namespace YetaWF.Core.Modules {
                 }
                 SerializableModule serModule;
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serModule = (SerializableModule)new GeneralFormatter(Package.ExportFormat).Deserialize(fs.GetFileStream());
+                    serModule = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);

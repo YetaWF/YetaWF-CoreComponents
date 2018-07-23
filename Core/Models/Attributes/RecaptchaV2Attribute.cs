@@ -4,16 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Log;
+using YetaWF.Core.Support;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 #else
 using System.Web;
 #endif
-using YetaWF.Core.Addons;
-using YetaWF.Core.Localize;
-using YetaWF.Core.Log;
-using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -26,7 +26,6 @@ namespace YetaWF.Core.Models.Attributes {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public RecaptchaV2Attribute(string message) : base(message) {

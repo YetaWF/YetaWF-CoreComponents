@@ -10,7 +10,7 @@ namespace YetaWF.Core.Support {
     public class MimeSection
 #if MVC6
 #else
-        : IInitializeApplicationStartup 
+        : IInitializeApplicationStartup
 #endif
         {
 

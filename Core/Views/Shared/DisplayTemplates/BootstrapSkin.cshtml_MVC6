@@ -1,9 +1,0 @@
-﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
-@inherits YetaWF.Core.Views.Shared.PageBootstrapSkins<string>
-<div class='yt_bootstrapskin t_display'>
-    @if (string.IsNullOrEmpty(Model)) {
-        @: &nbsp;
-    } else {
-        @: @Model
-    }
-</div>

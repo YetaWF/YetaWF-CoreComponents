@@ -6,18 +6,12 @@ using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using System.Text.RegularExpressions;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class EmailValidationAttribute : DataTypeAttribute, YIClientValidatable {
+    public class EmailValidationAttribute : DataTypeAttribute, YIClientValidation {
 
-        [CombinedResources]
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public EmailValidationAttribute() : base(DataType.EmailAddress) {
@@ -46,20 +40,10 @@ namespace YetaWF.Core.Models.Attributes {
             } else
                 throw new InternalError("Invalid type used for EmailValidationAttribute - {0}", value.GetType().FullName);
         }
-#if MVC6
-        public void AddValidation(ClientModelValidationContext context) {
-            ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(context.ModelMetadata));
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val-email", ErrorMessage);
-            AttributeHelper.MergeAttribute(context.Attributes, "data-val", "true");
+        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            string msg = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain.com'", propData.GetCaption(container));
+            tag.MergeAttribute("data-val-email", msg);
+            tag.MergeAttribute("data-val", "true");
         }
-#else
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context) {
-            ErrorMessage = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain.com'", AttributeHelper.GetPropertyCaption(metadata));
-            yield return new ModelClientValidationRule {
-                ErrorMessage = ErrorMessage,
-                ValidationType = "email",
-            };
-        }
-#endif
     }
 }

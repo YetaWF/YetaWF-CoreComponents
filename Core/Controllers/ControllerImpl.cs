@@ -11,23 +11,28 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
+using System.Linq;
+using YetaWF.Core.Components;
+using System.IO;
 #if MVC6
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 #else
 using System.Web;
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Controllers
-{
+namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// The base class for any module-based controller. Modules within YetaWF that implement controllers derive from this class so controllers have access to module definitions.
@@ -226,7 +231,7 @@ namespace YetaWF.Core.Controllers
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
 #else
-        protected override void OnActionExecuting(ActionExecutingContext filterContext) { 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
             YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
 #endif
@@ -304,7 +309,7 @@ namespace YetaWF.Core.Controllers
                             FixArgumentParmTrim(parm.Value);
                             FixArgumentParmCase(parm.Value);
                             FixDates(parm.Value);
-                            PropertyListSupport.CorrectModelState(parm.Value, modelState);
+                            CorrectModelState(parm.Value, modelState);
                         }
 
                         // translate any xxx.JSON properties to native objects
@@ -355,7 +360,90 @@ namespace YetaWF.Core.Controllers
 #else
             }); // End of Syncify
 #endif
+        }
+
+        public static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
+            if (model == null) return;
+            Type modelType = model.GetType();
+            if (ModelState.Keys.Count() == 0) return;
+            List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
+            foreach (var prop in props) {
+                if (!ModelState.Keys.Contains(prefix + prop.Name)) {
+                    // check if the property name is for a class
+                    string subPrefix = prefix + prop.Name + ".";
+                    if ((from k in ModelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
+                        object subObject = prop.PropInfo.GetValue(model);
+                        CorrectModelState(subObject, ModelState, subPrefix);
+                    }
+                    continue;
+                }
+
+                {
+                    RequiredIfInRangeAttribute reqIfInRange = prop.TryGetAttribute<RequiredIfInRangeAttribute>();
+                    if (reqIfInRange != null) {
+                        if (!reqIfInRange.InRange(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    RequiredIfNotAttribute reqIfNot = prop.TryGetAttribute<RequiredIfNotAttribute>();
+                    if (reqIfNot != null) {
+                        if (!reqIfNot.IsNot(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    RequiredIfAttribute reqIf = prop.TryGetAttribute<RequiredIfAttribute>();
+                    if (reqIf != null) {
+                        if (!reqIf.Is(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    RequiredIfSupplied reqIfSupplied = prop.TryGetAttribute<RequiredIfSupplied>();
+                    if (reqIfSupplied != null) {
+                        if (!reqIfSupplied.IsSupplied(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    SuppressIfEqualAttribute suppIfEqual = prop.TryGetAttribute<SuppressIfEqualAttribute>();
+                    if (suppIfEqual != null) {
+                        if (suppIfEqual.IsEqual(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    SuppressIfNotEqualAttribute suppIfNotEqual = prop.TryGetAttribute<SuppressIfNotEqualAttribute>();
+                    if (suppIfNotEqual != null) {
+                        if (suppIfNotEqual.IsNotEqual(model)) {
+                            ModelState.Remove(prefix + prop.Name);
+                            continue;
+                        }
+                    }
+                }
+                {
+                    ProcessIfAttribute procIf = prop.TryGetAttribute<ProcessIfAttribute>();
+                    if (procIf != null) {
+                        if (procIf.Processing(model))
+                            continue; // we're processing this
+                        // we're not processing this
+                        ModelState.Remove(prefix + prop.Name);
+                        continue;
+                    }
+                }
             }
+        }
 
         // INPUT CLEANUP
         // INPUT CLEANUP
@@ -577,25 +665,25 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View() { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View() { throw new NotSupportedException(); }
 #if MVC6
 #else
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View(IView view) { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View(IView view) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View(IView view, object model) { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View(IView view, object model) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new ViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
+        protected new YetaWFViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
         [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new virtual ViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
+        protected new virtual YetaWFViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
 #endif
         /// <summary>
         /// Renders the default view (defined using ModuleDefinition.DefaultView) using the provided model.
         /// </summary>
         /// <param name="model">The model.</param>
-        /// <returns>A ViewResult.</returns>
+        /// <returns>A YetaWFViewResult.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
-        protected new ViewResult View(object model) {
+        protected new YetaWFViewResult View(object model) {
             return View(null, model, UseAreaViewName: true);
         }
         /// <summary>
@@ -603,8 +691,8 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <param name="viewName">The name of the view.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns>A ViewResult.</returns>
-        protected ViewResult View(string viewName, bool UseAreaViewName = true) {
+        /// <returns>A YetaWFViewResult.</returns>
+        protected YetaWFViewResult View(string viewName, bool UseAreaViewName = true) {
             return View(viewName, null, UseAreaViewName: UseAreaViewName);
         }
         /// <summary>
@@ -613,8 +701,8 @@ namespace YetaWF.Core.Controllers
         /// <param name="viewName">The name of the view.</param>
         /// <param name="model">The model.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns>A ViewResult.</returns>
-        protected ViewResult View(string viewName, object model, bool UseAreaViewName = true) {
+        /// <returns>A YetaWFViewResult.</returns>
+        protected YetaWFViewResult View(string viewName, object model, bool UseAreaViewName = true) {
             if (UseAreaViewName) {
                 if (string.IsNullOrWhiteSpace(viewName))
                     viewName = CurrentModule.DefaultViewName;
@@ -631,7 +719,81 @@ namespace YetaWF.Core.Controllers
             }
             if (string.IsNullOrWhiteSpace(viewName))
                 throw new InternalError("Missing view name");
-            return base.View(viewName, model);
+
+            ViewData.Model = model;
+            return new YetaWFViewResult(this, viewName, CurrentModule, model);
+        }
+
+        public class YetaWFViewResult : ActionResult {
+
+            private ModuleDefinition Module { get; set; }
+            private object Model { get; set; }
+            private string ViewName { get; set; }
+            private YetaWFController RequestingController { get; set; }
+
+            public YetaWFViewResult(YetaWFController requestingController, string viewName, ModuleDefinition module, object model) {
+                ViewName = viewName;
+                Module = module;
+                Model = model;
+                RequestingController = requestingController;
+            }
+#if MVC6
+            public override async Task ExecuteResultAsync(ActionContext context) {
+
+                using (var sw = new StringWriter()) {
+                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    if (htmlHelper is IViewContextAware contextable) {
+                        var viewContext = new ViewContext(
+                            context,
+                            NullView.Instance,
+                            RequestingController.ViewData,
+                            RequestingController.TempData,
+                            sw,
+                            new HtmlHelperOptions()
+                        );
+                        contextable.Contextualize(viewContext);
+                    }
+                    YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+#if DEBUG
+                    if (sw.ToString().Length > 0)
+                        throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+#endif
+                    byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
+                    Stream body = context.HttpContext.Response.Body;
+                    body.Write(buffer, 0, buffer.Length);
+                }
+            }
+#else
+            public override void ExecuteResult(ControllerContext context) {
+
+                TextWriter sw = context.HttpContext.Response.Output;
+                ViewContext vc = new ViewContext(context, new ViewImpl(), RequestingController.ViewData, RequestingController.TempData, sw);
+                IViewDataContainer vdc = new ViewDataContainer() { ViewData = RequestingController.ViewData };
+                HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+
+                try {
+                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                        YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+#if DEBUG
+                        if (sw.ToString().Length > 0)
+                            throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+#endif
+                        sw.Write(data.ToString());
+                    });
+                } catch (Exception) {
+                    throw;
+                } finally { }
+            }
+
+            private class ViewImpl : IView {
+                public void Render(ViewContext viewContext, TextWriter writer) {
+                    throw new NotImplementedException();
+                }
+            }
+            private class ViewDataContainer : IViewDataContainer {
+                public ViewDataDictionary ViewData { get; set; }
+            }
+#endif
         }
 
         // PAGE/FORM SAVE
@@ -684,7 +846,7 @@ namespace YetaWF.Core.Controllers
                 popupText = YetaWFManager.JsonSerialize(popupText);
                 popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }});", popupText, popupTitle);
+                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -698,7 +860,7 @@ namespace YetaWF.Core.Controllers
                 popupText = YetaWFManager.JsonSerialize(popupText);
                 popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadModule(); }});", popupText, popupTitle);
+                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadModule(); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -712,7 +874,7 @@ namespace YetaWF.Core.Controllers
                 popupText = YetaWFManager.JsonSerialize(popupText);
                 popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReloadModuleParts);
-                sb.Append("Y_Alert({0}, {1});", popupText, popupTitle);
+                sb.Append("$YetaWF.alert({0}, {1});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -884,44 +1046,44 @@ namespace YetaWF.Core.Controllers
                 if (Manager.IsInPopup) {
                     if (ForceRedirect) {
                         if (string.IsNullOrWhiteSpace(popupText)) {
-                            sb.Append("Y_Loading();window.parent.location.assign({0});", url);
+                            sb.Append("$YetaWF.setLoading();window.parent.location.assign({0});", url);
                         } else {
                             sb.Append(
-                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.parent.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
+                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.parent.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
-                            "Y_Loading();" +
-                            "if (!window.parent._YetaWF_Basics.setContent(new URI({0}), true))" +
+                            "$YetaWF.setLoading();" +
+                            "if (!window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                                 "window.parent.location.assign({0});",
                                 url);
                     } else {
                         sb.Append(
-                            "Y_Alert({0}, {1}, function() {{" +
-                                "Y_Loading();" +
-                                "if (!window.parent._YetaWF_Basics.setContent(new URI({2}), true))" +
+                            "$YetaWF.alert({0}, {1}, function() {{" +
+                                "$YetaWF.setLoading();" +
+                                "if (!window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({2}), true))" +
                                 "window.parent.location.assign({2});" +
                             "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
                 } else {
                     if (ForceRedirect) {
                         if (string.IsNullOrWhiteSpace(popupText)) {
-                            sb.Append("Y_Loading();window.location.assign({0});", url);
+                            sb.Append("$YetaWF.setLoading();window.location.assign({0});", url);
                         } else {
                             sb.Append(
-                               "Y_Alert({0}, {1}, function() {{ Y_Loading(); window.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
+                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(
-                            "Y_Loading();" +
-                            "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                            "$YetaWF.setLoading();" +
+                            "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                               "window.location.assign({0});",
                                 url);
                     } else {
                         sb.Append(
-                           "Y_Alert({0}, {1}, function() {{" +
-                             "Y_Loading();" +
-                             "if (!_YetaWF_Basics.setContent(new URI({2}), true))" +
+                           "$YetaWF.alert({0}, {1}, function() {{" +
+                             "$YetaWF.setLoading();" +
+                             "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({2}), true))" +
                                "window.location.assign({2});" +
                            "}}, {3});", popupText, popupTitle, url, PopupOptions);
                     }
@@ -935,18 +1097,18 @@ namespace YetaWF.Core.Controllers
                             case OnPopupCloseEnum.Nothing:
                                 break;
                             case OnPopupCloseEnum.ReloadNothing:
-                                sb.Append("Y_ClosePopup(false);");
+                                sb.Append("$YetaWF.closePopup(false);");
                                 break;
                             case OnPopupCloseEnum.ReloadParentPage:
-                                sb.Append("Y_ClosePopup(true);");
+                                sb.Append("$YetaWF.closePopup(true);");
                                 break;
                             case OnPopupCloseEnum.UpdateInPlace:
                                 isApply = true;
                                 break;
                             case OnPopupCloseEnum.ReloadModule:
                                 // reload page, which reloads all modules (that are registered)
-                                sb.Append("window.parent.YetaWF_Basics.refreshPage();");
-                                sb.Append("Y_ClosePopup(false);");
+                                sb.Append("window.parent.$YetaWF.refreshPage();");
+                                sb.Append("$YetaWF.closePopup(false);");
                                 break;
                             default:
                                 throw new InternalError("Invalid OnPopupClose value {0}", OnPopupClose);
@@ -956,21 +1118,21 @@ namespace YetaWF.Core.Controllers
                             case OnPopupCloseEnum.GotoNewPage:
                                 throw new InternalError("No next page");
                             case OnPopupCloseEnum.Nothing:
-                                sb.Append("Y_Alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.ReloadNothing:
-                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ClosePopup(false); }}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.closePopup(false); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.ReloadParentPage:
-                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ClosePopup(true); }}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.closePopup(true); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.UpdateInPlace:
-                                sb.Append("Y_Alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                                 isApply = true;
                                 break;
                             case OnPopupCloseEnum.ReloadModule:
                                 // reload page, which reloads all modules (that are registered)
-                                sb.Append("Y_Alert({0}, {1}, function() {{ window.parent.YetaWF_Basics.refreshPage(); Y_ClosePopup(false); }}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, function() {{ window.parent.$YetaWF.refreshPage(); $YetaWF.closePopup(false); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             default:
                                 throw new InternalError("Invalid OnPopupClose value {0}", OnPopupClose);
@@ -983,11 +1145,11 @@ namespace YetaWF.Core.Controllers
                             throw new InternalError("No next page");
                         case OnCloseEnum.Nothing:
                             if (!string.IsNullOrWhiteSpace(popupText))
-                                sb.Append("Y_Alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         case OnCloseEnum.UpdateInPlace:
                             if (!isApply && !string.IsNullOrWhiteSpace(popupText)) {
-                                sb.Append("Y_Alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
                                 OnApply = OnApplyEnum.ReloadModule;
                             }
                             isApply = true;
@@ -997,15 +1159,15 @@ namespace YetaWF.Core.Controllers
                                 if (string.IsNullOrWhiteSpace(popupText))
                                     sb.Append("window.close();");
                                 else
-                                    sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
+                                    sb.Append("$YetaWF.alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
                             } else {
                                 url = YetaWFManager.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
-                                    sb.Append("if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                                    sb.Append("if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                                             "window.location.assign({0});", url);
                                 } else {
-                                    sb.Append("Y_Alert({0}, {1}, function() {{" +
-                                        "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                                    sb.Append("$YetaWF.alert({0}, {1}, function() {{" +
+                                        "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                                           "window.location.assign({2});" +
                                       "}}, {3});", popupText, popupTitle, url, PopupOptions);
                                 }
@@ -1015,13 +1177,13 @@ namespace YetaWF.Core.Controllers
                             if (string.IsNullOrWhiteSpace(popupText))
                                 sb.Append("window.close();");
                             else
-                                sb.Append("Y_Alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         case OnCloseEnum.ReloadPage:
                             if (string.IsNullOrWhiteSpace(popupText))
-                                sb.Append("Y_ReloadPage(true);");
+                                sb.Append("$YetaWF.reloadPage(true);");
                             else
-                                sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         default:
                             throw new InternalError("Invalid OnClose value {0}", OnClose);
@@ -1030,9 +1192,9 @@ namespace YetaWF.Core.Controllers
                 if (isApply) {
                     if (OnApply == OnApplyEnum.ReloadPage) {
                         if (string.IsNullOrWhiteSpace(popupText))
-                            sb.Append("Y_ReloadPage(true);");
+                            sb.Append("$YetaWF.reloadPage(true);");
                         else
-                            sb.Append("Y_Alert({0}, {1}, function() {{ Y_ReloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
+                            sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                     } else {
                         if (sb.Length == Basics.AjaxJavascriptReturn.Length)
                             return PartialView(model);// no javascript after all
@@ -1122,23 +1284,23 @@ namespace YetaWF.Core.Controllers
                     url = YetaWFManager.JsonSerialize(url);
                     if (Manager.IsInPopup) {
                         // simply replace the current popup with the new popup
-                        sb.Append("window.parent.YetaWF_Popup.openPopup({0});", url);
+                        sb.Append("window.parent.$YetaWF.Popups.openPopup({0}, false);", url);
                     } else {
                         // create the popup client-side
-                        sb.Append("YetaWF_Popup.openPopup({0});", url);
+                        sb.Append("$YetaWF.Popups.openPopup({0}, false);", url);
                     }
                 } else {
                     url = YetaWFManager.JsonSerialize(url);
                     if (ForceRedirect) {
-                        sb.Append("Y_Loading(); window.location.assign({0});", url);
+                        sb.Append("$YetaWF.setLoading(); window.location.assign({0});", url);
                     } else if (Manager.IsInPopup) {
-                        sb.Append("Y_Loading();" +
+                        sb.Append("$YetaWF.setLoading();" +
                             "window.parent.location.assign({0});", url);
                     } else {
                         sb.Append(
-                            "Y_Loading();" +
+                            "$YetaWF.setLoading();" +
                             "{1}" +
-                            "if (!_YetaWF_Basics.setContent(new URI({0}), true))" +
+                            "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                               "window.location.assign({0});",
                                 url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
                     }
@@ -1183,7 +1345,7 @@ namespace YetaWF.Core.Controllers
                 if (Manager.PageControlShown)
                     qhUrl.Add(Globals.Link_PageControl, "y");
                 else
-                    qhUrl.Add(Globals.Link_NoPageControl, "y");                
+                    qhUrl.Add(Globals.Link_NoPageControl, "y");
             } else {
                 // check whether control panel should be open
                 if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {
@@ -1252,7 +1414,7 @@ namespace YetaWF.Core.Controllers
                 FixArgumentParmCase(obj);
                 FixDates(obj);
 
-                PropertyListSupport.CorrectModelState(obj, ViewData.ModelState, modelName + ".");
+                CorrectModelState(obj, ViewData.ModelState, modelName + ".");
 
                 // translate any xxx.JSON properties to native objects (There is no use case for this)
                 //if (ViewData.ModelState.IsValid)

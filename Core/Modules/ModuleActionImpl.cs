@@ -5,19 +5,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Views.Shared;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Components;
 
 namespace YetaWF.Core.Modules {
+
     public partial class ModuleAction {
 
         public enum RenderModeEnum {
@@ -34,22 +27,22 @@ namespace YetaWF.Core.Modules {
         }
 
         // Render an action as button
-        public async Task<HtmlString> RenderAsButtonAsync(string id = null) {
+        public async Task<YHtmlString> RenderAsButtonAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.Button, Id: id);
         }
-        public async Task<HtmlString> RenderAsButtonIconAsync(string id = null) {
+        public async Task<YHtmlString> RenderAsButtonIconAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.ButtonIcon, Id: id);
         }
         // Render an action as icon
-        public async Task<HtmlString> RenderAsIconAsync(string id = null) {
+        public async Task<YHtmlString> RenderAsIconAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.IconsOnly, Id: id);
         }
         // Render an action as link
-        public async Task<HtmlString> RenderAsLinkAsync(string id = null) {
+        public async Task<YHtmlString> RenderAsLinkAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.LinksOnly, Id: id);
         }
         // Render an action as normal link with icon
-        public async Task<HtmlString> RenderAsNormalLinkAsync(string id = null) {
+        public async Task<YHtmlString> RenderAsNormalLinkAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.NormalLinks, Id: id);
         }
 
@@ -73,202 +66,13 @@ namespace YetaWF.Core.Modules {
         }
 
         /// <summary>
-        /// Render an action
+        /// Render an action.
         /// </summary>
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
-        public async Task<HtmlString> RenderAsync(RenderModeEnum mode, int dummy = 0, string Id = null, RenderEngineEnum RenderEngine = RenderEngineEnum.JqueryMenu,
-                bool HasSubmenu = false, int BootstrapSmartMenuLevel = 0) {
+        public async Task<YHtmlString> RenderAsync(RenderModeEnum mode, string Id = null) {
 
-            // check if we're in the right mode
-            if (!await RendersSomethingAsync()) return HtmlStringExtender.Empty;
+            return await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id);
 
-            if (!string.IsNullOrWhiteSpace(ConfirmationText) && (Style != ActionStyleEnum.Post && Style != ActionStyleEnum.Nothing))
-                throw new InternalError("When using ConfirmationText, the Style property must be set to Post");
-            if (!string.IsNullOrWhiteSpace(PleaseWaitText) && (Style != ActionStyleEnum.Normal && Style != ActionStyleEnum.Post))
-                throw new InternalError("When using PleaseWaitText, the Style property must be set to Normal or Post");
-            if (CookieAsDoneSignal && Style != ActionStyleEnum.Normal)
-                throw new InternalError("When using CookieAsDoneSignal, the Style property must be set to Normal");
-
-            await Manager.AddOnManager.AddTemplateAsync("ActionIcons");// this is needed because we're not always used by templates
-
-            ActionStyleEnum style = Style;
-            if (style == ActionStyleEnum.OuterWindow)
-                if (!Manager.IsInPopup)
-                    style = ActionStyleEnum.Normal;
-
-            if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit)
-                if (Manager.IsInPopup)
-                    style = ActionStyleEnum.NewWindow;
-
-            if (style == ActionStyleEnum.Popup || style == ActionStyleEnum.PopupEdit || style == ActionStyleEnum.ForcePopup)
-                await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF", "Core", "Popups");// this is needed for popup support
-
-            TagBuilder tag = null;
-            switch (style) {
-                default:
-                case ActionStyleEnum.Normal:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-                case ActionStyleEnum.NewWindow:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, NewWindow: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-                case ActionStyleEnum.Popup:
-                case ActionStyleEnum.ForcePopup:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-                case ActionStyleEnum.PopupEdit:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Popup: Manager.CurrentSite.AllowPopups, PopupEdit: Manager.CurrentSite.AllowPopups, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-                case ActionStyleEnum.OuterWindow:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, OuterWindow: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-                case ActionStyleEnum.Nothing:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Nothing: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-                case ActionStyleEnum.Post:
-                    tag = await Render_ALinkAsync(RenderEngine, mode, Id, HasSubmenu, Post: true, BootstrapSmartMenuLevel: BootstrapSmartMenuLevel);
-                    break;
-            }
-            return tag.ToHtmlString(TagRenderMode.Normal);
-        }
-
-        private async Task<TagBuilder> Render_ALinkAsync(RenderEngineEnum renderEngine, RenderModeEnum mode, string id, bool hasSubmenu,
-            bool NewWindow = false, bool Popup = false, bool PopupEdit = false, bool Post = false, bool Nothing = false, bool OuterWindow = false, int BootstrapSmartMenuLevel = 0) {
-
-            TagBuilder tag = new TagBuilder("a");
-            if (!string.IsNullOrWhiteSpace(Tooltip))
-                tag.MergeAttribute(Basics.CssTooltip, Tooltip);
-            if (!string.IsNullOrWhiteSpace(Name))
-                tag.MergeAttribute("data-name", Name);
-            if (!Displayed)
-                tag.MergeAttribute("style", "display:none");
-            if (hasSubmenu) {
-                if (renderEngine == RenderEngineEnum.BootstrapSmartMenu) {
-                    tag.AddCssClass("dropdown-toggle");
-                    tag.Attributes.Add("data-toggle", "dropdown-toggle");
-                }
-                tag.Attributes.Add("aria-haspopup", "true");
-                tag.Attributes.Add("aria-expanded", "false");
-            }
-            if (renderEngine == ModuleAction.RenderEngineEnum.BootstrapSmartMenu) {
-                tag.AddCssClass(BootstrapSmartMenuLevel <= 1 ? "nav-link" : "dropdown-item");
-            }
-
-            if (!string.IsNullOrWhiteSpace(id))
-                tag.Attributes.Add("id", id);
-
-            if (!string.IsNullOrWhiteSpace(CssClass))
-                tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(CssClass));
-            string extraClass;
-            switch (mode) {
-                default:
-                case RenderModeEnum.Button: extraClass = "y_act_button"; break;
-                case RenderModeEnum.ButtonIcon: extraClass = "y_act_buttonicon"; break;
-                case RenderModeEnum.IconsOnly: extraClass = "y_act_icon"; break;
-                case RenderModeEnum.LinksOnly: extraClass = "y_act_link"; break;
-                case RenderModeEnum.NormalLinks: extraClass = "y_act_normlink"; break;
-                case RenderModeEnum.NormalMenu: extraClass = "y_act_normmenu"; break;
-            }
-            tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(extraClass));
-
-            string url = GetCompleteUrl(OnPage: true);
-            if (!string.IsNullOrWhiteSpace(url)) {
-                tag.MergeAttribute("href", YetaWFManager.UrlEncodePath(url));
-                if (Manager.CurrentPage != null) {
-                    string currUrl = Manager.CurrentPage.EvaluatedCanonicalUrl;
-                    if (!string.IsNullOrWhiteSpace(currUrl) && currUrl != "/") {// this doesn't work on home page because everything matches
-                        if (this.Url == currUrl)
-                            tag.AddCssClass("t_currenturl");
-                        if (currUrl.StartsWith(this.Url))
-                            tag.AddCssClass("t_currenturlpart");
-                    }
-                }
-            } else
-                tag.MergeAttribute("href", "javascript:void(0);");
-
-            if (!string.IsNullOrWhiteSpace(ConfirmationText)) {
-                if (Category == ActionCategoryEnum.Delete) {
-                    // confirm deletions?
-                    if (UserSettings.GetProperty<bool>("ConfirmDelete"))
-                        tag.MergeAttribute(Basics.CssConfirm, ConfirmationText);
-                } else {
-                    // confirm actions?
-                    if (UserSettings.GetProperty<bool>("ConfirmActions"))
-                        tag.MergeAttribute(Basics.CssConfirm, ConfirmationText);
-                }
-            }
-            if (!string.IsNullOrWhiteSpace(PleaseWaitText)) {
-                tag.MergeAttribute(Basics.CssPleaseWait, PleaseWaitText);
-            }
-            if (CookieAsDoneSignal)
-                tag.Attributes.Add(Basics.CookieDoneCssAttr, "");
-
-            if (SaveReturnUrl) {
-                tag.Attributes.Add(Basics.CssSaveReturnUrl, "");
-                if (!AddToOriginList)
-                    tag.Attributes.Add(Basics.CssDontAddToOriginList, "");
-            }
-            if (!string.IsNullOrWhiteSpace(ExtraData))
-                tag.Attributes.Add(Basics.CssExtraData, ExtraData);
-
-            if (NeedsModuleContext)
-                tag.Attributes.Add(Basics.CssAddModuleContext, "");
-
-            if (Post)
-                tag.Attributes.Add(Basics.PostAttr, "");
-            if (DontFollow || CookieAsDoneSignal || Post || Nothing) {
-                if (!NewWindow)
-                    tag.Attributes.Add("rel", "nofollow"); // this is so bots don't follow this assuming it's a simple page (Post actions can't be retrieved with GET/HEAD anyway)
-            }
-            if (OuterWindow)
-                tag.Attributes.Add(Basics.CssOuterWindow, "");
-            if (!Nothing)
-                tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Basics.CssActionLink));
-            if (NewWindow) {
-                tag.MergeAttribute("target", "_blank");
-                tag.MergeAttribute("rel", "noopener noreferrer");
-            }
-            if (Popup) {
-                tag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Basics.CssPopupLink));
-                if (PopupEdit)
-                    tag.Attributes.Add(Basics.CssAttrDataSpecialEdit, "");
-            }
-            if (mode == RenderModeEnum.Button || mode == RenderModeEnum.ButtonIcon)
-                tag.Attributes.Add(Basics.CssAttrActionButton, "");
-
-            bool hasText = false, hasImg = false;
-            string innerHtml = "";
-            if (mode != RenderModeEnum.LinksOnly && !string.IsNullOrWhiteSpace(ImageUrlFinal)) {
-                TagBuilder tagImg = ImageHelper.BuildKnownImageTag(await GetImageUrlFinalAsync(), alt: mode == RenderModeEnum.NormalMenu ? MenuText : LinkText);
-                tagImg.AddCssClass(Basics.CssNoTooltip);
-                innerHtml += tagImg.ToString(TagRenderMode.StartTag);
-                hasImg = true;
-            }
-            if (mode != RenderModeEnum.IconsOnly && mode != RenderModeEnum.ButtonIcon) {
-                string text = mode == RenderModeEnum.NormalMenu ? MenuText : LinkText;
-                if (!string.IsNullOrWhiteSpace(text)) {
-                    innerHtml += YetaWFManager.HtmlEncode(text);
-                    hasText = true;
-                }
-            }
-            if (hasText) {
-                if (hasImg) {
-                    tag.AddCssClass("y_act_textimg");
-                } else {
-                    tag.AddCssClass("y_act_text");
-                }
-            } else {
-                if (hasImg) {
-                    tag.AddCssClass("y_act_img");
-                }
-            }
-            if (hasSubmenu && renderEngine == RenderEngineEnum.BootstrapSmartMenu) {
-                innerHtml += " <span class='caret'></span>";
-            }
-            tag.AddCssClass(Globals.CssModuleNoPrint);
-            tag.SetInnerHtml(innerHtml);
-
-            return tag;
         }
 
         public string GetCompleteUrl(bool OnPage = false) {

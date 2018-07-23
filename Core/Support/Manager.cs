@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Menus;
 using YetaWF.Core.Models;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -21,6 +21,7 @@ using YetaWF.Core.Support.StaticPages;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Skins;
 using System.Threading.Tasks;
+using YetaWF.Core.Controllers;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -1151,21 +1152,35 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        public static void SetStaticCacheInfo(HttpResponse response) {
-            int duration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0);// duration in minutes
-            if (GetDeployed() && duration > 0) {
+        public static void SetStaticCacheInfo(HttpContext context) {
+            if (GetDeployed() && StaticCacheDuration > 0) {
 #if MVC6
-                response.Headers.Add("Cache-Control", string.Format("max-age={0}", duration*60));
+                context.Response.Headers.Add("Cache-Control", string.Format("max-age={0}", StaticCacheDuration * 60));
 #else
-                response.Cache.SetCacheability(HttpCacheability.Public);
-                response.Cache.SetMaxAge(new TimeSpan(0, duration, 0));
-#endif
-            } else {
-#if MVC6
-#else
+                context.Response.Cache.SetCacheability(HttpCacheability.Public);
+                context.Response.Cache.SetMaxAge(new TimeSpan(0, StaticCacheDuration, 0));
 #endif
             }
+            // add CORS header for static site
+#if MVC6
+            SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
+            if (site != null)
+                context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Scheme}://{site.SiteDomain.ToLower()}");
+#else
+            SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Url.Host).Result;// cached, so ok to use result
+            if (site != null)
+                context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Url.Scheme}://{site.SiteDomain.ToLower()}");
+#endif
         }
+        public static int StaticCacheDuration {
+            get {
+                if (staticCacheDuration == null) {
+                    staticCacheDuration = WebConfigHelper.GetValue<int>("StaticFiles", "Duration", 0);
+                }
+                return (int)staticCacheDuration;
+            }
+        }
+        private static int? staticCacheDuration = null;
 
         public bool HaveCurrentSession {
             get {
@@ -1334,6 +1349,36 @@ namespace YetaWF.Core.Support {
 
         public ModuleDefinition CurrentModule { get; set; } // current module rendered
 
+        // COMPONENTS/VIEWS
+        // COMPONENTS/VIEWS
+        // COMPONENTS/VIEWS
+
+        public List<Package> ComponentPackagesSeen = new List<Package>();
+
+        public IDisposable StartNestedComponent(string fieldName) {
+            NestedComponents.Add(fieldName);
+            return new NestedComponent();
+        }
+        public string NestedComponentPrefix {
+            get {
+                if (NestedComponents.Count == 0) return null;
+                return NestedComponents.Last();
+            }
+        }
+        private List<string> NestedComponents = new List<string>();
+
+        private class NestedComponent : IDisposable {
+            public NestedComponent() {
+                DisposableTracker.AddObject(this);
+            }
+            public void Dispose() { Dispose(true); }
+            protected virtual void Dispose(bool disposing) {
+                YetaWFManager manager = YetaWFManager.Manager;
+                manager.NestedComponents.RemoveAt(manager.NestedComponents.Count-1);
+                if (disposing) DisposableTracker.RemoveObject(this);
+            }
+        }
+
         // RENDERING
         // RENDERING
         // RENDERING
@@ -1427,59 +1472,11 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public bool InPartialView { get; set; }
 
-        // MODEL STACK
-        // MODEL STACK
-        // MODEL STACK
-
-        // preserve models so templates can access the enclosing object
-        public void PopModel() {
-            if (ModelStack.Count > 0)
-                ModelStack.RemoveAt(ModelStack.Count - 1);
-        }
-        public void PushModel(object model) {
-            ModelStack.Add(model);
-        }
-        private List<object> ModelStack {
-            get {
-                if (_modelStack == null)
-                    _modelStack = new List<object>();
-                return _modelStack;
-            }
-        }
-        private List<object> _modelStack = null;
-
-        public object TryGetParentModel(int Skip = 0) {
-            if (ModelStack.Count <= 1 + Skip) return null;
-            return ModelStack[ModelStack.Count - 2 - Skip];
-        }
-        public object GetParentModel(int Skip = 0) {
-            object o = TryGetParentModel(Skip);
-            if (o == null) throw new InternalError("No parent model");
-            return o;
-        }
-        public object GetCurrentModel() {
-            if (ModelStack.Count <= 0) throw new InternalError("No model");
-            return ModelStack[ModelStack.Count - 1];
-        }
-
         /// <summary>
         /// Defines whether non-site specific data is also imported when importing packages
         /// </summary>
         /// <remarks>Site specific data is always imported</remarks>
         public bool ImportChunksNonSiteSpecifics { get; set; }
-
-        // CONTROLINFOOVERRIDE
-        // CONTROLINFOOVERRIDE
-        // CONTROLINFOOVERRIDE
-
-        /// <summary>
-        /// AdditionalValues meta data overrides for current control being processed
-        /// </summary>
-#if MVC6
-        public IReadOnlyDictionary<object, object> ControlInfoOverrides { get; set; }
-#else
-        public Dictionary<string, object> ControlInfoOverrides { get; set; }
-#endif
 
         // UTILITY
         // UTILITY
@@ -1503,9 +1500,9 @@ namespace YetaWF.Core.Support {
                         skin = Manager.CurrentSite.BootstrapSkin;
                     string themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
-                        await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootstrap-less");
+                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "getbootstrap.com.bootstrap-less");
                     else
-                        await AddOnManager.AddAddOnGlobalAsync("getbootstrap.com", "bootswatch", themeFolder);
+                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "getbootstrap.com.bootswatch", themeFolder);
                 }
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
@@ -1514,7 +1511,6 @@ namespace YetaWF.Core.Support {
                 CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
             if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
                 CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
-            await AddOnManager.AddSkinBasedAddOnsAsync();
         }
 
         /// <summary>
@@ -1575,7 +1571,7 @@ namespace YetaWF.Core.Support {
             if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                 // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
                 ScriptBuilder sb = new Support.ScriptBuilder();
-                sb.Append("$('body').attr('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
+                sb.Append("document.body.setAttribute('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
                 Manager.ScriptManager.AddLast(sb.ToString());
             }
             return new HtmlString(CombineCss(s, cssClasses));
@@ -1797,8 +1793,8 @@ namespace YetaWF.Core.Support {
         private int _syncCount = 0;
 
         /// <summary>
-        /// Used to mark all methods within its scope as synchronous. 
-        /// Only synchronous data providers are used. 
+        /// Used to mark all methods within its scope as synchronous.
+        /// Only synchronous data providers are used.
         /// Async code will run synchronously on all platforms.
         /// </summary>
         private class NeedSync : IDisposable {

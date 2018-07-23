@@ -47,6 +47,9 @@ namespace YetaWF.Core.Support {
         public HtmlString ToHtmlString() {
             return new HtmlString(_hb.ToString());
         }
+        public YHtmlString ToYHtmlString() {
+            return new YHtmlString(_hb.ToString());
+        }
 
         public int Length {
             get { return _hb.Length; }
@@ -58,10 +61,6 @@ namespace YetaWF.Core.Support {
         }
         public void Remove(int startIndex, int length) {
             _hb.Remove(startIndex, length);
-        }
-
-        public void Append(Task<HtmlString> task) {
-            throw new NotImplementedException();
         }
     }
 }

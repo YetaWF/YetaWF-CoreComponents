@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
@@ -70,7 +68,7 @@ namespace YetaWF.Core.Controllers {
                 AreaName,
                 AreaName + "/{controller}/{action}",
                 new { },
-                new string[] { ns, ns + ".Shared" }
+                new string[] { ns }
             );
         }
 #endif
