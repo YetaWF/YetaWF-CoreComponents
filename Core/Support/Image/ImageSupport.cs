@@ -33,6 +33,8 @@ namespace YetaWF.Core.Image {
     }
     public class ImageSupportScheduling : IScheduling {
 
+        protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ImageSupport), name, defaultValue, parms); }
+
         // IScheduling
         // IScheduling
         // IScheduling
@@ -42,8 +44,8 @@ namespace YetaWF.Core.Image {
         public SchedulerItemBase[] GetItems() {
             return new SchedulerItemBase[] {
                 new SchedulerItemBase {
-                    Name=this.__ResStr("eventName", "Remove Temporary Files (uploaded files)"),
-                    Description = this.__ResStr("eventDesc", "Removes temporary files that are too old (files that were created on or before the last time this event ran, based on Frequency definition)"),
+                    Name=__ResStr("eventName", "Remove Temporary Files (uploaded files)"),
+                    Description = __ResStr("eventDesc", "Removes temporary files that are too old (files that were created on or before the last time this event ran, based on Frequency definition)"),
                     EventName = EventRemoveTempFiles,
                     Enabled = true,
                     EnableOnStartup = true,
@@ -57,7 +59,7 @@ namespace YetaWF.Core.Image {
 
         public async Task RunItemAsync(SchedulerItemBase evnt) {
             if (evnt.EventName != EventRemoveTempFiles)
-                throw new Error(this.__ResStr("eventNameErr", "Unknown scheduler event {0}."), evnt.EventName);
+                throw new Error(__ResStr("eventNameErr", "Unknown scheduler event {0}."), evnt.EventName);
             FileUpload fileUpload = new FileUpload();
             await fileUpload.RemoveAllExpiredTempFilesAsync(evnt.Frequency.TimeSpan);
         }
@@ -65,6 +67,7 @@ namespace YetaWF.Core.Image {
 
     public class ImageSupport : IInstallableModel, IDisposable {
 
+        protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ImageSupport), name, defaultValue, parms); }
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public const char ImageSeparator = '#'; // anything after this is ignored (and usually used to defeat client side caching)
