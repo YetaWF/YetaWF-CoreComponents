@@ -764,8 +764,23 @@ var YetaWF;
             }
             return all;
         };
+        /**
+         * Returns whether the specified element is visible.
+         */
         BasicsServices.prototype.isVisible = function (elem) {
             return (elem.clientWidth > 0 && elem.clientHeight > 0);
+        };
+        /**
+         * Returns whether the specified element is a parent of the specified child element.
+         */
+        BasicsServices.prototype.elementHas = function (elem, childElement) {
+            var c = childElement;
+            for (; c;) {
+                if (elem === c)
+                    return true;
+                c = c.parentElement;
+            }
+            return false;
         };
         /**
          * Tests whether the specified element matches the selector.

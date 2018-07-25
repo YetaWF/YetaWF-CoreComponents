@@ -43,10 +43,10 @@ namespace YetaWF.Core.Controllers {
             await sendEmail.PrepareEmailMessageAsync(server, port, ssl, authentication, username, password, null, Manager.UserEmail, subject, await sendEmail.GetEmailFileAsync(AreaRegistration.CurrentPackage, "SMTPServer Test Message.txt"), parms);
             await sendEmail.SendAsync();
             string msg = this.__ResStr("emailSent", "A test email has just been sent to {0}", Manager.UserEmail);
-            ContentResult cr = Content(
-                string.Format(Basics.AjaxJavascriptReturn + "$YetaWF.message('{0}');", YetaWFManager.JserEncode(msg))
-            );
-            return cr;
+            YJsonResult jr = new YJsonResult {
+                Data = $"{Basics.AjaxJavascriptReturn}$YetaWF.message('{YetaWFManager.JserEncode(msg)}');"
+            };
+            return jr;
         }
     }
 }

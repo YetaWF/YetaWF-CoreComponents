@@ -874,8 +874,24 @@ debugger;//TODO: This hasn't been tested
             }
             return all;
         }
+        /**
+         * Returns whether the specified element is visible.
+         */
         public isVisible(elem: HTMLElement): boolean {
             return (elem.clientWidth > 0 && elem.clientHeight > 0);
+        }
+
+        /**
+         * Returns whether the specified element is a parent of the specified child element.
+         */
+        public elementHas(elem: HTMLElement, childElement: HTMLElement): boolean {
+            var c : HTMLElement | null = childElement;
+            for (; c ;) {
+                if (elem === c)
+                    return true;
+                c = c.parentElement;
+            }
+            return false;
         }
 
         /**
