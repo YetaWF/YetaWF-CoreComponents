@@ -28,7 +28,6 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Identity",
             "YetaWF.IFrame",
             "YetaWF.ImageRepository",
-            "YetaWF.KeepAlive",
             "YetaWF.Languages",
             "YetaWF.Lightbox",
             "YetaWF.Logging",
