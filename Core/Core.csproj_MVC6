@@ -22,20 +22,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-alpha2-final" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.0-alpha2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.2" />
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.2.0" />
-    <PackageReference Include="SharpZipLib" Version="1.0.0-alpha2" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
-    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview2-26406-04" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.7" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0-preview2-26406-04" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- workaround for permission exception (when using .net 4.x assemblies) -->
-    <PackageReference Include="System.Security.Permissions" Version="4.4.1" />
+    <PackageReference Include="SharpZipLib" Version="1.0.0-rc2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.11" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
