@@ -60,7 +60,7 @@ namespace YetaWF.Core.Support {
                 throw new InternalError("There is no shared cache provider");
             if (YetaWF.Core.IO.Caching.GetStaticCacheProvider == null)
                 throw new InternalError("There is no static cache provider");
-            
+
             // Now we need to determine whether this is the first node
             // We have an indicator file ./Data/FirstNode.txt that signals that the first startup is a "first node".
             // This file must be deployed with the site to force a new start.
@@ -125,9 +125,9 @@ namespace YetaWF.Core.Support {
                 await lockObject.UnlockAsync();
 
                 await YetaWF.Core.Audit.Auditing.AddAuditAsync($"{nameof(Startup)}.{nameof(CallStartupClassesAsync)}",
-                    firstNode ? "Site Start First Node" : "Site Start", 
+                    firstNode ? "Site Start First Node" : "Site Start",
                     Guid.Empty,
-                    firstNode ? "Site Started (all instanced)" : "Site Started",
+                    firstNode ? "Site Started (all instances)" : "Site Started",
                     ExpensiveMultiInstance: true
                 );
             }
