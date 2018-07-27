@@ -508,7 +508,7 @@ namespace YetaWF.Core.Controllers
                         if (!string.IsNullOrWhiteSpace(Module.DefaultViewName))
                             ViewName = Module.DefaultViewName + YetaWFViewExtender.PartialSuffix;
                     } else {
-                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
+                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.AreaName);
                     }
                     if (string.IsNullOrWhiteSpace(ViewName)) {
 #if MVC6
@@ -516,7 +516,7 @@ namespace YetaWF.Core.Controllers
 #else
                         ViewName = context.RouteData.GetRequiredString("action");
 #endif
-                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.Area);
+                        ViewName = YetaWFController.MakeFullViewName(ViewName, Module.AreaName);
                     }
                 }
                 if (string.IsNullOrWhiteSpace(ViewName))

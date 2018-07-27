@@ -54,9 +54,9 @@ namespace YetaWF.Core.Addons {
         /// <param name="name">The name of the addon.</param>
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.
         /// Will fail if the addon doesn't exist.</remarks>
-        public async Task AddAddOnNamedAsync(string domainName, string productName, string name, params object[] args) {
+        public async Task AddAddOnNamedAsync(string areaName, string name, params object[] args) {
             if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(domainName, productName, name);
+            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
@@ -69,8 +69,8 @@ namespace YetaWF.Core.Addons {
         /// <param name="productName">The product name of the addon.</param>
         /// <param name="name">The name of the addon.</param>
         /// <returns></returns>
-        public string GetAddOnNamedUrl(string domainName, string productName, string name) {
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(domainName, productName, name);
+        public string GetAddOnNamedUrl(string areaName, string name) {
+            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
             return version.GetAddOnUrl();
         }
         /// <summary>
@@ -81,9 +81,9 @@ namespace YetaWF.Core.Addons {
         /// <param name="args">Any optional arguments supported by the addon.</param>
         /// <param name="name">The name of the addon.</param>
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
-        public async Task TryAddAddOnNamedAsync(string domainName, string productName, string name, params object[] args) {
+        public async Task TryAddAddOnNamedAsync(string areaName, string name, params object[] args) {
             if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.TryFindAddOnNamedVersion(domainName, productName, name);
+            VersionManager.AddOnProduct version = VersionManager.TryFindAddOnNamedVersion(areaName, name);
             if (version == null) return;
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
@@ -103,13 +103,13 @@ namespace YetaWF.Core.Addons {
         /// If the template name ends in a number, it could be a template with ending numeric variations (like Text20, Text40, Text80)
         /// which are all the same template. However, if we find an installed addon template that ends in the exact name (including number) we use that first.
         /// </remarks>
-        public async Task AddTemplateAsync(string domainName, string productName, string templateName) {
+        public async Task AddTemplateAsync(string areaName, string templateName) {
             if (Manager.IsPostRequest) return;
             string templateNameBasic = templateName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
             VersionManager.AddOnProduct version;
             if (templateName != templateNameBasic) {
                 // try template name including number first
-                version = VersionManager.TryFindTemplateVersion(domainName, productName, templateName);
+                version = VersionManager.TryFindTemplateVersion(areaName, templateName);
                 if (version != null) {
                     if (_AddedProducts.Contains(version)) return;
                     _AddedProducts.Add(version);
@@ -118,7 +118,7 @@ namespace YetaWF.Core.Addons {
                     return;
                 }
             }
-            version = VersionManager.TryFindTemplateVersion(domainName, productName, templateNameBasic);
+            version = VersionManager.TryFindTemplateVersion(areaName, templateNameBasic);
             if (version != null) {
                 if (_AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
@@ -145,7 +145,7 @@ namespace YetaWF.Core.Addons {
                 // domain_product_name template
                 string[] parts = uiHintTemplate.Split(new char[] { '_' }, 3);
                 if (parts.Length != 3) throw new InternalError($"Template name invalid - {uiHintTemplate}");
-                await AddTemplateAsync(parts[0], parts[1], parts[2]);
+                await AddTemplateAsync($"{parts[0]}_{parts[1]}", parts[2]);
             }
         }
 
@@ -160,12 +160,10 @@ namespace YetaWF.Core.Addons {
             await AddPackageAsync(modPackage, new List<Package>());
         }
         private async Task AddPackageAsync(Package modPackage, List<Package> packagesFound) {
-            string domain = modPackage.Domain;
-            string product = modPackage.Product;
             // Add the package
             if (!packagesFound.Contains(modPackage)) {
                 packagesFound.Add(modPackage);
-                VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(domain, product);
+                VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(modPackage.AreaName);
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 await Manager.ScriptManager.AddAddOnAsync(version);

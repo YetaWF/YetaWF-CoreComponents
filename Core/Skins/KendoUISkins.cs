@@ -30,7 +30,7 @@ namespace YetaWF.Core.Skins {
         private static KendoTheme _kendoThemeDefault;
 
         private async Task<List<KendoTheme>> LoadKendoUIThemesAsync() {
-            string kendoUIUrl = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "telerik.com.Kendo_UI_Core");
+            string kendoUIUrl = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "telerik.com.Kendo_UI_Core");
             string customUrl = VersionManager.GetCustomUrlFromUrl(kendoUIUrl);
             string path = YetaWFManager.UrlToPhysical(kendoUIUrl);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

@@ -39,7 +39,7 @@ namespace YetaWF.Core.SendEmail {
             await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
         }
         public async Task<string> GetEmailFileAsync(Package package, string filename) {
-            string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.Domain, package.Product);
+            string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.AreaName);
             string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
 
             // locate site specific custom email

@@ -30,7 +30,7 @@ namespace YetaWF.Core.Skins {
         private static JQueryTheme _jQueryThemeDefault;
 
         private async Task<List<JQueryTheme>> LoadJQueryUIThemesAsync() {
-            string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "jqueryui.com.jqueryui-themes");
+            string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "jqueryui.com.jqueryui-themes");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

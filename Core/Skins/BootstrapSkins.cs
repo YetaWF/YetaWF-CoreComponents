@@ -30,7 +30,7 @@ namespace YetaWF.Core.Skins {
         private static BootstrapTheme _BootstrapThemeDefault;
 
         private async Task<List<BootstrapTheme>> LoadBootstrapThemesAsync() {
-            string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "getbootstrap.com.bootswatch");
+            string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootswatch");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
             string path = YetaWFManager.UrlToPhysical(url);
             string customPath = YetaWFManager.UrlToPhysical(customUrl);

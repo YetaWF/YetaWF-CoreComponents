@@ -52,10 +52,11 @@ namespace YetaWF.Core.Addons {
 
             public string AddonKey {
                 get {
-                    return MakeAddOnKey(Type, Domain, Product, Name);
+                    return MakeAddOnKey(Type, AreaName, Name);
                 }
             }
 
+            public string AreaName { get { return $"{Domain}_{Product}"; } }
             public string Domain { get; set; }
             public string Product { get; set; }
             public string Name { get; set; }
@@ -79,14 +80,14 @@ namespace YetaWF.Core.Addons {
                 }
             }
 
-            internal static string MakeAddOnKey(AddOnType type, string domain, string product, string name = null) {
+            internal static string MakeAddOnKey(AddOnType type, string area, string name = null) {
                 if (type != AddOnType.AddonNamed)
                     if (name == null)
                         throw new InternalError("A name is required");
-                return $"{GetPrefix(type)}{domain}+{product}{(name != null ? $"+{name}" : "")}".ToLower();
+                return $"{GetPrefix(type)}{area}{(name != null ? $"+{name}" : "")}".ToLower();
             }
             internal static string MakeAddOnKey(AddOnType type, Package package, string name = null) {
-                return MakeAddOnKey(type, package.Domain, package.Product, name);
+                return MakeAddOnKey(type, package.AreaName, name);
             }
             /// <summary>
             /// The Url where an addon's files are located (this does not reflect the Folder directive that could be used in filelistJS/CSS.txt)
@@ -155,57 +156,57 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Returns a specific named addon's installed and used version.
         /// </summary>
-        public static AddOnProduct TryFindAddOnNamedVersion(string domainName, string productName, string name) {
+        public static AddOnProduct TryFindAddOnNamedVersion(string areaName, string name) {
             AddOnProduct product;
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.AddonNamed, domainName, productName, name), out product))
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.AddonNamed, areaName, name), out product))
                 return null;
             return product;
         }
         /// <summary>
         /// Returns a specific named addon's installed and used version information.
         /// </summary>
-        public static AddOnProduct FindAddOnNamedVersion(string domainName, string productName, string name) {
-            AddOnProduct version = TryFindAddOnNamedVersion(domainName, productName, name);
+        public static AddOnProduct FindAddOnNamedVersion(string areaName, string name) {
+            AddOnProduct version = TryFindAddOnNamedVersion(areaName, name);
             if (version == null)
-                throw new InternalError("Addon Domain/Product/Name {0}/{1}/{2} not registered.", domainName, productName, name);
+                throw new InternalError($"Addon {areaName} {name} not registered.");
             return version;
         }
 
         /// <summary>
         /// Returns a specific template's installed and used version information.
         /// </summary>
-        public static AddOnProduct TryFindTemplateVersion(string domainName, string productName, string templateName) {
+        public static AddOnProduct TryFindTemplateVersion(string areaName, string templateName) {
             AddOnProduct product;
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Template, domainName, productName, templateName), out product))
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Template, areaName, templateName), out product))
                 return null;
             return product;
         }
         /// <summary>
         /// Returns a specific template's installed and used version information.
         /// </summary>
-        public static AddOnProduct FindTemplateVersion(string domainName, string productName, string templateName) {
-            AddOnProduct version = TryFindTemplateVersion(domainName, productName, templateName);
+        public static AddOnProduct FindTemplateVersion(string areaName, string templateName) {
+            AddOnProduct version = TryFindTemplateVersion(areaName, templateName);
             if (version == null)
-                throw new InternalError("Template {0} not registered in {1}.{2}.", templateName, domainName, productName);
+                throw new InternalError($"Template {templateName} not registered in {areaName}");
             return version;
         }
 
         /// <summary>
         /// Returns a specific package's installed and used version information.
         /// </summary>
-        public static AddOnProduct TryFindPackageVersion(string domainName, string productName) {
+        public static AddOnProduct TryFindPackageVersion(string areaName) {
             AddOnProduct product;
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Package, domainName, productName, "_Main"), out product))
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Package, areaName, "_Main"), out product))
                 return null;
             return product;
         }
         /// <summary>
         /// Returns a specific package's installed and used version information.
         /// </summary>
-        public static AddOnProduct FindPackageVersion(string domainName, string productName) {
-            AddOnProduct version = TryFindPackageVersion(domainName, productName);
+        public static AddOnProduct FindPackageVersion(string areaName) {
+            AddOnProduct version = TryFindPackageVersion(areaName);
             if (version == null)
-                throw new InternalError("Module not registered for {0}.{1}.", domainName, productName);
+                throw new InternalError($"Module not registered for {areaName}");
             return version;
         }
         /// <summary>
@@ -215,7 +216,7 @@ namespace YetaWF.Core.Addons {
             AddOnProduct product;
             string domainName, productName, skinName;
             VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
-            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Skin, domainName, productName, skinName), out product))
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Skin, $"{domainName}_{productName}", skinName), out product))
                 return null;
             return product;
         }
@@ -260,30 +261,30 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Returns the Url to the specific template's addon folder
         /// </summary>
-        public static string GetAddOnTemplateUrl(string domainName, string productName, string templateName) {
-            AddOnProduct addon = FindTemplateVersion(domainName, productName, templateName);
+        public static string GetAddOnTemplateUrl(string areaName, string templateName) {
+            AddOnProduct addon = FindTemplateVersion(areaName, templateName);
             return addon.GetAddOnUrl();
         }
         /// <summary>
         /// Returns the Url to the specific template's addon folder
         /// </summary>
-        public static string TryGetAddOnTemplateUrl(string domainName, string productName,  string templateName) {
-            AddOnProduct addon = TryFindTemplateVersion(domainName, productName, templateName);
+        public static string TryGetAddOnTemplateUrl(string areaName,  string templateName) {
+            AddOnProduct addon = TryFindTemplateVersion(areaName, templateName);
             if (addon == null) return string.Empty;
             return addon.GetAddOnUrl();
         }
         /// <summary>
         /// Returns the Url to the specific package's addon folder
         /// </summary>
-        public static string GetAddOnPackageUrl(string domainName, string productName) {
-            AddOnProduct addon = FindPackageVersion(domainName, productName);
+        public static string GetAddOnPackageUrl(string areaName) {
+            AddOnProduct addon = FindPackageVersion(areaName);
             return addon.GetAddOnUrl();
         }
         /// <summary>
         /// Returns the Url to the specific package's addon folder
         /// </summary>
-        public static string TryGetAddOnPackageUrl(string domainName, string productName) {
-            AddOnProduct addon = TryFindPackageVersion(domainName, productName);
+        public static string TryGetAddOnPackageUrl(string areaName) {
+            AddOnProduct addon = TryFindPackageVersion(areaName);
             if (addon == null) return string.Empty;
             return addon.GetAddOnUrl();
         }
@@ -297,15 +298,15 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Returns the Url to the specific module's addon folder
         /// </summary>
-        public static string GetAddOnNamedUrl(string domainName, string productName, string name) {
-            AddOnProduct addon = FindAddOnNamedVersion(domainName, productName, name);
+        public static string GetAddOnNamedUrl(string areaName, string name) {
+            AddOnProduct addon = FindAddOnNamedVersion(areaName, name);
             return addon.GetAddOnUrl();
         }
         /// <summary>
         /// Returns the Url to the specific product's addon folder
         /// </summary>
-        public static string TryGetAddOnNamedUrl(string domainName, string productName, string name) {
-            AddOnProduct addon = TryFindAddOnNamedVersion(domainName, productName, name);
+        public static string TryGetAddOnNamedUrl(string areaName, string name) {
+            AddOnProduct addon = TryFindAddOnNamedVersion(areaName, name);
             if (addon == null) return string.Empty;
             return addon.GetAddOnUrl();
         }
@@ -480,7 +481,7 @@ namespace YetaWF.Core.Addons {
         private static async Task RegisterAnyAddonAsync(AddOnType type, Package package, string folder, string name) {
             string key = AddOnProduct.MakeAddOnKey(type, package, name);
             if (Products.ContainsKey(key))
-                throw new InternalError("Key {0} already exists for {1}.{2}", key, package.Domain, package.Product);
+                throw new InternalError($"Key {key} already exists for area {package.AreaName}");
             AddOnProduct version = new AddOnProduct {
                 Type = type,
                 Domain = package.Domain,

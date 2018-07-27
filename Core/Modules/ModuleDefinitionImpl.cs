@@ -95,7 +95,7 @@ namespace YetaWF.Core.Modules {
         }
         [Category("About"), Description("The MVC area name of the module"), Caption("Area")]
         [UIHint("String"), ReadOnly]
-        public string Area {
+        public string AreaName {
             get {
                 GetModuleInfo();
                 return _Area;
@@ -462,7 +462,7 @@ namespace YetaWF.Core.Modules {
         [UIHint("String"), ReadOnly]
         public string AddOnModuleUrl {
             get {
-                return VersionManager.TryGetAddOnPackageUrl(Domain, Product);
+                return VersionManager.TryGetAddOnPackageUrl(AreaName);
             }
         }
 
@@ -502,7 +502,7 @@ namespace YetaWF.Core.Modules {
                     return null;
             }
             if (string.IsNullOrWhiteSpace(action.Url))
-                action.Url = $"/{Area}/{Controller}/{name}";
+                action.Url = $"/{AreaName}/{Controller}/{name}";
             return action;
         }
 
@@ -533,7 +533,7 @@ namespace YetaWF.Core.Modules {
             }
             foreach (ModuleAction action in actions) {
                 if (string.IsNullOrWhiteSpace(action.Url))
-                    action.Url = $"/{Area}/{Controller}/{name}";
+                    action.Url = $"/{AreaName}/{Controller}/{name}";
             }
             return actions;
         }
@@ -562,7 +562,7 @@ namespace YetaWF.Core.Modules {
                 }
                 if (action != null) {
                     if (string.IsNullOrWhiteSpace(action.Url))
-                        action.Url = $"/{Area}/{Controller}/{name}";
+                        action.Url = $"/{AreaName}/{Controller}/{name}";
                     moduleActions.Add(action);
                 }
             }
@@ -607,7 +607,7 @@ namespace YetaWF.Core.Modules {
                 moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
                 YetaWFManager.Syncify(async () => {
-                    moduleHtml = await htmlHelper.ActionAsync(Action, Controller, Area, rvd);
+                    moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
                 });
 #endif
             } catch (Exception exc) {
@@ -709,7 +709,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
 #else
             YetaWFManager.Syncify(async () => {
-                moduleHtml = await htmlHelper.ActionAsync(Action, Controller, Area, rvd);
+                moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
             });
 #endif
             Manager.CurrentModule = oldMod;

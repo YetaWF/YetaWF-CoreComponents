@@ -50,13 +50,13 @@ namespace YetaWF.Core.Skins {
             if (package == null)
                 return await FindIconAsync(imageUrl, null);
             else
-                return await FindIconAsync(imageUrl, VersionManager.FindPackageVersion(package.Domain, package.Product));
+                return await FindIconAsync(imageUrl, VersionManager.FindPackageVersion(package.AreaName));
         }
 
         // locate an icon image for a template
         public async Task<string> FindIcon_TemplateAsync(string imageUrl, Package package, string template) {
             // Check package specific icons
-            VersionManager.AddOnProduct version = VersionManager.FindTemplateVersion(package.Domain, package.Product, template);
+            VersionManager.AddOnProduct version = VersionManager.FindTemplateVersion(package.AreaName, template);
             return await FindIconAsync(imageUrl, version);
         }
 

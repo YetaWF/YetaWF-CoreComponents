@@ -183,8 +183,8 @@ namespace YetaWF.Core.Skins {
 
             TagBuilder div = new TagBuilder("div");
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.Area));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.Area + "_" + mod.ModuleName));
+            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName));
+            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(modSkinCss));
             if (!string.IsNullOrWhiteSpace(mod.CssClass))
                 div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));

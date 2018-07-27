@@ -58,7 +58,7 @@ namespace YetaWF.Core.Components {
         public static async Task AddTemplateAsync(string uiHintTemplate) {
             if (YetaWFComponentBaseStartup.GetComponentsEdit().ContainsKey(uiHintTemplate) || YetaWFComponentBaseStartup.GetComponentsDisplay().ContainsKey(uiHintTemplate)) {
                 Package package = Render.GetImplementingPackage();
-                await Manager.AddOnManager.AddTemplateAsync(package.Domain, package.Product, uiHintTemplate);
+                await Manager.AddOnManager.AddTemplateAsync(package.AreaName, uiHintTemplate);
             }
         }
     }

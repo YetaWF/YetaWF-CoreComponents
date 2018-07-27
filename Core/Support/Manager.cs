@@ -1500,9 +1500,9 @@ namespace YetaWF.Core.Support {
                         skin = Manager.CurrentSite.BootstrapSkin;
                     string themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
-                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "getbootstrap.com.bootstrap-less");
+                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootstrap-less");
                     else
-                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.Domain, AreaRegistration.CurrentPackage.Product, "getbootstrap.com.bootswatch", themeFolder);
+                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootswatch", themeFolder);
                 }
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);

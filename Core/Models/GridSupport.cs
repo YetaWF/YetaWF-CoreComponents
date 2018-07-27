@@ -170,11 +170,11 @@ namespace YetaWF.Core.Models {
                     if (fi == null) throw new InternalError("Globals.{0} doesn't exist - column {1} in {2}", vars[1], name, file);
                     part = fi.GetValue(null).ToString();
                 } else if (vars[0] == "Package") {
-                    VersionManager.AddOnProduct addonVersion = VersionManager.FindPackageVersion(package.Domain, package.Product);
+                    VersionManager.AddOnProduct addonVersion = VersionManager.FindPackageVersion(package.AreaName);
                     foreach (var type in addonVersion.SupportTypes) {
                         object o = Activator.CreateInstance(type);
                         if (o == null)
-                            throw new InternalError("Type {0} can't be created for {1}/{2}", type.Name, package.Domain, package.Product);
+                            throw new InternalError($"Type {type.Name} can't be created for area {package.AreaName}");
                         FieldInfo fi = type.GetField(vars[1], BindingFlags.Public | BindingFlags.Static);
                         if (fi != null) {
                             part = fi.GetValue(null).ToString();

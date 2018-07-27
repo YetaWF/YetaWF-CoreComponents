@@ -65,7 +65,7 @@ namespace YetaWF.Core.Components {
 #endif
                 shortName = s[2];
             }
-            await Manager.AddOnManager.TryAddAddOnNamedAsync(view.Package.Domain, view.Package.Product, shortName);
+            await Manager.AddOnManager.TryAddAddOnNamedAsync(view.Package.AreaName, shortName);
 
             // Invoke RenderViewAsync/RenderPartialViewAsync
             Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(view, new object[] { module, model });

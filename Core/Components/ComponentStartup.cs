@@ -34,7 +34,7 @@ namespace YetaWF.Core.Components {
                 if (compPackage.IsCorePackage || compPackage.Product.StartsWith("Components"))
                     templateName = component.GetTemplateName();
                 else
-                    templateName = $"{compPackage.Domain}_{compPackage.Product}_{component.GetTemplateName()}";
+                    templateName = $"{compPackage.AreaName}_{component.GetTemplateName()}";
                 YetaWFComponentBase.ComponentType compType = component.GetComponentType();
 
                 Logging.AddLog($"Found component {templateName} ({compType}) - {tp.FullName}");
@@ -60,7 +60,7 @@ namespace YetaWF.Core.Components {
                 if (viewPackage.IsCorePackage || viewPackage.Product.StartsWith("Components"))
                     viewName = view.GetViewName();
                 else
-                    viewName = $"{viewPackage.Domain}_{viewPackage.Product}_{view.GetViewName()}";
+                    viewName = $"{viewPackage.AreaName}_{view.GetViewName()}";
 
                 Logging.AddLog($"Found view {viewName} - {tp.FullName}");
                 Views.Add(viewName, tp);

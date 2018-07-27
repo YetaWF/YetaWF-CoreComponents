@@ -140,7 +140,7 @@ namespace YetaWF.Core.Components {
             string model = s[1];
             string file = controller + "." + model;
             Package package = Package.GetPackageFromType(recordType);
-            string predefUrl = VersionManager.GetAddOnPackageUrl(package.Domain, package.Product) + "Grids/" + file;
+            string predefUrl = VersionManager.GetAddOnPackageUrl(package.AreaName) + "Grids/" + file;
             string customUrl = VersionManager.GetCustomUrlFromUrl(predefUrl);
             ObjectSupport.ReadGridDictionaryInfo info;
             ObjectSupport.ReadGridDictionaryInfo predefInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, YetaWFManager.UrlToPhysical(predefUrl));
