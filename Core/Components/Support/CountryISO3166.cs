@@ -55,7 +55,7 @@ namespace YetaWF.Core.Components {
             }
             throw new InternalError("Invalid country {0}", country);
         }
-        
+
         /// <summary>
         /// Convert an ISO 3166 two character id into a country name.
         /// </summary>
@@ -69,7 +69,7 @@ namespace YetaWF.Core.Components {
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country id {0}", id);
         }
-        
+
         /// <summary>
         /// Convert a country name to an ISO 3166 three character Id.
         /// </summary>
@@ -102,7 +102,7 @@ namespace YetaWF.Core.Components {
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country id {0}", id);
         }
-        
+
         /// <summary>
         /// Convert a country name to an ISO 3166 three digit number.
         /// </summary>
@@ -122,7 +122,7 @@ namespace YetaWF.Core.Components {
             }
             throw new InternalError("Invalid country {0}", country);
         }
-        
+
         /// <summary>
         /// Convert an ISO 3166 three digit number into a country name.
         /// </summary>
@@ -136,7 +136,7 @@ namespace YetaWF.Core.Components {
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country number {0}", number);
         }
-        
+
         /// <summary>
         /// Determine a country's address type.
         /// </summary>
@@ -144,12 +144,12 @@ namespace YetaWF.Core.Components {
         /// <returns>The address type.</returns>
         public static string CountryToAddressType(string country) {
             if (string.IsNullOrWhiteSpace(country))
-                return Manager.CurrentSite.Country;
+                country = Manager.CurrentSite.Country;
             if (string.IsNullOrWhiteSpace(country))
                 return null;
             return (from c in GetCountries() where c.Name == country select c.AddressType).FirstOrDefault();
         }
-        
+
         /// <summary>
         /// Given a country name, combine the city, state and zip fields for user display.
         /// </summary>
