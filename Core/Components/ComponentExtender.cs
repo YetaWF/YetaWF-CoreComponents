@@ -30,6 +30,20 @@ namespace YetaWF.Core.Components {
             public string LabelContents_HelpLink { get; set; }
         }
 
+        public static async Task<List<SelectionItem<int>>> GetValueListFromUIHintAsync(string uiHint) {
+            Type compType;
+            if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
+                return null;
+            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
+
+            // Invoke IncludeAsync
+            MethodInfo miAsync = compType.GetMethod("GetSelectionListAsync", new Type[] { typeof(bool) });
+            if (miAsync == null)
+                return null;
+            Task<List<SelectionItem<int>>> methRetvalTask = (Task<List<SelectionItem<int>>>)miAsync.Invoke(component, new object[] { false });
+            return await methRetvalTask;
+        }
+
 #if MVC6
         public static bool IsSupported(object container, string propertyName, string UIHint = null)
 #else
