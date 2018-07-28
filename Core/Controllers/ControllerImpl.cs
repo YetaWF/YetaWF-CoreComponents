@@ -464,7 +464,7 @@ namespace YetaWF.Core.Controllers {
                 if (pi.CanRead && pi.CanWrite) {
                     if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
                         DateTime? dt = prop.GetPropertyValue<DateTime?>(parm);
-                        if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local && (prop.UIHint == "DateTime" || prop.UIHint == "Date")) {
+                        if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local && (prop.UIHint == "DateTime" || prop.UIHint == "Date" || prop.UIHint == "Time")) {
                             // we're receiving date/time in the user's specified timezone (server side), so we now have to convert it to Utc
                             dt = Formatting.GetUtcDateTime((DateTime)dt);
                             pi.SetValue(parm, dt, null);
