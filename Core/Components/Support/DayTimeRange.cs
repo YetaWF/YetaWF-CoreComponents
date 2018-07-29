@@ -23,6 +23,21 @@ namespace YetaWF.Core.Components {
                 DayTimeRange.GetClosedDay(),
             };
         }
+        public static WeeklyHours WorkWeek {
+            get {
+                WeeklyHours wk = new WeeklyHours();
+                wk.Days = new SerializableList<DayTimeRange> {
+                    DayTimeRange.GetClosedDay(), // Sunday
+                    DayTimeRange.GetWorkDay(), // Monday
+                    DayTimeRange.GetWorkDay(),
+                    DayTimeRange.GetWorkDay(),
+                    DayTimeRange.GetWorkDay(),
+                    DayTimeRange.GetWorkDay(),
+                    DayTimeRange.GetClosedDay(),// Saturday
+                };
+                return wk;
+            }
+        }
     }
 
     public class DayTimeRange {

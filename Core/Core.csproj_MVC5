@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\Support\DayTimeRange.cs" />
     <Compile Include="Components\ViewExtender.cs" />
     <Compile Include="Components\ViewBase.cs" />
     <Compile Include="Components\CoreRendering.cs" />
