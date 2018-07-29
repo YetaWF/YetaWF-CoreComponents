@@ -41,7 +41,7 @@ namespace YetaWF.Core.Models.Attributes {
             return pi.GetValue(model, null);
         }
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("requiredIf", "The {0} field is required", propData.GetCaption(container));
+            string msg = __ResStr("requiredIf", "The '{0}' field is required", propData.GetCaption(container));
             tag.MergeAttribute("data-val-requiredif", msg);
             tag.MergeAttribute("data-val-requiredif-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
             tag.MergeAttribute("data-val-requiredif-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
@@ -80,7 +80,7 @@ namespace YetaWF.Core.Models.Attributes {
             return pi.GetValue(model, null);
         }
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("requiredIfNot", "The {0} field is required", propData.GetCaption(container));
+            string msg = __ResStr("requiredIfNot", "The '{0}' field is required", propData.GetCaption(container));
             tag.MergeAttribute("data-val-requiredifnot", msg);
             tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
             tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyValue, RequiredValue?.ToString());
@@ -119,7 +119,7 @@ namespace YetaWF.Core.Models.Attributes {
             return pi.GetValue(model, null);
         }
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("requiredIfNot", "The {0} field is required", propData.GetCaption(container));
+            string msg = __ResStr("requiredIfNot", "The '{0}' field is required", propData.GetCaption(container));
             tag.MergeAttribute("data-val-requiredifinrange", msg);
             tag.MergeAttribute("data-val-requiredifinrange-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
             tag.MergeAttribute("data-val-requiredifinrange-" + Forms.ConditionPropertyValueLow, RequiredValueLow.ToString());

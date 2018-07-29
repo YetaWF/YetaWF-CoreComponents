@@ -36,7 +36,7 @@ namespace YetaWF.Core.Models.Attributes {
             return pi.GetValue(model, null);
         }
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("requiredIfSupplied", "The {0} field is required", propData.GetCaption(container));
+            string msg = __ResStr("requiredIfSupplied", "The '{0}' field is required", propData.GetCaption(container));
             tag.MergeAttribute("data-val-requiredifsupplied", msg);
             tag.MergeAttribute("data-val-requiredifsupplied-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
             tag.MergeAttribute("data-val", "true");

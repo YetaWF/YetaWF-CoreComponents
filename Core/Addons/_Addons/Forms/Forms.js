@@ -21,8 +21,8 @@ var YetaWF;
             //   callback: function() {}    // function to be called - the callback returns extra data appended to the submit url
             //   userdata: callback-data,   // any data suitable to callback
             // });
-            this.YPreSubmitHandlerAll = []; // done every time before submit (never cleared) - used on main forms
-            this.YPreSubmitHandler1 = []; // done once before submit, then cleared - used in partial forms
+            this.preSubmitHandlerAll = []; // done every time before submit (never cleared) - used on main forms
+            this.preSubmitHandler1 = []; // done once before submit, then cleared - used in partial forms
             // When a form has been successfully submitted, all the functions in YPostSubmitHandler are called one by one
             // Usage:
             // $YetaWF.Forms.addPostSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
@@ -96,12 +96,12 @@ var YetaWF;
             var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
             if (dc)
                 $YetaWF.removeElement(dc);
-            var onSubmitExtraData = extraData ? extraData : "";
-            onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
             if (useValidation)
                 this.validate(form);
             $YetaWF.setLoading(true);
             if (!useValidation || this.isValid(form)) {
+                var onSubmitExtraData = extraData ? extraData : "";
+                onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
                 // serialize the form
                 var formData = this.serializeForm(form);
                 // add extra data
@@ -139,7 +139,7 @@ var YetaWF;
                     if (req.readyState === 4 /*DONE*/) {
                         $YetaWF.setLoading(false);
                         if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, function (result) {
-                            _this.YPreSubmitHandler1 = [];
+                            _this.preSubmitHandler1 = [];
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
                                 // clean up everything that's about to be removed
@@ -208,17 +208,17 @@ var YetaWF;
          */
         Forms.prototype.addPreSubmitHandler = function (inPartialForm, entry) {
             if (inPartialForm) {
-                this.YPreSubmitHandler1.push(entry);
+                this.preSubmitHandler1.push(entry);
             }
             else {
-                this.YPreSubmitHandlerAll.push(entry);
+                this.preSubmitHandlerAll.push(entry);
             }
         };
         /**
          * Call all callbacks for a form that is about to be submitted.
          */
         Forms.prototype.callPreSubmitHandler = function (form, onSubmitExtraData) {
-            for (var _i = 0, _a = this.YPreSubmitHandlerAll; _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.preSubmitHandlerAll; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 if (entry.form === form) {
                     // form specific
@@ -230,7 +230,7 @@ var YetaWF;
                     }
                 }
             }
-            for (var _b = 0, _c = this.YPreSubmitHandler1; _b < _c.length; _b++) {
+            for (var _b = 0, _c = this.preSubmitHandler1; _b < _c.length; _b++) {
                 var entry = _c[_b];
                 if (entry.form === form) {
                     var extra = entry.callback(entry);

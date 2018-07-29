@@ -82,6 +82,7 @@ namespace YetaWF {
         CssFormPartial: string;
         CssFormAjax: string;
         CssFormNoSubmit: string;
+        CssFormNoValidate: string;
         CssFormNoSubmitContents: string;
         CssFormCancel: string;
         CssDataApplyButton: string;
@@ -185,15 +186,15 @@ namespace YetaWF {
             if (dc)
                 $YetaWF.removeElement(dc);
 
-            var onSubmitExtraData = extraData ? extraData : "";
-            onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
-
             if (useValidation)
                 this.validate(form);
 
             $YetaWF.setLoading(true);
 
             if (!useValidation || this.isValid(form)) {
+
+                var onSubmitExtraData = extraData ? extraData : "";
+                onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
 
                 // serialize the form
                 var formData = this.serializeForm(form);
@@ -234,7 +235,7 @@ namespace YetaWF {
                     if (req.readyState === 4 /*DONE*/) {
                         $YetaWF.setLoading(false);
                         if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, (result: string) => {
-                            this.YPreSubmitHandler1 = [];
+                            this.preSubmitHandler1 = [];
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
                                 // clean up everything that's about to be removed
@@ -310,17 +311,17 @@ namespace YetaWF {
         //   userdata: callback-data,   // any data suitable to callback
         // });
 
-        private YPreSubmitHandlerAll: SubmitHandlerEntry[] = []; // done every time before submit (never cleared) - used on main forms
-        private YPreSubmitHandler1: SubmitHandlerEntry[] = []; // done once before submit, then cleared - used in partial forms
+        private preSubmitHandlerAll: SubmitHandlerEntry[] = []; // done every time before submit (never cleared) - used on main forms
+        private preSubmitHandler1: SubmitHandlerEntry[] = []; // done once before submit, then cleared - used in partial forms
 
         /**
          * Add a callback to be called when a form is about to be submitted.
          */
         public addPreSubmitHandler(inPartialForm: boolean, entry: SubmitHandlerEntry) : void {
             if (inPartialForm) {
-                this.YPreSubmitHandler1.push(entry);
+                this.preSubmitHandler1.push(entry);
             } else {
-                this.YPreSubmitHandlerAll.push(entry);
+                this.preSubmitHandlerAll.push(entry);
             }
         }
 
@@ -328,7 +329,7 @@ namespace YetaWF {
          * Call all callbacks for a form that is about to be submitted.
          */
         public callPreSubmitHandler(form: HTMLElement, onSubmitExtraData: string) : string {
-            for (let entry of this.YPreSubmitHandlerAll) {
+            for (let entry of this.preSubmitHandlerAll) {
                 if (entry.form === form) {
                     // form specific
                     var extra = entry.callback(entry);
@@ -339,7 +340,7 @@ namespace YetaWF {
                     }
                 }
             }
-            for (let entry of this.YPreSubmitHandler1) {
+            for (let entry of this.preSubmitHandler1) {
                 if (entry.form === form) {
                     var extra = entry.callback(entry);
                     if (extra !== undefined) {
