@@ -701,6 +701,13 @@ var YetaWF;
             return div;
         };
         /**
+         * Get an element by id.
+         */
+        BasicsServices.prototype.getElementByIdCond = function (elemId) {
+            var div = document.querySelector("#" + elemId);
+            return div;
+        };
+        /**
          * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElementsBySelector = function (selector, elems) {

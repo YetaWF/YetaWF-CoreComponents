@@ -154,6 +154,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", nameof(Globals.Link_PageControl), Globals.Link_PageControl); // show page control module
             scripts.AddConfigOption("Basics", nameof(Globals.Link_CharInfo), Globals.Link_CharInfo); // character info (char width, char height) for module issuing req.
             scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsApply), Globals.Link_SubmitIsApply); // a submit button was clicked and should be handled as Apply
+            scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsReload), Globals.Link_SubmitIsReload); // a submit button was clicked and should be handled as a form reload
             scripts.AddConfigOption("Basics", nameof(Globals.Link_EditMode), Globals.Link_EditMode); // site edit mode
             scripts.AddConfigOption("Basics", nameof(Globals.Link_NoEditMode), Globals.Link_NoEditMode); // site display mode
             scripts.AddConfigOption("Basics", nameof(Globals.Link_ScrollLeft), Globals.Link_ScrollLeft);

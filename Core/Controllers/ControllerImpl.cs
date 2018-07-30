@@ -1008,7 +1008,7 @@ namespace YetaWF.Core.Controllers {
             popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
             PopupOptions = PopupOptions ?? "null";
 
-            bool isApply = Manager.RequestForm[Globals.Link_SubmitIsApply] != null;
+            bool isApply = Manager.RequestForm[Globals.Link_SubmitIsApply] != null || Manager.RequestForm[Globals.Link_SubmitIsReload] != null;
             if (isApply) {
                 NextPage = null;
                 OnPopupClose = OnPopupCloseEnum.UpdateInPlace;

@@ -337,6 +337,17 @@ var YetaWF;
             this.submitForm = this.getForm(elem);
             this.applyFormOnChange();
         };
+        Forms.prototype.reloadOnChange = function (elem) {
+            var _this = this;
+            clearInterval(this.submitFormTimer);
+            this.submitForm = this.getForm(elem);
+            this.submitFormTimer = setInterval(function () { return _this.reloadFormOnChange(); }, 1000); // wait 1 second and automatically submit the form
+            $YetaWF.setLoading(true);
+        };
+        Forms.prototype.reloadOnReturnKey = function (elem) {
+            this.submitForm = this.getForm(elem);
+            this.reloadFormOnChange();
+        };
         Forms.prototype.submitFormOnChange = function () {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm)
@@ -348,6 +359,12 @@ var YetaWF;
             if (!this.submitForm)
                 return;
             this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsApply + "=y");
+        };
+        Forms.prototype.reloadFormOnChange = function () {
+            clearInterval(this.submitFormTimer);
+            if (!this.submitForm)
+                return;
+            this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsReload + "=y");
         };
         // submit form on change
         /**
@@ -375,6 +392,18 @@ var YetaWF;
             $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", function (ev) {
                 if (ev.keyCode === 13) {
                     _this.applyOnChange(ev.target);
+                    return false;
+                }
+                return true;
+            });
+            // reload
+            $YetaWF.registerEventHandlerBody("change", ".yreloadonchange select,.yreloadonchange input[type=\"checkbox\"]", function (ev) {
+                _this.reloadOnChange(ev.target);
+                return false;
+            });
+            $YetaWF.registerEventHandlerBody("keyup", ".yreloadonchange select", function (ev) {
+                if (ev.keyCode === 13) {
+                    _this.reloadOnChange(ev.target);
                     return false;
                 }
                 return true;

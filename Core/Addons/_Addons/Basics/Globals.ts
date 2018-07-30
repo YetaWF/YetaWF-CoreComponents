@@ -110,6 +110,7 @@ namespace YetaWF {
         Link_PageControl: string;   // show page control module
         Link_CharInfo: string;      // character info (char width, char height) for module issuing req.
         Link_SubmitIsApply: string; // a submit button was clicked and should be handled as Apply
+        Link_SubmitIsReload: string; // a submit button was clicked and should be handled as a form reload
         Link_EditMode: string;      // site edit mode
         Link_NoEditMode: string;    // site display mode
         Link_ScrollLeft: string;

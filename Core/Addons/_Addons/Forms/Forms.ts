@@ -453,6 +453,16 @@ namespace YetaWF {
             this.submitForm = this.getForm(elem);
             this.applyFormOnChange();
         }
+        public reloadOnChange(elem: HTMLElement): void {
+            clearInterval(this.submitFormTimer);
+            this.submitForm = this.getForm(elem);
+            this.submitFormTimer = setInterval(() => this.reloadFormOnChange(), 1000);// wait 1 second and automatically submit the form
+            $YetaWF.setLoading(true);
+        }
+        public reloadOnReturnKey(elem: HTMLElement): void {
+            this.submitForm = this.getForm(elem);
+            this.reloadFormOnChange();
+        }
 
         private submitFormTimer: number | undefined = undefined;
         private submitForm: HTMLFormElement | null = null;
@@ -466,6 +476,11 @@ namespace YetaWF {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm) return;
             this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsApply + "=y");
+        }
+        private reloadFormOnChange(): void {
+            clearInterval(this.submitFormTimer);
+            if (!this.submitForm) return;
+            this.submit(this.submitForm, false, YConfigs.Basics.Link_SubmitIsReload + "=y");
         }
 
         // submit form on change
@@ -497,6 +512,20 @@ namespace YetaWF {
             $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", (ev: KeyboardEvent) => {
                 if (ev.keyCode === 13) {
                     this.applyOnChange(ev.target as HTMLElement);
+                    return false;
+                }
+                return true;
+            });
+
+            // reload
+
+            $YetaWF.registerEventHandlerBody("change", ".yreloadonchange select,.yreloadonchange input[type=\"checkbox\"]", (ev: Event) => {
+                this.reloadOnChange(ev.target as HTMLElement);
+                return false;
+            });
+            $YetaWF.registerEventHandlerBody("keyup", ".yreloadonchange select", (ev: KeyboardEvent) => {
+                if (ev.keyCode === 13) {
+                    this.reloadOnChange(ev.target as HTMLElement);
                     return false;
                 }
                 return true;

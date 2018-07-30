@@ -167,6 +167,7 @@ namespace YetaWF.Core.Models.Attributes {
             None = 0,
             Submit = 1,
             Apply = 2,
+            Reload = 3,
         }
         public SubmitFormOnChangeAttribute(SubmitTypeEnum submit = SubmitTypeEnum.Submit) : base("SubmitFormOnChange", submit) { }
         public new SubmitTypeEnum Value { get { return (SubmitTypeEnum)base.Value; } }

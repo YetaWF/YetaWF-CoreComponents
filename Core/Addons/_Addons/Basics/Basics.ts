@@ -811,7 +811,15 @@ debugger;//TODO: This hasn't been tested
          */
         public getElementById(elemId: string): HTMLElement {
             var div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
-            if (!div) throw `Element with id ${elemId} not found`;/*DEBUG*/
+            if (!div)
+                throw `Element with id ${elemId} not found`;/*DEBUG*/
+            return div;
+        }
+        /**
+         * Get an element by id.
+         */
+        public getElementByIdCond(elemId: string): HTMLElement | null {
+            var div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
             return div;
         }
         /**
