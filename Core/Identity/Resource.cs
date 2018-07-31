@@ -100,6 +100,8 @@ namespace YetaWF.Core.Identity {
         Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url);
         void ShowNeed2FA();
 
+        void ShowNeedNewPassword();
+
         Task AddEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task RemoveEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth);

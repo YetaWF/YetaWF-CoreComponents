@@ -373,6 +373,10 @@ namespace YetaWF.Core.Controllers {
                 }
                 Resource.ResourceAccess.ShowNeed2FA();
             }
+            if (Manager.NeedNewPassword) {
+                Resource.ResourceAccess.ShowNeedNewPassword();
+            }
+
             if (pageFound != null) {
                 switch (await CanProcessAsDesignedPageAsync(pageFound, uri.LocalPath, uri.Query)) {
                     case ProcessingStatus.Complete:

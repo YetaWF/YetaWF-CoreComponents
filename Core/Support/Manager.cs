@@ -1662,6 +1662,12 @@ namespace YetaWF.Core.Support {
                 }
             }
         }
+
+        /// <summary>
+        /// Currently logged on user is authenticated but needs to define a new password.
+        /// </summary>
+        public bool NeedNewPassword { get; set; }
+
         // repetitive authorization
         // add authorized page urls to this list (new for each http request) so we can avoid repetitive authorizations, particularly in grids
         public List<string> UserAuthorizedUrls { get; set; }

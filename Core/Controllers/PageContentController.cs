@@ -319,6 +319,10 @@ namespace YetaWF.Core.Controllers {
                 // this shouldn't be necessary because the first page shown in the unified page set would have generated this
                 //Resource.ResourceAccess.ShowNeed2FA();
             }
+            if (Manager.NeedNewPassword) {
+                // this shouldn't be necessary because the first page shown in the unified page set would have generated this
+                //Resource.ResourceAccess.ShowNeedNewPassword();
+            }
 
             // Process the page
             if (pageFound != null) {

@@ -301,10 +301,12 @@ namespace YetaWF.Core.Components {
                 YHtmlString yhtml = await methStringTask;
 #if DEBUG
                 string s = yhtml.ToString();
-                if (s.Contains("System.Threading.Tasks.Task"))
-                    throw new InternalError($"Component {uiHint} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{s}\"");
-                if (s.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                    throw new InternalError($"Component {uiHint} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{s}\"");
+                if (!string.IsNullOrWhiteSpace(s)) {
+                    if (s.Contains("System.Threading.Tasks.Task"))
+                        throw new InternalError($"Component {uiHint} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{s}\"");
+                    if (s.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                        throw new InternalError($"Component {uiHint} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{s}\"");
+                }
 #endif
                 return yhtml;
             }
