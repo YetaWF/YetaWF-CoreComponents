@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 #if MVC6
@@ -67,6 +68,20 @@ namespace YetaWF.Core.Identity {
 #endif
     }
 
+    public class AddUserInfo {
+        public enum ErrorTypeEnum {
+            None = 0,
+            Name = 1,
+            Email = 2,
+        };
+        public ErrorTypeEnum ErrorType { get; set; }
+        public List<string> Errors { get; set; }
+        public int UserId { get; set; }
+        public AddUserInfo() {
+            Errors = new List<string>();
+        }
+    }
+
     public interface IResource {
 
         bool IsBackDoorWideOpen();
@@ -81,6 +96,10 @@ namespace YetaWF.Core.Identity {
         Task RemoveRoleAsync(string roleName);
         Task AddRoleToUserAsync(int userId, string roleName);
         Task RemoveRoleFromUserAsync(int userId, string roleName);
+        Task<List<SelectionItem<string>>> GetUserRolesAsync(int userId);
+
+        Task<AddUserInfo> AddUserAsync(string name, string email, string password);
+        Task<bool> RemoveUserAsync(int userId);
 
         Task<int> GetUserIdAsync(string userName);
         Task<string> GetUserNameAsync(int userId);

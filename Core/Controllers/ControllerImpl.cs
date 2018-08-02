@@ -445,6 +445,22 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
+        public bool IsApply {
+            get {
+                return (Manager.RequestForm[Globals.Link_SubmitIsApply] != null);
+            }
+        }
+        public bool IsReload {
+            get {
+                return (Manager.RequestForm[Globals.Link_SubmitIsReload] != null);
+            }
+        }
+        public bool IsSubmit {
+            get {
+                return !IsApply && !IsReload;
+            }
+        }
+
         // INPUT CLEANUP
         // INPUT CLEANUP
         // INPUT CLEANUP
@@ -1008,7 +1024,7 @@ namespace YetaWF.Core.Controllers {
             popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
             PopupOptions = PopupOptions ?? "null";
 
-            bool isApply = Manager.RequestForm[Globals.Link_SubmitIsApply] != null || Manager.RequestForm[Globals.Link_SubmitIsReload] != null;
+            bool isApply = IsApply || IsReload;
             if (isApply) {
                 NextPage = null;
                 OnPopupClose = OnPopupCloseEnum.UpdateInPlace;
