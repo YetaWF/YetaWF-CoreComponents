@@ -467,8 +467,6 @@ var YetaWF;
         return Forms;
     }());
     YetaWF.Forms = Forms;
-    // tslint:disable-next-line:no-unused-expression
-    $YetaWF.Forms; // need to evaluate for side effect to initialize forms
 })(YetaWF || (YetaWF = {}));
 
 //# sourceMappingURL=Forms.js.map

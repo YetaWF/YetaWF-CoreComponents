@@ -587,11 +587,8 @@ namespace YetaWF {
             this.initSubmitOnChange();
             // initialize  Submit, Apply, Cancel button handling
             this.initHandleFormsButtons();
-
         }
     }
-    // tslint:disable-next-line:no-unused-expression
-    $YetaWF.Forms; // need to evaluate for side effect to initialize forms
 }
 
 
