@@ -98,7 +98,7 @@ namespace YetaWF {
          */
         pleaseWaitClose(): void;
         /**
-         * Closes any open overlays, menus, dropdownlists, etc. (Popup windows are not handled and are explicitly closed using $YetaWF.Popups)
+         * Closes any open overlays, menus, dropdownlists, tooltips, etc. (Popup windows are not handled and are explicitly closed using $YetaWF.Popups)
          */
         closeOverlays(): void;
 
@@ -155,6 +155,10 @@ namespace YetaWF {
          * Closes the "Please Wait" message (if any).
          */
         pleaseWaitClose(): void { YetaWF_BasicsImpl.pleaseWaitClose(); }
+        /**
+         * Closes any open overlays, menus, dropdownlists, tooltips, etc. (Popup windows are not handled and are explicitly closed using $YetaWF.Popups)
+         */
+        closeOverlays(): void { YetaWF_BasicsImpl.closeOverlays(); }
 
         // Implemented by YetaWF
         // Implemented by YetaWF
@@ -472,7 +476,7 @@ namespace YetaWF {
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
         private getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
-            var mod = this.elementClosest(tag, ".yModule");
+            var mod = this.elementClosestCond(tag, ".yModule");
             if (!mod) return null;
             return mod;
         }
@@ -917,7 +921,7 @@ debugger;//TODO: This hasn't been tested
          * @param elem - The element to test.
          * @param selector - The selector to match.
          */
-        public elementClosest(elem: HTMLElement, selector: string): HTMLElement | null {
+        public elementClosestCond(elem: HTMLElement, selector: string): HTMLElement | null {
             var e: HTMLElement | null = elem;
             while (e) {
                 if (this.elementMatches(e, selector))
@@ -926,6 +930,17 @@ debugger;//TODO: This hasn't been tested
                     e = e.parentElement;
             }
             return null;
+        }
+        /**
+         * Finds the closest element up the DOM hierarchy that matches the selector (including the starting element)
+         * @param elem - The element to test.
+         * @param selector - The selector to match.
+         */
+        public elementClosest(elem: HTMLElement, selector: string): HTMLElement {
+            var e = this.elementClosestCond(elem, selector);
+            if (!e)
+                throw `Closes parent element with selector ${selector} not found`;
+            return e;
         }
 
         // DOM manipulation
@@ -1043,6 +1058,44 @@ debugger;//TODO: This hasn't been tested
                 elem.classList.remove(className);
             else
                 elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+        }
+
+        // Attributes
+
+        /**
+         * Returns an attribute value. Throws an error if the attribute doesn't exist.
+         */
+        public getAttribute(elem: HTMLElement, name: string): string {
+            var val = elem.getAttribute(name);
+            if (!val) throw `missing ${name} attribute`;
+            return val;
+        }
+        /**
+         * Sets an attribute.
+         */
+        public setAttribute(elem: HTMLElement, name: string, value: string): void {
+            elem.setAttribute(name, value);
+        }
+        /**
+         * Enable element.
+         */
+        public elementEnable(elem: HTMLElement): void {
+            elem.removeAttribute("disabled");
+        }
+        /**
+         * Disable element.
+         */
+        public elementDisable(elem: HTMLElement): void {
+            elem.setAttribute("disabled", "disabled");
+        }
+        /**
+         * Enable or disable element.
+         */
+        public elementEnableToggle(elem: HTMLElement, enable: boolean): void {
+            if (enable)
+                this.elementEnable(elem);
+            else
+                this.elementDisable(elem);
         }
 
         // Events
@@ -1276,7 +1329,7 @@ debugger;//TODO: This hasn't been tested
 
                 // find the real anchor, ev.target was clicked, but it may not be the anchor itself
                 if (!ev.target) return true;
-                var anchor = $YetaWF.elementClosest(ev.target as HTMLElement, "a") as HTMLAnchorElement;
+                var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 this.suppressPopState = true;

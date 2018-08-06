@@ -156,13 +156,13 @@ namespace YetaWF.Core.Components {
             return Manager.UniqueId(name);
         }
 
-        public string HAE(string text) {
+        public static string HAE(string text) {
             return YetaWFManager.HtmlAttributeEncode(text);
         }
-        public string HE(string text) {
+        public static string HE(string text) {
             return YetaWFManager.HtmlEncode(text);
         }
-        public string JE(string text) {
+        public static string JE(string text) {
             return YetaWFManager.JserEncode(text);
         }
 

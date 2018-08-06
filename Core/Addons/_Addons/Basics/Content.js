@@ -148,7 +148,7 @@ var YetaWF;
                 // check if we have anything with that path as a unified pane and activate the panes
                 var divs = $YetaWF.getElementsBySelector(".yUnified[data-url=\"" + path + "\"]");
                 if (divs.length > 0) {
-                    YetaWF_BasicsImpl.closeOverlays();
+                    $YetaWF.closeOverlays();
                     // Update the browser address bar with the new path
                     if (setState) {
                         try {
@@ -208,7 +208,7 @@ var YetaWF;
             }
         };
         Content.prototype.processReceivedContent = function (result, uri, divs, setState, popupCB) {
-            YetaWF_BasicsImpl.closeOverlays();
+            $YetaWF.closeOverlays();
             if (result.Status != null && result.Status.length > 0) {
                 $YetaWF.setLoading(false);
                 $YetaWF.alert(result.Status, YLocs.Forms.AjaxErrorTitle);

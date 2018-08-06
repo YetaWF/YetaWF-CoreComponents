@@ -238,8 +238,8 @@ namespace YetaWF.Core.Controllers {
 
             await SetupActionContextAsync(filterContext);
             if (Manager.IsPostRequest) {
-                    // find the unique Id prefix (saved as hidden field in Form)
-                    string uniqueIdPrefix = null;
+                // find the unique Id prefix (saved as hidden field in Form)
+                string uniqueIdPrefix = null;
 #if MVC6
                 if (HttpContext.Request.HasFormContentType)
                     uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
@@ -480,10 +480,13 @@ namespace YetaWF.Core.Controllers {
                 if (pi.CanRead && pi.CanWrite) {
                     if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
                         DateTime? dt = prop.GetPropertyValue<DateTime?>(parm);
-                        if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local && (prop.UIHint == "DateTime" || prop.UIHint == "Date" || prop.UIHint == "Time")) {
-                            // we're receiving date/time in the user's specified timezone (server side), so we now have to convert it to Utc
-                            dt = Formatting.GetUtcDateTime((DateTime)dt);
-                            pi.SetValue(parm, dt, null);
+                        if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local) {
+                            DateTime dl = (DateTime)dt;
+                            if (prop.UIHint == "DateTime" || prop.UIHint == "Time" || prop.UIHint == "Date") {
+                                // we're receiving date/time in the user's specified timezone so we now have to convert it to Utc
+                                dt = Formatting.GetUtcDateTime(dl);
+                                pi.SetValue(parm, dt, null);
+                            }
                         }
                     } else {
                         if (pi.GetIndexParameters().Length == 0) {

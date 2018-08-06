@@ -22,6 +22,7 @@ using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Skins;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
+using System.Globalization;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -1702,6 +1703,27 @@ namespace YetaWF.Core.Support {
         // LOCALIZATION
         // LOCALIZATION
         // LOCALIZATION
+
+        public TimeZoneInfo GetTimeZoneInfo() {
+            if (timeZoneInfo == null) {
+                string tz = UserSettings.GetProperty<string>("TimeZone");
+                if (!string.IsNullOrWhiteSpace(tz))
+                    timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
+                if (timeZoneInfo == null)
+                    timeZoneInfo = TimeZoneInfo.Local;
+            }
+            return timeZoneInfo;
+        }
+        private TimeZoneInfo timeZoneInfo = null;
+
+        public CultureInfo GetCultureInfo() {
+            if (cultureInfo == null) {
+                string lang = UserSettings.GetProperty<string>("LanguageId");
+                cultureInfo = new CultureInfo(lang);
+            }
+            return cultureInfo;
+        }
+        private CultureInfo cultureInfo = null;
 
         // Localization resource loading is not enabled immediately when the http request starts.
         // It is explicitly enabled in global.asax.cs once important information is available so resource loading can actually work.

@@ -159,20 +159,27 @@ namespace YetaWF.Core.Addons {
             Package modPackage = Package.GetCurrentPackage(module);
             await AddPackageAsync(modPackage, new List<Package>());
         }
-        private async Task AddPackageAsync(Package modPackage, List<Package> packagesFound) {
+        /// <summary>
+        /// Add a package.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <param name="packagesFound">Returns a list of all added packages, including dependent packages.</param>
+        /// <remarks>Adds the the associated Javascript/Css for the module's package and all required packages.</remarks>
+        /// <returns></returns>
+        public async Task AddPackageAsync(Package package, List<Package> packagesFound) {
             // Add the package
-            if (!packagesFound.Contains(modPackage)) {
-                packagesFound.Add(modPackage);
-                VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(modPackage.AreaName);
+            if (!packagesFound.Contains(package)) {
+                packagesFound.Add(package);
+                VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(package.AreaName);
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 await Manager.ScriptManager.AddAddOnAsync(version);
                 await Manager.CssManager.AddAddOnAsync(version);
                 // Also add all packages this module requires
-                List<string> packageNames = modPackage.GetRequiredPackages();
+                List<string> packageNames = package.GetRequiredPackages();
                 foreach (var name in packageNames) {
-                    Package package = Package.GetPackageFromPackageName(name);
-                    await AddPackageAsync(package, packagesFound);
+                    Package p = Package.GetPackageFromPackageName(name);
+                    await AddPackageAsync(p, packagesFound);
                 }
             }
         }

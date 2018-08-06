@@ -194,7 +194,7 @@ namespace YetaWF {
                 var divs = $YetaWF.getElementsBySelector(`.yUnified[data-url="${path}"]`);
                 if (divs.length > 0) {
 
-                    YetaWF_BasicsImpl.closeOverlays();
+                    $YetaWF.closeOverlays();
 
                     // Update the browser address bar with the new path
                     if (setState) {
@@ -256,7 +256,7 @@ namespace YetaWF {
 
         private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult) => HTMLElement) : void {
 
-            YetaWF_BasicsImpl.closeOverlays();
+            $YetaWF.closeOverlays();
 
             if (result.Status != null && result.Status.length > 0) {
                 $YetaWF.setLoading(false);

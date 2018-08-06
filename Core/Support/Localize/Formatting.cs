@@ -52,16 +52,29 @@ namespace YetaWF.Core.Localize {
         }
 
         /// <summary>
-        /// Format a date- Example "February 2010"
+        /// Format a date - Example "February 2010"
         /// </summary>
         public static string Date_Month_YYYY(DateTime dt)
         {
-            string Months = __ResStr("strMonths", "January,February,March,April,May,June,July,August,September,October,November,December");
-            string[] s = Months.Split(new char[] { ',' });
-            if (s.Length != 12)
-                return __ResStr("errInvMonths", "(Months string invalid)");
-            return __ResStr("strMonth_YYYY", "{0} {1}", s[dt.Month-1], dt.Year);
+            dt = GetLocalDateTime(dt);
+            string month = GetMonthName(dt.Month);
+            return __ResStr("strMonth_YYYY", "{0} {1}", month, dt.Year);
         }
+        /// <summary>
+        /// Format a date - Example "November 1"
+        /// </summary>
+        public static string Date_Month_Day(DateTime dt) {
+            dt = GetLocalDateTime(dt);
+            return __ResStr("strMonth_Day", "{0} {1}", Formatting.GetMonthName(dt.Month), dt.Day);
+        }
+
+        public static DateTime GetLocalDateTime(DateTime dateTime, DateFormatEnum? dateFormat = null) {
+            if (dateTime == DateTime.MinValue) return dateTime;
+            TimeZoneInfo tzi = Manager.GetTimeZoneInfo();// user's timezone
+            dateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime, tzi);
+            return dateTime;
+        }
+
         public static string GetFormatDateFormat(DateFormatEnum? dateFormat = null) {
             DateFormatEnum df = dateFormat != null ? (DateFormatEnum) dateFormat : UserSettings.GetProperty<DateFormatEnum>("DateFormat");
             switch (df) {
@@ -89,41 +102,19 @@ namespace YetaWF.Core.Localize {
         public static DateTime GetUtcDateTime(DateTime dateTime) {
             // dateTime is the user's time zone (NOT local)
             DateTime dt = new DateTime(dateTime.Ticks, DateTimeKind.Unspecified);
-            TimeZoneInfo tzi = GetTimeZoneInfo();// user's timezone
+            TimeZoneInfo tzi = Manager.GetTimeZoneInfo();// user's timezone
             return TimeZoneInfo.ConvertTimeToUtc(dt, tzi);
         }
         /// <summary>
         /// Format date (the date has a time component (based on a timezone)
         /// </summary>
-        public static string FormatDateOnlyFromUtc(DateTime? dateTime, DateFormatEnum? dateFormat = null) {
-            if (dateTime == null) return "";
-            DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
-            TimeZoneInfo tzi = GetTimeZoneInfo();// user's timezone
-            dateTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzi);
-            return FormatDate(dateTime);
-        }
-        /// <summary>
-        /// Format date (the date has no time component and no timezone)
-        /// </summary>
         public static string FormatDate(DateTime? dateTime, DateFormatEnum? dateFormat = null) {
-            // dates do not use timezones. Date should always be utc normalized to midnight of the day of
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-
+            dt = GetLocalDateTime(dt);
             string fmt = GetFormatDateFormat(dateFormat);
             return dt.ToString(fmt);
-        }
-
-        private static TimeZoneInfo GetTimeZoneInfo() {
-            string tz = UserSettings.GetProperty<string>("TimeZone");
-            TimeZoneInfo tzi = null;
-            if (!string.IsNullOrWhiteSpace(tz))
-                tzi = TimeZoneInfo.FindSystemTimeZoneById(tz);
-            if (tzi == null)
-                tzi = TimeZoneInfo.Local;
-            return tzi;
         }
 
         public static string GetFormatTimeFormat(TimeFormatEnum? timeFormat = null) {
@@ -151,8 +142,7 @@ namespace YetaWF.Core.Localize {
         public static string FormatTime(DateTime? dateTime, TimeFormatEnum? timeFormat = null) {
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            TimeZoneInfo tzi = GetTimeZoneInfo();
-            dt = TimeZoneInfo.ConvertTimeFromUtc(dt, tzi);
+            dt = GetLocalDateTime(dt);
             string fmt = GetFormatTimeFormat(timeFormat);
             return dt.ToString(fmt);
         }
@@ -160,8 +150,7 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            TimeZoneInfo tzi = GetTimeZoneInfo();
-            dt = TimeZoneInfo.ConvertTimeFromUtc(dt, tzi);
+            dt = GetLocalDateTime(dt);
             TimeFormatEnum tf = UserSettings.GetProperty<TimeFormatEnum>("TimeFormat");
 
             switch (tf) {
@@ -184,16 +173,10 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            TimeZoneInfo tzi = GetTimeZoneInfo();
-            dt = TimeZoneInfo.ConvertTimeFromUtc(dt, tzi);
-            string fmt = GetFormatTimeFormat();
-            return FormatDate(dt) + " " + dt.ToString(fmt);
-        }
-        public static string FormatDateTimeDetailed(DateTime? dateTime) {
-            if (dateTime == null) return "";
-            DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
-            return FormatDate(dt) + " " + FormatTimeDetailed(dt);
+            dt = GetLocalDateTime(dt);
+            string fmtTime = GetFormatTimeFormat();
+            string fmtDate = GetFormatDateFormat();
+            return dt.ToString(fmtDate) + " " + dt.ToString(fmtTime);
         }
         public static string GetFormatDateTimeFormat(DateFormatEnum? dateFormat = null, TimeFormatEnum? timeFormat = null) {
             string fmtDate = GetFormatDateFormat(dateFormat);
@@ -204,12 +187,43 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
+            dt = GetLocalDateTime(dt);
             return dt.Year.ToString();
         }
-        public static string FormatLongDate(DateTime? deliveryDate) {
-            if (deliveryDate == null) return "";
-            return string.Format("{0:D}", deliveryDate);
+        public static string FormatLongDate(DateTime? dateTime) {
+            DateTime dt = (DateTime)dateTime;
+            if (dt == DateTime.MinValue) return "";
+            dt = GetLocalDateTime(dt);
+            string day = GetDayName(dt.DayOfWeek);
+            string month = GetMonthName(dt.Month);
+            return __ResStr("longDate", "{0}, {1} {2}, {3}", day, month, dt.Day, dt.Year);
         }
+        public static string GetDayName(DayOfWeek dow) {
+            if (dow == DayOfWeek.Sunday) return __ResStr("Sunday", "Sunday");
+            if (dow == DayOfWeek.Monday) return __ResStr("Monday", "Monday");
+            if (dow == DayOfWeek.Tuesday) return __ResStr("Tuesday", "Tuesday");
+            if (dow == DayOfWeek.Wednesday) return __ResStr("Wednesday", "Wednesday");
+            if (dow == DayOfWeek.Thursday) return __ResStr("Thursday", "Thursday");
+            if (dow == DayOfWeek.Friday) return __ResStr("Friday", "Friday");
+            if (dow == DayOfWeek.Saturday) return __ResStr("Saturday", "Saturday");
+            return "???";
+        }
+        public static string GetMonthName(int month) {
+            if (month == 1) return __ResStr("January", "January");
+            if (month == 2) return __ResStr("February", "February");
+            if (month == 3) return __ResStr("March", "March");
+            if (month == 4) return __ResStr("April", "April");
+            if (month == 5) return __ResStr("May", "May");
+            if (month == 6) return __ResStr("June", "June");
+            if (month == 7) return __ResStr("July", "July");
+            if (month == 8) return __ResStr("August", "August");
+            if (month == 9) return __ResStr("September", "September");
+            if (month == 10) return __ResStr("October", "October");
+            if (month == 11) return __ResStr("November", "November");
+            if (month == 12) return __ResStr("December", "December");
+            return "???";
+        }
+
         public static string FormatTimeSpan(TimeSpan? timeSpan) {
             if (timeSpan == null) return "";
             TimeSpan ts = (TimeSpan)timeSpan;

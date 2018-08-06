@@ -96,6 +96,10 @@ var YetaWF;
          * Closes the "Please Wait" message (if any).
          */
         BasicsServices.prototype.pleaseWaitClose = function () { YetaWF_BasicsImpl.pleaseWaitClose(); };
+        /**
+         * Closes any open overlays, menus, dropdownlists, tooltips, etc. (Popup windows are not handled and are explicitly closed using $YetaWF.Popups)
+         */
+        BasicsServices.prototype.closeOverlays = function () { YetaWF_BasicsImpl.closeOverlays(); };
         Object.defineProperty(BasicsServices.prototype, "Forms", {
             get: function () {
                 if (!this.forms) {
@@ -369,7 +373,7 @@ var YetaWF;
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
         BasicsServices.prototype.getModuleFromTagCond = function (tag) {
-            var mod = this.elementClosest(tag, ".yModule");
+            var mod = this.elementClosestCond(tag, ".yModule");
             if (!mod)
                 return null;
             return mod;
@@ -804,7 +808,7 @@ var YetaWF;
          * @param elem - The element to test.
          * @param selector - The selector to match.
          */
-        BasicsServices.prototype.elementClosest = function (elem, selector) {
+        BasicsServices.prototype.elementClosestCond = function (elem, selector) {
             var e = elem;
             while (e) {
                 if (this.elementMatches(e, selector))
@@ -813,6 +817,17 @@ var YetaWF;
                     e = e.parentElement;
             }
             return null;
+        };
+        /**
+         * Finds the closest element up the DOM hierarchy that matches the selector (including the starting element)
+         * @param elem - The element to test.
+         * @param selector - The selector to match.
+         */
+        BasicsServices.prototype.elementClosest = function (elem, selector) {
+            var e = this.elementClosestCond(elem, selector);
+            if (!e)
+                throw "Closes parent element with selector " + selector + " not found";
+            return e;
         };
         // DOM manipulation
         /**
@@ -929,6 +944,43 @@ var YetaWF;
                 elem.classList.remove(className);
             else
                 elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+        };
+        // Attributes
+        /**
+         * Returns an attribute value. Throws an error if the attribute doesn't exist.
+         */
+        BasicsServices.prototype.getAttribute = function (elem, name) {
+            var val = elem.getAttribute(name);
+            if (!val)
+                throw "missing " + name + " attribute";
+            return val;
+        };
+        /**
+         * Sets an attribute.
+         */
+        BasicsServices.prototype.setAttribute = function (elem, name, value) {
+            elem.setAttribute(name, value);
+        };
+        /**
+         * Enable element.
+         */
+        BasicsServices.prototype.elementEnable = function (elem) {
+            elem.removeAttribute("disabled");
+        };
+        /**
+         * Disable element.
+         */
+        BasicsServices.prototype.elementDisable = function (elem) {
+            elem.setAttribute("disabled", "disabled");
+        };
+        /**
+         * Enable or disable element.
+         */
+        BasicsServices.prototype.elementEnableToggle = function (elem, enable) {
+            if (enable)
+                this.elementEnable(elem);
+            else
+                this.elementDisable(elem);
         };
         // Events
         BasicsServices.prototype.registerDocumentReady = function (callback) {
@@ -1120,7 +1172,7 @@ var YetaWF;
                 // find the real anchor, ev.target was clicked, but it may not be the anchor itself
                 if (!ev.target)
                     return true;
-                var anchor = $YetaWF.elementClosest(ev.target, "a");
+                var anchor = $YetaWF.elementClosestCond(ev.target, "a");
                 if (!anchor)
                     return true;
                 _this.suppressPopState = true;

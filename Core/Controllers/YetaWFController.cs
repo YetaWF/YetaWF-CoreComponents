@@ -353,8 +353,7 @@ namespace YetaWF.Core.Controllers
         /// <returns>Used in conjunction with the Grid template.</returns>
         protected async Task<PartialViewResult> GridPartialViewAsync(DataSourceResult dataSrc) {
             await HandlePropertiesAsync(dataSrc.Data);
-            string partialView = "GridData";
-            return PartialView(partialView, dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
+            return PartialView("GridData", dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
         }
         /// <summary>
         /// An action result that renders a single grid record as a partial view.

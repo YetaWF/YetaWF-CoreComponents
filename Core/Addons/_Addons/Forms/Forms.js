@@ -278,19 +278,16 @@ var YetaWF;
         };
         // Forms retrieval
         Forms.prototype.getForm = function (tag) {
-            var form = $YetaWF.elementClosest(tag, "form");
-            if (!form)
-                throw "Can't locate enclosing form"; /*DEBUG*/
-            return form;
+            return $YetaWF.elementClosest(tag, "form");
         };
         Forms.prototype.getFormCond = function (tag) {
-            var form = $YetaWF.elementClosest(tag, "form");
+            var form = $YetaWF.elementClosestCond(tag, "form");
             if (!form)
                 return null;
             return form;
         };
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
-        Forms.prototype.getFormInfo = function (tag) {
+        Forms.prototype.getFormInfo = function (tag, addAmpersand) {
             var form = this.getForm(tag);
             var req = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
             if (!req || req.length === 0)
@@ -302,7 +299,10 @@ var YetaWF;
             if (!guid || guid.length === 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
             var charSize = $YetaWF.getCharSizeFromTag(form);
-            var qs = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
+            var qs = "";
+            if (addAmpersand != false)
+                qs += "&";
+            qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
                 "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();

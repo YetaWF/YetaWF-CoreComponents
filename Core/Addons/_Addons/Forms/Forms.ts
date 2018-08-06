@@ -397,17 +397,15 @@ namespace YetaWF {
         // Forms retrieval
 
         public getForm(tag: HTMLElement): HTMLFormElement {
-            var form = $YetaWF.elementClosest(tag, "form");
-            if (!form) throw "Can't locate enclosing form";/*DEBUG*/
-            return form as HTMLFormElement;
+            return $YetaWF.elementClosest(tag, "form") as HTMLFormElement;
         }
         public getFormCond(tag: HTMLElement) : HTMLFormElement | null {
-            var form = $YetaWF.elementClosest(tag, "form");
+            var form = $YetaWF.elementClosestCond(tag, "form");
             if (!form) return null;
             return form as HTMLFormElement;
         }
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
-        public getFormInfo(tag: HTMLElement) : FormInfo {
+        public getFormInfo(tag: HTMLElement, addAmpersand?:boolean) : FormInfo {
             var form = this.getForm(tag);
             var req = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement).value;
             if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
@@ -417,7 +415,10 @@ namespace YetaWF {
             if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
             var charSize = $YetaWF.getCharSizeFromTag(form);
 
-            var qs : string = "&" + YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
+            var qs: string = "";
+            if (addAmpersand != false)
+                qs += "&";
+            qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
                 "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
