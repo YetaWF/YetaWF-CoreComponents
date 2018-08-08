@@ -13,6 +13,7 @@ namespace YetaWF.Core {
         public const int MaxPswd = 100;
         public const int MaxUrl = 400;
         public const int MaxEmail = 100;
+        public const int MaxColor = 20;
         public const int MaxState = 2; // US State
         public const int MaxPublicKey = 1500;
         public const int MaxPrivateKey = 1500;
@@ -27,6 +28,7 @@ namespace YetaWF.Core {
         public const int ChBoolean = 5;
         public const int ChUrl = 40;
         public const int ChEmail = 30;
+        public const int ChColor = 5;
         public const int ChUserName = 25;
         public const int ChGuid = 34;
         public const int ChIntValue = 10;

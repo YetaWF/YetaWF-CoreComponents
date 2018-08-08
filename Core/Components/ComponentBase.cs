@@ -165,6 +165,9 @@ namespace YetaWF.Core.Components {
         public static string JE(string text) {
             return YetaWFManager.JserEncode(text);
         }
+        public static string JE(bool val) {
+            return val ? "true" : "false";
+        }
 
         public abstract Package GetPackage();
         public abstract string GetTemplateName();
