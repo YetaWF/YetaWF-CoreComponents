@@ -38,6 +38,12 @@ namespace YetaWF.Core.Components {
                 return wk;
             }
         }
+        public bool IsClosedAllDay(DateTime dt) {
+            return Days[(int)dt.DayOfWeek].IsClosedAllDay();
+        }
+        public bool IsClosed(DateTime dt) {
+            return Days[(int)dt.DayOfWeek].IsClosed(dt);
+        }
     }
 
     public class DayTimeRange {
@@ -52,13 +58,22 @@ namespace YetaWF.Core.Components {
         public DateTime? End2 { get; set; }
 
         public DayTimeRange() { }
-        public bool IsClosed() {
+
+        public bool IsClosedAllDay() {
             return (Start == null && End == null && Start2 == null && End2 == null);
+        }
+        public bool IsClosed(DateTime dt) {
+            TimeSpan tod = dt.TimeOfDay;
+            if (Start != null && End != null)
+                if (tod >= ((DateTime)Start).TimeOfDay && tod < ((DateTime)End).TimeOfDay) return false;
+            if (Start2 != null && End2 != null)
+                if (tod >= ((DateTime)Start2).TimeOfDay && tod < ((DateTime)End2).TimeOfDay) return false;
+            return true;
         }
         public static DayTimeRange GetWorkDay() {
             return new DayTimeRange {
-                Start = Formatting.GetUtcDateTime(new DateTime(1, 1, 1, 9, 0, 0)), // local 9 am
-                End = Formatting.GetUtcDateTime(new DateTime(1, 1, 1, 17, 0, 0)), // local 5 pm
+                Start = Formatting.GetUtcDateTime(new DateTime(1, 1, 1, 9, 0, 0, DateTimeKind.Local)), // local 9 am
+                End = Formatting.GetUtcDateTime(new DateTime(1, 1, 1, 17, 0, 0, DateTimeKind.Local)), // local 5 pm
             };
         }
         public static DayTimeRange GetClosedDay() {

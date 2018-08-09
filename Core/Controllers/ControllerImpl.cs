@@ -466,8 +466,8 @@ namespace YetaWF.Core.Controllers {
         // INPUT CLEANUP
 
         // change all dates to utc - internally YetaWF ALWAYS uses utc
-        // incoming dates are sent from client in local time (the user defined timezone - defined in user settings on the server)
-        // we totally bypass client side date/time handling, but incoming date/times have to be translated into utc
+        // incoming dates are sent from client in utc, but arrive in local time ("thanks" to ASP.NET translating them)
+        // so we translate them back to utc. There is probably a better way somewhere in ASP.NET, but haven't figured it out yet.
         private bool FixDates(object parm) {
             if (parm == null) return false;
             bool any = false;
@@ -489,10 +489,21 @@ namespace YetaWF.Core.Controllers {
                             }
                         }
                     } else {
-                        if (pi.GetIndexParameters().Length == 0) {
+                        ParameterInfo[] indexParms = pi.GetIndexParameters();
+                        int indexParmsLen = indexParms.Length;
+                        if (indexParmsLen == 0) {
                             try {
                                 FixDates(prop.GetPropertyValue<object>(parm));  // try to handle nested types
                             } catch (Exception) { }
+                        } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
+                            // enumerable types
+                            IEnumerable<object> ienum = parm as IEnumerable<object>;
+                            if (ienum != null) {
+                                IEnumerator<object> ienumerator = ienum.GetEnumerator();
+                                for (int i = 0; ienumerator.MoveNext(); i++) {
+                                    FixDates(ienumerator.Current);
+                                }
+                            }
                         }
                     }
                 }

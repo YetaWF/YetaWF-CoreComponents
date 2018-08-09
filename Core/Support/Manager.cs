@@ -23,6 +23,7 @@ using YetaWF.Core.Skins;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using System.Globalization;
+using Newtonsoft.Json;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -184,8 +185,8 @@ namespace YetaWF.Core.Support {
 
             manager.UserName = null;// current user (anonymous)
             manager.UserSettingsObject = new SchedulerUserData {
-                DateFormat = Formatting.DateFormatEnum.MMDDYYYY,
-                TimeFormat = Formatting.TimeFormatEnum.HHMMAM,
+                DateFormat = Localize.Formatting.DateFormatEnum.MMDDYYYY,
+                TimeFormat = Localize.Formatting.TimeFormatEnum.HHMMAM,
                 LanguageId = MultiString.DefaultLanguage,
                 TimeZone = TimeZoneInfo.Local.Id,
             };
@@ -195,9 +196,9 @@ namespace YetaWF.Core.Support {
             return manager;
         }
         public class SchedulerUserData {
-            public Formatting.DateFormatEnum DateFormat { get; set; }
+            public Localize.Formatting.DateFormatEnum DateFormat { get; set; }
             public string TimeZone { get; set; }
-            public Formatting.TimeFormatEnum TimeFormat { get; set; }
+            public Localize.Formatting.TimeFormatEnum TimeFormat { get; set; }
             public string LanguageId { get; set; }
         }
 
@@ -479,9 +480,11 @@ namespace YetaWF.Core.Support {
         }
         private static Newtonsoft.Json.JsonSerializerSettings _JsonSettings = new Newtonsoft.Json.JsonSerializerSettings {
             StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml,
+            DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
         };
         private static Newtonsoft.Json.JsonSerializerSettings _JsonSettingsIndented = new Newtonsoft.Json.JsonSerializerSettings {
             StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml,
+            DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
             Formatting = Newtonsoft.Json.Formatting.Indented,
         };
 
