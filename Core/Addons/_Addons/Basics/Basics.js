@@ -300,6 +300,13 @@ var YetaWF;
                 });
             }
         };
+        BasicsServices.prototype.setUrl = function (url) {
+            try {
+                var stateObj = {};
+                history.pushState(stateObj, "", url);
+            }
+            catch (err) { }
+        };
         // Reload, refresh
         /**
          * Reloads the current page - in its entirety (full page load)

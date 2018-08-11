@@ -150,13 +150,8 @@ var YetaWF;
                 if (divs.length > 0) {
                     $YetaWF.closeOverlays();
                     // Update the browser address bar with the new path
-                    if (setState) {
-                        try {
-                            var stateObj = {};
-                            history.pushState(stateObj, "", uri.toUrl());
-                        }
-                        catch (err) { }
-                    }
+                    if (setState)
+                        $YetaWF.setUrl(uri.toUrl());
                     if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.HideDivs) {
                         // hide all unified sections
                         var uni = $YetaWF.getElementsBySelector(".yUnified");
@@ -269,13 +264,8 @@ var YetaWF;
                     // Update the browser page title
                     document.title = result.PageTitle;
                     // Update the browser address bar with the new path
-                    if (setState) {
-                        try {
-                            var stateObj = {};
-                            history.pushState(stateObj, "", uri.toUrl());
-                        }
-                        catch (err) { }
-                    }
+                    if (setState)
+                        $YetaWF.setUrl(uri.toUrl());
                     // remove all pane contents
                     for (var _i = 0, divs_3 = divs; _i < divs_3.length; _i++) {
                         var div = divs_3[_i];

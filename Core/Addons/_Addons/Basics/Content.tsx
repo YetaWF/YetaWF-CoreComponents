@@ -197,12 +197,8 @@ namespace YetaWF {
                     $YetaWF.closeOverlays();
 
                     // Update the browser address bar with the new path
-                    if (setState) {
-                        try {
-                            var stateObj = {};
-                            history.pushState(stateObj, "", uri.toUrl());
-                        } catch (err) { }
-                    }
+                    if (setState)
+                        $YetaWF.setUrl(uri.toUrl());
                     if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {
                         // hide all unified sections
                         var uni = $YetaWF.getElementsBySelector(".yUnified");
@@ -310,12 +306,8 @@ namespace YetaWF {
                     // Update the browser page title
                     document.title = result.PageTitle;
                     // Update the browser address bar with the new path
-                    if (setState) {
-                        try {
-                            var stateObj = {};
-                            history.pushState(stateObj, "", uri.toUrl());
-                        } catch (err) { }
-                    }
+                    if (setState)
+                        $YetaWF.setUrl(uri.toUrl());
                     // remove all pane contents
                     for (var div of divs) {
                         $YetaWF.processClearDiv(div);

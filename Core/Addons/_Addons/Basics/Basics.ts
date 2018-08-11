@@ -395,6 +395,13 @@ namespace YetaWF {
 
         public suppressPopState: boolean = false;
 
+        public setUrl(url: string): void {
+            try {
+                var stateObj = {};
+                history.pushState(stateObj, "", url);
+            } catch (err) { }
+        }
+
         // Reload, refresh
 
         /**
