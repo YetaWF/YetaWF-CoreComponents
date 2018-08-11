@@ -7,6 +7,57 @@ using YetaWF.Core.Serializers;
 
 namespace YetaWF.Core.Components {
 
+    public class DayTimeRange {
+
+        [UIHint("DateTime")] // required so controller translates this to Utc
+        public DateTime Date { get; set; }
+
+        public TimeOfDay Start { get; set; }
+        public TimeOfDay End { get; set; }
+        public TimeOfDay Start2 { get; set; }
+        public TimeOfDay End2 { get; set; }
+
+        public DayTimeRange(DateTime date) {
+            Date = date;
+        }
+        public DayTimeRange() {
+            Date = Formatting.GetLocalDateTime(DateTime.UtcNow);// user's date with timezone
+        }
+
+        public DateTime GetStart() {
+            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, Start.Hours, Start.Minutes, Start.Seconds, DateTimeKind.Local));
+        }
+        public DateTime GetEnd() {
+            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, End.Hours, End.Minutes, End.Seconds, DateTimeKind.Local));
+        }
+        public DateTime GetStart2() {
+            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, Start2.Hours, Start2.Minutes, Start2.Seconds, DateTimeKind.Local));
+        }
+        public DateTime GetEnd2() {
+            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, End2.Hours, End2.Minutes, End2.Seconds, DateTimeKind.Local));
+        }
+
+        public bool IsClosedAllDay() {
+            return (Start == null && End == null && Start2 == null && End2 == null);
+        }
+        public bool IsClosed(DateTime dt) {
+            TimeOfDay tod = new TimeOfDay(dt);
+            if (Start != null && End != null)
+                if (tod >= Start && tod < End) return false;
+            if (Start2 != null && End2 != null)
+                if (tod >= Start2 && tod < End2) return false;
+            return true;
+        }
+        public static DayTimeRange GetWorkDay() {
+            return new DayTimeRange {
+                Start = new TimeOfDay(9, 0, 0), // 9 am
+                End = new TimeOfDay(17, 0, 0), // 5 pm
+            };
+        }
+        public static DayTimeRange GetClosedDay() {
+            return new DayTimeRange();
+        }
+    }
     public class WeeklyHours {
 
         public const int DaysInWeek = 7;
@@ -43,41 +94,6 @@ namespace YetaWF.Core.Components {
         }
         public bool IsClosed(DateTime dt) {
             return Days[(int)dt.DayOfWeek].IsClosed(dt);
-        }
-    }
-
-    public class DayTimeRange {
-
-        [UIHint("Time")] // required so controller translates this to Utc
-        public DateTime? Start { get; set; }
-        [UIHint("Time")]
-        public DateTime? End { get; set; }
-        [UIHint("Time")]
-        public DateTime? Start2 { get; set; }
-        [UIHint("Time")]
-        public DateTime? End2 { get; set; }
-
-        public DayTimeRange() { }
-
-        public bool IsClosedAllDay() {
-            return (Start == null && End == null && Start2 == null && End2 == null);
-        }
-        public bool IsClosed(DateTime dt) {
-            TimeSpan tod = dt.TimeOfDay;
-            if (Start != null && End != null)
-                if (tod >= ((DateTime)Start).TimeOfDay && tod < ((DateTime)End).TimeOfDay) return false;
-            if (Start2 != null && End2 != null)
-                if (tod >= ((DateTime)Start2).TimeOfDay && tod < ((DateTime)End2).TimeOfDay) return false;
-            return true;
-        }
-        public static DayTimeRange GetWorkDay() {
-            return new DayTimeRange {
-                Start = Formatting.GetUtcDateTime(new DateTime(1, 1, 1, 9, 0, 0, DateTimeKind.Local)), // local 9 am
-                End = Formatting.GetUtcDateTime(new DateTime(1, 1, 1, 17, 0, 0, DateTimeKind.Local)), // local 5 pm
-            };
-        }
-        public static DayTimeRange GetClosedDay() {
-            return new DayTimeRange();
         }
     }
 }

@@ -69,6 +69,7 @@ namespace YetaWF.Core.Localize {
         }
 
         public static DateTime GetLocalDateTime(DateTime dateTime, DateFormatEnum? dateFormat = null) {
+            if (dateTime.Kind != DateTimeKind.Utc && dateTime.Kind != DateTimeKind.Unspecified) throw new InternalError($"DateTime has incorrect Kind {dateTime.Kind}");
             if (dateTime == DateTime.MinValue) return dateTime;
             TimeZoneInfo tzi = Manager.GetTimeZoneInfo();// user's timezone
             dateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime, tzi);
@@ -101,6 +102,7 @@ namespace YetaWF.Core.Localize {
         }
         public static DateTime GetUtcDateTime(DateTime dateTime) {
             // dateTime is the user's time zone (NOT local)
+            if (dateTime.Kind != DateTimeKind.Local && dateTime.Kind != DateTimeKind.Unspecified) throw new InternalError($"DateTime has incorrect Kind {dateTime.Kind}");
             DateTime dt = new DateTime(dateTime.Ticks, DateTimeKind.Unspecified);
             TimeZoneInfo tzi = Manager.GetTimeZoneInfo();// user's timezone
             return TimeZoneInfo.ConvertTimeToUtc(dt, tzi);
