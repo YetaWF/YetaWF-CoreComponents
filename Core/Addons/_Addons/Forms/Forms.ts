@@ -297,7 +297,7 @@ namespace YetaWF {
             for (var entry of pairs) {
                 if (formData !== "")
                     formData += "&";
-                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
+                formData += encodeURIComponent(entry.name) + "=" + entry.value; // no need to encode value, already encoded
             }
             return formData;
         }

@@ -597,7 +597,7 @@ var YetaWF;
                     }
                 }
                 catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                 }
             }
         };
@@ -630,7 +630,7 @@ var YetaWF;
                     }
                 }
                 catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                 }
             }
             this.whenReadyOnce = [];
@@ -654,7 +654,7 @@ var YetaWF;
                         entry.callback(tag);
                 }
                 catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                 }
             }
             // also release any attached objects
@@ -1225,3 +1225,5 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+
+//# sourceMappingURL=Basics.js.map

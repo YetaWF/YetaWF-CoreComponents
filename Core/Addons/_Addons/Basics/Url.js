@@ -92,7 +92,9 @@ var YetaWF;
                     qs += "&";
                 else if (withQuestion)
                     qs += "?";
-                qs += encodeURIComponent(entry.key) + "=" + encodeURIComponent(entry.value);
+                qs += encodeURIComponent(entry.key) + "=";
+                if (entry.value !== null)
+                    qs += encodeURIComponent(entry.value);
             }
             return qs;
         };
@@ -167,3 +169,5 @@ var YetaWF;
     }());
     YetaWF.Url = Url;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Url.js.map

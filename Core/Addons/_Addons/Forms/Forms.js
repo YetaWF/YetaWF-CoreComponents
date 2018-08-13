@@ -201,7 +201,7 @@ var YetaWF;
                 var entry = pairs_1[_i];
                 if (formData !== "")
                     formData += "&";
-                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
+                formData += encodeURIComponent(entry.name) + "=" + entry.value; // no need to encode value, already encoded
             }
             return formData;
         };
@@ -470,3 +470,5 @@ var YetaWF;
     }());
     YetaWF.Forms = Forms;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Forms.js.map

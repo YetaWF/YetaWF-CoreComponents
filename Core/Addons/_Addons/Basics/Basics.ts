@@ -703,7 +703,7 @@ namespace YetaWF {
                     for (const tag of tags)
                         entry.callback(tag);
                 } catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                 }
             }
         }
@@ -740,7 +740,7 @@ namespace YetaWF {
                     for (const tag of tags)
                         entry.callback(tag);
                 } catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                 }
             }
             this.whenReadyOnce = [];
@@ -768,7 +768,7 @@ namespace YetaWF {
                     if (entry.callback != null)
                         entry.callback(tag);
                 } catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                 }
             }
             // also release any attached objects

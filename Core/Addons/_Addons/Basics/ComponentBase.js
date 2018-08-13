@@ -31,3 +31,5 @@ var YetaWF;
     }());
     YetaWF.ComponentBase = ComponentBase;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=ComponentBase.js.map
