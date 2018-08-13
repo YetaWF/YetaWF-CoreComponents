@@ -93,6 +93,8 @@ var YetaWF;
         };
         Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc) {
             var _this = this;
+            if (!form.getAttribute("method"))
+                return; // no method, don't submit
             var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
             if (dc)
                 $YetaWF.removeElement(dc);
@@ -468,5 +470,3 @@ var YetaWF;
     }());
     YetaWF.Forms = Forms;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Forms.js.map

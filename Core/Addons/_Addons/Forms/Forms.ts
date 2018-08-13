@@ -182,6 +182,8 @@ namespace YetaWF {
 
         public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, successFunc?: (hasErrors: boolean) => void, failFunc?: () => void) : void  {
 
+            if (!form.getAttribute("method")) return; // no method, don't submit
+
             var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
             if (dc)
                 $YetaWF.removeElement(dc);

@@ -3,4 +3,5 @@ Globals.js
 Content.tsx
 Anchors.ts
 Basics.ts
+ComponentBase.ts
 Url.ts

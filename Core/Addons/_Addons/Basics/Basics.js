@@ -43,7 +43,7 @@ var YetaWF;
             // ACTIVATEDIV
             // ACTIVATEDIV
             // ACTIVATEDIV
-            this.ActivateDivsHandlers = [];
+            this.ActivateDivHandlers = [];
             // NEWPAGE
             // NEWPAGE
             // NEWPAGE
@@ -462,7 +462,7 @@ var YetaWF;
             return str1 === str2;
         };
         // Ajax result handling
-        BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onHandleErrorResult) {
+        BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onRawDataResult, onJSONResult) {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             try {
                 // tslint:disable-next-line:no-eval
@@ -484,6 +484,14 @@ var YetaWF;
                         eval(script);
                     }
                     return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                    var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                    if (onJSONResult) {
+                        onJSONResult(JSON.parse(json));
+                        return true;
+                    }
+                    return false;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
@@ -515,8 +523,9 @@ var YetaWF;
                     return true;
                 }
                 else {
-                    if (onHandleErrorResult !== undefined) {
-                        onHandleErrorResult(result);
+                    if (onRawDataResult !== undefined) {
+                        onRawDataResult(result);
+                        return true;
                     }
                     else {
                         this.error(YLocs.Basics.IncorrectServerResp);
@@ -630,7 +639,7 @@ var YetaWF;
          * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
          * callback so elements can be destroyed when a div is emptied (used by UPS).
          */
-        BasicsServices.prototype.addClearDiv = function (callback) {
+        BasicsServices.prototype.registerClearDiv = function (callback) {
             this.clearDiv.push({ callback: callback });
         };
         /**
@@ -653,7 +662,7 @@ var YetaWF;
                 var doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
                     // tslint:disable-next-line:no-debugger
-                    debugger; //TODO: This hasn't been tested
+                    debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
                     this.DataObjectCache.splice(i, 1);
                     continue;
                 }
@@ -685,6 +694,15 @@ var YetaWF;
             if (doe.length === 0)
                 throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
             return doe[0].Data;
+        };
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.getObjectData = function (element) {
+            if (!element.id)
+                throw "element without id - " + element.outerHTML;
+            return this.getObjectDataById(element.id);
         };
         /**
          * Removes a data object (a Typescript class) from a tag.
@@ -1005,6 +1023,10 @@ var YetaWF;
             var _this = this;
             document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
         };
+        BasicsServices.prototype.registerCustomEventHandlerDocument = function (eventName, selector, callback) {
+            var _this = this;
+            document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+        };
         BasicsServices.prototype.registerEventHandlerWindow = function (eventName, selector, callback) {
             var _this = this;
             window.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
@@ -1084,16 +1106,19 @@ var YetaWF;
         /**
          * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
          */
-        BasicsServices.prototype.registerActivateDivs = function (callback) {
-            this.ActivateDivsHandlers.push({ callback: callback });
+        BasicsServices.prototype.registerActivateDiv = function (callback) {
+            this.ActivateDivHandlers.push({ callback: callback });
         };
         /**
          * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
          */
         BasicsServices.prototype.processActivateDivs = function (tags) {
-            for (var _i = 0, _a = this.ActivateDivsHandlers; _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.ActivateDivHandlers; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                entry.callback(tags);
+                for (var _b = 0, tags_3 = tags; _b < tags_3.length; _b++) {
+                    var tag = tags_3[_b];
+                    entry.callback(tag);
+                }
             }
         };
         /**
@@ -1200,5 +1225,3 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
-
-//# sourceMappingURL=Basics.js.map

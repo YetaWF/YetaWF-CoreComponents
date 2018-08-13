@@ -152,6 +152,7 @@ namespace YetaWF {
         CssSaveReturnUrl: string;
 
         AjaxJavascriptReturn: string;
+        AjaxJSONReturn: string;
         AjaxJavascriptReloadPage: string;
         AjaxJavascriptReloadModule: string;
         AjaxJavascriptReloadModuleParts: string;

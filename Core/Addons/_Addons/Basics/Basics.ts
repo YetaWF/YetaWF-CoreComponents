@@ -44,8 +44,8 @@ namespace YetaWF {
     interface PanelSwitchedEntry {
         callback(panel: HTMLElement): void;
     }
-    interface ActivateDivsEntry {
-        callback(tags: HTMLElement[]): void;
+    interface ActivateDivEntry {
+        callback(tags: HTMLElement): void;
     }
     interface NewPageEntry {
         callback(url: string): void;
@@ -565,7 +565,10 @@ namespace YetaWF {
 
         // Ajax result handling
 
-        public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement, onSuccessNoData?: () => void, onHandleErrorResult?: (result: string) => void): boolean {
+        public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement,
+                onSuccessNoData?: () => void,
+                onRawDataResult?: (result: string) => void,
+                onJSONResult?: (result: any) => void): boolean {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             try {
                 // tslint:disable-next-line:no-eval
@@ -585,6 +588,13 @@ namespace YetaWF {
                         eval(script);
                     }
                     return true;
+                } else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                    var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                    if (onJSONResult) {
+                        onJSONResult(JSON.parse(json));
+                        return true;
+                    }
+                    return false;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
                     // tslint:disable-next-line:no-eval
@@ -611,8 +621,9 @@ namespace YetaWF {
                         this.refreshModuleByAnyTag(tagInModule);
                     return true;
                 } else {
-                    if (onHandleErrorResult !== undefined) {
-                        onHandleErrorResult(result);
+                    if (onRawDataResult !== undefined) {
+                        onRawDataResult(result);
+                        return true;
                     } else {
                         this.error(YLocs.Basics.IncorrectServerResp);
                     }
@@ -743,7 +754,7 @@ namespace YetaWF {
          * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
          * callback so elements can be destroyed when a div is emptied (used by UPS).
          */
-        public addClearDiv(callback: (section: HTMLElement) => void): void {
+        public registerClearDiv(callback: (section: HTMLElement) => void): void {
             this.clearDiv.push({ callback: callback });
         }
 
@@ -764,8 +775,8 @@ namespace YetaWF {
             for (var i = 0; i < this.DataObjectCache.length; ) {
                 var doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
-// tslint:disable-next-line:no-debugger
-debugger;//TODO: This hasn't been tested
+                    // tslint:disable-next-line:no-debugger
+                    debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
                     this.DataObjectCache.splice(i, 1);
                     continue;
                 }
@@ -796,6 +807,14 @@ debugger;//TODO: This hasn't been tested
             var doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
             if (doe.length === 0) throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
             return doe[0].Data;
+        }
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        public getObjectData(element: HTMLElement): any {
+            if (!element.id) throw `element without id - ${element.outerHTML}`;
+            return this.getObjectDataById(element.id);
         }
         /**
          * Removes a data object (a Typescript class) from a tag.
@@ -1121,6 +1140,9 @@ debugger;//TODO: This hasn't been tested
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
             document.addEventListener(eventName, (ev: DocumentEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
+        public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
+            document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
+        }
         public registerEventHandlerWindow<K extends keyof WindowEventMap>(eventName: K, selector: string | null, callback: (ev: WindowEventMap[K]) => boolean): void {
             window.addEventListener(eventName, (ev: WindowEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
@@ -1207,20 +1229,21 @@ debugger;//TODO: This hasn't been tested
         // ACTIVATEDIV
         // ACTIVATEDIV
 
-        private ActivateDivsHandlers: ActivateDivsEntry[] = [];
+        private ActivateDivHandlers: ActivateDivEntry[] = [];
 
         /**
          * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
          */
-        public registerActivateDivs(callback: (tags: HTMLElement[]) => void): void {
-            this.ActivateDivsHandlers.push({ callback: callback });
+        public registerActivateDiv(callback: (tag: HTMLElement) => void): void {
+            this.ActivateDivHandlers.push({ callback: callback });
         }
         /**
          * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
          */
         public processActivateDivs(tags: HTMLElement[]): void {
-            for (const entry of this.ActivateDivsHandlers) {
-                entry.callback(tags);
+            for (const entry of this.ActivateDivHandlers) {
+                for (const tag of tags)
+                    entry.callback(tag);
             }
         }
 

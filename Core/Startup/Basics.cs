@@ -55,6 +55,7 @@ namespace YetaWF.Core.Addons {
         public const string DefaultTooltipPosition = "top";
 
         public const string AjaxJavascriptReturn = "JS:";
+        public const string AjaxJSONReturn = "JSON:";
         public const string AjaxJavascriptReloadPage = "JSReloadPage:";
         public const string AjaxJavascriptReloadModule = "JSReloadModule:";
         public const string AjaxJavascriptReloadModuleParts = "JSReloadModuleParts:";
@@ -142,6 +143,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "CssSaveReturnUrl", CssSaveReturnUrl);
 
             scripts.AddConfigOption("Basics", "AjaxJavascriptReturn", AjaxJavascriptReturn);
+            scripts.AddConfigOption("Basics", "AjaxJSONReturn", AjaxJSONReturn);
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadPage", AjaxJavascriptReloadPage);
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModule", AjaxJavascriptReloadModule);
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModuleParts", AjaxJavascriptReloadModuleParts);
