@@ -201,7 +201,7 @@ var YetaWF;
                 var entry = pairs_1[_i];
                 if (formData !== "")
                     formData += "&";
-                formData += encodeURIComponent(entry.name) + "=" + entry.value; // no need to encode value, already encoded
+                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
             }
             return formData;
         };

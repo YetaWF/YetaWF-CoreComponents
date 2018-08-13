@@ -169,7 +169,7 @@ namespace YetaWF.Core.DataProvider {
             List<PropertyData> propData = ObjectSupport.GetPropertyData(objType);
             foreach (var prop in propData) {
                 // look for Image UIHint
-                if (prop.UIHint == "Image") {
+                if (prop.UIHint == "Image" && !prop.HasAttribute("DontSave") && prop.PropInfo.CanRead && prop.PropInfo.CanWrite) {
                     if (prop.GetAdditionalAttributeValue<bool>("File", false)) {
                         // save as file
                         PropertyData pGuid = ObjectSupport.GetPropertyData(objType, prop.Name + "_Guid");
