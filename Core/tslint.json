@@ -85,7 +85,7 @@
       true,
       "always"
     ],
-    "switch-final-break": true,
+    "switch-final-break": false,
     "triple-equals": [
       true,
       "allow-null-check"

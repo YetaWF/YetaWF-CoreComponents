@@ -92,7 +92,7 @@ namespace YetaWF {
                     qs += "&";
                 else if (withQuestion)
                     qs += "?";
-                qs += encodeURIComponent(entry.key) + "="
+                qs += encodeURIComponent(entry.key) + "=";
                 if (entry.value !== null)
                     qs += encodeURIComponent(entry.value);
             }

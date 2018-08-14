@@ -302,7 +302,7 @@ var YetaWF;
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
             var charSize = $YetaWF.getCharSizeFromTag(form);
             var qs = "";
-            if (addAmpersand != false)
+            if (addAmpersand !== false)
                 qs += "&";
             qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +

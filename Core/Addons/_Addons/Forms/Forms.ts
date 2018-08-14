@@ -418,7 +418,7 @@ namespace YetaWF {
             var charSize = $YetaWF.getCharSizeFromTag(form);
 
             var qs: string = "";
-            if (addAmpersand != false)
+            if (addAmpersand !== false)
                 qs += "&";
             qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
