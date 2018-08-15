@@ -54,6 +54,16 @@ namespace YetaWF.Core.Pages {
             [EnumDescription("Yes, In Memory", "The page is a static page (internally saved in memory)")]
             YesMemory = 2,
         }
+        public enum IFrameUseEnum {
+            [EnumDescription("(Site Default)", "Use the site defined default (IFrame Use in Site Settings)")]
+            Default = 0,
+            [EnumDescription("No", "The page cannot be used in an IFrame (depending on browser support)")]
+            No = 1,
+            [EnumDescription("This Site", "The page can only be used by this site in an IFrame (depending on browser support)")]
+            ThisSite = 2,
+            [EnumDescription("Yes", "The page can be used by any site in an IFrame (depending on browser support)")]
+            Yes = 3,
+        }
         public enum ChangeFrequencyEnum {
             [EnumDescription("(Site Default)", "Use the site defined default Change Frequency")]
             Default = 0,
@@ -339,6 +349,9 @@ namespace YetaWF.Core.Pages {
         [Data_NewValue("(0)")]
         [RequiresPageReload]
         public StaticPageEnum StaticPage { get; set; }
+
+        [Data_NewValue("(0)")]
+        public PageDefinition.IFrameUseEnum IFrameUse { get; set; }
 
         [StringLength(Globals.MaxUrl)]
         public string MobilePageUrl { get; set; }

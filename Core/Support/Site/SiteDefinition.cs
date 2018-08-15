@@ -57,6 +57,14 @@ namespace YetaWF.Core.Site {
         [EnumDescription("Bottom of Page", "All Css files are included at the bottom of the page (right in front of the </BODY> tag)")]
         Bottom = 1,
     }
+    public enum IFrameUseEnum {
+        [EnumDescription("No", "Pages cannot be used in an IFrame (X-Frame-Options: deny)")]
+        No = 0,
+        [EnumDescription("This Site", "The page can only be used by this site in an IFrame (X-Frame-Options: sameorigin)")]
+        ThisSite = 1,
+        [EnumDescription("Yes", "The page can be used by any site in an IFrame - No X-Frame-Options header is set by YetaWF, allowing external applications to control the setting")]
+        Yes = 2,
+    }
 
     [Trim]
     [RequiresRestart(RestartEnum.MultiInstance)]
@@ -458,6 +466,11 @@ namespace YetaWF.Core.Site {
         [Data_NewValue("(0)")]
         [RequiresPageReload]
         public bool DisableMinimizeFUOC { get; set; }
+
+        [Category("Pages"), Caption("IFrame Use"), Description("Defines whether pages can be used in an IFrame by this and other sites (by setting the X-Frame-Options HTTP header) - Individual pages can override this default setting")]
+        [UIHint("Enum")]
+        [Data_NewValue("(0)")]
+        public IFrameUseEnum IFrameUse { get; set; }
 
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
         [UIHint("Text80"), StringLength(MaxCopyright)]

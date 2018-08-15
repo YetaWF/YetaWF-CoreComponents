@@ -284,6 +284,7 @@ namespace YetaWF.Core.Controllers {
             // Process the page
             CanProcessAsStaticPageInfo info = await CanProcessAsStaticPageAsync(uri.LocalPath);
             if (info.Success) {
+                AddXFrameOptions();
                 return Content(info.Contents, "text/html");
             }
 
@@ -384,6 +385,7 @@ namespace YetaWF.Core.Controllers {
                     case ProcessingStatus.Page:
                         if (Manager.IsHeadRequest)
                             return new EmptyResult();
+                        AddXFrameOptions();
 #if MVC6
                         return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
@@ -400,6 +402,7 @@ namespace YetaWF.Core.Controllers {
                     case ProcessingStatus.Page:
                         if (Manager.IsHeadRequest)
                             return new EmptyResult();
+                        AddXFrameOptions();
 #if MVC6
                         return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
@@ -424,6 +427,7 @@ namespace YetaWF.Core.Controllers {
                         throw new HttpException(404, "404 Not Found");
 #endif
                     }
+                    AddXFrameOptions();
 #if MVC6
                     Logging.AddErrorLog("404 Not Found");
                     Manager.CurrentResponse.StatusCode = 404;
@@ -439,6 +443,29 @@ namespace YetaWF.Core.Controllers {
 #else
             throw new HttpException(404, string.Format("Url {0} not found", __path));
 #endif
+        }
+
+        private void AddXFrameOptions() {
+            string option = null;
+            if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.Default) {
+                if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.No)
+                    option = "deny";
+                else if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.ThisSite)
+                    option = "sameorigin";
+            } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.No) {
+                option = "deny";
+            } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.ThisSite) {
+                option = "sameorigin";
+            }
+            if (option != null) {
+                if (YetaWFController.GoingToPopup())
+                    option = "sameorigin";// we need at least this to go into a popup
+#if MVC6
+                Manager.CurrentResponse.Headers.Add("X-Frame-Options", option);
+#else
+                Manager.CurrentResponse.AddHeader("X-Frame-Options", option);
+#endif
+            }
         }
 
         protected enum ProcessingStatus {
