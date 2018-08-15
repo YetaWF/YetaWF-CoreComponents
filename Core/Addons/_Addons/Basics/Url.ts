@@ -17,6 +17,7 @@ namespace YetaWF {
         private Schema: string = "";
         private UserInfo: string = "";
         private Domain: string = "";
+        private Port: string = "";
         private Path: string[] = [];
         private Hash: string = "";
         private QSEntries: QSEntry[] = [];
@@ -27,11 +28,17 @@ namespace YetaWF {
         public getHostName(): string {
             return this.Domain;
         }
+        public getPort(): string {
+            return this.Port;
+        }
         public getUserInfo(withAt?: boolean): string {
             return this.UserInfo + (withAt && this.UserInfo.length > 0 ? "@" : "");
         }
         public getDomain(): string {
-            return encodeURIComponent(this.Domain);
+            if (this.Port)
+                return encodeURIComponent(this.Domain) + ":" + encodeURIComponent(this.Port);
+            else
+                return encodeURIComponent(this.Domain);
         }
         public getPath(): string {
             var path = "";
@@ -109,6 +116,7 @@ namespace YetaWF {
             this.Schema = "";
             this.UserInfo = "";
             this.Domain = "";
+            this.Port = "";
             this.Path = [];
             this.Hash = "";
             this.QSEntries = [];
@@ -146,15 +154,23 @@ namespace YetaWF {
             } else
                 url = parts[0];
 
+            var domain = "";
             parts = url.split("/");
             if (parts.length > 1) {
-                this.Domain = decodeURIComponent(parts[0]);
+                domain = parts[0];
                 parts = parts.slice(1);
                 for (let i in parts)
                     parts[i] = decodeURIComponent(parts[i]);
                 this.Path = parts;
             } else
                 this.Path = [""];
+
+            if (domain) {
+                parts = domain.split(":");
+                this.Domain = parts[0];
+                if (parts.length > 1)
+                    this.Port = parts.slice(1).join("//");
+            }
 
             // split up query string
             if (qs.length > 0) {

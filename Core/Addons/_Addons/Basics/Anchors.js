@@ -157,7 +157,7 @@ var YetaWF;
                 // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
                 if (cookieToReturn)
                     return true; // expecting cookie return
-                if (uri.getDomain() !== "" && uri.getDomain() !== window.document.domain)
+                if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain)
                     return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set
                 if (!url.startsWith("http") || !window.document.location.href.startsWith("http"))

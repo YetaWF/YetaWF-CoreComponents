@@ -11,6 +11,7 @@ var YetaWF;
             this.Schema = "";
             this.UserInfo = "";
             this.Domain = "";
+            this.Port = "";
             this.Path = [];
             this.Hash = "";
             this.QSEntries = [];
@@ -21,11 +22,17 @@ var YetaWF;
         Url.prototype.getHostName = function () {
             return this.Domain;
         };
+        Url.prototype.getPort = function () {
+            return this.Port;
+        };
         Url.prototype.getUserInfo = function (withAt) {
             return this.UserInfo + (withAt && this.UserInfo.length > 0 ? "@" : "");
         };
         Url.prototype.getDomain = function () {
-            return encodeURIComponent(this.Domain);
+            if (this.Port)
+                return encodeURIComponent(this.Domain) + ":" + encodeURIComponent(this.Port);
+            else
+                return encodeURIComponent(this.Domain);
         };
         Url.prototype.getPath = function () {
             var path = "";
@@ -108,6 +115,7 @@ var YetaWF;
             this.Schema = "";
             this.UserInfo = "";
             this.Domain = "";
+            this.Port = "";
             this.Path = [];
             this.Hash = "";
             this.QSEntries = [];
@@ -142,9 +150,10 @@ var YetaWF;
             }
             else
                 url = parts[0];
+            var domain = "";
             parts = url.split("/");
             if (parts.length > 1) {
-                this.Domain = decodeURIComponent(parts[0]);
+                domain = parts[0];
                 parts = parts.slice(1);
                 for (var i in parts)
                     parts[i] = decodeURIComponent(parts[i]);
@@ -152,6 +161,12 @@ var YetaWF;
             }
             else
                 this.Path = [""];
+            if (domain) {
+                parts = domain.split(":");
+                this.Domain = parts[0];
+                if (parts.length > 1)
+                    this.Port = parts.slice(1).join("//");
+            }
             // split up query string
             if (qs.length > 0) {
                 var qsArr = qs.split("&");
