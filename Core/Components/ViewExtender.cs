@@ -43,7 +43,7 @@ namespace YetaWF.Core.Components {
             view.SetRenderInfo(htmlHelper, module);
 
             Type moduleType = module.GetType();
-            Type modelType = model.GetType();
+            Type modelType = model == null ? typeof(object) : model.GetType();
 
             // Find RenderViewAsync/RenderPartialViewAsync
             bool partial = viewName.EndsWith(PartialSuffix);

@@ -191,15 +191,17 @@ namespace YetaWF.Core.Support.Serializers {
         }
         static List<char> EndChars = new List<char> { ',', ']' };
 
-        // Denormalize type information if we're on MVC5
         internal static string UpdateTypeForDeserialization(string typeName) {
 #if MVC6
 #else
+            // Denormalize type information if we're on MVC5
             typeName = typeName.Replace(", System.Private.CoreLib", ", mscorlib"); // (MVC5) used for system.string, replace with MVC5 equivalent (standard is MVC6)
 #endif
             // Types that were changed in 4.0
             if (typeName == "YetaWF.Core.Menus.MenuList")
                 typeName = "YetaWF.Core.Components.MenuList";
+            else if (typeName == "YetaWF.Core.Views.Shared.RecaptchaV2Config")
+                typeName = "YetaWF.Core.Components.RecaptchaV2Config";
 
             return typeName;
         }

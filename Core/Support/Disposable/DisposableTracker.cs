@@ -37,7 +37,7 @@ namespace YetaWF.Core.Support {
                         throw new InternalError("New disposable object which has already been added to the list of disposable objects - possible duplicate using() { }");
 
                     DisposableObjects.Add(o, new Support.TrackedEntry {
-                        DisposableObject = o,
+                        DisposableObject = o?.ToString(),
                         Created = DateTime.UtcNow,
                         CallStack = GetCallStack(),
                     });
