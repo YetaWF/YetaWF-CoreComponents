@@ -111,6 +111,8 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\Support\WeeklyHours.cs" />
+    <Compile Include="Components\Support\TimeOfDay.cs" />
     <Compile Include="Components\Support\DayTimeRange.cs" />
     <Compile Include="Components\ViewExtender.cs" />
     <Compile Include="Components\ViewBase.cs" />
@@ -388,6 +390,7 @@
     <Folder Include="Startup\MVC6\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Addons\_Addons\Basics\ComponentBase.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Content.tsx" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Anchors.ts" />
     <TypeScriptCompile Include="Addons\_Addons\Basics\Globals.ts" />
