@@ -39,7 +39,7 @@ namespace YetaWF.Core.Packages {
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                     ze = zip.GetEntry(PackageContentsFile);
                     if (ze == null) {
-                        errorList.Add(__ResStr("invContentsFormat", "{0} is not a valid package data file - No contents file found.", displayFileName));
+                        errorList.Add(__ResStr("invDataContentsFormat", "{0} is not a valid package data file - No contents file found.", displayFileName));
                         return false;
                     }
                     using (Stream entryStream = zip.GetInputStream(ze)) {
