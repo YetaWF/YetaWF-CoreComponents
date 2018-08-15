@@ -74,7 +74,15 @@ namespace YetaWF.Core.IO {
                 byte[] btes = new byte[fs.GetLength()];
                 await fs.ReadAsync(btes, 0, (int)fs.GetLength());
                 await fs.CloseAsync();
-                data = new GeneralFormatter(Format).Deserialize<TObj>(btes);
+                try {
+                    data = new GeneralFormatter(Format).Deserialize<TObj>(btes);
+                } catch (Exception) {
+                    if (SpecificTypeOnly)
+                        data = null;
+                    else
+                        throw;
+                }
+
             }
             if (SpecificTypeOnly) {
                 if (data != null && typeof(TObj) == data.GetType()) {
