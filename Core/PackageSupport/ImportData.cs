@@ -123,7 +123,7 @@ namespace YetaWF.Core.Packages {
                                 object obj = null;
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                                     try {
-                                        obj = new GeneralFormatter(Package.ExportFormat).Deserialize<object>(fs.GetFileStream());
+                                        obj = new GeneralFormatter(Package.ExportFormatChunks).Deserialize<object>(fs.GetFileStream());
                                     } catch (Exception exc) {
                                         errorList.Add(__ResStr("errPkgDataDeser", "Error deserializing {0} - {1}", e.Name, exc));
                                         return false;

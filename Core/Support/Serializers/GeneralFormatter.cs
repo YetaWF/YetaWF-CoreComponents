@@ -42,6 +42,10 @@ namespace YetaWF.Core.Support.Serializers {
             /// JSON serialization
             /// </summary>
             JSON = 4,
+            /// <summary>
+            /// JSON serialization with type information
+            /// </summary>
+            JSONTyped = 6,
         };
 
         public GeneralFormatter(Style format) {
@@ -114,6 +118,8 @@ namespace YetaWF.Core.Support.Serializers {
                     break;
                 case Style.JSON:
                     return new JSONFormatter().Deserialize<TObj>(fs);
+                case Style.JSONTyped:
+                    return new JSONFormatter().Deserialize<TObj>(fs, true);
             }
             object data;
             try {
@@ -141,7 +147,10 @@ namespace YetaWF.Core.Support.Serializers {
                     fmt = new BinaryFormatter { AssemblyFormat = 0 /*System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple*/ };
                     break;
                 case Style.JSON:
-                    new JSONFormatter().Serialize(fs, obj);
+                    new JSONFormatter().Serialize(fs, obj, false);
+                    return;
+                case Style.JSONTyped:
+                    new JSONFormatter().Serialize(fs, obj, true);
                     return;
             }
             fmt.Serialize(fs, obj);
@@ -166,7 +175,9 @@ namespace YetaWF.Core.Support.Serializers {
                     fmt = new BinaryFormatter { AssemblyFormat = 0 /*System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple*/ };
                     break;
                 case Style.JSON:
-                    return new JSONFormatter().Serialize(obj);
+                    return new JSONFormatter().Serialize(obj, false);
+                case Style.JSONTyped:
+                    return new JSONFormatter().Serialize(obj, true);
             }
             using (MemoryStream ms = new MemoryStream()) {
                 fmt.Serialize(ms, obj);

@@ -106,9 +106,9 @@ namespace YetaWF.Core.Packages {
             FileName = relFileName;
         }
 
-        public string FileName { get; private set; }
+        public string FileName { get; set; }
         public DateTime FileDate { get; set; }
-        public bool SiteSpecific { get; private set; }
+        public bool SiteSpecific { get; set; }
         [DontSave]
         public string AbsFileName { get; private set; }
 

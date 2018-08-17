@@ -44,25 +44,31 @@ namespace YetaWF.Core.Serializers {
             }
         }
 
-        public void Serialize(FileStream fs, object obj) {
-            byte[] btes = Serialize(obj);
+        public void Serialize(FileStream fs, object obj, bool typed = false) {
+            byte[] btes = Serialize(obj, typed);
             fs.Write(btes, 0, btes.Length);
         }
-        public byte[] Serialize(object obj) {
+        public byte[] Serialize(object obj, bool typed = false) {
             string s = Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings {
                 ContractResolver = new ContractResolver(),
+                TypeNameHandling = typed ? TypeNameHandling.All : TypeNameHandling.None,
             });
             byte[] btes = System.Text.Encoding.UTF8.GetBytes(s);
             return btes;
         }
-        public TObj Deserialize<TObj>(FileStream fs) {
+        public TObj Deserialize<TObj>(FileStream fs, bool typed = false) {
             byte[] btes = new byte[fs.Length];
             fs.Read(btes, 0, (int)fs.Length);
-            return Deserialize<TObj>(btes);
+            return Deserialize<TObj>(btes, typed);
         }
-        public TObj Deserialize<TObj>(byte[] btes) {
+        public TObj Deserialize<TObj>(byte[] btes, bool typed = false) {
             string s = System.Text.Encoding.UTF8.GetString(btes);
-            return YetaWFManager.JsonDeserialize<TObj>(s);
+            if (typed)
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<TObj>(s, new JsonSerializerSettings {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+            else
+                return YetaWFManager.JsonDeserialize<TObj>(s);
         }
     }
 }

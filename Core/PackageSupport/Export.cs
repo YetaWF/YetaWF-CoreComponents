@@ -33,6 +33,7 @@ namespace YetaWF.Core.Packages {
         public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };// not necessary any longer (since 2.0.0) as all code was moved to ViewsCode
 
         public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.JSON;
+        public const GeneralFormatter.Style ExportFormatChunks = GeneralFormatter.Style.JSONTyped;
 
         public async Task<YetaWFZipFile> ExportPackageAsync(bool SourceCode = false) {
 

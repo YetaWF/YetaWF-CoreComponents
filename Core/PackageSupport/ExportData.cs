@@ -58,7 +58,7 @@ namespace YetaWF.Core.Packages {
                                 zipFile.TempFiles.Add(fileName);
 
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
-                                    new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), expChunk.ObjectList);
+                                    new GeneralFormatter(Package.ExportFormatChunks).Serialize(fs.GetFileStream(), expChunk.ObjectList);
                                     await fs.CloseAsync();
                                 }
 
