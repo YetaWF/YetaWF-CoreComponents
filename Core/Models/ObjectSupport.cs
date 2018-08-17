@@ -981,6 +981,10 @@ namespace YetaWF.Core.Models {
             changes = new List<ChangedProperty>();
             if (oOld == null) {
                 if (oNew == null) return true;
+                changes.Add(new ChangedProperty {
+                    Name = propData.Name,
+                    Value = YetaWFManager.JsonSerialize(oNew),
+                });
                 return false;
             } else if (oNew == null) {
                 changes.Add(new ChangedProperty {
