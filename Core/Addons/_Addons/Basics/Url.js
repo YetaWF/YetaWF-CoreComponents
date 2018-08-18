@@ -83,6 +83,13 @@ var YetaWF;
         Url.prototype.addSearch = function (key, value) {
             this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value });
         };
+        Url.prototype.addSearchSimpleObject = function (obj) {
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    this.addSearch(key, obj[key]);
+                }
+            }
+        };
         Url.prototype.removeSearch = function (key) {
             key = key.toLowerCase();
             for (var i = this.QSEntries.length - 1; i >= 0; --i) {

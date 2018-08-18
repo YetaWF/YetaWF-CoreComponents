@@ -84,6 +84,13 @@ namespace YetaWF {
         public addSearch(key: string, value: string): void {
             this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value });
         }
+        public addSearchSimpleObject(obj: any): void {
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    this.addSearch(key, obj[key]);
+                }
+            }
+        }
         public removeSearch(key: string): void {
             key = key.toLowerCase();
             for (var i = this.QSEntries.length - 1; i >= 0; --i) {
