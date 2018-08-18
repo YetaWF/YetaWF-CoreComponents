@@ -447,24 +447,26 @@ namespace YetaWF.Core.Controllers {
 
         private void AddXFrameOptions() {
             string option = null;
-            if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.Default) {
-                if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.No)
+            if (Manager.CurrentPage != null) {
+                if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.Default) {
+                    if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.No)
+                        option = "deny";
+                    else if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.ThisSite)
+                        option = "sameorigin";
+                } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.No) {
                     option = "deny";
-                else if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.ThisSite)
+                } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.ThisSite) {
                     option = "sameorigin";
-            } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.No) {
-                option = "deny";
-            } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.ThisSite) {
-                option = "sameorigin";
-            }
-            if (option != null) {
-                if (YetaWFController.GoingToPopup())
-                    option = "sameorigin";// we need at least this to go into a popup
+                }
+                if (option != null) {
+                    if (YetaWFController.GoingToPopup())
+                        option = "sameorigin";// we need at least this to go into a popup
 #if MVC6
-                Manager.CurrentResponse.Headers.Add("X-Frame-Options", option);
+                    Manager.CurrentResponse.Headers.Add("X-Frame-Options", option);
 #else
-                Manager.CurrentResponse.AddHeader("X-Frame-Options", option);
+                   Manager.CurrentResponse.AddHeader("X-Frame-Options", option);
 #endif
+                }
             }
         }
 

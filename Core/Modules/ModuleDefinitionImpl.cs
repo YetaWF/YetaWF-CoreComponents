@@ -604,7 +604,7 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
+                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName, rvd)).ToString();
 #else
                 YetaWFManager.Syncify(async () => {
                     moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
@@ -706,7 +706,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 
             string moduleHtml = null;
 #if MVC6
-            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, Area, rvd)).ToString();
+            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName, rvd)).ToString();
 #else
             YetaWFManager.Syncify(async () => {
                 moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
