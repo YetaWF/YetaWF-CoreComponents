@@ -39,8 +39,8 @@ namespace YetaWF.Core.Pages {
                     await modZip.SaveAsync(modZipFileName);
                     await modZip.CleanupFoldersAsync();
                     // add the module zip file to the page zip file
-                    serPage.ModuleZips.Add(mod.ModuleGuidName);
-                    zipFile.AddFile(modZipFileName, mod.ModuleGuidName);
+                    serPage.ModuleZips.Add(mod.ModuleGuidName + ".zip");
+                    zipFile.AddFile(modZipFileName, mod.ModuleGuidName + ".zip");
                     zipFile.TempFiles.Add(modZipFileName);
                 }
             }

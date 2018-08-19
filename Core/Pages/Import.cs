@@ -32,7 +32,7 @@ namespace YetaWF.Core.Pages {
             ImportInfo info = new ImportInfo();
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
-            string xmlFile = null;
+            string jsonFile = null;
 
             using (ZipFile zip = new ZipFile(zipFileName)) {
 
@@ -44,8 +44,8 @@ namespace YetaWF.Core.Pages {
                 }
 
                 // read contents file
-                xmlFile = Path.GetTempFileName();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                jsonFile = Path.GetTempFileName();
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(PageContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
@@ -53,11 +53,11 @@ namespace YetaWF.Core.Pages {
                     await fs.CloseAsync();
                 }
                 SerializablePage serPage;
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
                     serPage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePage>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
-                await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
+                await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
 
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serPage.CoreVersion) < 0) {
                     errorList.Add(__ResStr("invCore", "This page requires YetaWF version {0} - Current version found is {1}", serPage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
@@ -110,19 +110,21 @@ namespace YetaWF.Core.Pages {
             using (ZipFile modZip = new ZipFile(modZipFileName)) {
 
                 // read contents file
-                string xmlFile = Path.GetTempFileName();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                string jsonFile = Path.GetTempFileName();
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ZipEntry ze = modZip.GetEntry(ModuleContentsFile);
                     using (Stream entryStream = modZip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
                     }
                     await fs.CloseAsync();
                 }
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
                     serModule = new GeneralFormatter(Package.ExportFormatModules).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
-                await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
+                await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
+
+                await ModuleDefinition.UpdateRolesAndUsers(serModule);
 
                 // save the module
                 ModuleDefinition modExisting = await ModuleDefinition.LoadAsync(serModule.ModDef.ModuleGuid, AllowNone: true);

@@ -5,7 +5,9 @@ using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
@@ -24,7 +26,7 @@ namespace YetaWF.Core.Modules {
 
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
-            string xmlFile = null;
+            string jsonFile = null;
 
             using (ZipFile zip = new ZipFile(zipFileName)) {
 
@@ -36,8 +38,8 @@ namespace YetaWF.Core.Modules {
                 }
 
                 // read contents file
-                xmlFile = Path.GetTempFileName();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                jsonFile = Path.GetTempFileName();
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(ModuleContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
@@ -45,17 +47,55 @@ namespace YetaWF.Core.Modules {
                     await fs.CloseAsync();
                 }
                 SerializableModule serModule;
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
                     serModule = new GeneralFormatter(Package.ExportFormatModules).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
-                await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
+                await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
 
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serModule.CoreVersion) < 0) {
                     errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
+
+                await UpdateRolesAndUsers(serModule);
+
                 return await ImportAsync(zip, displayFileName, serModule, pageGuid, newModule, pane, top, errorList);
+            }
+        }
+
+        internal static async Task UpdateRolesAndUsers(SerializableModule serModule) {
+            // Update all roles with the role id based on the role name (ids are different between sites)
+            List<AllowedRole> origRoles = serModule.ModDef.AllowedRoles.ToList();// copy original list
+            serModule.ModDef.AllowedRoles = new Serializers.SerializableList<AllowedRole>();
+            foreach (AllowedRole origRole in origRoles) {
+                string roleName = (from r in serModule.Roles where r.RoleId == origRole.RoleId select r.RoleName).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(roleName)) {
+                    int roleId = 0;
+                    try {
+                        roleId = Resource.ResourceAccess.GetRoleId(roleName);
+                    } catch (Exception) { }
+                    if (roleId != 0) {
+                        origRole.RoleId = roleId;
+                        serModule.ModDef.AllowedRoles.Add(origRole);
+                    }
+                }
+            }
+            // Update all users with the user id based on the user name (ids are different between sites)
+            List<AllowedUser> origUsers = serModule.ModDef.AllowedUsers.ToList();// copy original list
+            serModule.ModDef.AllowedUsers = new Serializers.SerializableList<AllowedUser>();
+            foreach (AllowedUser origUser in origUsers) {
+                string userName = (from u in serModule.Users where u.UserId == origUser.UserId select u.UserName).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(userName)) {
+                    int userId = 0;
+                    try {
+                        userId = await Resource.ResourceAccess.GetUserIdAsync(userName);
+                    } catch (Exception) { }
+                    if (userId != 0) {
+                        origUser.UserId = userId;
+                        serModule.ModDef.AllowedUsers.Add(origUser);
+                    }
+                }
             }
         }
 
