@@ -119,7 +119,7 @@ namespace YetaWF.Core.Pages {
                     await fs.CloseAsync();
                 }
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
-                    serModule = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableModule>(fs.GetFileStream());
+                    serModule = new GeneralFormatter(Package.ExportFormatModules).Deserialize<SerializableModule>(fs.GetFileStream());
                     await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
