@@ -6,7 +6,6 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-using YetaWF.Core.Support.Zip;
 using YetaWF.PackageAttributes;
 
 namespace YetaWF.Core.Packages {
@@ -56,8 +55,23 @@ namespace YetaWF.Core.Packages {
         public Guid ModuleGuid { get; set; }
         public ModuleDefinition ModDef { get; set; }
         public SerializableList<SerializableFile> Files { get; set; }
+        public SerializableList<RoleLookupEntry> Roles { get; set; }
+        public SerializableList<UserLookupEntry> Users { get; set; }
 
-        public SerializableModule() { Files = new SerializableList<SerializableFile>(); }
+        public SerializableModule() {
+            Files = new SerializableList<SerializableFile>();
+            Roles = new SerializableList<RoleLookupEntry>();
+            Users = new SerializableList<UserLookupEntry>();
+        }
+    }
+
+    public class RoleLookupEntry {
+        public string RoleName { get; set; } // the role name on the originating system
+        public int RoleId { get; set; } // the role id on the originating system
+    }
+    public class UserLookupEntry {
+        public string UserName { get; set; } // the user name on the originating system
+        public int UserId { get; set; } // the user id on the originating system
     }
 
     public class SerializableData {

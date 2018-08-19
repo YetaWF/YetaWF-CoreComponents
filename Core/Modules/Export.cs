@@ -1,7 +1,10 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support.Serializers;
@@ -28,6 +31,20 @@ namespace YetaWF.Core.Modules {
             serModule.ModDef = this;
             // and files (if any)
             serModule.Files = await Package.ProcessAllFilesAsync(this.ModuleDataFolder);
+            // add roles (we need to save role names in case we restore on another site with different role Ids)
+            serModule.Roles = new Serializers.SerializableList<RoleLookupEntry>(
+                (from r in Resource.ResourceAccess.GetDefaultRoleList() select new RoleLookupEntry {
+                    RoleId = r.RoleId,
+                    RoleName = r.Name,
+                }));
+            // add users
+            foreach (AllowedUser user in this.AllowedUsers) {
+                string name = await Resource.ResourceAccess.GetUserNameAsync(user.UserId);
+                serModule.Users.Add(new UserLookupEntry {
+                    UserId = user.UserId,
+                    UserName = name,
+                });
+            }
 
             // Add files
             foreach (var file in serModule.Files) {
