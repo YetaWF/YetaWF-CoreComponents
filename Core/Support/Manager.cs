@@ -467,24 +467,27 @@ namespace YetaWF.Core.Support {
         }
 
         public static string JsonSerialize(object value, bool Indented = false) {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndented : _JsonSettings);
+            return JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndented : _JsonSettings);
         }
         public static object JsonDeserialize(string value) {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value);
+            return JsonConvert.DeserializeObject(value, _JsonSettings);
         }
         public static object JsonDeserialize(string value, Type type) {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value, type);
+            return JsonConvert.DeserializeObject(value, type, _JsonSettings);
         }
         public static TYPE JsonDeserialize<TYPE>(string value) {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<TYPE>(value);
+            return JsonConvert.DeserializeObject<TYPE>(value, _JsonSettings);
         }
-        private static Newtonsoft.Json.JsonSerializerSettings _JsonSettings = new Newtonsoft.Json.JsonSerializerSettings {
-            StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml,
+        private static JsonSerializerSettings _JsonSettings = new JsonSerializerSettings {
+            StringEscapeHandling = StringEscapeHandling.EscapeHtml,
             DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
+            ObjectCreationHandling = ObjectCreationHandling.Replace,
         };
-        private static Newtonsoft.Json.JsonSerializerSettings _JsonSettingsIndented = new Newtonsoft.Json.JsonSerializerSettings {
-            StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeHtml,
+        private static JsonSerializerSettings _JsonSettingsIndented = new JsonSerializerSettings {
+            StringEscapeHandling = StringEscapeHandling.EscapeHtml,
             DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
+            ObjectCreationHandling = ObjectCreationHandling.Replace,
+
             Formatting = Newtonsoft.Json.Formatting.Indented,
         };
 

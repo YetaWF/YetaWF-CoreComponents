@@ -52,6 +52,8 @@ namespace YetaWF.Core.Serializers {
             string s = Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings {
                 ContractResolver = new ContractResolver(),
                 TypeNameHandling = typed ? TypeNameHandling.All : TypeNameHandling.None,
+                DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
+                ObjectCreationHandling = ObjectCreationHandling.Replace,
             });
             byte[] btes = System.Text.Encoding.UTF8.GetBytes(s);
             return btes;
@@ -65,7 +67,9 @@ namespace YetaWF.Core.Serializers {
             string s = System.Text.Encoding.UTF8.GetString(btes);
             if (typed)
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<TObj>(s, new JsonSerializerSettings {
-                    TypeNameHandling = TypeNameHandling.Auto
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
+                    ObjectCreationHandling = ObjectCreationHandling.Replace
                 });
             else
                 return YetaWFManager.JsonDeserialize<TObj>(s);
