@@ -922,6 +922,9 @@ namespace YetaWF.Core.Controllers {
         /// <param name="message">The message text to be shown on an error page (GET requests only) along with the 403 exception.</param>
         /// <returns>An action result.</returns>
         protected ActionResult NotAuthorized(string message) {
+
+            message = message ?? __ResStr("notAuth", "Not Authorized");
+
             if (Manager.IsPostRequest) {
 #if MVC6
                 return new UnauthorizedResult();

@@ -143,7 +143,7 @@ namespace YetaWF.Core.IO {
                     if (!await io.ExistsAsync())
                         return UpdateStatusEnum.RecordDeleted;
                     // delete the old file (incl. cache etc.)
-                    await RemoveAsync();
+                    await RemoveNoLockAsync();
                     // save the new file
                     await ioNew.SaveAsync();
                     FileName = newKey;
@@ -224,6 +224,24 @@ namespace YetaWF.Core.IO {
                         await sharedCacheDP.RemoveAsync<TObj>(CacheKey);
                     }
                     await lockObject.UnlockAsync();
+                }
+            } else {
+                await io.RemoveAsync();
+            }
+        }
+        /// <summary>
+        /// Remove the file. Fails if the file doesn't exist.
+        /// </summary>
+        public async Task RemoveNoLockAsync() {
+            FileIO<TObj> io = new FileIO<TObj> {
+                BaseFolder = BaseFolder,
+                FileName = FileName,
+                Format = Format,
+            };
+            if (Cacheable) {
+                await io.RemoveAsync();
+                using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
+                    await sharedCacheDP.RemoveAsync<TObj>(CacheKey);
                 }
             } else {
                 await io.RemoveAsync();

@@ -353,27 +353,41 @@ var YetaWF;
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
         BasicsServices.prototype.refreshModule = function (mod) {
+            if (!this.getElementById(mod.id))
+                throw "Module with id " + mod.id + " not found"; /*DEBUG*/
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 if (entry.module.id === mod.id) {
-                    entry.callback();
+                    entry.callback(entry.module);
                 }
             }
         };
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
             var mod = this.getModuleFromTag(elem);
+            if (!this.getElementById(mod.id))
+                throw "Module with id " + mod.id + " not found"; /*DEBUG*/
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 if (entry.module.id === mod.id) {
-                    entry.callback();
+                    entry.callback(entry.module);
                 }
             }
         };
         BasicsServices.prototype.refreshPage = function () {
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                entry.callback();
+                if (!this.getElementById(entry.module.id))
+                    throw "Module with id " + entry.module.id + " not found"; /*DEBUG*/
+                if (this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn"))
+                    return; // don't refresh modules within popups when refreshing the page
+                entry.callback(entry.module);
             }
+        };
+        /**
+         * Registers a callback that is called when a module is to be refreshed/reloaded
+         */
+        BasicsServices.prototype.registerModuleRefresh = function (module, callback) {
+            this.reloadInfo.push({ module: module, callback: callback });
         };
         // Module locator
         /**

@@ -601,6 +601,17 @@ namespace YetaWF.Core.Modules {
             RouteValueDictionary rvd = new RouteValueDictionary();
             rvd.Add(Globals.RVD_ModuleDefinition, this);
 
+            bool tempEditOverride = false;
+            if (Manager.EditMode) {
+                if (!IsAuthorized(RoleDefinition.Edit)) {
+                    if (IsAuthorized(RoleDefinition.View)) {
+                        // can't edit, but view is OK
+                        Manager.EditMode = false;
+                        tempEditOverride = true;
+                    }
+                }
+            }
+
             string moduleHtml = null;
             try {
 #if MVC6
@@ -615,6 +626,9 @@ namespace YetaWF.Core.Modules {
                 HtmlBuilder hb = ProcessModuleError(exc, ModuleName);
                 moduleHtml = hb.ToString();
             }
+
+            if (tempEditOverride)
+                Manager.EditMode = true;
 
             Manager.WantFocus = false;
             Manager.CurrentModule = oldMod;

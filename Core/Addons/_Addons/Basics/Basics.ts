@@ -29,15 +29,15 @@ namespace YetaWF {
     export interface MessageOptions {
         encoded: boolean;
     }
-    export interface ReloadInfo {
-        module: HTMLElement;
-        callback(): void;
-    }
     export interface CharSize {
         width: number;
         height: number;
     }
 
+    interface ReloadInfo {
+        module: HTMLElement;
+        callback(module: HTMLElement): void;
+    }
     interface ContentChangeEntry {
         callback(addonGuid: string, on: boolean): void;
     }
@@ -454,28 +454,41 @@ namespace YetaWF {
 
         private reloadingModuleTagInModule: HTMLElement | null = null;
 
-        public reloadInfo: ReloadInfo[] = [];
-
-        public refreshModule(mod: HTMLElement) : void {
+        public refreshModule(mod: HTMLElement): void {
+            if (!this.getElementById(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
             for (let entry of this.reloadInfo) {
                 if (entry.module.id === mod.id) {
-                    entry.callback();
+                    entry.callback(entry.module);
                 }
             }
         }
         public refreshModuleByAnyTag(elem: HTMLElement): void {
             var mod = this.getModuleFromTag(elem);
+            if (!this.getElementById(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
             for (let entry of this.reloadInfo) {
                 if (entry.module.id === mod.id) {
-                    entry.callback();
+                    entry.callback(entry.module);
                 }
             }
         }
         public refreshPage(): void {
             for (let entry of this.reloadInfo) {
-                entry.callback();
+                if (!this.getElementById(entry.module.id)) throw `Module with id ${entry.module.id} not found`;/*DEBUG*/
+                if (this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn"))
+                    return; // don't refresh modules within popups when refreshing the page
+                entry.callback(entry.module);
             }
         }
+
+        private reloadInfo: ReloadInfo[] = [];
+
+        /**
+         * Registers a callback that is called when a module is to be refreshed/reloaded
+         */
+        public registerModuleRefresh(module: HTMLElement, callback: (module: HTMLElement) => void): void {
+            this.reloadInfo.push({ module: module, callback: callback });
+        }
+
 
         // Module locator
 
