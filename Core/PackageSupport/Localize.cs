@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
@@ -32,7 +33,12 @@ namespace YetaWF.Core.Packages {
             await ParseSourceFilesAsync(PackageSourceRoot);
 
             // enumerate all types
-            List<Type> types = PackageAssembly.GetTypes().ToList();
+            List<Type> types;
+            try {
+                types = PackageAssembly.GetTypes().ToList();
+            } catch (ReflectionTypeLoadException ex) {
+                types = (from t in ex.Types where t != null select t).ToList();
+            }
             foreach (Type type in types) {
 
                 //DEBUG if (type.FullName == "YetaWF.Core.Scheduler.SchedulerFrequency+TimeUnitEnum")
