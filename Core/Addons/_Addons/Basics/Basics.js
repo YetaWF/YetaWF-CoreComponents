@@ -357,28 +357,25 @@ var YetaWF;
                 throw "Module with id " + mod.id + " not found"; /*DEBUG*/
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                if (entry.module.id === mod.id) {
+                if (entry.module.id === mod.id)
                     entry.callback(entry.module);
-                }
             }
         };
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
             var mod = this.getModuleFromTag(elem);
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                if (entry.module.id === mod.id) {
+                if (entry.module.id === mod.id)
                     entry.callback(entry.module);
-                }
             }
         };
         BasicsServices.prototype.refreshPage = function () {
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                if (!this.getElementByIdCond(entry.module.id))
-                    return;
-                if (this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn"))
-                    return; // don't refresh modules within popups when refreshing the page
-                entry.callback(entry.module);
+                if (this.getElementByIdCond(entry.module.id)) { // the module exists
+                    if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
+                        entry.callback(entry.module);
+                }
             }
         };
         /**

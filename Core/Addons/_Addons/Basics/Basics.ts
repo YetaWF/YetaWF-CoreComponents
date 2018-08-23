@@ -457,25 +457,23 @@ namespace YetaWF {
         public refreshModule(mod: HTMLElement): void {
             if (!this.getElementByIdCond(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
             for (let entry of this.reloadInfo) {
-                if (entry.module.id === mod.id) {
+                if (entry.module.id === mod.id)
                     entry.callback(entry.module);
-                }
             }
         }
         public refreshModuleByAnyTag(elem: HTMLElement): void {
             var mod = this.getModuleFromTag(elem);
             for (let entry of this.reloadInfo) {
-                if (entry.module.id === mod.id) {
+                if (entry.module.id === mod.id)
                     entry.callback(entry.module);
-                }
             }
         }
         public refreshPage(): void {
             for (let entry of this.reloadInfo) {
-                if (!this.getElementByIdCond(entry.module.id)) return;
-                if (this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn"))
-                    return; // don't refresh modules within popups when refreshing the page
-                entry.callback(entry.module);
+                if (this.getElementByIdCond(entry.module.id)) { // the module exists
+                    if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
+                        entry.callback(entry.module);
+                }
             }
         }
 
