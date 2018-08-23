@@ -27,18 +27,20 @@ var YetaWF;
                     // find the unique skinvisitor module so we have antiforgery tokens and other context info
                     var f = $YetaWF.getElement1BySelectorCond(".YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form");
                     if (f) {
+                        var urlTrack = f.getAttribute("data-track");
+                        if (!urlTrack)
+                            throw "data-track not defined"; /*DEBUG*/
+                        var uri = $YetaWF.parseUrl(urlTrack);
                         var data = { "url": url };
                         var info = $YetaWF.Forms.getFormInfo(f);
                         data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
                         data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
                         data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
-                        var urlTrack = f.getAttribute("data-track");
-                        if (!urlTrack)
-                            throw "data-track not defined"; /*DEBUG*/
+                        uri.addSearchSimpleObject(data);
                         var request = new XMLHttpRequest();
-                        request.open("POST", urlTrack, true);
-                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                        request.send(data);
+                        request.open("POST", uri.toUrl(), true);
+                        request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                        request.send();
                         // no response handling
                     }
                 }
@@ -210,5 +212,3 @@ var YetaWF;
     }());
     YetaWF.Anchors = Anchors;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Anchors.js.map
