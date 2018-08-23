@@ -70,8 +70,8 @@ namespace YetaWF.Core.Pages {
             // for post/ajax requests, respond in a way we can display the error
             //context.ExceptionHandled = true;
             response.StatusCode = 200;
-            response.ContentType = "application/text";
-            string content = string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", YetaWFManager.JsonSerialize(msg));
+            response.ContentType = "application/json";
+            string content = YetaWFManager.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", YetaWFManager.JsonSerialize(msg)));
             await context.Response.WriteAsync(content);
             return true;// handled
         }

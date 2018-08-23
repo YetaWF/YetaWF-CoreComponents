@@ -33,8 +33,8 @@ namespace YetaWF.Core.Controllers {
             //context.ExceptionHandled = true;
             var response = context.HttpContext.Response;
             response.StatusCode = 200;
-            response.ContentType = "application/text";
-            string content = string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", YetaWFManager.JsonSerialize(msg));
+            response.ContentType = "application/json";
+            string content = YetaWFManager.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", YetaWFManager.JsonSerialize(msg)));
             return context.HttpContext.Response.WriteAsync(content);
         }
     }
