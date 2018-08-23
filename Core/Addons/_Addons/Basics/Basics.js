@@ -17,7 +17,7 @@ var YetaWF;
              */
             this.UnifiedAddonModsLoaded = [];
             // Navigation
-            this.suppressPopState = false;
+            this.suppressPopState = 0;
             this.reloadingModuleTagInModule = null;
             this.reloadInfo = [];
             this.escElement = document.createElement("div");
@@ -1201,8 +1201,8 @@ var YetaWF;
             });
             // Navigation
             this.registerEventHandlerWindow("popstate", null, function (ev) {
-                if (_this.suppressPopState) {
-                    _this.suppressPopState = false;
+                if (_this.suppressPopState > 0) {
+                    --_this.suppressPopState;
                     return true;
                 }
                 var uri = _this.parseUrl(window.location.href);
@@ -1216,7 +1216,10 @@ var YetaWF;
                 var anchor = $YetaWF.elementClosestCond(ev.target, "a");
                 if (!anchor)
                     return true;
-                _this.suppressPopState = true;
+                ++_this.suppressPopState;
+                setTimeout(function () {
+                    --_this.suppressPopState;
+                }, 200);
                 return true;
             });
             // <A> links

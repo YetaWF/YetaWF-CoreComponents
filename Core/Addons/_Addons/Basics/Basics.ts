@@ -393,7 +393,7 @@ namespace YetaWF {
 
         // Navigation
 
-        public suppressPopState: boolean = false;
+        public suppressPopState: number = 0;
 
         public setUrl(url: string): void {
             try {
@@ -1356,8 +1356,8 @@ namespace YetaWF {
             // Navigation
 
             this.registerEventHandlerWindow("popstate", null, (ev: PopStateEvent) => {
-                if (this.suppressPopState) {
-                    this.suppressPopState = false;
+                if (this.suppressPopState > 0) {
+                    --this.suppressPopState;
                     return true;
                 }
                 var uri = this.parseUrl(window.location.href);
@@ -1372,7 +1372,10 @@ namespace YetaWF {
                 var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
-                this.suppressPopState = true;
+                ++this.suppressPopState;
+                setTimeout(() : void => {
+                    --this.suppressPopState;
+                }, 200);
                 return true;
             });
 
