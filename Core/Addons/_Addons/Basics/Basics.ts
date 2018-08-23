@@ -455,7 +455,7 @@ namespace YetaWF {
         private reloadingModuleTagInModule: HTMLElement | null = null;
 
         public refreshModule(mod: HTMLElement): void {
-            if (!this.getElementById(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
+            if (!this.getElementByIdCond(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
             for (let entry of this.reloadInfo) {
                 if (entry.module.id === mod.id) {
                     entry.callback(entry.module);
@@ -464,7 +464,6 @@ namespace YetaWF {
         }
         public refreshModuleByAnyTag(elem: HTMLElement): void {
             var mod = this.getModuleFromTag(elem);
-            if (!this.getElementById(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
             for (let entry of this.reloadInfo) {
                 if (entry.module.id === mod.id) {
                     entry.callback(entry.module);
@@ -473,7 +472,7 @@ namespace YetaWF {
         }
         public refreshPage(): void {
             for (let entry of this.reloadInfo) {
-                if (!this.getElementById(entry.module.id)) throw `Module with id ${entry.module.id} not found`;/*DEBUG*/
+                if (!this.getElementByIdCond(entry.module.id)) return;
                 if (this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn"))
                     return; // don't refresh modules within popups when refreshing the page
                 entry.callback(entry.module);
