@@ -76,26 +76,46 @@ namespace YetaWF.Core.Modules {
         }
 
         public string GetCompleteUrl(bool OnPage = false) {
-            string qs = "";
+
             string url = Url;
             if (!string.IsNullOrWhiteSpace(url)) {
                 // handle all args
-                // add human readable args as URL segments
-                QueryHelper query = QueryHelper.FromAnonymousObject(QueryArgsHR);
-                url = query.ToUrlHumanReadable(url);
-                query = QueryHelper.FromAnonymousObject(QueryArgs);
-                if (NeedsModuleContext) //TODO: Url may already contain Basics.ModuleGuid
-                    query.Add(Basics.ModuleGuid, GetOwningModuleGuid().ToString());
-                url = query.ToUrl(url);
-                if (QueryArgsDict != null)
-                    url = QueryArgsDict.ToUrl(url);
 
+                string urlOnly;
+                QueryHelper query = QueryHelper.FromUrl(url, out urlOnly);
+                if (NeedsModuleContext)
+                    query.Remove(Basics.ModuleGuid);
+
+                // add human readable args as URL segments
+                QueryHelper qh = QueryHelper.FromAnonymousObject(QueryArgsHR);
+                if (NeedsModuleContext)
+                    qh.Remove(Basics.ModuleGuid);
+                urlOnly = qh.ToUrlHumanReadable(urlOnly);
+
+                // add query args
+                qh = QueryHelper.FromAnonymousObject(QueryArgs);
+                if (NeedsModuleContext)
+                    qh.Remove(Basics.ModuleGuid);
+                urlOnly = qh.ToUrl(urlOnly);
+
+                // add query args dictionary
+                if (QueryArgsDict != null) {
+                    if (NeedsModuleContext)
+                        QueryArgsDict.Remove(Basics.ModuleGuid);
+                    urlOnly = QueryArgsDict.ToUrl(urlOnly);
+                }
+
+                // add module guid if needed
+                if (NeedsModuleContext)
+                    query.Add(Basics.ModuleGuid, GetOwningModuleGuid().ToString());
+                url = query.ToUrl(urlOnly);
+
+                // schema and anchor
                 if (url.StartsWith("/")) {
-                    url = Manager.CurrentSite.MakeUrl(url + qs, PagePageSecurity: PageSecurity);
+                    url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: PageSecurity);
                     if (OnPage && PageSecurity == PageDefinition.PageSecurityType.Any)
                         url = url.Split(new char[] { ':' }, 2)[1];// remove http: or https:
-                } else
-                    url += qs;
+                }
                 if (!string.IsNullOrWhiteSpace(AnchorId))
                     url += "#" + AnchorId;
                 return url;
