@@ -78,7 +78,7 @@ namespace YetaWF.Core.Models.Attributes {
         public RangeAttribute(Type type, string minimum, string maximum) : base(type, minimum, maximum) { }
 
         public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("range", "The '{0}' value must be between {1} and {2}", propData.GetCaption(container), Minimum, Maximum);
+            string msg = ErrorMessage ?? __ResStr("range", "The '{0}' value must be between {1} and {2}", propData.GetCaption(container), Minimum, Maximum);
             tag.MergeAttribute("data-val-range", msg);
             tag.MergeAttribute("data-val-range-min", base.Minimum.ToString());
             tag.MergeAttribute("data-val-range-max", base.Maximum.ToString());
