@@ -1373,8 +1373,9 @@ namespace YetaWF {
                 if (!anchor) return true;
 
                 ++this.suppressPopState;
-                setTimeout(() : void => {
-                    --this.suppressPopState;
+                setTimeout((): void => {
+                    if (this.suppressPopState > 0)
+                        --this.suppressPopState;
                 }, 200);
                 return true;
             });

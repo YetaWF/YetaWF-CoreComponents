@@ -1218,7 +1218,8 @@ var YetaWF;
                     return true;
                 ++_this.suppressPopState;
                 setTimeout(function () {
-                    --_this.suppressPopState;
+                    if (_this.suppressPopState > 0)
+                        --_this.suppressPopState;
                 }, 200);
                 return true;
             });
