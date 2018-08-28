@@ -40,10 +40,14 @@ namespace YetaWF.Core.Packages {
         public PageDefinition PageDef { get; set; }
         public SerializableList<string> ModuleZips { get; set; }
         public SerializableList<SerializableFile> Files { get; set; }
+        public SerializableList<RoleLookupEntry> Roles { get; set; }
+        public SerializableList<UserLookupEntry> Users { get; set; }
 
         public SerializablePage() {
             ModuleZips = new SerializableList<string>();
             Files = new SerializableList<SerializableFile>();
+            Roles = new SerializableList<RoleLookupEntry>();
+            Users = new SerializableList<UserLookupEntry>();
         }
     }
 
@@ -77,8 +81,15 @@ namespace YetaWF.Core.Packages {
     public class SerializableData {
         public string PackageName { get; set; }
         public string PackageVersion { get; set; }
+        public SerializableList<RoleLookupEntry> Roles { get; set; }
+        public SerializableList<UserLookupEntry> Users { get; set; }
 
         public SerializableList<SerializableModelData> Data { get; set; }
+
+        public SerializableData() {
+            Roles = new SerializableList<RoleLookupEntry>();
+            Users = new SerializableList<UserLookupEntry>();
+        }
     }
 
     public class SerializableModelData {

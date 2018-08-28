@@ -11,6 +11,7 @@ using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 using YetaWF.Core.Support.Zip;
@@ -66,10 +67,14 @@ namespace YetaWF.Core.Modules {
 
         internal static async Task UpdateRolesAndUsers(SerializableModule serModule) {
             // Update all roles with the role id based on the role name (ids are different between sites)
-            List<AllowedRole> origRoles = serModule.ModDef.AllowedRoles.ToList();// copy original list
-            serModule.ModDef.AllowedRoles = new Serializers.SerializableList<AllowedRole>();
+            serModule.ModDef.AllowedRoles = await GetUpdatedRolesAsync(serModule.ModDef.AllowedRoles, serModule.Roles);
+            // Update all users with the user id based on the user name (ids are different between sites)
+            serModule.ModDef.AllowedUsers = await GetUpdatedUsersAsync(serModule.ModDef.AllowedUsers, serModule.Users);
+        }
+        internal static Task<SerializableList<AllowedRole>> GetUpdatedRolesAsync(List<AllowedRole> origRoles, SerializableList<RoleLookupEntry> lookupEntries) {
+            SerializableList<AllowedRole> allowedRoles = new SerializableList<AllowedRole>();
             foreach (AllowedRole origRole in origRoles) {
-                string roleName = (from r in serModule.Roles where r.RoleId == origRole.RoleId select r.RoleName).FirstOrDefault();
+                string roleName = (from r in lookupEntries where r.RoleId == origRole.RoleId select r.RoleName).FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(roleName)) {
                     int roleId = 0;
                     try {
@@ -77,15 +82,16 @@ namespace YetaWF.Core.Modules {
                     } catch (Exception) { }
                     if (roleId != 0) {
                         origRole.RoleId = roleId;
-                        serModule.ModDef.AllowedRoles.Add(origRole);
+                        allowedRoles.Add(origRole);
                     }
                 }
             }
-            // Update all users with the user id based on the user name (ids are different between sites)
-            List<AllowedUser> origUsers = serModule.ModDef.AllowedUsers.ToList();// copy original list
-            serModule.ModDef.AllowedUsers = new Serializers.SerializableList<AllowedUser>();
+            return Task.FromResult(allowedRoles);
+        }
+        internal static async Task<SerializableList<AllowedUser>> GetUpdatedUsersAsync(List<AllowedUser> origUsers, SerializableList<UserLookupEntry> lookupEntries) {
+            SerializableList<AllowedUser> allowedUsers = new SerializableList<AllowedUser>();
             foreach (AllowedUser origUser in origUsers) {
-                string userName = (from u in serModule.Users where u.UserId == origUser.UserId select u.UserName).FirstOrDefault();
+                string userName = (from r in lookupEntries where r.UserId == origUser.UserId select r.UserName).FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(userName)) {
                     int userId = 0;
                     try {
@@ -93,10 +99,11 @@ namespace YetaWF.Core.Modules {
                     } catch (Exception) { }
                     if (userId != 0) {
                         origUser.UserId = userId;
-                        serModule.ModDef.AllowedUsers.Add(origUser);
+                        allowedUsers.Add(origUser);
                     }
                 }
             }
+            return allowedUsers;
         }
 
         private static async Task<bool> ImportAsync(ZipFile zip, string displayFileName, SerializableModule serModule, Guid pageGuid, bool newModule, string pane, bool top, List<string> errorList) {

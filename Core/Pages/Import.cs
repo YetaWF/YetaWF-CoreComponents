@@ -5,10 +5,13 @@ using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
+using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 using YetaWF.Core.Support.Zip;
@@ -63,8 +66,52 @@ namespace YetaWF.Core.Pages {
                     errorList.Add(__ResStr("invCore", "This page requires YetaWF version {0} - Current version found is {1}", serPage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
                     return info;
                 }
+
+                await UpdateRolesAndUsers(serPage);
+
                 return await ImportAsync(zip, displayFileName, serPage, errorList);
             }
+        }
+
+        internal static async Task UpdateRolesAndUsers(SerializablePage serPage) {
+            // Update all roles with the role id based on the role name (ids are different between sites)
+            serPage.PageDef.AllowedRoles = await GetUpdatedRolesAsync(serPage.PageDef.AllowedRoles, serPage.Roles);
+            // Update all users with the user id based on the user name (ids are different between sites)
+            serPage.PageDef.AllowedUsers = await GetUpdatedUsersAsync(serPage.PageDef.AllowedUsers, serPage.Users);
+        }
+        internal static Task<SerializableList<AllowedRole>> GetUpdatedRolesAsync(List<AllowedRole> origRoles, SerializableList<RoleLookupEntry> lookupEntries) {
+            SerializableList<AllowedRole> allowedRoles = new SerializableList<AllowedRole>();
+            foreach (AllowedRole origRole in origRoles) {
+                string roleName = (from r in lookupEntries where r.RoleId == origRole.RoleId select r.RoleName).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(roleName)) {
+                    int roleId = 0;
+                    try {
+                        roleId = Resource.ResourceAccess.GetRoleId(roleName);
+                    } catch (Exception) { }
+                    if (roleId != 0) {
+                        origRole.RoleId = roleId;
+                        allowedRoles.Add(origRole);
+                    }
+                }
+            }
+            return Task.FromResult(allowedRoles);
+        }
+        internal static async Task<SerializableList<AllowedUser>> GetUpdatedUsersAsync(List<AllowedUser> origUsers, SerializableList<UserLookupEntry> lookupEntries) {
+            SerializableList<AllowedUser> allowedUsers = new SerializableList<AllowedUser>();
+            foreach (AllowedUser origUser in origUsers) {
+                string userName = (from r in lookupEntries where r.UserId == origUser.UserId select r.UserName).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(userName)) {
+                    int userId = 0;
+                    try {
+                        userId = await Resource.ResourceAccess.GetUserIdAsync(userName);
+                    } catch (Exception) { }
+                    if (userId != 0) {
+                        origUser.UserId = userId;
+                        allowedUsers.Add(origUser);
+                    }
+                }
+            }
+            return allowedUsers;
         }
 
         private static async Task<ImportInfo> ImportAsync(ZipFile zip, string displayFileName, SerializablePage serPage, List<string> errorList) {

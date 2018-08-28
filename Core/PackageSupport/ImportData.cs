@@ -3,11 +3,14 @@
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
+using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 using YetaWF.Core.Support.Zip;
@@ -77,6 +80,7 @@ namespace YetaWF.Core.Packages {
                 try {
                     object instMod = Activator.CreateInstance(modelType);
                     using ((IDisposable)instMod) {
+
                         IInstallableModel model = (IInstallableModel)instMod;
                         await model.RemoveSiteDataAsync();// remove site specific data so we can import the new data
 
@@ -132,6 +136,25 @@ namespace YetaWF.Core.Packages {
                                         await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
                                     }
                                 }
+
+                                // update role ids and user ids
+                                IEnumerable ienumerable = obj as IEnumerable;
+                                if (ienumerable != null) {
+                                    IEnumerator ienum = ienumerable.GetEnumerator();
+                                    while (ienum.MoveNext()) {
+                                        PageDefinition pageDef = ienum.Current as PageDefinition;
+                                        if (pageDef != null) {
+                                            pageDef.AllowedRoles = await PageDefinition.GetUpdatedRolesAsync(pageDef.AllowedRoles, serData.Roles);
+                                            pageDef.AllowedUsers = await PageDefinition.GetUpdatedUsersAsync(pageDef.AllowedUsers, serData.Users);
+                                        }
+                                        ModuleDefinition modDef = ienum.Current as ModuleDefinition;
+                                        if (modDef != null) {
+                                            modDef.AllowedRoles = await ModuleDefinition.GetUpdatedRolesAsync(modDef.AllowedRoles, serData.Roles);
+                                            modDef.AllowedUsers = await ModuleDefinition.GetUpdatedUsersAsync(modDef.AllowedUsers, serData.Users);
+                                        }
+                                    }
+                                }
+
                                 await model.ImportChunkAsync(chunk, null, obj);
                             }
                         }

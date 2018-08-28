@@ -1,10 +1,16 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
+using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
@@ -29,13 +35,22 @@ namespace YetaWF.Core.Packages {
 
             serData.Data = new SerializableList<SerializableModelData>();
 
+            // add roles (we need to save role names in case we restore on another site with different role Ids)
+            serData.Roles = new Serializers.SerializableList<RoleLookupEntry>(
+                (from r in Resource.ResourceAccess.GetDefaultRoleList() select new RoleLookupEntry {
+                    RoleId = r.RoleId,
+                    RoleName = r.Name,
+                }));
+
             // Export all models with data this package implements
             foreach (var modelType in this.InstallableModels) {
                 try {
                     object instMod = Activator.CreateInstance(modelType);
                     using ((IDisposable)instMod) {
+
                         IInstallableModel model = (IInstallableModel)instMod;
                         if (!takingBackup || await model.IsInstalledAsync()) {
+
                             SerializableModelData serModel = new SerializableModelData();
 
                             bool more = true;
@@ -53,6 +68,36 @@ namespace YetaWF.Core.Packages {
                                 }
                                 if (!more && expChunk.ObjectList == null)
                                     break;
+
+                                // add users (we need to save user names in case we restore on another site with different user Ids)
+                                IEnumerable ienumerable = expChunk.ObjectList as IEnumerable;
+                                if (ienumerable != null) {
+                                    IEnumerator ienum = ienumerable.GetEnumerator();
+                                    while (ienum.MoveNext()) {
+                                        PageDefinition pageDef = ienum.Current as PageDefinition;
+                                        if (pageDef != null) {
+                                            foreach (PageDefinition.AllowedUser user in pageDef.AllowedUsers) {
+                                                if ((from u in serData.Users where u.UserId == user.UserId select u).FirstOrDefault() == null) {
+                                                    serData.Users.Add(new UserLookupEntry {
+                                                        UserId = user.UserId,
+                                                        UserName = await Resource.ResourceAccess.GetUserNameAsync(user.UserId),
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        ModuleDefinition modDef = ienum.Current as ModuleDefinition;
+                                        if (modDef != null) {
+                                            foreach (ModuleDefinition.AllowedUser user in modDef.AllowedUsers) {
+                                                if ((from u in serData.Users where u.UserId == user.UserId select u).FirstOrDefault() == null) {
+                                                    serData.Users.Add(new UserLookupEntry {
+                                                        UserId = user.UserId,
+                                                        UserName = await Resource.ResourceAccess.GetUserNameAsync(user.UserId),
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
 
                                 fileName = Path.GetTempFileName();
                                 zipFile.TempFiles.Add(fileName);

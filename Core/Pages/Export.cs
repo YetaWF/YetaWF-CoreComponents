@@ -1,7 +1,9 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -27,6 +29,21 @@ namespace YetaWF.Core.Pages {
             // Add page definition
             serPage.PageGuid = this.PageGuid;
             serPage.PageDef = this;
+
+            // add roles (we need to save role names in case we restore on another site with different role Ids)
+            serPage.Roles = new Serializers.SerializableList<RoleLookupEntry>(
+                (from r in Resource.ResourceAccess.GetDefaultRoleList() select new RoleLookupEntry {
+                    RoleId = r.RoleId,
+                    RoleName = r.Name,
+                }));
+            // add users
+            foreach (AllowedUser user in this.AllowedUsers) {
+                string name = await Resource.ResourceAccess.GetUserNameAsync(user.UserId);
+                serPage.Users.Add(new UserLookupEntry {
+                    UserId = user.UserId,
+                    UserName = name,
+                });
+            }
 
             // Add modules
             foreach (ModuleEntry modEntry in this.ModuleDefinitions) {
