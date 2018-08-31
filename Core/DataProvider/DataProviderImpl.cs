@@ -169,27 +169,32 @@ namespace YetaWF.Core.DataProvider {
             List<PropertyData> propData = ObjectSupport.GetPropertyData(objType);
             foreach (var prop in propData) {
                 // look for Image UIHint
-                if (prop.UIHint == "Image" && !prop.HasAttribute("DontSave") && prop.PropInfo.CanRead && prop.PropInfo.CanWrite) {
-                    if (prop.GetAdditionalAttributeValue<bool>("File", false)) {
-                        // save as file
-                        PropertyData pGuid = ObjectSupport.GetPropertyData(objType, prop.Name + "_Guid");
-                        Guid origFileGuid = pGuid.GetPropertyValue<Guid>(obj);
-                        string fileName = prop.GetPropertyValue<string>(obj);
-                        Guid newFileGuid = await ConvertImageToFileAsync(moduleGuid, prop.Name, origFileGuid, fileName);
-                        if (origFileGuid != newFileGuid) {
-                            pGuid.PropInfo.SetValue(obj, newFileGuid);
+                if (prop.UIHint == "Image") {
+                    bool hasData = prop.GetAdditionalAttributeValue<bool>("Data", true);
+                    bool hasFile = prop.GetAdditionalAttributeValue<bool>("File", false);
+                    bool hasDontSave = prop.HasAttribute("DontSave");
+                    if ((!hasDontSave || hasData) && prop.PropInfo.CanRead && prop.PropInfo.CanWrite) {
+                        if (hasFile) {
+                            // save as file
+                            PropertyData pGuid = ObjectSupport.GetPropertyData(objType, prop.Name + "_Guid");
+                            Guid origFileGuid = pGuid.GetPropertyValue<Guid>(obj);
+                            string fileName = prop.GetPropertyValue<string>(obj);
+                            Guid newFileGuid = await ConvertImageToFileAsync(moduleGuid, prop.Name, origFileGuid, fileName);
+                            if (origFileGuid != newFileGuid) {
+                                pGuid.PropInfo.SetValue(obj, newFileGuid);
+                                prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
+                            }
+                        } else if (hasData) {
+                            // save as data
+                            PropertyData pData = ObjectSupport.GetPropertyData(objType, prop.Name + "_Data");
+                            byte[] currImageData = pData.GetPropertyValue<byte[]>(obj);
+                            string fileName = prop.GetPropertyValue<string>(obj);
+                            byte[] newImageData = await ConvertImageToDataAsync(fileName, currImageData);
+                            pData.PropInfo.SetValue(obj, newImageData);
                             prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
                         }
-                    } else if (prop.GetAdditionalAttributeValue<bool>("Data", true)) {
-                        // save as data
-                        PropertyData pData = ObjectSupport.GetPropertyData(objType, prop.Name + "_Data");
-                        byte[] currImageData = pData.GetPropertyValue<byte[]>(obj);
-                        string fileName = prop.GetPropertyValue<string>(obj);
-                        byte[] newImageData = await ConvertImageToDataAsync(fileName, currImageData);
-                        pData.PropInfo.SetValue(obj, newImageData);
-                        prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
+                        continue;
                     }
-                    continue;
                 }
             }
         }
