@@ -398,7 +398,7 @@ namespace YetaWF.Core.Site {
             }
         }
 
-        [Category("Pages"), Caption("Allow Static Pages"), Description("Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't changed can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property) - Only a deployed site uses static pages")]
+        [Category("Pages"), Caption("Allow Static Pages"), Description("Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't change can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property) - Only a deployed site uses static pages")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         public bool StaticPages { get; set; }
