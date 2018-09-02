@@ -597,6 +597,11 @@ var YetaWF;
                 tags = [];
                 tags.push(document.body);
             }
+            if (tags.length == 0) {
+                // it may happen that new content becomes available without any tags to update.
+                // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
+                tags.push(document.createElement("DIV")); // dummy element
+            }
             for (var _i = 0, _a = this.whenReady; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 try { // catch errors to insure all callbacks are called
@@ -629,6 +634,11 @@ var YetaWF;
             if (!tags) {
                 tags = [];
                 tags.push(document.body);
+            }
+            if (tags.length == 0) {
+                // it may happen that new content becomes available without any tags to update.
+                // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
+                tags.push(document.createElement("DIV")); // dummy element
             }
             for (var _i = 0, _a = this.whenReadyOnce; _i < _a.length; _i++) {
                 var entry = _a[_i];

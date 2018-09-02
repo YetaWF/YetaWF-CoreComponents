@@ -708,6 +708,11 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
+            if (tags.length == 0) {
+                // it may happen that new content becomes available without any tags to update.
+                // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
+                tags.push(document.createElement("DIV")); // dummy element
+            }
             for (const entry of this.whenReady) {
                 try { // catch errors to insure all callbacks are called
                     for (const tag of tags)
@@ -744,6 +749,11 @@ namespace YetaWF {
             if (!tags) {
                 tags = [];
                 tags.push(document.body);
+            }
+            if (tags.length == 0) {
+                // it may happen that new content becomes available without any tags to update.
+                // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
+                tags.push(document.createElement("DIV")); // dummy element
             }
             for (const entry of this.whenReadyOnce) {
                 try { // catch errors to insure all callbacks are called
