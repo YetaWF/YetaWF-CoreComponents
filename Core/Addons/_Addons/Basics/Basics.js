@@ -597,7 +597,7 @@ var YetaWF;
                 tags = [];
                 tags.push(document.body);
             }
-            if (tags.length == 0) {
+            if (tags.length === 0) {
                 // it may happen that new content becomes available without any tags to update.
                 // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
                 tags.push(document.createElement("DIV")); // dummy element
@@ -635,7 +635,7 @@ var YetaWF;
                 tags = [];
                 tags.push(document.body);
             }
-            if (tags.length == 0) {
+            if (tags.length === 0) {
                 // it may happen that new content becomes available without any tags to update.
                 // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
                 tags.push(document.createElement("DIV")); // dummy element
@@ -1248,5 +1248,3 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
-
-//# sourceMappingURL=Basics.js.map
