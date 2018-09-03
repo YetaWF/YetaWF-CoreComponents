@@ -52,7 +52,7 @@ namespace YetaWF.Core.Support.SendSMS {
         }
         public static async Task<ISendSMS> GetSMSProcessorAsync() {
             List<ISendSMS> procs = new List<ISendSMS>();
-            foreach (ISendSMS r in procs) {
+            foreach (ISendSMS r in RegisteredProcessors) {
                 if (await r.IsAvailableAsync())
                     procs.Add(r);
             }
@@ -68,7 +68,7 @@ namespace YetaWF.Core.Support.SendSMS {
         }
         public static async Task<GetSMSProcessorCondInfo> GetSMSProcessorCondAsync() {
             List<ISendSMS> procs = new List<ISendSMS>();
-            foreach (ISendSMS r in procs) {
+            foreach (ISendSMS r in RegisteredProcessors) {
                 if (await r.IsAvailableAsync())
                     procs.Add(r);
             }
