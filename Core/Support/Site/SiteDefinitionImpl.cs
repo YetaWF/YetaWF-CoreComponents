@@ -77,7 +77,7 @@ namespace YetaWF.Core.Site {
         /// <returns>Security settings.</returns>
         public PageDefinition.PageSecurityType DetermineSchema(PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any) {
             PageDefinition.PageSecurityType securityType = PagePageSecurity;// assume the page decides the security type
-            if (!Manager.IsTestSite) {
+            if (!Manager.IsTestSite && !Manager.IsLocalHost) {
                 switch (PageSecurity) {
                     case PageSecurityType.AsProvided:
                         if (securityType != PageDefinition.PageSecurityType.httpsOnly)
@@ -145,7 +145,7 @@ namespace YetaWF.Core.Site {
                 SecurityType = PageDefinition.PageSecurityType.httpOnly;
 
             UriBuilder uri;
-            if (!string.IsNullOrWhiteSpace(RealDomain) && Manager.HostUsed != "localhost") {
+            if (!string.IsNullOrWhiteSpace(RealDomain) && !Manager.IsLocalHost) {
                 // if we're not using localhost, we can simply access the other domain
                 uri = new UriBuilder(SecurityType == PageDefinition.PageSecurityType.httpsOnly ? "https" : "http", RealDomain);
             } else {
@@ -159,33 +159,28 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (!Manager.IsTestSite && currentSite.EnforceSiteUrl)
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSiteUrl)
                             host = currentSite.SiteDomain;
-                        if (!Manager.IsTestSite && currentSite.EnforceSitePort) {
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSitePort) {
                             if (currentSite.PortNumberSSLEval != 443)
                                 port = currentSite.PortNumberSSLEval;
                         } else
                             port = Manager.HostPortUsed;
                     }
                 } else {
-                    if (Manager.IsLocalHost) {
-                        if (Manager.HostPortUsed != 80)
-                            port = Manager.HostPortUsed;
-                    } else {
-                        if (!Manager.IsTestSite && currentSite.EnforceSiteUrl)
-                            host = currentSite.SiteDomain;
-                        if (!Manager.IsTestSite && currentSite.EnforceSitePort) {
-                            if (currentSite.PortNumberEval != 80)
-                                port = currentSite.PortNumberEval;
-                        } else
-                            port = Manager.HostPortUsed;
-                    }
+                    if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSiteUrl)
+                        host = currentSite.SiteDomain;
+                    if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSitePort) {
+                        if (currentSite.PortNumberEval != 80)
+                            port = currentSite.PortNumberEval;
+                    } else
+                        port = Manager.HostPortUsed;
                 }
                 if (port != -1)
                     uri = new UriBuilder(scheme, host, port);
                 else
                     uri = new UriBuilder(scheme, host);
-                if (!string.IsNullOrWhiteSpace(RealDomain)) {
+                if (Manager.IsLocalHost && !string.IsNullOrWhiteSpace(RealDomain)) {
                     pathAndQs += (pathAndQs.Contains("?")) ? "&" : "?";
                     pathAndQs += string.Format("{0}={1}", Globals.Link_ForceSite, YetaWFManager.UrlEncodeArgs(RealDomain));
                 }
@@ -201,7 +196,7 @@ namespace YetaWF.Core.Site {
         /// </returns>
         public string MakeRealUrl(bool Secure = false) {
             bool secure = Secure;
-            if (!Manager.IsTestSite) {
+            if (!Manager.IsTestSite && !Manager.IsLocalHost) {
                 switch (PageSecurity) {
                     case PageSecurityType.AsProvided:
                     case PageSecurityType.UsePageModuleSettings:
@@ -226,16 +221,20 @@ namespace YetaWF.Core.Site {
                 }
             }
             UriBuilder uri;
-            if (secure) {
-                if (Manager.CurrentSite.PortNumberSSLEval == 443)
-                    uri = new UriBuilder("https", Manager.CurrentSite.SiteDomain);
-                else
-                    uri = new UriBuilder("https", Manager.CurrentSite.SiteDomain, Manager.CurrentSite.PortNumberSSLEval);
+            if (Manager.IsLocalHost) {
+                uri = new UriBuilder(secure ? "https" : "http", Manager.HostUsed, Manager.HostPortUsed);
             } else {
-                if (Manager.CurrentSite.PortNumberEval == 80)
-                    uri = new UriBuilder("http", Manager.CurrentSite.SiteDomain);
-                else
-                    uri = new UriBuilder("http", Manager.CurrentSite.SiteDomain, Manager.CurrentSite.PortNumberEval);
+                if (secure) {
+                    if (Manager.CurrentSite.PortNumberSSLEval == 443)
+                        uri = new UriBuilder("https", Manager.CurrentSite.SiteDomain);
+                    else
+                        uri = new UriBuilder("https", Manager.CurrentSite.SiteDomain, Manager.CurrentSite.PortNumberSSLEval);
+                } else {
+                    if (Manager.CurrentSite.PortNumberEval == 80)
+                        uri = new UriBuilder("http", Manager.CurrentSite.SiteDomain);
+                    else
+                        uri = new UriBuilder("http", Manager.CurrentSite.SiteDomain, Manager.CurrentSite.PortNumberEval);
+                }
             }
             return uri.ToString();
         }

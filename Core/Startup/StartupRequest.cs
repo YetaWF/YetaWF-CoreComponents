@@ -37,10 +37,11 @@ namespace YetaWF.Core.Support {
             bool forcedHost = false, newSwitch = false;
             bool staticHost = false;
             bool testHost = false;
+            bool loopBack = uri.IsLoopback;
 #if MVC6
-            string host = YetaWFManager.GetRequestedDomain(uri, httpReq.Query[Globals.Link_ForceSite], out forcedHost, out newSwitch);
+            string host = YetaWFManager.GetRequestedDomain(uri, loopBack, loopBack ? httpReq.Query[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
 #else
-            string host = YetaWFManager.GetRequestedDomain(uri, httpReq.QueryString[Globals.Link_ForceSite], out forcedHost, out newSwitch);
+            string host = YetaWFManager.GetRequestedDomain(uri, loopBack, loopBack ? httpReq.QueryString[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
 #endif
             string host2 = null;
 
@@ -118,6 +119,7 @@ namespace YetaWF.Core.Support {
             manager.CurrentSite = site;
             manager.IsStaticSite = staticHost;
             manager.IsTestSite = testHost;
+            manager.IsLocalHost = loopBack;
 
             manager.HostUsed = uri.Host;
             manager.HostPortUsed = uri.Port;
@@ -130,19 +132,8 @@ namespace YetaWF.Core.Support {
                     string logoffUrl = WebConfigHelper.GetValue<string>("MvcApplication", "LogoffUrl", null);
                     if (string.IsNullOrWhiteSpace(logoffUrl))
                         throw new InternalError("MvcApplication LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
-                    Uri newUri;
-                    if (uri.IsLoopback) {
-                        // add where we need to go next (w/o the forced domain, we're already on this domain (localhost))
-#if MVC6
-                        newUri = RemoveQsKeyFromUri(uri, httpReq.Query, Globals.Link_ForceSite);
-#else
-                        newUri = RemoveQsKeyFromUri(uri, Globals.Link_ForceSite);
-#endif
-                    } else {
-                        newUri = new Uri("http://" + host);// new site to display
-                    }
+                    Uri newUri = new Uri("http://" + host);// new site to display
                     logoffUrl += YetaWFManager.UrlEncodeArgs(newUri.ToString());
-                    logoffUrl += (logoffUrl.Contains("?") ? "&" : "?") + "ResetForcedDomain=false";
 #if MVC6
                     Logging.AddLog("302 Found - {0}", logoffUrl).Truncate(100);
                     httpContext.Response.StatusCode = 302;
@@ -156,9 +147,9 @@ namespace YetaWF.Core.Support {
                 }
             }
             // Make sure we're using the "official" URL, otherwise redirect 301
-            if (!staticHost && !testHost && site.EnforceSiteUrl) {
+            if (!staticHost && !forcedHost && !testHost && !loopBack && site.EnforceSiteUrl) {
                 if (uri.IsAbsoluteUri) {
-                    if (!manager.IsLocalHost && !forcedHost && string.Compare(manager.HostUsed, site.SiteDomain, true) != 0) {
+                    if (string.Compare(manager.HostUsed, site.SiteDomain, true) != 0) {
                         UriBuilder newUrl = new UriBuilder(uri) {
                             Host = site.SiteDomain
                         };

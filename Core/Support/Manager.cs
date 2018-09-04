@@ -252,7 +252,7 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        public static void SetRequestedDomain(string siteDomain) {
+        private static void SetRequestedDomain(string siteDomain) {
 #if MVC6
             if (siteDomain == null)
                 HttpContextAccessor.HttpContext.Session.Remove(Globals.Link_ForceSite);
@@ -263,22 +263,24 @@ namespace YetaWF.Core.Support {
 #endif
 
         }
-        public static string GetRequestedDomain(Uri uri, string siteDomain, out bool overridden, out bool newSwitch) {
+        public static string GetRequestedDomain(Uri uri, bool loopBack, string siteDomain, out bool overridden, out bool newSwitch) {
             overridden = newSwitch = false;
 
-            if (!string.IsNullOrWhiteSpace(siteDomain)) {
-                overridden = newSwitch = true;
-                YetaWFManager.SetRequestedDomain(siteDomain);
-            }
+            if (loopBack) {
+                if (!string.IsNullOrWhiteSpace(siteDomain)) {
+                    overridden = newSwitch = true;
+                    SetRequestedDomain(siteDomain);
+                }
 #if MVC6
-            if (!overridden && HttpContextAccessor.HttpContext.Session != null) {
-                siteDomain = (string)HttpContextAccessor.HttpContext.Session.GetString(Globals.Link_ForceSite);
+                if (!overridden && HttpContextAccessor.HttpContext.Session != null) {
+                    siteDomain = (string)HttpContextAccessor.HttpContext.Session.GetString(Globals.Link_ForceSite);
 #else
-            if (!overridden && HttpContext.Current.Session != null) {
-                siteDomain = (string)HttpContext.Current.Session[Globals.Link_ForceSite];
+                if (!overridden && HttpContext.Current.Session != null) {
+                    siteDomain = (string)HttpContext.Current.Session[Globals.Link_ForceSite];
 #endif
-                if (!string.IsNullOrWhiteSpace(siteDomain))
-                    overridden = true;
+                    if (!string.IsNullOrWhiteSpace(siteDomain))
+                        overridden = true;
+                }
             }
             if (!overridden)
                 siteDomain = uri.Host;
@@ -768,7 +770,7 @@ namespace YetaWF.Core.Support {
         public string HostUsed { get; set; }
         public int HostPortUsed { get; set; }
         public string HostSchemeUsed { get; set; }
-        public bool IsLocalHost { get { return string.Compare(HostUsed, "localhost", true) == 0; } }
+        public bool IsLocalHost { get; set; }
         public bool IsTestSite { get; set; }
 
         /// <summary>

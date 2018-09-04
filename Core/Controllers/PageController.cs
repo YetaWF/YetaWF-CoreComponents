@@ -84,7 +84,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.ActiveDevice = YetaWFManager.DeviceSelected.Mobile;
                     if (!string.IsNullOrEmpty(site.MobileSiteUrl)) {
                         if (uri.IsAbsoluteUri) {
-                            if (string.Compare(uri.Host, "localhost", true) != 0 && string.Compare(uri.AbsoluteUri, site.MobileSiteUrl, true) != 0) {
+                            if (!Manager.IsLocalHost && string.Compare(uri.AbsoluteUri, site.MobileSiteUrl, true) != 0) {
                                 UriBuilder newUrl = new UriBuilder(site.MobileSiteUrl);
                                 string logMsg = Logging.AddLog("301 Moved Permanently - {0}", newUrl.ToString()).Truncate(100);
 #if MVC6
@@ -183,7 +183,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // http/https
-            if (!Manager.IsTestSite) {
+            if (!Manager.IsTestSite && !Manager.IsLocalHost) {
                 switch (Manager.CurrentSite.PageSecurity) {
                     default:
                     case PageSecurityType.AsProvided:
@@ -569,7 +569,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.IsInPopup = true;
                 }
                 bool usePageSettings = false;
-                if (!Manager.IsTestSite) {
+                if (!Manager.IsTestSite && !Manager.IsLocalHost) {
                     switch (Manager.CurrentSite.PageSecurity) {
                         case PageSecurityType.AsProvided:
                             usePageSettings = true;
