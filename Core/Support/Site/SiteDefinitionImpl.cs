@@ -58,8 +58,6 @@ namespace YetaWF.Core.Site {
         /// <param name="PagePageSecurity">Desired page security. This is used as a suggestion as site and page definition will determine the final page security.</param>
         /// <param name="RealDomain">Optional. Defines the domain name to be used to build the fully qualified Url. This can only be used if pathAndQs defines a local Url (starting with /).
         /// This can be used to build a Url for another domain name than the current domain name.</param>
-        /// <param name="ForceDomain">Optional. Defines the domain name to be used as querystring argument (!Domain=) to force access to the specified Url.
-        /// This is used while creating a new site and the site can not yet be accessed because it hasn't been defined in IIS or the hosts file.</param>
         /// <returns>A fully qualified Url.</returns>
         /// <remarks>
         /// This method is used to format a fully qualified Url, including http(s)://, domain, port if necessary, and also takes into consideration whether the site is
@@ -69,8 +67,8 @@ namespace YetaWF.Core.Site {
         /// ForceDomain is used while creating a new site only and should not otherwise be used.
         /// </remarks>
         public string MakeUrl(string pathAndQs = null, PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any,
-                string RealDomain = null, string ForceDomain = null) {
-            return MakeFullUrl(pathAndQs, DetermineSchema(PagePageSecurity), RealDomain: RealDomain, ForceDomain: ForceDomain);
+                string RealDomain = null) {
+            return MakeFullUrl(pathAndQs, DetermineSchema(PagePageSecurity), RealDomain: RealDomain);
         }
         /// <summary>
         /// Determine schema used based on page and site settings.
@@ -123,8 +121,6 @@ namespace YetaWF.Core.Site {
         /// <param name="Security">Desired page security.</param>
         /// <param name="RealDomain">Optional. Defines the domain name to be used to build the fully qualified Url. This can only be used if pathAndQs defines a local Url (starting with /).
         /// This can be used to build a Url for another domain name than the current domain name.</param>
-        /// <param name="ForceDomain">Optional. Defines the domain name to be used as querystring argument (!Domain=) to force access to the specified Url.
-        /// This is used while creating a new site and the site can not yet be accessed because it hasn't been defined in IIS or the hosts file.</param>
         /// <returns>A fully qualified Url.</returns>
         /// <remarks>
         /// This method is used to format a fully qualified Url, including http(s)://, domain, port if necessary, and also takes into consideration whether the site is
@@ -133,14 +129,12 @@ namespace YetaWF.Core.Site {
         /// RealDomain and ForceDomain are rarely used and usually only in YetaWF Core code as they are used to redirect to another site hosted by the same YetaWF instance.
         /// ForceDomain is used while creating a new site only and should not otherwise be used.
         /// </remarks>
-        public string MakeFullUrl(string pathAndQs = null, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, string RealDomain = null, string ForceDomain = null) {
-            if (!string.IsNullOrWhiteSpace(ForceDomain) && !string.IsNullOrWhiteSpace(RealDomain))
-                throw new InternalError("Can't use ForceDomain and RealDomain at the same time");
+        public string MakeFullUrl(string pathAndQs = null, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, string RealDomain = null) {
             if (string.IsNullOrWhiteSpace(pathAndQs))
                 pathAndQs = "/";
             if (pathAndQs.IsAbsoluteUrl()) {
-                if (ForceDomain != null || RealDomain != null)
-                    throw new InternalError("Can't use ForceDomain or RealDomain with full URL");
+                if (RealDomain != null)
+                    throw new InternalError("Can't use RealDomain with full URL");
                 return pathAndQs;
             }
             if (!pathAndQs.StartsWith("/"))
@@ -191,10 +185,7 @@ namespace YetaWF.Core.Site {
                     uri = new UriBuilder(scheme, host, port);
                 else
                     uri = new UriBuilder(scheme, host);
-                if (!string.IsNullOrWhiteSpace(ForceDomain)) {
-                    pathAndQs += (pathAndQs.Contains("?")) ? "&" : "?";
-                    pathAndQs += string.Format("{0}={1}", Globals.Link_ForceSite, YetaWFManager.UrlEncodeArgs(ForceDomain));
-                } else if (!string.IsNullOrWhiteSpace(RealDomain)) {
+                if (!string.IsNullOrWhiteSpace(RealDomain)) {
                     pathAndQs += (pathAndQs.Contains("?")) ? "&" : "?";
                     pathAndQs += string.Format("{0}={1}", Globals.Link_ForceSite, YetaWFManager.UrlEncodeArgs(RealDomain));
                 }
