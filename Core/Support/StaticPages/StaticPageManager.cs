@@ -87,11 +87,7 @@ namespace YetaWF.Core.Support.StaticPages {
             }
         }
         private string GetScheme() {
-#if MVC6
-            return Manager.CurrentRequest.Scheme;
-#else
-            return Manager.CurrentRequest.Url.Scheme;
-#endif
+            return Manager.HostSchemeUsed;
         }
         public async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
             using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
@@ -99,7 +95,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
 
                     string localUrlLower = localUrl.ToLower();
-                    
+
                     string folder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder, YetaWFManager.Manager.CurrentSite.Identity.ToString());
                     await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(folder);
 

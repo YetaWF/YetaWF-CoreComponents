@@ -36,6 +36,7 @@ namespace YetaWF.Core.Support {
             // Determine which Site folder to use based on URL provided
             bool forcedHost = false, newSwitch = false;
             bool staticHost = false;
+            bool testHost = false;
 #if MVC6
             string host = YetaWFManager.GetRequestedDomain(uri, httpReq.Query[Globals.Link_ForceSite], out forcedHost, out newSwitch);
 #else
@@ -57,7 +58,20 @@ namespace YetaWF.Core.Support {
                         host2 = host;
                     host = string.Join(".", domParts, domParts.Length - 2, 2);// get just domain as a fallback
                 }
-                if (!string.IsNullOrWhiteSpace(host2)) {
+#if DEBUG
+                // check if this is a test/forwarded site
+                if (site == null && !string.IsNullOrWhiteSpace(host2)) {
+                    site = await SiteDefinition.LoadTestSiteDefinitionAsync(host2);
+                    if (site != null)
+                        host = host2;
+                    testHost = site != null;
+                }
+                if (site == null && !string.IsNullOrWhiteSpace(host)) {
+                    site = await SiteDefinition.LoadTestSiteDefinitionAsync(host);
+                    testHost = site != null;
+                }
+#endif
+                if (site == null && !string.IsNullOrWhiteSpace(host2)) {
                     site = await SiteDefinition.LoadSiteDefinitionAsync(host2);
                     if (site != null)
                         host = host2;
@@ -103,6 +117,7 @@ namespace YetaWF.Core.Support {
 
             manager.CurrentSite = site;
             manager.IsStaticSite = staticHost;
+            manager.IsTestSite = testHost;
 
             manager.HostUsed = uri.Host;
             manager.HostPortUsed = uri.Port;
@@ -112,7 +127,7 @@ namespace YetaWF.Core.Support {
                 if (!manager.HasSuperUserRole) { // if superuser, don't log off (we could be creating a new site)
                     // A somewhat naive way to log a user off, but it's working well and also handles 3rd party logins correctly.
                     // Since this is only used during site development, it's not critical
-                    string logoffUrl = WebConfigHelper.GetValue<string>("MvcApplication", "LogoffUrl", null, Package: false);
+                    string logoffUrl = WebConfigHelper.GetValue<string>("MvcApplication", "LogoffUrl", null);
                     if (string.IsNullOrWhiteSpace(logoffUrl))
                         throw new InternalError("MvcApplication LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
                     Uri newUri;
@@ -141,7 +156,7 @@ namespace YetaWF.Core.Support {
                 }
             }
             // Make sure we're using the "official" URL, otherwise redirect 301
-            if (!staticHost && site.EnforceSiteUrl) {
+            if (!staticHost && !testHost && site.EnforceSiteUrl) {
                 if (uri.IsAbsoluteUri) {
                     if (!manager.IsLocalHost && !forcedHost && string.Compare(manager.HostUsed, site.SiteDomain, true) != 0) {
                         UriBuilder newUrl = new UriBuilder(uri) {

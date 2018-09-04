@@ -79,38 +79,41 @@ namespace YetaWF.Core.Site {
         /// <returns>Security settings.</returns>
         public PageDefinition.PageSecurityType DetermineSchema(PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any) {
             PageDefinition.PageSecurityType securityType = PagePageSecurity;// assume the page decides the security type
-            switch (PageSecurity) {
-                case PageSecurityType.AsProvided:
-                    if (securityType != PageDefinition.PageSecurityType.httpsOnly)
-                        securityType = PageDefinition.PageSecurityType.Any;
-                    break;
-                case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
-                    if (Manager.HaveUser) {
-                        if (securityType == PageDefinition.PageSecurityType.Any)
-                            securityType = PageDefinition.PageSecurityType.httpsOnly;
-                    }
-                    break;
-                case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
-                    if (!Manager.HaveUser) {
-                        if (securityType == PageDefinition.PageSecurityType.Any)
-                            securityType = PageDefinition.PageSecurityType.httpOnly;
-                    }
-                    break;
-                case PageSecurityType.UsePageModuleSettings:
-                    break;
-                case PageSecurityType.NoSSLOnly:
-                    securityType = PageDefinition.PageSecurityType.httpOnly;
-                    break;
-                case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
-                    if (Manager.HaveUser)
-                        securityType = PageDefinition.PageSecurityType.httpsOnly;
-                    else
+            if (!Manager.IsTestSite) {
+                switch (PageSecurity) {
+                    case PageSecurityType.AsProvided:
+                        if (securityType != PageDefinition.PageSecurityType.httpsOnly)
+                            securityType = PageDefinition.PageSecurityType.Any;
+                        break;
+                    case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
+                        if (Manager.HaveUser) {
+                            if (securityType == PageDefinition.PageSecurityType.Any)
+                                securityType = PageDefinition.PageSecurityType.httpsOnly;
+                        }
+                        break;
+                    case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
+                        if (!Manager.HaveUser) {
+                            if (securityType == PageDefinition.PageSecurityType.Any)
+                                securityType = PageDefinition.PageSecurityType.httpOnly;
+                        }
+                        break;
+                    case PageSecurityType.UsePageModuleSettings:
+                        break;
+                    case PageSecurityType.NoSSLOnly:
                         securityType = PageDefinition.PageSecurityType.httpOnly;
-                    break;
-                case PageSecurityType.SSLOnly:
-                    securityType = PageDefinition.PageSecurityType.httpsOnly;
-                    break;
-            }
+                        break;
+                    case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
+                        if (Manager.HaveUser)
+                            securityType = PageDefinition.PageSecurityType.httpsOnly;
+                        else
+                            securityType = PageDefinition.PageSecurityType.httpOnly;
+                        break;
+                    case PageSecurityType.SSLOnly:
+                        securityType = PageDefinition.PageSecurityType.httpsOnly;
+                        break;
+                }
+            } else
+                securityType = PageDefinition.PageSecurityType.Any;
             return securityType;
         }
         /// <summary>
@@ -162,9 +165,9 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (currentSite.EnforceSiteUrl)
+                        if (!Manager.IsTestSite && currentSite.EnforceSiteUrl)
                             host = currentSite.SiteDomain;
-                        if (currentSite.EnforceSitePort) {
+                        if (!Manager.IsTestSite && currentSite.EnforceSitePort) {
                             if (currentSite.PortNumberSSLEval != 443)
                                 port = currentSite.PortNumberSSLEval;
                         } else
@@ -175,9 +178,9 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 80)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (currentSite.EnforceSiteUrl)
+                        if (!Manager.IsTestSite && currentSite.EnforceSiteUrl)
                             host = currentSite.SiteDomain;
-                        if (currentSite.EnforceSitePort) {
+                        if (!Manager.IsTestSite && currentSite.EnforceSitePort) {
                             if (currentSite.PortNumberEval != 80)
                                 port = currentSite.PortNumberEval;
                         } else
@@ -207,27 +210,29 @@ namespace YetaWF.Core.Site {
         /// </returns>
         public string MakeRealUrl(bool Secure = false) {
             bool secure = Secure;
-            switch (PageSecurity) {
-                case PageSecurityType.AsProvided:
-                case PageSecurityType.UsePageModuleSettings:
-                    break;
-                case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
-                    if (Manager.HaveUser)
-                        secure = true;
-                    break;
-                case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
-                    if (!Manager.HaveUser)
+            if (!Manager.IsTestSite) {
+                switch (PageSecurity) {
+                    case PageSecurityType.AsProvided:
+                    case PageSecurityType.UsePageModuleSettings:
+                        break;
+                    case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
+                        if (Manager.HaveUser)
+                            secure = true;
+                        break;
+                    case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
+                        if (!Manager.HaveUser)
+                            secure = false;
+                        break;
+                    case PageSecurityType.NoSSLOnly:
                         secure = false;
-                    break;
-                case PageSecurityType.NoSSLOnly:
-                    secure = false;
-                    break;
-                case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
-                    secure = Manager.HaveUser;
-                    break;
-                case PageSecurityType.SSLOnly:
-                    secure = true;
-                    break;
+                        break;
+                    case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
+                        secure = Manager.HaveUser;
+                        break;
+                    case PageSecurityType.SSLOnly:
+                        secure = true;
+                        break;
+                }
             }
             UriBuilder uri;
             if (secure) {
@@ -321,6 +326,7 @@ namespace YetaWF.Core.Site {
         public static Func<Task> RemoveSiteDefinitionAsync { get; set; }
         public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; }
         public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; }
+        public static Func<string, Task<SiteDefinition>> LoadTestSiteDefinitionAsync { get; set; }
 
         public async Task SaveAsync() {
             await SiteDefinition.SaveSiteDefinitionAsync(this);

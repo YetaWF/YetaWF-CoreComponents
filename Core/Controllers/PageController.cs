@@ -183,88 +183,89 @@ namespace YetaWF.Core.Controllers {
             }
 
             // http/https
-            switch (Manager.CurrentSite.PageSecurity) {
-                default:
-                case PageSecurityType.AsProvided:
-                    // it's all good
-                    break;
-                case PageSecurityType.NoSSLOnly:
-                    if (uri.Scheme == "https") {
-                        UriBuilder newUri = new UriBuilder(uri);
-                        newUri.Scheme = "http";
-                        newUri.Port = Manager.CurrentSite.PortNumberEval;
+            if (!Manager.IsTestSite) {
+                switch (Manager.CurrentSite.PageSecurity) {
+                    default:
+                    case PageSecurityType.AsProvided:
+                        // it's all good
+                        break;
+                    case PageSecurityType.NoSSLOnly:
+                        if (uri.Scheme == "https") {
+                            UriBuilder newUri = new UriBuilder(uri);
+                            newUri.Scheme = "http";
+                            newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
                         Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
-                        Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                        Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
+                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
 
-                        return new EmptyResult();
-                    }
-                    break;
-                case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
-                    if (!Manager.HaveUser && uri.Scheme == "https") {
-                        UriBuilder newUri = new UriBuilder(uri);
-                        newUri.Scheme = "http";
-                        newUri.Port = Manager.CurrentSite.PortNumberEval;
+                            return new EmptyResult();
+                        }
+                        break;
+                    case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
+                        if (!Manager.HaveUser && uri.Scheme == "https") {
+                            UriBuilder newUri = new UriBuilder(uri);
+                            newUri.Scheme = "http";
+                            newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
                         Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
-                        Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                        Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
+                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
-                        return new EmptyResult();
-                    } else if (Manager.HaveUser && uri.Scheme != "https") {
-                        UriBuilder newUri = new UriBuilder(uri);
-                        newUri.Scheme = "https";
-                        newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
+                            return new EmptyResult();
+                        } else if (Manager.HaveUser && uri.Scheme != "https") {
+                            UriBuilder newUri = new UriBuilder(uri);
+                            newUri.Scheme = "https";
+                            newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
                         Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
-                        Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                        Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
+                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
-                        return new EmptyResult();
-                    }
-                    break;
-                case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
-                    // set later
-                    break;
-                case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
-                    // set later
-                    break;
-                case PageSecurityType.SSLOnly:
-                    if (uri.Scheme != "https") {
-                        UriBuilder newUri = new UriBuilder(uri);
-                        newUri.Scheme = "https";
-                        newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
+                            return new EmptyResult();
+                        }
+                        break;
+                    case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
+                        // set later
+                        break;
+                    case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
+                        // set later
+                        break;
+                    case PageSecurityType.SSLOnly:
+                        if (uri.Scheme != "https") {
+                            UriBuilder newUri = new UriBuilder(uri);
+                            newUri.Scheme = "https";
+                            newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
                         Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                         Manager.CurrentResponse.StatusCode = 302;
                         Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
-                        Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                        Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
+                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
 #endif
-                        return new EmptyResult();
-                    }
-                    break;
-                case PageSecurityType.UsePageModuleSettings:
-                    // to be determined when loading page/module
-                    break;
+                            return new EmptyResult();
+                        }
+                        break;
+                    case PageSecurityType.UsePageModuleSettings:
+                        // to be determined when loading page/module
+                        break;
+                }
             }
-
             // set up all info, like who is logged on, popup, origin list, etc.
             await YetaWFController.SetupEnvironmentInfoAsync();
 
@@ -568,36 +569,35 @@ namespace YetaWF.Core.Controllers {
                     Manager.IsInPopup = true;
                 }
                 bool usePageSettings = false;
-                switch (Manager.CurrentSite.PageSecurity) {
-                    case PageSecurityType.AsProvided:
-                        usePageSettings = true;
-                        break;
-                    case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
-                        if (!Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
+                if (!Manager.IsTestSite) {
+                    switch (Manager.CurrentSite.PageSecurity) {
+                        case PageSecurityType.AsProvided:
                             usePageSettings = true;
-                        break;
-                    case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
-                        if (Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
+                            break;
+                        case PageSecurityType.AsProvidedAnonymous_LoggedOnhttps:
+                            if (!Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
+                                usePageSettings = true;
+                            break;
+                        case PageSecurityType.AsProvidedLoggedOn_Anonymoushttp:
+                            if (Manager.HaveUser || page.PageSecurity != PageDefinition.PageSecurityType.Any)
+                                usePageSettings = true;
+                            break;
+                        case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
+                        case PageSecurityType.NoSSLOnly:
+                        case PageSecurityType.SSLOnly:
+                            break;
+                        case PageSecurityType.UsePageModuleSettings:
                             usePageSettings = true;
-                        break;
-                    case PageSecurityType.NoSSLOnlyAnonymous_LoggedOnhttps:
-                    case PageSecurityType.NoSSLOnly:
-                    case PageSecurityType.SSLOnly:
-                        break;
-                    case PageSecurityType.UsePageModuleSettings:
-                        usePageSettings = true;
-                        break;
-                }
+                            break;
+                    }
+                } else
+                    usePageSettings = true;
                 if (usePageSettings) {
                     switch (page.PageSecurity) {
                         case PageDefinition.PageSecurityType.Any:
                             break;
                         case PageDefinition.PageSecurityType.httpsOnly:
-#if MVC6
-                            if (Manager.CurrentRequest.Scheme != "https") {
-#else
-                            if (Manager.CurrentRequest.Url.Scheme != "https") {
-#endif
+                            if (Manager.HostSchemeUsed != "https") {
                                 UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
                                 newUri.Scheme = "https";
                                 newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
@@ -614,11 +614,7 @@ namespace YetaWF.Core.Controllers {
                             }
                             break;
                         case PageDefinition.PageSecurityType.httpOnly:
-#if MVC6
-                            if (Manager.CurrentRequest.Scheme != "http") {
-#else
-                            if (Manager.CurrentRequest.Url.Scheme != "http") {
-#endif
+                            if (Manager.HostSchemeUsed != "http") {
                                 UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
                                 newUri.Scheme = "http";
                                 newUri.Port = Manager.CurrentSite.PortNumberEval;

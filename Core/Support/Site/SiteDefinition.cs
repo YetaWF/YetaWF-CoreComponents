@@ -198,23 +198,28 @@ namespace YetaWF.Core.Site {
         [DontSave]
         public string OriginalSiteDomain { get; set; }
 
+        [Category("Site"), Caption("Test Domain"), Description("Defines the host name for the test domain - This can be used with tools such as ngrok to access the site using a different Url for testing purposes - This setting is only honored in DEBUG builds - The site (and all instances) must be restarted for this setting to take effect")]
+        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Trim]
+        [RequiresRestart(RestartEnum.All)]
+        public string SiteTestDomain { get; set; }
+
         [Description("The name associated with your site, usually your company name or your name")]
         [Category("Site")]
         [Caption("Site Name")]
         [UIHint("Text80"), StringLength(MaxSiteName), Required, Trim]
         public string SiteName { get; set; }
 
-        [Category("Site"), Caption("Enforce Domain Name"), Description("Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost', this property is ignored")]
+        [Category("Site"), Caption("Enforce Domain Name"), Description("Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost' or when using the test domain Url, this property is ignored")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool EnforceSiteUrl { get; set; }
 
-        [Category("Site"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced")]
+        [Category("Site"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced - This property is ignored when using the test domain Url")]
         [UIHint("Enum")]
         [RequiresPageReload]
         public PageSecurityType PageSecurity { get; set; }
 
-        [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost', this property is ignored")]
+        [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost' or when using the test domain Url, this property is ignored")]
         [UIHint("Boolean")]
         [Data_NewValue("(0)")]
         [RequiresPageReload]

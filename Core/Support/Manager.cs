@@ -769,6 +769,7 @@ namespace YetaWF.Core.Support {
         public int HostPortUsed { get; set; }
         public string HostSchemeUsed { get; set; }
         public bool IsLocalHost { get { return string.Compare(HostUsed, "localhost", true) == 0; } }
+        public bool IsTestSite { get; set; }
 
         /// <summary>
         /// Returns the folder containing the current site's file data.
