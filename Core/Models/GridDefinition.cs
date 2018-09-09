@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
@@ -76,6 +78,7 @@ namespace YetaWF.Core.Models {
 
         // set up by application
         public string AjaxUrl { get; set; } // remote data
+        public Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataSourceResult>> DirectDataAsync { get; set; }
         public object ExtraData { get; set; }// additional data to return during ajax callback
         public DataSourceResult Data { get; set; } // local data
         public Guid ModuleGuid { get; set; }
@@ -84,7 +87,7 @@ namespace YetaWF.Core.Models {
         public Guid SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
         public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button)
         public bool ShowHeader { get; set; }
-        public bool SizeToFit { get; set; } // resizes all columns to fit available width
+        public bool SizeToFit { get; set; } // resizes all columns to fit available width  //$$$$what to do...
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool HandleLocalInput { get; set; } // store input in local datasource for submit
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults

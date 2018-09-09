@@ -1057,6 +1057,7 @@ var YetaWF;
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            var elem = ev.target;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector)
                     return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
@@ -1066,7 +1067,6 @@ var YetaWF;
                     return; // if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             }
             else if (ev.eventPhase === ev.BUBBLING_PHASE) {
-                var elem = ev.target;
                 if (selector) {
                     // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
                     while (elem) {
@@ -1091,6 +1091,7 @@ var YetaWF;
             else
                 return;
             //console.log(`event ${ev.type} selector ${selector} match`);
+            ev.__YetaWFElem = (elem || ev.target); // pass the matching element to the callback
             var result = callback(ev);
             if (!result) {
                 //console.log(`event ${ev.type} selector ${selector} stop bubble`);

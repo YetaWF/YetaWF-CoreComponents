@@ -20,6 +20,9 @@ interface String {
 interface Window { // expose this as a known window property
     $YetaWF: YetaWF.BasicsServices;
 }
+interface Event {
+    __YetaWFElem: HTMLElement; // the element that matched the selector during event bubbling
+}
 
 /**
  * Class implementing basic services used throughout YetaWF.
@@ -1172,12 +1175,12 @@ namespace YetaWF {
         private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            var elem: HTMLElement | null = ev.target as HTMLElement | null;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase === ev.AT_TARGET) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase === ev.BUBBLING_PHASE) {
-                var elem: HTMLElement | null = ev.target as HTMLElement | null;
                 if (selector) {
                     // check elements between the one that caused the event and the listening element (inclusive) for a match to the selector
                     while (elem) {
@@ -1200,6 +1203,7 @@ namespace YetaWF {
             } else
                 return;
             //console.log(`event ${ev.type} selector ${selector} match`);
+            ev.__YetaWFElem = (elem || ev.target) as HTMLElement;// pass the matching element to the callback
             var result: boolean = callback(ev);
             if (!result) {
                 //console.log(`event ${ev.type} selector ${selector} stop bubble`);
