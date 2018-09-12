@@ -119,6 +119,11 @@ namespace YetaWF.Core.Components {
                 gridDef.CachedDict = await LoadGridColumnDefinitionsAsync(gridDef.RecordType);
             return gridDef.CachedDict;
         }
+        public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(Grid2Definition gridDef) {
+            if (gridDef.CachedDict == null)
+                gridDef.CachedDict = await LoadGridColumnDefinitionsAsync(gridDef.RecordType);
+            return gridDef.CachedDict;
+        }
 
         public class LoadGridColumnDefinitionsInfo {
             public string SortColumn { get; set; }

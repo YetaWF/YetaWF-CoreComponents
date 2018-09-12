@@ -870,7 +870,7 @@ var YetaWF;
         BasicsServices.prototype.elementClosest = function (elem, selector) {
             var e = this.elementClosestCond(elem, selector);
             if (!e)
-                throw "Closes parent element with selector " + selector + " not found";
+                throw "Closest parent element with selector " + selector + " not found";
             return e;
         };
         // DOM manipulation
@@ -886,24 +886,30 @@ var YetaWF;
         /**
          * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
-        BasicsServices.prototype.appendMixedHTML = function (elem, content) {
+        BasicsServices.prototype.appendMixedHTML = function (elem, content, tableBody) {
             this.calcMixedHTMLRunScripts(content, undefined, function (elems) {
                 while (elems.length > 0)
                     elem.insertAdjacentElement("beforeend", elems[0]);
-            });
+            }, tableBody);
         };
         /**
          * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
-        BasicsServices.prototype.setMixedOuterHTML = function (elem, content) {
+        BasicsServices.prototype.setMixedOuterHTML = function (elem, content, tableBody) {
             this.calcMixedHTMLRunScripts(content, function (html) {
                 elem.outerHTML = content;
-            });
+            }, undefined, tableBody);
         };
-        BasicsServices.prototype.calcMixedHTMLRunScripts = function (content, callbackHTML, callbackChildren) {
+        BasicsServices.prototype.calcMixedHTMLRunScripts = function (content, callbackHTML, callbackChildren, tableBody) {
             // convert the string to DOM representation
             var temp = document.createElement("YetaWFTemp");
-            temp.innerHTML = content;
+            if (tableBody) {
+                temp.innerHTML = "<table><tbody>" + content + "</tbody></table>";
+                temp = $YetaWF.getElement1BySelector("tbody", [temp]);
+            }
+            else {
+                temp.innerHTML = content;
+            }
             // extract all <script> tags
             var scripts = this.getElementsBySelector("script", [temp]);
             for (var _i = 0, scripts_1 = scripts; _i < scripts_1.length; _i++) {
@@ -988,6 +994,19 @@ var YetaWF;
                 elem.classList.remove(className);
             else
                 elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+        };
+        /*
+         * Add/remove a class to an element.
+         */
+        BasicsServices.prototype.elementToggleClass = function (elem, className, set) {
+            if (set) {
+                if (this.elementHasClass(elem, className))
+                    return;
+                this.elementAddClass(elem, className);
+            }
+            else {
+                this.elementRemoveClass(elem, className);
+            }
         };
         // Attributes
         /**

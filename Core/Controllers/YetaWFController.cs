@@ -18,6 +18,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using System.IO;
 using YetaWF.Core.Views;
+using YetaWF.Core.DataProvider;
 #if MVC6
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
@@ -355,6 +356,22 @@ namespace YetaWF.Core.Controllers
             await HandlePropertiesAsync(dataSrc.Data);
             return PartialView("GridData", dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
         }
+        /// <summary>
+        /// An action result that renders a grid as a partial view.
+        /// </summary>
+        /// <param name="dataSrc">The data source.</param>
+        /// <returns>Used in conjunction with the Grid2 template.</returns>
+        protected async Task<PartialViewResult> Grid2PartialViewAsync(Grid2PartialData grid2PartialModel) {
+            // save settings
+            YetaWF.Core.Components.Grid.SaveSettings(grid2PartialModel.Skip, grid2PartialModel.Take, grid2PartialModel.Sort, grid2PartialModel.Filters, grid2PartialModel.GridDef.SettingsModuleGuid);
+            // get requested data
+            grid2PartialModel.GridDef.Data = await grid2PartialModel.GridDef.DirectDataAsync(grid2PartialModel.Skip, grid2PartialModel.Take, grid2PartialModel.Sort, grid2PartialModel.Filters);
+            // handle async properties
+            await HandlePropertiesAsync(grid2PartialModel.GridDef.Data.Data);
+            // render
+            return PartialView("Softelvdm_Grid_Grid2PartialData", grid2PartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
+        }
+
         /// <summary>
         /// An action result that renders a single grid record as a partial view.
         /// </summary>

@@ -10,11 +10,16 @@
  */
 declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
 
+/* Polyfills */
 interface String {
     startsWith: (text: string) => boolean;
     endWith: (text: string) => boolean;
     isValidInt(s: number, e: number): boolean;
     format(...args: any[]): string;
+}
+interface NumberConstructor {
+    MAX_SAFE_INTEGER: number;
+    MIN_SAFE_INTEGER: number;
 }
 
 interface Window { // expose this as a known window property
@@ -988,7 +993,7 @@ namespace YetaWF {
         public elementClosest(elem: HTMLElement, selector: string): HTMLElement {
             var e = this.elementClosestCond(elem, selector);
             if (!e)
-                throw `Closes parent element with selector ${selector} not found`;
+                throw `Closest parent element with selector ${selector} not found`;
             return e;
         }
 
@@ -1006,27 +1011,32 @@ namespace YetaWF {
         /**
          * Append content to the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
-        public appendMixedHTML(elem: HTMLElement, content: string): void {
+        public appendMixedHTML(elem: HTMLElement, content: string, tableBody?: boolean): void {
             this.calcMixedHTMLRunScripts(content, undefined, (elems: HTMLCollection): void => {
                 while (elems.length > 0)
                     elem.insertAdjacentElement("beforeend", elems[0]);
-            });
+            }, tableBody);
         }
 
         /**
          * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
-        public setMixedOuterHTML(elem: HTMLElement, content: string): void {
+        public setMixedOuterHTML(elem: HTMLElement, content: string, tableBody?: boolean): void {
             this.calcMixedHTMLRunScripts(content, (html: string): void => {
                 elem.outerHTML = content;
-            });
+            }, undefined, tableBody);
         }
 
-        private calcMixedHTMLRunScripts(content: string, callbackHTML?: (html: string) => void, callbackChildren?: (elems: HTMLCollection) => void): void {
+        private calcMixedHTMLRunScripts(content: string, callbackHTML?: (html: string) => void, callbackChildren?: (elems: HTMLCollection) => void, tableBody?: boolean): void {
 
             // convert the string to DOM representation
             var temp = document.createElement("YetaWFTemp");
-            temp.innerHTML = content;
+            if (tableBody) {
+                temp.innerHTML = `<table><tbody>${content}</tbody></table>`;
+                temp = $YetaWF.getElement1BySelector("tbody", [temp]);
+            } else {
+                temp.innerHTML = content;
+            }
             // extract all <script> tags
             var scripts: HTMLScriptElement[] = this.getElementsBySelector("script", [temp]) as HTMLScriptElement[];
             for (var script of scripts) {
@@ -1107,6 +1117,18 @@ namespace YetaWF {
                 elem.classList.remove(className);
             else
                 elem.className = elem.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+        }
+        /*
+         * Add/remove a class to an element.
+         */
+        public elementToggleClass(elem: Element, className: string, set: boolean): void {
+            if (set) {
+                if (this.elementHasClass(elem, className))
+                    return;
+                this.elementAddClass(elem, className);
+            } else {
+                this.elementRemoveClass(elem, className);
+            }
         }
 
         // Attributes
