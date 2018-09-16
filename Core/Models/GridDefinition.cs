@@ -71,7 +71,13 @@ namespace YetaWF.Core.Models {
         };
         public class ColumnInfo {
             public SortBy Sort { get; set; }
-            public int Width{ get; set; }
+            public int Width { get; set; }
+            public string FilterOperator { get; set; }
+            public string FilterValue { get; set; }
+
+            public ColumnInfo() {
+                Width = -1;
+            }
         }
         public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> { }
 
@@ -81,7 +87,6 @@ namespace YetaWF.Core.Models {
         public DataSourceResult Data { get; set; } // local data
         public Guid ModuleGuid { get; set; }
         public Type RecordType { get; set; }
-        public List<DataProviderFilterInfo> Filters { get; set; }// server side filtering
         public Guid SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
         public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button)
         public bool ShowHeader { get; set; }
@@ -144,7 +149,6 @@ namespace YetaWF.Core.Models {
         public DataSourceResult Data { get; set; } // local data
         public Guid ModuleGuid { get; set; }
         public Type RecordType { get; set; }
-        public List<DataProviderFilterInfo> Filters { get; set; }// server side filtering
         public Guid SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
         public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button)
         public bool ShowHeader { get; set; }
@@ -159,7 +163,6 @@ namespace YetaWF.Core.Models {
         public const int MaxPages = 999999999;// indicator for All pages in PageSizes
         public List<int> PageSizes { get; set; }
         public int InitialPageSize { get; set; }
-        public int PagerButtons { get; set; }// # of paging buttons
 
         public bool ReadOnly { get; set; }// entire grid is read/only
         public bool CanAddOrDelete { get; set; }// items can be added or deleted (local data)
@@ -169,10 +172,6 @@ namespace YetaWF.Core.Models {
 
         // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
         public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
-
-
-        // used by templates to communicate record # being rendered
-        public int RecordCount { get; set; }
 
         public Grid2Definition() {
 
@@ -186,7 +185,6 @@ namespace YetaWF.Core.Models {
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };
             InitialPageSize = 10;
-            PagerButtons = 6;
             SettingsModuleGuid = Guid.Empty;
             ReadOnly = true;
             CanAddOrDelete = false;
@@ -194,7 +192,5 @@ namespace YetaWF.Core.Models {
             DisplayProperty = null;
             ExtraData = null;
         }
-        //$$[UIHint("GridDataRecords")]
-        //public List<object> GridDataRecords { get { return Data.Data; } }
     }
 }

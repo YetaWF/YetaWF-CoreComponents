@@ -81,7 +81,7 @@ namespace YetaWF.Core.DataProvider {
         /// Converts to form required by Dynamic Linq e.g. "Field1 desc"
         /// </summary>
         public string ToExpression() {
-            return Field + " " + GetOrder();
+            return $"@{Field} {GetOrder()}";
         }
 
         public static List<DataProviderSortInfo> Join(List<DataProviderSortInfo> sort, DataProviderSortInfo addSort) {
@@ -195,11 +195,18 @@ namespace YetaWF.Core.DataProvider {
                         try { Value = Convert.ToBoolean(Value); } catch (Exception) { Value = true; }
                     } else if (objType == typeof(MultiString)) {
                         try { Value = new MultiString((string)Value); } catch (Exception) { Value = new MultiString(); }
+                    } else if (objType == typeof(decimal) || objType == typeof(decimal?)) {
+                        try { Value = Convert.ToDecimal(Value); } catch (Exception) { Value = 0; }
+                    } else if (objType == typeof(Guid) || objType == typeof(Guid?)) {
+                        Value = new GuidPartial { PartialString = ValueAsString?.ToLower() };
                     } else {
                         // default to string and hope for the best
                     }
                 }
             }
+        }
+        public class GuidPartial {
+            public string PartialString { get; set; }
         }
 
         /// <summary>
@@ -218,48 +225,50 @@ namespace YetaWF.Core.DataProvider {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                        return String.Format("({0} != null && {0}.ToLower().{1}(@{2}.ToLower()))", Field, command, index);
+                        return String.Format("(@{0} != null && @{0}.ToLower().{1}(@{2}.ToLower()))", Field, command, index);
+                    else if (Value.GetType() == typeof(GuidPartial))
+                        return String.Format("(@{0} != null && @{0}.ToString().ToLower().{1}(@{2}.PartialString))", Field, command, index);
                     else
-                        return String.Format("({0} != null && {0}.{1}(@{2}))", Field, command, index);
+                        return String.Format("(@{0} != null && @{0}.{1}(@{2}))", Field, command, index);
                 } else if (command == "NotStartsWith") {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                        return String.Format("({0} == null || !{0}.ToLower().StartsWith(@{1}.ToLower()))", Field, index);
+                        return String.Format("(@{0} == null || !@{0}.ToLower().StartsWith(@{1}.ToLower()))", Field, index);
                     else
-                        return String.Format("{0} == null || !{0}.StartsWith(@{1})", Field, index);
+                        return String.Format("@{0} == null || !@{0}.StartsWith(@{1})", Field, index);
                 } else if (command == "NotEndsWith") {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                        return String.Format("({0} == null || {0}.ToLower().EndsWith(@{1}.ToLower()))", Field, index);
+                        return String.Format("(@{0} == null || @{0}.ToLower().EndsWith(@{1}.ToLower()))", Field, index);
                     else
-                        return String.Format("{0} == null || !{0}.EndsWith(@{1})", Field, index);
+                        return String.Format("@{0} == null || !@{0}.EndsWith(@{1})", Field, index);
                 } else if (command == "NotContains") {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                        return String.Format("({0} == null || {0}.ToLower().Contains(@{1}.ToLower()))", Field, index);
+                        return String.Format("(@{0} == null || @{0}.ToLower().Contains(@{1}.ToLower()))", Field, index);
                     else
-                        return String.Format("{0} == null || !{0}.Contains(@{1})", Field, index);
+                        return String.Format("@{0} == null || !@{0}.Contains(@{1})", Field, index);
                 } else {
                     if (Value == null) {
                         return String.Format("({0} {1} @{2})", Field, command, index);
                     } else if (Operator == "!=" || Operator == "<" || Operator == "<=") {
                         if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                            return String.Format("({0} == null || {0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
+                            return String.Format("(@{0} == null || @{0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
                         else
-                            return String.Format("({0} == null || {0} {1} @{2})", Field, command, index);
+                            return String.Format("(@{0} == null || @{0} {1} @{2})", Field, command, index);
                     } else if (Operator == ">" || Operator == ">=") {
                         if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                            return String.Format("({0} != null && {0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
+                            return String.Format("(@{0} != null && @{0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
                         else
-                            return String.Format("({0} != null && {0} {1} @{2})", Field, command, index);
+                            return String.Format("(@{0} != null && @{0} {1} @{2})", Field, command, index);
                     } else {
                         if (Value.GetType() == typeof(string) || Value.GetType() == typeof(MultiString))
-                            return String.Format("({0} != null && {0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
+                            return String.Format("(@{0} != null && @{0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
                         else
-                            return String.Format("{0} {1} @{2}", Field, command, index);
+                            return String.Format("@{0} {1} @{2}", Field, command, index);
                     }
                 }
             }
@@ -404,6 +413,11 @@ namespace YetaWF.Core.DataProvider {
                 });
             }
             return newFilters;
+        }
+    }
+    public static class GuidExtender {
+        public static string ToLower(this Guid guid) {
+            return guid.ToString().ToLower();
         }
     }
 }

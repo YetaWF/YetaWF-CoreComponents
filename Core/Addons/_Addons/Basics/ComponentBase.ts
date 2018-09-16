@@ -20,6 +20,10 @@ namespace YetaWF {
             var tag = $YetaWF.getElement1BySelector(selector, tags);
             return ComponentBase.getControlBaseFromTag(tag, controlSelector);
         }
+        public static getControlBaseById<T extends ComponentBase<HTMLElement>>(id: string, controlSelector: string): T {
+            var tag = $YetaWF.getElementById(id);
+            return ComponentBase.getControlBaseFromTag(tag, controlSelector);
+        }
 
         /**
          * A <div> is being emptied. Call the callback for the control type described by controlSelector.

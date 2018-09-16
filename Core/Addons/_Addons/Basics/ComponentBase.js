@@ -17,6 +17,10 @@ var YetaWF;
             var tag = $YetaWF.getElement1BySelector(selector, tags);
             return ComponentBase.getControlBaseFromTag(tag, controlSelector);
         };
+        ComponentBase.getControlBaseById = function (id, controlSelector) {
+            var tag = $YetaWF.getElementById(id);
+            return ComponentBase.getControlBaseFromTag(tag, controlSelector);
+        };
         /**
          * A <div> is being emptied. Call the callback for the control type described by controlSelector.
          */

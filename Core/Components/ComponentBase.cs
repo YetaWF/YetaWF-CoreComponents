@@ -51,6 +51,13 @@ namespace YetaWF.Core.Components {
             HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
         }
+        protected void UseSuppliedIdAsControlId() {
+            if (HtmlAttributes.ContainsKey("id")) {
+                ControlId = (string)HtmlAttributes["id"];
+                HtmlAttributes.Remove("id");
+            }
+        }
+
         public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
@@ -139,6 +146,9 @@ namespace YetaWF.Core.Components {
                 if (string.IsNullOrEmpty(_controlId))
                     _controlId = Manager.UniqueId("ctrl");
                 return _controlId;
+            }
+            private set {
+                _controlId = value;
             }
         }
         private string _controlId;

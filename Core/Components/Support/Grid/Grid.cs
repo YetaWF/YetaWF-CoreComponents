@@ -74,15 +74,32 @@ namespace YetaWF.Core.Components {
                 Grid.GridSavedSettings gridSavedSettings = Grid.LoadModuleSettings((Guid)settingsModuleGuid);
                 gridSavedSettings.PageSize = take;
                 gridSavedSettings.CurrentPage = Math.Max(1, skip / take + 1);
-                foreach (var col in gridSavedSettings.Columns)
-                    col.Value.Sort = GridDefinition.SortBy.NotSpecified;
+                foreach (GridDefinition.ColumnInfo col in gridSavedSettings.Columns.Values)
+                    col.Sort = GridDefinition.SortBy.NotSpecified;
                 if (sort != null) {
                     foreach (var sortCol in sort) {
                         GridDefinition.SortBy sortDir = (sortCol.Order == DataProviderSortInfo.SortDirection.Ascending) ? GridDefinition.SortBy.Ascending : GridDefinition.SortBy.Descending;
                         if (gridSavedSettings.Columns.ContainsKey(sortCol.Field))
                             gridSavedSettings.Columns[sortCol.Field].Sort = sortDir;
                         else
-                            gridSavedSettings.Columns.Add(sortCol.Field, new GridDefinition.ColumnInfo { Width = -1, Sort = sortDir });
+                            gridSavedSettings.Columns.Add(sortCol.Field, new GridDefinition.ColumnInfo { Sort = sortDir });
+                    }
+                }
+                foreach (GridDefinition.ColumnInfo col in gridSavedSettings.Columns.Values) {
+                    col.FilterOperator = null;
+                    col.FilterValue = null;
+                }
+                if (filter != null) {
+                    foreach (var filterCol in filter) {
+                        if (gridSavedSettings.Columns.ContainsKey(filterCol.Field)) {
+                            gridSavedSettings.Columns[filterCol.Field].FilterOperator = filterCol.Operator;
+                            gridSavedSettings.Columns[filterCol.Field].FilterValue = filterCol.ValueAsString;
+                        } else {
+                            gridSavedSettings.Columns.Add(filterCol.Field, new GridDefinition.ColumnInfo {
+                                FilterOperator = filterCol.Operator,
+                                FilterValue = filterCol.ValueAsString,
+                            });
+                        }
                     }
                 }
                 Grid.SaveModuleSettings((Guid)settingsModuleGuid, gridSavedSettings);
