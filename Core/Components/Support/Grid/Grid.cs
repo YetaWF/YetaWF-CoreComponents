@@ -47,6 +47,37 @@ namespace YetaWF.Core.Components {
                 PageSize = 10;
                 CurrentPage = 1;
             }
+
+            public List<DataProviderSortInfo> GetSortInfo() {
+                foreach (var keyVal in Columns) {
+                    string colName = keyVal.Key;
+                    GridDefinition.ColumnInfo col = keyVal.Value;
+                    if (col.Sort != GridDefinition.SortBy.NotSpecified) {
+                        return new List<DataProviderSortInfo>() {
+                            new DataProviderSortInfo {
+                                Field = colName,
+                                Order = col.Sort == GridDefinition.SortBy.Descending ? DataProviderSortInfo.SortDirection.Descending : DataProviderSortInfo.SortDirection.Ascending ,
+                            },
+                        };
+                    }
+                }
+                return null;
+            }
+            public List<DataProviderFilterInfo> GetFilterInfo() {
+                List<DataProviderFilterInfo> list = new List<DataProvider.DataProviderFilterInfo>();
+                foreach (var keyVal in Columns) {
+                    string colName = keyVal.Key;
+                    GridDefinition.ColumnInfo col = keyVal.Value;
+                    if (!string.IsNullOrWhiteSpace(col.FilterOperator)) {
+                        list.Add(new DataProviderFilterInfo {
+                            Field = colName,
+                            Operator = col.FilterOperator,
+                            ValueAsString = col.FilterValue,
+                        });
+                    }
+                }
+                return list.Count > 0 ? list : null;
+            }
         }
         public static GridSavedSettings LoadModuleSettings(Guid moduleGuid, int defaultInitialPage = 1, int defaultPageSize = 10) {
             SettingsDictionary modSettings = Manager.SessionSettings.GetModuleSettings(moduleGuid);
@@ -73,7 +104,10 @@ namespace YetaWF.Core.Components {
             if (settingsModuleGuid != null && settingsModuleGuid != Guid.Empty) {
                 Grid.GridSavedSettings gridSavedSettings = Grid.LoadModuleSettings((Guid)settingsModuleGuid);
                 gridSavedSettings.PageSize = take;
-                gridSavedSettings.CurrentPage = Math.Max(1, skip / take + 1);
+                if (take == 0)
+                    gridSavedSettings.CurrentPage = 1;
+                else
+                    gridSavedSettings.CurrentPage = Math.Max(1, skip / take + 1);
                 foreach (GridDefinition.ColumnInfo col in gridSavedSettings.Columns.Values)
                     col.Sort = GridDefinition.SortBy.NotSpecified;
                 if (sort != null) {

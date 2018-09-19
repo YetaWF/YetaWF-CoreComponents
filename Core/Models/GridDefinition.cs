@@ -143,8 +143,10 @@ namespace YetaWF.Core.Models {
     public class Grid2Definition {
 
         // set up by application
+        public bool IsStatic { get { return SortFilterStaticData != null; } }
         public string AjaxUrl { get; set; } // remote data
         public Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataSourceResult>> DirectDataAsync { get; set; }
+        public Func<List<object>, int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, DataSourceResult> SortFilterStaticData { get; set; }
         public object ExtraData { get; set; }// additional data to return during ajax callback
         public DataSourceResult Data { get; set; } // local data
         public Guid ModuleGuid { get; set; }
@@ -156,6 +158,7 @@ namespace YetaWF.Core.Models {
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool HandleLocalInput { get; set; } // store input in local datasource for submit
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
+        public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
         public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         // other settings
@@ -181,6 +184,7 @@ namespace YetaWF.Core.Models {
             NoRecordsText = this.__ResStr("noRecs", "(None)");
             HandleLocalInput = true;
             ShowFilter = null;
+            UseSkinFormatting = true;
 
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };

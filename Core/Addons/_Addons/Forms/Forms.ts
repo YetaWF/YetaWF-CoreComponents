@@ -108,6 +108,7 @@ namespace YetaWF {
         RequestVerificationToken: string;
         UniqueIdPrefix: string;
         ModuleGuid: string;
+        CharInfo: string;
         QS: string;
     }
 
@@ -429,6 +430,7 @@ namespace YetaWF {
                 RequestVerificationToken: req,
                 UniqueIdPrefix: pre,
                 ModuleGuid: guid,
+                CharInfo: charSize.width.toString() + "," + charSize.height.toString(),
                 QS: qs
             };
             return info;

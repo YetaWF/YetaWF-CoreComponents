@@ -81,8 +81,8 @@ namespace YetaWF {
                 this.QSEntries.push({ key: prop, keyLower: prop.toLowerCase(), value: o[prop] });
             }
         }
-        public addSearch(key: string, value: string): void {
-            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value });
+        public addSearch(key: string, value: string | number): void {
+            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value.toString() });
         }
         public addSearchSimpleObject(obj: any): void {
             for (const key in obj) {
@@ -90,6 +90,13 @@ namespace YetaWF {
                     this.addSearch(key, obj[key]);
                 }
             }
+        }
+        public addFormInfo(tag: HTMLElement): void {
+            var formInfo = $YetaWF.Forms.getFormInfo(tag);
+            this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
+            this.addSearch(YConfigs.Forms.UniqueIdPrefix, formInfo.UniqueIdPrefix);
+            this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
+            this.addSearch(YConfigs.Basics.Link_CharInfo, formInfo.CharInfo);
         }
         public removeSearch(key: string): void {
             key = key.toLowerCase();
@@ -117,6 +124,9 @@ namespace YetaWF {
                 return `${this.getPath()}${this.getQuery(true)}${this.getHash(true)}`;
             else
                 return `${this.getSchema()}//${this.getUserInfo(true)}${this.getDomain()}${this.getPath()}${this.getQuery(true)}${this.getHash(true)}`;
+        }
+        public toFormData(): string {
+            return this.getQuery();
         }
         public parse(url: string): void {
 

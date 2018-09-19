@@ -5,8 +5,10 @@ namespace YetaWF {
     export abstract class ComponentBase<T extends HTMLElement> {
 
         public readonly Control: T;
+        public readonly ControlId: string;
 
         constructor(controlId: string) {
+            this.ControlId = controlId;
             this.Control = $YetaWF.getElementById(controlId) as T;
         }
 

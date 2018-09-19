@@ -4,6 +4,7 @@ var YetaWF;
 (function (YetaWF) {
     var ComponentBase = /** @class */ (function () {
         function ComponentBase(controlId) {
+            this.ControlId = controlId;
             this.Control = $YetaWF.getElementById(controlId);
         }
         ComponentBase.getControlBaseFromTag = function (elem, controlSelector) {

@@ -10,7 +10,7 @@ namespace YetaWF.Core.Components {
         public Grid2Definition GridDef { get; set; }
         public int Skip { get; set; }
         public int Take { get; set; }
-        public List<DataProviderSortInfo> Sort { get; set; }
+        public List<DataProviderSortInfo> Sorts { get; set; }
         public List<DataProviderFilterInfo> Filters { get; set; }
     }
 }

@@ -81,7 +81,7 @@ var YetaWF;
             }
         };
         Url.prototype.addSearch = function (key, value) {
-            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value });
+            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value.toString() });
         };
         Url.prototype.addSearchSimpleObject = function (obj) {
             for (var key in obj) {
@@ -89,6 +89,13 @@ var YetaWF;
                     this.addSearch(key, obj[key]);
                 }
             }
+        };
+        Url.prototype.addFormInfo = function (tag) {
+            var formInfo = $YetaWF.Forms.getFormInfo(tag);
+            this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
+            this.addSearch(YConfigs.Forms.UniqueIdPrefix, formInfo.UniqueIdPrefix);
+            this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
+            this.addSearch(YConfigs.Basics.Link_CharInfo, formInfo.CharInfo);
         };
         Url.prototype.removeSearch = function (key) {
             key = key.toLowerCase();
@@ -117,6 +124,9 @@ var YetaWF;
                 return "" + this.getPath() + this.getQuery(true) + this.getHash(true);
             else
                 return this.getSchema() + "//" + this.getUserInfo(true) + this.getDomain() + this.getPath() + this.getQuery(true) + this.getHash(true);
+        };
+        Url.prototype.toFormData = function () {
+            return this.getQuery();
         };
         Url.prototype.parse = function (url) {
             this.Schema = "";
