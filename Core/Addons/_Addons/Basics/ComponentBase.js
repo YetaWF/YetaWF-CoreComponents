@@ -11,7 +11,7 @@ var YetaWF;
             var control = $YetaWF.elementClosest(elem, controlSelector);
             var obj = $YetaWF.getObjectData(control);
             if (obj.Control !== control)
-                throw "object data doesn't match control type - {control.outerHTML}";
+                throw "object data doesn't match control type - " + control.outerHTML;
             return obj;
         };
         ComponentBase.getControlBaseFromSelector = function (selector, controlSelector, tags) {

@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\Support\Grid2\Grid2.cs" />
     <Compile Include="Components\Support\WeeklyHours.cs" />
     <Compile Include="Components\Support\TimeOfDay.cs" />
     <Compile Include="Components\Support\DayTimeRange.cs" />
@@ -335,6 +336,7 @@
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
     <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
+    <Content Include="Addons\_Addons\fontawesome.com.fontawesome\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\bootstrap.css" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\filelistCSS.txt" />

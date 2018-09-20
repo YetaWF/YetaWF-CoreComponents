@@ -673,7 +673,7 @@ var YetaWF;
                         entry.callback(tag);
                 }
                 catch (err) {
-                    console.error(err.message);
+                    console.error(err.message || err);
                 }
             }
             // also release any attached objects

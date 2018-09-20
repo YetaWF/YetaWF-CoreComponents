@@ -392,9 +392,9 @@ namespace YetaWF.Core.Controllers
             // save settings
             YetaWF.Core.Components.Grid.SaveSettings(grid2PartialModel.Skip, grid2PartialModel.Take, grid2PartialModel.Sorts, grid2PartialModel.Filters, grid2PartialModel.GridDef.SettingsModuleGuid);
             // get requested data
-            grid2PartialModel.GridDef.Data = data;
+            grid2PartialModel.Data = data;
             // handle async properties
-            await HandlePropertiesAsync(grid2PartialModel.GridDef.Data.Data);
+            await HandlePropertiesAsync(grid2PartialModel.Data.Data);
             // render
             return PartialView("Softelvdm_Grid_Grid2PartialData", grid2PartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
         }

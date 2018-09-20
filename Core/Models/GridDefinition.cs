@@ -143,35 +143,42 @@ namespace YetaWF.Core.Models {
     public class Grid2Definition {
 
         // set up by application
-        public bool IsStatic { get { return SortFilterStaticData != null; } }
+        public Type RecordType { get; set; }
         public string AjaxUrl { get; set; } // remote data
         public Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataSourceResult>> DirectDataAsync { get; set; }
         public Func<List<object>, int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, DataSourceResult> SortFilterStaticData { get; set; }
+
         public object ExtraData { get; set; }// additional data to return during ajax callback
-        public DataSourceResult Data { get; set; } // local data
+
         public Guid ModuleGuid { get; set; }
-        public Type RecordType { get; set; }
         public Guid SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
+
         public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button)
         public bool ShowHeader { get; set; }
-        public bool SizeToFit { get; set; } // resizes all columns to fit available width  //$$$$what to do...
-        public string NoRecordsText { get; set; }// text shown when there are no records
-        public bool HandleLocalInput { get; set; } // store input in local datasource for submit
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
+        public bool ShowPager { get; set; }
+        //$$ public bool SizeToFit { get; set; } // resizes all columns to fit available width  //$$$$what to do...
+        public string NoRecordsText { get; set; }// text shown when there are no records
+
+        public int InitialPageSize { get; set; }
+        public List<int> PageSizes { get; set; }
+        public const int MaxPages = 999999999;// indicator for All pages in PageSizes
+
         public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
         public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         // other settings
         public string Id { get; set; } // html id of the grid
-        public const int MaxPages = 999999999;// indicator for All pages in PageSizes
-        public List<int> PageSizes { get; set; }
-        public int InitialPageSize { get; set; }
 
         public bool ReadOnly { get; set; }// entire grid is read/only
+
+        //$$$$$
         public bool CanAddOrDelete { get; set; }// items can be added or deleted (local data)
         public string DeleteProperty { get; set; } // for grid add/delete provide the property used to add/delete a record
         public string DisplayProperty { get; set; } // for grid add/delete provide the property that has the displayable key when adding/deleting a record
         public object ResourceRedirect { get; set; } // redirect for Caption/Description attributes
+
+        public bool IsStatic { get { return SortFilterStaticData != null; } }
 
         // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
         public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
@@ -180,9 +187,9 @@ namespace YetaWF.Core.Models {
 
             SupportReload = true;
             ShowHeader = true;
-            SizeToFit = false;
+            ShowPager = true;
+            //$$SizeToFit = false;
             NoRecordsText = this.__ResStr("noRecs", "(None)");
-            HandleLocalInput = true;
             ShowFilter = null;
             UseSkinFormatting = true;
 
