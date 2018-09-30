@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
@@ -20,15 +21,18 @@ namespace YetaWF.Core.Models.Attributes {
         }
         public override bool IsValid(object value) {
             if (value is MultiString) {
-                MultiString ms = (MultiString) value;
+                MultiString ms = (MultiString)value;
                 string s = ms.ToString();
                 if (s == null || s.Length == 0)
                     return false;
                 return true;
             } else if (value is Guid) {
-                if ((Guid) value == Guid.Empty)
+                if ((Guid)value == Guid.Empty)
                     return false;
                 return true;
+            } else if (value is ICollection) {
+                ICollection coll = (ICollection)value;
+                return coll.Count > 0;
             } else if (value != null && !string.IsNullOrWhiteSpace(value.ToString()))
                 return true;
             return false;

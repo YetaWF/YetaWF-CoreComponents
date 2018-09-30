@@ -29,7 +29,7 @@ namespace YetaWF.Core {
         public const int ChUrl = 40;
         public const int ChEmail = 30;
         public const int ChColor = 5;
-        public const int ChUserName = 25;
+        public const int ChUserName = 35;
         public const int ChGuid = 34;
         public const int ChIntValue = 10;
         public const int ChIntValue4 = 8;

@@ -95,9 +95,11 @@ var YetaWF;
             var _this = this;
             if (!form.getAttribute("method"))
                 return; // no method, don't submit
-            var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
-            if (dc)
-                $YetaWF.removeElement(dc);
+            var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
+            for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
+                var div = divs_1[_i];
+                $YetaWF.removeElement(div);
+            }
             if (useValidation)
                 this.validate(form);
             $YetaWF.setLoading(true);
@@ -182,9 +184,11 @@ var YetaWF;
                 if (successFunc)
                     successFunc(this.hasErrors(form));
             }
-            var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
-            if (dc)
-                $YetaWF.removeElement(dc);
+            var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
+            for (var _a = 0, divs_2 = divs; _a < divs_2.length; _a++) {
+                var div = divs_2[_a];
+                $YetaWF.removeElement(div);
+            }
         };
         Forms.prototype.submitTemplate = function (tag, useValidation, templateName, templateAction, templateExtraData) {
             var qs = YConfigs.Basics.TemplateName + "=" + templateName + "&" + YConfigs.Basics.Link_SubmitIsApply;
@@ -289,7 +293,7 @@ var YetaWF;
             return form;
         };
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
-        Forms.prototype.getFormInfo = function (tag, addAmpersand) {
+        Forms.prototype.getFormInfo = function (tag, addAmpersand, counter) {
             var form = this.getForm(tag);
             var req = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
             if (!req || req.length === 0)
@@ -297,6 +301,8 @@ var YetaWF;
             var pre = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", [form]).value;
             if (!pre || pre.length === 0)
                 throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix; /*DEBUG*/
+            if (counter)
+                pre += "_" + counter;
             var guid = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
             if (!guid || guid.length === 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/

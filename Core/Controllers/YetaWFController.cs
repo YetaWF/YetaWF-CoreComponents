@@ -362,12 +362,9 @@ namespace YetaWF.Core.Controllers
         /// <remarks>Used for static grids.</remarks>
         protected async Task<PartialViewResult> Grid2PartialViewAsync<TYPE>(Grid2Definition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             List<TYPE> list = YetaWFManager.JsonDeserialize<List<TYPE>>(data);
-            DataProviderGetRecords<TYPE> browseItems = DataProviderImpl<TYPE>.GetRecords(list, 0, int.MaxValue, sorts, filters);
-            DataSourceResult ds = new DataSourceResult {
-                Total = list.Count,
-                Data = (from i in browseItems.Data select (object)i).ToList(),
-            };
-            return await Grid2PartialViewAsync(gridModel, ds, fieldPrefix, skip, take, sorts, filters);
+            List<object> objList = (from l in list select (object)l).ToList();
+            DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, sorts, filters);
+            return await Grid2PartialViewAsync(gridModel, ds, objList, fieldPrefix, skip, take, sorts, filters);
         }
         /// <summary>
         /// An action result that renders a grid as a partial view.
@@ -375,13 +372,15 @@ namespace YetaWF.Core.Controllers
         /// <remarks>Used for Ajax grids.</remarks>
         protected async Task<PartialViewResult> Grid2PartialViewAsync(Grid2Definition gridModel, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             DataSourceResult data = await gridModel.DirectDataAsync(skip, take, sorts, filters);
-            return await Grid2PartialViewAsync(gridModel, data, fieldPrefix, skip, take, sorts, filters);
+            return await Grid2PartialViewAsync(gridModel, data, null, fieldPrefix, skip, take, sorts, filters);
         }
         /// <summary>
         /// An action result that renders a grid as a partial view.
         /// </summary>
-        protected async Task<PartialViewResult> Grid2PartialViewAsync(Grid2Definition gridModel, DataSourceResult data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        protected async Task<PartialViewResult> Grid2PartialViewAsync(Grid2Definition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             Grid2PartialData grid2PartialModel = new Grid2PartialData() {
+                Data = data,
+                StaticData = staticData,
                 Skip = skip,
                 Take = take,
                 Sorts = sorts,
@@ -391,12 +390,13 @@ namespace YetaWF.Core.Controllers
             };
             // save settings
             YetaWF.Core.Components.Grid.SaveSettings(grid2PartialModel.Skip, grid2PartialModel.Take, grid2PartialModel.Sorts, grid2PartialModel.Filters, grid2PartialModel.GridDef.SettingsModuleGuid);
-            // get requested data
-            grid2PartialModel.Data = data;
             // handle async properties
             await HandlePropertiesAsync(grid2PartialModel.Data.Data);
             // render
             return PartialView("Softelvdm_Grid_Grid2PartialData", grid2PartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
+        }
+        protected Task<PartialViewResult> Grid2RecordViewAsync(Grid2RecordData model) {
+            return Task.FromResult(PartialView("Softelvdm_Grid_Grid2Record", model, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
 
         /// <summary>
@@ -404,7 +404,7 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <param name="entryDef">The definition of the grid record.</param>
         /// <returns>Used in conjunction with the Grid template.</returns>
-        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition.GridEntryDefinition entryDef) {
+        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition.GridEntryDefinition entryDef) {//$$$ remove
             await HandlePropertiesAsync(entryDef.Model);
             string partialView = "GridEntry";
             return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
@@ -413,7 +413,7 @@ namespace YetaWF.Core.Controllers
             foreach (object item in data)
                 await HandlePropertiesAsync(item);
         }
-        private static async Task HandlePropertiesAsync(object data) {
+        public static async Task HandlePropertiesAsync(object data) {
             await ObjectSupport.HandlePropertyAsync<MenuList>("Commands", "__GetCommandsAsync", data);
         }
 

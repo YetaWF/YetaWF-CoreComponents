@@ -182,11 +182,11 @@ namespace YetaWF.Core.Components {
         }
 
         public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(Type recordType) {
-            if (typeof(ModuleDefinition.GridAllowedRole).IsAssignableFrom(recordType)) {
-                recordType = typeof(ModuleDefinition.GridAllowedRole);
-            } else if (typeof(ModuleDefinition.GridAllowedUser).IsAssignableFrom(recordType)) {
-                recordType = typeof(ModuleDefinition.GridAllowedUser);
-            }
+            //$$$$ if (typeof(ModuleDefinition.GridAllowedRole).IsAssignableFrom(recordType)) {
+            //    recordType = typeof(ModuleDefinition.GridAllowedRole);
+            //} else if (typeof(ModuleDefinition.GridAllowedUser).IsAssignableFrom(recordType)) {
+            //    recordType = typeof(ModuleDefinition.GridAllowedUser);
+            //}
             Dictionary<string, GridColumnInfo> dict = new Dictionary<string, GridColumnInfo>();
             string className = recordType.FullName.Split(new char[] { '.' }).Last();
             string[] s = className.Split(new char[] { '+' });

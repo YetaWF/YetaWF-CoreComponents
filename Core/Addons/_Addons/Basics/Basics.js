@@ -1019,6 +1019,12 @@ var YetaWF;
             return val;
         };
         /**
+         * Returns an attribute value.
+         */
+        BasicsServices.prototype.getAttributeCond = function (elem, name) {
+            return elem.getAttribute(name);
+        };
+        /**
          * Sets an attribute.
          */
         BasicsServices.prototype.setAttribute = function (elem, name, value) {
@@ -1072,6 +1078,13 @@ var YetaWF;
         BasicsServices.prototype.registerEventHandler = function (tag, eventName, selector, callback) {
             var _this = this;
             tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
+        };
+        BasicsServices.prototype.registerMultipleEventHandlers = function (tag, eventNames, selector, callback) {
+            var _this = this;
+            for (var _i = 0, eventNames_1 = eventNames; _i < eventNames_1.length; _i++) {
+                var eventName = eventNames_1[_i];
+                tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
+            }
         };
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/

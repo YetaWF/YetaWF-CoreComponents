@@ -288,7 +288,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Data_Binary]
         [Category("Authorization"), Caption("Permitted Roles"), Description("Roles that are permitted to use this module")]
-        [UIHint("YetaWF_ModuleEdit_AllowedRoles"), AdditionalMetadata("GridEntry", typeof(GridAllowedRole))]
+        [UIHint("YetaWF_ModuleEdit_AllowedRoles")]
         public SerializableList<AllowedRole> AllowedRoles {
             get {
                 if (_allowedRoles == null)
@@ -303,7 +303,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Data_Binary]
         [Category("Authorization"), Caption("Permitted Users"), Description("Users that are permitted to use this module")]
-        [UIHint("YetaWF_ModuleEdit_AllowedUsers"), AdditionalMetadata("GridEntry", typeof(GridAllowedUser))]
+        [UIHint("YetaWF_ModuleEdit_AllowedUsers"), AdditionalMetadata("GridEntry", typeof(GridAllowedUser))]// $$$$$ remove "GridEntry"
         public SerializableList<AllowedUser> AllowedUsers {
             get {
                 if (_allowedUsers == null)
@@ -439,10 +439,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         // one grid entry used to edit a role
         public class GridAllowedRole {
 
-            [DontSave]
-            [UIHint("Boolean")]
-            public bool __editable { get; set; }
-
             [Caption("Role"), Description("Role Description", Order = -100)]
             [UIHint("StringTT"), ReadOnly]
             public StringTT RoleName { get; set; }
@@ -475,17 +471,17 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
-            [UIHint("IntValue")]
+            [UIHint("Hidden")]
             public int RoleId { get; set; }
 
-            public GridAllowedRole() { __editable = true;  }
+            public bool __editable { get { return RoleId != Resource.ResourceAccess.GetSuperuserRoleId(); } }
         }
 
         public class GridAllowedUser {
 
             [Caption("Delete"), Description("Click to delete a user", Order = -100)]
-            [UIHint("GridDeleteEntry")]
-            public int DeleteMe { get; set; }
+            [UIHint("Softelvdm_Grid_Grid2DeleteEntry"), ReadOnly]
+            public int Delete { get; set; }
 
             [Caption("User"), Description("User Name", Order = -99)]
             [UIHint("YetaWF_Identity_UserId"), ReadOnly]
@@ -519,9 +515,9 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("Enum")]
             public virtual AllowedEnum Extra5 { get; set; }
 
-            [UIHint("RawInt"), ReadOnly]
+            [UIHint("Hidden"), ReadOnly]
             public int UserId { get; set; }
-            [UIHint("Raw"), ReadOnly]
+            [UIHint("Hidden"), ReadOnly]
             public string DisplayUserName { get; set; }
 
             public async Task SetUserAsync(int userId) {

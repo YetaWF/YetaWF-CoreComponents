@@ -50,7 +50,7 @@ namespace YetaWF.Core.Models {
         }
     }
 
-    public class GridDefinition {
+    public class GridDefinition { //$$$remove
 
         public class GridEntryDefinition {
             public GridEntryDefinition(string prefix, int recNumber, object model) {
@@ -151,13 +151,12 @@ namespace YetaWF.Core.Models {
         public object ExtraData { get; set; }// additional data to return during ajax callback
 
         public Guid ModuleGuid { get; set; }
-        public Guid SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
+        public Guid? SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
 
-        public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button)
+        public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button, ajax only)
         public bool ShowHeader { get; set; }
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
         public bool ShowPager { get; set; }
-        //$$ public bool SizeToFit { get; set; } // resizes all columns to fit available width  //$$$$what to do...
         public string NoRecordsText { get; set; }// text shown when there are no records
 
         public int InitialPageSize { get; set; }
@@ -170,12 +169,11 @@ namespace YetaWF.Core.Models {
         // other settings
         public string Id { get; set; } // html id of the grid
 
-        public bool ReadOnly { get; set; }// entire grid is read/only
+        // Delete record (static only)
+        public string DeletedMessage { get; set; }
+        public string DeleteConfirmationMessage { get; set; }
+        public string DeletedColumnDisplay { get; set; }
 
-        //$$$$$
-        public bool CanAddOrDelete { get; set; }// items can be added or deleted (local data)
-        public string DeleteProperty { get; set; } // for grid add/delete provide the property used to add/delete a record
-        public string DisplayProperty { get; set; } // for grid add/delete provide the property that has the displayable key when adding/deleting a record
         public object ResourceRedirect { get; set; } // redirect for Caption/Description attributes
 
         public bool IsStatic { get { return SortFilterStaticData != null; } }
@@ -188,7 +186,6 @@ namespace YetaWF.Core.Models {
             SupportReload = true;
             ShowHeader = true;
             ShowPager = true;
-            //$$SizeToFit = false;
             NoRecordsText = this.__ResStr("noRecs", "(None)");
             ShowFilter = null;
             UseSkinFormatting = true;
@@ -196,11 +193,7 @@ namespace YetaWF.Core.Models {
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };
             InitialPageSize = 10;
-            SettingsModuleGuid = Guid.Empty;
-            ReadOnly = true;
-            CanAddOrDelete = false;
-            DeleteProperty = null;
-            DisplayProperty = null;
+            SettingsModuleGuid = null;
             ExtraData = null;
         }
     }

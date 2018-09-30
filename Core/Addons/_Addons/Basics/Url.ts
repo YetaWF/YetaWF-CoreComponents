@@ -91,8 +91,8 @@ namespace YetaWF {
                 }
             }
         }
-        public addFormInfo(tag: HTMLElement): void {
-            var formInfo = $YetaWF.Forms.getFormInfo(tag);
+        public addFormInfo(tag: HTMLElement, counter?: number): void {
+            var formInfo = $YetaWF.Forms.getFormInfo(tag, undefined, counter);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
             this.addSearch(YConfigs.Forms.UniqueIdPrefix, formInfo.UniqueIdPrefix);
             this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);

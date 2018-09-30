@@ -185,9 +185,9 @@ namespace YetaWF {
 
             if (!form.getAttribute("method")) return; // no method, don't submit
 
-            var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
-            if (dc)
-                $YetaWF.removeElement(dc);
+            var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
+            for (let div of divs)
+                $YetaWF.removeElement(div);
 
             if (useValidation)
                 this.validate(form);
@@ -278,9 +278,9 @@ namespace YetaWF {
                 if (successFunc)
                     successFunc(this.hasErrors(form));
             }
-            var dc = $YetaWF.getElement1BySelectorCond("div." + this.DATACLASS);
-            if (dc)
-                $YetaWF.removeElement(dc);
+            var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
+            for (let div of divs)
+                $YetaWF.removeElement(div);
         }
 
         public submitTemplate(tag: HTMLElement, useValidation: boolean, templateName: string, templateAction: string, templateExtraData: string) : void {
@@ -408,12 +408,14 @@ namespace YetaWF {
             return form as HTMLFormElement;
         }
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
-        public getFormInfo(tag: HTMLElement, addAmpersand?:boolean) : FormInfo {
+        public getFormInfo(tag: HTMLElement, addAmpersand?: boolean, counter?: number) : FormInfo {
             var form = this.getForm(tag);
             var req = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement).value;
             if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
             var pre = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.UniqueIdPrefix}']`, [form]) as HTMLInputElement).value;
             if (!pre || pre.length === 0) throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix;/*DEBUG*/
+            if (counter)
+                pre += `_${counter}`;
             var guid = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
             if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
             var charSize = $YetaWF.getCharSizeFromTag(form);

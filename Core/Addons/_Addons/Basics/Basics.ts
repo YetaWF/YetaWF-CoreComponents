@@ -1142,6 +1142,12 @@ namespace YetaWF {
             return val;
         }
         /**
+         * Returns an attribute value.
+         */
+        public getAttributeCond(elem: HTMLElement, name: string): string | null {
+            return elem.getAttribute(name);
+        }
+        /**
          * Sets an attribute.
          */
         public setAttribute(elem: HTMLElement, name: string, value: string): void {
@@ -1193,6 +1199,11 @@ namespace YetaWF {
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback));
+        }
+        public registerMultipleEventHandlers(tag: HTMLElement, eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
+            for (let eventName of eventNames) {
+                tag.addEventListener(eventName, (ev: Event) => this.handleEvent(tag, ev, selector, callback));
+            }
         }
         private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/

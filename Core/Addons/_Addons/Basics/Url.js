@@ -90,8 +90,8 @@ var YetaWF;
                 }
             }
         };
-        Url.prototype.addFormInfo = function (tag) {
-            var formInfo = $YetaWF.Forms.getFormInfo(tag);
+        Url.prototype.addFormInfo = function (tag, counter) {
+            var formInfo = $YetaWF.Forms.getFormInfo(tag, undefined, counter);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
             this.addSearch(YConfigs.Forms.UniqueIdPrefix, formInfo.UniqueIdPrefix);
             this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
