@@ -55,6 +55,12 @@ namespace YetaWF.Core.Models {
         public enum SortBy {
             NotSpecified = 0, Ascending, Descending
         };
+        public enum SizeStyleEnum {
+            SizeGiven = 0,
+            SizeToFit = 1,
+            SizeAuto = 2,
+        }
+
         public class ColumnInfo {
             public SortBy Sort { get; set; }
             public int Width { get; set; }
@@ -65,15 +71,7 @@ namespace YetaWF.Core.Models {
                 Width = -1;
             }
         }
-        public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> { }
-    }
-
-    public class Grid2Definition {
-
-        public enum SizeStyleEnum {
-            SizeGiven = 0,
-            SizeToFit = 1,
-            SizeAuto = 2,
+        public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> {
         }
 
         // set up by application
@@ -116,7 +114,7 @@ namespace YetaWF.Core.Models {
         // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
         public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
 
-        public Grid2Definition() {
+        public GridDefinition() {
 
             SupportReload = true;
             ShowHeader = true;

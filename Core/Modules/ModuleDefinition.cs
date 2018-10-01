@@ -480,7 +480,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public class GridAllowedUser {
 
             [Caption("Delete"), Description("Click to delete a user", Order = -100)]
-            [UIHint("Softelvdm_Grid_Grid2DeleteEntry"), ReadOnly]
+            [UIHint("GridDeleteEntry"), ReadOnly]
             public int Delete { get; set; }
 
             [Caption("User"), Description("User Name", Order = -99)]

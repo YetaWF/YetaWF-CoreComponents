@@ -352,25 +352,25 @@ namespace YetaWF.Core.Controllers
         /// An action result that renders a grid as a partial view.
         /// </summary>
         /// <remarks>Used for static grids.</remarks>
-        protected async Task<PartialViewResult> Grid2PartialViewAsync<TYPE>(Grid2Definition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             List<TYPE> list = YetaWFManager.JsonDeserialize<List<TYPE>>(data);
             List<object> objList = (from l in list select (object)l).ToList();
             DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, sorts, filters);
-            return await Grid2PartialViewAsync(gridModel, ds, objList, fieldPrefix, skip, take, sorts, filters);
+            return await GridPartialViewAsync(gridModel, ds, objList, fieldPrefix, skip, take, sorts, filters);
         }
         /// <summary>
         /// An action result that renders a grid as a partial view.
         /// </summary>
         /// <remarks>Used for Ajax grids.</remarks>
-        protected async Task<PartialViewResult> Grid2PartialViewAsync(Grid2Definition gridModel, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             DataSourceResult data = await gridModel.DirectDataAsync(skip, take, sorts, filters);
-            return await Grid2PartialViewAsync(gridModel, data, null, fieldPrefix, skip, take, sorts, filters);
+            return await GridPartialViewAsync(gridModel, data, null, fieldPrefix, skip, take, sorts, filters);
         }
         /// <summary>
         /// An action result that renders a grid as a partial view.
         /// </summary>
-        protected async Task<PartialViewResult> Grid2PartialViewAsync(Grid2Definition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
-            Grid2PartialData grid2PartialModel = new Grid2PartialData() {
+        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+            GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
                 StaticData = staticData,
                 Skip = skip,
@@ -381,14 +381,14 @@ namespace YetaWF.Core.Controllers
                 GridDef = gridModel,
             };
             // save settings
-            YetaWF.Core.Components.Grid.SaveSettings(grid2PartialModel.Skip, grid2PartialModel.Take, grid2PartialModel.Sorts, grid2PartialModel.Filters, grid2PartialModel.GridDef.SettingsModuleGuid);
+            YetaWF.Core.Components.Grid.SaveSettings(gridPartialModel.Skip, gridPartialModel.Take, gridPartialModel.Sorts, gridPartialModel.Filters, gridPartialModel.GridDef.SettingsModuleGuid);
             // handle async properties
-            await HandlePropertiesAsync(grid2PartialModel.Data.Data);
+            await HandlePropertiesAsync(gridPartialModel.Data.Data);
             // render
-            return PartialView("Softelvdm_Grid_Grid2PartialData", grid2PartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
+            return PartialView("GridPartialData", gridPartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
         }
-        protected Task<PartialViewResult> Grid2RecordViewAsync(Grid2RecordData model) {
-            return Task.FromResult(PartialView("Softelvdm_Grid_Grid2Record", model, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
+        protected Task<PartialViewResult> GridRecordViewAsync(GridRecordData model) {
+            return Task.FromResult(PartialView("GridRecord", model, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
 
         public static async Task HandlePropertiesAsync(List<object> data) {

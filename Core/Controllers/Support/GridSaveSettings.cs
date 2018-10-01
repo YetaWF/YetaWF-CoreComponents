@@ -22,7 +22,7 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <remarks>This is invoked by client-side code via Ajax whenever a grid's column widths change.
         ///
-        /// Used in conjunction with client-side code and the ModuleSelection template.</remarks>
+        /// Used in conjunction with client-side code.</remarks>
         [AllowPost]
         public ActionResult GridSaveColumnWidths(Guid settingsModuleGuid, Dictionary<string, int> columns) {
             Grid.GridSavedSettings gridSavedSettings = Grid.LoadModuleSettings(settingsModuleGuid);
