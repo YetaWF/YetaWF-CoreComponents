@@ -1244,7 +1244,15 @@ namespace YetaWF {
                 ev.preventDefault();
             }
         }
-
+        public handleInputReturnKeyForButton(input: HTMLInputElement, button: HTMLInputElement) {
+            $YetaWF.registerEventHandler(input, "keydown", null, (ev: KeyboardEvent): boolean => {
+                if (ev.keyCode === 13) {
+                    button.click();
+                    return false;
+                }
+                return true;
+            });
+        }
 
         // CONTENTCHANGE
         // CONTENTCHANGE

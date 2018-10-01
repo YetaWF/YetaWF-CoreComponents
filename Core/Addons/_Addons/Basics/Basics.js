@@ -1131,6 +1131,15 @@ var YetaWF;
                 ev.preventDefault();
             }
         };
+        BasicsServices.prototype.handleInputReturnKeyForButton = function (input, button) {
+            $YetaWF.registerEventHandler(input, "keydown", null, function (ev) {
+                if (ev.keyCode === 13) {
+                    button.click();
+                    return false;
+                }
+                return true;
+            });
+        };
         BasicsServices.prototype.registerContentChange = function (callback) {
             this.ContentChangeHandlers.push({ callback: callback });
         };

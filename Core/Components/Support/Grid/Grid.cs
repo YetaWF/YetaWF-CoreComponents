@@ -3,22 +3,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Repository;
-using YetaWF.Core.Localize;
-using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
-using System.Web;
-using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Components {
@@ -182,11 +179,6 @@ namespace YetaWF.Core.Components {
         }
 
         public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(Type recordType) {
-            //$$$$ if (typeof(ModuleDefinition.GridAllowedRole).IsAssignableFrom(recordType)) {
-            //    recordType = typeof(ModuleDefinition.GridAllowedRole);
-            //} else if (typeof(ModuleDefinition.GridAllowedUser).IsAssignableFrom(recordType)) {
-            //    recordType = typeof(ModuleDefinition.GridAllowedUser);
-            //}
             Dictionary<string, GridColumnInfo> dict = new Dictionary<string, GridColumnInfo>();
             string className = recordType.FullName.Split(new char[] { '.' }).Last();
             string[] s = className.Split(new char[] { '+' });

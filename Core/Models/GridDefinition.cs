@@ -142,6 +142,12 @@ namespace YetaWF.Core.Models {
 
     public class Grid2Definition {
 
+        public enum SizeStyleEnum {
+            SizeGiven = 0,
+            SizeToFit = 1,
+            SizeAuto = 2,
+        }
+
         // set up by application
         public Type RecordType { get; set; }
         public string AjaxUrl { get; set; } // remote data
@@ -158,6 +164,7 @@ namespace YetaWF.Core.Models {
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
         public bool ShowPager { get; set; }
         public string NoRecordsText { get; set; }// text shown when there are no records
+        public SizeStyleEnum SizeStyle { get; set; }
 
         public int InitialPageSize { get; set; }
         public List<int> PageSizes { get; set; }

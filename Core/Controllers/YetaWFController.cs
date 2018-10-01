@@ -351,14 +351,6 @@ namespace YetaWF.Core.Controllers
         /// <summary>
         /// An action result that renders a grid as a partial view.
         /// </summary>
-        /// <remarks>Used for legacy grids.</remarks>
-        protected async Task<PartialViewResult> GridPartialViewAsync(DataSourceResult dataSrc) {
-            await HandlePropertiesAsync(dataSrc.Data);
-            return PartialView("GridData", dataSrc, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
-        }
-        /// <summary>
-        /// An action result that renders a grid as a partial view.
-        /// </summary>
         /// <remarks>Used for static grids.</remarks>
         protected async Task<PartialViewResult> Grid2PartialViewAsync<TYPE>(Grid2Definition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             List<TYPE> list = YetaWFManager.JsonDeserialize<List<TYPE>>(data);
@@ -399,16 +391,6 @@ namespace YetaWF.Core.Controllers
             return Task.FromResult(PartialView("Softelvdm_Grid_Grid2Record", model, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
 
-        /// <summary>
-        /// An action result that renders a single grid record as a partial view.
-        /// </summary>
-        /// <param name="entryDef">The definition of the grid record.</param>
-        /// <returns>Used in conjunction with the Grid template.</returns>
-        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition.GridEntryDefinition entryDef) {//$$$ remove
-            await HandlePropertiesAsync(entryDef.Model);
-            string partialView = "GridEntry";
-            return PartialView(partialView, entryDef, ContentType: "application/json", PureContent: true, AreaViewName: false);
-        }
         public static async Task HandlePropertiesAsync(List<object> data) {
             foreach (object item in data)
                 await HandlePropertiesAsync(item);
