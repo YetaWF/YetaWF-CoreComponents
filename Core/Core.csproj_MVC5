@@ -111,7 +111,7 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
-    <Compile Include="Components\Support\Grid2\Grid2.cs" />
+    <Compile Include="Components\Support\Grid\GridData.cs" />
     <Compile Include="Components\Support\WeeklyHours.cs" />
     <Compile Include="Components\Support\TimeOfDay.cs" />
     <Compile Include="Components\Support\DayTimeRange.cs" />

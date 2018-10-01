@@ -500,7 +500,7 @@ namespace YetaWF {
         /**
          * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
          */
-        private getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
+        public getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
             var mod = this.elementClosestCond(tag, ".yModule");
             if (!mod) return null;
             return mod;
@@ -508,7 +508,7 @@ namespace YetaWF {
         /**
          * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
          */
-        private getModuleFromTag(tag: HTMLElement): HTMLElement {
+        public getModuleFromTag(tag: HTMLElement): HTMLElement {
             var mod = this.getModuleFromTagCond(tag);
             // tslint:disable-next-line:no-debugger
             if (mod == null) { debugger; throw "Can't find containing module"; }/*DEBUG*/
