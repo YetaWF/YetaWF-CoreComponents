@@ -162,11 +162,6 @@ namespace YetaWF.Core.Components {
                 }
             }
         }
-        public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(GridDefinition gridDef) {
-            if (gridDef.CachedDict == null)
-                gridDef.CachedDict = await LoadGridColumnDefinitionsAsync(gridDef.RecordType);
-            return gridDef.CachedDict;
-        }
         public static async Task<ObjectSupport.ReadGridDictionaryInfo> LoadGridColumnDefinitionsAsync(Grid2Definition gridDef) {
             if (gridDef.CachedDict == null)
                 gridDef.CachedDict = await LoadGridColumnDefinitionsAsync(gridDef.RecordType);

@@ -15,7 +15,7 @@ namespace YetaWF.Core.Controllers {
     /// <summary>
     /// Grid template support.
     /// </summary>
-    public class GridHelperController : YetaWFController {
+    public class GridSaveSettingsController : YetaWFController {
 
         /// <summary>
         /// Saves a grid's user-defined column widths.
