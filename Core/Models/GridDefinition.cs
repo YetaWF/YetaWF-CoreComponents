@@ -129,5 +129,11 @@ namespace YetaWF.Core.Models {
             SettingsModuleGuid = null;
             ExtraData = null;
         }
+        public static DataSourceResult DontSortFilter(List<object> data, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+            return new DataSourceResult {
+                Data = data,
+                Total = data.Count,
+            };
+        }
     }
 }

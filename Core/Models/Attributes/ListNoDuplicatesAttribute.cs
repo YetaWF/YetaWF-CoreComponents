@@ -22,6 +22,11 @@ namespace YetaWF.Core.Models.Attributes {
                 var query = list.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
                 if (query.Count > 0)
                     return new ValidationResult(__ResStr("dup", "Duplicate entry found - {0}", query.First()));
+            } else if (value is List<int>) {
+                List<int> list = (List<int>)value;
+                var query = list.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
+                if (query.Count > 0)
+                    return new ValidationResult(__ResStr("dup", "Duplicate entry found - {0}", query.First()));
             }
             return ValidationResult.Success;
         }

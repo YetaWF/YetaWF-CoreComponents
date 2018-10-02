@@ -303,7 +303,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Data_Binary]
         [Category("Authorization"), Caption("Permitted Users"), Description("Users that are permitted to use this module")]
-        [UIHint("YetaWF_ModuleEdit_AllowedUsers"), AdditionalMetadata("GridEntry", typeof(GridAllowedUser))]// $$$$$ remove "GridEntry"
+        [UIHint("YetaWF_ModuleEdit_AllowedUsers")]
         public SerializableList<AllowedUser> AllowedUsers {
             get {
                 if (_allowedUsers == null)
