@@ -179,6 +179,7 @@ namespace YetaWF {
                 if (cookieToReturn) return true; // expecting cookie return
                 if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain) return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set
+                if (!window.document.location) return true;
                 if (!url.startsWith("http") || !window.document.location.href.startsWith("http")) return true; // neither http nor https
                 if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||
                     (url.startsWith("https://") !== window.document.location.href.startsWith("https://"))) return true; // switching http<>https

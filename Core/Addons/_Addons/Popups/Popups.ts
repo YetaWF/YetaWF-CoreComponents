@@ -118,6 +118,7 @@ namespace YetaWF {
             if (YVolatile.Skin.MinWidthForPopups > window.outerWidth) // the screen is too small for a popup
                 return false;
             // if we're switching from https->http or from http->https don't use a popup
+            if (!window.document.location) return false;
             if (!url.startsWith("http") || !window.document.location.href.startsWith("http"))
                 return false;
             if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||

@@ -685,7 +685,7 @@ namespace YetaWF {
             var elem = document.createElement("script");
             elem.text = script;
 
-            var newElem = document.head.appendChild(elem);// add to execute script
+            var newElem = document.head!.appendChild(elem);// add to execute script
             (newElem.parentNode as HTMLElement).removeChild(newElem);// and remove - we're done with it
         }
 

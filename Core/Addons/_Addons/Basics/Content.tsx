@@ -84,7 +84,7 @@ namespace YetaWF {
                 js.async = false; // need to preserve execution order
                 js.src = urlEntry.Url;
                 js.setAttribute("data-name", name);
-                js.onload = js.onerror = js["onreadystatechange"] = (ev: Event) : void => {
+                js.onload = js.onerror = js["onreadystatechange"] = (ev: any) : void => {
                     if ((js["readyState"] && !(/^c|loade/.test(js["readyState"]))) || loaded) return;
                     js.onload = js["onreadystatechange"] = null;
                     loaded = true;
@@ -282,14 +282,14 @@ namespace YetaWF {
                 if (found.length > 0) {
                     var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
-                        document.head.appendChild(elem);
+                        document.head!.appendChild(elem);
                     } else {
                         document.body.appendChild(elem);
                     }
                 } else {
                     var elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
-                        document.head.appendChild(elem);
+                        document.head!.appendChild(elem);
                     } else {
                         document.body.appendChild(elem);
                     }

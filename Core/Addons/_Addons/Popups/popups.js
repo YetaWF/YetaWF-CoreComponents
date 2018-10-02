@@ -61,6 +61,8 @@ var YetaWF;
             if (YVolatile.Skin.MinWidthForPopups > window.outerWidth) // the screen is too small for a popup
                 return false;
             // if we're switching from https->http or from http->https don't use a popup
+            if (!window.document.location)
+                return false;
             if (!url.startsWith("http") || !window.document.location.href.startsWith("http"))
                 return false;
             if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||
@@ -94,5 +96,3 @@ var YetaWF;
     // tslint:disable-next-line:no-unused-expression
     $YetaWF.Popups; // need to evaluate for side effect to initialize popups
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Popups.js.map
