@@ -353,6 +353,8 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <remarks>Used for static grids.</remarks>
         protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+            // save settings
+            YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
             List<TYPE> list = YetaWFManager.JsonDeserialize<List<TYPE>>(data);
             List<object> objList = (from l in list select (object)l).ToList();
             DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, sorts, filters);
@@ -363,6 +365,8 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <remarks>Used for Ajax grids.</remarks>
         protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+            // save settings
+            YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
             DataSourceResult data = await gridModel.DirectDataAsync(skip, take, sorts, filters);
             return await GridPartialViewAsync(gridModel, data, null, fieldPrefix, skip, take, sorts, filters);
         }
@@ -380,8 +384,6 @@ namespace YetaWF.Core.Controllers
                 FieldPrefix = fieldPrefix,
                 GridDef = gridModel,
             };
-            // save settings
-            YetaWF.Core.Components.Grid.SaveSettings(gridPartialModel.Skip, gridPartialModel.Take, gridPartialModel.Sorts, gridPartialModel.Filters, gridPartialModel.GridDef.SettingsModuleGuid);
             // handle async properties
             await HandlePropertiesAsync(gridPartialModel.Data.Data);
             // render
