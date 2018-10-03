@@ -5,8 +5,6 @@ var YetaWF;
 (function (YetaWF) {
     var Anchors = /** @class */ (function () {
         function Anchors() {
-            this.cookiePattern = null;
-            this.cookieTimer = null;
         }
         /**
          * Handles all navigation using <a> tags.
@@ -102,8 +100,6 @@ var YetaWF;
                     if ($YetaWF.Popups.handlePopupLink(anchor))
                         return false;
                 }
-                _this.cookiePattern = null;
-                _this.cookieTimer = null;
                 var cookieToReturn = null;
                 var post = false;
                 if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr) != null) {
@@ -113,7 +109,7 @@ var YetaWF;
                 }
                 if (anchor.getAttribute(YConfigs.Basics.PostAttr) != null)
                     post = true;
-                anchor.href = uri.toUrl(); // update original href in case let default handling take place
+                url = anchor.href = uri.toUrl(); // update original href in case we let default handling take place
                 if (cookieToReturn) {
                     // this is a file download
                     var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
@@ -125,6 +121,7 @@ var YetaWF;
                         });
                         return false;
                     }
+                    $YetaWF.setLoading();
                     window.location.assign(url);
                 }
                 else {
@@ -174,25 +171,10 @@ var YetaWF;
                 return true;
             });
         };
-        Anchors.prototype.checkCookies = function () {
-            if (!this.cookiePattern)
-                throw "cookie pattern not defined"; /*DEBUG*/
-            if (!this.cookieTimer)
-                throw "cookie timer not defined"; /*DEBUG*/
-            if (document.cookie.search(this.cookiePattern) >= 0) {
-                clearInterval(this.cookieTimer);
-                $YetaWF.setLoading(false); // turn off loading indicator
-                console.log("Download complete!!");
-                return false;
-            }
-            console.log("File still downloading...", new Date().getTime());
-            return true;
-        };
         Anchors.prototype.waitForCookie = function (cookieToReturn) {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
-                this.cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
-                this.cookieTimer = setInterval(this.checkCookies, 500);
+                new CookieWait(cookieToReturn);
             }
         };
         Anchors.prototype.postLink = function (url, elem, cookieToReturn) {
@@ -213,6 +195,22 @@ var YetaWF;
         return Anchors;
     }());
     YetaWF.Anchors = Anchors;
+    var CookieWait = /** @class */ (function () {
+        function CookieWait(cookieToReturn) {
+            var _this = this;
+            this.cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
+            this.cookieTimer = setInterval(function () { _this.checkCookies(); }, 500);
+        }
+        CookieWait.prototype.checkCookies = function () {
+            if (document.cookie.search(this.cookiePattern) >= 0) {
+                clearInterval(this.cookieTimer);
+                $YetaWF.setLoading(false); // turn off loading indicator
+                console.log("Download complete!!");
+                return false;
+            }
+            console.log("File still downloading...", new Date().getTime());
+            return true;
+        };
+        return CookieWait;
+    }());
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Anchors.js.map

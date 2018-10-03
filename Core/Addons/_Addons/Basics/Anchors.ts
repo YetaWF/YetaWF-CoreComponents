@@ -8,9 +8,6 @@ namespace YetaWF {
 
         public constructor() { }
 
-        private cookiePattern: RegExp | null = null;
-        private cookieTimer: number | null = null;
-
         /**
          * Handles all navigation using <a> tags.
          */
@@ -118,8 +115,6 @@ namespace YetaWF {
                         return false;
                 }
 
-                this.cookiePattern = null;
-                this.cookieTimer = null;
                 var cookieToReturn: number | null = null;
                 var post: boolean = false;
 
@@ -131,7 +126,7 @@ namespace YetaWF {
                 if (anchor.getAttribute(YConfigs.Basics.PostAttr) != null)
                     post = true;
 
-                anchor.href = uri.toUrl(); // update original href in case let default handling take place
+                url = anchor.href = uri.toUrl(); // update original href in case we let default handling take place
 
                 if (cookieToReturn) {
                     // this is a file download
@@ -144,6 +139,7 @@ namespace YetaWF {
                         });
                         return false;
                     }
+                    $YetaWF.setLoading();
                     window.location.assign(url);
                 } else {
                     // if a confirmation is wanted, show it
@@ -190,23 +186,10 @@ namespace YetaWF {
                 return true;
             });
         }
-        private checkCookies(): boolean {
-            if (!this.cookiePattern) throw "cookie pattern not defined";/*DEBUG*/
-            if (!this.cookieTimer) throw "cookie timer not defined";/*DEBUG*/
-            if (document.cookie.search(this.cookiePattern) >= 0) {
-                clearInterval(this.cookieTimer);
-                $YetaWF.setLoading(false);// turn off loading indicator
-                console.log("Download complete!!");
-                return false;
-            }
-            console.log("File still downloading...", new Date().getTime());
-            return true;
-        }
         private waitForCookie(cookieToReturn: number | null) : void {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
-                this.cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
-                this.cookieTimer = setInterval(this.checkCookies, 500);
+                new CookieWait(cookieToReturn);
             }
         }
         private postLink(url: string, elem: HTMLAnchorElement, cookieToReturn: number | null) : void {
@@ -225,6 +208,27 @@ namespace YetaWF {
 
             };
             request.send("");
+        }
+    }
+
+    class CookieWait {
+
+        private cookiePattern: RegExp;
+        private cookieTimer: number;
+
+        constructor(cookieToReturn: number) {
+            this.cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
+            this.cookieTimer = setInterval(() => { this.checkCookies() }, 500);
+        }
+        private checkCookies(): boolean {
+            if (document.cookie.search(this.cookiePattern) >= 0) {
+                clearInterval(this.cookieTimer);
+                $YetaWF.setLoading(false);// turn off loading indicator
+                console.log("Download complete!!");
+                return false;
+            }
+            console.log("File still downloading...", new Date().getTime());
+            return true;
         }
     }
 }
