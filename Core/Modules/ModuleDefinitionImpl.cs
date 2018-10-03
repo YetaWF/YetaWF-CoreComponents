@@ -593,7 +593,7 @@ namespace YetaWF.Core.Modules {
             skinAccess.GetModuleCharacterSizes(this, out charWidth, out charHeight);
             Manager.NewCharSize(charWidth, charHeight);
 
-            // execute action
+            // execute actionalert
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
             Manager.WantFocus = this.WantFocus;
@@ -621,6 +621,10 @@ namespace YetaWF.Core.Modules {
                     moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
                 });
 #endif
+                // module script initialization
+                if (!string.IsNullOrWhiteSpace(moduleHtml))
+                    moduleHtml += Manager.ScriptManager.AddNow($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');").ToString();
+
             } catch (Exception exc) {
                 // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
                 HtmlBuilder hb = ProcessModuleError(exc, ModuleName);

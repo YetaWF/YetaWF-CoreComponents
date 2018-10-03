@@ -214,3 +214,5 @@ var YetaWF;
     }());
     YetaWF.Anchors = Anchors;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Anchors.js.map

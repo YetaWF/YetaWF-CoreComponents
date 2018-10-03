@@ -81,7 +81,7 @@ var YetaWF;
             }
         };
         Url.prototype.addSearch = function (key, value) {
-            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value.toString() });
+            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value == null ? "" : value.toString() });
         };
         Url.prototype.addSearchSimpleObject = function (obj) {
             for (var key in obj) {
@@ -201,3 +201,5 @@ var YetaWF;
     }());
     YetaWF.Url = Url;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Url.js.map

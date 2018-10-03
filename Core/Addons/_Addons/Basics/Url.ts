@@ -81,8 +81,8 @@ namespace YetaWF {
                 this.QSEntries.push({ key: prop, keyLower: prop.toLowerCase(), value: o[prop] });
             }
         }
-        public addSearch(key: string, value: string | number): void {
-            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value.toString() });
+        public addSearch(key: string, value: string | number | null): void {
+            this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value == null ? "" : value.toString() });
         }
         public addSearchSimpleObject(obj: any): void {
             for (const key in obj) {
