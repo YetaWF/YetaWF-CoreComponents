@@ -622,8 +622,10 @@ namespace YetaWF.Core.Modules {
                 });
 #endif
                 // module script initialization
-                if (!string.IsNullOrWhiteSpace(moduleHtml))
+                if (!string.IsNullOrWhiteSpace(moduleHtml)) {
+                    await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName); // add supporting files
                     moduleHtml += Manager.ScriptManager.AddNow($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');").ToString();
+                }
 
             } catch (Exception exc) {
                 // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
