@@ -558,7 +558,9 @@ namespace YetaWF.Core.Modules {
                 if (m.ReturnType == typeof(ModuleAction)) {
                     action = (ModuleAction)m.Invoke(this, new object[] { });
                 } else if (m.ReturnType == typeof(Task<ModuleAction>)) {
-                    action = await (Task<ModuleAction>)m.Invoke(this, new object[] { });
+                    object ret = m.Invoke(this, new object[] { });
+                    if (ret != null)
+                        action = await (Task<ModuleAction>)m.Invoke(this, new object[] { });
                 }
                 if (action != null) {
                     if (string.IsNullOrWhiteSpace(action.Url))
