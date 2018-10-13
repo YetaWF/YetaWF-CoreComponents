@@ -189,6 +189,7 @@ namespace YetaWF {
         private waitForCookie(cookieToReturn: number | null) : void {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
+                // tslint:disable-next-line:no-unused-expression
                 new CookieWait(cookieToReturn);
             }
         }
@@ -218,7 +219,7 @@ namespace YetaWF {
 
         constructor(cookieToReturn: number) {
             this.cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
-            this.cookieTimer = setInterval(() => { this.checkCookies() }, 500);
+            this.cookieTimer = setInterval(() => { this.checkCookies(); }, 500);
         }
         private checkCookies(): boolean {
             if (document.cookie.search(this.cookiePattern) >= 0) {
