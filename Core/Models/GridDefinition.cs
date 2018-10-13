@@ -89,8 +89,10 @@ namespace YetaWF.Core.Models {
         public bool ShowHeader { get; set; }
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
         public bool ShowPager { get; set; }
-        public string NoRecordsText { get; set; }// text shown when there are no records
+        public bool Reorderable { get; set; }
         public SizeStyleEnum SizeStyle { get; set; }
+
+        public string NoRecordsText { get; set; }// text shown when there are no records
 
         public int InitialPageSize { get; set; }
         public List<int> PageSizes { get; set; }
