@@ -158,7 +158,7 @@ namespace YetaWF.Core.Pages {
         public static string ProcessIncludedFiles(string fileText, string file) {
             // replace all instances of url( with the correct path
             int ix = file.LastIndexOf('/');
-            if (ix < 0) throw new InternalError("{0} is not a url");
+            if (ix < 0) throw new InternalError($"{file} is not a url");
             string path = file.Substring(0, ix);
             fileText = varUrlRegex.Replace(fileText, (match) => ProcessMatch(match, path));
             return fileText;
@@ -168,11 +168,13 @@ namespace YetaWF.Core.Pages {
             string path = match.Groups["path"].Value;
             string pathStart = path.TrimStart();
             if (pathStart.StartsWith("/") || pathStart.StartsWith("http") || pathStart.StartsWith("https"))
-                return string.Format("{0}{1}", pre, path);
+                return string.Format($"{pre}{path}");
+            if (pathStart.StartsWith("\"data:"))
+                return string.Format($"{pre}{path}");
             if (pathStart.StartsWith("'") || pathStart.StartsWith("\""))
                 return string.Format("{0}{1}{2}/{3}", pre, pathStart.Substring(0, 1), filePath, pathStart.Substring(1));
             else
-                return string.Format("{0}{1}/{2}", pre, filePath, path);
+                return string.Format($"{pre}{filePath}/{path}");
         }
 
         /// <summary>

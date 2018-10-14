@@ -1,0 +1,3 @@
+﻿\node_modules\@fortawesome\fontawesome-free\sprites,noCDN
+\node_modules\@fortawesome\fontawesome-free\svgs,noCDN
+\node_modules\@fortawesome\fontawesome-free\webfonts,noCDN
