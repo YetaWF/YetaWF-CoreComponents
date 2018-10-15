@@ -336,6 +336,7 @@
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
     <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
     <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
+    <Content Include="Addons\_Addons\fontawesome.com.fontawesome\filelistDeploy.txt" />
     <Content Include="Addons\_Addons\fontawesome.com.fontawesome\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Forms\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootstrap-less\bootstrap.css" />
