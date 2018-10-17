@@ -8,7 +8,15 @@ var YetaWF;
             this.Control = $YetaWF.getElementById(controlId);
         }
         ComponentBase.getControlBaseFromTag = function (elem, controlSelector) {
+            var obj = ComponentBase.getControlBaseFromTagCond(elem, controlSelector);
+            if (obj == null)
+                throw "Object matching " + controlSelector + " not found";
+            return obj;
+        };
+        ComponentBase.getControlBaseFromTagCond = function (elem, controlSelector) {
             var control = $YetaWF.elementClosest(elem, controlSelector);
+            if (control == null)
+                return null;
             var obj = $YetaWF.getObjectData(control);
             if (obj.Control !== control)
                 throw "object data doesn't match control type - " + control.outerHTML;

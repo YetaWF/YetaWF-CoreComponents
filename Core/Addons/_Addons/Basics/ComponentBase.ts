@@ -13,9 +13,18 @@ namespace YetaWF {
         }
 
         public static getControlBaseFromTag<T extends ComponentBase<HTMLElement>>(elem: HTMLElement, controlSelector: string): T {
+            var obj = ComponentBase.getControlBaseFromTagCond<T>(elem, controlSelector);
+            if (obj == null)
+                throw `Object matching ${controlSelector} not found`;
+            return obj;
+        }
+        public static getControlBaseFromTagCond<T extends ComponentBase<HTMLElement>>(elem: HTMLElement, controlSelector: string): T | null {
             var control = $YetaWF.elementClosest(elem, controlSelector) as HTMLElement;
+            if (control == null)
+                return null;
             var obj = $YetaWF.getObjectData(control) as T;
-            if (obj.Control !== control) throw `object data doesn't match control type - ${control.outerHTML}`;
+            if (obj.Control !== control)
+                throw `object data doesn't match control type - ${control.outerHTML}`;
             return obj;
         }
         public static getControlBaseFromSelector<T extends ComponentBase<HTMLElement>>(selector: string, controlSelector: string, tags: HTMLElement[]): T {
