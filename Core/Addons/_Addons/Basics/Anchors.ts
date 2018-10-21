@@ -18,7 +18,7 @@ namespace YetaWF {
 
                 // find the real anchor, ev.target was clicked but it may not be the anchor itself
                 if (!ev.target) return true;
-                var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a") as HTMLAnchorElement;
+                var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a,area") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 var url = anchor.href;
