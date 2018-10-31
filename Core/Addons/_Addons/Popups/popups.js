@@ -96,3 +96,5 @@ var YetaWF;
     // tslint:disable-next-line:no-unused-expression
     $YetaWF.Popups; // need to evaluate for side effect to initialize popups
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Popups.js.map

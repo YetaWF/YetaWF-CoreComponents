@@ -19,7 +19,8 @@ namespace YetaWF.Core.DataProvider {
             objects = Filter(objects, filters);
             objects = Sort(objects, sorts);
             int total = objects.Count;
-            objects = objects.Skip(skip).Take(take).ToList();
+            if (skip != 0 || take != 0)
+                objects = objects.Skip(skip).Take(take).ToList();
             return new DataProviderGetRecords<OBJTYPE> {
                 Data = objects,
                 Total = total,
