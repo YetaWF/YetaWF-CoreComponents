@@ -222,6 +222,7 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <returns></returns>
         protected ActionResult NotAuthorized() {
+            Logging.AddErrorLog("Not Authorized");
 #if MVC6
             return new UnauthorizedResult();
 #else
