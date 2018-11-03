@@ -13,14 +13,15 @@ using YetaWF.Core.Packages;
 
 namespace YetaWF2.Support
 {
+    //$$$$$$$$$$$$$$ TODO: Disabled for now, use case testing in private sites pending
 
     public class YetaWFApplicationPartManager : ApplicationPartManager {
         public YetaWFApplicationPartManager() {
 
-            IEnumerable<ApplicationPart> parts = DefaultAssemblyPartDiscoveryProvider.DiscoverAssemblyParts("YetaWF");
-            foreach (ApplicationPart part in parts) {
-                ApplicationParts.Add(part);
-            }
+            //$$$ IEnumerable<ApplicationPart> parts = DefaultAssemblyPartDiscoveryProvider.DiscoverAssemblyParts("YetaWF");
+            //foreach (ApplicationPart part in parts) {
+            //    ApplicationParts.Add(part);
+            //}
 
             List<Assembly> assemblies = (from Microsoft.AspNetCore.Mvc.ApplicationParts.AssemblyPart p in ApplicationParts select p.Assembly).ToList();
             List<ApplicationPart> extraParts = FindExtraAssemblies(assemblies, AppDomain.CurrentDomain.BaseDirectory);
