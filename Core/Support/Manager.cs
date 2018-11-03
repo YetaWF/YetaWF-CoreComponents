@@ -59,14 +59,21 @@ namespace YetaWF.Core.Support {
 #endif
 
 #if MVC6
-        public static void Init(IServiceProvider serviceProvider = null, IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null) {
-            ServiceProvider = serviceProvider ?? new DummyServiceProvider();
+        public static void Init(IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null) {
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
             MemoryCache = memoryCache ?? new DummyMemoryCache();
         }
-        public static IServiceProvider ServiceProvider = null;
         public static IHttpContextAccessor HttpContextAccessor = null;
         public static IMemoryCache MemoryCache = null;
+
+        // TODO: Arghh, get rid of this, but oh well - who's got time...
+        // This is used by out ActionHelper and Identity (Identity could fairly easily use DI, except for the data providers)
+        public static IServiceProvider ServiceProvider {
+            get {
+                HttpContext context = HttpContextAccessor.HttpContext;
+                return context.RequestServices;
+            }
+        }
 #else
 #endif
         private YetaWFManager(string host) {

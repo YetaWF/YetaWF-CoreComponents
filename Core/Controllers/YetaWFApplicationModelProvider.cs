@@ -14,7 +14,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Controllers {
 
     public class YetaWFApplicationModelProvider : DefaultApplicationModelProvider {
-        public YetaWFApplicationModelProvider(IOptions<MvcOptions> mvcOptionsAccessor) : base(mvcOptionsAccessor) { }
+        public YetaWFApplicationModelProvider(IOptions<MvcOptions> mvcOptionsAccessor, IModelMetadataProvider modelMetadataProvider) : base(mvcOptionsAccessor, modelMetadataProvider) { }
 
         // This is called at startup for all controllers - so no need to cache the data we collect
         protected override ControllerModel CreateControllerModel(TypeInfo typeInfo) {

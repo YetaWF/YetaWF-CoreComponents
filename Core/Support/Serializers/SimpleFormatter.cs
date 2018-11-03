@@ -16,7 +16,13 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.Serializers {
+
+    // A bit fragile... When the Stream class added Read/Write overrides, Write(null) stopped working because it wouldn't use StreamExtender.Write
+    // Make sure to use Write((string)...) instead.
+    // TODO: prob need to change this to not use extender - who's got time...
+
     public static class StreamExtender {
+
         public static void Write(this Stream stream, string text, params object[] parms) {
             if (text == null) {
                 int len = -1;
@@ -56,6 +62,7 @@ namespace YetaWF.Core.Serializers {
             }
         }
     }
+
     public class SimpleFormatter : IFormatter {
 
         SerializationBinder binder;
@@ -176,7 +183,7 @@ namespace YetaWF.Core.Serializers {
 
             if (o == null) {
                 stream.Write("V");
-                stream.Write(null);
+                stream.Write((string)null);
                 return;
             }
             Type tp = o.GetType();
@@ -188,16 +195,13 @@ namespace YetaWF.Core.Serializers {
 #endif
             if (tp == typeof(Byte[])) {
                 stream.Write("V");
-                if (o != null)
-                    stream.Write(Convert.ToBase64String((byte[]) o));
+                stream.Write(Convert.ToBase64String((byte[]) o));
             } else if (tp.IsArray) {
                 SerializeObjectProperties(stream, o);
             } else if (tp.IsEnum) {
                 string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
-                if (val != null) {
-                    stream.Write("V");
-                    stream.Write(val);
-                }
+                stream.Write("V");
+                stream.Write(val);
             } else if (tp == typeof(DateTime) || tp == typeof(DateTime?)) {
                 stream.Write("V");
                 stream.Write(((DateTime)o).Ticks.ToString());
@@ -205,20 +209,16 @@ namespace YetaWF.Core.Serializers {
                 stream.Write("V");
                 stream.Write(((TimeSpan)o).Ticks.ToString());
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
-                if (o != null) {
-                    System.Drawing.Image img = (System.Drawing.Image)o;
-                    using (MemoryStream ms = new MemoryStream()) {
-                        img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        stream.Write("V");
-                        stream.Write(Convert.ToBase64String(ms.ToArray()));
-                    }
+                System.Drawing.Image img = (System.Drawing.Image)o;
+                using (MemoryStream ms = new MemoryStream()) {
+                    img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    stream.Write("V");
+                    stream.Write(Convert.ToBase64String(ms.ToArray()));
                 }
             } else if (tp.IsValueType) {
                 string val = Convert.ToString(o, CultureInfo.InvariantCulture);
-                if (val != null) {
-                    stream.Write("V");
-                    stream.Write(val);
-                }
+                stream.Write("V");
+                stream.Write(val);
             } else if (tp.IsClass) {
                 IConvertible iconv = (o as IConvertible);
                 if (iconv != null) {
