@@ -58,6 +58,7 @@ namespace YetaWF.Core.Models.Attributes {
             return errorMessage;
         }
         public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+            if (MaximumLength == 0) return;
             string msg = GetErrorMessage(propData.GetCaption(container));
             tag.MergeAttribute("data-val-length", msg);
             tag.MergeAttribute("data-val-length-max", MaximumLength.ToString());

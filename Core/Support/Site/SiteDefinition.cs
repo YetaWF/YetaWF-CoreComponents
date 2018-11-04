@@ -653,11 +653,11 @@ namespace YetaWF.Core.Site {
         // ENCRYPTION
 
         [Category("Encryption"), Caption("Public Key"), Description("The public key used to encrypt a token - This is used by this YetaWF site to encrypt/decrypt data internally")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(Globals.MaxPublicKey)]
+        [UIHint("TextAreaSourceOnly"), StringLength(Globals.MaxPublicKey)]
         public string PublicKey { get; set; }
 
         [Category("Encryption"), Caption("Private Key"), Description("The private key used to decrypt a token - This is used by this YetaWF site to encrypt/decrypt data internally")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(Globals.MaxPrivateKey)]
+        [UIHint("TextAreaSourceOnly"), StringLength(Globals.MaxPrivateKey)]
         public string PrivateKey { get; set; }
 
         // ADDONS
@@ -666,31 +666,31 @@ namespace YetaWF.Core.Site {
 
         [Category("Addons"), Caption("Analytics"), Description("Add analytics JavaScript code (for example, the Universal Analytics tracking code used by Google Analytics or the code used by Clicky) - Any code that should be added at the end of the HTML page can be added here including <script></script> tags - Pages can override this setting")]
         [TextAbove("Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxAnalytics), Trim]
         [RequiresPageReload]
         public string Analytics { get; set; }
         [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual Url - Pages can override this setting")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxAnalytics), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxAnalytics), Trim]
         public string AnalyticsContent { get; set; }
 
         [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
         [HelpLink("http://www.google.com/webmasters/")]
         [RequiresPageReload]
         public string GoogleVerification { get; set; }
 
         [Category("Addons"), Caption("<HEAD>"), Description("Any tags that should be added to the <HEAD> tag of each page can be added here")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxHead), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxHead), Trim]
         [RequiresPageReload]
         public string ExtraHead { get; set; }
 
         [Category("Addons"), Caption("<BODY> Top"), Description("Any tags that should be added to the top of the <BODY> tag of each page can be added here")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxBodyTop), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxBodyTop), Trim]
         [RequiresPageReload]
         public string ExtraBodyTop { get; set; }
 
         [Category("Addons"), Caption("<BODY> Bottom"), Description("Any tags that should be added to the bottom of the <BODY> tag of each page can be added here")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxBodyBottom), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxBodyBottom), Trim]
         [RequiresPageReload]
         public string ExtraBodyBottom { get; set; }
 
@@ -705,12 +705,12 @@ namespace YetaWF.Core.Site {
         // META
 
         [Category("Meta"), Caption("Site Meta Tags"), Description("Defines <meta> tags that are added to ALL pages")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxMeta), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxMeta), Trim]
         [RequiresPageReload]
         public string SiteMetaTags { get; set; }
 
         [Category("Meta"), Caption("Page Meta Tags"), Description("Defines <meta> tags that are added to all pages by default but can be overridden by each page if the page defines meta tags using the PageMetaTags property")]
-        [UIHint("TextArea"), AdditionalMetadata("SourceOnly", true), StringLength(MaxMeta), Trim]
+        [UIHint("TextAreaSourceOnly"), StringLength(MaxMeta), Trim]
         [RequiresPageReload]
         public string PageMetaTags { get; set; }
 
