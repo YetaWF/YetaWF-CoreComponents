@@ -14,7 +14,7 @@ var YetaWF;
             return obj;
         };
         ComponentBase.getControlBaseFromTagCond = function (elem, controlSelector) {
-            var control = $YetaWF.elementClosest(elem, controlSelector);
+            var control = $YetaWF.elementClosestCond(elem, controlSelector);
             if (control == null)
                 return null;
             var obj = $YetaWF.getObjectData(control);

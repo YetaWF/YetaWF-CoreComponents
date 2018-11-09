@@ -1063,9 +1063,23 @@ var YetaWF;
         BasicsServices.prototype.registerEventHandlerBody = function (eventName, selector, callback) {
             this.registerEventHandler(document.body, eventName, selector, callback);
         };
+        BasicsServices.prototype.registerMultipleEventHandlersBody = function (eventNames, selector, callback) {
+            var _this = this;
+            for (var _i = 0, eventNames_1 = eventNames; _i < eventNames_1.length; _i++) {
+                var eventName = eventNames_1[_i];
+                document.body.addEventListener(eventName, function (ev) { return _this.handleEvent(document.body, ev, selector, callback); });
+            }
+        };
         BasicsServices.prototype.registerEventHandlerDocument = function (eventName, selector, callback) {
             var _this = this;
             document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+        };
+        BasicsServices.prototype.registerMultipleEventHandlersDocument = function (eventNames, selector, callback) {
+            var _this = this;
+            for (var _i = 0, eventNames_2 = eventNames; _i < eventNames_2.length; _i++) {
+                var eventName = eventNames_2[_i];
+                document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+            }
         };
         BasicsServices.prototype.registerCustomEventHandlerDocument = function (eventName, selector, callback) {
             var _this = this;
@@ -1081,8 +1095,8 @@ var YetaWF;
         };
         BasicsServices.prototype.registerMultipleEventHandlers = function (tag, eventNames, selector, callback) {
             var _this = this;
-            for (var _i = 0, eventNames_1 = eventNames; _i < eventNames_1.length; _i++) {
-                var eventName = eventNames_1[_i];
+            for (var _i = 0, eventNames_3 = eventNames; _i < eventNames_3.length; _i++) {
+                var eventName = eventNames_3[_i];
                 tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
             }
         };

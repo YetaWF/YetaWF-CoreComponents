@@ -19,7 +19,7 @@ namespace YetaWF {
             return obj;
         }
         public static getControlBaseFromTagCond<T extends ComponentBase<HTMLElement>>(elem: HTMLElement, controlSelector: string): T | null {
-            var control = $YetaWF.elementClosest(elem, controlSelector) as HTMLElement;
+            var control = $YetaWF.elementClosestCond(elem, controlSelector) as HTMLElement;
             if (control == null)
                 return null;
             var obj = $YetaWF.getObjectData(control) as T;

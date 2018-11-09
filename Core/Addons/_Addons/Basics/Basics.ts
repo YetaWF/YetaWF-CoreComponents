@@ -1188,8 +1188,18 @@ namespace YetaWF {
         public registerEventHandlerBody<K extends keyof HTMLElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             this.registerEventHandler(document.body, eventName, selector, callback);
         }
+        public registerMultipleEventHandlersBody(eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
+            for (let eventName of eventNames) {
+                document.body.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+            }
+        }
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
             document.addEventListener(eventName, (ev: DocumentEventMap[K]) => this.handleEvent(null, ev, selector, callback));
+        }
+        public registerMultipleEventHandlersDocument(eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
+            for (let eventName of eventNames) {
+                document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
+            }
         }
         public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
             document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
