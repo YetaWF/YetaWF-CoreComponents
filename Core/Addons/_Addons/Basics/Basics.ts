@@ -841,7 +841,8 @@ namespace YetaWF {
          * @param tagId - The element id (DOM) where the object is attached
          */
         public getObjectData(element: HTMLElement): any {
-            if (!element.id) throw `element without id - ${element.outerHTML}`;
+            if (!element.id)
+                throw `element without id - ${element.outerHTML}`;
             return this.getObjectDataById(element.id);
         }
         /**
