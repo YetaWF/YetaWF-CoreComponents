@@ -813,7 +813,7 @@ namespace YetaWF {
                 ++i;
             }
         }
-        public validateObjectCache() {
+        public validateObjectCache(): void {
             if (YConfigs.Basics.DEBUGBUILD) {
                 //DEBUG ONLY
                 for (let doe of this.DataObjectCache) {
