@@ -679,13 +679,27 @@ var YetaWF;
             // also release any attached objects
             for (var i = 0; i < this.DataObjectCache.length;) {
                 var doe = this.DataObjectCache[i];
-                if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
-                    // tslint:disable-next-line:no-debugger
-                    debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
+                if (this.getElement1BySelectorCond("#" + doe.DivId, [tag])) {
+                    if (YConfigs.Basics.DEBUGBUILD) {
+                        // tslint:disable-next-line:no-debugger
+                        debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
+                    }
                     this.DataObjectCache.splice(i, 1);
                     continue;
                 }
                 ++i;
+            }
+        };
+        BasicsServices.prototype.validateObjectCache = function () {
+            if (YConfigs.Basics.DEBUGBUILD) {
+                //DEBUG ONLY
+                for (var _i = 0, _a = this.DataObjectCache; _i < _a.length; _i++) {
+                    var doe = _a[_i];
+                    if (!this.getElement1BySelectorCond("#" + doe.DivId)) {
+                        // tslint:disable-next-line:no-debugger
+                        debugger; // if we hit this, there is an object that has no associated dom element
+                    }
+                }
             }
         };
         /**
@@ -697,6 +711,7 @@ var YetaWF;
          * @param obj - the object to attach
          */
         BasicsServices.prototype.addObjectDataById = function (tagId, obj) {
+            this.validateObjectCache();
             this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
             if (doe.length > 0)
@@ -728,6 +743,7 @@ var YetaWF;
          * @param tagId - The element id (DOM) where the object is attached
          */
         BasicsServices.prototype.removeObjectDataById = function (tagId) {
+            this.validateObjectCache();
             this.getElementById(tagId); // used to validate the existence of the element
             for (var i = 0; i < this.DataObjectCache.length; ++i) {
                 var doe = this.DataObjectCache[i];

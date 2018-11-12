@@ -11,6 +11,13 @@ namespace YetaWF.Core.Addons {
 
     public class Basics : IAddOnSupport {
 
+        public const bool DEBUGBUILD =
+#if DEBUG
+            true;
+#else
+            false;
+#endif
+
         // Action (part of Basics)
         public const string CssActionLink = "yaction-link";// every ModuleAction has this class
         public const string CssPopupLink = "ypopup-link";// every popup link has this class
@@ -65,6 +72,8 @@ namespace YetaWF.Core.Addons {
         public Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
+
+            scripts.AddConfigOption("Basics", "DEBUGBUILD", DEBUGBUILD);
 
             // Site settings
             scripts.AddVolatileOption("Basics", "JSLocation", manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top);

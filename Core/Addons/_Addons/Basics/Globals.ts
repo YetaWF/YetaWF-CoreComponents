@@ -103,6 +103,8 @@ namespace YetaWF {
     }
     export interface IConfigsBasics {
 
+        DEBUGBUILD: boolean;
+
         Link_OriginList: string;    // chain of urls
         Link_InPopup: string;       // we're in a popup
         Link_ToEditMode: string;    // force this mode

@@ -802,13 +802,26 @@ namespace YetaWF {
             // also release any attached objects
             for (var i = 0; i < this.DataObjectCache.length; ) {
                 var doe = this.DataObjectCache[i];
-                if (this.getElement1BySelectorCond(doe.DivId, [tag])) {
-                    // tslint:disable-next-line:no-debugger
-                    debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
+                if (this.getElement1BySelectorCond(`#${doe.DivId}`, [tag])) {
+                    if (YConfigs.Basics.DEBUGBUILD) {
+                        // tslint:disable-next-line:no-debugger
+                        debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
+                    }
                     this.DataObjectCache.splice(i, 1);
                     continue;
                 }
                 ++i;
+            }
+        }
+        public validateObjectCache() {
+            if (YConfigs.Basics.DEBUGBUILD) {
+                //DEBUG ONLY
+                for (let doe of this.DataObjectCache) {
+                    if (!this.getElement1BySelectorCond(`#${doe.DivId}`)) {
+                        // tslint:disable-next-line:no-debugger
+                        debugger; // if we hit this, there is an object that has no associated dom element
+                    }
+                }
             }
         }
 
@@ -821,6 +834,7 @@ namespace YetaWF {
          * @param obj - the object to attach
          */
         public addObjectDataById(tagId: string, obj: any): void {
+            this.validateObjectCache();
             this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter((entry:DataObjectEntry): boolean => entry.DivId === tagId);
             if (doe.length > 0) throw `addObjectDataById - tag with id ${tagId} already has data`;/*DEBUG*/
@@ -833,7 +847,8 @@ namespace YetaWF {
         public getObjectDataById(tagId: string): any {
             this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
-            if (doe.length === 0) throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+            if (doe.length === 0)
+                throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
             return doe[0].Data;
         }
         /**
@@ -850,6 +865,7 @@ namespace YetaWF {
          * @param tagId - The element id (DOM) where the object is attached
          */
         public removeObjectDataById(tagId: string): void {
+            this.validateObjectCache();
             this.getElementById(tagId); // used to validate the existence of the element
             for (var i = 0; i < this.DataObjectCache.length; ++i) {
                 var doe = this.DataObjectCache[i];
