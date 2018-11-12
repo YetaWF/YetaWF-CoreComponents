@@ -13,7 +13,7 @@ declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
 /* Polyfills */
 interface String {
     startsWith: (text: string) => boolean;
-    endWith: (text: string) => boolean;
+    endsWith: (text: string) => boolean;
     isValidInt(s: number, e: number): boolean;
     format(...args: any[]): string;
 }
