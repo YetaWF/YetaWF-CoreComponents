@@ -56,9 +56,17 @@ var YetaWF;
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
         }
-        // Implemented by renderer
-        // Implemented by renderer
-        // Implemented by renderer
+        Object.defineProperty(BasicsServices.prototype, "isLoading", {
+            // Implemented by renderer
+            // Implemented by renderer
+            // Implemented by renderer
+            /** Returns whether the loading indicator is on or off */
+            get: function () {
+                return YetaWF_BasicsImpl.isLoading;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * Turns a loading indicator on/off.
          * @param on
