@@ -71,6 +71,9 @@ namespace YetaWF {
      */
     export interface IBasicsImpl {
 
+        /** Returns whether the loading indicator is on or off */
+        isLoading: boolean;
+
         /**
          * Turns a loading indicator on/off.
          * @param on
@@ -124,6 +127,11 @@ namespace YetaWF {
         // Implemented by renderer
         // Implemented by renderer
         // Implemented by renderer
+
+        /** Returns whether the loading indicator is on or off */
+        public get isLoading(): boolean {
+            return YetaWF_BasicsImpl.isLoading;
+        }
 
         /**
          * Turns a loading indicator on/off.
