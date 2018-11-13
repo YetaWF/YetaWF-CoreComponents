@@ -546,8 +546,16 @@ namespace YetaWF.Core.Addons {
             string file = Path.Combine(folder, Globals.Addons_SupportFileList);
 
             // also add explicitly defined support types
-            if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) return types;
-            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+            if (YetaWFManager.DiagnosticsMode) {
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    return types;
+            }
+            List<string> lines;
+            try {
+                lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+            } catch (Exception) {
+                return types;
+            }
             foreach (var line in lines) {
                 if (!string.IsNullOrWhiteSpace(line)) {
                     Type type = Type.GetType(line);

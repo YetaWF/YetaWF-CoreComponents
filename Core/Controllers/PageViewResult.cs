@@ -118,9 +118,10 @@ namespace YetaWF.Core.Controllers {
                 Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);
 
                 string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
-                    throw new InternalError("No page skin available - file {0} not found", virtPath);
-
+                if (YetaWFManager.DiagnosticsMode) {
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
+                        throw new InternalError("No page skin available - file {0} not found", virtPath);
+                }
                 // set new character dimensions and popup info
                 PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
                 Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);

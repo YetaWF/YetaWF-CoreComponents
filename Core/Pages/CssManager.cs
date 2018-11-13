@@ -91,15 +91,19 @@ namespace YetaWF.Core.Pages {
                         else
 #endif
                         f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                            throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
+                        if (YetaWFManager.DiagnosticsMode) {
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
+                                throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
+                        }
                         filePathURL = YetaWFManager.PhysicalToUrl(f);
                     } else {
                         file = file.Replace("\\", "/");// convert to Url in case this is file spec
                         filePathURL = string.Format("{0}{1}", productUrl, file);
                         string fullPath = YetaWFManager.UrlToPhysical(filePathURL);
-                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
-                            throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        if (YetaWFManager.DiagnosticsMode) {
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
+                                throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        }
                     }
                     if (allowCustom) {
                         string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
@@ -164,8 +168,10 @@ namespace YetaWF.Core.Pages {
             }
 
             if (!_CssFileKeys.Contains(key)) {
-                if (!await UrlHasContentAsync(fullUrl))
-                    return false; // empty file
+                if (YetaWFManager.DiagnosticsMode) {
+                    if (!await UrlHasContentAsync(fullUrl))
+                        throw new InternalError($"File {fullUrl} is empty and should be removed");
+                }
                 _CssFileKeys.Add(key);
                 _CssFiles.Add(new Pages.CssManager.CssEntry { Url = fullUrl, Bundle = bundle, Last = skinRelated });
             }
@@ -180,9 +186,10 @@ namespace YetaWF.Core.Pages {
             if (!fullUrl.ContainsIgnoreCase($"{Globals.AddOnsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddOnsCustomUrl}/"))
                 return true;
             string fullPath = YetaWFManager.UrlToPhysical(fullUrl);
-            if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
-                throw new InternalError("File {0} not found - can't be processed", fullPath);
-
+            if (YetaWFManager.DiagnosticsMode) {
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
+                    throw new InternalError("File {0} not found - can't be processed", fullPath);
+            }
             string text = await FileSystem.FileSystemProvider.ReadAllTextAsync(fullPath);
             if (string.IsNullOrWhiteSpace(text))
                 return false;

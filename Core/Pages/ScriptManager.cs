@@ -245,13 +245,17 @@ namespace YetaWF.Core.Pages {
                         else
 #endif
                         f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                            throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
+                        if (YetaWFManager.DiagnosticsMode) {
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
+                                throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
+                        }
                         filePathURL = YetaWFManager.PhysicalToUrl(f);
                     } else {
                         filePathURL = string.Format("{0}{1}", productUrl, file);
-                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(filePathURL)))
-                            throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        if (YetaWFManager.DiagnosticsMode) {
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(filePathURL)))
+                                throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        }
                     }
                     if (allowCustom) {
                         string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
@@ -333,8 +337,10 @@ namespace YetaWF.Core.Pages {
             if (!_ScriptFiles.Contains(key)) {
                 if (!fullUrl.IsAbsoluteUrl()) {
                     string path = YetaWFManager.UrlToPhysical(fullUrl);
-                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(path))
-                        throw new InternalError($"File {path} not found for {fullUrl}");
+                    if (YetaWFManager.DiagnosticsMode) {
+                        if (!await FileSystem.FileSystemProvider.FileExistsAsync(path))
+                            throw new InternalError($"File {path} not found for {fullUrl}");
+                    }
                 }
                 _ScriptFiles.Add(key);
                 _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = fullUrl, Bundle = bundle, Last = last, Async = async, Defer = defer });

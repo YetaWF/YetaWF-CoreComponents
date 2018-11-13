@@ -60,10 +60,10 @@ namespace YetaWF.Core.IO {
                 } catch (Exception) { }
             } else {
                 IFileStream fs;
-#if DEBUG
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(FullPath))
-                    return default(TObj);
-#endif
+                if (YetaWFManager.DiagnosticsMode) {
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(FullPath))
+                        return default(TObj);
+                }
                 try {
                     fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(FullPath);
                 } catch (Exception exc) {

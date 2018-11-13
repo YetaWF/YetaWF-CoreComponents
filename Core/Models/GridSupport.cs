@@ -35,15 +35,31 @@ namespace YetaWF.Core.Models {
         //RESEARCH: this could use some caching
         public static async Task<ReadGridDictionaryInfo> ReadGridDictionaryAsync(Package package, Type recordType, string file) {
             Dictionary<string, GridColumnInfo> dict = new Dictionary<string, GridColumnInfo>();
-            if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) return new ReadGridDictionaryInfo {
-                ColumnInfo = dict,
-                SortColumn = null,
-                SortBy = GridDefinition.SortBy.NotSpecified,
-                Success = false,
-            };
+
+            if (YetaWFManager.DiagnosticsMode) {
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    return new ReadGridDictionaryInfo {
+                        ColumnInfo = dict,
+                        SortColumn = null,
+                        SortBy = GridDefinition.SortBy.NotSpecified,
+                        Success = false,
+                    };
+            }
+
             string sortCol = null;
             GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
-            List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+
+            List<string> lines;
+            try {
+                lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+            } catch (Exception) {
+                return new ReadGridDictionaryInfo {
+                    ColumnInfo = dict,
+                    SortColumn = null,
+                    SortBy = GridDefinition.SortBy.NotSpecified,
+                    Success = false,
+                };
+            }
             foreach (string line in lines) {
                 string[] parts = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 GridColumnInfo gridCol = new GridColumnInfo();

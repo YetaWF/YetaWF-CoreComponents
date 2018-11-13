@@ -691,6 +691,19 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
+        /// Defines whether the currently running instance of YetaWF is using additional run-time diagnostics to find issues, typically used during development.
+        /// </summary>
+        public static bool DiagnosticsMode {
+            get {
+                if (diagnosticsMode == null) {
+                    diagnosticsMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Diagnostics");
+                }
+                return (bool)diagnosticsMode;
+            }
+        }
+        private static bool? diagnosticsMode = null;
+
+        /// <summary>
         /// Defines whether the currently running instance of YetaWF is a deployed instance or not.
         /// </summary>
         /// <remarks>

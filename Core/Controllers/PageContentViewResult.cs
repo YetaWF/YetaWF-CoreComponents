@@ -61,9 +61,10 @@ namespace YetaWF.Core.Controllers {
 
                 SkinDefinition skinContent = new Skins.SkinDefinition { Collection = SkinAccess.FallbackSkinCollectionName, FileName = Manager.IsInPopup ? "PopupContent.cshtml" : "PageContent.cshtml" };
                 string virtPath = skinAccess.PhysicalPageUrl(skinContent, Manager.IsInPopup);
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
-                    throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
-
+                if (YetaWFManager.DiagnosticsMode) {
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
+                        throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
+                }
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
 

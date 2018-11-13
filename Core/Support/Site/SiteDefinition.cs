@@ -424,17 +424,25 @@ namespace YetaWF.Core.Site {
             return (bool)debugMode;
         }
 
+        [Category("Pages"), Caption("Diagnostics Mode"), Description("Defines whether additional debug diagnostics are active, such as verifying file existence, etc. - Typically used for debugging (can only be set using Appsettings.json)")]
+        [UIHint("Boolean")]
+        public bool DiagnosticsMode {
+            get {
+                return YetaWFManager.DiagnosticsMode;
+            }
+        }
+
         [Category("Pages"), Caption("Allow Cache Use"), Description("Defines whether data caching is enabled (for example, client-side CSS file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool AllowCacheUse { get; set; }
 
-        [Category("Pages"), Caption("Compression"), Description("Defines whether whitespace compression is used for all pages. Individual pages can override this setting (see Page Properties)")]
+        [Category("Pages"), Caption("Compression"), Description("Defines whether whitespace compression is used for all pages")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool Compression { get; set; }
 
-        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether minified stylesheets (CSS files) are used (Yes). Otherwise, stylesheets are not minified (No)")]
+        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether minified stylesheets (CSS files) are used (Yes) - Otherwise, stylesheets are not minified (No)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool CompressCSSFiles { get; set; }
@@ -450,7 +458,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public CssLocationEnum CssLocation { get; set; }
 
-        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes). Otherwise, JavaScript files are not minified (No)")]
+        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes) - Otherwise, JavaScript files are not minified (No)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool CompressJSFiles { get; set; }

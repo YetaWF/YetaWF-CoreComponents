@@ -203,28 +203,54 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <param name="args"></param>
-        public async Task AddSkinCustomizationAsync(string skinCollection, params object[] args) {
+        public async Task AddSkinCustomizationAsync(string skinCollection) {
             Manager.Verify_NotPostRequest();
 
-            string url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
+            // check cache
+            string url;
+            if (CustomizationCache.TryGetValue(skinCollection, out url)) {
+                if (string.IsNullOrWhiteSpace(url))
+                    return; // no customization
+                await Manager.CssManager.AddFileAsync(true, url);
+                return;
+            }
+
+            // try to find customization
+            url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                AddCache(skinCollection, url);
                 await Manager.CssManager.AddFileAsync(true, url);
             } else {
-                url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url)))
+                url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                    AddCache(skinCollection, url);
                     await Manager.CssManager.AddFileAsync(true, url);
+                }
             }
 
             string domainName, productName, skinName;
             VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
-            url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
+            url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                AddCache(skinCollection, url);
                 await Manager.CssManager.AddFileAsync(true, url);
             } else {
-                url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url)))
+                url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                    AddCache(skinCollection, url);
                     await Manager.CssManager.AddFileAsync(true, url);
+                }
             }
+            AddCache(skinCollection, "");// mark cache as not found
+        }
+        // Caching for skin customizations
+        private static Dictionary<string, string> CustomizationCache = new Dictionary<string, string>();
+
+        private static void AddCache(string skinCollection, string url) {
+            if (!YetaWFManager.Manager.Deployed) return;//$$$
+            try { // could fail if already added
+                CustomizationCache.Add(skinCollection, url);
+            } catch (Exception) { }
         }
 
         public void AddUniqueInvokedCssModule(Type modType, Guid guid, List<string> templates, string invokingCss, bool AllowInPopup, bool AllowInAjax) {

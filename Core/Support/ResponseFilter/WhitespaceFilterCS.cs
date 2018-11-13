@@ -209,14 +209,20 @@ namespace YetaWF.Core.ResponseFilter {
         /// <returns>Compressed output.</returns>
         private string ProcessRemainingInput(string inputBuffer) {
             if (inputBuffer == "") return "";
-            inputBuffer = inputBuffer.Replace('\t', ' ');
-            inputBuffer = inputBuffer.Replace('\r', ' ');
-            inputBuffer = inputBuffer.Replace('\n', ' ');
-            while (inputBuffer.Contains("  ")) // multiple spaces -> 1 space
-                inputBuffer = inputBuffer.Replace("  ", " ");
+            StringBuilder sb = new StringBuilder(inputBuffer);
+            sb.Replace('\t', ' ');
+            sb.Replace('\r', ' ');
+            sb.Replace('\n', ' ');
+            for (int oldLen = sb.Length; ; ) {
+                sb.Replace("  ", " ");
+                int newLen = sb.Length;
+                if (oldLen == newLen)
+                    break;
+                oldLen = newLen;
+            }
             if (Aggressive)
-                inputBuffer = inputBuffer.Replace("> <", "><");
-            return inputBuffer;
+                sb.Replace("> <", "><");
+            return sb.ToString();
         }
     }
 }
