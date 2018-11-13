@@ -619,7 +619,7 @@ var YetaWF;
                     }
                 }
                 catch (err) {
-                    console.error(err.message);
+                    console.error(err.message || err);
                 }
             }
         };

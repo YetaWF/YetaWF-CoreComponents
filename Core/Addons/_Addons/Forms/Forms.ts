@@ -100,7 +100,7 @@ namespace YetaWF {
     }
 
     export interface SubmitHandlerEntry {
-        form: HTMLElement;          // form <div> to be processed
+        form: HTMLElement | null;   // form <div> to be processed
         callback: (entry: SubmitHandlerEntry) => void; // function to be called - the callback returns extra data appended to the submit url
         userdata: any;              // any data suitable to callback
     }

@@ -734,7 +734,7 @@ namespace YetaWF {
                     for (const tag of tags)
                         entry.callback(tag);
                 } catch (err) {
-                    console.error(err.message);
+                    console.error(err.message || err);
                 }
             }
         }
