@@ -40,27 +40,27 @@ namespace YetaWF.Core.SendEmail {
         public string Server { get; set; }
 
         [Caption("Port"), Description("The SMTP mail server port used (25 is usually the default)")]
-        [UIHint("IntValue6"), Range(0, 999999), RequiredIfSupplied("Server"), Trim]
+        [UIHint("IntValue6"), Range(0, 999999), ProcessIfSupplied(nameof(Server)), RequiredIfSupplied(nameof(Server)), Trim]
         public int Port { get; set; }
 
         [Caption("Authentication"), Description("Defines how the mail server is accessed to send emails. Most mail servers require authentication using a user name and password")]
-        [Required, UIHint("Enum"), RequiredIfSupplied("Server")]
+        [Required, UIHint("Enum"), ProcessIfSupplied(nameof(Server)), RequiredIfSupplied(nameof(Server))]
         public AuthEnum Authentication { get; set; }
 
         [Caption("User Name"), Description("The user name used to log into the mail server when authentication is required by the mail server")]
-        [UIHint("Text80"), StringLength(MaxUser), Required, ProcessIf("Authentication", AuthEnum.Signon), Trim]
+        [UIHint("Text80"), StringLength(MaxUser), Required, ProcessIfSupplied(nameof(Server)), ProcessIf(nameof(Authentication), AuthEnum.Signon), Trim]
         public string UserName { get; set; }
 
         [Caption("Password"), Description("The password used to log into the mail server when authentication is required by the mail server")]
-        [UIHint("Password20"), StringLength(MaxPswd), Required, ProcessIf("Authentication", AuthEnum.Signon)]
+        [UIHint("Password20"), StringLength(MaxPswd), Required, ProcessIfSupplied(nameof(Server)), ProcessIf(nameof(Authentication), AuthEnum.Signon)]
         public string Password { get; set; }
 
         [Caption("Secure"), Description("Defines whether SSL is used when sending emails")]
-        [UIHint("Boolean")]
+        [UIHint("Boolean"), ProcessIfSupplied(nameof(Server))]
         public bool SSL { get; set; }
 
         [Caption("Send Test Email"), Description("Click to send a test email using the server information")]
-        [UIHint("ModuleAction")]
+        [UIHint("ModuleAction"), ProcessIfSupplied(nameof(Server))]
         public ModuleAction SendTestEmail {
             get {
                 YetaWFManager manager = YetaWFManager.Manager;

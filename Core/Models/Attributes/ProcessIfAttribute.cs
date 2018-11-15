@@ -6,6 +6,30 @@ using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models.Attributes {
 
+    public abstract class ProcessIfBase : Attribute {
+
+        protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+
+        /// <summary>
+        /// The name of the other property used to determine conditional processing/validation of this property.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Defines whether the property is hidden or just disabled when it's not processed/validated.
+        /// The default is to hide the property.
+        /// </summary>
+        public bool Disable { get; set; }
+
+        public abstract bool Processing(object model);
+
+        protected object GetDependentPropertyValue(object model) {
+            Type type = model.GetType();
+            PropertyInfo pi = ObjectSupport.GetProperty(type, Name);
+            return pi.GetValue(model, null);
+        }
+    }
+
     /// <summary>
     /// Conditional processing/validation of properties within a property list.
     /// </summary>
@@ -13,23 +37,12 @@ namespace YetaWF.Core.Models.Attributes {
     ///
     /// This is used both client-side and server-side to determine conditional property processing/validation.</remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class ProcessIfAttribute : Attribute {
+    public class ProcessIfAttribute : ProcessIfBase {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
-
-        /// <summary>
-        /// The name of the other property used to determine conditional processing/validation of this property.
-        /// </summary>
-        public string Name { get; private set; }
         /// <summary>
         /// Values the other property can take in order for this property to be processed/validated.
         /// </summary>
         public object[] Objects { get; private set; }
-        /// <summary>
-        /// Defines whether the property is hidden or just disabled when it's not processed/validated.
-        /// The default is to hide the property.
-        /// </summary>
-        public bool Disable { get; set; }
 
         /// <summary>
         /// Processing/validation of the property is dependent on the value of another property.
@@ -57,7 +70,7 @@ namespace YetaWF.Core.Models.Attributes {
         /// </summary>
         /// <param name="model">The model containing the property decorated with this attribute.</param>
         /// <returns>true if processing/validation is required, false otherwise.</returns>
-        public bool Processing(object model) {
+        public override bool Processing(object model) {
             //TODO: This could be expanded to support other types, notably strings - don't have a use case yet
             int currVal = Convert.ToInt32(GetDependentPropertyValue(model));
             foreach (object obj in Objects) {
@@ -66,10 +79,69 @@ namespace YetaWF.Core.Models.Attributes {
             }
             return false;
         }
-        private object GetDependentPropertyValue(object model) {
-            Type type = model.GetType();
-            PropertyInfo pi = ObjectSupport.GetProperty(type, Name);
-            return pi.GetValue(model, null);
+    }
+
+    /// <summary>
+    /// Conditional processing/validation of properties within a property list.
+    /// </summary>
+    /// <remarks>Used to show/hide properties in a property list, dependent on a property's non-null value.
+    ///
+    /// This is used both client-side and server-side to determine conditional property processing/validation.</remarks>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class ProcessIfSuppliedAttribute : ProcessIfBase {
+
+        /// <summary>
+        /// Processing/validation of the property is dependent on the value/presence another property.
+        /// </summary>
+        /// <param name="name">The name of the other property this property depends on.</param>
+        /// </remarks>
+        public ProcessIfSuppliedAttribute(string name, params object[] parms) {
+            Name = name;
+        }
+        /// <summary>
+        /// Returns whether processing/validation is required for the property decorated with this attribute.
+        /// </summary>
+        /// <param name="model">The model containing the property decorated with this attribute.</param>
+        /// <returns>true if processing/validation is required, false otherwise.</returns>
+        public override bool Processing(object model) {
+            //TODO: This could be expanded to support other types - don't have a use case yet
+            string currVal = (string)GetDependentPropertyValue(model);
+            if (!string.IsNullOrWhiteSpace(currVal)) { 
+                return true; // we're processing this
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Conditional processing/validation of properties within a property list.
+    /// </summary>
+    /// <remarks>Used to show/hide properties in a property list, dependent on a property's null value.
+    ///
+    /// This is used both client-side and server-side to determine conditional property processing/validation.</remarks>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class ProcessIfNotSuppliedAttribute : ProcessIfBase {
+
+        /// <summary>
+        /// Processing/validation of the property is dependent on the value/presence another property.
+        /// </summary>
+        /// <param name="name">The name of the other property this property depends on.</param>
+        /// </remarks>
+        public ProcessIfNotSuppliedAttribute(string name, params object[] parms) {
+            Name = name;
+        }
+        /// <summary>
+        /// Returns whether processing/validation is required for the property decorated with this attribute.
+        /// </summary>
+        /// <param name="model">The model containing the property decorated with this attribute.</param>
+        /// <returns>true if processing/validation is required, false otherwise.</returns>
+        public override bool Processing(object model) {
+            //TODO: This could be expanded to support other types - don't have a use case yet
+            string currVal = (string)GetDependentPropertyValue(model);
+            if (string.IsNullOrWhiteSpace(currVal)) {
+                return true; // we're processing this
+            }
+            return false;
         }
     }
 }

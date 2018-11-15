@@ -300,6 +300,16 @@ namespace YetaWF.Core.Models {
             return attr;
         }
         /// <summary>
+        /// Retrieves multiple property Attributes.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the attribute.</typeparam>
+        /// <returns>The attribute or null if not found.</returns>
+        public List<TYPE> TryGetAttributes<TYPE>() {
+            string name = typeof(TYPE).Name;
+            List<TYPE> attrs = TryGetAttributeValues<TYPE>(name);
+            return attrs;
+        }
+        /// <summary>
         /// Returns whether the specified attribute exists.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
@@ -310,6 +320,10 @@ namespace YetaWF.Core.Models {
         private object TryGetAttributeValue(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
             return (from a in GetAttributes() where a.Key == name select a.Value).FirstOrDefault();
+        }
+        private List<TYPE> TryGetAttributeValues<TYPE>(string name) {
+            if (!name.EndsWith("Attribute")) name += "Attribute";
+            return (from a in GetAttributes() where a.Key == name select (TYPE)a.Value).ToList();
         }
         /// <summary>
         /// Retrieves the value specified on an AdditionalMetadataAttribute.
