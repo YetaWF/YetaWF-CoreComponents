@@ -10,6 +10,8 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using YetaWF.Core.DataProvider.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Routing;
 #else
@@ -129,9 +131,6 @@ namespace YetaWF.Core.Modules {
             /// </summary>
             Significant = 999, // always prompt
         }
-        // we introduced a fake _Text property to avoid problems with the MultiString type when rendering in a treeview (as node text)
-        [UIHint("Hidden"), DontSave]
-        public string _Text { get { return MenuText.ToString(); } set { MenuText = value;} }// this is the same as the menu text (localized, for menu editing)
 
         [DontSave]// only used during menu editing
         [Caption("Entry Type"), Description("The type of the menu entry")]
@@ -372,5 +371,14 @@ namespace YetaWF.Core.Modules {
         public Guid OwningModuleGuid { get; set; }
 
         private ModuleDefinition OwningModule { get; set; }
+
+        // Tree control items, used for editing
+        public List<ModuleAction> SubEntries { get { return SubMenu; } }
+        [DontSave][Data_DontSave]
+        public bool Collapsed { get; set; }
+
+        //[Caption("Menu Entry"), Description("Shows all menu entries")]
+        [UIHint("String"), ReadOnly]
+        public string Text { get { return MenuText.ToString(); }/*$$$ set { MenuText = value; }*/ }
     }
 }
