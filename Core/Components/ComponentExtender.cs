@@ -279,5 +279,51 @@ namespace YetaWF.Core.Components {
                 return yhtml;
             }
         }
+
+        public static async Task AddTemplatesForType(Type type) {
+            List<PropertyData> propData = ObjectSupport.GetPropertyData(type);
+            foreach (PropertyData prop in propData) {
+                if (prop.UIHint != null) {
+                    if (prop.ReadOnly)
+                        await YetaWFComponentExtender.MarkUsedDisplayAsync(prop.UIHint);
+                    else
+                        await YetaWFComponentExtender.MarkUsedEditAsync(prop.UIHint);
+                    if (prop.PropInfo.PropertyType.IsClass)
+                        await AddTemplatesForType(prop.PropInfo.PropertyType);
+                }
+            }
+        }
+        public static async Task MarkUsedDisplayAsync(string UIHint) {
+            await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, UIHint);
+        }
+        public static async Task MarkUsedEditAsync(string UIHint = null) {
+            await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, UIHint);
+        }
+        private static async Task MarkUsedAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, string uIHint) {
+            if (string.IsNullOrWhiteSpace(uIHint))
+                throw new InternalError($"UIHint missing");
+            Type compType;
+            if (!components.TryGetValue(uIHint, out compType))
+                throw new InternalError($"Template {uIHint} ({renderType}) not found");
+            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
+
+            // Get standard support for this package
+            if (!Manager.ComponentPackagesSeen.Contains(component.Package)) {
+                if (renderType == YetaWFComponentBase.ComponentType.Edit)
+                    await component.IncludeStandardEditAsync();
+                else
+                    await component.IncludeStandardDisplayAsync();
+                try {
+                    Manager.ComponentPackagesSeen.Add(component.Package);
+                } catch (Exception) { }
+            }
+
+            // Invoke IncludeAsync
+            MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
+            if (miAsync == null)
+                throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method");
+            Task methRetvalTask = (Task)miAsync.Invoke(component, null);
+            await methRetvalTask;
+        }
     }
 }
