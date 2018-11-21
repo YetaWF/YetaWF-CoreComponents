@@ -377,8 +377,7 @@ namespace YetaWF.Core.Modules {
         [DontSave][Data_DontSave]
         public bool Collapsed { get; set; }
 
-        //[Caption("Menu Entry"), Description("Shows all menu entries")]
         [UIHint("String"), ReadOnly]
-        public string Text { get { return MenuText.ToString(); }/*$$$ set { MenuText = value; }*/ }
+        public string Text { get { return MenuText.ToString(); } }
     }
 }
