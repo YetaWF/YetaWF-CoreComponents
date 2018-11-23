@@ -1490,6 +1490,12 @@ namespace YetaWF.Core.Support {
         public bool InPartialView { get; set; }
 
         /// <summary>
+        /// Cache rendered HTML for anti-forgery token.
+        /// </summary>
+        /// <remarks>I don't like this.</remarks>
+        public string AntiForgeryTokenHTML { get; set; }
+
+        /// <summary>
         /// Defines whether non-site specific data is also imported when importing packages
         /// </summary>
         /// <remarks>Site specific data is always imported</remarks>
