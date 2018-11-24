@@ -366,7 +366,6 @@
     <Content Include="Addons\_Main\Emails\SMTPServer Test Message.txt" />
     <Content Include="Addons\_Main\Emails\Text Message.txt" />
     <Content Include="Addons\_Skins\Standard\filelistCSS.txt" />
-    <Content Include="Addons\_Skins\Standard\filelistJS.txt" />
     <Content Include="Addons\_Skins\Standard\Icons\Add.png" />
     <Content Include="Addons\_Skins\Standard\Icons\Browse.png" />
     <Content Include="Addons\_Skins\Standard\Icons\Config.png" />
@@ -379,7 +378,6 @@
     <Content Include="Addons\_Skins\Standard\Icons\Remove.png" />
     <Content Include="Addons\_Skins\Standard\Icons\WarningIcon.png" />
     <Content Include="Addons\_Skins\Standard\skin.css" />
-    <Content Include="Addons\_Skins\Standard\skin.js" />
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
