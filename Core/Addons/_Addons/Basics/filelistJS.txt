@@ -1,5 +1,5 @@
 ﻿BasicsProto.js
-Globals.js
+Globals.ts
 Content.tsx
 Anchors.ts
 Basics.ts
