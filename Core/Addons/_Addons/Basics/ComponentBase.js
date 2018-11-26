@@ -1,13 +1,36 @@
 "use strict";
 /* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var YetaWF;
 (function (YetaWF) {
-    /** A control with internal data management. clearDiv must be called to clean up, typically used with $YetaWF.registerClearDiv. */
-    var ComponentBaseDataImpl = /** @class */ (function () {
-        function ComponentBaseDataImpl(controlId) {
+    /** A simple control without internal data management. */
+    var ComponentBaseImpl = /** @class */ (function () {
+        function ComponentBaseImpl(controlId) {
             this.ControlId = controlId;
             this.Control = $YetaWF.getElementById(controlId);
-            $YetaWF.addObjectDataById(controlId, this);
+        }
+        return ComponentBaseImpl;
+    }());
+    YetaWF.ComponentBaseImpl = ComponentBaseImpl;
+    /** A control with internal data management. clearDiv must be called to clean up, typically used with $YetaWF.registerClearDiv. */
+    var ComponentBaseDataImpl = /** @class */ (function (_super) {
+        __extends(ComponentBaseDataImpl, _super);
+        function ComponentBaseDataImpl(controlId) {
+            var _this = _super.call(this, controlId) || this;
+            $YetaWF.addObjectDataById(controlId, _this);
+            return _this;
         }
         // Various ways to find the control object (using tag, selector or id)
         ComponentBaseDataImpl.getControlFromTagCond = function (elem, controlSelector) {
@@ -62,50 +85,8 @@ var YetaWF;
             }
         };
         return ComponentBaseDataImpl;
-    }());
+    }(ComponentBaseImpl));
     YetaWF.ComponentBaseDataImpl = ComponentBaseDataImpl;
-    // OBSOLETE!
-    var ComponentBase = /** @class */ (function () {
-        function ComponentBase(controlId) {
-            this.ControlId = controlId;
-            this.Control = $YetaWF.getElementById(controlId);
-        }
-        ComponentBase.getControlBaseFromTag = function (elem, controlSelector) {
-            var obj = ComponentBase.getControlBaseFromTagCond(elem, controlSelector);
-            if (obj == null)
-                throw "Object matching " + controlSelector + " not found";
-            return obj;
-        };
-        ComponentBase.getControlBaseFromTagCond = function (elem, controlSelector) {
-            var control = $YetaWF.elementClosestCond(elem, controlSelector);
-            if (control == null)
-                return null;
-            var obj = $YetaWF.getObjectData(control);
-            if (obj.Control !== control)
-                throw "object data doesn't match control type - " + control.outerHTML;
-            return obj;
-        };
-        ComponentBase.getControlBaseFromSelector = function (selector, controlSelector, tags) {
-            var tag = $YetaWF.getElement1BySelector(selector, tags);
-            return ComponentBase.getControlBaseFromTag(tag, controlSelector);
-        };
-        ComponentBase.getControlBaseById = function (id, controlSelector) {
-            var tag = $YetaWF.getElementById(id);
-            return ComponentBase.getControlBaseFromTag(tag, controlSelector);
-        };
-        /**
-         * A <div> is being emptied. Call the callback for the control type described by controlSelector.
-         */
-        ComponentBase.clearDiv = function (tag, controlSelector, callback) {
-            var list = $YetaWF.getElementsBySelector(controlSelector, [tag]);
-            for (var _i = 0, list_2 = list; _i < list_2.length; _i++) {
-                var el = list_2[_i];
-                callback(ComponentBase.getControlBaseFromTag(el, controlSelector));
-            }
-        };
-        return ComponentBase;
-    }());
-    YetaWF.ComponentBase = ComponentBase;
 })(YetaWF || (YetaWF = {}));
 
 //# sourceMappingURL=ComponentBase.js.map
