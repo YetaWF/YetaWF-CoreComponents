@@ -30,15 +30,13 @@ var YetaWF;
                             throw "data-track not defined"; /*DEBUG*/
                         var uri = $YetaWF.parseUrl(urlTrack);
                         var data = { "url": url };
-                        var info = $YetaWF.Forms.getFormInfo(f);
-                        data[YConfigs.Basics.ModuleGuid] = info.ModuleGuid;
-                        data[YConfigs.Forms.RequestVerificationToken] = info.RequestVerificationToken;
-                        data[YConfigs.Forms.UniqueIdPrefix] = info.UniqueIdPrefix;
                         uri.addSearchSimpleObject(data);
+                        uri.addFormInfo(f);
                         var request = new XMLHttpRequest();
-                        request.open("POST", uri.toUrl(), true);
+                        request.open("POST", urlTrack, true);
+                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                         request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                        request.send();
+                        request.send(uri.toFormData());
                         // no response handling
                     }
                 }
