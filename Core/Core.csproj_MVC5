@@ -333,6 +333,7 @@
     <Compile Include="Pages\ActionHelperMVC5.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Addons\_Addons\Icons\Icons.scss" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
     <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
@@ -349,6 +350,8 @@
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\fixup.js" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\themelist.txt" />
+    <Content Include="Addons\_Addons\Icons\filelistCSS.txt" />
+    <Content Include="Addons\_Addons\Icons\IconCollection.png" />
     <Content Include="Addons\_Addons\Image\NoImage.png" />
     <Content Include="Addons\_Addons\jqueryui.com.jqueryui-themes\themelist.txt" />
     <Content Include="Addons\_Addons\telerik.com.Kendo_UI_Core\themelist.txt" />
@@ -366,16 +369,6 @@
     <Content Include="Addons\_Main\Emails\SMTPServer Test Message.txt" />
     <Content Include="Addons\_Main\Emails\Text Message.txt" />
     <Content Include="Addons\_Skins\Standard\filelistCSS.txt" />
-    <Content Include="Addons\_Skins\Standard\Icons\Add.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Browse.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Config.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Display.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Edit.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Generic.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Help.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\ModuleMenu.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Preview.png" />
-    <Content Include="Addons\_Skins\Standard\Icons\Remove.png" />
     <Content Include="Addons\_Skins\Standard\Icons\WarningIcon.png" />
     <Content Include="Addons\_Skins\Standard\skin.css" />
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
