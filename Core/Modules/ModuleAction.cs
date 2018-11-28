@@ -231,14 +231,6 @@ namespace YetaWF.Core.Modules {
         [UIHint("Text80"), StringLength(Globals.MaxUrl)]
         public string ImageUrlFinal { get; set; }
 
-        public async Task<string> GetImageUrlFinalAsync() {
-            if (ImageUrlFinal != null && ImageUrlFinal.StartsWith("#")) {
-                SkinImages skinImages = new SkinImages();
-                return await skinImages.FindIcon_PackageAsync(ImageUrlFinal, null);
-            } else
-                return ImageUrlFinal;
-        }
-
         [Caption("Tooltip"), Description("The tooltip for this entry")]
         [UIHint("MultiString40"), StringLength(MaxTooltip)] //, RequiredIfAttribute("EntryType", (int) MenuEntryType.Entry)]
         public MultiString Tooltip { get; set; } // hover tooltip text

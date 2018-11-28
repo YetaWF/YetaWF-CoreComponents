@@ -61,7 +61,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Forms", "CssDataApplyButton", CssDataApplyButton);
             scripts.AddConfigOption("Forms", "CssWarningIcon", CssWarningIcon);
 
-            string url = await skinImages.FindIcon_PackageAsync("#Warning", package);
+            string url = await skinImages.FindIcon_PackageAsync("WarningIcon.png", package);
             scripts.AddConfigOption("Forms", "CssWarningIconUrl", url);
 
             // UI settings - global to YetaWF

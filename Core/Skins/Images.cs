@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
@@ -16,23 +17,6 @@ namespace YetaWF.Core.Skins {
 
         public const string SkinAddOnIconUrl_Format = "{0}Icons/{1}"; // skinaddon icon
         public const string GenericIcon = "Generic.png";
-
-        public static Dictionary<string, string> PredefIcons = new Dictionary<string,string> {
-           { "#Add", "Add.png" },
-           { "#Browse", "Browse.png" },
-           { "#Collapse", "Collapse.png" },
-           { "#Config", "Config.png" },
-           { "#Display", "Display.png" },
-           { "#Edit", "Edit.png" },
-           { "#Expand", "Expand.png" },
-           { "#Generic", "Generic.png" },
-           { "#Help", "Help.png" },
-           { "#ModuleMenu", "ModuleMenu.png" },
-           { "#Preview", "Preview.png" },
-           { "#Remove", "Remove.png" },
-           { "#RemoveLight", "RemoveLight.png" },
-           { "#Warning", "WarningIcon.png" },
-        };
 
         // Cache url icons searched (hits and misses)
         // Only Deployed builds use caching
@@ -65,7 +49,7 @@ namespace YetaWF.Core.Skins {
             string file;
 
             if (imageUrl.StartsWith("#"))
-                PredefIcons.TryGetValue(imageUrl, out imageUrl);
+                throw new InternalError($"Image urls starting with # must use {nameof(ImageHTML.BuildKnownIcon)}");
             if (string.IsNullOrWhiteSpace(imageUrl))
                 imageUrl = GenericIcon;
 

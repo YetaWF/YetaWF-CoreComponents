@@ -3,10 +3,7 @@
 using YetaWF.Core.Support;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Extensions;
-#if MVC6
-#else
-using System.Web.Mvc;
-#endif
+using System.Collections.Generic;
 
 namespace YetaWF.Core.Components {
 
@@ -38,20 +35,61 @@ namespace YetaWF.Core.Components {
             return url;
         }
 
-        public static YTagBuilder BuildKnownImageYTag(string url, string title = null, string alt = null, string id = null, string cssClass = null) {
+        public static Dictionary<string, string> PredefSpriteIcons = new Dictionary<string, string> {
+           { "#Add", "yic yic_add" },
+           { "#Browse", "yic yic_browse" },
+           { "#Collapse", "yic yic_collapse" },
+           { "#Config", "yic yic_config" },
+           { "#Display", "yic yic_display" },
+           { "#Edit", "yic yic_edit" },
+           { "#Expand", "yic yic_expand" },
+           { "#Generic", "yic yic_generic" },
+           { "#Help", "yic yic_help" },
+           { "#ModuleMenu", "yic yic_modulemenu" },
+           { "#Preview", "yic yic_preview" },
+           { "#Remove", "yic yic_remove" },
+           { "#RemoveLight", "yic yic_removelight" },
+           { "#Warning", "yic yic_warning" },
+        };
+
+        public static string BuildKnownIcon(string url, string title = null, string id = null, string cssClass = null, string name = null) {
+
             title = title ?? "";
-            alt = alt ?? title;
-            YTagBuilder tImg = new YTagBuilder("img");
-            if (!string.IsNullOrWhiteSpace(alt))
-                tImg.MergeAttribute("alt", alt);
-            if (!string.IsNullOrWhiteSpace(cssClass))
-                tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-            if (!string.IsNullOrWhiteSpace(title))
-                tImg.MergeAttribute("title", title);
-            if (!string.IsNullOrWhiteSpace(id))
-                tImg.Attributes.Add("id", id);
-            tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
-            return tImg;
+
+            string css;
+            if (PredefSpriteIcons.TryGetValue(url, out css)) {
+
+                YTagBuilder tIcon = new YTagBuilder("i");
+                tIcon.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(css));
+                if (!string.IsNullOrWhiteSpace(cssClass))
+                    tIcon.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
+                if (!string.IsNullOrWhiteSpace(title))
+                    tIcon.MergeAttribute("title", title);
+                if (!string.IsNullOrWhiteSpace(id))
+                    tIcon.Attributes.Add("id", id);
+                if (!string.IsNullOrWhiteSpace(name))
+                    tIcon.Attributes.Add("name", name);
+
+                return tIcon.ToString(YTagRenderMode.Normal);
+
+            } else {
+
+                YTagBuilder tImg = new YTagBuilder("img");
+                if (!string.IsNullOrWhiteSpace(title)) {
+                    tImg.MergeAttribute("alt", title);
+                    tImg.MergeAttribute("title", title);
+                }
+                if (!string.IsNullOrWhiteSpace(cssClass))
+                    tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
+                if (!string.IsNullOrWhiteSpace(id))
+                    tImg.Attributes.Add("id", id);
+                if (!string.IsNullOrWhiteSpace(name))
+                    tImg.Attributes.Add("name", name);
+
+                tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
+
+                return tImg.ToString(YTagRenderMode.StartTag);
+            }
         }
     }
 }

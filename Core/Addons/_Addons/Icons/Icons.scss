@@ -1,0 +1,60 @@
+﻿
+$width: 16px;
+$height: 16px;
+
+i.yic {
+    width:$width;
+    height:$height;
+    display:inline-block;
+    vertical-align:middle;
+    background: url(IconCollection.png) 0px 0px no-repeat;
+
+    &.yic_add {
+
+    }
+    &.yic_browse {
+        background-position-x: -5*$width;
+    }
+    &.yic_collapse {
+        background-position-x: -1*$width;
+        background-position-y: -$height;
+    }
+    &.yic_config {
+        background-position-x: -6*$width;
+    }
+    &.yic_display {
+        background-position-x: -1*$width;
+    }
+    &.yic_edit {
+        background-position-x: -2*$width;
+    }
+    &.yic_expand {
+        background-position-y: -$height;
+    }
+    &.yic_generic {
+        background-position-x: -4*$width;
+        background-position-y: -$height;
+    }
+    &.yic_help {
+        background-position-x: -2*$width;
+        background-position-y: -$height;
+    }
+    &.yic_modulemenu {
+        background-position-x: -5*$width;
+        background-position-y: -$height;
+    }
+    &.yic_preview {
+        background-position-x: -6*$width;
+        background-position-y: -$height;
+    }
+    &.yic_remove {
+        background-position-x: -3*$width;
+    }
+    &.yic_removelight {
+        background-position-x: -4*$width;
+    }
+    &.yic_warning {
+        background-position-x: -3*$width;
+        background-position-y: -$height;
+    }
+}
