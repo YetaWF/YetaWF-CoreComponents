@@ -1211,11 +1211,25 @@ namespace YetaWF {
         }
 
         public registerEventHandlerBody<K extends keyof HTMLElementEventMap>(eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
-            this.registerEventHandler(document.body, eventName, selector, callback);
+            if (!document.body) {
+                $YetaWF.addWhenReadyOnce((tag: HTMLElement): void => {
+                    this.registerEventHandler(document.body, eventName, selector, callback);
+                });
+            } else {
+                this.registerEventHandler(document.body, eventName, selector, callback);
+            }
         }
         public registerMultipleEventHandlersBody(eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
-            for (let eventName of eventNames) {
-                document.body.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+            if (!document.body) {
+                $YetaWF.addWhenReadyOnce((tag: HTMLElement): void => {
+                    for (let eventName of eventNames) {
+                        document.body.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+                    }
+                });
+            } else {
+                for (let eventName of eventNames) {
+                    document.body.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+                }
             }
         }
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {

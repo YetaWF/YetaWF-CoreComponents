@@ -83,6 +83,7 @@ namespace YetaWF.Core.Pages {
             js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Bottom)
                 js = (await Manager.ScriptManager.RenderAsync()).ToString();
+            css = "";
             if (currentSite.CssLocation == Site.CssLocationEnum.Bottom)
                 css = (await Manager.CssManager.RenderAsync()).ToString();
 
