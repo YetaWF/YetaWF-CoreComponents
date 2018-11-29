@@ -39,12 +39,8 @@ i.yic {
         background-position-x: -2*$width;
         background-position-y: -$height;
     }
-    &.yic_modulemenu {
-        background-position-x: -5*$width;
-        background-position-y: -$height;
-    }
     &.yic_preview {
-        background-position-x: -6*$width;
+        background-position-x: -5*$width;
         background-position-y: -$height;
     }
     &.yic_remove {

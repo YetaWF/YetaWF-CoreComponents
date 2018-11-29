@@ -45,19 +45,19 @@ namespace YetaWF.Core.Components {
            { "#Expand", "yic yic_expand" },
            { "#Generic", "yic yic_generic" },
            { "#Help", "yic yic_help" },
-           { "#ModuleMenu", "yic yic_modulemenu" },
            { "#Preview", "yic yic_preview" },
            { "#Remove", "yic yic_remove" },
            { "#RemoveLight", "yic yic_removelight" },
            { "#Warning", "yic yic_warning" },
         };
 
-        public static string BuildKnownIcon(string url, string title = null, string id = null, string cssClass = null, string name = null) {
+        public static string BuildKnownIcon(string url, string title = null, string id = null, string cssClass = null, string name = null, Dictionary<string, string> sprites = null) {
 
             title = title ?? "";
+            sprites = sprites ?? PredefSpriteIcons;
 
             string css;
-            if (PredefSpriteIcons.TryGetValue(url, out css)) {
+            if (sprites.TryGetValue(url, out css)) {
 
                 YTagBuilder tIcon = new YTagBuilder("i");
                 tIcon.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(css));

@@ -23,11 +23,8 @@ i.yic {
   i.yic.yic_help {
     background-position-x: -32px;
     background-position-y: -16px; }
-  i.yic.yic_modulemenu {
-    background-position-x: -80px;
-    background-position-y: -16px; }
   i.yic.yic_preview {
-    background-position-x: -96px;
+    background-position-x: -80px;
     background-position-y: -16px; }
   i.yic.yic_remove {
     background-position-x: -48px; }
