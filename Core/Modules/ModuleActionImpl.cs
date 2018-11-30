@@ -22,7 +22,7 @@ namespace YetaWF.Core.Modules {
             ButtonIcon = 5,
         }
         public enum RenderEngineEnum {
-            JqueryMenu = 0,
+            KendoMenu = 0,
             BootstrapSmartMenu = 1,
         }
 
