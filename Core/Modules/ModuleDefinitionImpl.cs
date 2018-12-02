@@ -656,8 +656,8 @@ namespace YetaWF.Core.Modules {
                 if (Manager.CurrentPage.Temporary) {
                     // a temporary page only has one module so we'll use the module title as the page title.
                     showTitle = false;
-                } else if (Manager.CurrentPage.ModuleDefinitions.Count == 1) {
-                    // a permanent page can have one or more modules - if there is just one module, we'll use the module title as page title
+                } else if (GetModulesInMainPane() == 1) {
+                    // a permanent page can have one or more modules in the Main pane - if there is just one module, we'll use the module title as page title
                     showTitle = false;
                 } else {
                     ; // a page with multiple modules is expected to have a valid page title
@@ -700,13 +700,16 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 
             Manager.LastUpdated = this.DateUpdated;
 
-            //DEBUG:  containerHtml has entire module
-
             Manager.PopCharSize();
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(ReferencedModules);
 
+            //DEBUG:  containerHtml has entire module
             return new HtmlString(containerHtml);
+        }
+
+        private int GetModulesInMainPane() {
+            return (from m in Manager.CurrentPage.ModuleDefinitions where m.Pane == Globals.MainPane select m).Count();
         }
 
         /// <summary>

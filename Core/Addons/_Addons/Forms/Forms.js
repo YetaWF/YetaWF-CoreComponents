@@ -102,6 +102,7 @@ var YetaWF;
             }
             if (useValidation)
                 this.validate(form);
+            $YetaWF.closeOverlays();
             $YetaWF.setLoading(true);
             if (!useValidation || this.isValid(form)) {
                 var onSubmitExtraData = extraData ? extraData : "";
