@@ -1075,6 +1075,37 @@ var YetaWF;
             else
                 this.elementDisable(elem);
         };
+        /**
+         * Enable element and all child items.
+         */
+        BasicsServices.prototype.elementAndChildrenEnable = function (elem) {
+            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
+            for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
+                var child = children_1[_i];
+                child.removeAttribute("disabled");
+                YetaWF_BasicsImpl.elementEnableToggle(child, true);
+            }
+        };
+        /**
+         * Disable element and all child items.
+         */
+        BasicsServices.prototype.elementAndChildrenDisable = function (elem) {
+            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
+            for (var _i = 0, children_2 = children; _i < children_2.length; _i++) {
+                var child = children_2[_i];
+                child.setAttribute("disabled", "disabled");
+                YetaWF_BasicsImpl.elementEnableToggle(child, false);
+            }
+        };
+        /**
+         * Enable or disable element and all child items.
+         */
+        BasicsServices.prototype.elementAndChildrenEnableToggle = function (elem, enable) {
+            if (enable)
+                this.elementAndChildrenEnable(elem);
+            else
+                this.elementAndChildrenDisable(elem);
+        };
         // Events
         BasicsServices.prototype.registerDocumentReady = function (callback) {
             if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {

@@ -112,7 +112,12 @@ namespace YetaWF {
          * Closes any open overlays, menus, dropdownlists, tooltips, etc. (Popup windows are not handled and are explicitly closed using $YetaWF.Popups)
          */
         closeOverlays(): void;
-
+        /**
+         * Enable/disable an element.
+         * Some child items need some extra settings when disabled=disabled isn't enough.
+         * Also used to update visual styles to reflect the status.
+         */
+        elementEnableToggle(elem: HTMLElement, enable: boolean);
     }
 
     export interface IWhenReady {
@@ -1198,6 +1203,35 @@ namespace YetaWF {
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
+        }
+        /**
+         * Enable element and all child items.
+         */
+        public elementAndChildrenEnable(elem: HTMLElement): void {
+            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
+            for (let child of children) {
+                child.removeAttribute("disabled");
+                YetaWF_BasicsImpl.elementEnableToggle(child, true);
+            }
+        }
+        /**
+         * Disable element and all child items.
+         */
+        public elementAndChildrenDisable(elem: HTMLElement): void {
+            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
+            for (let child of children) {
+                child.setAttribute("disabled", "disabled");
+                YetaWF_BasicsImpl.elementEnableToggle(child, false);
+            }
+        }
+        /**
+         * Enable or disable element and all child items.
+         */
+        public elementAndChildrenEnableToggle(elem: HTMLElement, enable: boolean): void {
+            if (enable)
+                this.elementAndChildrenEnable(elem);
+            else
+                this.elementAndChildrenDisable(elem);
         }
 
         // Events
