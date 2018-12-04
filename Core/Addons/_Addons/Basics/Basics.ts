@@ -117,7 +117,7 @@ namespace YetaWF {
          * Some child items need some extra settings when disabled=disabled isn't enough.
          * Also used to update visual styles to reflect the status.
          */
-        elementEnableToggle(elem: HTMLElement, enable: boolean);
+        elementEnableToggle(elem: HTMLElement, enable: boolean): void;
     }
 
     export interface IWhenReady {
