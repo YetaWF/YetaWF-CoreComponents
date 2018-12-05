@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 
@@ -194,11 +195,13 @@ namespace YetaWF.Core.Packages {
                 if (info == null) {
                     // new package
                     await InstallSiteTemplateAsync(package, null);
+                    // no need to import pages - they are in the imported package
                 } else {
                     int cmp = Package.CompareVersion(info.Version, package.Version);
                     if (cmp < 0) {
                         // upgraded package
                         await InstallSiteTemplateAsync(package, info.Version);
+                        await ImportPagesAsync(package, info.Version);
                     } else if (cmp > 0) {
                         // Woah, you can't downgrade
                         throw new InternalError("Found package {0},{1} which is a lower version than the previous version {2}", package.Name, package.Version, info.Version);
@@ -214,6 +217,7 @@ namespace YetaWF.Core.Packages {
             // Save new package map (only if successful)
             await Package.SavePackageMapAsync();
         }
+
         /// <summary>
         /// Loads the existing package map at .\Website\Data\PackageMap.txt
         /// </summary>
@@ -273,6 +277,47 @@ namespace YetaWF.Core.Packages {
                 throw new InternalError(sb.ToString());
             }
         }
+
+        /// <summary>
+        /// Imports pages for the specified package to upgrade it to the new package version.
+        /// </summary>
+        /// <param name="package">The package for which pages need to be imported.</param>
+        /// <param name="lastSeenVersion">The last package version that was installed.</param>
+        /// <remarks>
+        /// All page zip files are imported between the last seen version and the current version to bring the package to its new version.
+        /// </remarks>
+        private static async Task ImportPagesAsync(Package package, string lastSeenVersion) {
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderWebProject;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string packageFolder = Path.Combine(rootFolder, Globals.SiteTemplates, package.AreaName);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(rootFolder)) {
+                List<string> versionFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageFolder);
+                versionFolders.Sort(new PackageFolderComparer());
+                // directories are now sorted by version, process in this order (oldest to newest)
+                foreach (string versionFolder in versionFolders) {
+                    string version = Path.GetFileName(versionFolder);
+                    if (Package.CompareVersion(lastSeenVersion, version) < 0) {
+                        List<string> pageFiles = await FileSystem.FileSystemProvider.GetFilesAsync(versionFolder);
+                        foreach (string pageFile in pageFiles) {
+                            List<string> errorList = new List<string>();
+                            // import the page definition
+                            PageDefinition.ImportInfo info = await PageDefinition.ImportAsync(pageFile, errorList);
+                            if (errorList.Count > 0) {
+                                Logging.AddErrorLog("An error occurred importing {0}", pageFile);
+                                foreach (string error in errorList)
+                                    Logging.AddErrorLog(error);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         /// <summary>
         /// Runs Site Templates for the specified package to upgrade it to the new package version.
         /// </summary>
@@ -353,6 +398,14 @@ namespace YetaWF.Core.Packages {
                 }
                 name = templateName.Substring(0, ix); // extract the template name
                 version = templateName.Substring(ix + 1); // remainder is version
+            }
+        }
+        // used to compare version numbers
+        private class PackageFolderComparer : IComparer<string> {
+            public int Compare(string x, string y) {
+                string xVersion = Path.GetFileName(x);
+                string yVersion = Path.GetFileName(y);
+                return Package.CompareVersion(xVersion, yVersion);
             }
         }
     }

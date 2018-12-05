@@ -368,9 +368,24 @@ namespace YetaWF.Core.Addons {
                 await FileSystem.FileSystemProvider.CreateDirectoryAsync(AddOnsFolder);
             }
 
-            Products = new Dictionary<string, AddOnProduct>();
+            Logging.AddLog("Removing Upgrade folders");
+
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderWebProject;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
+            List<string> folders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(templateFolder, "*.*");
+            foreach (string folder in folders) {
+                if (Path.GetFileName(folder) != Globals.DataFolder)
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
+            }
 
             Logging.AddLog("Searching assemblies");
+
+            Products = new Dictionary<string, AddOnProduct>();
 
             // visit all known assemblies and see if there is a matching entry in the Addons folder
             List<Package> packages = Package.GetAvailablePackages();
@@ -419,6 +434,7 @@ namespace YetaWF.Core.Addons {
                     await RegisterSkinsAsync(package, folder);
                 } else if (string.Compare(directoryName, "_SiteTemplates", true) == 0) {
                     await CopySiteTemplatesAsync(folder);
+                    await CopySiteUpgradesAsync(package, folder);
                 } else if (directoryName.StartsWith("_")) {
                     // reserved for future use and 3rd party
                 } else {
@@ -439,6 +455,31 @@ namespace YetaWF.Core.Addons {
             foreach (string file in files) {
                 string newFile = Path.Combine(templateFolder, Path.GetFileName(file));
                 await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
+            }
+        }
+        private static async Task CopySiteUpgradesAsync(Package package, string sourceFolder) {
+
+            List<string> folders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(sourceFolder, "*.*");
+
+            string rootFolder;
+#if MVC6
+            rootFolder = YetaWFManager.RootFolderWebProject;
+#else
+            rootFolder = YetaWFManager.RootFolder;
+#endif
+            string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
+
+            foreach (string folder in folders) {
+                string upgradeVersion = Path.GetFileName(folder);
+                string newFolder = Path.Combine(templateFolder, package.AreaName, upgradeVersion);
+
+                List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.zip");
+                if (files.Count > 0)
+                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(newFolder);
+                foreach (string file in files) {
+                    string newFile = Path.Combine(templateFolder, newFolder, Path.GetFileName(file));
+                    await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
+                }
             }
         }
 
