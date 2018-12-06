@@ -5,7 +5,7 @@ namespace YetaWF.Core {
     public class Globals {
 
 #if MVC6
-        public const string RUNTIME = "netcoreapp2.1"; // runtime
+        public const string RUNTIME = "netcoreapp2.2"; // runtime
 #endif
 
         public const int MaxIP = 15; // "xxx.xxx.xxx.xxx"
