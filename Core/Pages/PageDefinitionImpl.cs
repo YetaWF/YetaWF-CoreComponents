@@ -611,14 +611,19 @@ namespace YetaWF.Core.Pages {
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>
 #if MVC6
-        public async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+        public async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper,
 #else
-        public async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper, PageContentController.DataIn dataIn, PageContentController.PageContentData model)
+        public async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper,
 #endif
+            PageContentController.DataIn dataIn, PageContentController.PageContentData model, bool MainOnly = false)
         {
             Manager.SetSkinOptionsContent();
             if (dataIn.Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
-            foreach (string pane in dataIn.Panes) {
+
+            List<string> panes = dataIn.Panes;
+            if (MainOnly)
+                panes = new List<string> { Globals.MainPane };
+            foreach (string pane in panes) {
 
                 string paneHtml = (await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false)).ToString();
                 PageProcessing pageProc = new PageProcessing(Manager);

@@ -118,11 +118,11 @@ namespace YetaWF.Core.Pages
 #if MVC6
             async
 #endif
-                Task<HtmlString> RenderPageContentAsync() {
+                Task<HtmlString> RenderPageContentAsync(bool MainOnly = false) {
             PageContentController.PageContentData model = (PageContentController.PageContentData)(object)ViewData.Model;
             PageContentController.DataIn dataIn = (PageContentController.DataIn)ViewData["DataIn"];
 #if MVC6
-            await CurrentPage.RenderPaneContentsAsync((IHtmlHelper<object>)GetHtml(), dataIn, model);
+            await CurrentPage.RenderPaneContentsAsync((IHtmlHelper<object>)GetHtml(), dataIn, model, MainOnly: MainOnly);
             return null;
 #else
             YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(

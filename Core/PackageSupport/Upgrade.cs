@@ -195,7 +195,7 @@ namespace YetaWF.Core.Packages {
                 if (info == null) {
                     // new package
                     await InstallSiteTemplateAsync(package, null);
-                    // no need to import pages - they are in the imported package
+                    await ImportPagesAsync(package, null);
                 } else {
                     int cmp = Package.CompareVersion(info.Version, package.Version);
                     if (cmp < 0) {
@@ -282,8 +282,9 @@ namespace YetaWF.Core.Packages {
         /// Imports pages for the specified package to upgrade it to the new package version.
         /// </summary>
         /// <param name="package">The package for which pages need to be imported.</param>
-        /// <param name="lastSeenVersion">The last package version that was installed.</param>
+        /// <param name="lastSeenVersion">The last package version that was installed. null if this is a new package.</param>
         /// <remarks>
+        /// For new packages, the zip files in the Install folder are imported first.
         /// All page zip files are imported between the last seen version and the current version to bring the package to its new version.
         /// </remarks>
         private static async Task ImportPagesAsync(Package package, string lastSeenVersion) {
@@ -296,23 +297,36 @@ namespace YetaWF.Core.Packages {
             string packageFolder = Path.Combine(rootFolder, Globals.SiteTemplates, package.AreaName);
             if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(rootFolder)) {
                 List<string> versionFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageFolder);
+                if (lastSeenVersion == null) {
+                    string installFolder = (from v in versionFolders where v.EndsWith("Install") select v).FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(installFolder)) {
+                        await ImportPagesAsync(installFolder);
+                    }
+                    lastSeenVersion = "0.0.0";
+                }
+                versionFolders = (from v in versionFolders where !v.EndsWith("Install") select v).ToList();
                 versionFolders.Sort(new PackageFolderComparer());
                 // directories are now sorted by version, process in this order (oldest to newest)
                 foreach (string versionFolder in versionFolders) {
                     string version = Path.GetFileName(versionFolder);
                     if (Package.CompareVersion(lastSeenVersion, version) < 0) {
-                        List<string> pageFiles = await FileSystem.FileSystemProvider.GetFilesAsync(versionFolder);
-                        foreach (string pageFile in pageFiles) {
-                            List<string> errorList = new List<string>();
-                            // import the page definition
-                            PageDefinition.ImportInfo info = await PageDefinition.ImportAsync(pageFile, errorList);
-                            if (errorList.Count > 0) {
-                                Logging.AddErrorLog("An error occurred importing {0}", pageFile);
-                                foreach (string error in errorList)
-                                    Logging.AddErrorLog(error);
-                            }
-                        }
+                        await ImportPagesAsync(versionFolder);
                     }
+                }
+            }
+        }
+
+        private static async Task ImportPagesAsync(string versionFolder) {
+            List<string> pageFiles = await FileSystem.FileSystemProvider.GetFilesAsync(versionFolder);
+            foreach (string pageFile in pageFiles) {
+                List<string> errorList = new List<string>();
+                // import the page definition
+                Logging.AddLog($"Importing {pageFile}");
+                PageDefinition.ImportInfo info = await PageDefinition.ImportAsync(pageFile, errorList);
+                if (errorList.Count > 0) {
+                    Logging.AddErrorLog("An error occurred importing {0}", pageFile);
+                    foreach (string error in errorList)
+                        Logging.AddErrorLog(error);
                 }
             }
         }
