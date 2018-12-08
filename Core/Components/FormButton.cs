@@ -12,8 +12,7 @@ namespace YetaWF.Core.Components {
         Button = 2,
         Empty = 3,
         Apply = 4,
-        ConditionalSubmit = 5, /* Like Submit but is removed when we don't have a return url (used together with an apply button) */
-        ConditionalCancel = 6, /* Like Cancel but doesn't consider whether we have a return url */
+        ConditionalSubmit = 5, /* Like Submit but is removed when we don't have a return url (must be used together with an apply button) */
     }
 
     public class FormButton {
