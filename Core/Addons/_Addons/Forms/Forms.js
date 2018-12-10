@@ -192,7 +192,7 @@ var YetaWF;
             }
         };
         Forms.prototype.submitTemplate = function (tag, useValidation, templateName, templateAction, templateExtraData) {
-            var qs = YConfigs.Basics.TemplateName + "=" + templateName + "&" + YConfigs.Basics.Link_SubmitIsApply;
+            var qs = YConfigs.Basics.TemplateName + "=" + templateName + "&" + YConfigs.Basics.Link_SubmitIsApply + "=y";
             if (templateAction)
                 qs += "&" + YConfigs.Basics.TemplateAction + "=" + encodeURIComponent(templateAction);
             if (templateExtraData)

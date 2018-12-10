@@ -295,7 +295,7 @@ namespace YetaWF.Core.Packages {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             string packageFolder = Path.Combine(rootFolder, Globals.SiteTemplates, package.AreaName);
-            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(rootFolder)) {
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(packageFolder)) {
                 List<string> versionFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageFolder);
                 if (lastSeenVersion == null) {
                     string installFolder = (from v in versionFolders where v.EndsWith("Install") select v).FirstOrDefault();

@@ -23,7 +23,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         public abstract bool Processing(object model);
 
-        protected object GetDependentPropertyValue(object model) {
+        protected object GetControllingPropertyValue(object model) {
             Type type = model.GetType();
             PropertyInfo pi = ObjectSupport.GetProperty(type, Name);
             return pi.GetValue(model, null);
@@ -36,7 +36,7 @@ namespace YetaWF.Core.Models.Attributes {
     /// <remarks>Used to show/hide properties in a property list, dependent on a property's enum value (typically a dropdown list) or bool value.
     ///
     /// This is used both client-side and server-side to determine conditional property processing/validation.</remarks>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public class ProcessIfAttribute : ProcessIfBase {
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace YetaWF.Core.Models.Attributes {
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
             //TODO: This could be expanded to support other types, notably strings - don't have a use case yet
-            int currVal = Convert.ToInt32(GetDependentPropertyValue(model));
+            int currVal = Convert.ToInt32(GetControllingPropertyValue(model));
             foreach (object obj in Objects) {
                 if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) or bool as "other" property
                     return true; // we're processing this
@@ -105,8 +105,8 @@ namespace YetaWF.Core.Models.Attributes {
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
             //TODO: This could be expanded to support other types - don't have a use case yet
-            string currVal = (string)GetDependentPropertyValue(model);
-            if (!string.IsNullOrWhiteSpace(currVal)) { 
+            string currVal = (string)GetControllingPropertyValue(model);
+            if (!string.IsNullOrWhiteSpace(currVal)) {
                 return true; // we're processing this
             }
             return false;
@@ -137,7 +137,7 @@ namespace YetaWF.Core.Models.Attributes {
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
             //TODO: This could be expanded to support other types - don't have a use case yet
-            string currVal = (string)GetDependentPropertyValue(model);
+            string currVal = (string)GetControllingPropertyValue(model);
             if (string.IsNullOrWhiteSpace(currVal)) {
                 return true; // we're processing this
             }

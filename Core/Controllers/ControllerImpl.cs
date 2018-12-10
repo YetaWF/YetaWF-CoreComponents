@@ -433,8 +433,28 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
                 {
-                    ProcessIfAttribute procIf = prop.TryGetAttribute<ProcessIfAttribute>();
-                    if (procIf != null) {
+                    List<ProcessIfAttribute> procIfs = prop.TryGetAttributes<ProcessIfAttribute>();
+                    foreach (ProcessIfAttribute procIf in procIfs) {
+                        if (procIf.Processing(model))
+                            continue; // we're processing this
+                        // we're not processing this
+                        ModelState.Remove(prefix + prop.Name);
+                        continue;
+                    }
+                }
+                {
+                    List<ProcessIfSuppliedAttribute> procIfs = prop.TryGetAttributes<ProcessIfSuppliedAttribute>();
+                    foreach (ProcessIfSuppliedAttribute procIf in procIfs) {
+                        if (procIf.Processing(model))
+                            continue; // we're processing this
+                        // we're not processing this
+                        ModelState.Remove(prefix + prop.Name);
+                        continue;
+                    }
+                }
+                {
+                    List<ProcessIfNotSuppliedAttribute> procIfs = prop.TryGetAttributes<ProcessIfNotSuppliedAttribute>();
+                    foreach (ProcessIfNotSuppliedAttribute procIf in procIfs) {
                         if (procIf.Processing(model))
                             continue; // we're processing this
                         // we're not processing this

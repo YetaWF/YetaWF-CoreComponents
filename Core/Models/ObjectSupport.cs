@@ -276,8 +276,8 @@ namespace YetaWF.Core.Models {
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
         }
 
-        private Dictionary<string, object> CustomAttributes { get; set; }
-        private Dictionary<string, object> AdditionalAttributes { get; set; }
+        private Dictionary<string, List<Attribute>> CustomAttributes { get; set; }
+        private Dictionary<string, Attribute> AdditionalAttributes { get; set; }
 
         /// <summary>
         /// Retrieves the property value.
@@ -319,11 +319,23 @@ namespace YetaWF.Core.Models {
         }
         private object TryGetAttributeValue(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
-            return (from a in GetAttributes() where a.Key == name select a.Value).FirstOrDefault();
+            Dictionary<string, List<Attribute>> dict = GetAttributes();
+            List<Attribute> attrList;
+            if (dict.TryGetValue(name, out attrList)) {
+                if (attrList.Count > 1)
+                    throw new InternalError("Requesting 1 attribute when multiple are available");
+                return attrList[0];
+            }
+            return null;
         }
         private List<TYPE> TryGetAttributeValues<TYPE>(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
-            return (from a in GetAttributes() where a.Key == name select (TYPE)a.Value).ToList();
+            Dictionary<string, List<Attribute>> dict = GetAttributes();
+            List<Attribute> attrList;
+            if (dict.TryGetValue(name, out attrList)) {
+                return (from a in attrList select (TYPE)(object)a).ToList();
+            }
+            return new List<TYPE>();
         }
         /// <summary>
         /// Retrieves the value specified on an AdditionalMetadataAttribute.
@@ -352,20 +364,24 @@ namespace YetaWF.Core.Models {
                 return dflt;
             return val;
         }
-        private Dictionary<string, object> GetAttributes() {
+        private Dictionary<string, List<Attribute>> GetAttributes() {
             if (CustomAttributes == null) {
-                CustomAttributes = new Dictionary<string, object>();
-                AdditionalAttributes = new Dictionary<string, object>();
+                CustomAttributes = new Dictionary<string, List<Attribute>>();
+                AdditionalAttributes = new Dictionary<string, Attribute>();
                 foreach (Attribute a in PropInfo.GetCustomAttributes()) {
                     string name = a.GetType().Name;
                     if (!name.EndsWith("Attribute")) name += "Attribute";
-                    if (name == "AdditionalMetadataAttribute") {
+                    if (name == nameof(AdditionalMetadataAttribute)) {
                         // these are added as if they were attributes (based on name/value)
                         AdditionalMetadataAttribute am = (AdditionalMetadataAttribute) a;
                         name = am.Name;
                         AdditionalAttributes.Add(name, am);
                     } else {
-                        CustomAttributes.Add(name, a);
+                        List<Attribute> attrList;
+                        if (CustomAttributes.TryGetValue(name, out attrList))
+                            attrList.Add(a);
+                        else
+                            CustomAttributes.Add(name, new List<Attribute> { a });
                     }
                 }
             }

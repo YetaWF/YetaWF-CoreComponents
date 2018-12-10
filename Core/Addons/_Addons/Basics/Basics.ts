@@ -1274,18 +1274,30 @@ namespace YetaWF {
                 document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
             }
         }
-        public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
-            document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
-        }
         public registerEventHandlerWindow<K extends keyof WindowEventMap>(eventName: K, selector: string | null, callback: (ev: WindowEventMap[K]) => boolean): void {
             window.addEventListener(eventName, (ev: WindowEventMap[K]) => this.handleEvent(null, ev, selector, callback));
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback));
         }
-        public registerMultipleEventHandlers(tag: HTMLElement, eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
-            for (let eventName of eventNames) {
-                tag.addEventListener(eventName, (ev: Event) => this.handleEvent(tag, ev, selector, callback));
+        public registerMultipleEventHandlers(tags: HTMLElement[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
+            for (let tag of tags) {
+                for (let eventName of eventNames) {
+                    tag.addEventListener(eventName, (ev: Event) => this.handleEvent(tag, ev, selector, callback));
+                }
+            }
+        }
+        public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
+            document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
+        }
+        public registerCustomEventHandler(control: ComponentBaseImpl, eventName: string, callback: (ev: Event) => void): void {
+            control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
+        }
+        public registerMultipleCustomEventHandlers(controls: ComponentBaseImpl[], eventNames: string[], callback: (ev: Event) => void): void {
+            for (let control of controls) {
+                for (let eventName of eventNames) {
+                    control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
+                }
             }
         }
         private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
