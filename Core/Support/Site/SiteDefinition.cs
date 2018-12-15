@@ -442,7 +442,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool Compression { get; set; }
 
-        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether minified stylesheets (CSS files) are used (Yes) - Otherwise, stylesheets are not minified (No)")]
+        [Category("Pages"), Caption("Compress CSS Files"), Description("Defines whether minified stylesheets (CSS files) are used (Yes) - Otherwise, non-minified stylesheets are used (No)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool CompressCSSFiles { get; set; }
@@ -458,7 +458,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public CssLocationEnum CssLocation { get; set; }
 
-        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes) - Otherwise, JavaScript files are not minified (No)")]
+        [Category("Pages"), Caption("Compress JavaScript Files"), Description("Defines whether minified JavaScript files are used (Yes) - Otherwise, non-minified JavaScript files are used (No)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool CompressJSFiles { get; set; }

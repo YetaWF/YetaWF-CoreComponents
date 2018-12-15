@@ -378,89 +378,83 @@ namespace YetaWF.Core.Controllers {
                     continue;
                 }
 
-                {
-                    RequiredIfInRangeAttribute reqIfInRange = prop.TryGetAttribute<RequiredIfInRangeAttribute>();
-                    if (reqIfInRange != null) {
-                        if (!reqIfInRange.InRange(model)) {
-                            ModelState.Remove(prefix + prop.Name);
-                            continue;
+                bool process = true;// overall whether we need to process this property
+                bool hasAttribute = false;// has at least one attribute
+                bool found = false;// found an enabling attribute
+                if (!found) {
+                    List<RequiredIfInRangeAttribute> reqIfsInRange = prop.TryGetAttributes<RequiredIfInRangeAttribute>();
+                    hasAttribute = hasAttribute || reqIfsInRange.Count > 0;
+                    foreach (RequiredIfInRangeAttribute reqIfInRange in reqIfsInRange) {
+                        if (reqIfInRange.InRange(model)) {
+                            found = true;
+                            break;
                         }
                     }
                 }
-                {
-                    RequiredIfNotAttribute reqIfNot = prop.TryGetAttribute<RequiredIfNotAttribute>();
-                    if (reqIfNot != null) {
-                        if (!reqIfNot.IsNot(model)) {
-                            ModelState.Remove(prefix + prop.Name);
-                            continue;
+                if (!found) {
+                    List<RequiredIfNotAttribute> reqIfsNot = prop.TryGetAttributes<RequiredIfNotAttribute>();
+                    hasAttribute = hasAttribute || reqIfsNot.Count > 0;
+                    foreach (RequiredIfNotAttribute reqIfNot in reqIfsNot) {
+                        if (reqIfNot.IsNot(model)) {
+                            found = true;
+                            break;
                         }
                     }
                 }
-                {
-                    RequiredIfAttribute reqIf = prop.TryGetAttribute<RequiredIfAttribute>();
-                    if (reqIf != null) {
-                        if (!reqIf.Is(model)) {
-                            ModelState.Remove(prefix + prop.Name);
-                            continue;
+                if (!found) {
+                    List<RequiredIfAttribute> reqIfs = prop.TryGetAttributes<RequiredIfAttribute>();
+                    hasAttribute = hasAttribute || reqIfs.Count > 0;
+                    foreach (RequiredIfAttribute reqIf in reqIfs) {
+                        if (reqIf.Is(model)) {
+                            found = true;
+                            break;
                         }
                     }
                 }
-                {
-                    RequiredIfSupplied reqIfSupplied = prop.TryGetAttribute<RequiredIfSupplied>();
-                    if (reqIfSupplied != null) {
-                        if (!reqIfSupplied.IsSupplied(model)) {
-                            ModelState.Remove(prefix + prop.Name);
-                            continue;
+                if (!found) {
+                    List<RequiredIfSupplied> reqIfsSupplied = prop.TryGetAttributes<RequiredIfSupplied>();
+                    hasAttribute = hasAttribute || reqIfsSupplied.Count > 0;
+                    foreach (RequiredIfSupplied reqIfSupplied in reqIfsSupplied) {
+                        if (reqIfSupplied.IsSupplied(model)) {
+                            found = true;
+                            break;
                         }
                     }
                 }
-                {
-                    SuppressIfEqualAttribute suppIfEqual = prop.TryGetAttribute<SuppressIfEqualAttribute>();
-                    if (suppIfEqual != null) {
+                if (!found) {
+                    List<SuppressIfEqualAttribute> suppIfsEqual = prop.TryGetAttributes<SuppressIfEqualAttribute>();
+                    hasAttribute = hasAttribute || suppIfsEqual.Count > 0;
+                    foreach (SuppressIfEqualAttribute suppIfEqual in suppIfsEqual) {
                         if (suppIfEqual.IsEqual(model)) {
-                            ModelState.Remove(prefix + prop.Name);
-                            continue;
+                            found = true;
+                            process = false;
+                            break;
                         }
                     }
                 }
-                {
-                    SuppressIfNotEqualAttribute suppIfNotEqual = prop.TryGetAttribute<SuppressIfNotEqualAttribute>();
-                    if (suppIfNotEqual != null) {
+                if (!found) {
+                    List<SuppressIfNotEqualAttribute> suppIfsNotEqual = prop.TryGetAttributes<SuppressIfNotEqualAttribute>();
+                    hasAttribute = hasAttribute || suppIfsNotEqual.Count > 0;
+                    foreach (SuppressIfNotEqualAttribute suppIfNotEqual in suppIfsNotEqual) {
                         if (suppIfNotEqual.IsNotEqual(model)) {
-                            ModelState.Remove(prefix + prop.Name);
-                            continue;
+                            found = true;
+                            process = false;
+                            break;
                         }
                     }
                 }
-                {
-                    List<ProcessIfAttribute> procIfs = prop.TryGetAttributes<ProcessIfAttribute>();
-                    foreach (ProcessIfAttribute procIf in procIfs) {
-                        if (procIf.Processing(model))
-                            continue; // we're processing this
-                        // we're not processing this
+                if (process) {
+                    if (hasAttribute && !found) {
+                        // there was no attribute that made this required
+                        // we don't process this property
                         ModelState.Remove(prefix + prop.Name);
                         continue;
+                    } else {
+                        // we process this property
                     }
-                }
-                {
-                    List<ProcessIfSuppliedAttribute> procIfs = prop.TryGetAttributes<ProcessIfSuppliedAttribute>();
-                    foreach (ProcessIfSuppliedAttribute procIf in procIfs) {
-                        if (procIf.Processing(model))
-                            continue; // we're processing this
-                        // we're not processing this
-                        ModelState.Remove(prefix + prop.Name);
-                        continue;
-                    }
-                }
-                {
-                    List<ProcessIfNotSuppliedAttribute> procIfs = prop.TryGetAttributes<ProcessIfNotSuppliedAttribute>();
-                    foreach (ProcessIfNotSuppliedAttribute procIf in procIfs) {
-                        if (procIf.Processing(model))
-                            continue; // we're processing this
-                        // we're not processing this
-                        ModelState.Remove(prefix + prop.Name);
-                        continue;
-                    }
+                } else {
+                    // we don't process this property
+                    ModelState.Remove(prefix + prop.Name);
                 }
             }
         }

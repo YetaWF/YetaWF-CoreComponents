@@ -71,11 +71,20 @@ namespace YetaWF.Core.Models.Attributes {
         /// <param name="model">The model containing the property decorated with this attribute.</param>
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
-            //TODO: This could be expanded to support other types, notably strings - don't have a use case yet
-            int currVal = Convert.ToInt32(GetControllingPropertyValue(model));
-            foreach (object obj in Objects) {
-                if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) or bool as "other" property
-                    return true; // we're processing this
+            //TODO: This could be expanded to support other types
+            object val = GetControllingPropertyValue(model);
+            if (val.GetType() == typeof(string)) {
+                string currVal = (string)val;
+                foreach (object obj in Objects) {
+                    if (currVal == (string)obj)
+                        return true; // we're processing this
+                }
+            } else {
+                int currVal = Convert.ToInt32(val);
+                foreach (object obj in Objects) {
+                    if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) or bool as "other" property
+                        return true; // we're processing this
+                }
             }
             return false;
         }
@@ -104,7 +113,6 @@ namespace YetaWF.Core.Models.Attributes {
         /// <param name="model">The model containing the property decorated with this attribute.</param>
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
-            //TODO: This could be expanded to support other types - don't have a use case yet
             string currVal = (string)GetControllingPropertyValue(model);
             if (!string.IsNullOrWhiteSpace(currVal)) {
                 return true; // we're processing this
@@ -136,7 +144,6 @@ namespace YetaWF.Core.Models.Attributes {
         /// <param name="model">The model containing the property decorated with this attribute.</param>
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
-            //TODO: This could be expanded to support other types - don't have a use case yet
             string currVal = (string)GetControllingPropertyValue(model);
             if (string.IsNullOrWhiteSpace(currVal)) {
                 return true; // we're processing this

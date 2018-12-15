@@ -15,6 +15,7 @@ namespace YetaWF.Core {
         public const int MaxEmail = 100;
         public const int MaxColor = 20;
         public const int MaxState = 2; // US State
+        public const int MaxProvince = 2; // CA Province
         public const int MaxPublicKey = 1500;
         public const int MaxPrivateKey = 1500;
         public const int MaxRSAToken = 20;

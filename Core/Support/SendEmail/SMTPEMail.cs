@@ -44,15 +44,15 @@ namespace YetaWF.Core.SendEmail {
         public int Port { get; set; }
 
         [Caption("Authentication"), Description("Defines how the mail server is accessed to send emails. Most mail servers require authentication using a user name and password")]
-        [Required, UIHint("Enum"), ProcessIfSupplied(nameof(Server)), RequiredIfSupplied(nameof(Server))]
+        [UIHint("Enum"), ProcessIfSupplied(nameof(Server)), RequiredIfSupplied(nameof(Server))]
         public AuthEnum Authentication { get; set; }
 
         [Caption("User Name"), Description("The user name used to log into the mail server when authentication is required by the mail server")]
-        [UIHint("Text80"), StringLength(MaxUser), Required, ProcessIfSupplied(nameof(Server)), ProcessIf(nameof(Authentication), AuthEnum.Signon), Trim]
+        [UIHint("Text80"), StringLength(MaxUser), ProcessIf(nameof(Authentication), AuthEnum.Signon), RequiredIf(nameof(Authentication), AuthEnum.Signon), Trim]
         public string UserName { get; set; }
 
         [Caption("Password"), Description("The password used to log into the mail server when authentication is required by the mail server")]
-        [UIHint("Password20"), StringLength(MaxPswd), Required, ProcessIfSupplied(nameof(Server)), ProcessIf(nameof(Authentication), AuthEnum.Signon)]
+        [UIHint("Password20"), StringLength(MaxPswd), ProcessIf(nameof(Authentication), AuthEnum.Signon), RequiredIf(nameof(Authentication), AuthEnum.Signon)]
         public string Password { get; set; }
 
         [Caption("Secure"), Description("Defines whether SSL is used when sending emails")]

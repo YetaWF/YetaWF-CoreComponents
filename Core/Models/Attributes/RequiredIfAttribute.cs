@@ -32,10 +32,13 @@ namespace YetaWF.Core.Models.Attributes {
             return ValidationResult.Success;
         }
         public bool Is(object model) {
-            object propValue = GetDependentPropertyValue(model);
-            return propValue.Equals(RequiredValue);
+            object propValue = GetControllingPropertyValue(model);
+            if (propValue.GetType().IsEnum)
+                return (int)propValue == (int)RequiredValue;
+            else
+                return propValue.Equals(RequiredValue);
         }
-        private object GetDependentPropertyValue(object model) {
+        private object GetControllingPropertyValue(object model) {
             Type type = model.GetType();
             PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
             return pi.GetValue(model, null);
