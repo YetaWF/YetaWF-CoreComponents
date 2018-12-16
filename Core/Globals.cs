@@ -38,6 +38,7 @@ namespace YetaWF.Core {
         public const int ChId = 10;
         public const int ChIPAddress = 20;
         public const int ChIPAddressWithLookup = 20;
+        public const int ChPhoneNumber = 15;
         public const int ChTimeZone = 20;
 
         // Data Folder
