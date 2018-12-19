@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using YetaWF.Core.Packages;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Controllers {
 
@@ -19,7 +18,9 @@ namespace YetaWF.Core.Controllers {
         // This is called at startup for all controllers - so no need to cache the data we collect
         protected override ControllerModel CreateControllerModel(TypeInfo typeInfo) {
             ControllerModel ctrlModel = base.CreateControllerModel(typeInfo);
-            ctrlModel.RouteValues.Add("area", Lookup(typeInfo)); // add our area name based on the package containing the controller
+            string area = Lookup(typeInfo);
+            if (area != null)
+                ctrlModel.RouteValues.Add("area", area); // add our area name based on the package containing the controller
             return ctrlModel;
         }
 #if NOTUSED // provided for future expansion
@@ -29,10 +30,8 @@ namespace YetaWF.Core.Controllers {
         }
 #endif
         private string Lookup(TypeInfo typeInfo) {
-            Package package = Package.GetPackageFromType(typeInfo.AsType());
-            if (package == null)
-                throw new InternalError("No area found for controller type {0}", typeInfo.FullName);
-            return package.AreaName;
+            Package package = Package.TryGetPackageFromType(typeInfo.AsType());
+            return package?.AreaName;
         }
     }
 }

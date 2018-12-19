@@ -550,6 +550,10 @@ var YetaWF;
                     return false;
                 }
             }
+            else if (xhr.status >= 400 && xhr.status <= 499) {
+                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, "Not Authorized", YLocs.Forms.AjaxErrorTitle));
+                return false;
+            }
             else {
                 $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
                 return false;
