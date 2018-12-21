@@ -1,0 +1,1 @@
+﻿\node_modules\@aspnet\signalr\dist\browser\signalr.min.js,nobundle

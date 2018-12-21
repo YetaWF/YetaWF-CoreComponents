@@ -27,7 +27,7 @@ namespace YetaWF.Core.SendEmail {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        protected MailMessage MailMessage { get; set; }
+        public MailMessage MailMessage { get; protected set; }
         protected SmtpClient SmtpClient { get; set; }
 
         public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fomEmail = null, object parameters = null) {

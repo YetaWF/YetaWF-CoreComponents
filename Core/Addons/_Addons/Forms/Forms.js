@@ -271,7 +271,7 @@ var YetaWF;
                     // global
                     entry.callback(entry);
                 }
-                else if (entry.form[0] === form) {
+                else if (entry.form === form) {
                     // form specific
                     entry.callback(entry);
                 }
@@ -292,6 +292,9 @@ var YetaWF;
             if (!form)
                 return null;
             return form;
+        };
+        Forms.prototype.getInnerForm = function (tag) {
+            return $YetaWF.getElement1BySelector("form", [tag]);
         };
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag, addAmpersand, counter) {

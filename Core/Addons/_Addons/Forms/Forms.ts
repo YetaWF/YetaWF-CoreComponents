@@ -386,7 +386,7 @@ namespace YetaWF {
                 if (entry.form == null) {
                     // global
                     entry.callback(entry);
-                } else if (entry.form[0] === form) {
+                } else if (entry.form === form) {
                     // form specific
                     entry.callback(entry);
                 }
@@ -399,7 +399,6 @@ namespace YetaWF {
         }
 
         // Forms retrieval
-
         public getForm(tag: HTMLElement): HTMLFormElement {
             return $YetaWF.elementClosest(tag, "form") as HTMLFormElement;
         }
@@ -407,6 +406,9 @@ namespace YetaWF {
             var form = $YetaWF.elementClosestCond(tag, "form");
             if (!form) return null;
             return form as HTMLFormElement;
+        }
+        public getInnerForm(tag: HTMLElement): HTMLFormElement {
+            return $YetaWF.getElement1BySelector("form", [tag]) as HTMLFormElement;
         }
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         public getFormInfo(tag: HTMLElement, addAmpersand?: boolean, counter?: number) : FormInfo {
