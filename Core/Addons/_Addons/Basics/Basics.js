@@ -1169,9 +1169,11 @@ var YetaWF;
         BasicsServices.prototype.registerMultipleEventHandlers = function (tags, eventNames, selector, callback) {
             var _this = this;
             var _loop_1 = function (tag) {
-                for (var _i = 0, eventNames_4 = eventNames; _i < eventNames_4.length; _i++) {
-                    var eventName = eventNames_4[_i];
-                    tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
+                if (tag) {
+                    for (var _i = 0, eventNames_4 = eventNames; _i < eventNames_4.length; _i++) {
+                        var eventName = eventNames_4[_i];
+                        tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
+                    }
                 }
             };
             for (var _i = 0, tags_3 = tags; _i < tags_3.length; _i++) {
@@ -1189,9 +1191,11 @@ var YetaWF;
         BasicsServices.prototype.registerMultipleCustomEventHandlers = function (controls, eventNames, callback) {
             for (var _i = 0, controls_1 = controls; _i < controls_1.length; _i++) {
                 var control = controls_1[_i];
-                for (var _a = 0, eventNames_5 = eventNames; _a < eventNames_5.length; _a++) {
-                    var eventName = eventNames_5[_a];
-                    control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
+                if (control) {
+                    for (var _a = 0, eventNames_5 = eventNames; _a < eventNames_5.length; _a++) {
+                        var eventName = eventNames_5[_a];
+                        control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
+                    }
                 }
             }
         };

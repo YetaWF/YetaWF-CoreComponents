@@ -12,14 +12,8 @@ declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
 
 /* Polyfills */
 interface String {
-    startsWith: (text: string) => boolean;
-    endsWith: (text: string) => boolean;
     isValidInt(s: number, e: number): boolean;
     format(...args: any[]): string;
-}
-interface NumberConstructor {
-    MAX_SAFE_INTEGER: number;
-    MIN_SAFE_INTEGER: number;
 }
 
 interface Window { // expose this as a known window property
@@ -1283,10 +1277,12 @@ namespace YetaWF {
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback));
         }
-        public registerMultipleEventHandlers(tags: HTMLElement[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
+        public registerMultipleEventHandlers(tags: (HTMLElement|null)[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
             for (let tag of tags) {
-                for (let eventName of eventNames) {
-                    tag.addEventListener(eventName, (ev: Event) => this.handleEvent(tag, ev, selector, callback));
+                if (tag) {
+                    for (let eventName of eventNames) {
+                        tag.addEventListener(eventName, (ev: Event) => this.handleEvent(tag, ev, selector, callback));
+                    }
                 }
             }
         }
@@ -1296,10 +1292,12 @@ namespace YetaWF {
         public registerCustomEventHandler(control: ComponentBaseImpl, eventName: string, callback: (ev: Event) => void): void {
             control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
         }
-        public registerMultipleCustomEventHandlers(controls: ComponentBaseImpl[], eventNames: string[], callback: (ev: Event) => void): void {
+        public registerMultipleCustomEventHandlers(controls: (ComponentBaseImpl|null)[], eventNames: string[], callback: (ev: Event) => void): void {
             for (let control of controls) {
-                for (let eventName of eventNames) {
-                    control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
+                if (control) {
+                    for (let eventName of eventNames) {
+                        control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
+                    }
                 }
             }
         }
