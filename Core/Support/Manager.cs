@@ -1192,14 +1192,18 @@ namespace YetaWF.Core.Support {
 #endif
             }
             // add CORS header for static site
-#if MVC6
+#if DEBUG
+            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+#else
+# if MVC6
             SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
             if (site != null)
                 context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Scheme}://{site.SiteDomain.ToLower()}");
-#else
+# else
             SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Url.Host).Result;// cached, so ok to use result
             if (site != null)
                 context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Url.Scheme}://{site.SiteDomain.ToLower()}");
+# endif
 #endif
         }
         public static int StaticCacheDuration {
