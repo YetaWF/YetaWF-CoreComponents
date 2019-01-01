@@ -20,12 +20,17 @@ namespace YetaWF.Core {
         void AddToRouteMap(HubRouteBuilder routes);
     }
 
-    public class SignalR {
+    public static class SignalR {
 
         public static readonly string SignalRUrl = "/__signalr";
 
         public static void ConfigureServices(IServiceCollection services) {
-            services.AddSignalR();
+            services.AddSignalR(hubOptions =>
+            {
+#if DEBUG
+                hubOptions.EnableDetailedErrors = true;
+#endif
+            });
         }
 
         public static void ConfigureHubs(IApplicationBuilder app) {
@@ -49,22 +54,27 @@ namespace YetaWF.Core {
         /// <summary>
         /// Set up environment info for SignalR requests.
         /// </summary>
-        public static async Task<YetaWFManager> SetupEnvironmentAsync() {
-            if (YetaWFManager.HaveManager) return YetaWFManager.Manager;
+        public static async Task<YetaWFManager> SetupSignalRAsync(this Hub hub) {
+
             YetaWFManager manager;
-            string host;
 #if MVC6
-            HttpContext context = YetaWFManager.HttpContextAccessor.HttpContext;
-            HttpRequest httpReq = context.Request;
-            host = httpReq.Host.Host;
-            manager = YetaWFManager.MakeInstance(context, host);
+            HttpContext httpContext = hub.Context.GetHttpContext();
+            if (!YetaWFManager.HaveManager) {
+                HttpRequest httpReq = httpContext.Request;
+                string host = httpReq.Host.Host;
+                YetaWFManager.MakeInstance(httpContext, host);
+            }
 #else
-            HttpRequest httpReq = HttpContext.Current.Request;
-            host = httpReq.Url.Host;
-            manager = YetaWFManager.MakeInstance(host);
+            if (!YetaWFManager.HaveManager) {
+                HttpRequest httpReq = HttpContext.Current.Request;
+                string host = httpReq.Url.Host;
+                YetaWFManager.MakeInstance(host);
+            }
 #endif
-            manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(host);
-            if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", host);
+            manager = YetaWFManager.Manager;
+
+            manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(manager.SiteDomain);
+            if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", manager.SiteDomain);
             await YetaWFController.SetupEnvironmentInfoAsync();
 
             return manager;
