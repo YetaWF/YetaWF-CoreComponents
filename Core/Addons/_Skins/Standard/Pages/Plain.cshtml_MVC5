@@ -1,4 +1,4 @@
-﻿@*Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
+﻿@*Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing*@
 @using global::YetaWF.Core.Pages
 @using global::YetaWF.Core.Modules
 @inherits global::YetaWF.Core.Pages.RazorPage

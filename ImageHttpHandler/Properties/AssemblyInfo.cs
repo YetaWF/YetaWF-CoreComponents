@@ -1,4 +1,4 @@
-﻿/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,7 +9,7 @@ using YetaWF.PackageAttributes;
 [assembly: AssemblyDescription("Image Http Handler")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Softel vdm, Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2018 - Softel vdm, Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2019 - Softel vdm, Inc.")]
 [assembly: AssemblyProduct("ImageHttpHandler")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

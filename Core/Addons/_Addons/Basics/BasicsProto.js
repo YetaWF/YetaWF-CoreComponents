@@ -1,4 +1,4 @@
-/* Copyright © 2018 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 // string.startsWith
 if (typeof String.prototype.startsWith != 'function') {
