@@ -57,8 +57,8 @@ namespace YetaWF.Core {
         // that is initialized before Identity. If SignalR is started before Identity, authentication in SignalR won't work.
 #endif
 
-        public static string MakeUrl(Package package, string path) {
-            return $"{SignalRUrl}/{package.AreaName}/{path}";
+        public static string MakeUrl(string path) {
+            return $"{SignalRUrl}/{path}";
         }
 
         /// <summary>
@@ -98,6 +98,14 @@ namespace YetaWF.Core {
             Package package = AreaRegistration.CurrentPackage;
             await YetaWFManager.Manager.AddOnManager.AddAddOnNamedAsync(package.AreaName, "github.com.signalr.signalr");
             YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Url", SignalRUrl);
+
+            YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Version",
+#if MVC6
+                "MVC6"
+#else
+                "MVC5"
+#endif
+            );
         }
     }
 }

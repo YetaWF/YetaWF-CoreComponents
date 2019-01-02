@@ -162,6 +162,7 @@ namespace YetaWF {
     }
     export interface IConfigsSignalR {
         Url: string;
+        Version: string;
     }
 
     // LOCALIZATION
