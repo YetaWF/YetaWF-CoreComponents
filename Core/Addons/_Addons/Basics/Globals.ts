@@ -100,6 +100,7 @@ namespace YetaWF {
 
     export interface IConfigs {
         Basics: IConfigsBasics;
+        SignalR: IConfigsSignalR;
     }
     export interface IConfigsBasics {
 
@@ -158,6 +159,9 @@ namespace YetaWF {
         AjaxJavascriptReloadPage: string;
         AjaxJavascriptReloadModule: string;
         AjaxJavascriptReloadModuleParts: string;
+    }
+    export interface IConfigsSignalR {
+        Url: string;
     }
 
     // LOCALIZATION

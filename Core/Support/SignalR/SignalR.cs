@@ -4,26 +4,32 @@ using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SignalR;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 #if MVC6
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 #else
+using Owin;
+using Microsoft.AspNet.SignalR;
+using System.Web;
 #endif
 
 namespace YetaWF.Core {
 
-    public interface ISignalRHub {
+    public interface ISignalRHub { // not really needed for mvc5
+#if MVC6
         void AddToRouteMap(HubRouteBuilder routes);
+#endif
     }
 
     public static class SignalR {
 
         public static readonly string SignalRUrl = "/__signalr";
 
+#if MVC6
         public static void ConfigureServices(IServiceCollection services) {
             services.AddSignalR(hubOptions =>
             {
@@ -46,6 +52,10 @@ namespace YetaWF.Core {
             }
             Logging.AddLog("Done configuring SignalR hubs");
         }
+#else
+        // MVC5 is initialized in the Messenger package. OwinStartup is based on package service level, so we can't init in YetaWF.Core, because
+        // that is initialized before Identity. If SignalR is started before Identity, authentication in SignalR won't work.
+#endif
 
         public static string MakeUrl(Package package, string path) {
             return $"{SignalRUrl}/{package.AreaName}/{path}";
@@ -58,8 +68,8 @@ namespace YetaWF.Core {
 
             YetaWFManager manager;
 #if MVC6
-            HttpContext httpContext = hub.Context.GetHttpContext();
             if (!YetaWFManager.HaveManager) {
+                HttpContext httpContext = hub.Context.GetHttpContext();
                 HttpRequest httpReq = httpContext.Request;
                 string host = httpReq.Host.Host;
                 YetaWFManager.MakeInstance(httpContext, host);
@@ -87,12 +97,7 @@ namespace YetaWF.Core {
         public static async Task UseAsync() {
             Package package = AreaRegistration.CurrentPackage;
             await YetaWFManager.Manager.AddOnManager.AddAddOnNamedAsync(package.AreaName, "github.com.signalr.signalr");
-            YetaWFManager.Manager.ScriptManager.AddConfigOption(package.Domain, "SignalRUrl", SignalRUrl);
+            YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Url", SignalRUrl);
         }
     }
-    //public class TestHub : Hub, ISignalRHub {
-    //    public void AddToRouteMap(HubRouteBuilder routes) {
-    //        routes.MapHub<TestHub>(SignalR.MakeUrl(AreaRegistration.CurrentPackage, "something"));
-    //    }
-    //}
 }
