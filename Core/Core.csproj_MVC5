@@ -41,8 +41,20 @@
       <HintPath>..\..\packages\SharpZipLib.1.0.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.SignalR.Core.2.4.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.4.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Owin, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Owin.4.0.0\lib\net451\Microsoft.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Owin.Host.SystemWeb.2.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Owin.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -74,6 +86,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -111,8 +124,10 @@
   <ItemGroup>
     <Compile Include="ActionResults\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
+    <Compile Include="Components\Support\CAProvinces.cs" />
     <Compile Include="Components\Support\FileUpload.cs" />
     <Compile Include="Components\Support\Grid\GridData.cs" />
+    <Compile Include="Components\Support\USState.cs" />
     <Compile Include="Components\Support\WeeklyHours.cs" />
     <Compile Include="Components\Support\TimeOfDay.cs" />
     <Compile Include="Components\Support\DayTimeRange.cs" />
@@ -183,13 +198,13 @@
     <Compile Include="Support\Shims\QueryHelper.cs" />
     <Compile Include="Support\Shims\SessionState.cs" />
     <Compile Include="Support\Shims\TagBuilder.cs" />
+    <Compile Include="Support\SignalR\SignalR.cs" />
     <Compile Include="Support\StaticPages\StaticPageManager.cs" />
     <Compile Include="Components\TagBuilder.cs" />
     <Compile Include="Components\Support\CountryISO3166.cs" />
     <Compile Include="Components\Support\CurrencyISO4217.cs" />
     <Compile Include="Components\Support\FileUpload1.cs" />
     <Compile Include="Components\Support\RecaptchaV2.cs" />
-    <Compile Include="Components\Support\USStateHelper.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
@@ -333,6 +348,9 @@
     <Compile Include="Pages\ActionHelperMVC5.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\jquery-1.6.4-vsdoc.js" />
+    <Content Include="Scripts\jquery-1.6.4.js" />
+    <Content Include="Scripts\jquery-1.6.4.min.js" />
     <None Include="Addons\_Addons\Icons\Icons.scss" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
@@ -350,6 +368,7 @@
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\filelistJS.txt" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\fixup.js" />
     <Content Include="Addons\_Addons\getbootstrap.com.bootswatch\themelist.txt" />
+    <Content Include="Addons\_Addons\github.com.signalr.signalr\FilelistJS.txt" />
     <Content Include="Addons\_Addons\Icons\filelistCSS.txt" />
     <Content Include="Addons\_Addons\Icons\IconCollection.png" />
     <Content Include="Addons\_Addons\Image\NoImage.png" />
@@ -359,6 +378,7 @@
     <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
     <None Include="Addons\_Skins\Standard\Popups\Popup.cshtml" />
+    <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -372,6 +392,7 @@
     <Content Include="Addons\_Skins\Standard\Icons\WarningIcon.png" />
     <Content Include="Addons\_Skins\Standard\skin.css" />
     <Content Include="Addons\_Skins\Standard\Skin.txt" />
+    <Content Include="Addons\_Templates\CAProvince\CAProvinces.txt" />
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
     <Content Include="Addons\_Templates\USState\USStates.txt" />
