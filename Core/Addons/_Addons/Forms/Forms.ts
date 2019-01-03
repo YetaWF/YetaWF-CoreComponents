@@ -207,7 +207,7 @@ namespace YetaWF {
                     formData = onSubmitExtraData + "&" + formData;
                 // add the origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
-                if (form.getAttribute(YConfigs.Basics.CssSaveReturnUrl)) {// form says we need to save the return address on submit
+                if (form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null) {// form says we need to save the return address on submit
                     var currUri = $YetaWF.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
