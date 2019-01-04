@@ -423,7 +423,6 @@ namespace YetaWF.Core.Controllers {
                 }
                 if (!found) {
                     List<SuppressIfEqualAttribute> suppIfsEqual = prop.TryGetAttributes<SuppressIfEqualAttribute>();
-                    hasAttribute = hasAttribute || suppIfsEqual.Count > 0;
                     foreach (SuppressIfEqualAttribute suppIfEqual in suppIfsEqual) {
                         if (suppIfEqual.IsEqual(model)) {
                             found = true;
@@ -434,7 +433,6 @@ namespace YetaWF.Core.Controllers {
                 }
                 if (!found) {
                     List<SuppressIfNotEqualAttribute> suppIfsNotEqual = prop.TryGetAttributes<SuppressIfNotEqualAttribute>();
-                    hasAttribute = hasAttribute || suppIfsNotEqual.Count > 0;
                     foreach (SuppressIfNotEqualAttribute suppIfNotEqual in suppIfsNotEqual) {
                         if (suppIfNotEqual.IsNotEqual(model)) {
                             found = true;
