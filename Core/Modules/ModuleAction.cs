@@ -226,7 +226,6 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// The saved image url or built-in name
         /// </summary>
-        /// <remarks>Use GetImageUrlFinalAsync() to retrieve full Url</remarks>
         [Caption("Image URL"), Description("The URL of the image shown for this entry")]
         [UIHint("Text80"), StringLength(Globals.MaxUrl)]
         public string ImageUrlFinal { get; set; }
