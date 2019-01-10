@@ -410,6 +410,9 @@ namespace YetaWF {
         public getInnerForm(tag: HTMLElement): HTMLFormElement {
             return $YetaWF.getElement1BySelector("form", [tag]) as HTMLFormElement;
         }
+        public getInnerFormCond(tag: HTMLElement): HTMLFormElement | null {
+            return $YetaWF.getElement1BySelectorCond("form", [tag]) as HTMLFormElement | null;
+        }
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         public getFormInfo(tag: HTMLElement, addAmpersand?: boolean, counter?: number) : FormInfo {
             var form = this.getForm(tag);

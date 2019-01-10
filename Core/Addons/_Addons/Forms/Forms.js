@@ -296,6 +296,9 @@ var YetaWF;
         Forms.prototype.getInnerForm = function (tag) {
             return $YetaWF.getElement1BySelector("form", [tag]);
         };
+        Forms.prototype.getInnerFormCond = function (tag) {
+            return $YetaWF.getElement1BySelectorCond("form", [tag]);
+        };
         // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag, addAmpersand, counter) {
             var form = this.getForm(tag);

@@ -259,10 +259,12 @@ namespace YetaWF.Core.Controllers
                 Manager.IsInPopup = InPopup();
                 Manager.OriginList = GetOriginList();
                 Manager.PageControlShown = PageControlShown();
-                Manager.EditMode = GetTempEditMode();
 
                 // determine user identity - authentication provider updates Manager with user information
                 await Resource.ResourceAccess.ResolveUserAsync();
+
+                Manager.EditMode = GetTempEditMode();
+
                 // get user's default language
                 Manager.GetUserLanguage();
                 // only now can we enable resource loading
@@ -314,6 +316,8 @@ namespace YetaWF.Core.Controllers
             return pageControlShown != null;
         }
         protected static bool GetTempEditMode() {
+            if (!Manager.HaveUser)
+                return false;
             try {
                 string editMode = Manager.RequestQueryString[Globals.Link_EditMode];
                 if (editMode != null)
