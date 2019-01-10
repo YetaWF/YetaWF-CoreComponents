@@ -31,7 +31,7 @@ namespace YetaWF {
                 return null;
             var obj = $YetaWF.getObjectData(control) as CLSS;
             if (obj.Control !== control)
-                throw `object data doesn't match control type - ${control.outerHTML}`;
+                throw `object data doesn't match control type - ${controlSelector} - ${control.outerHTML}`;
             return obj;
         }
         public static getControlFromTag<CLSS extends ComponentBaseDataImpl>(elem: HTMLElement, controlSelector: string): CLSS {

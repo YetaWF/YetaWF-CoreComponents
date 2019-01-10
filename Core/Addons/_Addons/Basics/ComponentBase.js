@@ -39,7 +39,7 @@ var YetaWF;
                 return null;
             var obj = $YetaWF.getObjectData(control);
             if (obj.Control !== control)
-                throw "object data doesn't match control type - " + control.outerHTML;
+                throw "object data doesn't match control type - " + controlSelector + " - " + control.outerHTML;
             return obj;
         };
         ComponentBaseDataImpl.getControlFromTag = function (elem, controlSelector) {
