@@ -45,12 +45,13 @@ namespace YetaWF.Core.Components {
             PropertyName = propertyName;
             PropData = propData;
             FieldNamePrefix = Manager.NestedComponentPrefix;
-            if (string.IsNullOrWhiteSpace(fieldName))
+            if (string.IsNullOrWhiteSpace(fieldName)) {
                 FieldName = propertyName;
-            else
+                if (!string.IsNullOrWhiteSpace(FieldNamePrefix) && propertyName != null)
+                    FieldName = FieldNamePrefix + "." + propertyName;
+            } else {
                 FieldName = fieldName;
-            if (!string.IsNullOrWhiteSpace(FieldNamePrefix) && propertyName != null)
-                FieldName = FieldNamePrefix + "." + FieldName;
+            }
             HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
         }
