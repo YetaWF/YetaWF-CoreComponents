@@ -119,7 +119,7 @@ namespace YetaWF.Core.Components {
 #endif
             object container, string propertyName, object HtmlAttributes = null, string UIHint = null)
         {
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, HtmlAttributes, false, UIHint);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, null, HtmlAttributes, false, UIHint);
         }
 #if MVC6
         public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper,
@@ -128,14 +128,14 @@ namespace YetaWF.Core.Components {
 #endif
             object container, string propertyName, object HtmlAttributes = null, bool Validation = true, string UIHint = null)
         {
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, HtmlAttributes, Validation, UIHint);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, null, HtmlAttributes, Validation, UIHint);
         }
 #if MVC6
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, IHtmlHelper htmlHelper,
 #else
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, HtmlHelper htmlHelper,
 #endif
-            object container, string propertyName, object htmlAttributes, bool validation, string uiHint = null)
+            object container, string propertyName, string fieldName, object htmlAttributes, bool validation, string uiHint = null)
         {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
             object model = propData.PropInfo.GetValue(container, null);
@@ -145,7 +145,7 @@ namespace YetaWF.Core.Components {
                     throw new InternalError($"No UIHintAttribute found for property {propertyName}");
                 uiHint = uiAttr.UIHint;
             }
-            return await RenderComponentAsync(components, renderType, htmlHelper, container, propertyName, propData, model, uiHint, htmlAttributes, validation);
+            return await RenderComponentAsync(components, renderType, htmlHelper, container, propertyName, fieldName, propData, model, uiHint, htmlAttributes, validation);
         }
 #if MVC6
         public static async Task<HtmlString> ForDisplayComponentAsync(this IHtmlHelper htmlHelper,
@@ -154,7 +154,7 @@ namespace YetaWF.Core.Components {
 #endif
                 object container, string propertyName, object propertyValue, string uiHint, object HtmlAttributes = null) {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, propData, propertyValue, uiHint, HtmlAttributes, false);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, null, propData, propertyValue, uiHint, HtmlAttributes, false);
         }
 #if MVC6
         public static async Task<HtmlString> ForEditComponentAsync(this IHtmlHelper htmlHelper,
@@ -163,7 +163,7 @@ namespace YetaWF.Core.Components {
 #endif
                 object container, string propertyName, object propertyValue, string uiHint, object HtmlAttributes = null, bool Validation = true) {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, propData, propertyValue, uiHint, HtmlAttributes, Validation);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, null, propData, propertyValue, uiHint, HtmlAttributes, Validation);
         }
 #if MVC6
         public static async Task<HtmlString> ForDisplayContainerAsync(this IHtmlHelper htmlHelper,
@@ -171,7 +171,7 @@ namespace YetaWF.Core.Components {
         public static async Task<HtmlString> ForDisplayContainerAsync(this HtmlHelper htmlHelper,
 #endif
                 object container, string uiHint, object HtmlAttributes = null) {
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, null, null, null, uiHint, HtmlAttributes, false);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, null, null, null, null, uiHint, HtmlAttributes, false);
         }
 #if MVC6
         public static async Task<HtmlString> ForEditContainerAsync(this IHtmlHelper htmlHelper,
@@ -179,25 +179,25 @@ namespace YetaWF.Core.Components {
         public static async Task<HtmlString> ForEditContainerAsync(this HtmlHelper htmlHelper,
 #endif
                 object container, string uiHint, object HtmlAttributes = null) {
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, null, null, null, uiHint, HtmlAttributes, true);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, null, null, null, null, uiHint, HtmlAttributes, true);
         }
 #if MVC6
         public static async Task<HtmlString> ForDisplayAsAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForDisplayAsAsync(this HtmlHelper htmlHelper,
 #endif
-                object container, string propertyName, string FieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
+                object container, string propertyName, string fieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
             PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, false);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, fieldName, realPropData, model, uiHint, HtmlAttributes, false);
         }
 #if MVC6
         public static async Task<HtmlString> ForEditAsAsync(this IHtmlHelper htmlHelper,
 #else
         public static async Task<HtmlString> ForEditAsAsync(this HtmlHelper htmlHelper,
 #endif
-                object container, string propertyName, string FieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
+                object container, string propertyName, string fieldName, object realPropertyContainer, string realProperty, object model, string uiHint, object HtmlAttributes = null) {
             PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
-            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, realPropData, model, uiHint, HtmlAttributes, true);
+            return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, fieldName, realPropData, model, uiHint, HtmlAttributes, true);
         }
 
 #if MVC6
@@ -205,7 +205,7 @@ namespace YetaWF.Core.Components {
 #else
         private static async Task<HtmlString> RenderComponentAsync(Dictionary<string,Type> components, YetaWFComponentBase.ComponentType renderType, HtmlHelper htmlHelper,
 #endif
-             object container, string propertyName, PropertyData propData, object model, string uiHint, object htmlAttributes, bool validation)
+             object container, string propertyName, string fieldName, PropertyData propData, object model, string uiHint, object htmlAttributes, bool validation)
         {
 #if MVC6
 #else
@@ -234,7 +234,7 @@ namespace YetaWF.Core.Components {
             Type containerType = container.GetType();
             if (propertyName == null) {
                 // Container
-                component.SetRenderInfo(htmlHelper, container, null, null, htmlAttributes, validation);
+                component.SetRenderInfo(htmlHelper, container, null, null, null, htmlAttributes, validation);
                 // Invoke IncludeAsync
                 MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
                 if (miAsync == null)
@@ -252,7 +252,7 @@ namespace YetaWF.Core.Components {
                 // Component
                 if (propData == null)
                     propData = ObjectSupport.GetPropertyData(containerType, propertyName);
-                component.SetRenderInfo(htmlHelper, container, propertyName, propData, htmlAttributes, validation);
+                component.SetRenderInfo(htmlHelper, container, propertyName, fieldName, propData, htmlAttributes, validation);
                 // Invoke IncludeAsync
                 MethodInfo miAsync = compType.GetMethod(nameof(IYetaWFComponent<object>.IncludeAsync), new Type[] { });
                 if (miAsync == null)
