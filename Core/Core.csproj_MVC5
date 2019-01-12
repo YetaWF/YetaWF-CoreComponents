@@ -170,6 +170,7 @@
     <Compile Include="Models\Attributes\ProcessIfAttribute.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
     <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
+    <Compile Include="Models\Attributes\TimeSpanValidationAttributes.cs" />
     <Compile Include="Models\TreeDefinition.cs" />
     <Compile Include="Models\GridSupport.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
