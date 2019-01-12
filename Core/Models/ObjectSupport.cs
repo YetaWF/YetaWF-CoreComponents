@@ -392,8 +392,18 @@ namespace YetaWF.Core.Models {
         /// </summary>
         /// <returns></returns>
         private List<YIClientValidation> GetValidationAttributes() {
-            if (ValidationAttributes == null)
-                ValidationAttributes = (from a in GetAttributes().Values where (a as YIClientValidation) != null select (YIClientValidation)a).ToList();
+            if (ValidationAttributes == null) {
+                List<YIClientValidation>  validationAttributes = new List<YIClientValidation>();
+                var attrLists = GetAttributes().Values;
+                foreach (var attrList in attrLists) {
+                    foreach (var attr in attrList) {
+                        YIClientValidation v = attr as YIClientValidation;
+                        if (v != null)
+                            validationAttributes.Add(v);
+                    }
+                }
+                ValidationAttributes = validationAttributes;
+            }
             return ValidationAttributes;
         }
     }
