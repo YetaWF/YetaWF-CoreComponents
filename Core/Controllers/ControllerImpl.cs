@@ -1049,7 +1049,7 @@ namespace YetaWF.Core.Controllers {
             if (ExtraJavaScript != null)
                 sb.Append(ExtraJavaScript);
 
-            popupText = popupText != null ? YetaWFManager.JsonSerialize(popupText) : null;
+            popupText = string.IsNullOrWhiteSpace(popupText) ? null : YetaWFManager.JsonSerialize(popupText);
             popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
             PopupOptions = PopupOptions ?? "null";
 
@@ -1195,7 +1195,6 @@ namespace YetaWF.Core.Controllers {
                         case OnCloseEnum.UpdateInPlace:
                             if (!string.IsNullOrWhiteSpace(popupText)) {
                                 sb.Append("$YetaWF.alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
-                                OnApply = OnApplyEnum.ReloadModule;
                             }
                             isApply = true;
                             break;
