@@ -10,6 +10,8 @@ namespace YetaWF.Core.Models.Attributes {
 
         protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
+        public const string ValueOf = "ValOf+";
+
         /// <summary>
         /// The name of the other property used to determine conditional processing/validation of this property.
         /// </summary>
@@ -26,6 +28,21 @@ namespace YetaWF.Core.Models.Attributes {
         protected object GetControllingPropertyValue(object model) {
             Type type = model.GetType();
             PropertyInfo pi = ObjectSupport.GetProperty(type, Name);
+            return pi.GetValue(model, null);
+        }
+
+        public static object GetValueOfEntry(object model, object obj) {
+            if (!IsValueOfEntry(obj)) return obj;
+            return GetValueOfPropertyValue(model, ((string)obj).Substring(ProcessIfBase.ValueOf.Length));
+        }
+        protected static bool IsValueOfEntry(object name) {
+            if (name == null) return false;
+            if (name.GetType() != typeof(string)) return false;
+            return ((string)name).StartsWith(ProcessIfBase.ValueOf);
+        }
+        private static object GetValueOfPropertyValue(object model, string name) {
+            Type type = model.GetType();
+            PropertyInfo pi = ObjectSupport.GetProperty(type, name);
             return pi.GetValue(model, null);
         }
     }
@@ -72,17 +89,17 @@ namespace YetaWF.Core.Models.Attributes {
         /// <returns>true if processing/validation is required, false otherwise.</returns>
         public override bool Processing(object model) {
             //TODO: This could be expanded to support other types
-            object val = GetControllingPropertyValue(model);
-            if (val.GetType() == typeof(string)) {
-                string currVal = (string)val;
+            object controlVal = GetControllingPropertyValue(model);
+            if (controlVal.GetType() == typeof(string)) {
+                string currVal = (string)controlVal;
                 foreach (object obj in Objects) {
-                    if (currVal == (string)obj)
+                    if (currVal == (string)GetValueOfEntry(model, obj))
                         return true; // we're processing this
                 }
             } else {
-                int currVal = Convert.ToInt32(val);
+                int currVal = Convert.ToInt32(controlVal);
                 foreach (object obj in Objects) {
-                    if (currVal == Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) or bool as "other" property
+                    if (currVal == Convert.ToInt32(GetValueOfEntry(model, obj))) // if this fails you're using something other than an enum (int) or bool as "other" property
                         return true; // we're processing this
                 }
             }
@@ -136,13 +153,13 @@ namespace YetaWF.Core.Models.Attributes {
             if (val.GetType() == typeof(string)) {
                 string currVal = (string)val;
                 foreach (object obj in Objects) {
-                    if (currVal != (string)obj)
+                    if (currVal != (string)GetValueOfEntry(model, obj))
                         return true; // we're processing this
                 }
             } else {
                 int currVal = Convert.ToInt32(val);
                 foreach (object obj in Objects) {
-                    if (currVal != Convert.ToInt32(obj)) // if this fails you're using something other than an enum (int) or bool as "other" property
+                    if (currVal != Convert.ToInt32(GetValueOfEntry(model, obj))) // if this fails you're using something other than an enum (int) or bool as "other" property
                         return true; // we're processing this
                 }
             }
