@@ -158,7 +158,7 @@ var YetaWF;
             for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
                 var item = items_1[_i];
                 if (item.tagName === "DIV") { // if we found a div, find the edit element instead
-                    var i = this.getElementsBySelector("input,select,.yt_dropdownlist_base", [item]);
+                    var i = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
                     i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
                     i = this.limitToVisibleOnly(i); // :visible
                     if (i.length > 0) {

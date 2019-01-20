@@ -239,7 +239,7 @@ namespace YetaWF {
             items = this.limitToVisibleOnly(items); //:visible
             for (let item of items) {
                 if (item.tagName === "DIV") { // if we found a div, find the edit element instead
-                    var i = this.getElementsBySelector("input,select,.yt_dropdownlist_base", [item]);
+                    var i = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
                     i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
                     i = this.limitToVisibleOnly(i); // :visible
                     if (i.length > 0) {
