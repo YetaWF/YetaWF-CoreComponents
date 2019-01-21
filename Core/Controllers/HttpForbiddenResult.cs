@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Support {
+namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// Used to indicate a forbidden request ({link "HTTP response 403" https://en.wikipedia.org/wiki/HTTP_403}).

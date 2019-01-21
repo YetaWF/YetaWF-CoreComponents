@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Support.Zip;
+using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -10,7 +11,7 @@ using System.Web;
 using System.Web.Mvc;
 #endif
 
-namespace YetaWF.Core.Support {
+namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// Used to return a ZIP file from a controller.

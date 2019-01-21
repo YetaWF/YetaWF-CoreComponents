@@ -122,7 +122,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionResults\HttpForbiddenResult.cs" />
+    <Compile Include="Controllers\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
     <Compile Include="Components\Support\CAProvinces.cs" />
     <Compile Include="Components\Support\FileUpload.cs" />
@@ -344,14 +344,11 @@
     <Compile Include="Support\UrlHistory\Origin.cs" />
     <Compile Include="Support\Variables.cs" />
     <Compile Include="Support\WebConfig.cs" />
-    <Compile Include="ActionResults\ZippedResult.cs" />
+    <Compile Include="Controllers\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
     <Compile Include="Pages\ActionHelperMVC5.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\jquery-1.6.4-vsdoc.js" />
-    <Content Include="Scripts\jquery-1.6.4.js" />
-    <Content Include="Scripts\jquery-1.6.4.min.js" />
     <None Include="Addons\_Addons\Icons\Icons.scss" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
