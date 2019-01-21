@@ -9,12 +9,39 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
+    public abstract class RequiredBase : RequiredAttribute {
+
+        protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+
+        public const string ValueOf = "ValOf+";
+
+        public String RequiredPropertyName { get; set; }
+
+        protected object GetControllingPropertyValue(object model) {
+            Type type = model.GetType();
+            PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
+            return pi.GetValue(model, null);
+        }
+
+        public static object GetValueOfEntry(object model, object obj) {
+            if (!IsValueOfEntry(obj)) return obj;
+            return GetValueOfPropertyValue(model, ((string)obj).Substring(RequiredBase.ValueOf.Length));
+        }
+        protected static bool IsValueOfEntry(object name) {
+            if (name == null) return false;
+            if (name.GetType() != typeof(string)) return false;
+            return ((string)name).StartsWith(RequiredBase.ValueOf);
+        }
+        private static object GetValueOfPropertyValue(object model, string name) {
+            Type type = model.GetType();
+            PropertyInfo pi = ObjectSupport.GetProperty(type, name);
+            return pi.GetValue(model, null);
+        }
+    }
+
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class RequiredIfAttribute : RequiredAttribute, YIClientValidation {
+    public class RequiredIfAttribute : RequiredBase, YIClientValidation {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
-
-        public String RequiredPropertyName { get; private set; }
         private Object RequiredValue { get; set; }
 
         public RequiredIfAttribute(String propertyName, Object value) {
@@ -25,39 +52,35 @@ namespace YetaWF.Core.Models.Attributes {
                 RequiredValue = value;
         }
         protected override ValidationResult IsValid(object value, ValidationContext context) {
-            if (Is(context.ObjectInstance)) {
+            if (IsEqual(context.ObjectInstance)) {
                 ValidationResult result = base.IsValid(value, context);
                 return result;
             }
             return ValidationResult.Success;
         }
-        public bool Is(object model) {
+        public bool IsEqual(object model) {
             object propValue = GetControllingPropertyValue(model);
-            if (propValue.GetType().IsEnum)
-                return (int)propValue == (int)RequiredValue;
+            Type propType = propValue.GetType();
+            object reqVal = GetValueOfEntry(model, RequiredValue);
+            if (propType.IsEnum)
+                return (int)propValue == (int)reqVal;
             else
-                return propValue.Equals(RequiredValue);
+                return propValue.Equals(reqVal);
         }
-        private object GetControllingPropertyValue(object model) {
-            Type type = model.GetType();
-            PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
-            return pi.GetValue(model, null);
-        }
+
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
             string msg = __ResStr("requiredIf", "The '{0}' field is required", propData.GetCaption(container));
+            object reqVal = GetValueOfEntry(container, RequiredValue);
             tag.MergeAttribute("data-val-requiredif", msg);
             tag.MergeAttribute("data-val-requiredif-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
-            tag.MergeAttribute("data-val-requiredif-" + Forms.ConditionPropertyValue, RequiredValue.ToString());
+            tag.MergeAttribute("data-val-requiredif-" + Forms.ConditionPropertyValue, reqVal?.ToString());
             tag.MergeAttribute("data-val", "true");
         }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class RequiredIfNotAttribute : RequiredAttribute, YIClientValidation {
+    public class RequiredIfNotAttribute : RequiredBase, YIClientValidation {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
-
-        public String RequiredPropertyName { get; private set; }
         private Object RequiredValue { get; set; }
 
         public RequiredIfNotAttribute(String propertyName, Object value) {
@@ -65,38 +88,32 @@ namespace YetaWF.Core.Models.Attributes {
             RequiredValue = value;
         }
         protected override ValidationResult IsValid(object value, ValidationContext context) {
-            if (IsNot(context.ObjectInstance)) {
+            if (IsNotEqual(context.ObjectInstance)) {
                 ValidationResult result = base.IsValid(value, context);
                 return result;
             }
             return ValidationResult.Success;
         }
-        public bool IsNot(object model) {
-            object propValue = GetDependentPropertyValue(model);
+        public bool IsNotEqual(object model) {
+            object propValue = GetControllingPropertyValue(model);
+            object reqVal = GetValueOfEntry(model, RequiredValue);
             if (propValue == null)
-                return RequiredValue != propValue;
-            return !propValue.Equals(RequiredValue);
-        }
-        private object GetDependentPropertyValue(object model) {
-            Type type = model.GetType();
-            PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
-            return pi.GetValue(model, null);
+                return reqVal != propValue;
+            return !propValue.Equals(reqVal);
         }
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
             string msg = __ResStr("requiredIfNot", "The '{0}' field is required", propData.GetCaption(container));
+            object reqVal = GetValueOfEntry(container, RequiredValue);
             tag.MergeAttribute("data-val-requiredifnot", msg);
             tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
-            tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyValue, RequiredValue?.ToString());
+            tag.MergeAttribute("data-val-requiredifnot-" + Forms.ConditionPropertyValue, reqVal?.ToString());
             tag.MergeAttribute("data-val", "true");
         }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class RequiredIfInRangeAttribute : RequiredAttribute, YIClientValidation {
+    public class RequiredIfInRangeAttribute : RequiredBase, YIClientValidation {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
-
-        public String RequiredPropertyName { get; private set; }
         private int RequiredValueLow { get; set; }
         private int RequiredValueHigh { get; set; }
 
@@ -113,13 +130,8 @@ namespace YetaWF.Core.Models.Attributes {
             return ValidationResult.Success;
         }
         public bool InRange(object model) {
-            int val = (int) GetDependentPropertyValue(model);
+            int val = (int)GetControllingPropertyValue(model);
             return val >= RequiredValueLow && val <= RequiredValueHigh;
-        }
-        private object GetDependentPropertyValue(object model) {
-            Type type = model.GetType();
-            PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
-            return pi.GetValue(model, null);
         }
         public new void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
             string msg = __ResStr("requiredIfNot", "The '{0}' field is required", propData.GetCaption(container));

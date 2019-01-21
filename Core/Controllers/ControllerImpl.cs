@@ -395,7 +395,7 @@ namespace YetaWF.Core.Controllers {
                     List<RequiredIfNotAttribute> reqIfsNot = prop.TryGetAttributes<RequiredIfNotAttribute>();
                     hasAttribute = hasAttribute || reqIfsNot.Count > 0;
                     foreach (RequiredIfNotAttribute reqIfNot in reqIfsNot) {
-                        if (reqIfNot.IsNot(model)) {
+                        if (reqIfNot.IsNotEqual(model)) {
                             found = true;
                             break;
                         }
@@ -405,7 +405,7 @@ namespace YetaWF.Core.Controllers {
                     List<RequiredIfAttribute> reqIfs = prop.TryGetAttributes<RequiredIfAttribute>();
                     hasAttribute = hasAttribute || reqIfs.Count > 0;
                     foreach (RequiredIfAttribute reqIf in reqIfs) {
-                        if (reqIf.Is(model)) {
+                        if (reqIf.IsEqual(model)) {
                             found = true;
                             break;
                         }
