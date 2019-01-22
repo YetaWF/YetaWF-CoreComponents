@@ -38,6 +38,10 @@ namespace YetaWF.Core.Controllers {
 #else
         public override string AreaName { get { return Package.AreaName; } }
 #endif
+
+        /// <summary>
+        /// The current package defined by the object derived from AreaRegistrationBase.
+        /// </summary>
         protected Package Package { get; set; }
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace YetaWF.Core.Controllers {
 #endif
 
         /// <summary>
-        /// Used by tools (i.e., non web apps) that need to explicitly register packages to they have access to functionality provided by packages, beyond the Core package.
+        /// Used by tools (i.e., non web apps) that need to explicitly register packages so they have access to functionality provided by packages, beyond the Core package.
         /// </summary>
         /// <remarks>This is typically used by tools that need access to data providers used by YetaWF.</remarks>
 #if MVC6

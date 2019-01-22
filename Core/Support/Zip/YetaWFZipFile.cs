@@ -24,7 +24,7 @@ namespace YetaWF.Core.Support.Zip {
         public List<string> TempFiles { get; set; }
 
         /// <summary>
-        /// Temporary files referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
+        /// Temporary folders referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
         /// </summary>
         public List<string> TempFolders { get; set; }
 

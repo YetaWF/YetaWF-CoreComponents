@@ -9,7 +9,7 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
-    public abstract class RequiredBase : RequiredAttribute {
+    public abstract class RequiredIfBase : RequiredAttribute {
 
         protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
@@ -25,12 +25,12 @@ namespace YetaWF.Core.Models.Attributes {
 
         public static object GetValueOfEntry(object model, object obj) {
             if (!IsValueOfEntry(obj)) return obj;
-            return GetValueOfPropertyValue(model, ((string)obj).Substring(RequiredBase.ValueOf.Length));
+            return GetValueOfPropertyValue(model, ((string)obj).Substring(RequiredIfBase.ValueOf.Length));
         }
         protected static bool IsValueOfEntry(object name) {
             if (name == null) return false;
             if (name.GetType() != typeof(string)) return false;
-            return ((string)name).StartsWith(RequiredBase.ValueOf);
+            return ((string)name).StartsWith(RequiredIfBase.ValueOf);
         }
         private static object GetValueOfPropertyValue(object model, string name) {
             Type type = model.GetType();
@@ -40,7 +40,7 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class RequiredIfAttribute : RequiredBase, YIClientValidation {
+    public class RequiredIfAttribute : RequiredIfBase, YIClientValidation {
 
         private Object RequiredValue { get; set; }
 
@@ -79,7 +79,7 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class RequiredIfNotAttribute : RequiredBase, YIClientValidation {
+    public class RequiredIfNotAttribute : RequiredIfBase, YIClientValidation {
 
         private Object RequiredValue { get; set; }
 
@@ -112,7 +112,7 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class RequiredIfInRangeAttribute : RequiredBase, YIClientValidation {
+    public class RequiredIfInRangeAttribute : RequiredIfBase, YIClientValidation {
 
         private int RequiredValueLow { get; set; }
         private int RequiredValueHigh { get; set; }

@@ -125,7 +125,14 @@ namespace YetaWF.Core.Models.Attributes {
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CategoryAttribute : Attribute {
+        /// <summary>
+        /// Defines the list of categories (i.e., tabs) where a property will be shown.
+        /// </summary>
         public List<string> Categories { get; private set; }
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="categories">The list of categories where a property will be shown. Typically only one category is used.</param>
         public CategoryAttribute(params string[] categories) {
             if (categories != null)
                 Categories = categories.ToList();

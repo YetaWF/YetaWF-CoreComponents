@@ -11,8 +11,16 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// Maintains a list of all US states.
+    /// </summary>
+    /// <remarks>The states list is only read once and is cached.</remarks>
     public static class USState {
 
+        /// <summary>
+        /// Returns the list of US states.
+        /// </summary>
+        /// <returns>Returns a list of US states suitable for use in a dropdownlist. This is used by the USState template.</returns>
         public static async Task<List<SelectionItem<string>>> ReadStatesListAsync() {
             if (_statesList == null) {
                 Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package

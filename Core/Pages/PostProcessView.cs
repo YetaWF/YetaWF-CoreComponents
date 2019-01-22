@@ -15,7 +15,7 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Views {
 
-    public static class PostProcessView {
+    internal static class PostProcessView {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
