@@ -40,11 +40,11 @@ namespace YetaWF.Core.SendEmail {
         public string Server { get; set; }
 
         [Caption("Port"), Description("The SMTP mail server port used (25 is usually the default)")]
-        [UIHint("IntValue6"), Range(0, 999999), ProcessIfSupplied(nameof(Server)), RequiredIfSupplied(nameof(Server)), Trim]
+        [UIHint("IntValue6"), Range(0, 999999), ProcessIfSupplied(nameof(Server)), RequiredIfSuppliedAttribute(nameof(Server)), Trim]
         public int Port { get; set; }
 
         [Caption("Authentication"), Description("Defines how the mail server is accessed to send emails. Most mail servers require authentication using a user name and password")]
-        [UIHint("Enum"), ProcessIfSupplied(nameof(Server)), RequiredIfSupplied(nameof(Server))]
+        [UIHint("Enum"), ProcessIfSupplied(nameof(Server)), RequiredIfSuppliedAttribute(nameof(Server))]
         public AuthEnum Authentication { get; set; }
 
         [Caption("User Name"), Description("The user name used to log into the mail server when authentication is required by the mail server")]

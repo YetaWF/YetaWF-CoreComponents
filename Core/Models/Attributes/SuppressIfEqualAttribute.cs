@@ -5,7 +5,7 @@ using System.Reflection;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 
-namespace YetaWF.Core.Models {
+namespace YetaWF.Core.Models.Attributes {
 
     /// <summary>
     /// Conditional display of properties within a property list.

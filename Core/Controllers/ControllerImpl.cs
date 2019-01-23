@@ -412,9 +412,9 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
                 if (!found) {
-                    List<RequiredIfSupplied> reqIfsSupplied = prop.TryGetAttributes<RequiredIfSupplied>();
+                    List<RequiredIfSuppliedAttribute> reqIfsSupplied = prop.TryGetAttributes<RequiredIfSuppliedAttribute>();
                     hasAttribute = hasAttribute || reqIfsSupplied.Count > 0;
-                    foreach (RequiredIfSupplied reqIfSupplied in reqIfsSupplied) {
+                    foreach (RequiredIfSuppliedAttribute reqIfSupplied in reqIfsSupplied) {
                         if (reqIfSupplied.IsSupplied(model)) {
                             found = true;
                             break;

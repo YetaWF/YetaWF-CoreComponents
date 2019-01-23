@@ -10,13 +10,13 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
-    public class RequiredIfSupplied : RequiredAttribute, YIClientValidation {
+    public class RequiredIfSuppliedAttribute : RequiredAttribute, YIClientValidation {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public String RequiredPropertyName { get; private set; }
 
-        public RequiredIfSupplied(String propertyName) {
+        public RequiredIfSuppliedAttribute(String propertyName) {
             RequiredPropertyName = propertyName;
         }
         protected override ValidationResult IsValid(object value, ValidationContext context) {
