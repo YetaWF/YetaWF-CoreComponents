@@ -22,6 +22,11 @@ namespace YetaWF.Core.Support {
 
     public class Variables {
 
+        public enum EncodingTypeEnum {
+            HTML = 0,
+            XML = 1,
+        }
+
         public Variables(YetaWFManager manager, object parms = null) {
             Manager = manager;
             Parameters = parms;
@@ -29,9 +34,11 @@ namespace YetaWF.Core.Support {
             CurlyBraces = true;
             EncodeDefault = true;
             PreserveAsis = false;
+            EncodingType = EncodingTypeEnum.HTML;
         }
         protected YetaWFManager Manager { get; private set; }
         public object Parameters { get; private set; }
+        public EncodingTypeEnum EncodingType { get; set; }
 
         /// <summary>
         /// Replace {{ }} and [[ ]] instead of [ ] and { }
@@ -181,43 +188,43 @@ namespace YetaWF.Core.Support {
                 if (loc == "Var") {
                     if (Parameters != null) {
                         if (EvalObjectVariable(Parameters, var, subvar, out ret))
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                     }
                 } else if (Manager != null) {
                     if (loc == "ThisPage") {
                         if (Manager.CurrentPage != null) {
                             if (EvalObjectVariable(Manager.CurrentPage, var, subvar, out ret))
-                                return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                                return (encode) ? EncodeText(ret) : ret;
                         }
                     } else if (loc == "Site") {
                         if (EvalSiteVariable(var, subvar, out ret))
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                     } else if (loc == "PageOrSite") {
                         if (Manager.CurrentPage != null && EvalObjectVariable(Manager.CurrentPage, var, subvar, out ret)) {
                             if (!string.IsNullOrWhiteSpace(ret))
-                                return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                                return (encode) ? EncodeText(ret) : ret;
                         }
                         if (EvalSiteVariable(var, subvar, out ret))
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                     } else if (loc == "Manager") {
                         if (EvalManagerVariable(var, subvar, out ret))
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                     } else if (loc == "Globals") {
                         if (EvalGlobalsVariable(var, subvar, out ret))
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                     } else if (loc == "HttpRequest") {
                         if (EvalObjectVariable(Manager.CurrentRequest, var, subvar, out ret))
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                     } else if (loc == "QueryString" || loc == "QS") {
                         if (!string.IsNullOrWhiteSpace(var)) {
                             ret = Manager.RequestQueryString[var];
-                            return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                            return (encode) ? EncodeText(ret) : ret;
                         }
                     } else if (loc == "Session") {
                         if (!string.IsNullOrWhiteSpace(var)) {
                             if (Manager.SessionSettings.SiteSettings.ContainsKey(var)) {
                                 ret = Manager.SessionSettings.SiteSettings.GetValue<string>(var);
-                                return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                                return (encode) ? EncodeText(ret) : ret;
                             }
                         }
                     } else if (loc.StartsWith("Unique-")) {
@@ -229,7 +236,7 @@ namespace YetaWF.Core.Support {
                             if (dataMod != null) {
                                 if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
                                     if (!string.IsNullOrWhiteSpace(ret))
-                                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                                        return (encode) ? EncodeText(ret) : ret;
                                 }
                             }
                         }
@@ -256,10 +263,10 @@ namespace YetaWF.Core.Support {
 
                 if (var == "Resource" || var == "Resources") {
                     if (EvalModuleResourceVariable(_thisModule, subvar, out ret))
-                        return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                        return (encode) ? EncodeText(ret) : ret;
                 }
                 if (EvalObjectVariable(_thisModule, var, subvar, out ret)) {
-                    return (encode) ? YetaWFManager.HtmlEncode(ret) : ret;
+                    return (encode) ? EncodeText(ret) : ret;
                 }
             } catch { }
             return retString;
@@ -355,6 +362,15 @@ namespace YetaWF.Core.Support {
                 return true;
             retString = val;
             return true;
+        }
+        private string EncodeText(string text) {
+            switch (EncodingType) {
+                case EncodingTypeEnum.HTML:
+                    return YetaWFManager.HtmlEncode(text);
+                case EncodingTypeEnum.XML:
+                    return YetaWFManager.HtmlEncode(text);
+            }
+            return text;
         }
     }
 
