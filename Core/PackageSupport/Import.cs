@@ -63,7 +63,7 @@ namespace YetaWF.Core.Packages {
                     return false;
                 }
                 if (Package.CompareVersion("4.0.0", serPackage.CoreVersion) > 0) {
-                    errorList.Add(__ResStr("need400", $"This package was created using an earlier YetaWF version {serPackage.CoreVersion} - With YetaWF 4.0.0 a new package format was introduced, making older packages incompatible"));
+                    errorList.Add(__ResStr("need400", "This package was created using an earlier YetaWF version {0} - With YetaWF 4.0.0 a new package format was introduced, making older packages incompatible", serPackage.CoreVersion));
                     return false;
                 }
                 if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serPackage.CoreVersion) < 0) {

@@ -291,6 +291,9 @@ namespace YetaWF.Core.Packages {
 
         private static readonly Regex csResstrRegex = new Regex(@"((?'object'[A-Za-z0-9_]+)\s*\.\s*){0,1}\s*__ResStr\s*\(\s*""(?'name'[^""]*)""\s*,\s*""(?'text'(\\""|[^""])*)""\s*(,|\))", RegexOptions.Compiled | RegexOptions.Multiline);
 
+        private static readonly Regex csBadResstrRegex = new Regex(@"__ResStr\s*\(\s*""(?'name'[^""]*)""\s*,\s*\$""", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex csBadParmsRegex = new Regex(@"\{[^0-9]", RegexOptions.Compiled | RegexOptions.Multiline);
+
         /// <summary>
         /// Extract all __ResStr() string definitions
         /// </summary>
@@ -320,9 +323,21 @@ namespace YetaWF.Core.Packages {
                             throw new InternalError("The key {0} occurs more than once with different values in file {1}", name, fileName);
                     } else
                         dict.Add(name, text);
+
+                    Match mParms = csBadParmsRegex.Match(text);
+                    if (mParms.Success) {
+                        throw new InternalError($"Invalid use of __ResStr() in file {fileName} - \"{name}\" uses a named parameter which is not supported");
+                    }
                 }
                 m = m.NextMatch();
             }
+
+            m = csBadResstrRegex.Match(fileText);
+            if (m.Success) {
+                string name = m.Groups["name"].Value;
+                throw new InternalError($"Invalid use of __ResStr() in file {fileName} - \"{name}\" uses $ formatting which is not supported");
+            }
+
             List<LocalizationData.StringData> list = (from d in dict select new LocalizationData.StringData { Name = d.Key, Text = d.Value }).ToList();
             return list;
         }
