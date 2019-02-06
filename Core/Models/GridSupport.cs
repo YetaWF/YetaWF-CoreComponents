@@ -30,6 +30,12 @@ namespace YetaWF.Core.Models {
             public string SortColumn { get; set; }
             public GridDefinition.SortBy SortBy { get; set; }
             public bool Success { get; set; }
+
+            public int VisibleColumns {
+                get {
+                    return (from c in ColumnInfo.Values where !c.Hidden select c).Count();
+                }
+            }
         }
 
         //RESEARCH: this could use some caching

@@ -91,6 +91,7 @@ namespace YetaWF.Core.Models {
         public bool ShowPager { get; set; }
         public bool Reorderable { get; set; }
         public SizeStyleEnum SizeStyle { get; set; }
+        public bool HighlightOnClick { get; set; }
 
         public string NoRecordsText { get; set; }// text shown when there are no records
 
@@ -124,6 +125,7 @@ namespace YetaWF.Core.Models {
             NoRecordsText = this.__ResStr("noRecs", "(None)");
             ShowFilter = null;
             UseSkinFormatting = true;
+            HighlightOnClick = true;
 
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };
