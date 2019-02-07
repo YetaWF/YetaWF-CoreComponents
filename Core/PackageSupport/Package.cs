@@ -427,6 +427,20 @@ namespace YetaWF.Core.Packages {
         }
         private string _domain;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+        public string LanguageDomain {
+            get {
+                if (_languageDomain == null) {
+                    PackageAttribute attr = (PackageAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
+                    if (attr == null)
+                        throw new Error(__ResStr("noLangDomain", "Incorrectly packaged module - no language domain available - Package {0}", Name));
+                    _languageDomain = attr.LanguageDomain;
+                }
+                return _languageDomain;
+            }
+        }
+        private string _languageDomain;
+
         /// <summary>
         /// Your company name, in displayable form.
         /// </summary>

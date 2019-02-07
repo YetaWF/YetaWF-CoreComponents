@@ -51,14 +51,20 @@ namespace YetaWF.PackageAttributes
         /// <param name="domain">The domain name (without www, http, .com or page), eg. softelvdm</param>
         /// <param name="type">The package type.</param>
         /// <param name="sourceFile">This should not be used as it is used internally by YetaWF to determine whether a package is a source code or binary package.</param>
+        /// <param name="LanguageDomain">The domain name for localization resources (without www, http, .com or page), eg. softelvdm. If not provided, the <paramref name="domain"/> parameter is used instead.</param>
         /// <remarks>Every YetaWF package must provide a PackageAttribute attribute to define its basic purpose.</remarks>
-        public PackageAttribute(PackageTypeEnum type, string domain, [CallerFilePath] string sourceFile = null) {
+        public PackageAttribute(PackageTypeEnum type, string domain, [CallerFilePath] string sourceFile = null, string LanguageDomain = null) {
             PackageType = type;
             Domain = domain;
             SourceFile = sourceFile;
+            if (string.IsNullOrWhiteSpace(LanguageDomain))
+                this.LanguageDomain = domain;
+            else
+                this.LanguageDomain = LanguageDomain;
         }
         public PackageTypeEnum PackageType { get; private set; }
         public string Domain { get; private set; }
+        public string LanguageDomain { get; private set; }
         public string SourceFile { get; private set; }
     }
 
