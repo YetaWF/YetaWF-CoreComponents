@@ -12,6 +12,8 @@ namespace YetaWF.Core.Support.SendSMS {
 
     /// <summary>
     /// Defines all features an SMS provider provides to send SMS messages.
+    /// Applications don't need to use this interface directly.
+    /// To send text messages, use the SendSMS.SendMessageAsync() method, which automatically handles retrieving the SMS provider.
     /// </summary>
     public interface ISendSMS {
         /// <summary>
@@ -37,19 +39,33 @@ namespace YetaWF.Core.Support.SendSMS {
         Task<bool> IsTestModeAsync();
     }
 
+    /// <summary>
+    /// Used to send SMS text messages and manages all SMS providers.
+    /// To send text messages, use the SendSMS.SendMessageAsync() method, which automatically handles retrieving the SMS provider.
+    /// </summary>
     public class SendSMS {
 
+        /// <summary>
+        /// Defines the maximum length of a text message.
+        /// </summary>
         public const int MaxMessageLength = 918;
 
         private static List<ISendSMS> RegisteredProcessors = new List<ISendSMS>();
 
         /// <summary>
-        /// Registers an SMS processor.
+        /// Registers an SMS provider.
         /// </summary>
         public static void Register(ISendSMS iproc) {
-            Logging.AddLog("Registering SMS processor named {0}", iproc.Name);
+            Logging.AddLog("Registering SMS provider named {0}", iproc.Name);
             RegisteredProcessors.Add(iproc);
         }
+        /// <summary>
+        /// Retrieves the installed SMS provider.
+        /// </summary>
+        /// <returns>Returns a ISendSMS interface provided by the SMS provider.</returns>
+        /// <remarks>There is only one active SMS provider.
+        ///
+        /// If no SMS provider is available, an error exception occurs.</remarks>
         public static async Task<ISendSMS> GetSMSProcessorAsync() {
             List<ISendSMS> procs = new List<ISendSMS>();
             foreach (ISendSMS r in RegisteredProcessors) {
@@ -57,15 +73,29 @@ namespace YetaWF.Core.Support.SendSMS {
                     procs.Add(r);
             }
             if (procs.Count() > 1)
-                Logging.AddErrorLog("Multiple SMS processors are available - only the first one registered is used - {0}", procs.First().Name);
+                Logging.AddErrorLog("Multiple SMS providers are available - only the first one registered is used - {0}", procs.First().Name);
             else if (procs.Count() == 0)
-                throw new InternalError("No SMS processor available");
+                throw new InternalError("No SMS provider available");
             return procs.First();
         }
+        /// <summary>
+        /// Defines the object returned by the GetSMSProcessorCondAsync method.
+        /// </summary>
         public class GetSMSProcessorCondInfo {
+            /// <summary>
+            /// The ISendSMS interface provided by the SMS provider, or null if no SMS provider is available.
+            /// </summary>
             public ISendSMS Processor { get; set; }
+            /// <summary>
+            /// The total number of SMS providers installed. Only one SMS provider can be active.
+            /// </summary>
             public int Count { get; set; }
         }
+        /// <summary>
+        /// Retrieves the installed SMS provider.
+        /// </summary>
+        /// <returns>Returns information about the installed SMS provider, if any.</returns>
+        /// <remarks>There is only one active SMS provider.</remarks>
         public static async Task<GetSMSProcessorCondInfo> GetSMSProcessorCondAsync() {
             List<ISendSMS> procs = new List<ISendSMS>();
             foreach (ISendSMS r in RegisteredProcessors) {
@@ -82,15 +112,17 @@ namespace YetaWF.Core.Support.SendSMS {
         /// <summary>
         /// Sends an SMS message to a phone number or emails the specified text.
         /// </summary>
-        /// <param name="toNumber">Specify the phone number of the recipient. If <i>toNumber</i> specifies an email address, the text is emailed to the specified email address.</param>
+        /// <param name="toNumber">Specify the phone number of the recipient. If <paramref name="toNumber"/> specifies an email address, the text is emailed to the specified email address.</param>
         /// <param name="text">The text of the SMS message.</param>
         /// <param name="FromNumber">Optional sending number. If not specified, the SMS Settings are used to provide the default number.</param>
+        /// <param name="ThrowError">If true is specified, an error exception is thrown if an error occurs sending the message, otherwise the method returns without any error indication.</param>
         /// <remarks>
-        /// This is the general method to call to send an SMS, whether a receiving phone number is specified or a receiving email address.
+        /// This is the general method to send an SMS, whether a receiving phone number is specified or a receiving email address.
         /// This allows the same method to be used to send an SMS using a provider that supports an SMS to email gateway (often free). This should only be used
         /// to send SMS/emails to known email addresses (for example, to the YetaWF site administrator) and can't be used for general users.
         ///
-        /// In order to use a phone number as <i>toNumber</i>, an SMS provider has to be installed. SMS providers offering SMS services are generally not free.
+        /// In order to use a phone number as <paramref name="toNumber"/>, an SMS provider has to be installed. SMS providers offering SMS services are generally not free.
+        /// When a phone number is used, it must be in E164 format (e.g., +14075551212).
         /// </remarks>
         public async Task SendMessageAsync(string toNumber, string text, string FromNumber = null, bool ThrowError = true) {
             if (toNumber.Contains("@")) {
