@@ -186,7 +186,7 @@ namespace YetaWF.Core.Skins {
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(modSkinCss));
-            if (!string.IsNullOrWhiteSpace(mod.CssClass))
+            if (!string.IsNullOrWhiteSpace(mod.CssClass) && !Manager.EditMode)
                 div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
             if (!mod.Print)
                 div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleNoPrint));
