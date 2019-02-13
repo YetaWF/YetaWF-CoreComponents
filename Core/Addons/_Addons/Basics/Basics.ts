@@ -38,6 +38,7 @@ namespace YetaWF {
 
     interface ReloadInfo {
         module: HTMLElement;
+        tagId: string;
         callback(module: HTMLElement): void;
     }
     interface ContentChangeEntry {
@@ -471,23 +472,50 @@ namespace YetaWF {
 
         public refreshModule(mod: HTMLElement): void {
             if (!this.getElementByIdCond(mod.id)) throw `Module with id ${mod.id} not found`;/*DEBUG*/
-            for (let entry of this.reloadInfo) {
-                if (entry.module.id === mod.id)
-                    entry.callback(entry.module);
-            }
+            this.processReloadInfo(mod.id);
         }
         public refreshModuleByAnyTag(elem: HTMLElement): void {
             var mod = this.getModuleFromTag(elem);
-            for (let entry of this.reloadInfo) {
-                if (entry.module.id === mod.id)
-                    entry.callback(entry.module);
+            this.processReloadInfo(mod.id);
+        }
+        private processReloadInfo(moduleId: string): void {
+            var len = this.reloadInfo.length;
+            for (var i = 0; i < len; ++i) {
+                let entry = this.reloadInfo[i];
+                if (entry.module.id === moduleId) {
+                    if (this.getElementByIdCond(entry.tagId)) {
+                        // call the reload callback
+                        entry.callback(entry.module);
+                    } else {
+                        // the tag requesting the callback no longer exists
+                        this.reloadInfo.splice(i, 1);
+                        --len;
+                        --i;
+                    }
+                }
             }
         }
+
         public refreshPage(): void {
-            for (let entry of this.reloadInfo) {
+            var len = this.reloadInfo.length;
+            for (var i = 0; i < len; ++i) {
+                let entry = this.reloadInfo[i];
                 if (this.getElementByIdCond(entry.module.id)) { // the module exists
-                    if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
-                        entry.callback(entry.module);
+                    if (this.getElementByIdCond(entry.tagId)) {
+                        // the tag requesting the callback still exists
+                        if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
+                            entry.callback(entry.module);
+                    } else {
+                        // the tag requesting the callback no longer exists
+                        this.reloadInfo.splice(i, 1);
+                        --len;
+                        --i;
+                    }
+                } else {
+                    // the module no longer exists
+                    this.reloadInfo.splice(i, 1);
+                    --len;
+                    --i;
                 }
             }
         }
@@ -495,12 +523,25 @@ namespace YetaWF {
         private reloadInfo: ReloadInfo[] = [];
 
         /**
-         * Registers a callback that is called when a module is to be refreshed/reloaded
+         * Registers a callback that is called when a module is to be refreshed/reloaded.
+         * @param tag Defines the tag that is requesting the callback when the containing module is refreshed.
+         * @param callback Defines the callback to be called.
+         * The element defined by tag may no longer exist when a module is refreshed in which case the callback is not called (and removed).
          */
-        public registerModuleRefresh(module: HTMLElement, callback: (module: HTMLElement) => void): void {
-            this.reloadInfo.push({ module: module, callback: callback });
+        public registerModuleRefresh(tag: HTMLElement, callback: (module: HTMLElement) => void): void {
+            var module = $YetaWF.getModuleFromTag(tag); // get the containing module
+            if (!tag.id || tag.id.length === 0)
+                throw `No id defined for ${tag.outerHTML}`;
+            // reuse existing entry if this id is already registered
+            for (let entry of this.reloadInfo) {
+                if (entry.tagId === tag.id) {
+                    entry.callback = callback;
+                    return;
+                }
+            }
+            // new id
+            this.reloadInfo.push({ module: module, tagId: tag.id, callback: callback });
         }
-
 
         // Module locator
 

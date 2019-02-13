@@ -363,34 +363,75 @@ var YetaWF;
         BasicsServices.prototype.refreshModule = function (mod) {
             if (!this.getElementByIdCond(mod.id))
                 throw "Module with id " + mod.id + " not found"; /*DEBUG*/
-            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                if (entry.module.id === mod.id)
-                    entry.callback(entry.module);
-            }
+            this.processReloadInfo(mod.id);
         };
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
             var mod = this.getModuleFromTag(elem);
-            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                if (entry.module.id === mod.id)
-                    entry.callback(entry.module);
+            this.processReloadInfo(mod.id);
+        };
+        BasicsServices.prototype.processReloadInfo = function (moduleId) {
+            var len = this.reloadInfo.length;
+            for (var i = 0; i < len; ++i) {
+                var entry = this.reloadInfo[i];
+                if (entry.module.id === moduleId) {
+                    if (this.getElementByIdCond(entry.tagId)) {
+                        // call the reload callback
+                        entry.callback(entry.module);
+                    }
+                    else {
+                        // the tag requesting the callback no longer exists
+                        this.reloadInfo.splice(i, 1);
+                        --len;
+                        --i;
+                    }
+                }
             }
         };
         BasicsServices.prototype.refreshPage = function () {
-            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
-                var entry = _a[_i];
+            var len = this.reloadInfo.length;
+            for (var i = 0; i < len; ++i) {
+                var entry = this.reloadInfo[i];
                 if (this.getElementByIdCond(entry.module.id)) { // the module exists
-                    if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
-                        entry.callback(entry.module);
+                    if (this.getElementByIdCond(entry.tagId)) {
+                        // the tag requesting the callback still exists
+                        if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
+                            entry.callback(entry.module);
+                    }
+                    else {
+                        // the tag requesting the callback no longer exists
+                        this.reloadInfo.splice(i, 1);
+                        --len;
+                        --i;
+                    }
+                }
+                else {
+                    // the module no longer exists
+                    this.reloadInfo.splice(i, 1);
+                    --len;
+                    --i;
                 }
             }
         };
         /**
-         * Registers a callback that is called when a module is to be refreshed/reloaded
+         * Registers a callback that is called when a module is to be refreshed/reloaded.
+         * @param tag Defines the tag that is requesting the callback when the containing module is refreshed.
+         * @param callback Defines the callback to be called.
+         * The element defined by tag may no longer exist when a module is refreshed in which case the callback is not called (and removed).
          */
-        BasicsServices.prototype.registerModuleRefresh = function (module, callback) {
-            this.reloadInfo.push({ module: module, callback: callback });
+        BasicsServices.prototype.registerModuleRefresh = function (tag, callback) {
+            var module = $YetaWF.getModuleFromTag(tag); // get the containing module
+            if (!tag.id || tag.id.length === 0)
+                throw "No id defined for " + tag.outerHTML;
+            // reuse existing entry if this id is already registered
+            for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.tagId === tag.id) {
+                    entry.callback = callback;
+                    return;
+                }
+            }
+            // new id
+            this.reloadInfo.push({ module: module, tagId: tag.id, callback: callback });
         };
         // Module locator
         /**
