@@ -51,7 +51,7 @@ namespace YetaWF.Core.Components {
            { "#Warning", "yic yic_warning" },
         };
 
-        public static string BuildKnownIcon(string url, string title = null, string id = null, string cssClass = null, string name = null, Dictionary<string, string> sprites = null) {
+        public static string BuildKnownIcon(string url, string title = null, string alt = null, string id = null, string cssClass = null, string name = null, Dictionary<string, string> sprites = null) {
 
             title = title ?? "";
             sprites = sprites ?? PredefSpriteIcons;
@@ -75,10 +75,12 @@ namespace YetaWF.Core.Components {
             } else {
 
                 YTagBuilder tImg = new YTagBuilder("img");
-                if (!string.IsNullOrWhiteSpace(title)) {
-                    tImg.MergeAttribute("alt", title);
+                if (string.IsNullOrWhiteSpace(alt))
+                    alt = title;
+                if (!string.IsNullOrWhiteSpace(title))
                     tImg.MergeAttribute("title", title);
-                }
+                if (!string.IsNullOrWhiteSpace(alt))
+                    tImg.MergeAttribute("alt", alt);
                 if (!string.IsNullOrWhiteSpace(cssClass))
                     tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
                 if (!string.IsNullOrWhiteSpace(id))
