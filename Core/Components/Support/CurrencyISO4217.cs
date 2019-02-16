@@ -14,8 +14,19 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This static class offers access to the list of currencies
+    /// and implements a number of services to convert between different currency IDs.
+    /// </summary>
+    /// <remarks>The list of currencies is cached. Any changes to the list require a site restart.
+    ///
+    /// The list of currencies is located at .\CoreComponents\Core\Addons\_Templates\CurrencyISO4217\Currencies.txt
+    /// </remarks>
     public static class CurrencyISO4217 {
 
+        /// <summary>
+        /// An instance of this class describes one currency.
+        /// </summary>
         public class Currency {
 
             public const int MaxId = 3;

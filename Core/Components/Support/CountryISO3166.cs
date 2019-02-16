@@ -14,34 +14,90 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This class is used to initialize the country list during application startup.
+    ///
+    /// This class is not used by applications.
+    /// </summary>
     public class CountryISO3166Startup : IInitializeApplicationStartup {
+        /// <summary>
+        /// Called during application startup.
+        /// </summary>
         public Task InitializeApplicationStartupAsync() {
             return CountryISO3166.ReadCountryListAsync();
         }
     }
+    /// <summary>
+    /// This static class offers access to the list of countries
+    /// and implements a number of services to convert between different country IDs.
+    /// </summary>
+    /// <remarks>The list of countries is cached. Any changes to the list require a site restart.
+    ///
+    /// The list of countries is located at .\CoreComponents\Core\Addons\_Templates\CountryISO3166\Countries.txt
+    /// </remarks>
     public static class CountryISO3166 {
 
+        /// <summary>
+        /// An instance of this class describes one country.
+        /// </summary>
         public class Country {
+            /// <summary>
+            /// The user displayable name of the country.
+            /// </summary>
             public string Name { get; set; }
+            /// <summary>
+            /// The ISO 3166 two character ID of the country.
+            /// </summary>
             public string Id { get; set; }
+            /// <summary>
+            /// The ISO 3166 three character ID of the country.
+            /// </summary>
             public string Id3 { get; set; }
+            /// <summary>
+            /// The ISO 3166 three digit number of the country.
+            /// </summary>
             public string Number { get; set; }
+            /// <summary>
+            /// Defines the address type typically used by the country.
+            /// Possible values are US, Zip1, ZipLast, Generic.
+            /// There values can be used to display an address in a suitable format.
+            /// US represents a US address in the format typically used in the US: city, state ZIPcode.
+            /// Zip1 represents an address with a zipcode or postal code in front of the city name.
+            /// ZipLast represents an address with a zipcode or postal code after the city name.
+            /// Generic represents an address just a city name (which may include postal code information).
+            /// </summary>
             public string AddressType { get; set; }
 
+            /// <summary>
+            /// Used with the Country.AddressType property.
+            /// Represents a US address in the format typically used in the US: city, state ZIPcode.
+            /// </summary>
             public const string US = "US";
+            /// <summary>
+            /// Used with the Country.AddressType property.
+            /// Represents an address with a zipcode or postal code in front of the city name.
+            /// </summary>
             public const string Zip1 = "Zip1";
+            /// <summary>
+            /// Used with the Country.AddressType property.
+            /// Represents an address with a zipcode or postal code after the city name.
+            /// </summary>
             public const string ZipLast = "ZipLast";
+            /// <summary>
+            /// Used with the Country.AddressType property.
+            /// Represents an address just a city name (which may include postal code information).
+            /// </summary>
             public const string Generic = "Generic";
         }
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
-        /// Convert a country name to an ISO 3166 two character Id.
+        /// Converts a country name to an ISO 3166 two character ID.
         /// </summary>
         /// <param name="country">The country name.</param>
-        /// <param name="AllowMismatch">true to return a default value if the country name doesn't exist, false otherwise (throws an error).</param>
-        /// <returns>Two character Id.</returns>
+        /// <param name="AllowMismatch">true to return a default value if the country doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the two character country ID.</returns>
         public static string CountryToId(string country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
@@ -57,10 +113,11 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Convert an ISO 3166 two character id into a country name.
+        /// Converts an ISO 3166 two character ID into a country name.
         /// </summary>
-        /// <param name="id">The two character Id.</param>
-        /// <returns>The country name.</returns>
+        /// <param name="id">The two character ID.</param>
+        /// <param name="AllowMismatch">true to return a default value if the country name doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the country name.</returns>
         public static string IdToCountry(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 return Manager.CurrentSite.Country;
@@ -71,11 +128,11 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Convert a country name to an ISO 3166 three character Id.
+        /// Converts a country name to an ISO 3166 three character ID.
         /// </summary>
         /// <param name="country">The country name.</param>
-        /// <param name="AllowMismatch">true to return a default value if the country name doesn't exist, false otherwise (throws an error).</param>
-        /// <returns>Three character Id.</returns>
+        /// <param name="AllowMismatch">true to return a default value if the country doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the three character country ID.</returns>
         public static string CountryToId3(string country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
@@ -90,10 +147,11 @@ namespace YetaWF.Core.Components {
             throw new InternalError("Invalid country {0}", country);
         }
         /// <summary>
-        /// Convert an ISO 3166 three character id into a country name.
+        /// Converts an ISO 3166 three character ID into a country name.
         /// </summary>
-        /// <param name="id">The three character Id.</param>
-        /// <returns>The country name.</returns>
+        /// <param name="id">The three character ID.</param>
+        /// <param name="AllowMismatch">true to return a default value if the country doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the country name.</returns>
         public static string Id3ToCountry(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 return Manager.CurrentSite.Country;
@@ -104,11 +162,11 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Convert a country name to an ISO 3166 three digit number.
+        /// Converts a country name to an ISO 3166 three digit number.
         /// </summary>
         /// <param name="country">The country name.</param>
-        /// <param name="AllowMismatch">true to return a default value if the country name doesn't exist, false otherwise (throws an error).</param>
-        /// <returns>Three digit number.</returns>
+        /// <param name="AllowMismatch">true to return a default value if the country doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the three digit country number.</returns>
         public static string CountryToNumber(string country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
@@ -124,10 +182,11 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Convert an ISO 3166 three digit number into a country name.
+        /// Converts an ISO 3166 three digit number into a country name.
         /// </summary>
         /// <param name="number">The three digit number.</param>
-        /// <returns>The country name.</returns>
+        /// <param name="AllowMismatch">true to return a default value if the country doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the country name.</returns>
         public static string NumberToCountry(string number, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(number))
                 return Manager.CurrentSite.Country;
@@ -141,7 +200,7 @@ namespace YetaWF.Core.Components {
         /// Determine a country's address type.
         /// </summary>
         /// <param name="country">The country.</param>
-        /// <returns>The address type.</returns>
+        /// <returns>Returns the address type.</returns>
         public static string CountryToAddressType(string country) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
@@ -157,7 +216,7 @@ namespace YetaWF.Core.Components {
         /// <param name="city">The city portion of the address.</param>
         /// <param name="state">The state portion of the address.</param>
         /// <param name="zip">The zip code/postal code portion of the address.</param>
-        /// <returns></returns>
+        /// <returns>Returns the information formatted based on the country's AddressType.</returns>
         public static string CombineCityStateZip(string country, string city, string state, string zip) {
             string addressType = CountryISO3166.CountryToAddressType(country);
             if (addressType == CountryISO3166.Country.US)
@@ -174,6 +233,12 @@ namespace YetaWF.Core.Components {
             return (string.IsNullOrWhiteSpace(city) ? "" : city + " ") + zip;
         }
 
+        /// <summary>
+        /// Returns a collection of all countries.
+        /// </summary>
+        /// <param name="IncludeSiteCountry">true to include the country where the YetaWF site is located, false otherwise.
+        /// If the country is included, it is moved to the top of the list.</param>
+        /// <returns>Returns a collection of all countries.</returns>
         public static List<Country> GetCountries(bool IncludeSiteCountry = true) {
             List<Country> countries = CountryList.ToList();
             if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Country)) {

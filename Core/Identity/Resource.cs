@@ -16,8 +16,25 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Identity {
 
+    /// <summary>
+    /// Used to define protected named resources.
+    /// Protected resources can be used to restrict access to controllers based on user permissions.
+    ///
+    /// The ResourceAttribute is typically used in a package's AssemblyInfo.cs file to define all named resources the package implements.
+    /// These are collected during application startup by the AuthorizationResourceDataProvider.InitializeApplicationStartupAsync method.
+    ///
+    /// The ResourceAuthorizeAttribute is used with controllers to protect by a named resource.
+    /// Resource authorization is provided using Admin > Identity > Resources (standard YetaWF site).
+    /// The AuthorizationDataProvider class is used to maintain authorization settings for roles and users.
+    /// </summary>
+
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple=true)]
     public class ResourceAttribute : Attribute {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="name">The name of the protected resource. The name must start with the package name defining the resource to avoid collisions. Example: YetaWF_Identity-AllowUserLogon.</param>
+        /// <param name="description">A brief description of the protected resource. This description is shown when reviewing resources using Admin > Identity > Resources (standard YetaWF site).</param>
         public ResourceAttribute(string name, string description) {
             Name = name;
             Description = description;
@@ -26,22 +43,46 @@ namespace YetaWF.Core.Identity {
             Editor = false;
             Administrator = false;
             Superuser = false;
-            All = false;
         }
+        /// <summary>
+        /// The name of the protected resource.
+        /// </summary>
         public string Name { get; private set; }
+        /// <summary>
+        /// A brief description of the protected resource. This description is shown when reviewing resources using Admin > Identity > Resources (standard YetaWF site).
+        /// </summary>
         public string Description { get; private set; }
 
-        public bool All { get { return _all; } set { Anonymous = User = Administrator = Editor = Superuser = value; } }
-        private bool _all { get; set; }
-
+        /// <summary>
+        /// Defines whether anonymous users have access to the protected resource.
+        /// </summary>
         public bool Anonymous { get; set; }
+        /// <summary>
+        /// Defines whether logged on users have access to the protected resource.
+        /// </summary>
         public bool User { get; set; }
+        /// <summary>
+        /// Defines whether a user with the editor role has access to the protected resource.
+        /// </summary>
         public bool Editor { get; set; }
+        /// <summary>
+        /// Defines whether a user with the administrator role has access to the protected resource.
+        /// </summary>
         public bool Administrator { get; set; }
-        public bool Superuser { get; set; }// mostly for documentation purposes - all resources are available to the superuser
+        /// <summary>
+        /// Defines whether a user with the superuser role has access to the protected resource.
+        /// This is mostly for documentation purposes as all resources are accessible by a superuser.
+        /// </summary>
+        public bool Superuser { get; set; }
     }
 
-    // Used for plain MVC controllers (without moduleguid)
+    /// <summary>
+    /// Used with controller methods which must be authorized for access.
+    /// The ResourceAuthorize attribute must use a protected named resource (defined using ResourceAttribute).
+    /// When the method is invoked, validation occurs to insure the user is authorized to access the protected name resource.
+    ///
+    /// This can be used for any type of controller, including plain MVC controllers, without ModuleGuid (i.e., no associated module).
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 #if MVC6
     public class ResourceAuthorizeAttribute : AuthorizeAttribute
@@ -49,6 +90,10 @@ namespace YetaWF.Core.Identity {
     public class ResourceAuthorizeAttribute : AuthorizeAttribute
 #endif
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="name">The protected named resource which was defined using ResourceAttribute.</param>
         public ResourceAuthorizeAttribute(string name)
 #if MVC6
              : base("ResourceAuthorize")
@@ -57,8 +102,16 @@ namespace YetaWF.Core.Identity {
         {
             Name = name;
         }
+        /// <summary>
+        /// Defines the name of the protected named resource (defined using ResourceAttribute).
+        /// </summary>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// Handles authorization checking based for protected named resoures.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context.</param>
+        /// <returns>Returns whether access to the protected named resource is permitted.</returns>
 #if MVC6
         // This is using AttributeAuthorizationHandler
 #else
@@ -68,15 +121,42 @@ namespace YetaWF.Core.Identity {
 #endif
     }
 
+    /// <summary>
+    /// Used with the IResource.AddUserAsync method to add a new user to the current site.
+    /// </summary>
     public class AddUserInfo {
+        /// <summary>
+        /// The error indicator.
+        /// </summary>
         public enum ErrorTypeEnum {
+            /// <summary>
+            /// No error occurred. The user has been added.
+            /// </summary>
             None = 0,
+            /// <summary>
+            /// A user with the specified name already exists.
+            /// </summary>
             Name = 1,
+            /// <summary>
+            /// A user with the specified email address already exists.
+            /// </summary>
             Email = 2,
         };
+        /// <summary>
+        /// Defines the error that occurred when the IResource.AddUserAsync method was called.
+        /// </summary>
         public ErrorTypeEnum ErrorType { get; set; }
+        /// <summary>
+        /// Contains a list of error messages if an error occurred when the IResource.AddUserAsync method was called.
+        /// </summary>
         public List<string> Errors { get; set; }
+        /// <summary>
+        /// Contains the user ID of the user that was added using the IResource.AddUserAsync method. 0 if the call was unsuccessful.
+        /// </summary>
         public int UserId { get; set; }
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public AddUserInfo() {
             Errors = new List<string>();
         }

@@ -11,8 +11,21 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This static class offers access to the list of Canadian provinces.
+    ///
+    /// This class is not used by applications. It is reserved for component implementation.
+    /// </summary>
     public static class CAProvince {
 
+        /// <summary>
+        /// Retrieves the list of Canadian provinces in a format suitable for rendering in a dropdownlist component.
+        /// </summary>
+        /// <returns>List of Canadian provinces.</returns>
+        /// <remarks>The list is cached. Any changes to the list require a site restart.
+        ///
+        /// The list of provinces is located at .\CoreComponents\Core\Addons\_Templates\CAProvince\CAProvinces.txt
+        /// </remarks>
         public static async Task<List<SelectionItem<string>>> ReadProvincesListAsync() {
             if (_provincesList == null) {
                 Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
