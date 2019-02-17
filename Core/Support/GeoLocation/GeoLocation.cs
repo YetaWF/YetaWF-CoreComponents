@@ -6,35 +6,91 @@ using System.Threading.Tasks;
 using YetaWF.Core.Log;
 
 namespace YetaWF.Core.Support {
+
+    /// <summary>
+    /// Manages geolocation information as provided by https://www.geoplugin.com/.
+    /// </summary>
     public class GeoLocation {
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public GeoLocation() { Manager = null; }
 
-        protected YetaWFManager Manager { get; private set; }
+        private YetaWFManager Manager { get; set; }
 
+        /// <summary>
+        /// An instance of the UserInfo class defines geolocation information for an IP address, retrieved using the GeoLocation.GetUserInfoAsync method.
+        /// </summary>
         public class UserInfo {
+            /// <summary>
+            /// Defines the IP address.
+            /// </summary>
             public string IPAddress { get; set; }
             //public string HostName { get; set; }
+            /// <summary>
+            /// Defines the longitude where the IP address is located.
+            /// </summary>
             public float Latitude { get; set; }
+            /// <summary>
+            /// Defines the latitude where the IP address is located.
+            /// </summary>
             public float Longitude { get; set; }
+            /// <summary>
+            /// Defines the region where the IP address is located.
+            /// </summary>
             public string Region { get; set; }
+            /// <summary>
+            /// Defines the region code where the IP address is located.
+            /// </summary>
             public string RegionCode { get; set; }
+            /// <summary>
+            /// Defines the region name where the IP address is located.
+            /// </summary>
             public string RegionName { get; set; }
+            /// <summary>
+            /// Defines the city where the IP address is located.
+            /// </summary>
             public string City { get; set; }
+            /// <summary>
+            /// Defines the country code where the IP address is located.
+            /// </summary>
             public string CountryCode { get; set; }
+            /// <summary>
+            /// Defines the county where the IP address is located.
+            /// </summary>
             public string CountryName { get; set; }
+            /// <summary>
+            /// Defines the continent code where the IP address is located.
+            /// </summary>
             public string ContinentCode { get; set; }
+            /// <summary>
+            /// Defines the currency used where the IP address is located.
+            /// </summary>
             public string CurrencyCode { get; set; }
+            /// <summary>
+            /// Defines the currency symbol used where the IP address is located.
+            /// </summary>
             public string CurrencySymbol { get; set; }
         }
 
-        private const int MAXREQUESTSPERMINUTE = 120 -10; // geoplugin allow 120/minute, we subtract a safety margin
+        private const int MAXREQUESTSPERMINUTE = 120 -10; // geoplugin allows 120 requests/minute, we subtract a safety margin
 
         private static object _lockObject = new object();
 
         private static DateTime InitialRequestTime { get; set; } = DateTime.Now;// Local time
         private static int RemainingRequests { get; set; } = MAXREQUESTSPERMINUTE;
 
+        /// <summary>
+        /// Returns the number of remaining requests that can be made before the limit is exceeded.
+        /// </summary>
+        /// <returns>Returns the number of remaining requests that can be made before the limit is exceeded.</returns>
+        /// <remarks>Geolocation is a free service provided by http://www.geoplugin.net/.
+        /// The available requests per minute are capped.
+        /// To insure that this limit isn't exceeded, the GetRemainingRequests method should be used to determine whether requests can still be made.
+        ///
+        /// The number of remaining requests changes at regular intervals.
+        /// </remarks>
         public int GetRemainingRequests() {
             lock (_lockObject) { // local lock to protect RemainingRequests
                 if (InitialRequestTime < DateTime.Now.AddMinutes(-1)) {
@@ -45,6 +101,13 @@ namespace YetaWF.Core.Support {
             }
         }
 
+        /// <summary>
+        /// Retrieves geolocation information for a specified IP address.
+        /// </summary>
+        /// <param name="ipAddress">The IP address for which geolocation is to be returned.</param>
+        /// <returns>Returns the geolocation information or null if none is available.
+        ///
+        /// An exception occurs if no requests can be issued.</returns>
         public async Task<UserInfo> GetUserInfoAsync(string ipAddress) {
             UserInfo info = new UserInfo();
 
@@ -69,7 +132,7 @@ namespace YetaWF.Core.Support {
             info.IPAddress = ipAddress;
             //info.HostName = hostName;
 
-            // Get geolocation data from http://www.geoplugin.net/
+            // Get geolocation data from https://www.geoplugin.com/
             GeoData geoData = await GetGeoDataAsync(ipAddress);
             if (geoData != null) {
                 try {
@@ -92,7 +155,7 @@ namespace YetaWF.Core.Support {
             return info;
         }
 
-        public class GeoData {
+        internal class GeoData {
             public string geoplugin_request { get; set; }
             public int geoplugin_status { get; set; }
             public string geoplugin_credit { get; set; }

@@ -14,13 +14,18 @@ namespace YetaWF.Core.Components {
     /// <summary>
     /// Maintains a list of all US states.
     /// </summary>
-    /// <remarks>The states list is only read once and is cached.</remarks>
+    /// <remarks>The list of US states is cached. Any changes to the list require a site restart.
+    ///
+    /// The list of US states is located at .\CoreComponents\Core\Addons\_Templates\USState\USStates.txt.</remarks>
     public static class USState {
 
         /// <summary>
         /// Returns the list of US states.
         /// </summary>
-        /// <returns>Returns a list of US states suitable for use in a dropdownlist. This is used by the USState template.</returns>
+        /// <returns>Returns a list of US states suitable for use in a dropdownlist.</returns>
+        /// <remarks>The list is cached. Any changes to the list require a site restart.
+        ///
+        /// The list of US states is located at .\CoreComponents\Core\Addons\_Templates\USState\USStates.txt.</remarks>
         public static async Task<List<SelectionItem<string>>> ReadStatesListAsync() {
             if (_statesList == null) {
                 Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package

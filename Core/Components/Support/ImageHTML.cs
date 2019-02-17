@@ -7,9 +7,18 @@ using System.Collections.Generic;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This static class implements helper methods formatting HTML for images and sprites.
+    /// </summary>
     public static class ImageHTML {
 
+        /// <summary>
+        /// Defines the URL used to display an image using the YetaWF ImageHttpHandler.
+        /// </summary>
         public const string FormatUrlString = "/FileHndlr.image?Type={0}&Location={1}&Name={2}"; // Url for an image
+        /// <summary>
+        /// Defines the URL used to display an image using the ImageHttpHandler. The generated HTML includes the image size and allows increasing/decreasing the image.
+        /// </summary>
         public const string FormatUrlWithSizeString = "/FileHndlr.image?Type={0}&Location={1}&Name={2}&Width={3}&Height={4}&Stretch={5}"; // Url for an image (resized to fit)
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -35,6 +44,11 @@ namespace YetaWF.Core.Components {
             return url;
         }
 
+        /// <summary>
+        /// Defines the predefined sprites used by the YetaWF Core package.
+        /// </summary>
+        /// <remarks>
+        /// The key is the name of a predefined sprite. The value are the CSS classes used with an &lt;i&gt; tag to render the image.</remarks>
         public static Dictionary<string, string> PredefSpriteIcons = new Dictionary<string, string> {
            { "#Add", "yic yic_add" },
            { "#Browse", "yic yic_browse" },

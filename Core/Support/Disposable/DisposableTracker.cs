@@ -9,18 +9,39 @@ using System.Text;
 
 namespace YetaWF.Core.Support {
 
+    /// <summary>
+    /// An instance of the TrackedEntry class describes one tracked object.
+    /// This class is used by the DisposableTracker class.
+    /// </summary>
     public class TrackedEntry {
+        /// <summary>
+        /// The object being tracked.
+        /// </summary>
         public object DisposableObject { get; set; }
+        /// <summary>
+        /// The date/time the tracked object was created.
+        /// </summary>
         public DateTime Created { get; set; }
+        /// <summary>
+        /// The callstack of the method that created the tracked object.
+        /// </summary>
         public string CallStack { get; set; }
     }
 
+    /// <summary>
+    /// Keeps track of objects that implement the IDisposable interface so objects that are not disposed can be located.
+    ///
+    /// Admin > Dashboard > Disposable Tracker (standard YetaWF site) can be used to view tracked objects.
+    /// </summary>
     public static class DisposableTracker {
 
         private static object _lock = new object();
 
         private static Dictionary<object, TrackedEntry> DisposableObjects = new Dictionary<object, TrackedEntry>();
 
+        /// <summary>
+        /// Returns whether objects are tracked. This is defined using appsettings.json.
+        /// </summary>
         public static bool UseTracker {
             get {
                 if (_useTracker == null)
@@ -30,6 +51,10 @@ namespace YetaWF.Core.Support {
         }
         private static bool? _useTracker = null;
 
+        /// <summary>
+        /// Adds an object to track.
+        /// </summary>
+        /// <param name="o">The object to track.</param>
         public static void AddObject(object o) {
             if (UseTracker) {
                 lock (_lock) { // short-term lock to sync disposable objects (mainly a debug feature)
@@ -44,6 +69,10 @@ namespace YetaWF.Core.Support {
                 }
             }
         }
+        /// <summary>
+        /// Removes a tracked object, meaning it is being disposed.
+        /// </summary>
+        /// <param name="o">The object to remove from tracking.</param>
         public static void RemoveObject(object o) {
             if (UseTracker) {
                 lock (_lock) { // short-term lock to sync disposable objects (mainly a debug feature)
@@ -54,6 +83,10 @@ namespace YetaWF.Core.Support {
             }
         }
 
+        /// <summary>
+        /// Returns a collection of all tracked objects that have not yet been disposed.
+        /// </summary>
+        /// <returns>Returns the collection of tracked objects that have not yet been disposed.</returns>
         public static List<TrackedEntry> GetDisposableObjects() {
             lock (_lock) {
                 return (from d in DisposableObjects.Values select d).ToList();// return a copy

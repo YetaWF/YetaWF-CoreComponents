@@ -328,7 +328,7 @@
     <Compile Include="Globals.cs" />
     <Compile Include="Support\Localize\ResourceAccess.cs" />
     <Compile Include="PackageSupport\Package.cs" />
-    <Compile Include="Support\Rss\Rss.cs" />
+    <Compile Include="Controllers\Rss.cs" />
     <Compile Include="Support\Site\SiteDefinitionImpl.cs" />
     <Compile Include="Support\Site\SiteDefinition.cs" />
     <Compile Include="Pages\RazorPage.cs" />
@@ -337,7 +337,6 @@
     <Compile Include="Support\HtmlBuilder.cs" />
     <Compile Include="Log\Logging.cs" />
     <Compile Include="Support\Manager.cs" />
-    <Compile Include="Support\ResponseFilter\PassThroughFilterCS.cs" />
     <Compile Include="Support\ResponseFilter\WhitespaceFilterCS.cs" />
     <Compile Include="Support\ScriptBuilder.cs" />
     <Compile Include="Startup\Startup.cs" />

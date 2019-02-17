@@ -5,10 +5,19 @@ using System.Reflection;
 
 namespace YetaWF.Core.Support {
 
+    /// <summary>
+    /// Manages assemblies.
+    /// </summary>
     public static class Assemblies {
 
         private static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
 
+        /// <summary>
+        /// Loads an assembly.
+        /// </summary>
+        /// <param name="asmName">The name of the assembly.</param>
+        /// <returns>An instance of the requested assembly.</returns>
+        /// <remarks>Assemblies are cached for performance.</remarks>
         public static Assembly Load(string asmName) {
             Assembly assembly;
             if (LoadedAssemblies.TryGetValue(asmName.ToLower(), out assembly))

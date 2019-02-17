@@ -33,7 +33,7 @@ namespace YetaWF.Core.Components {
     /// </summary>
     /// <remarks>The list of countries is cached. Any changes to the list require a site restart.
     ///
-    /// The list of countries is located at .\CoreComponents\Core\Addons\_Templates\CountryISO3166\Countries.txt
+    /// The list of countries is located at .\CoreComponents\Core\Addons\_Templates\CountryISO3166\Countries.txt.
     /// </remarks>
     public static class CountryISO3166 {
 
@@ -59,13 +59,15 @@ namespace YetaWF.Core.Components {
             public string Number { get; set; }
             /// <summary>
             /// Defines the address type typically used by the country.
+            /// </summary>
+            /// <remarks>
             /// Possible values are US, Zip1, ZipLast, Generic.
             /// There values can be used to display an address in a suitable format.
             /// US represents a US address in the format typically used in the US: city, state ZIPcode.
             /// Zip1 represents an address with a zipcode or postal code in front of the city name.
             /// ZipLast represents an address with a zipcode or postal code after the city name.
             /// Generic represents an address just a city name (which may include postal code information).
-            /// </summary>
+            /// </remarks>
             public string AddressType { get; set; }
 
             /// <summary>

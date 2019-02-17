@@ -20,7 +20,7 @@ namespace YetaWF.Core.Components {
     /// </summary>
     /// <remarks>The list of currencies is cached. Any changes to the list require a site restart.
     ///
-    /// The list of currencies is located at .\CoreComponents\Core\Addons\_Templates\CurrencyISO4217\Currencies.txt
+    /// The list of currencies is located at .\CoreComponents\Core\Addons\_Templates\CurrencyISO4217\Currencies.txt.
     /// </remarks>
     public static class CurrencyISO4217 {
 
@@ -29,24 +29,45 @@ namespace YetaWF.Core.Components {
         /// </summary>
         public class Currency {
 
+            /// <summary>
+            /// The maximum length in characters of a ISO 4217 character currency ID.
+            /// </summary>
             public const int MaxId = 3;
+            /// <summary>
+            /// The default currency ID.
+            /// </summary>
             public const string DefaultId = "USD";
+            /// <summary>
+            /// The default number of digits for the fractional portion of the currency.
+            /// </summary>
             public const int DefaultMinorUnit = 2;
 
+            /// <summary>
+            /// The name of the currency.
+            /// </summary>
             public string Name { get; set; }
+            /// <summary>
+            /// The ISO 4217 three character currency ID.
+            /// </summary>
             public string Id { get; set; }
+            /// <summary>
+            /// The ISO 4217 numeric Id.
+            /// </summary>
             public int Number { get; set; }
+            /// <summary>
+            /// The number of digits for the fractional portion of the currency.  Can be 0 or -1 if there is no fractional portion.
+            /// </summary>
             public int MinorUnit { get; set; }
         }
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
-        /// Convert a currency name to an ISO 4217 three character Id.
+        /// Converts a currency name to an ISO 4217 three character ID.
         /// </summary>
         /// <param name="currency">The currency name.</param>
-        /// <param name="AllowMismatch">true to return a default value if the currency name doesn't exist, false otherwise (throws an error).</param>
-        /// <returns>Three character Id.</returns>
+        /// <param name="AllowMismatch">true to return a default value if the currency doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns a three character currency ID.</returns>
         public static async Task<string> CurrencyToIdAsync(string currency, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(currency))
                 return Manager.CurrentSite.Currency;
@@ -58,10 +79,11 @@ namespace YetaWF.Core.Components {
             throw new InternalError("Invalid currency {0}", currency);
         }
         /// <summary>
-        /// Convert an ISO 4217 three character id into a currency name.
+        /// Converts an ISO 4217 three character currency ID into a currency name.
         /// </summary>
-        /// <param name="id">The three character Id.</param>
-        /// <returns>The currency name.</returns>
+        /// <param name="id">The three character currency ID.</param>
+        /// <param name="AllowMismatch">true to return a default value if the currency doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the currency name.</returns>
         public static async Task<string> IdToCurrencyAsync(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 id = Manager.CurrentSite.Currency;
@@ -74,11 +96,11 @@ namespace YetaWF.Core.Components {
             throw new InternalError("Invalid currency Id {0}", id);
         }
         /// <summary>
-        /// Convert a three character currency Id to an ISO 4217 numeric Id.
+        /// Convert a three character currency ID to an ISO 4217 numeric ID.
         /// </summary>
-        /// <param name="currency">The three character currency Id.</param>
+        /// <param name="id">The three character currency ID.</param>
         /// <param name="AllowMismatch">true to return a default value if the currency name doesn't exist, false otherwise (throws an error).</param>
-        /// <returns>Numeric Id.</returns>
+        /// <returns>Returns the numeric currency ID.</returns>
         public static async Task<int> CurrencyIdToNumberAsync(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 id = Manager.CurrentSite.Currency;
@@ -93,10 +115,11 @@ namespace YetaWF.Core.Components {
             throw new InternalError("Invalid currency Id {0}", id);
         }
         /// <summary>
-        /// Convert an ISO 4217 numeric Id into a three character currency Id.
+        /// Converts an ISO 4217 numeric currency ID into a three character currency ID.
         /// </summary>
-        /// <param name="id">The numeric Id.</param>
-        /// <returns>The three character currency Id.</returns>
+        /// <param name="number">The numeric currency ID.</param>
+        /// <param name="AllowMismatch">true to return a default value if the currency name doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns the three character currency ID.</returns>
         public static async Task<string> NumberToCurrencyIdAsync(int number, bool AllowMismatch = false) {
             if (number == 0)
                 return Manager.CurrentSite.Currency;
@@ -108,6 +131,12 @@ namespace YetaWF.Core.Components {
             }
             throw new InternalError("Invalid currency number {0}", number);
         }
+        /// <summary>
+        /// Returns a collection of all currencies.
+        /// </summary>
+        /// <param name="IncludeSiteCurrency">true to include the default currency for the YetaWF, false otherwise.
+        /// If the default currency is included, it is moved to the top of the list.</param>
+        /// <returns>Returns a collection of all currencies.</returns>
         public static async Task<List<Currency>> GetCurrenciesAsync(bool IncludeSiteCurrency = true) {
             List<Currency> currencies = (await ReadCurrencyListAsync()).OrderBy(m => m.Name).ToList();
             if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Currency)) {

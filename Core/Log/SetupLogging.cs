@@ -9,21 +9,63 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Log {
 
+    /// <summary>
+    /// Defines the interface implemented by logging data providers.
+    /// </summary>
     public interface ILogging {
+        /// <summary>
+        /// Initializes the logging data provider.
+        /// </summary>
         Task InitAsync();
+        /// <summary>
+        /// Clears all log records.
+        /// </summary>
         Task ClearAsync();
+        /// <summary>
+        /// Flushes all pending log records to permanent storage.
+        /// </summary>
         Task FlushAsync();
+        /// <summary>
+        /// Adds a record using the logging data provider.
+        /// </summary>
+        /// <param name="category">The event name or category.</param>
+        /// <param name="level">The severity level of the message.</param>
+        /// <param name="relStack">The number of call stack entries that should be skipped when generating a call stack.</param>
+        /// <param name="text">The log message.</param>
         void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text);
+        /// <summary>
+        /// Returns the minimum severity level that are logged by the logging data provider.
+        /// </summary>
+        /// <returns>Returns the minimum severity level that are logged by the logging data provider.</returns>
         Logging.LevelEnum GetLevel();
+        /// <summary>
+        /// Returns whether the logging data provider is installed and available.
+        /// </summary>
+        /// <returns>Returns whether the logging data provider is installed and available.</returns>
         Task<bool> IsInstalledAsync();
     }
 
     public static partial class Logging {
 
+        /// <summary>
+        /// Defines the minimum severity level that is logged by any of the installed logging data providers.
+        /// </summary>
         public static LevelEnum MinLevel { get; private set; }
+        /// <summary>
+        /// A collection of installed logging data providers.
+        /// </summary>
         private static List<ILogging> Loggers { get; set; }
+        /// <summary>
+        /// The installed default logging data providers.
+        /// </summary>
         private static ILogging DefaultLogger { get; set; }
+        /// <summary>
+        /// The type of the default logging data provider.
+        /// </summary>
         public static Type DefaultLoggerType { get; private set; }
+        /// <summary>
+        /// The type of the defined logging data provider.
+        /// </summary>
         public static Type DefinedLoggerType { get; private set; }
 
         private static object _lockObject = new object();
@@ -43,7 +85,7 @@ namespace YetaWF.Core.Log {
         // we can't use some clever scheme to get a logging provider because we need logging as soon as possible so
         // logging is set up using appsettings.json.
         /// <summary>
-        /// Set up default log provider.
+        /// Defines a default logging data provider based on appsettings.json settings. This is called during site startup.
         /// </summary>
         public static async Task SetupLoggingAsync() {
 
@@ -76,7 +118,7 @@ namespace YetaWF.Core.Log {
             }
         }
         /// <summary>
-        /// Terminate default log provider.
+        /// Terminates the default logging data provider.
         /// </summary>
         public static void TerminateLogging() {
             if (DefaultLogger != null) {
@@ -85,9 +127,9 @@ namespace YetaWF.Core.Log {
             }
         }
         /// <summary>
-        /// Register a new logger.
+        /// Registers a new logging data provider.
         /// </summary>
-        /// <param name="logger"></param>
+        /// <param name="logger">An ILogging interface for the logging data provider's implementation.</param>
         public static async Task RegisterLoggingAsync(ILogging logger) {
             await logger.InitAsync();
             lock (_lockObject) { // short-term lock to sync loggers
@@ -107,7 +149,7 @@ namespace YetaWF.Core.Log {
             return level;
         }
         /// <summary>
-        /// Unregister an existing logger.
+        /// Unregisters an existing logging data provider.
         /// </summary>
         public static void UnregisterLogging(ILogging logger) {
             lock (_lockObject) { // short-term lock to sync loggers
@@ -118,15 +160,15 @@ namespace YetaWF.Core.Log {
             }
             MinLevel = GetLowestLogLevel();
         }
-        /// <summary>
-        /// Write a message to all loggers.
-        /// </summary>
         private static void WriteToAllLogFiles(LevelEnum level, int relStack, string message) {
             WriteToAllLogFiles(YetaWFEvent, level, relStack, message);
         }
         /// <summary>
-        /// Write a message to all loggers.
+        /// Writes a message to all logging data providers.
         /// </summary>
+        /// <param name="level">The severity level of the message.</param>
+        /// <param name="relStack">The number of call stack entries that should be skipped when generating a call stack.</param>
+        /// <param name="message">The log message.</param>
         public static void WriteToAllLogFiles(string category, LevelEnum level, int relStack, string message) {
             foreach (ILogging log in GetLoggers()) {
                 if (log.GetLevel() <= level)
@@ -134,7 +176,7 @@ namespace YetaWF.Core.Log {
             }
         }
         /// <summary>
-        /// Flush all loggers.
+        /// Flushes all pending log records to permanent storage by calling all logging data providers.
         /// </summary>
         public static void ForceFlush() {
             foreach (ILogging log in GetLoggers()) {

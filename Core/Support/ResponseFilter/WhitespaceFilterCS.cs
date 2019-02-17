@@ -11,20 +11,28 @@ namespace YetaWF.Core.ResponseFilter {
     /// The class responsible for output (HTML) compression.
     /// </summary>
     /// <remarks>
-    /// Enabling compression doesn't really help much. YetaWF generates fairly compact html so savings are typically just 1-10%.
-    /// This code does javascript compression and eliminates excessive spacing (line " ", \r,\n), while preserving
+    /// Enabling compression doesn't really help much. YetaWF generates fairly compact HTML so savings are typically just 1-10%.
+    /// This code does JavaScript compression and eliminates excessive spacing (line " ", \r,\n), while preserving
     /// formatting in &lt;textarea&gt;, &lt;pre&gt; and &lt;script&gt; tags.
     /// </remarks>
     public class WhiteSpaceResponseFilter : MemoryStream {
 
-        protected YetaWFManager Manager { get; private set; }
+        private YetaWFManager Manager { get; set; }
         private readonly Stream _outputStream = null;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="manager">An instance of the current YetaWF Manager.</param>
+        /// <param name="output">The output stream to write the compressed output.</param>
         public WhiteSpaceResponseFilter(YetaWFManager manager, Stream output) {
             _outputStream = output;
             Manager = manager;
         }
 
+        /// <summary>
+        /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
+        /// </summary>
         public override void Flush() {
             base.Flush();
             if (_buffer == "") return;
@@ -34,6 +42,12 @@ namespace YetaWF.Core.ResponseFilter {
 
             _buffer = "";
         }
+        /// <summary>
+        /// Writes a block of bytes to the current stream using data read from a buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer to write data from.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The maximum number of bytes to write.</param>
         public override void Write(byte[] buffer, int offset, int count) {
             _buffer += Encoding.UTF8.GetString(buffer);
         }
@@ -58,11 +72,12 @@ namespace YetaWF.Core.ResponseFilter {
         // COMPRESS
 
         /// <summary>
-        /// Compress the HTML input buffer which is normally the complete page.
+        /// Compresses the HTML input buffer which is normally the complete page.
         /// </summary>
         /// <param name="manager">The Manager instance.</param>
         /// <param name="inputBuffer">The input buffer containing HTML to be optimized.</param>
-        /// <summary>Removes excessive whitespace, optimizes javascript while preserving texarea and pre tag contents.
+        /// <returns>Returns the compressed output.</returns>
+        /// <remarks>Removes excessive whitespace, optimizes JavaScript while preserving textarea and pre tag contents.
         ///
         /// Optimizing is very aggressive and removes all whitespace between tags. This can cause unexpected side-effect. For example,
         /// when using spaces to add distance between objects (usually in templates, these will be lost. Such spacing must be accomplished using
@@ -70,8 +85,7 @@ namespace YetaWF.Core.ResponseFilter {
         ///
         /// Inside areas marked &lt;!--LazyWSF--&gt; and &lt;!--LazyWSFEnd--&gt; (Text Modules (display only)), whitespace between tags is preserved.
         /// Inside pre and textarea tags no optimization is performed.
-        /// </summary>
-        /// <returns>Compressed output.</returns>
+        /// </remarks>
         public static string Compress(YetaWFManager manager, string inputBuffer) {
             WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter(manager);
             string output = wsf.ProcessAllInputCheckLazy(inputBuffer).ToString();
@@ -116,7 +130,7 @@ namespace YetaWF.Core.ResponseFilter {
         /// </summary>
         /// <param name="inputBuffer">The input buffer containing HTML.</param>
         /// <returns>Compressed output.</returns>
-        /// <summary>Find &lt;script&gt;>...&lt;/script&gt; and compress tags and javascript.</summary>
+        /// <summary>Find &lt;script&gt;>...&lt;/script&gt; and compress tags and JavaScript.</summary>
         private StringBuilder ProcessScriptInput(string inputBuffer) {
             // We're in html (optimize scripts)
             StringBuilder output = new StringBuilder();

@@ -9,29 +9,58 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Log {
 
+    /// <summary>
+    /// This static class implements all YetaWF logging.
+    /// </summary>
     public static partial class Logging {
 
+        /// <summary>
+        /// The name of an event logged by YetaWF. All events logged by YetaWF have this name.
+        /// Applications can use their own event names.
+        /// </summary>
         public const string YetaWFEvent = "YetaWF";
 
+        /// <summary>
+        /// Defines the logging event severity level.
+        /// </summary>
         public enum LevelEnum {
+            /// <summary>
+            /// Defines a tracing/debug event.
+            /// </summary>
             [EnumDescription("Trace", "Tracing/Debug Information")]
             Trace = 0,
+            /// <summary>
+            /// Defines an informational event.
+            /// </summary>
             [EnumDescription("Info", "Informational")]
             Info = 25,
+            /// <summary>
+            /// Defines an warning event.
+            /// </summary>
             [EnumDescription("Warning", "Warning")]
             Warning = 50,
+            /// <summary>
+            /// Defines an error event.
+            /// </summary>
             [EnumDescription("Error", "Error")]
             Error = 99,
         }
 
         /// <summary>
-        /// Logging routine to record a log message, typically registered during application startup.
+        /// Records an informational message to the YetaWF log.
         /// </summary>
+        /// <returns>Returns the message text.</returns>
         public static string AddLog(string text) {
             if (MinLevel <= LevelEnum.Info)
                 WriteToAllLogFiles(LevelEnum.Info, 0, text);
             return text;
         }
+        /// <summary>
+        /// Records an informational message to the YetaWF log with formatted parameters.
+        /// </summary>
+        /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
+        /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
+        /// <returns>Returns the fully formatted message text.</returns>
         public static string AddLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Info)
@@ -39,11 +68,22 @@ namespace YetaWF.Core.Log {
             return text;
         }
 
+        /// <summary>
+        /// Records an trace message to the YetaWF log.
+        /// </summary>
+        /// <param name="text">The message.</param>
+        /// <returns>Returns the message text.</returns>
         public static string AddTraceLog(string text) {
             if (MinLevel <= LevelEnum.Trace)
                 WriteToAllLogFiles(LevelEnum.Trace, 0, text);
             return text;
         }
+        /// <summary>
+        /// Records an trace message to the YetaWF log with formatted parameters.
+        /// </summary>
+        /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
+        /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
+        /// <returns>Returns the fully formatted message text.</returns>
         public static string AddTraceLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Trace)
@@ -51,11 +91,21 @@ namespace YetaWF.Core.Log {
             return text;
         }
 
+        /// <summary>
+        /// Records an warning message to the YetaWF log.
+        /// </summary>
+        /// <returns>Returns the message text.</returns>
         public static string AddWarningLog(string text) {
             if (MinLevel <= LevelEnum.Warning)
                 WriteToAllLogFiles(LevelEnum.Warning, 0, text);
             return text;
         }
+        /// <summary>
+        /// Records an warning message to the YetaWF log with formatted parameters.
+        /// </summary>
+        /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
+        /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
+        /// <returns>Returns the fully formatted message text.</returns>
         public static string AddWarningLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Warning)
@@ -63,28 +113,38 @@ namespace YetaWF.Core.Log {
             return text;
         }
 
+        /// <summary>
+        /// Records an error message to the YetaWF log.
+        /// </summary>
+        /// <returns>Returns the message text.</returns>
         public static string AddErrorLog(string text) {
             if (MinLevel <= LevelEnum.Error)
                 WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
+        /// <summary>
+        /// Records an error message to the YetaWF log with formatted parameters.
+        /// </summary>
+        /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
+        /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
+        /// <returns>Returns the fully formatted message text.</returns>
         public static string AddErrorLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Error)
                 WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
-        public static string AddErrorLogAdjustStack(int relStack, string text) {
-            if (MinLevel <= LevelEnum.Error)
-                WriteToAllLogFiles(LevelEnum.Error, relStack, text);
-            return text;
-        }
-        public static string AddErrorLogAdjustStack(int relStack, string text, params object[] parms) {
-            text = FormatMessage(text, parms);
-            if (MinLevel <= LevelEnum.Error)
-                WriteToAllLogFiles(LevelEnum.Error, relStack, text);
-            return text;
-        }
+        //public static string AddErrorLogAdjustStack(int relStack, string text) {
+        //    if (MinLevel <= LevelEnum.Error)
+        //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
+        //    return text;
+        //}
+        //public static string AddErrorLogAdjustStack(int relStack, string text, params object[] parms) {
+        //    text = FormatMessage(text, parms);
+        //    if (MinLevel <= LevelEnum.Error)
+        //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
+        //    return text;
+        //}
 
         private static string FormatMessage(string text, params object[] parms) {
 
