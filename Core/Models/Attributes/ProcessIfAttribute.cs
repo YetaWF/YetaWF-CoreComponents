@@ -179,7 +179,6 @@ namespace YetaWF.Core.Models.Attributes {
         /// Processing/validation of the property is dependent on the value/presence another property.
         /// </summary>
         /// <param name="name">The name of the other property this property depends on.</param>
-        /// </remarks>
         public ProcessIfSuppliedAttribute(string name) {
             Name = name;
         }
@@ -210,7 +209,6 @@ namespace YetaWF.Core.Models.Attributes {
         /// Processing/validation of the property is dependent on the value/presence another property.
         /// </summary>
         /// <param name="name">The name of the other property this property depends on.</param>
-        /// </remarks>
         public ProcessIfNotSuppliedAttribute(string name) {
             Name = name;
         }
@@ -241,7 +239,6 @@ namespace YetaWF.Core.Models.Attributes {
         /// Processing/validation of the property is dependent on the value/presence another property.
         /// </summary>
         /// <param name="name">The name of the other property this property depends on.</param>
-        /// </remarks>
         public HideIfNotSuppliedAttribute(string name) {
             Name = name;
         }
