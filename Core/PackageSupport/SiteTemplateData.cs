@@ -12,6 +12,10 @@ namespace YetaWF.Core.Packages {
     public class SiteTemplateData {
 
         private List<string> PackageNames = new List<string> {
+#if MVC6
+            "Softelvdm.IVR",
+#endif
+            "Softelvdm.TwilioProcessor",
             "YetaWF.AddThis",
             "YetaWF.Backups",
             "YetaWF.Basics",
@@ -32,7 +36,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Lightbox",
             "YetaWF.Logging",
             "YetaWF.Menus",
-            //"YetaWF.Messenger",
+            "YetaWF.Messenger",
             "YetaWF.ModuleEdit",
             "YetaWF.Modules",
             "YetaWF.Packages",
