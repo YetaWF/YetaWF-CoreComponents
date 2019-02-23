@@ -37,6 +37,9 @@ namespace YetaWF.Core.HttpHandler {
 
     public class CssHttpHandler
 #else
+    /// <summary>
+    /// Implements the CSS HTTP Handler.
+    /// </summary>
     public class CssHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
 #endif
     {
@@ -48,10 +51,18 @@ namespace YetaWF.Core.HttpHandler {
         public async Task ProcessRequest(HttpContext context) {
             await StartupRequest.StartRequestAsync(context, true);
 #else
+        /// <summary>
+        /// Returns true indicating that the task handler class instance can be reused for another asynchronous task.
+        /// </summary>
         public override bool IsReusable {
             get { return true; }
         }
 
+        /// <summary>
+        /// Called by the ISS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
+        /// a request for a CSS file.
+        /// </summary>
+        /// <param name="context">The HTTP context of the request.</param>
         public override async Task ProcessRequestAsync(HttpContext context) {
 #endif
             YetaWFManager manager = YetaWFManager.Manager;
