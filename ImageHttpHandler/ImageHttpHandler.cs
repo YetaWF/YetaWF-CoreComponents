@@ -41,6 +41,9 @@ namespace YetaWF.Core.HttpHandler {
 
     public class ImageHttpHandler
 #else
+    /// <summary>
+    /// Implements the Image HTTP Handler.
+    /// </summary>
     public class ImageHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
 #endif
     {
@@ -52,10 +55,18 @@ namespace YetaWF.Core.HttpHandler {
         public async Task ProcessRequest(HttpContext context) {
             await StartupRequest.StartRequestAsync(context, true);
 #else
+        /// <summary>
+        /// Returns true indicating that the task handler class instance can be reused for another asynchronous task.
+        /// </summary>
         public override bool IsReusable {
             get { return true; }
         }
 
+        /// <summary>
+        /// Called by the ISS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
+        /// a request for the URL /FileHndlr.image.
+        /// </summary>
+        /// <param name="context">The HTTP context of the request.</param>
         public override async Task ProcessRequestAsync(HttpContext context) {
 #endif
             YetaWFManager manager = YetaWFManager.Manager;
