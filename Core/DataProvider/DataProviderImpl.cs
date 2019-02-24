@@ -109,12 +109,22 @@ namespace YetaWF.Core.DataProvider {
             return transDP;
         }
 
+        /// <summary>
+        /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
+        /// </summary>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
         public DataProviderTransaction StartTransaction() {
             return GetIDataProviderTransactions().StartTransaction();
         }
+        /// <summary>
+        /// Commits a transaction, saving all updates.
+        /// </summary>
         protected Task CommitTransactionAsync() {
             return GetIDataProviderTransactions().CommitTransactionAsync();
         }
+        /// <summary>
+        /// Aborts a transaction, abandoning all updates.
+        /// </summary>
         protected void AbortTransaction() {
             GetIDataProviderTransactions().AbortTransaction();
         }

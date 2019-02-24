@@ -44,8 +44,18 @@ namespace YetaWF.Core.DataProvider {
     /// This interface is implemented by low-level data providers to support transactions that can be committed, saving all updates, or aborted to abandon all updates.
     /// </summary>
     public interface IDataProviderTransactions {
+        /// <summary>
+        /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
+        /// </summary>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
         DataProviderTransaction StartTransaction();
+        /// <summary>
+        /// Commits a transaction, saving all updates.
+        /// </summary>
         Task CommitTransactionAsync();
+        /// <summary>
+        /// Aborts a transaction, abandoning all updates.
+        /// </summary>
         void AbortTransaction();
     }
 
@@ -56,8 +66,18 @@ namespace YetaWF.Core.DataProvider {
     /// <typeparam name="OBJTYPE">The type of the object (one record) in the dataset.</typeparam>
     public interface IDataProvider<KEYTYPE, OBJTYPE> {
 
+        /// <summary>
+        /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
+        /// </summary>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
         DataProviderTransaction StartTransaction();
+        /// <summary>
+        /// Commits a transaction, saving all updates.
+        /// </summary>
         Task CommitTransactionAsync();
+        /// <summary>
+        /// Aborts a transaction, abandoning all updates.
+        /// </summary>
         void AbortTransaction();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
@@ -151,8 +171,18 @@ namespace YetaWF.Core.DataProvider {
     /// <typeparam name="OBJTYPE">The type of the object (one record) in the dataset.</typeparam>
     public interface IDataProviderIdentity<KEYTYPE, KEY2TYPE, OBJTYPE> {
 
+        /// <summary>
+        /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
+        /// </summary>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
         DataProviderTransaction StartTransaction();
+        /// <summary>
+        /// Commits a transaction, saving all updates.
+        /// </summary>
         Task CommitTransactionAsync();
+        /// <summary>
+        /// Aborts a transaction, abandoning all updates.
+        /// </summary>
         void AbortTransaction();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
