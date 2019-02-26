@@ -7,18 +7,29 @@ namespace YetaWF.Core.IO {
 
     /// <summary>
     /// Implements SessionState I/O for an object of type TObj.
+    /// Used to save/load object to/from ASP.NET (Core) session state.
     /// </summary>
+    /// <remarks>This can be used by applications to store session information. This is intended for large data objects.
+    ///
+    /// For smaller data objects, the class YetaWF.Core.Support.Repository.SettingsDictionary offers storing dictionaries with named objects in session state.
+    /// </remarks>
     public class SessionStateIO<TObj> {
 
-        protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        /// <summary>
+        /// The name of the object to load/save in session state.
+        /// </summary>
         public string Key { get; set; }
+        /// <summary>
+        /// The object to save or loaded from session state.
+        /// </summary>
         public object Data { get; set; } // the data saved/loaded
 
         /// <summary>
-        /// Loads the data.
+        /// Loads the object named by the Key property.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the object.</returns>
         public TObj Load() {
             if (!Manager.HaveCurrentSession) return default(TObj);
             byte[] data;
@@ -29,7 +40,7 @@ namespace YetaWF.Core.IO {
         }
 
         /// <summary>
-        /// Saves the file.
+        /// Saves the object defined by the Data property with the named Key.
         /// </summary>
         public void Save() {
             if (Data == null) throw new InternalError("No data");
@@ -38,8 +49,8 @@ namespace YetaWF.Core.IO {
         }
 
         /// <summary>
-        /// Removes the file.
-        /// Throws an error if the file does not exist.
+        /// Removes the object named by the Key property.
+        /// Throws an error if the object does not exist.
         /// </summary>
         public void Remove() {
             if (!Manager.HaveCurrentSession) throw new InternalError("No session");

@@ -11,7 +11,7 @@ using YetaWF.Core.Support.Serializers;
 namespace YetaWF.Core.IO {
 
     /// <summary>
-    /// Implements data file I/O - can only be used for retrieval of folder with data files.
+    /// Implements data file I/O - can only be used for retrieval of folders with data files.
     /// </summary>
     public static class DataFilesProvider {
 
