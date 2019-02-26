@@ -35,7 +35,7 @@ using System.Web.Routing;
 
 namespace YetaWF.Core.Modules {
 
-    // Interface to derived module type dataprovider
+    // Interface to derived module type data provider
     public interface IModuleDefinitionIO : IDisposable {
         Task SaveModuleDefinitionAsync(ModuleDefinition mod);
         Task<ModuleDefinition> LoadModuleDefinitionAsync(Guid key);
@@ -277,7 +277,7 @@ namespace YetaWF.Core.Modules {
         [DontSave]
         public virtual bool ModuleHasSettings { get { return true; } }
 
-        // this must be provided by a low-level data provider during app startup (this loads module information (including derived types))
+        // this must be provided by a low-level data provider during application startup (this loads module information (including derived types))
         [DontSave]
         public static Func<Guid, Task<ModuleDefinition>> LoadModuleDefinitionAsync { get; set; }
         [DontSave]
@@ -298,7 +298,7 @@ namespace YetaWF.Core.Modules {
             public List<ModuleDefinition> Modules { get; set; }
         }
 
-        // this is provided by a specific derived module type - its dataprovider reads/writes specific module types
+        // this is provided by a specific derived module type - its data provider reads/writes specific module types
         // Must be disposed after use
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         private IModuleDefinitionIO DataProvider {

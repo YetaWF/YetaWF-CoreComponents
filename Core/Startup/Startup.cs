@@ -12,34 +12,62 @@ using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
 
+    /// <summary>
+    /// This interface can be implemented by classes that need application startup initialization.
+    /// The class implementing this interface is instantiated and the InitializeApplicationStartupAsync method is called.
+    /// The class must have a parameterless constructor.
+    /// </summary>
     public interface IInitializeApplicationStartup { // any class defining this interface is called during application startup
         Task InitializeApplicationStartupAsync();
     }
+    /// <summary>
+    /// This interface can be implemented by classes that need application startup initialization when the first node in a site with multiple instances is started.
+    /// The class implementing this interface is instantiated and the InitializeApplicationStartupAsync method is called.
+    /// The class must have a parameterless constructor.
+    /// </summary>
     public interface IInitializeApplicationStartupFirstNodeOnly { // any class defining this interface is called during application startup of the FIRST NODE only
         Task InitializeFirstNodeStartupAsync();
     }
 
+    /// <summary>
+    /// This class is used during application startup to initialize packages, perform startup processing and
+    /// initialize local/shared caching and provides information about the site configuration (i.e., web farm, web garden).
+    /// </summary>
     public static class Startup {
 
         /// <summary>
-        /// Defines whether the current instance has fully initialized.
+        /// Defines whether the current site instance has been fully initialized.
         /// </summary>
         public static bool Started { get; set; }
 
         private const string MULTIINSTANCESTARTTIMEKEY = "__MultiInstanceStartTime";
 
+        /// <summary>
+        /// The date/time when the sing-instance site or the first node of a multi-instance site was started.
+        /// </summary>
         public static DateTime MultiInstanceStartTime { get; private set; }
+        /// <summary>
+        /// Defines whether a site restart is pending due to configuration changes.
+        /// </summary>
         public static bool RestartPending { get; set; }
 
         /// <summary>
         /// Defines whether this is a multi-instance site (i.e., web farm, web garden) using cache sharing/file system sharing.
         /// </summary>
-        /// <remarks>Web farm/garden are only possible if shared caching is implemented (MultiInstance is true).
+        /// <remarks>A web farm/garden is only possible if shared caching is implemented (MultiInstance is true).
         /// If MultiInstance is true, cached data and the file system is shared between multiple site instances, otherwise only one instance is allowed.</remarks>
         public static bool MultiInstance { get; set; }
 
+        /// <summary>
+        /// The name of the file marker indicating that the first node is starting.
+        /// </summary>
+        /// <remarks>By placing a file named FirstNode.txt in the .\Data folder, the application startup
+        /// performs a full startup as a first node, initializing local/shared caching. This file is typically added during site deployment.</remarks>
         public const string FirstNodeIndicator = "FirstNode.txt";
 
+        /// <summary>
+        /// Called during application startup to initialize all packages, local/shared caching and first node initialization.
+        /// </summary>
         public static async Task CallStartupClassesAsync() {
 
             Logging.AddLog("Processing IInitializeApplicationStartup");
