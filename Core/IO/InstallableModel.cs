@@ -44,7 +44,7 @@ namespace YetaWF.Core.IO {
         /// Adds data for a new site.
         /// </summary>
         /// <remarks>
-        /// When a new site is created the AddSiteDataAsync method is called for all data providers.
+        /// When a new site is created, the AddSiteDataAsync method is called for all data providers.
         /// Data providers can then add site-specific data as the new site is added.</remarks>
         Task AddSiteDataAsync();
 
@@ -52,7 +52,7 @@ namespace YetaWF.Core.IO {
         /// Removes data when a site is deleted.
         /// </summary>
         /// <remarks>
-        /// When a site is deleted the RemoveSiteDataAsync method is called for all data providers.
+        /// When a site is deleted, the RemoveSiteDataAsync method is called for all data providers.
         /// Data providers can then remove site-specific data as the site is removed.</remarks>
         Task RemoveSiteDataAsync();
 
@@ -61,7 +61,7 @@ namespace YetaWF.Core.IO {
         /// </summary>
         /// <param name="chunk">The zero-based chunk number as data is exported. The first call when exporting begins specifies 0 as chunk number.</param>
         /// <param name="fileList">A collection of files. The data provider can add files to be exported to this collection when ExportChunkAsync is called.</param>
-        /// <returns>Returns a DataProviderExportChunk object describing the data exported.</returns>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderExportChunk object describing the data exported.</returns>
         /// <remarks>
         /// The ExportChunkAsync method is called to export data for site backups, page and module exports.
         ///
@@ -69,10 +69,10 @@ namespace YetaWF.Core.IO {
         /// Each time it is called, it is expected to export a chunk of data. The amount of data, i.e., the chunk size, is determined by the data provider.
         ///
         /// Each time ExportChunkAsync method is called, the zero-based chunk number <paramref name="chunk"/> is incremented.
-        /// The data provider returns data in an instance of the DataProviderExportChunk object.
+        /// The data provider returns data in an instance of the YetaWF.Core.DataProvider.DataProviderExportChunk object.
         ///
         /// Files to be exported can be added to the <paramref name="fileList"/> collection.
-        /// Only data records need to be added to the returned DataProviderExportChunk object.
+        /// Only data records need to be added to the returned YetaWF.Core.DataProvider.DataProviderExportChunk object.
         /// </remarks>
         Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList);
 
@@ -90,7 +90,7 @@ namespace YetaWF.Core.IO {
         /// Each time ImportChunkAsync method is called, the zero-based chunk number <paramref name="chunk"/> is incremented.
         ///
         /// The <paramref name="obj"/> parameter is provided without type but should be cast to
-        /// SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
+        /// YetaWF.Core.Serializers.SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
         /// </remarks>
         Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
 
@@ -98,16 +98,17 @@ namespace YetaWF.Core.IO {
         /// Called to translate the data managed by the data provider to another language.
         /// </summary>
         /// <param name="language">The target language (see LanguageSettings.json).</param>
-        /// <param name="isHtml">A function that can be called by the data provider to test whether a string contains HTML.</param>
+        /// <param name="isHtml">A method that can be called by the data provider to test whether a string contains HTML.</param>
         /// <param name="translateStringsAsync">A method that can be called to translate a collection of simple strings into the new language. A simple string does not contain HTML or newline characters.</param>
         /// <param name="translateComplexStringAsync">A method that can be called to translate a collection of complex strings into the new language. A complex string can contain HTML and newline characters.</param>
         /// <remarks>
         /// The data provider has to retrieve all records and translate them as needed using the
         /// provided <paramref name="translateStringsAsync"/> and <paramref name="translateComplexStringAsync"/> methods, and save the translated data.
         ///
-        /// The YetaWF.Core.Models.ObjectSupport.TranslateObject method can be used to translate all MultiString instances.
+        /// The YetaWF.Core.Models.ObjectSupport.TranslateObject method can be used to translate all YetaWF.Core.Models.MultiString instances.
         ///
-        /// The translated data should be stored separately from the default language (except MultiString, which is part of the record). Using the <paramref name="language"/> parameter, a different folder should be used to store the translated data.
+        /// The translated data should be stored separately from the default language (except MultiString, which is part of the record).
+        /// Using the <paramref name="language"/> parameter, a different folder should be used to store the translated data.
         /// </remarks>
         Task LocalizeModelAsync(string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync);
     }

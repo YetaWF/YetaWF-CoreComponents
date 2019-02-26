@@ -140,7 +140,7 @@ namespace YetaWF.Core.DataProvider {
         /// Each time ImportChunkAsync method is called, the zero-based chunk number <paramref name="chunk"/> is incremented.
         ///
         /// The <paramref name="obj"/> parameter is provided without type but should be cast to
-        /// SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
+        /// YetaWF.Core.Serializers.SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
         /// </remarks>
         Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
         /// <summary>
@@ -148,7 +148,7 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         /// <param name="chunk">The zero-based chunk number as data is exported. The first call when exporting begins specifies 0 as chunk number.</param>
         /// <param name="fileList">A collection of files. The data provider can add files to be exported to this collection when ExportChunkAsync is called.</param>
-        /// <returns>Returns a DataProviderExportChunk object describing the data exported.</returns>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderExportChunk object describing the data exported.</returns>
         /// <remarks>
         /// The ExportChunkAsync method is called to export data for site backups, page and module exports.
         ///
@@ -159,7 +159,7 @@ namespace YetaWF.Core.DataProvider {
         /// The data provider returns data in an instance of the DataProviderExportChunk object.
         ///
         /// Files to be exported can be added to the <paramref name="fileList"/> collection.
-        /// Only data records need to be added to the returned DataProviderExportChunk object.
+        /// Only data records need to be added to the returned YetaWF.Core.DataProvider.DataProviderExportChunk object.
         /// </remarks>
         Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList);
     }
@@ -248,7 +248,7 @@ namespace YetaWF.Core.DataProvider {
         /// Each time ImportChunkAsync method is called, the zero-based chunk number <paramref name="chunk"/> is incremented.
         ///
         /// The <paramref name="obj"/> parameter is provided without type but should be cast to
-        /// SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
+        /// YetaWF.Core.Serializers.SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
         /// </remarks>
         Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
         /// <summary>
@@ -256,7 +256,7 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         /// <param name="chunk">The zero-based chunk number as data is exported. The first call when exporting begins specifies 0 as chunk number.</param>
         /// <param name="fileList">A collection of files. The data provider can add files to be exported to this collection when ExportChunkAsync is called.</param>
-        /// <returns>Returns a DataProviderExportChunk object describing the data exported.</returns>
+        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderExportChunk object describing the data exported.</returns>
         /// <remarks>
         /// The ExportChunkAsync method is called to export data for site backups, page and module exports.
         ///
@@ -264,10 +264,10 @@ namespace YetaWF.Core.DataProvider {
         /// Each time it is called, it is expected to export a chunk of data. The amount of data, i.e., the chunk size, is determined by the data provider.
         ///
         /// Each time ExportChunkAsync method is called, the zero-based chunk number <paramref name="chunk"/> is incremented.
-        /// The data provider returns data in an instance of the DataProviderExportChunk object.
+        /// The data provider returns data in an instance of the YetaWF.Core.DataProvider.DataProviderExportChunk object.
         ///
         /// Files to be exported can be added to the <paramref name="fileList"/> collection.
-        /// Only data records need to be added to the returned DataProviderExportChunk object.
+        /// Only data records need to be added to the returned YetaWF.Core.DataProvider.DataProviderExportChunk object.
         /// </remarks>
         Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList);
     }
