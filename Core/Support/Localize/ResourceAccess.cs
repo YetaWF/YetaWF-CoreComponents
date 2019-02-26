@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
@@ -34,7 +35,7 @@ namespace YetaWF.Core.Localize {
                 //}
                 fullName = type.FullName.Split(new char[] { '`' }).First(); // chop off any generics <>
                 string text;
-                LocalizationData locData = LocalizationSupport.Load(Package.GetPackageFromAssembly(type.Assembly), fullName, LocalizationSupport.Location.Merge);
+                LocalizationData locData = Localization.Load(Package.GetPackageFromAssembly(type.Assembly), fullName, Localization.Location.Merge);
                 if (locData != null) {
                     text = locData.FindString(name);
                     if (text != null) {

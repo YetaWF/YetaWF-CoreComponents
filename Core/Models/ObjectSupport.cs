@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
+using YetaWF.Core.IO;
 #endif
 #if NETSTANDARD || NETCOREAPP
 #else
@@ -557,7 +558,7 @@ namespace YetaWF.Core.Models {
                     if (Cache && !type.IsGenericType) {
                         Package package = Package.TryGetPackageFromType(type);
                         if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
-                            locData = LocalizationSupport.Load(package, type.FullName, LocalizationSupport.Location.Merge);
+                            locData = Localization.Load(package, type.FullName, Localization.Location.Merge);
                     }
                     // get class data
                     if (locData != null) {
@@ -579,7 +580,7 @@ namespace YetaWF.Core.Models {
                                 if (pi.DeclaringType != null && pi.DeclaringType != type) {
                                     Package package = Package.TryGetPackageFromType(pi.DeclaringType);
                                     if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage)) {
-                                        LocalizationData baseLocData = LocalizationSupport.Load(package, pi.DeclaringType.FullName, LocalizationSupport.Location.Merge);
+                                        LocalizationData baseLocData = Localization.Load(package, pi.DeclaringType.FullName, Localization.Location.Merge);
                                         if (baseLocData != null)
                                             locPropData = baseLocData.FindProperty(pi.DeclaringType.FullName, pi.Name);
                                     }
@@ -647,7 +648,7 @@ namespace YetaWF.Core.Models {
                     if (Cache && !type.IsGenericType) {
                         Package package = Package.TryGetPackageFromType(type);
                         if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
-                            locData = LocalizationSupport.Load(package, type.FullName, LocalizationSupport.Location.Merge);
+                            locData = Localization.Load(package, type.FullName, Localization.Location.Merge);
                     }
                     LocalizationData.EnumData locEnumData = null;
                     if (locData != null)

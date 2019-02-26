@@ -27,7 +27,7 @@ namespace YetaWF.Core.Packages {
         /// <returns></returns>
         public async Task<bool> LocalizeAsync(List<string> errorList) {
 
-            await LocalizationSupport.ClearPackageDataAsync(this, MultiString.DefaultLanguage);
+            await Localization.ClearPackageDataAsync(this, MultiString.DefaultLanguage);
 
             // parse all source files to extract strings
             await ParseSourceFilesAsync(PackageSourceRoot);
@@ -44,7 +44,7 @@ namespace YetaWF.Core.Packages {
                 //DEBUG if (type.FullName == "YetaWF.Core.Scheduler.SchedulerFrequency+TimeUnitEnum")
                 //    path = path;
 
-                LocalizationData data = LocalizationSupport.Load(Package.GetPackageFromType(type), type.FullName, LocalizationSupport.Location.DefaultResources);
+                LocalizationData data = Localization.Load(Package.GetPackageFromType(type), type.FullName, Localization.Location.DefaultResources);
                 if (data == null)
                     data = new LocalizationData();
                 bool hasData = false;
@@ -59,7 +59,7 @@ namespace YetaWF.Core.Packages {
                     }
                 }
                 if (hasData)
-                    await LocalizationSupport.SaveAsync(Package.GetPackageFromType(type), type.FullName, LocalizationSupport.Location.DefaultResources, data);
+                    await Localization.SaveAsync(Package.GetPackageFromType(type), type.FullName, Localization.Location.DefaultResources, data);
             }
             return true;
         }
@@ -218,7 +218,7 @@ namespace YetaWF.Core.Packages {
                     throw new InternalError($"File {file} can't contain resource string definitions because its class doesn't support resource access");
 
                 string filename = string.Format("{0}.{1}", ns, cls);
-                LocalizationData data = LocalizationSupport.Load(this, filename, LocalizationSupport.Location.DefaultResources);
+                LocalizationData data = Localization.Load(this, filename, Localization.Location.DefaultResources);
                 if (data == null)
                     data = new LocalizationData();
                 foreach (LocalizationData.StringData sd in strings) {
@@ -229,7 +229,7 @@ namespace YetaWF.Core.Packages {
                     }
                     data.Strings.Add(sd);
                 }
-                await LocalizationSupport.SaveAsync(this, filename, LocalizationSupport.Location.DefaultResources, data);
+                await Localization.SaveAsync(this, filename, Localization.Location.DefaultResources, data);
             }
         }
 

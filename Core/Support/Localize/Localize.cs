@@ -187,41 +187,5 @@ namespace YetaWF.Core.Localize {
             }
         }
         private static bool? useResources = null;
-
-        // LOAD/SAVE
-        // LOAD/SAVE
-        // LOAD/SAVE
-
-        public enum Location {
-            DefaultResources = 0,   // the resources generated from source code
-            InstalledResources = 1, // resources installed with package (language specific)
-            CustomResources = 2,    // site-specific custom resources (modified from InstalledResources or DefaultResources)
-            Merge = 3               // find the resources based on language and merge (default or installed) and custom resources - can't be used to save resources
-        }
-
-        public static Func<Package, string, Location, LocalizationData> Load { get; set; }
-        public static Func<Package, string, Location, LocalizationData, Task> SaveAsync { get; set; }
-        public static Func<Package, string, Task> ClearPackageDataAsync { get; set; }
-        public static Func<Package, string, bool, Task<List<string>>> GetFilesAsync { get; set; }
-
-        static LocalizationSupport() {
-            Load = DefaultLoad;
-            SaveAsync = DefaultSaveAsync;
-            ClearPackageDataAsync = DefaultClearPackageDataAsync;
-            GetFilesAsync = DefaultGetFilesAsync;
-        }
-        private static LocalizationData DefaultLoad(Package package, string type, Location location) {
-            if (!LocalizationSupport.UseLocalizationResources) return null;
-            throw new NotImplementedException();
-        }
-        private static Task DefaultSaveAsync(Package package, string type, Location location, LocalizationData data) {
-            throw new NotImplementedException();
-        }
-        private static Task DefaultClearPackageDataAsync(Package package, string language) {
-            throw new NotImplementedException();
-        }
-        private static Task<List<string>> DefaultGetFilesAsync(Package package, string language, bool rawName) {
-            throw new NotImplementedException();
-        }
     }
 }
