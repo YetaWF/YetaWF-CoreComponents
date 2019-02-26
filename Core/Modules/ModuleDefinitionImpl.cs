@@ -18,7 +18,6 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Search;
 using YetaWF.Core.DataProvider.Attributes;
-using YetaWF.Core.IO;
 using YetaWF.Core.Views;
 #if MVC6
 using Microsoft.AspNetCore.Html;
@@ -38,7 +37,6 @@ namespace YetaWF.Core.Modules {
     // Interface to derived module type data provider
     public interface IModuleDefinitionIO : IDisposable {
         Task SaveModuleDefinitionAsync(ModuleDefinition mod);
-        Task<ModuleDefinition> LoadModuleDefinitionAsync(Guid key);
     }
 
     public partial class ModuleDefinition {
@@ -277,27 +275,6 @@ namespace YetaWF.Core.Modules {
         [DontSave]
         public virtual bool ModuleHasSettings { get { return true; } }
 
-        // this must be provided by a low-level data provider during application startup (this loads module information (including derived types))
-        [DontSave]
-        public static Func<Guid, Task<ModuleDefinition>> LoadModuleDefinitionAsync { get; set; }
-        [DontSave]
-        public static Func<ModuleDefinition, IModuleDefinitionIO, Task> SaveModuleDefinitionAsync { get; set; }
-        [DontSave]
-        public static Func<Guid, Task<bool>> RemoveModuleDefinitionAsync { get; set; }
-        [DontSave]
-        public static Func<Guid, Task<ILockObject>> LockModuleAsync { get; set; }
-        [DontSave]
-        public static Func<ModuleBrowseInfo, Task> GetModulesAsync { get; set; }
-        public class ModuleBrowseInfo {
-            public int Skip { get; set; }
-            public int Take { get; set; }
-            public List<DataProviderSortInfo> Sort { get; set; }
-            public List<DataProviderFilterInfo> Filters { get; set; }
-            // return info
-            public int Total { get; set; }
-            public List<ModuleDefinition> Modules { get; set; }
-        }
-
         // this is provided by a specific derived module type - its data provider reads/writes specific module types
         // Must be disposed after use
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
@@ -327,7 +304,7 @@ namespace YetaWF.Core.Modules {
             // load it as an already saved module
             ModuleDefinition mod = null;
             try {
-                mod = await LoadModuleDefinitionAsync(moduleGuid);
+                mod = await YetaWF.Core.IO.Module.LoadModuleDefinitionAsync(moduleGuid);
             } catch (Exception) {
                 mod = null;
                 if (!AllowNone)
@@ -366,7 +343,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         public async Task SaveAsync() {
             if (Temporary) throw new InternalError("Temporary modules cannot be saved");
-            await SaveModuleDefinitionAsync(this, DataProvider);
+            await YetaWF.Core.IO.Module.SaveModuleDefinitionAsync(this, DataProvider);
             List<PageDefinition> pages = await PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
             await YetaWFManager.Manager.StaticPageManager.RemovePagesAsync(pages);
         }
@@ -414,7 +391,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="moduleGuid"></param>
         public static async Task<bool> TryRemoveAsync(Guid moduleGuid) {
-            return await RemoveModuleDefinitionAsync(moduleGuid);
+            return await YetaWF.Core.IO.Module.RemoveModuleDefinitionAsync(moduleGuid);
         }
 
         /// <summary>

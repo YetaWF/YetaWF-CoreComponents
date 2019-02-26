@@ -121,7 +121,7 @@ namespace YetaWF.Core.IO {
     /// </remarks>
     public interface IInstallableModel2 {
         /// <summary>
-        /// Upgrades all required files/folders/SQL data from lastSeenVersion to current package version.
+        /// Upgrades all required files/folders/SQL data from lastSeenVersion to the current package version.
         /// </summary>
         Task<bool> UpgradeModelAsync(List<string> errorList, string lastSeenVersion);
     }

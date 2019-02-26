@@ -143,11 +143,11 @@ namespace YetaWF.Core.Modules {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
             try {
-                mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                mod = await Module.LoadModuleDefinitionAsync(permGuid);
                 if (mod == null) {
                     // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await ModuleDefinition.LockModuleAsync(permGuid)) {
-                        mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                    using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
+                        mod = await Module.LoadModuleDefinitionAsync(permGuid);
                         if (mod == null) {
                             mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
                             if (!mod.IsModuleUnique)
@@ -180,11 +180,11 @@ namespace YetaWF.Core.Modules {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
             try {
-                mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                mod = await Module.LoadModuleDefinitionAsync(permGuid);
                 if (mod == null) {
                     // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await ModuleDefinition.LockModuleAsync(permGuid)) {
-                        mod = await ModuleDefinition.LoadModuleDefinitionAsync(permGuid);
+                    using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
+                        mod = await Module.LoadModuleDefinitionAsync(permGuid);
                         if (mod == null) {
                             mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
                             if (!mod.IsModuleUnique)
@@ -220,11 +220,11 @@ namespace YetaWF.Core.Modules {
         {
             ModuleDefinition mod = null;
             try {
-                mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);
+                mod = await Module.LoadModuleDefinitionAsync(moduleGuid);
                 if (mod == null) {
                     // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await ModuleDefinition.LockModuleAsync(moduleGuid)) {
-                        mod = await ModuleDefinition.LoadModuleDefinitionAsync(moduleGuid);
+                    using (ILockObject lockObject = await Module.LockModuleAsync(moduleGuid)) {
+                        mod = await Module.LoadModuleDefinitionAsync(moduleGuid);
                         if (mod == null) {
                             Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
                             mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);

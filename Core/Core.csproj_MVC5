@@ -144,6 +144,7 @@
     <Compile Include="Components\Support\ImageHTML.cs" />
     <Compile Include="Components\Support\StringTT.cs" />
     <Compile Include="Controllers\Support\GridSaveSettings.cs" />
+    <Compile Include="IO\Module.cs" />
     <Compile Include="IO\FileSystem.cs" />
     <Compile Include="IO\Caching.cs" />
     <Compile Include="Controllers\PageLogging.cs" />
