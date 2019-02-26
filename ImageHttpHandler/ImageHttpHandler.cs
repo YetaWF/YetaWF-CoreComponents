@@ -63,7 +63,7 @@ namespace YetaWF.Core.HttpHandler {
         }
 
         /// <summary>
-        /// Called by the ISS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
+        /// Called by the IIS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
         /// a request for the URL /FileHndlr.image.
         /// </summary>
         /// <param name="context">The HTTP context of the request.</param>

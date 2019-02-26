@@ -277,7 +277,7 @@ namespace YetaWF.Core.Modules {
         [DontSave]
         public virtual bool ModuleHasSettings { get { return true; } }
 
-        // this must be provided by a dataprovider during app startup (this loads module information (including derived types))
+        // this must be provided by a low-level data provider during app startup (this loads module information (including derived types))
         [DontSave]
         public static Func<Guid, Task<ModuleDefinition>> LoadModuleDefinitionAsync { get; set; }
         [DontSave]
