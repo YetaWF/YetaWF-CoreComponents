@@ -7,7 +7,7 @@ namespace YetaWF.Core.IO {
 
     public static class Caching {
 
-        // Dataproviders set by available data providers during application startup
+        // Data providers set by available data providers during application startup
         public static Func<ICacheDataProvider> GetLocalCacheProvider { get; set; }
         public static Func<ICacheDataProvider> GetSharedCacheProvider { get; set; }
         public static Func<ICacheDataProvider> GetStaticCacheProvider { get; set; }
