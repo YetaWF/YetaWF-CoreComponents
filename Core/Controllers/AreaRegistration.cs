@@ -32,7 +32,7 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// The area name registered by the current package.
         /// </summary>
-        /// <remarks>Packages define their area name using the PackageAttribute (for the domain portion) and the AssemblyProduct (for the product name). The area name is the concatenation of the domain, followed by an underscore and the product (e.g., YetaWF_Text).</remarks>
+        /// <remarks>Packages define their area name using the PackageAttribute (for the domain portion) and the <see cref="System.Reflection.AssemblyProductAttribute"/> (for the product name). The area name is the concatenation of the domain, followed by an underscore and the product (e.g., YetaWF_Text).</remarks>
 #if MVC6
         public string AreaName { get { return Package.AreaName; } }
 #else

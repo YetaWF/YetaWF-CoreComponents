@@ -9,9 +9,17 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.DataProvider {
 
+    /// <summary>
+    /// This interface is implemented by data providers that need to be registered during application startup.
+    /// </summary>
+    /// <remarks>This interface is used by the framework to find all data providers during startup. Any data provider that
+    /// implements this interface is registered using the Register method.
+    ///
+    /// Registered data providers can be reviewed using Admin > Dashboard > Data Providers (standard YetaWF site).
+    /// </remarks>
     public interface IExternalDataProvider {
         /// <summary>
-        /// Method used to register external data provider(s) implementing a specific API.
+        /// Called by the framework to register external data providers that expose the YetaWF.Core.DataProvider.IExternalDataProvider interface.
         /// </summary>
         void Register();
     }

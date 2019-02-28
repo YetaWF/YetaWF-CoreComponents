@@ -9,7 +9,7 @@ namespace YetaWF.Core.IO {
 
     public static class FileSystem {
 
-        // Dataproviders set by available data providers during application startup
+        // Data providers set by available data providers during application startup
 
         /// <summary>
         /// A filesystem provider that accesses/updates a permanent file system.
