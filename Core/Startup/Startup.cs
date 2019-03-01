@@ -17,7 +17,11 @@ namespace YetaWF.Core.Support {
     /// The class implementing this interface is instantiated and the InitializeApplicationStartupAsync method is called.
     /// The class must have a parameterless constructor.
     /// </summary>
-    public interface IInitializeApplicationStartup { // any class defining this interface is called during application startup
+    public interface IInitializeApplicationStartup {
+        /// <summary>
+        /// Called during application startup for every class that implements the IInitializeApplicationStartup interface.
+        /// </summary>
+        /// <returns></returns>
         Task InitializeApplicationStartupAsync();
     }
     /// <summary>

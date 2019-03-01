@@ -21,10 +21,36 @@ using System.Web.Routing;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This interface is implemented by views.
+    /// The framework calls the RenderViewAsync method to render the view.
+    /// </summary>
+    /// <typeparam name="TMODULE">The module type implementing the view.</typeparam>
+    /// <typeparam name="TMODEL">The type of the model rendered by the view.</typeparam>
     public interface IYetaWFView<TMODULE, TMODEL> {
+        /// <summary>
+        /// Renders the view.
+        /// </summary>
+        /// <param name="module">The module on behalf of which the view is rendered.</param>
+        /// <param name="model">The model being rendered by the view.</param>
+        /// <returns>The HTML representing the view.</returns>
         Task<YHtmlString> RenderViewAsync(TMODULE module, TMODEL model);
     }
+    /// <summary>
+    /// This interface is implemented by views.
+    /// The framework calls the RenderPartialViewAsync method to render the partial view.
+    /// A partial view is the portion of the view between &lt;form&gt; and &lt;/form&gt; tags.
+    /// </summary>
+    /// <typeparam name="TMODULE">The module type implementing the view.</typeparam>
+    /// <typeparam name="TMODEL">The type of the model rendered by the view.</typeparam>
     public interface IYetaWFView2<TMODULE, TMODEL> : IYetaWFView<TMODULE, TMODEL> {
+        /// <summary>
+        /// Renders the view's partial view.
+        /// A partial view is the portion of the view between &lt;form&gt; and &lt;/form&gt; tags.
+        /// </summary>
+        /// <param name="module">The module on behalf of which the partial view is rendered.</param>
+        /// <param name="model">The model being rendered by the partial view.</param>
+        /// <returns>The HTML representing the partial view.</returns>
         Task<YHtmlString> RenderPartialViewAsync(TMODULE module, TMODEL model);
     }
 
@@ -105,7 +131,15 @@ namespace YetaWF.Core.Components {
             return YetaWFManager.JserEncode(text);
         }
 
+        /// <summary>
+        /// Returns the package implementing the view.
+        /// </summary>
+        /// <returns>Returns the package implementing the view.</returns>
         public abstract Package GetPackage();
+        /// <summary>
+        /// Returns the name of the view.
+        /// </summary>
+        /// <returns>Returns the name of the view.</returns>
         public abstract string GetViewName();
 
         // PartialForm rendering called during regular form processing (not ajax)

@@ -15,12 +15,36 @@ using System.Web.Routing;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This interface is implemented by components.
+    /// </summary>
+    /// <typeparam name="TYPE">The type of the model rendered by the component.</typeparam>
     public interface IYetaWFComponent<TYPE> {
+        /// <summary>
+        /// Called by the framework when the component is used so the component can add component specific addons.
+        /// </summary>
         Task IncludeAsync();
+        /// <summary>
+        /// Called by the framework when the component needs to be rendered as HTML.
+        /// </summary>
+        /// <param name="model">The model being rendered by the component.</param>
+        /// <returns>The component rendered as HTML.</returns>
         Task<YHtmlString> RenderAsync(TYPE model);
     }
+    /// <summary>
+    /// This interface is implemented by components which act as containers for other components.
+    /// </summary>
+    /// <typeparam name="TYPE">The type of the model rendered by the component.</typeparam>
     public interface IYetaWFContainer<TYPE> {
+        /// <summary>
+        /// Called by the framework when the component is used so the component can add component specific addons.
+        /// </summary>
         Task IncludeAsync();
+        /// <summary>
+        /// Called by the framework when the component needs to be rendered as HTML.
+        /// </summary>
+        /// <param name="model">The model being rendered by the component.</param>
+        /// <returns>The component rendered as HTML.</returns>
         Task<YHtmlString> RenderContainerAsync(TYPE model);
     }
 
@@ -183,8 +207,24 @@ namespace YetaWF.Core.Components {
             return val ? "true" : "false";
         }
 
+        /// <summary>
+        /// Returns the package implementing the component.
+        /// </summary>
+        /// <returns>Returns the package implementing the component.</returns>
         public abstract Package GetPackage();
+        /// <summary>
+        /// Returns the component name.
+        /// </summary>
+        /// <returns>Returns the component name.</returns>
+        /// <remarks>Components in packages whose product name starts with "Component" use the exact name returned by GetTemplateName when used in UIHint attributes. These are considered core components.
+        /// Components in other packages use the package's area name as a prefix. E.g., the UserId component in the YetaWF.Identity package is named "YetaWF_Identity_UserId" when used in UIHint attributes.
+        ///
+        /// The GetTemplateName method returns the component name without area name prefix in all cases.</remarks>
         public abstract string GetTemplateName();
+        /// <summary>
+        /// Returns the component type (edit/display).
+        /// </summary>
+        /// <returns>Returns the component type.</returns>
         public abstract ComponentType GetComponentType();
 
         /// <summary>
