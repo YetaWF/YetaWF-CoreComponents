@@ -1035,8 +1035,16 @@ namespace YetaWF.Core.Support {
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
 
-        // Return a unique id - ids are only unique for 1 request. For Ajax/Post requests we have to
-        // insure that we get Unique ids that don't duplicate ids obtained during the original request
+        /// <summary>
+        /// Returns a unique HTML id.
+        /// </summary>
+        /// <param name="name">A string prefix prepended to the generated id.</param>
+        /// <returns>A unique HTML id.</returns>
+        /// <remarks>Every call to the Unique() method returns a new, unique id.
+        ///
+        /// Whenever an HTML id is needed, this method must be used. This insures that Ajax/Post requests do not use
+        /// accidentally use ids that were used in proior request.
+        /// </remarks>
         public string UniqueId(string name = "a") {
             ++_uniqueIdCounter;
             return UniqueIdPrefix + "_" + name + _uniqueIdCounter;

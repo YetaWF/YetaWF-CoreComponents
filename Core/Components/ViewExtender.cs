@@ -14,12 +14,25 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This static class implements extension methods for YetaWF views.
+    /// </summary>
     public static class YetaWFViewExtender {
 
+        /// <summary>
+        /// The string appended to a view name to obtain the partial view name.
+        /// A partial view is the portion of the view between &lt;form&gt; and &lt;/form&gt; tags.
+        /// </summary>
         public const string PartialSuffix = "_Partial";
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        /// <summary>
+        /// Tests whether a valid view exists.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <returns>Returns true if a valid view can be found.</returns>
+        /// <remarks>This is used by the framework for debugging/testing purposes only.</remarks>
         public static bool IsSupported(string viewName) {
             Type viewType;
             string v = viewName.TrimEnd(PartialSuffix);
@@ -28,6 +41,14 @@ namespace YetaWF.Core.Components {
             return true;
         }
 
+        /// <summary>
+        /// Renders a view.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="module">The module on behalf of which this view is rendered.</param>
+        /// <param name="model">The view's data model to render.</param>
+        /// <returns>Returns HTML with the rendered view.</returns>
 #if MVC6
         public static async Task<YHtmlString> ForViewAsync(this IHtmlHelper htmlHelper,
 #else

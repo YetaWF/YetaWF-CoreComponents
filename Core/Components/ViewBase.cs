@@ -54,14 +54,32 @@ namespace YetaWF.Core.Components {
         Task<YHtmlString> RenderPartialViewAsync(TMODULE module, TMODEL model);
     }
 
+    /// <summary>
+    /// The base class for all views used in YetaWF.
+    /// </summary>
     public abstract class YetaWFViewBase {
 
+        /// <summary>
+        /// The YetaWF.Core.Support.Manager instance of current HTTP request.
+        /// </summary>
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        /// <summary>
+        /// Contructor.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFViewBase() {
             Package = GetPackage();
         }
+
+        /// <summary>
+        /// Defines the package implementing this view.
+        /// </summary>
+        public readonly Package Package;
+
+        /// <summary>
+        /// The HtmlHelper instance.
+        /// </summary>
 #if MVC6
         public IHtmlHelper HtmlHelper
 #else
@@ -83,8 +101,16 @@ namespace YetaWF.Core.Components {
         private HtmlHelper _htmlHelper;
 #endif
 
+        /// <summary>
+        /// The module on behalf of which this view is rendered.
+        /// </summary>
         protected ModuleDefinition ModuleBase { get; set; }
 
+        /// <summary>
+        /// Sets rendering information for the view.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="moduleBase">The module on behalf of which this view is rendered.</param>
         public void SetRenderInfo(
 #if MVC6
             IHtmlHelper htmlHelper
@@ -97,8 +123,9 @@ namespace YetaWF.Core.Components {
             ModuleBase = moduleBase;
         }
 
-        public readonly Package Package;
-
+        /// <summary>
+        /// The HTML id of this view.
+        /// </summary>
         public string ControlId {
             get {
                 if (string.IsNullOrEmpty(_controlId))
@@ -108,6 +135,11 @@ namespace YetaWF.Core.Components {
         }
         private string _controlId;
 
+        /// <summary>
+        /// The HTML id used for a &lt;div&gt; tag.
+        /// </summary>
+        /// <remarks>This is a convenience property, so a view can reference one of its &lt;div&gt; tags by id.
+        ///</remarks>
         public string DivId {
             get {
                 if (string.IsNullOrEmpty(_divId))
@@ -117,18 +149,50 @@ namespace YetaWF.Core.Components {
         }
         private string _divId;
 
+        /// <summary>
+        /// Returns a unique HTML id.
+        /// </summary>
+        /// <param name="name">A string prefix prepended to the generated id.</param>
+        /// <returns>A unique HTML id.</returns>
+        /// <remarks>Every call to the Unique() method returns a new, unique id.</remarks>
         public string UniqueId(string name = "a") {
             return Manager.UniqueId(name);
         }
 
+        /// <summary>
+        /// Encodes the provided <paramref name="text"/> suitable for use as an HTML attribute data value.
+        /// </summary>
+        /// <param name="text">The string to encode.</param>
+        /// <returns>Returns an encoded HTML attribute data value.</returns>
         public string HAE(string text) {
             return YetaWFManager.HtmlAttributeEncode(text);
         }
+        /// <summary>
+        /// Encodes the provided <paramref name="text"/> suitable for use as HTML.
+        /// </summary>
+        /// <param name="text">The string to encode.</param>
+        /// <returns>Returns encoded HTML.</returns>
         public string HE(string text) {
             return YetaWFManager.HtmlEncode(text);
         }
+        /// <summary>
+        /// Encodes the provided <paramref name="text"/> suitable for use as a JavaScript string.
+        /// </summary>
+        /// <param name="text">The string to encode.</param>
+        /// <returns>Returns encoded JavaScript string.
+        /// The string to encode should not use surrounding quotes.
+        /// These must be added after encoding.
+        /// </returns>
         public string JE(string text) {
             return YetaWFManager.JserEncode(text);
+        }
+        /// <summary>
+        /// Encodes the provided <paramref name="val"/> a JavaScript true/false string.
+        /// </summary>
+        /// <param name="val">The value to encode.</param>
+        /// <returns>Returns a JavaScript true/false string.</returns>
+        public static string JE(bool val) {
+            return val ? "true" : "false";
         }
 
         /// <summary>
@@ -142,8 +206,15 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns the name of the view.</returns>
         public abstract string GetViewName();
 
-        // PartialForm rendering called during regular form processing (not ajax)
+        /// <summary>
+        /// Renders a partial form view (the portion between &lt;form&gt; and &lt;/form&gt;).
+        /// </summary>
+        /// <param name="renderPartial">Method called to render the view portion.</param>
+        /// <param name="UsePartialFormCss">Defines whether partial form CSS is used.</param>
+        /// <param name="ShowView">Defines whether the partial view rendering method <paramref name="renderPartial"/> is called.</param>
+        /// <returns>Returns the partial form as HTML.</returns>
         public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, bool UsePartialFormCss = true, bool ShowView = true) {
+            // PartialForm rendering called during regular form processing (not ajax)
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
             Manager.InPartialView = true;
@@ -165,10 +236,20 @@ namespace YetaWF.Core.Components {
             return new YHtmlString(html);
         }
 
-        public async Task<YHtmlString> FormButtonsAsync(List<FormButton> buttons, int dummy = 0) {
+        /// <summary>
+        /// Renders form buttons.
+        /// </summary>
+        /// <param name="buttons">The collection of form buttons to render.</param>
+        /// <returns>Returns the rendered form buttons as HTML.</returns>
+        public async Task<YHtmlString> FormButtonsAsync(List<FormButton> buttons) {
             return await FormButtonsAsync(buttons.ToArray());
         }
-        public async Task<YHtmlString> FormButtonsAsync(FormButton[] buttons, int dummy = 0) {
+        /// <summary>
+        /// Renders form buttons.
+        /// </summary>
+        /// <param name="buttons">The array of form buttons to render.</param>
+        /// <returns>Returns the rendered form buttons as HTML.</returns>
+        public async Task<YHtmlString> FormButtonsAsync(FormButton[] buttons) {
             HtmlBuilder hb = new HtmlBuilder();
             if (ModuleBase.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);

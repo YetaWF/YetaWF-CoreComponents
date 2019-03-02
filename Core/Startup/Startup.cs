@@ -21,7 +21,6 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Called during application startup for every class that implements the IInitializeApplicationStartup interface.
         /// </summary>
-        /// <returns></returns>
         Task InitializeApplicationStartupAsync();
     }
     /// <summary>
@@ -30,6 +29,9 @@ namespace YetaWF.Core.Support {
     /// The class must have a parameterless constructor.
     /// </summary>
     public interface IInitializeApplicationStartupFirstNodeOnly { // any class defining this interface is called during application startup of the FIRST NODE only
+        /// <summary>
+        /// Called during application startup for every class that implements the IInitializeApplicationStartupFirstNodeOnly interface.
+        /// </summary>
         Task InitializeFirstNodeStartupAsync();
     }
 

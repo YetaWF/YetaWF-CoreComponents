@@ -9,18 +9,31 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// Locates all available components.
+    /// </summary>
+    /// <remarks>
+    /// An instance of this class is instantiated by the framework during application startup and the InitializeApplicationStartupAsync method is called to
+    /// locate all available components.
+    /// </remarks>
     public class YetaWFComponentBaseStartup : IInitializeApplicationStartup {
 
         /// <summary>
-        /// List of available templates with the associated component class type.
+        /// List of edit components.
         /// </summary>
         private static Dictionary<string, Type> ComponentsEdit = new Dictionary<string, Type>();
+        /// <summary>
+        /// List of display components.
+        /// </summary>
         private static Dictionary<string, Type> ComponentsDisplay = new Dictionary<string, Type>();
         /// <summary>
         /// List of available views.
         /// </summary>
         private static Dictionary<string, Type> Views = new Dictionary<string, Type>();
 
+        /// <summary>
+        /// Called during application startup.
+        /// </summary>
         public Task InitializeApplicationStartupAsync() {
 
             Logging.AddLog("Locating components");
@@ -69,8 +82,20 @@ namespace YetaWF.Core.Components {
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Returns a dictionary of available display components.
+        /// </summary>
+        /// <returns>Returns a dictionary of available display components.</returns>
         public static Dictionary<string, Type> GetComponentsDisplay() { return ComponentsDisplay; }
+        /// <summary>
+        /// Returns a dictionary of available edit components.
+        /// </summary>
+        /// <returns>Returns a dictionary of available edit components.</returns>
         public static Dictionary<string, Type> GetComponentsEdit() { return ComponentsEdit; }
+        /// <summary>
+        /// Returns a dictionary of available views.
+        /// </summary>
+        /// <returns>Returns a dictionary of available views.</returns>
         public static Dictionary<string, Type> GetViews() { return Views; }
     }
 }

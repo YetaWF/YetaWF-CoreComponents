@@ -19,24 +19,39 @@ using System.Web.Mvc;
 
 namespace YetaWF.Core.Components {
 
+    /// <summary>
+    /// This static class implements extension methods for YetaWF components.
+    /// </summary>
     public static class YetaWFComponentExtender {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFComponentExtender), name, defaultValue, parms); }
 
-        public class LabelInfo {
+        internal class LabelInfo {
             [UIHint("Label")]
             public string LabelContents { get; set; }
             public string LabelContents_HelpLink { get; set; }
         }
 
+        /// <summary>
+        /// Returns a collection of values suitable for rendering in a DropDownList component.
+        /// </summary>
+        /// <param name="uiHint">The template name found in a UIHintAttribute.</param>
+        /// <returns>Returns a collection of values suitable for rendering in a DropDownList component.</returns>
+        /// <remarks>
+        /// This method can be used with enum types to obtain a collection of values suitable for rendering in a DropDownList component.
+        /// Other components can implement the GetSelectionListAsync method to support retrieval of this collection for any data type.
+        ///
+        /// public async Task&lt;List&lt;SelectionItem&lt;int&gt;&gt;&gt; GetSelectionListAsync(bool showDefault);
+        /// </remarks>
         public static async Task<List<SelectionItem<int>>> GetValueListFromUIHintAsync(string uiHint) {
             Type compType;
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
                 return null;
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
 
-            // Invoke IncludeAsync
+            // Invoke GetSelectionListAsync
+            //$$$TODO: This should be an interface. Using pure reflection is not really the way to go.
             MethodInfo miAsync = compType.GetMethod("GetSelectionListAsync", new Type[] { typeof(bool) });
             if (miAsync == null)
                 return null;
@@ -44,6 +59,14 @@ namespace YetaWF.Core.Components {
             return await methRetvalTask;
         }
 
+        /// <summary>
+        /// Tests whether a valid component can be found for a container's property.
+        /// </summary>
+        /// <param name="container">The container model.</param>
+        /// <param name="propertyName">The property name.</param>
+        /// <param name="UIHint">A template name. May be null to extract the template name from the container's property.</param>
+        /// <returns>Returns true if a valid component can be found.</returns>
+        /// <remarks>This is used by the framework for debugging/testing purposes only.</remarks>
 #if MVC6
         public static bool IsSupported(object container, string propertyName, string UIHint = null)
 #else
@@ -64,6 +87,27 @@ namespace YetaWF.Core.Components {
             return true;
         }
 
+        /// <summary>
+        /// Renders an HTML &lt;label&gt; with the specified attributes.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a label is rendered.</param>
+        /// <param name="ShowVariable">Defines whether the property name is shown as part of the description (tooltip).</param>
+        /// <param name="SuppressIfEmpty">Defines whether an empty string should be generated if the label caption is empty (true), otherwise the label is always generated even if there is no caption (false).</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <returns>Returns HTML with the rendered &lt;label&gt;.</returns>
+        /// <remarks>
+        /// The <paramref name="HtmlAttributes"/> may contain a "Description" entry which is used as the label's description (tooltip).
+        /// If none is provided, the property's DescriptionAttribute is used instead. If this isn't found, the label does not have a description or tooltip.
+        ///
+        /// The <paramref name="HtmlAttributes"/> may contain a "Caption" entry which is used as the label's caption (text).
+        /// If none is provided, the container model's "<paramref name="propertyName"/>_Label" property is retrieved and used as label caption.
+        /// If none is provided, the property's CaptionAttribute is used instead.
+        /// If this isn't found, the label does not have a caption (text).
+        ///
+        /// If the container model's property <paramref name="propertyName"/> has a HelpLinkAttribute, the label has a clickable help icon.
+        /// </remarks>
 #if MVC6
         public static async Task<HtmlString> ForLabelAsync(this IHtmlHelper htmlHelper,
 #else
@@ -112,6 +156,15 @@ namespace YetaWF.Core.Components {
             };
             return await htmlHelper.ForDisplayAsync(info, nameof(LabelInfo.LabelContents), HtmlAttributes: htmlAttributes);
         }
+        /// <summary>
+        /// Renders a display component.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a component is rendered.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <param name="UIHint">The template name used for rendering which identities the component. This may be null, in which case the property's UIHintAttribute is used instead.</param>
+        /// <returns>Returns HTML with the rendered component.</returns>
 #if MVC6
         public static async Task<HtmlString> ForDisplayAsync(this IHtmlHelper htmlHelper,
 #else
@@ -121,6 +174,16 @@ namespace YetaWF.Core.Components {
         {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, null, HtmlAttributes, false, UIHint);
         }
+        /// <summary>
+        /// Renders an edit component.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a component is rendered.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <param name="Validation">Defines whether client-side validation is used.</param>
+        /// <param name="UIHint">The template name used for rendering which identities the component. This may be null, in which case the property's UIHintAttribute is used instead.</param>
+        /// <returns>Returns HTML with the rendered component.</returns>
 #if MVC6
         public static async Task<HtmlString> ForEditAsync(this IHtmlHelper htmlHelper,
 #else
@@ -147,6 +210,16 @@ namespace YetaWF.Core.Components {
             }
             return await RenderComponentAsync(components, renderType, htmlHelper, container, propertyName, fieldName, propData, model, uiHint, htmlAttributes, validation);
         }
+        /// <summary>
+        /// Renders a display component.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a component is rendered.</param>
+        /// <param name="propertyValue">The property value.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <param name="uiHint">The template name used for rendering which identities the component. This may be null, in which case the property's UIHintAttribute is used instead.</param>
+        /// <returns>Returns HTML with the rendered component.</returns>
 #if MVC6
         public static async Task<HtmlString> ForDisplayComponentAsync(this IHtmlHelper htmlHelper,
 #else
@@ -156,6 +229,17 @@ namespace YetaWF.Core.Components {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, null, propData, propertyValue, uiHint, HtmlAttributes, false);
         }
+        /// <summary>
+        /// Renders a edit component.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a component is rendered.</param>
+        /// <param name="propertyValue">The property value.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <param name="Validation">Defines whether client-side validation is used.</param>
+        /// <param name="uiHint">The template name used for rendering which identities the component. This may be null, in which case the property's UIHintAttribute is used instead.</param>
+        /// <returns>Returns HTML with the rendered component.</returns>
 #if MVC6
         public static async Task<HtmlString> ForEditComponentAsync(this IHtmlHelper htmlHelper,
 #else
@@ -165,6 +249,14 @@ namespace YetaWF.Core.Components {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, propertyName, null, propData, propertyValue, uiHint, HtmlAttributes, Validation);
         }
+        /// <summary>
+        /// Renders a display container, a component containing other components.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <param name="uiHint">The template name used for rendering which identities the component.</param>
+        /// <returns>Returns HTML with the rendered components.</returns>
 #if MVC6
         public static async Task<HtmlString> ForDisplayContainerAsync(this IHtmlHelper htmlHelper,
 #else
@@ -173,6 +265,14 @@ namespace YetaWF.Core.Components {
                 object container, string uiHint, object HtmlAttributes = null) {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, null, null, null, null, uiHint, HtmlAttributes, false);
         }
+        /// <summary>
+        /// Renders an edit container, a component containing other components.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <param name="uiHint">The template name used for rendering which identities the component.</param>
+        /// <returns>Returns HTML with the rendered components.</returns>
 #if MVC6
         public static async Task<HtmlString> ForEditContainerAsync(this IHtmlHelper htmlHelper,
 #else
@@ -181,6 +281,21 @@ namespace YetaWF.Core.Components {
                 object container, string uiHint, object HtmlAttributes = null) {
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, htmlHelper, container, null, null, null, null, uiHint, HtmlAttributes, true);
         }
+        /// <summary>
+        /// Renders a display component.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a component is rendered.</param>
+        /// <param name="fieldName">The HTML field name of the component.</param>
+        /// <param name="realPropertyContainer">Instead of using the container <paramref name="container"/>, this container model is used for rendering.</param>
+        /// <param name="realProperty">Instead of using the property <paramref name="propertyName"/>, this container model is used for rendering.</param>
+        /// <param name="model">The container model.</param>
+        /// <param name="uiHint">The template name used for rendering which identities the component.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <returns>Returns HTML with the rendered components.</returns>
+        /// <remarks>This is used to render <paramref name="realProperty"/> where <paramref name="propertyName"/> should be rendered.
+        /// This is typically used to render complex components in place of one simple property.</remarks>
 #if MVC6
         public static async Task<HtmlString> ForDisplayAsAsync(this IHtmlHelper htmlHelper,
 #else
@@ -190,6 +305,21 @@ namespace YetaWF.Core.Components {
             PropertyData realPropData = ObjectSupport.GetPropertyData(realPropertyContainer.GetType(), realProperty);
             return await RenderComponentAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, htmlHelper, container, propertyName, fieldName, realPropData, model, uiHint, HtmlAttributes, false);
         }
+        /// <summary>
+        /// Renders an edit component.
+        /// </summary>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="container">The container model where the specified property <paramref name="propertyName"/> is located.</param>
+        /// <param name="propertyName">The property name for which a component is rendered.</param>
+        /// <param name="fieldName">The HTML field name of the component.</param>
+        /// <param name="realPropertyContainer">Instead of using the container <paramref name="container"/>, this container model is used for rendering.</param>
+        /// <param name="realProperty">Instead of using the property <paramref name="propertyName"/>, this container model is used for rendering.</param>
+        /// <param name="model">The container model.</param>
+        /// <param name="uiHint">The template name used for rendering which identities the component.</param>
+        /// <param name="HtmlAttributes">A collection of attributes.</param>
+        /// <returns>Returns HTML with the rendered components.</returns>
+        /// <remarks>This is used to render <paramref name="realProperty"/> where <paramref name="propertyName"/> should be rendered.
+        /// This is typically used to render complex components in place of one simple property.</remarks>
 #if MVC6
         public static async Task<HtmlString> ForEditAsAsync(this IHtmlHelper htmlHelper,
 #else
@@ -280,6 +410,15 @@ namespace YetaWF.Core.Components {
             }
         }
 
+        /// <summary>
+        /// Extracts all UIHint information from the specified <paramref name="type"/> and adds all required addons for the components used.
+        /// </summary>
+        /// <param name="type">The model type.</param>
+        /// <remarks>Addons can only be added during an initial HTTP Get request. Some components (Grid component, Tree component) may
+        /// need to render an empty component first and record data is added later during HTTP Post requests.
+        ///
+        /// The AddTemplatesForType method is used during the initial HTTP Get request to add all required addons for all components used so they are later available when record data is added to the component.
+        /// </remarks>
         public static async Task AddTemplatesForType(Type type) {
             List<PropertyData> propData = ObjectSupport.GetPropertyData(type);
             foreach (PropertyData prop in propData) {
@@ -293,10 +432,10 @@ namespace YetaWF.Core.Components {
                 }
             }
         }
-        public static async Task MarkUsedDisplayAsync(string UIHint) {
+        internal static async Task MarkUsedDisplayAsync(string UIHint) {
             await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, UIHint);
         }
-        public static async Task MarkUsedEditAsync(string UIHint = null) {
+        internal static async Task MarkUsedEditAsync(string UIHint = null) {
             await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, UIHint);
         }
         private static async Task MarkUsedAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, string uIHint) {

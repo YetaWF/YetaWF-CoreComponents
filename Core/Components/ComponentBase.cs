@@ -48,19 +48,47 @@ namespace YetaWF.Core.Components {
         Task<YHtmlString> RenderContainerAsync(TYPE model);
     }
 
+    /// <summary>
+    /// The base class for all components used in YetaWF.
+    /// </summary>
     public abstract class YetaWFComponentBase {
 
+        /// <summary>
+        /// The YetaWF.Core.Support.Manager instance of current HTTP request.
+        /// </summary>
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
+        /// <summary>
+        /// The component type. YetaWF supports edit components which are used to input data and are modifiable and display components which are used to display data and cannot be modified.
+        /// </summary>
         public enum ComponentType {
+            /// <summary>
+            /// Display component.
+            /// </summary>
             Display = 0,
+            /// <summary>
+            /// Edit component.
+            /// </summary>
             Edit = 1,
         }
 
+        /// <summary>
+        /// Contructor.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public YetaWFComponentBase() {
+            Package = GetPackage();
+        }
+
+        /// <summary>
+        /// Defines the package implementing this component.
+        /// </summary>
+        public readonly Package Package;
+
 #if MVC6
-        public void SetRenderInfo(IHtmlHelper htmlHelper,
+        internal void SetRenderInfo(IHtmlHelper htmlHelper,
 #else
-        public void SetRenderInfo(HtmlHelper htmlHelper,
+        internal void SetRenderInfo(HtmlHelper htmlHelper,
 #endif
              object container, string propertyName, string fieldName, PropertyData propData, object htmlAttributes, bool validation)
         {
@@ -79,6 +107,11 @@ namespace YetaWF.Core.Components {
             HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
         }
+
+        /// <summary>
+        /// A component can opt-in to use the HTML id provided by HtmlAttributes if one is available.
+        /// </summary>
+        /// <remarks>TODO: This method is a poor idea and will be reviewed/changed.</remarks>
         protected void UseSuppliedIdAsControlId() {
             if (HtmlAttributes.ContainsKey("id")) {
                 ControlId = (string)HtmlAttributes["id"];
@@ -86,6 +119,15 @@ namespace YetaWF.Core.Components {
             }
         }
 
+        /// <summary>
+        /// Converts an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object to a dictionary.
+        /// </summary>
+        /// <param name="htmlAttributes">An anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object.</param>
+        /// <returns>Returns a dictionary with the key/values of the provided object <paramref name="htmlAttributes"/>.</returns>
+        /// <remarks>
+        /// This is intended for use with HTML attributes that may use different containers (an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object).
+        ///
+        /// If an anonymous object is used, underscore characters (_) are replaced with hyphens (-) in the keys of the specified HTML attributes.</remarks>
         public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
@@ -96,6 +138,9 @@ namespace YetaWF.Core.Components {
 #endif
         }
 
+        /// <summary>
+        /// Returns the HtmlHelper instance.
+        /// </summary>
 #if MVC6
         public IHtmlHelper HtmlHelper
 #else
@@ -116,12 +161,22 @@ namespace YetaWF.Core.Components {
 #else
         private HtmlHelper _htmlHelper;
 #endif
+
+        /// <summary>
+        /// The container model for which this component is used/rendered.
+        /// </summary>
         public object Container { get; private set; }
 
+        /// <summary>
+        /// Returns whether the component is a container component, i.e., can contain other components.
+        /// </summary>
         public bool IsContainerComponent {
             get { return _propertyName == null; }
         }
 
+        /// <summary>
+        /// Defines the name of the property in the container that this components represents.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string PropertyName {
             get {
@@ -134,6 +189,9 @@ namespace YetaWF.Core.Components {
         }
         string _propertyName;
 
+        /// <summary>
+        /// Defines the YetaWF.Core.Models.PropertyData instance of the property in the container that this components represents.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public PropertyData PropData {
             get {
@@ -146,8 +204,15 @@ namespace YetaWF.Core.Components {
         }
         PropertyData _propData;
 
+        /// <summary>
+        /// Defines the prefix used when generating an HTML field name for the component.
+        /// A prefix is typically present with nested components.
+        /// </summary>
         public string FieldNamePrefix { get; private set; }
 
+        /// <summary>
+        /// The HTML field name of the components.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string FieldName {
             get {
@@ -160,15 +225,19 @@ namespace YetaWF.Core.Components {
         }
         string _fieldName;
 
+        /// <summary>
+        /// HTML attributes that were provided to render the component.
+        /// </summary>
         public IDictionary<string, object> HtmlAttributes { get; private set; }
+
+        /// <summary>
+        /// Defines whether the component requires client-side validation.
+        /// </summary>
         public bool Validation { get; private set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public YetaWFComponentBase() {
-            Package = GetPackage();
-        }
-        public readonly Package Package;
-
+        /// <summary>
+        /// The HTML id of this component.
+        /// </summary>
         public string ControlId {
             get {
                 if (string.IsNullOrEmpty(_controlId))
@@ -181,6 +250,11 @@ namespace YetaWF.Core.Components {
         }
         private string _controlId;
 
+        /// <summary>
+        /// The HTML id used for a &lt;div&gt; tag.
+        /// </summary>
+        /// <remarks>This is a convenience property, so a component can reference one of its &lt;div&gt; tags by id.
+        ///</remarks>
         public string DivId {
             get {
                 if (string.IsNullOrEmpty(_divId))
@@ -190,19 +264,48 @@ namespace YetaWF.Core.Components {
         }
         private string _divId;
 
+        /// <summary>
+        /// Returns a unique HTML id.
+        /// </summary>
+        /// <param name="name">A string prefix prepended to the generated id.</param>
+        /// <returns>A unique HTML id.</returns>
+        /// <remarks>Every call to the Unique() method returns a new, unique id.</remarks>
         public string UniqueId(string name = "b") {
             return Manager.UniqueId(name);
         }
 
+        /// <summary>
+        /// Encodes the provided <paramref name="text"/> suitable for use as an HTML attribute data value.
+        /// </summary>
+        /// <param name="text">The string to encode.</param>
+        /// <returns>Returns an encoded HTML attribute data value.</returns>
         public static string HAE(string text) {
             return YetaWFManager.HtmlAttributeEncode(text);
         }
+        /// <summary>
+        /// Encodes the provided <paramref name="text"/> suitable for use as HTML.
+        /// </summary>
+        /// <param name="text">The string to encode.</param>
+        /// <returns>Returns encoded HTML.</returns>
         public static string HE(string text) {
             return YetaWFManager.HtmlEncode(text);
         }
+        /// <summary>
+        /// Encodes the provided <paramref name="text"/> suitable for use as a JavaScript string.
+        /// </summary>
+        /// <param name="text">The string to encode.</param>
+        /// <returns>Returns encoded JavaScript string.
+        /// The string to encode should not use surrounding quotes.
+        /// These must be added after encoding.
+        /// </returns>
         public static string JE(string text) {
             return YetaWFManager.JserEncode(text);
         }
+        /// <summary>
+        /// Encodes the provided <paramref name="val"/> a JavaScript true/false string.
+        /// </summary>
+        /// <param name="val">The value to encode.</param>
+        /// <returns>Returns a JavaScript true/false string.</returns>
         public static string JE(bool val) {
             return val ? "true" : "false";
         }

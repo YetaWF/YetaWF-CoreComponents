@@ -21,7 +21,7 @@ namespace YetaWF.Core.Components {
     /// The default package YetaWF.ComponentsHTML implements all default components and views and renders them using Kendo UI, jQuery and jQuery-UI.
     ///
     /// Other application packages can also implement their own components and views in their own package folder .\Components and .\Views respectively.
-    /// Any application implementing components and views referencing the YetaWF.ComponentsHTML package must be located in the
+    /// Any components and views an application implements (referencing the YetaWF.ComponentsHTML package) must be located in the
     /// package's .\Components\HTML and .\Views\HTML folders.
     /// </remarks>
     public interface IYetaWFCoreRendering {
@@ -83,7 +83,7 @@ namespace YetaWF.Core.Components {
         /// <param name="menu">The menu to render.</param>
         /// <param name="id">The menu ID to generate.</param>
         /// <param name="cssClass">The optional CSS classes to use for the menu.</param>
-        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="HtmlHelper">The HtmlHelper instance.</param>
         /// <returns>Returns the complete menu as HTML.</returns>
         Task<YHtmlString> RenderMenuListAsync(MenuList menu, string id = null, string cssClass = null,
 #if MVC6
