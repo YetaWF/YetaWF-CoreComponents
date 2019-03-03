@@ -34,9 +34,9 @@ namespace YetaWF.Core.Log {
         /// <param name="text">The log message.</param>
         void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text);
         /// <summary>
-        /// Returns the minimum severity level that are logged by the logging data provider.
+        /// Returns the minimum severity level that is logged by the logging data provider.
         /// </summary>
-        /// <returns>Returns the minimum severity level that are logged by the logging data provider.</returns>
+        /// <returns>Returns the minimum severity level that is logged by the logging data provider.</returns>
         Logging.LevelEnum GetLevel();
         /// <summary>
         /// Returns whether the logging data provider is installed and available.

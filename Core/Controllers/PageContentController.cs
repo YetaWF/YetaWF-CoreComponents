@@ -28,9 +28,9 @@ namespace YetaWF.Core.Controllers {
     /// because we handle all this here.</remarks>
     public class PageContentController : Controller {
 
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        internal static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public class PageContentResult : YJsonResult {
+        internal class PageContentResult : YJsonResult {
             public PageContentResult() {
 #if MVC6
 #else
@@ -41,7 +41,7 @@ namespace YetaWF.Core.Controllers {
             }
             public PageContentData Result { get; set; }
         }
-        public class PageContentData {
+        internal class PageContentData {
             public PageContentData() {
                 Content = new List<PaneContent>();
                 ScriptFiles = new List<UrlEntry>();
@@ -131,35 +131,75 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public string AnalyticsContent { get; internal set; }
         }
-        public class PaneContent {
+        internal class PaneContent {
             public string Pane { get; set; }
             public string HTML { get; set; }
         }
-        public class Payload {
+        internal class Payload {
             public string Name { get; set; }
             public string Text { get; set; }
         }
-        public class UrlEntry {
+        internal class UrlEntry {
             public string Name { get; set; }
             public string Url { get; set; }
         }
 
         /// <summary>
-        /// Data received from client side for the requested page.
+        /// Data received from the client for the requested page.
         /// </summary>
+        /// <remarks>An instance of this class is sent from the client to request a "Single Page Application" update to change from the current page URL to the requested URL.</remarks>
         public class DataIn {
+            /// <summary>
+            /// The current's page version. If there is a version mismatch, the site has been restarted and a full page is returned instead.
+            /// </summary>
             public string CacheVersion { get; set; }
+            /// <summary>
+            /// The path of the requested page.
+            /// </summary>
             public string Path { get; set; }
+            /// <summary>
+            /// The query string of the requested page.
+            /// </summary>
             public string QueryString { get; set; }
+            /// <summary>
+            /// The Guid of the unified page set the current page is part of. If the requested URL uses a different unified page set, a full page is returned instead.
+            /// </summary>
             public string UnifiedSetGuid { get; set; }
+            /// <summary>
+            /// The mode of the current page's unified page set. If the requested URL uses a different unified page set, a full page is returned instead.
+            /// </summary>
             public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
+            /// <summary>
+            /// A list of "Referenced Modules" that have been loaded by the current page.
+            /// </summary>
             public List<Guid> UnifiedAddonMods { get; set; }
+            /// <summary>
+            /// The unique id prefix counter used by the current page. This value is used to prevent collisions when generating unique HTML tag ids.
+            /// </summary>
             public int UniqueIdPrefixCounter { get; set; }
+            /// <summary>
+            /// Defines whether the current page was rendered on a mobile device.
+            /// </summary>
             public bool IsMobile { get; set; }
+            /// <summary>
+            /// Defines the skin collection used by the current page.
+            /// </summary>
             public string UnifiedSkinCollection { get; set; }
+            /// <summary>
+            /// Defines the skin collection's file used by the current page.
+            /// </summary>
             public string UnifiedSkinFileName { get; set; }
+            /// <summary>
+            /// THe collection of pages requested.
+            /// </summary>
             public List<string> Panes { get; set; }
+            /// <summary>
+            /// A collection of all CSS files the client has already loaded.
+            /// </summary>
             public List<string> KnownCss { get; set; }
+            /// <summary>
+            /// A collection of all JavaScript files the client has already loaded.
+            /// </summary>
             public List<string> KnownScripts { get; set; }
         }
 #if MVC6
@@ -175,7 +215,7 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// The Show action handles all page content requests within YetaWF.
         /// </summary>
-        /// <param name="path">The local Url requested.</param>
+        /// <param name="dataIn">Describes the data requested.</param>
         /// <returns></returns>
         [AllowGet]
         public async Task<ActionResult> Show([FromBody] DataIn dataIn) {
@@ -365,7 +405,7 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        protected enum ProcessingStatus {
+        internal enum ProcessingStatus {
             No = 0, // not processed, try something else
             Page = 1, // Page has been set up
             Complete = 2,// no more processing is needed

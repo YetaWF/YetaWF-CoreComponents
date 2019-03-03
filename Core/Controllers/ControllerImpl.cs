@@ -173,11 +173,11 @@ namespace YetaWF.Core.Controllers {
         }
 
         /// <summary>
-        /// Returns the Url for the requested action with the specified arguments formatted as query string.
+        /// Returns the URL for the requested action with the specified arguments formatted as query string.
         /// </summary>
         /// <param name="actionName">The name of the action within the controller.</param>
         /// <param name="args">Optional anonymous object with arguments to be formatted as query string.</param>
-        /// <returns>The Url.</returns>
+        /// <returns>The URL.</returns>
         public string GetActionUrl(string actionName, object args = null) {
             string url = "/" + Area + "/" + ControllerName + "/" + actionName;
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
@@ -362,7 +362,7 @@ namespace YetaWF.Core.Controllers {
 #endif
         }
 
-        public static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
+        internal static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
             if (model == null) return;
             Type modelType = model.GetType();
             if (ModelState.Keys.Count() == 0) return;
@@ -457,16 +457,25 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
+        /// <summary>
+        /// Returns whether the current form submission used the Apply button to submit the form.
+        /// </summary>
         public bool IsApply {
             get {
                 return (Manager.RequestForm[Globals.Link_SubmitIsApply] != null);
             }
         }
+        /// <summary>
+        /// Returns whether the current form submission is intended to reload the form without validation, essentially Apply without validation.
+        /// </summary>
         public bool IsReload {
             get {
                 return (Manager.RequestForm[Globals.Link_SubmitIsReload] != null);
             }
         }
+        /// <summary>
+        /// Returns whether the current form submission used the Submit button to submit the form.
+        /// </summary>
         public bool IsSubmit {
             get {
                 return !IsApply && !IsReload;
@@ -703,19 +712,43 @@ namespace YetaWF.Core.Controllers {
         // VIEW
 
         /// <summary>
-        /// Invoke a view from a module controller.
+        /// Invokes a view from a module controller.
         /// </summary>
         /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new YetaWFViewResult View() { throw new NotSupportedException(); }
 #if MVC6
 #else
+        /// <summary>
+        /// Returns a view action result. Not supported in YetaWF.
+        /// </summary>
+        /// <param name="view">IView interface.</param>
+        /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new YetaWFViewResult View(IView view) { throw new NotSupportedException(); }
+        /// <summary>
+        /// Returns a view action result. Not supported in YetaWF.
+        /// </summary>
+        /// <param name="view">IView interface.</param>
+        /// <param name="model">The data model.</param>
+        /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new YetaWFViewResult View(IView view, object model) { throw new NotSupportedException(); }
+        /// <summary>
+        /// Returns a view action result. Not supported in YetaWF.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="masterName">The master page name.</param>
+        /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new YetaWFViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
+        /// <summary>
+        /// Returns a view action result. Not supported in YetaWF.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <param name="masterName">The master page name.</param>
+        /// <param name="model">The data model.</param>
+        /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new virtual YetaWFViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
 #endif
@@ -766,6 +799,9 @@ namespace YetaWF.Core.Controllers {
             return new YetaWFViewResult(this, viewName, CurrentModule, model);
         }
 
+        /// <summary>
+        /// An instance of the YetaWFViewResult is returned from action methods when requesting views.
+        /// </summary>
         public class YetaWFViewResult : ActionResult {
 
             private ModuleDefinition Module { get; set; }
@@ -773,6 +809,13 @@ namespace YetaWF.Core.Controllers {
             private string ViewName { get; set; }
             private YetaWFController RequestingController { get; set; }
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="requestingController">The controller requesting the view.</param>
+            /// <param name="viewName">The name of the view.</param>
+            /// <param name="module">The module on behalf of which to view is rendered.</param>
+            /// <param name="model">The view's data model.</param>
             public YetaWFViewResult(YetaWFController requestingController, string viewName, ModuleDefinition module, object model) {
                 ViewName = viewName;
                 Module = module;
@@ -806,6 +849,10 @@ namespace YetaWF.Core.Controllers {
                 }
             }
 #else
+            /// <summary>
+            /// Enables processing of the result of an action method by a custom type that inherits from the ActionResult class.
+            /// </summary>
+            /// <param name="context">The context in which the result is executed. The context information includes the controller, HTTP content, request context, and route data.</param>
             public override void ExecuteResult(ControllerContext context) {
 
                 TextWriter sw = context.HttpContext.Response.Output;
@@ -846,8 +893,17 @@ namespace YetaWF.Core.Controllers {
         /// The type of form reload used with the Reload method.
         /// </summary>
         protected enum ReloadEnum {
+            /// <summary>
+            /// The entire page is reloaded.
+            /// </summary>
             Page = 1,
+            /// <summary>
+            /// The entire module is reloaded. Not currently supported. Use Page to reload the entire page instead.
+            /// </summary>
             Module = 2, // TODO: The entire module is not currently supported - use page reload instead
+            /// <summary>
+            /// Parts of the module are reloaded. E.g., in a grid control the data is reloaded.
+            /// </summary>
             ModuleParts = 3
         }
 
@@ -860,8 +916,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
         /// <param name="Reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
         /// <returns></returns>
-        protected ActionResult Reload(object model = null, int dummy = 0, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page)
-        {
+        protected ActionResult Reload(object model = null, int dummy = 0, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page) {
             if (Manager.IsPostRequest) {
                 switch (Reload) {
                     default:
@@ -1034,9 +1089,10 @@ namespace YetaWF.Core.Controllers {
         /// <param name="OnClose">The action to take when the page is closed. This is only used if a page is closed (as opposed to a popup or when the Apply button was processed).</param>
         /// <param name="OnPopupClose">The action to take when a popup is closed. This is only used if a popup is closed (as opposed to a page or when the Apply button was processed).</param>
         /// <param name="OnApply">The action to take when the Apply button was processed.</param>
-        /// <param name="NextPage">The Url where the page is redirected (OnClose or OnPopupClose must request a matching action, otherwise this is ignored).</param>
+        /// <param name="NextPage">The URL where the page is redirected (OnClose or OnPopupClose must request a matching action, otherwise this is ignored).</param>
         /// <param name="ExtraJavaScript">Optional additional Javascript code that is returned as part of the ActionResult.</param>
         /// <param name="ForceRedirect">Force a real redirect bypassing Unified Page Set handling.</param>
+        /// <param name="PopupOptions">TODO: This is not a good option, passes JavaScript/JSON to the client side for the popup window.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
@@ -1263,19 +1319,20 @@ namespace YetaWF.Core.Controllers {
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(ModuleAction action, string ExtraJavascript = null) {
+        protected ActionResult Redirect(ModuleAction action) {
             if (action == null)
                 return Redirect("");
             return Redirect(action.GetCompleteUrl(), ForcePopup: action.Style == ModuleAction.ActionStyleEnum.Popup || action.Style == ModuleAction.ActionStyleEnum.ForcePopup);
         }
 
         /// <summary>
-        /// Redirect to the specified target Url.
+        /// Redirects to the specified target URL.
         /// </summary>
-        /// <param name="url">The Url defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
+        /// <param name="url">The URL defining the target where the page is redirected. If null is specified, the site's Home page is used instead.</param>
         /// <param name="ForcePopup">true if the redirect should occur in a popup window, false otherwise for a redirect within the browser window.</param>
         /// <param name="SetCurrentEditMode">true if the new page should be shown using the current Site Edit/Display Mode, false otherwise.</param>
-        /// <param name="ExtraJavascript">Optional Javascript code executed when redirecting to another Url within a Unified Page Set.</param>
+        /// <param name="ExtraJavascript">Optional Javascript code executed when redirecting to another URL within a Unified Page Set.</param>
+        /// <param name="SetCurrentControlPanelMode">Sets the current control panel mode (visibility).</param>
         /// <param name="ForceRedirect">true to force a page load (even in a Unified Page Set), false otherwise to use the default page or page content loading.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>

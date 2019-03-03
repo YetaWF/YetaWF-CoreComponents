@@ -17,7 +17,7 @@ namespace YetaWF.Core.Controllers {
     /// Used to return a ZIP file from a controller.
     /// </summary>
     /// <remarks>
-    /// This action result works in conjunction with javascript in basics.js returning a cookie indicating the file is available.
+    /// This action result works in conjunction with JavaScript in Basics.ts returning a cookie indicating the file is available.
     /// </remarks>
     public class ZippedFileResult : ActionResult {
 
@@ -37,11 +37,10 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Processes the result of an action method.
         /// </summary>
+        /// <param name="context">The controller context.</param>
 #if MVC6
-        /// <param name="context">The action context.</param>
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
-        /// <param name="context">The controller context.</param>
         public override void ExecuteResult(ControllerContext context) {
             YetaWFManager.Syncify(async () => { // sorry, MVC5, no async for you
 #endif

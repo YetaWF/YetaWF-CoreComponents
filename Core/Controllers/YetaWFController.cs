@@ -50,6 +50,9 @@ namespace YetaWF.Core.Controllers
                                     Controller
 #endif
     {
+        /// <summary>
+        /// The YetaWFManager instance for the current HTTP request.
+        /// </summary>
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
 #else
@@ -65,10 +68,10 @@ namespace YetaWF.Core.Controllers
         }
 #endif
         /// <summary>
-        /// Defines whether the action can return a Javascript result to be executed client-side.
+        /// Defines whether the action can return a JavaScript result to be executed client-side.
         /// </summary>
-        /// <remarks>Most actions can accept a Javascript result which is executed client-side.
-        /// For some "plain old" MVC controllers, a Javascript result is not acceptable, so these need to override and return false.</remarks>
+        /// <remarks>Most actions can accept a JavaScript result which is executed client-side.
+        /// For some "plain old" MVC controllers, a JavaScript result is not acceptable, so these need to override and return false.</remarks>
         public virtual bool AllowJavascriptResult { get; set; }
 
         /// <summary>
@@ -169,10 +172,11 @@ namespace YetaWF.Core.Controllers
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
-        /// Redirect with a message - THIS ONLY WORKS FOR A GET REQUEST.
+        /// Redirects to a page that displaus a message - THIS ONLY WORKS FOR A GET REQUEST.
         /// </summary>
-        /// <param name="Message">Error message to display.</param>
-        /// <returns></returns>
+        /// <param name="message">Error message to display.</param>
+        /// <param name="statusCode">The HTTP status code.</param>
+        /// <returns>The URL to redirect to.</returns>
         private string MessageUrl(string message, int statusCode) {
             // we're in a GET request without module, so all we can do is redirect and show the message in the ShowMessage module
             // the ShowMessage module is in the Basics package and we reference it by permanent Guid
@@ -199,7 +203,7 @@ namespace YetaWF.Core.Controllers
             base.OnActionExecuting(filterContext);
         }
 #endif
-        protected async Task SetupActionContextAsync(ActionExecutingContext filterContext) {
+        internal async Task SetupActionContextAsync(ActionExecutingContext filterContext) {
             await SetupEnvironmentInfoAsync();
             await GetModuleAsync();
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
@@ -252,7 +256,7 @@ namespace YetaWF.Core.Controllers
             base.OnAuthentication(filterContext);
         }
 #endif
-        public static async Task SetupEnvironmentInfoAsync() {
+        internal static async Task SetupEnvironmentInfoAsync() {
 
             if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled
                 GetCharSize();
@@ -271,7 +275,7 @@ namespace YetaWF.Core.Controllers
                 Manager.LocalizationSupportEnabled = true;
             }
         }
-        protected static void GetCharSize() {
+        internal static void GetCharSize() {
             string wh = null;
             try {
                 wh = Manager.RequestForm[Globals.Link_CharInfo];
@@ -288,7 +292,7 @@ namespace YetaWF.Core.Controllers
                 Manager.NewCharSize(width, height);
             }
         }
-        public static bool GoingToPopup() {
+        internal static bool GoingToPopup() {
             string toPopup = null;
             try {
                 toPopup = Manager.RequestForm[Globals.Link_ToPopup];
@@ -297,7 +301,7 @@ namespace YetaWF.Core.Controllers
             } catch (Exception) { }
             return toPopup != null;
         }
-        protected static bool InPopup() {
+        internal static bool InPopup() {
             string inPopup = null;
             try {
                 inPopup = Manager.RequestForm[Globals.Link_InPopup];
@@ -306,7 +310,7 @@ namespace YetaWF.Core.Controllers
             } catch (Exception) { }
             return inPopup != null;
         }
-        protected static bool PageControlShown() {
+        internal static bool PageControlShown() {
             string pageControlShown = null;
             try {
                 pageControlShown = Manager.RequestForm[Globals.Link_PageControl];
@@ -315,7 +319,7 @@ namespace YetaWF.Core.Controllers
             } catch (Exception) { }
             return pageControlShown != null;
         }
-        protected static bool GetTempEditMode() {
+        internal static bool GetTempEditMode() {
             if (!Manager.HaveUser)
                 return false;
             try {
@@ -325,7 +329,7 @@ namespace YetaWF.Core.Controllers
             } catch (Exception) { }
             return false;
         }
-        protected static List<Origin> GetOriginList() {
+        internal static List<Origin> GetOriginList() {
 
             // Get info where we came from for return handling. We append the originlist when we
             // use links within our site. (We don't use UrlReferrer or the browser's history).
@@ -354,9 +358,10 @@ namespace YetaWF.Core.Controllers
         // GRID PARTIALVIEW
 
         /// <summary>
-        /// An action result that renders a grid as a partial view.
+        /// Returns an action result that renders a grid as a partial view.
         /// </summary>
         /// <remarks>Used for static grids.</remarks>
+        /// <returns>Returns an action result that renders a grid as a partial view.</returns>
         protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             // save settings
             YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
@@ -366,9 +371,10 @@ namespace YetaWF.Core.Controllers
             return await GridPartialViewAsync(gridModel, ds, objList, fieldPrefix, skip, take, sorts, filters);
         }
         /// <summary>
-        /// An action result that renders a grid as a partial view.
+        /// Returns an action result that renders a grid as a partial view.
         /// </summary>
         /// <remarks>Used for Ajax grids.</remarks>
+        /// <returns>Returns an action result that renders a grid as a partial view.</returns>
         protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             // save settings
             YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
@@ -376,8 +382,9 @@ namespace YetaWF.Core.Controllers
             return await GridPartialViewAsync(gridModel, data, null, fieldPrefix, skip, take, sorts, filters);
         }
         /// <summary>
-        /// An action result that renders a grid as a partial view.
+        /// Returns an action result that renders a grid as a partial view.
         /// </summary>
+        /// <remarks>Returns an action result that renders a grid as a partial view.</remarks>
         protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
@@ -413,11 +420,12 @@ namespace YetaWF.Core.Controllers
         /// <summary>
         /// Returns an action to render a partial view.
         /// </summary>
-        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
-        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns></returns>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
+        /// <returns>Returns an action to render a partial view.</returns>
         protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
             return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
         }
@@ -426,11 +434,12 @@ namespace YetaWF.Core.Controllers
         /// Returns an action to render a partial view.
         /// </summary>
         /// <param name="model">The model.</param>
-        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
-        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns></returns>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
+        /// <returns>Returns an action to render a partial view.</returns>
         protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
             return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
         }
@@ -439,11 +448,12 @@ namespace YetaWF.Core.Controllers
         /// Returns an action to render a partial view.
         /// </summary>
         /// <param name="viewName">The name of the partial view.</param>
-        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
-        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns></returns>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
+        /// <returns>Returns an action to render a partial view.</returns>
         protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
             return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
         }
@@ -453,11 +463,12 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <param name="viewName">The name of the partial view.</param>
         /// <param name="model">The model.</param>
-        /// <param name="Script">Optional Javascript executed client-side when the view is rendered.</param>
+        /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, Javascript, etc.</param>
-        /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
-        /// <returns></returns>
+        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
+        /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
+        /// <returns>Returns an action to render a partial view.</returns>
         protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
 
             if (model != null) {
@@ -488,10 +499,13 @@ namespace YetaWF.Core.Controllers
 #else
         public class PartialViewResult : System.Web.Mvc.PartialViewResult {
 #endif
-
+            /// <summary>
+            /// The YetaWFManager instance for the current HTTP request.
+            /// </summary>
             protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
             private const string DefaultContentType = "text/html";
+
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -505,7 +519,7 @@ namespace YetaWF.Core.Controllers
             /// </summary>
             public ModuleDefinition Module { get; set; }
             /// <summary>
-            /// The Javascript to be executed client-side after the partial view has been rendered.
+            /// The JavaScript to be executed client-side after the partial view has been rendered.
             /// </summary>
             public ScriptBuilder Script { get; set; }
 #if MVC6

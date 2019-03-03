@@ -482,7 +482,7 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        public async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
+        internal async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
 
             if (cr == null)
                 Manager.Verify_NotPostRequest();
@@ -721,7 +721,7 @@ namespace YetaWF.Core.Pages {
             return sb;
         }
 
-        public string RenderEndofPageScripts(PageContentController.PageContentData cr = null) {
+        internal string RenderEndofPageScripts(PageContentController.PageContentData cr = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbB = RenderScriptsPartB();

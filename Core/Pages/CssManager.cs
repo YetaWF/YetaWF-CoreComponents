@@ -207,7 +207,7 @@ namespace YetaWF.Core.Pages {
                 return Manager.CurrentSite.BundleCSSFiles;
         }
 
-        public async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
+        internal async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;

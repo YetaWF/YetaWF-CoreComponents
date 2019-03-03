@@ -28,6 +28,9 @@ namespace YetaWF.Core.Controllers {
     /// because we handle all this here. This controller is used for page and single module display (GET/HEAD requests only).</remarks>
     public class PageController : Controller {
 
+        /// <summary>
+        /// The YetaWFManager instance for the current HTTP request.
+        /// </summary>
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
 #if MVC6
@@ -471,12 +474,12 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        protected enum ProcessingStatus {
+        internal enum ProcessingStatus {
             No = 0, // not processed, try something else
             Page = 1, // Page has been set up
             Complete = 2,// no more processing is needed
         }
-        public class CanProcessAsStaticPageInfo {
+        internal class CanProcessAsStaticPageInfo {
             public string Contents { get; set; }
             public bool Success { get; set; }
         }

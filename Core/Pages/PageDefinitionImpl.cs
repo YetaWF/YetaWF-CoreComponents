@@ -613,7 +613,7 @@ namespace YetaWF.Core.Pages {
 #if MVC6
         public async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper,
 #else
-        public async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper,
+        internal async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper,
 #endif
             PageContentController.DataIn dataIn, PageContentController.PageContentData model, bool MainOnly = false)
         {

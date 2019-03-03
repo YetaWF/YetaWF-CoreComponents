@@ -13,10 +13,18 @@ using YetaWF.Core.Packages;
 [assembly: OwinStartup(typeof(YetaWF.Core.Support.OwinStartup))]
 namespace YetaWF.Core.Support {
 
-    public interface IInitializeOwinStartup { // any class defining this interface is called during application startup
+    /// <summary>
+    /// Classes that implement this interface are called during application startup.
+    /// </summary>
+    /// <remarks>This is only used for ASP.NET. ASP.NET Core does not use the IInitializeOwinStartup interface.</remarks>
+    public interface IInitializeOwinStartup {
         void InitializeOwinStartup(IAppBuilder app);
     }
 
+    /// <summary>
+    /// An instance of this class is instantiated during application startup and the Configuration method is called.
+    /// The Configuration method instantiates all classes that implement the IInitializeOwinStartup interface and calls their InitializeOwinStartup method.
+    /// </summary>
     public class OwinStartup {
 
         public void Configuration(IAppBuilder app) {
