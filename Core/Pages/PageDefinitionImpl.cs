@@ -611,7 +611,7 @@ namespace YetaWF.Core.Pages {
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>
 #if MVC6
-        public async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper,
+        internal async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper,
 #else
         internal async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper,
 #endif

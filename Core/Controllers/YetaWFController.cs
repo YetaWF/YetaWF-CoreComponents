@@ -256,7 +256,7 @@ namespace YetaWF.Core.Controllers
             base.OnAuthentication(filterContext);
         }
 #endif
-        internal static async Task SetupEnvironmentInfoAsync() {
+        public static async Task SetupEnvironmentInfoAsync() {
 
             if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled
                 GetCharSize();

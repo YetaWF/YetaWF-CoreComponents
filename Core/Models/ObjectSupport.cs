@@ -12,12 +12,10 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using System.Collections;
+using YetaWF.Core.IO;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #else
 using System.Web.Mvc;
-using YetaWF.Core.IO;
 #endif
 #if NETSTANDARD || NETCOREAPP
 #else
