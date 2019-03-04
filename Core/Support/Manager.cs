@@ -603,28 +603,7 @@ namespace YetaWF.Core.Support {
             if (string.IsNullOrWhiteSpace(s)) return null;
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
-            for (int len = s.Length, ix = 0; ix < len; ++ix) {
-                char c = s[ix];
-                if (c == '?' || c == '#') {
-                    sb.Append(s.Substring(ix));
-                    break;
-                }
-                if (c == '%') {
-                    if (ix + 1 < len && char.IsNumber(s[ix + 1])) {
-                        if (ix + 2 < len && char.IsNumber(s[ix + 2])) {
-                            string val = s[ix + 1].ToString() + s[ix + 2].ToString();
-                            sb.Append(Convert.ToChar(Convert.ToInt32(val, 16)));
-                            ix += 2;// all good, skip %nn
-                        } else {
-                            sb.Append(c);
-                        }
-                    } else {
-                        sb.Append(c);
-                    }
-                } else {
-                    sb.Append(c);
-                }
-            }
+            sb.Append(Uri.UnescapeDataString(s));
             return sb.ToString();
         }
 
