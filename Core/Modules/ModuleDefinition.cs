@@ -58,7 +58,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             /// </summary>
             public const string EditApply = "EditApply";
             /// <summary>
-            /// Display view Cancel button.
+            /// Display view with Cancel button.
             /// </summary>
             public const string Display = "Display";
 
