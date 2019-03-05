@@ -266,11 +266,11 @@ namespace YetaWF.Core.Pages {
                 bool anon = page.IsAuthorized_View_Anonymous();
                 bool user = page.IsAuthorized_View_AnyUser();
                 if (!anon && !user)
-                    s = YetaWFManager.CombineCss(s, "ypagerole_noUserAnon");
+                    s = CssManager.CombineCss(s, "ypagerole_noUserAnon");
                 else if (!anon)
-                    s = YetaWFManager.CombineCss(s, "ypagerole_noAnon");
+                    s = CssManager.CombineCss(s, "ypagerole_noAnon");
                 else if (!user)
-                    s = YetaWFManager.CombineCss(s, "ypagerole_noUser");
+                    s = CssManager.CombineCss(s, "ypagerole_noUser");
             }
             return s;
         }

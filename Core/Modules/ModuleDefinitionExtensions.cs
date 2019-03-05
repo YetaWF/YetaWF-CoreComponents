@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Skins;
+using YetaWF.Core.Pages;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -116,7 +117,7 @@ namespace YetaWF.Core.Modules {
                     action.MenuText = __ResStr("editControlLinkToView", "Switch to View Mode");
                 }
                 if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UsingBootstrapButtons)
-                    action.CssClass = YetaWFManager.CombineCss(action.CssClass, "btn btn-outline-primary");
+                    action.CssClass = CssManager.CombineCss(action.CssClass, "btn btn-outline-primary");
                 tag.SetInnerHtml((await action.RenderAsButtonIconAsync(Globals.IdEditControlButton)).ToString() + (await mod.RenderModuleAsync(htmlHelper)).ToString());// mainly just to get js/css, the module is normally empty
 
                 return tag.ToHtmlString(TagRenderMode.Normal);

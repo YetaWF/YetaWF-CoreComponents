@@ -32,6 +32,36 @@ namespace YetaWF.Core.Pages {
         private readonly List<string> _CssFileKeys = new List<string>(); // already processed script files (not necessarily added to page yet)
         private readonly List<CssEntry> _CssFiles = new List<CssEntry>(); // css files to include (already minified, etc.) using <link...> tags
 
+        /// <summary>
+        /// Returns CSS classes which identify the MVC version provided by the <paramref name="version"/> parameter.
+        /// </summary>
+        /// <param name="version">The MVC version.</param>
+        /// <returns>Returns CSS classes.</returns>
+        public static string GetAspNetCss(YetaWFManager.AspNetMvcVersion version) {
+            switch (version) {
+                case YetaWFManager.AspNetMvcVersion.MVC5:
+                    return "yASPNET4 yMVC5";
+                case YetaWFManager.AspNetMvcVersion.MVC6:
+                    return "yASPNETCore yMVC6";
+                default:
+                    return null;
+            }
+        }
+        /// <summary>
+        /// Combines to strings containing CSS class(es).
+        /// </summary>
+        /// <param name="css1">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>
+        /// <param name="css2">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>
+        /// <returns>Returns the combined CSS classes.</returns>
+        /// <remarks>
+        /// This method does not eliminate duplicate CSS classes.
+        /// </remarks>
+        public static string CombineCss(string css1, string css2) {
+            if (string.IsNullOrWhiteSpace(css1)) return css2;
+            if (string.IsNullOrWhiteSpace(css2)) return css1;
+            return string.Format("{0} {1}", css1.Trim(), css2.Trim());
+        }
+
         public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
             if (Manager.IsPostRequest) return;// we never add css files for Post requests
             await AddFromFileListAsync(version, args);

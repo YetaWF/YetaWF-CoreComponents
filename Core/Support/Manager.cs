@@ -37,10 +37,32 @@ using System.Web.Hosting;
 #endif
 
 namespace YetaWF.Core.Support {
+
+    /// <summary>
+    /// An instance of this class is associated with each HTTP request.
+    /// </summary>
+    /// <remarks>
+    /// An instance of this class contains information about the current HTTP request. Most of it is obtained as needed (lazy loading).
+    /// Important items such as logged on user, global information, etc. is accessible through this instance.
+    ///
+    /// The instance can be retrieved using the static property YetaWFManager.Manager (YetaWF.Core.Support.YetaWFManager.Manager).
+    /// Controllers, modules and components and many others provide an accessor in their base classes.
+    ///
+    /// I can hear the Dependency Injection crowd moaning that this is not a good pattern. Sometimes getting things done is more
+    /// important than technical perfection, which ultimately doesn't make the result any better, or user friendly.
+    /// Sometimes things are really just global. And really, who cares.
+    ///
+    /// Because of the abstraction provided by YetaWF with the YetaWFManager, it is possible to write simple console applications
+    /// that use all the services of YetaWF, including data providers. These are not ASP.NET Core based, they are "plain old" console applications.
+    /// </remarks>
     public class YetaWFManager {
 
-        private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
+        /// <summary>
+        /// Defines the name used by the HostUsed property to identity that the current execution is a console application.
+        /// </summary>
         public const string BATCHMODE = "Batch";
+
+        private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
 
 #if MVC6
         public class DummyServiceProvider : IServiceProvider {
@@ -76,10 +98,14 @@ namespace YetaWF.Core.Support {
         }
 #else
 #endif
+
         private YetaWFManager(string host) {
             SiteDomain = host; // save the host name that owns this Manager
         }
 
+        /// <summary>
+        /// Returns the instance of the YetaWFManager class associated with the current HTTP request.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public static YetaWFManager Manager {
             get {
@@ -115,6 +141,10 @@ namespace YetaWF.Core.Support {
             }
         }
 
+        /// <summary>
+        /// Determines whether a YetaWFManager instance is available.
+        /// </summary>
+        /// <remarks>During application startup or during HTTP request startup, the YetaWFManager instance may not yet be available.</remarks>
         public static bool HaveManager {
             get {
 #if MVC6
@@ -134,9 +164,10 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Creates an instance of the YetaWFManager for a site.
-        /// Only done in Global.asax as soon as the site URL has been determined.
+        /// Creates an instance of the YetaWFManager class for a site.
+        /// This is only used by the framework during request startup as soon as the site URL has been determined.
         /// </summary>
+        /// <param name="siteHost">The site name as it would appear in a URL (without scheme).</param>
 #if MVC6
         public static YetaWFManager MakeInstance(HttpContext httpContext, string siteHost) {
             if (siteHost == null)
@@ -202,13 +233,24 @@ namespace YetaWF.Core.Support {
 
             return manager;
         }
-        public class SchedulerUserData {
+
+        /// <summary>
+        /// An instance of this class is assigned to the UserSettingsObject property to provide minimal user info.
+        /// This is only used for the Scheduler thread.
+        /// </summary>
+        internal class SchedulerUserData {
             public Localize.Formatting.DateFormatEnum DateFormat { get; set; }
             public string TimeZone { get; set; }
             public Localize.Formatting.TimeFormatEnum TimeFormat { get; set; }
             public string LanguageId { get; set; }
         }
 
+        /// <summary>
+        /// Attaches a YetaWFManager instance to the current thread.
+        /// This is only used by console applications.
+        /// </summary>
+        /// <param name="site">A SiteDefinition object. Is always null as this is not available in console applications.</param>
+        /// <returns></returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
 #if DEBUG
             if (Thread.GetNamedDataSlot(YetaWF_ManagerKey) == null) { // avoid exception spam
@@ -221,14 +263,34 @@ namespace YetaWF.Core.Support {
 #endif
             return MakeThreadInstance(site);
         }
+        /// <summary>
+        /// Removes the YetaWF instance from the current thread.
+        /// </summary>
         public static void RemoveThreadInstance() {
             Thread.FreeNamedDataSlot(YetaWF_ManagerKey);
         }
 
+        // VERSION
+        // VERSION
+        // VERSION
+
+        /// <summary>
+        /// Describes the MVC version.
+        /// </summary>
         public enum AspNetMvcVersion {
-            MVC5 = 0, // ASP.NET MVC 5
-            MVC6 = 6, // ASP.NET Core MVC
+            /// <summary>
+            /// ASP.NET 4 with MVC 5
+            /// </summary>
+            MVC5 = 0,
+            /// <summary>
+            /// ASP.NET Core with MVC 6
+            /// </summary>
+            MVC6 = 6,
         }
+
+        /// <summary>
+        /// Returns a value indicating which MVC version is used.
+        /// </summary>
         public static AspNetMvcVersion AspNetMvc {
             get {
 #if MVC6
@@ -238,6 +300,11 @@ namespace YetaWF.Core.Support {
 #endif
             }
         }
+        /// <summary>
+        /// Returns a user-displayable name for the MVC version used.
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
         public static string GetAspNetMvcName(AspNetMvcVersion version) {
             switch (version) {
                 case AspNetMvcVersion.MVC5:
@@ -248,16 +315,10 @@ namespace YetaWF.Core.Support {
                     return "(unknown)";
             }
         }
-        public static string GetAspNetCss(AspNetMvcVersion version) {
-            switch (version) {
-                case AspNetMvcVersion.MVC5:
-                    return "yASPNET4 yMVC5";
-                case AspNetMvcVersion.MVC6:
-                    return "yASPNETCore yMVC6";
-                default:
-                    return null;
-            }
-        }
+
+        // DOMAIN
+        // DOMAIN
+        // DOMAIN
 
         private static void SetRequestedDomain(string siteDomain) {
 #if MVC6
@@ -268,8 +329,17 @@ namespace YetaWF.Core.Support {
 #else
             HttpContext.Current.Session[Globals.Link_ForceSite] = siteDomain;
 #endif
-
         }
+
+        /// <summary>
+        /// Used by the framework during HTTP request startup to determine the requested domain.
+        /// </summary>
+        /// <param name="uri">The URI of the current request.</param>
+        /// <param name="loopBack">true if the current request is for the loopback address 127.0.0.1/localhost.</param>
+        /// <param name="siteDomain">The domain name detected.</param>
+        /// <param name="overridden">Returns whether the domain name was explicitly defined using the !Domain query string argument.</param>
+        /// <param name="newSwitch">Returns whether this is a request for a new domain (being created).</param>
+        /// <returns></returns>
         public static string GetRequestedDomain(Uri uri, bool loopBack, string siteDomain, out bool overridden, out bool newSwitch) {
             overridden = newSwitch = false;
 
@@ -299,6 +369,14 @@ namespace YetaWF.Core.Support {
             return siteDomain;
         }
 
+        // CACHE
+        // CACHE
+        // CACHE
+
+        /// <summary>
+        /// Returns a string that can be used in generated URLs as "cache buster", i.e., to defeat client-side caching.
+        /// </summary>
+        /// <remarks>The value returned by this property is the same for each call. It changes only when the site is restarted.</remarks>
         public static string CacheBuster {
             get {
                 if (_cacheBuster == null) {
@@ -312,16 +390,21 @@ namespace YetaWF.Core.Support {
         }
         private static string _cacheBuster;
 
+        // FOLDERS
+        // FOLDERS
+        // FOLDERS
+
         /// <summary>
-        /// Web site root folder (physical, wwwroot on ASP.NET Core MVC)
+        /// The location of the website's root folder (physical, wwwroot on ASP.NET Core MVC).
         /// </summary>
         public static string RootFolder { get; set; }
 
         /// <summary>
-        /// Web project root folder (physical)
+        /// The location of the Website project (Website.csproj) root folder (physical).
         /// </summary>
         /// <remarks>
-        /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.</remarks>
+        /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.
+        /// </remarks>
         public static string RootFolderWebProject {
 #if MVC6
             get; set;
@@ -330,10 +413,11 @@ namespace YetaWF.Core.Support {
 #endif
         }
         /// <summary>
-        /// Solution root folder (physical)
+        /// The location of the Solution (*.sln) root folder (physical).
         /// </summary>
         /// <remarks>
-        /// The folder where the solution file is located.</remarks>
+        /// Defines the folder where the solution file is located.
+        /// </remarks>
         public static string RootFolderSolution {
             get { return Path.Combine(RootFolderWebProject, ".."); }
         }
@@ -341,12 +425,22 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Returns the folder containing all sites' file data.
         /// </summary>
+        /// <remarks>
+        /// The sites data folder is located at .\Website\Sites\DataFolder.
+        ///
+        /// This folder is not publicly accessible on ASP.NET Core MVC.
+        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// </remarks>
         public static string RootSitesFolder {
             get {
                 return Path.Combine(YetaWFManager.RootFolderWebProject, Globals.SitesFolder, "DataFolder");
             }
         }
 
+        /// <summary>
+        /// Returns the default site name used for this instance of YetaWF.
+        /// </summary>
+        /// <remarks>The default site is defined in Appsettings.json (Application.P.YetaWF_Core.DEFAULTSITE).</remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error")]
         public static string DefaultSiteName {
             get {
@@ -360,8 +454,14 @@ namespace YetaWF.Core.Support {
         private static string defaultSiteName;
 
         /// <summary>
-        /// Data folder (not site specific).
+        /// The location of the Data folder (not site specific).
         /// </summary>
+        /// <remarks>
+        /// The Data folder is located at .\Website\Data\DataFolder.
+        ///
+        /// This folder is not publicly accessible on ASP.NET Core MVC.
+        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// </remarks>
         public static string DataFolder {
             get {
                 string rootFolder;
@@ -375,8 +475,14 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Data folder (not site specific).
+        /// The location of the product license folder (not site specific). This is used by third-party licensed products only.
         /// </summary>
+        /// <remarks>
+        /// The License folder is located at .\Website\Data\Licenses.
+        ///
+        /// This folder is not publicly accessible on ASP.NET Core MVC.
+        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// </remarks>
         public static string LicenseFolder {
             get {
                 string rootFolder;
@@ -390,9 +496,14 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Vault data folder (not site specific).
+        /// The location of the Vault private folder (not site specific).
         /// </summary>
-        /// <remarks>Not publicly accessible on ASP.NET Core MVC. Publicly accessible on MVC5 and must be protected using Web.config files.</remarks>
+        /// <remarks>
+        /// The Vault private folder is located at .\Website\VaultPrivate.
+        ///
+        /// This folder is not publicly accessible on ASP.NET Core MVC.
+        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// </remarks>
         public static string VaultPrivateFolder {
             get {
                 string rootFolder;
@@ -406,18 +517,53 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Vault data folder (not site specific).
+        /// The location of the Vault folder (not site specific).
         /// </summary>
-        /// <remarks>Publicly accessible.</remarks>
+        /// <remarks>
+        /// The Vault folder is located at .\Website\wwwroot\Vault on ASP.NET Core and .\Website\Vault on ASP.NET.
+        ///
+        /// This folder is publicly accessible on ASP.NET Core MVC and ASP.NET.
+        /// </remarks>
         public static string VaultFolder {
             get {
                 return Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder);
             }
         }
+
         /// <summary>
-        /// Translate a Url to a local file name.
+        /// Returns the folder containing the current site's file data.
         /// </summary>
-        /// <remarks>Doesn't really take special characters (except spaces %20) into account.</remarks>
+        /// <remarks>
+        /// An individual site's file data folder is located at .\Website\Sites\DataFolder\{..siteidentity..}.
+        ///
+        /// This folder is not publicly accessible on ASP.NET Core MVC.
+        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// </remarks>
+        public string SiteFolder {
+            get {
+                return Path.Combine(RootSitesFolder, CurrentSite.Identity.ToString());
+            }
+        }
+        /// <summary>
+        /// Returns the site's custom addons folder.
+        /// </summary>
+        /// <remarks>
+        /// An individual site's file data folder is located at .\Website\wwwroot\AddonsCustom\{..domainname..} on ASP.NET Core and .\Website\AddonsCustom\{..domainname..} on ASP.NET.
+        ///
+        /// This folder is publicly accessible. It contains JavaScript and CSS files which are served as static files.
+        /// </remarks>
+        public string AddonsCustomSiteFolder {
+            get {
+                return Path.Combine(YetaWFManager.UrlToPhysical(Globals.AddOnsCustomUrl), SiteDomain);
+            }
+        }
+
+        /// <summary>
+        /// Translates a Url to a local file name.
+        /// </summary>
+        /// <remarks>
+        /// Doesn't really take special characters (except spaces %20) into account.
+        /// </remarks>
         public static string UrlToPhysical(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
 #if MVC6
@@ -445,10 +591,13 @@ namespace YetaWF.Core.Support {
             url = url.Replace("%20", " ");
             return url;
         }
+
         /// <summary>
-        /// Translate a local file name to a Url.
+        /// Translates a local file name to a Url.
         /// </summary>
-        /// <remarks>Doesn't really take special characters (except spaces %20) into account.</remarks>
+        /// <remarks>
+        /// Doesn't really take special characters (except spaces %20) into account.
+        /// </remarks>
         public static string PhysicalToUrl(string path) {
             path = ReplaceString(path, RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase);
 #if MVC6
@@ -475,15 +624,42 @@ namespace YetaWF.Core.Support {
             return sb.ToString();
         }
 
+        // SERIALIZATON/ENCODING
+        // SERIALIZATON/ENCODING
+        // SERIALIZATON/ENCODING
+
+        /// <summary>
+        /// Serializes an object to a JSON string.
+        /// </summary>
+        /// <param name="value">The object to serialize.</param>
+        /// <param name="Indented">Defines whether indentation is used in the generated JSON string.</param>
+        /// <returns>Returns the serialized object as a JSON string.</returns>
         public static string JsonSerialize(object value, bool Indented = false) {
             return JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndented : _JsonSettings);
         }
+        /// <summary>
+        /// Deserializes a JSON string to an object.
+        /// </summary>
+        /// <param name="value">The JSON string.</param>
+        /// <returns>Returns the object.</returns>
         public static object JsonDeserialize(string value) {
             return JsonConvert.DeserializeObject(value, _JsonSettings);
         }
+        /// <summary>
+        /// Deserializes a JSON string to an object.
+        /// </summary>
+        /// <param name="value">The JSON string.</param>
+        /// <param name="type">The type of the deserialized object.</param>
+        /// <returns>Returns the object.</returns>
         public static object JsonDeserialize(string value, Type type) {
             return JsonConvert.DeserializeObject(value, type, _JsonSettings);
         }
+        /// <summary>
+        /// Deserializes a JSON string to an object.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the deserialized object.</typeparam>
+        /// <param name="value">The JSON string.</param>
+        /// <returns>Returns the object.</returns>
         public static TYPE JsonDeserialize<TYPE>(string value) {
             return JsonConvert.DeserializeObject<TYPE>(value, _JsonSettings);
         }
@@ -500,6 +676,11 @@ namespace YetaWF.Core.Support {
             Formatting = Newtonsoft.Json.Formatting.Indented,
         };
 
+        /// <summary>
+        /// Encodes a string for use with JavaScript. The returned string must be surrounded by quotes.
+        /// </summary>
+        /// <param name="s">The string to encode.</param>
+        /// <returns>Returns the encoded string contents.</returns>
         public static string JserEncode(string s) {
 #if MVC6
             if (s == null) return "";
@@ -508,17 +689,12 @@ namespace YetaWF.Core.Support {
             return HttpUtility.JavaScriptStringEncode(s);
 #endif
         }
-        public static string UrlFor(Type type, string actionName, object args = null) {
-            if (!type.Name.EndsWith("Controller")) throw new InternalError("Type {0} is not a controller", type.FullName);
-            string controller = type.Name.Substring(0, type.Name.Length - "Controller".Length);
-            Package package = Package.TryGetPackageFromAssembly(type.Assembly);
-            if (package == null)
-                throw new InternalError("Type {0} is not part of a package", type.FullName);
-            string area = package.AreaName;
-            string url = "/" + area + "/" + controller + "/" + actionName;
-            QueryHelper query = QueryHelper.FromAnonymousObject(args);
-            return query.ToUrl(url);
-        }
+
+        /// <summary>
+        /// Encodes a string for use as HTML.
+        /// </summary>
+        /// <param name="s">The string to encode.</param>
+        /// <returns>Returns the encoded HTML.</returns>
         public static string HtmlEncode(string s) {
             if (s == null) return "";
 #if MVC6
@@ -527,6 +703,11 @@ namespace YetaWF.Core.Support {
             return HttpUtility.HtmlEncode(s);
 #endif
         }
+        /// <summary>
+        /// Decodes a HTML encoded string.
+        /// </summary>
+        /// <param name="s">The HTML encoded string.</param>
+        /// <returns>Returns the decoded string.</returns>
         public static string HtmlDecode(string s) {
             if (s == null) return "";
 #if MVC6
@@ -535,6 +716,11 @@ namespace YetaWF.Core.Support {
             return HttpUtility.HtmlDecode(s);
 #endif
         }
+        /// <summary>
+        /// Encodes a string for use as an HTML attribute.
+        /// </summary>
+        /// <param name="s">The string to encode.</param>
+        /// <returns>Returns the string encoded for use as an HTML attribute.</returns>
         public static string HtmlAttributeEncode(string s) {
             if (s == null) return "";
 #if MVC6
@@ -543,17 +729,30 @@ namespace YetaWF.Core.Support {
             return HttpUtility.HtmlAttributeEncode(s);
 #endif
         }
-        // used to encode args in url
+        /// <summary>
+        /// Encodes a string for use as a query string argument.
+        /// </summary>
+        /// <param name="s">The string to encode.</param>
+        /// <returns>Returns the string encoded for use as a query string argument.</returns>
         public static string UrlEncodeArgs(string s) {
             if (s == null) return "";
             return Uri.EscapeDataString(s);
         }
-        // used to decode args in url
+        /// <summary>
+        /// Decodes an encoded query string argument.
+        /// </summary>
+        /// <param name="s">The encoded query string argument.</param>
+        /// <returns>Returns the decoded string.</returns>
         public static string UrlDecodeArgs(string s) {
             if (s == null) return "";
             return Uri.UnescapeDataString(s);
         }
-        // used to encode the page path segments (between /xxx/)
+        /// <summary>
+        /// Encodes a string for use as a URL segment (parts in the URL between /xxx/).
+        /// </summary>
+        /// <param name="s">The URL segment.</param>
+        /// <returns>Returns an encoded URL segment.</returns>
+        // used to encode the page path segments
         public static string UrlEncodeSegment(string s) {
             if (s == null) return "";
             string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
@@ -571,6 +770,11 @@ namespace YetaWF.Core.Support {
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// Encodes a string for use as a URL path.
+        /// </summary>
+        /// <param name="s">The URL path.</param>
+        /// <returns>Returns the encoded URL path.</returns>
         public static string UrlEncodePath(string s) {
             if (string.IsNullOrWhiteSpace(s)) return null;
             StringBuilder sb = new StringBuilder();
@@ -648,10 +852,16 @@ namespace YetaWF.Core.Support {
             return s;
         }
 
-        public static string CombineCss(string css1, string css2) {
-            if (string.IsNullOrWhiteSpace(css1)) return css2;
-            if (string.IsNullOrWhiteSpace(css2)) return css1;
-            return string.Format("{0} {1}", css1.Trim(), css2.Trim());
+        public static string UrlFor(Type type, string actionName, object args = null) {
+            if (!type.Name.EndsWith("Controller")) throw new InternalError("Type {0} is not a controller", type.FullName);
+            string controller = type.Name.Substring(0, type.Name.Length - "Controller".Length);
+            Package package = Package.TryGetPackageFromAssembly(type.Assembly);
+            if (package == null)
+                throw new InternalError("Type {0} is not part of a package", type.FullName);
+            string area = package.AreaName;
+            string url = "/" + area + "/" + controller + "/" + actionName;
+            QueryHelper query = QueryHelper.FromAnonymousObject(args);
+            return query.ToUrl(url);
         }
 
         // BUILD
@@ -662,7 +872,7 @@ namespace YetaWF.Core.Support {
         /// Defines whether the currently running instance of YetaWF is a deployed instance or not.
         /// </summary>
         /// <value>false for a deployed site, true otherwise.</value>
-        [Obsolete("Horribly misnamed property - Do not use because it's confusing")]
+        [Obsolete("Horribly misnamed property - Do not use because it's confusing - Use the Deployed property instead")]
         public bool DebugBuild {
             get {
                 return !GetDeployed();
@@ -690,6 +900,8 @@ namespace YetaWF.Core.Support {
         ///
         /// A deployed instance is considered to run as a public website with all development features disabled.
         /// TODO: Need an actual list of development features here.
+        ///
+        /// Appsettings.json (Application.P.YetaWF_Core.Deployed) is used to define whether the site is a deployed site.
         /// </remarks>
         /// <value>true for a deployed site, false otherwise.</value>
         public bool Deployed {
@@ -699,12 +911,16 @@ namespace YetaWF.Core.Support {
         }
         private static bool? deployed = null;
 
-        protected static bool GetDeployed() {
+        internal static bool GetDeployed() {
             if (deployed == null) {
                 deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Deployed");
             }
             return (bool)deployed;
         }
+
+        // SETTINGS
+        // SETTINGS
+        // SETTINGS
 
         public bool CanUseCDN {
             get {
@@ -743,7 +959,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <remarks>Demo mode allows anonymous users to use all features in Superuser mode, without being able to change any data.
         ///
-        /// Demo mode is enabled/disabled using the Appsettings.json setting P:YetaWF_Core:Demo.
+        /// Demo mode is enabled/disabled using Appsettings.json (Application.P.YetaWF_Core.Demo).
         /// </remarks>
         public bool IsDemo {
             get {
@@ -759,40 +975,36 @@ namespace YetaWF.Core.Support {
         // HTTPCONTEXT
 
         /// <summary>
-        /// Current site's domain - E.g., softelvdm.com, localhost, etc. or empty string if default site
+        /// The current site's domain - E.g., softelvdm.com, localhost, etc. or an empty string if it's the default site.
         /// </summary>
         public string SiteDomain { get; set; }
 
         /// <summary>
-        /// The host used to access this web site
+        /// The host used to access this website.
         /// </summary>
         public string HostUsed { get; set; }
+        /// <summary>
+        /// The port used to access this website.
+        /// </summary>
         public int HostPortUsed { get; set; }
+        /// <summary>
+        /// The scheme used to access this website.
+        /// </summary>
         public string HostSchemeUsed { get; set; }
+        /// <summary>
+        /// Defines whether localhost/127.0.0.1 was used to access this website.
+        /// </summary>
         public bool IsLocalHost { get; set; }
+        /// <summary>
+        /// Defines whether the test domain was used to access this website.
+        /// </summary>
         public bool IsTestSite { get; set; }
 
-        /// <summary>
-        /// Returns the folder containing the current site's file data.
-        /// </summary>
-        public string SiteFolder {
-            get {
-                return Path.Combine(RootSitesFolder, CurrentSite.Identity.ToString());
-            }
-        }
-        /// <summary>
-        /// Returns the site's custom addons folder
-        /// </summary>
-        public string AddonsCustomSiteFolder {
-            get {
-                return Path.Combine(YetaWFManager.UrlToPhysical(Globals.AddOnsCustomUrl), SiteDomain);
-            }
-        }
         /// <summary>
         /// The current site definition.
         /// The current site is identified based on the URL of the current request.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The current site's definitions.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public SiteDefinition CurrentSite {
             get {
@@ -811,6 +1023,8 @@ namespace YetaWF.Core.Support {
                 return _currentSite != null;
             }
         }
+
+
 
         /// <summary>
         /// Saved URL where we came from (e.g. used for return handling after Save)
@@ -944,6 +1158,10 @@ namespace YetaWF.Core.Support {
                 throw new InternalError("This is only supported for POST requests");
         }
 
+        // MANAGERS
+        // MANAGERS
+        // MANAGERS
+
         public MetatagsManager MetatagsManager {
             get {
                 if (_metatagsManager == null)
@@ -996,10 +1214,10 @@ namespace YetaWF.Core.Support {
         private AddOnManager _addOnManager = null;
 
         /// <summary>
-        /// Static page manager.
+        /// Returns the Static Page Manager instance.
         /// </summary>
         /// <remarks>
-        /// User to manager a site's static pages. Only allocated if static pages are used.
+        /// The Static Page Manager instance is used to manage a site's static pages. It is only allocated if static pages are actually used.
         /// </remarks>
         public StaticPageManager StaticPageManager {
             get {
@@ -1018,7 +1236,7 @@ namespace YetaWF.Core.Support {
         /// Returns a unique HTML id.
         /// </summary>
         /// <param name="name">A string prefix prepended to the generated id.</param>
-        /// <returns>A unique HTML id.</returns>
+        /// <returns>Returns a unique HTML id.</returns>
         /// <remarks>Every call to the Unique() method returns a new, unique id.
         ///
         /// Whenever an HTML id is needed, this method must be used. This insures that Ajax/Post requests do not use
@@ -1492,9 +1710,9 @@ namespace YetaWF.Core.Support {
         /// <remarks>Site specific data is always imported</remarks>
         public bool ImportChunksNonSiteSpecifics { get; set; }
 
-        // UTILITY
-        // UTILITY
-        // UTILITY
+        // SKIN
+        // SKIN
+        // SKIN
 
         /// <summary>
         /// Define options for the current page or popup skin.
@@ -1552,24 +1770,24 @@ namespace YetaWF.Core.Support {
             SkinAccess skinAccess = new SkinAccess();
             PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
             string s = pageSkin.Css;
-            s = CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
-            s = CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
-            s = CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
-            s = CombineCss(s, GetAspNetCss(AspNetMvc)); // asp/net version used (doesn't change in same Unified page set)
+            s = CssManager.CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
+            s = CssManager.CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
+            s = CssManager.CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
+            s = CssManager.CombineCss(s, CssManager.GetAspNetCss(AspNetMvc)); // asp/net version used (doesn't change in same Unified page set)
             switch (UnifiedMode) { // unified page set mode (if any) (doesn't change in same Unified page set)
                 case PageDefinition.UnifiedModeEnum.None:
                     break;
                 case PageDefinition.UnifiedModeEnum.HideDivs:
-                    s = CombineCss(s, "yUnifiedHideDivs");
+                    s = CssManager.CombineCss(s, "yUnifiedHideDivs");
                     break;
                 case PageDefinition.UnifiedModeEnum.ShowDivs:
-                    s = CombineCss(s, "yUnifiedShowDivs");
+                    s = CssManager.CombineCss(s, "yUnifiedShowDivs");
                     break;
                 case PageDefinition.UnifiedModeEnum.DynamicContent:
-                    s = CombineCss(s, "yUnifiedDynamicContent");
+                    s = CssManager.CombineCss(s, "yUnifiedDynamicContent");
                     break;
                 case PageDefinition.UnifiedModeEnum.SkinDynamicContent:
-                    s = CombineCss(s, "yUnifiedSkinDynamicContent");
+                    s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
             }
             if (Manager.SkinInfo.UsingBootstrap) {
@@ -1578,7 +1796,7 @@ namespace YetaWF.Core.Support {
                     skin = Manager.CurrentSite.BootstrapSkin;
                 if (!string.IsNullOrWhiteSpace(skin)) {
                     skin = skin.ToLower().Replace(' ', '-');
-                    s = CombineCss(s, $"ySkin-bs-{skin}");
+                    s = CssManager.CombineCss(s, $"ySkin-bs-{skin}");
                 }
             }
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
@@ -1588,7 +1806,7 @@ namespace YetaWF.Core.Support {
                 sb.Append("document.body.setAttribute('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
                 Manager.ScriptManager.AddLast(sb.ToString());
             }
-            return new HtmlString(CombineCss(s, cssClasses));
+            return new HtmlString(CssManager.CombineCss(s, cssClasses));
         }
 
         // CURRENT USER
@@ -1827,6 +2045,14 @@ namespace YetaWF.Core.Support {
         // ASYNC
         // ASYNC
 
+        /// <summary>
+        /// Returns whether requests must be made synchronously (i.e., no async).
+        /// </summary>
+        /// <remarks>
+        /// At certain times, particularly during ASP.NET rendering, requests cannot be made asynchronously.
+        /// The IsSync method can be used to determine whether requests must be made synchronously.
+        /// </remarks>
+        /// <returns>Returns whether all requests must be made synchronously (i.e., no async).</returns>
         public static bool IsSync() {
             if (YetaWFManager.HaveManager) return YetaWFManager.Manager._syncCount > 0;
             return true;// if there is no manager, we can't async (and it's probably no advantage to be async in this case)
