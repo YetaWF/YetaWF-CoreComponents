@@ -11,11 +11,19 @@ using YetaWF.Core.Support.Serializers;
 namespace YetaWF.Core.IO {
 
     /// <summary>
-    /// Implements data file I/O - can only be used for retrieval of folders with data files.
+    /// Implements data file I/O - can only be used for retrieval of folders with YetaWF data files.
     /// </summary>
+    /// <remarks>This data provider always accesses the permanent file system using the file system provided by YetaWF.Core.IO.FileSystem.FileSystemProvider.
+    ///
+    /// This is intended for framework use to manage data files.
+    /// </remarks>
     public static class DataFilesProvider {
 
-        // Retrieves a list of all file names in the base folder
+        /// <summary>
+        /// Returns a collection of files (full path) found in the specified folder <paramref name="baseFolder"/>.
+        /// </summary>
+        /// <param name="baseFolder">The folder.</param>
+        /// <returns>Returns a collection of files (full path) found in the specified folder <paramref name="baseFolder"/>.</returns>
         public static async Task<List<string>> GetDataFileNamesAsync(string baseFolder) {
             List<string> files = new List<string>();
 #if DEBUG
@@ -36,9 +44,10 @@ namespace YetaWF.Core.IO {
         }
 
         /// <summary>
-        /// Removes all the files in the folder.
+        /// Removes all the files in the specified folder <paramref name="baseFolder"/>.
         /// Ignores any errors.
         /// </summary>
+        /// <param name="baseFolder">The folder.</param>
         public static async Task RemoveAllDataFilesAsync(string baseFolder) {
             Debug.Assert(!string.IsNullOrEmpty(baseFolder));
             using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(baseFolder)) {
@@ -50,29 +59,55 @@ namespace YetaWF.Core.IO {
     }
 
     /// <summary>
-    /// Implements data file I/O for an object of type TObj.
-    /// Supports shared caching.
+    /// Implements YetaWF data file I/O for an object of type <typeparamref name="TObj"/> and uses shared caching.
     /// </summary>
-    /// <typeparam name="TObj"></typeparam>
+    /// <typeparam name="TObj">The object type.</typeparam>
+    /// <remarks>
+    /// This is intended for framework use to manage data files.
+    ///
+    /// Data is serialized when saved and deserialized when loaded.
+    /// </remarks>
     public class FileData<TObj> {
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public FileData() {
             Format = GeneralFormatter.Style.Simple; // the preferred format
         }
 
-        public string BaseFolder { get; set; } // The full path of the folder where the file(s) is/are stored
+        /// <summary>
+        /// The full path of the folder where the file(s) is/are stored.
+        /// </summary>
+        public string BaseFolder { get; set; }
+        /// <summary>
+        /// The file name.
+        /// </summary>
         public string FileName { get; set; }
+        /// <summary>
+        /// The date/timestamp.
+        /// </summary>
         public DateTime? Date { get; set; } // file save/load date
+        /// <summary>
+        /// The format used to serialize the data.
+        /// </summary>
         public GeneralFormatter.Style Format { get; set; }
+        /// <summary>
+        /// Defines whether the data should be cached.
+        /// </summary>
         public bool Cacheable { get; set; }
+        /// <summary>
+        /// The cache key used.
+        /// </summary>
         public string CacheKey { // Cache key used to cache the file
             get { return $"folder__{BaseFolder}__{FileName}"; }
         }
 
         /// <summary>
-        /// Load a file, returns a new instance of the object.
+        /// Loads a file, returns a new instance of the object.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="SpecificTypeOnly">Reserved for framework use.</param>
+        /// <returns>Returns the data.</returns>
         public async Task<TObj> LoadAsync(bool SpecificTypeOnly = false) {
             object data = null;
             GetObjectInfo<TObj> info = null;
@@ -114,11 +149,12 @@ namespace YetaWF.Core.IO {
             return (TObj)data;
         }
         /// <summary>
-        /// Update the object in an existing file.
+        /// Updates the object in an existing file.
         /// The file may be renamed at the same time
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="newKey"></param>
+        /// <param name="data">The data to save.</param>
+        /// <param name="newKey">The new file name.</param>
+        /// <returns>Returns a status indicator.</returns>
         public async Task<UpdateStatusEnum> UpdateFileAsync(string newKey, TObj data) {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
@@ -180,9 +216,10 @@ namespace YetaWF.Core.IO {
             return status;
         }
         /// <summary>
-        /// Add an new file object.
+        /// Adds an new file.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">The data to save.</param>
+        /// <returns>Returns true if the file was added, false if the file already exists.</returns>
         public async Task<bool> AddAsync(TObj data) {
 
             FileIO<TObj> io = new FileIO<TObj> {
@@ -209,7 +246,7 @@ namespace YetaWF.Core.IO {
             return success;
         }
         /// <summary>
-        /// Remove the file. Fails if the file doesn't exist.
+        /// Removes the file (with locking). Fails if the file doesn't exist.
         /// </summary>
         public async Task RemoveAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
@@ -230,7 +267,7 @@ namespace YetaWF.Core.IO {
             }
         }
         /// <summary>
-        /// Remove the file. Fails if the file doesn't exist.
+        /// Removes the file (without locking). Fails if the file doesn't exist.
         /// </summary>
         public async Task RemoveNoLockAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
@@ -248,8 +285,9 @@ namespace YetaWF.Core.IO {
             }
         }
         /// <summary>
-        /// Remove the file.
+        /// Removes the file (with locking).
         /// </summary>
+        /// <returns>Returns true if the file was removed, false otherwise.</returns>
         public async Task<bool> TryRemoveAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,
@@ -273,6 +311,7 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Check if the file exists.
         /// </summary>
+        /// <returns>Returns true if the file exists, false otherwise.</returns>
         public async Task<bool> ExistsAsync() {
             FileIO<TObj> io = new FileIO<TObj> {
                 BaseFolder = BaseFolder,

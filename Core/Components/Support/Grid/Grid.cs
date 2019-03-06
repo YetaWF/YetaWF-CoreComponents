@@ -204,8 +204,8 @@ namespace YetaWF.Core.Components {
         /// </remarks>
         /// <param name="displayProperty">The name of the property as displayed by the grid.</param>
         /// <param name="realColumn">The name of the property that should be used by the data provider for sort/filter purposes.</param>
-        /// <param name="filters">The grid's current filters.</param>
-        /// <param name="sort">The grid's current sort columns.</param>
+        /// <param name="filters">A collection describing the filtering criteria.</param>
+        /// <param name="sort">A collection describing the sort order.</param>
         // sortas, sort as
         public static void UpdateAlternateSortColumn(List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, string displayProperty, string realColumn) {
             if (sort != null && sort.Count == 1) {
@@ -273,7 +273,7 @@ namespace YetaWF.Core.Components {
         /// RESEARCH! The purpose of this method is unclear.
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="filters"></param>
+        /// <param name="filters">A collection describing the filtering criteria.</param>
         public static void NormalizeFilters(Type type, List<DataProviderFilterInfo> filters) {
             if (filters != null) {
                 foreach (DataProviderFilterInfo f in filters) {

@@ -13,6 +13,17 @@ namespace YetaWF.Core.Packages {
 
         //private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
+        /// <summary>
+        /// Removes a package, including data, files and the assembly implementing the package.
+        /// </summary>
+        /// <param name="packageName">The package name (e.g., YetaWF.Text).</param>
+        /// <param name="errorList">A collection of messages.</param>
+        /// <returns>Returns true if successful, false otherwise.</returns>
+        /// <remarks>
+        /// If assemblies are in use, they may not be removed by this method.
+        ///
+        /// The package is removed from the website. Source code implementing the assembly and any project references are not removed.
+        /// </remarks>
         public async Task<bool> RemoveAsync(string packageName, List<string> errorList) {
 
             bool status = true;
@@ -56,11 +67,11 @@ namespace YetaWF.Core.Packages {
         }
 
         /// <summary>
-        /// Remove folders starting at the specified folder. All contents (files/directories) are removed.
-        /// Then remove the folder itself if it's empty and move up the hierarchy and keep deleting the folder we jsut visited if it's empty
+        /// Removes folders starting at the specified folder. All contents (files/directories) are removed.
+        /// Then removes the folder itself if it's empty and moves up the hierarchy and keeps deleting the folder just visited if it's empty
         /// </summary>
-        /// <param name="folder"></param>
-        /// <param name="errorList"></param>
+        /// <param name="folder">The folder to remove.</param>
+        /// <param name="errorList">A collection of messages.</param>
         private async Task<bool> RemoveEmptyFoldersUpAsync(string folder, List<string> errorList) {
             // first delete all content from this folder
             try {

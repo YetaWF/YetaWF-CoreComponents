@@ -10,7 +10,16 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.PackageSupport {
-    // http://web3.codeproject.com/Articles/15633/Manipulating-NTFS-Junction-Points-in-NET
+
+    /// <summary>
+    /// Implements junctions (symlinks).
+    /// </summary>
+    /// <remarks>
+    /// YetaWF makes use of junctions (symlinks) to map addons (JavaScript and CSS files) from packages into the .\Website\wwwroot\Addons folder (.\Website\Addons on ASP.NET)
+    /// on development systems. It also maps the website's node_modules folder into each package source code folder to avoid duplication.
+    ///
+    /// Much of this was gladly accepted from Manipulating NTFS Junction Points in .NET (https://www.codeproject.com/Articles/15633/Manipulating-NTFS-Junction-Points-in-NET).
+    /// </remarks>
     public static class Junction {
 
         /// <summary>

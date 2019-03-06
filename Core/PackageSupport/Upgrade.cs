@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -94,10 +93,20 @@ namespace YetaWF.Core.Packages {
                 YetaWFManager.Manager.CurrentSite = origSite;
             }
         }
+
+        /// <summary>
+        /// Implements a logging data provider to record all logging data while upgrading a site.
+        /// </summary>
+        /// <remarks>
+        /// All data recorded while upgrading a site is written to the file .\Website\Data\UpgradeLogFile.txt.
+        /// </remarks>
         public class UpgradeLogging : ILogging {
 
             private string LogFile { get; set; }
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public UpgradeLogging() {
                 string rootFolder;
 #if MVC6
@@ -107,20 +116,46 @@ namespace YetaWF.Core.Packages {
 #endif
                 LogFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile);
             }
-
+            /// <summary>
+            /// Returns the minimum severity level that is logged by the logging data provider.
+            /// </summary>
+            /// <returns>Returns the minimum severity level that is logged by the logging data provider.</returns>
             public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Info; }
+            /// <summary>
+            /// Initializes the logging data provider.
+            /// </summary>
             public Task InitAsync() { return Task.CompletedTask; }
+            /// <summary>
+            /// Clears all log records.
+            /// </summary>
             public Task ClearAsync() { return Task.CompletedTask; }
+            /// <summary>
+            /// Flushes all pending log records to permanent storage.
+            /// </summary>
             public Task FlushAsync() { return Task.CompletedTask; }
+            /// <summary>
+            /// Returns whether the logging data provider is installed and available.
+            /// </summary>
+            /// <returns>Returns whether the logging data provider is installed and available.</returns>
             public Task<bool> IsInstalledAsync() { return Task.FromResult(true); }
+            /// <summary>
+            /// Adds a record using the logging data provider.
+            /// </summary>
+            /// <param name="category">The event name or category.</param>
+            /// <param name="level">The severity level of the message.</param>
+            /// <param name="relStack">The number of call stack entries that should be skipped when generating a call stack.</param>
+            /// <param name="text">The log message.</param>
             public void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text) {
                 FileSystem.FileSystemProvider.AppendAllTextAsync(LogFile, $"{DateTime.Now} {text}\r\n").Wait();// uhm yeah, only while upgrading
             }
         }
         /// <summary>
-        /// Returns whether an upgrade is force (even on deployed systems)
+        /// Returns whether an upgrade is forced (even on deployed systems).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns true if an upgrade is forced, false otherwise.</returns>
+        /// <remarks>
+        /// During application startup, an upgrade of all installable models can be forced by placing an empty file named UpdateIndicator.txt into the root folder of the website.
+        /// </remarks>
         public static bool MustUpgrade() {
             return FileSystem.FileSystemProvider.FileExistsAsync(GetUpdateIndicatorFileName()).Result;// uhm yeah, only while upgrading
         }

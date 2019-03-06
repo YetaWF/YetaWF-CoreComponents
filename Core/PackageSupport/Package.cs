@@ -22,6 +22,12 @@ using System.Web.Compilation;
 
 namespace YetaWF.Core.Packages {
 
+    /// <summary>
+    /// This attribute is used to mark an assembly (a YetaWF package) as requiring other package(s).
+    /// </summary>
+    /// <remarks>
+    /// This is inspected during application startup to load dependencies for a package.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public class RequiresPackageAttribute : Attribute {
         /// <summary>
@@ -30,9 +36,9 @@ namespace YetaWF.Core.Packages {
         /// <remarks>
         /// This is used in a package's AssemblyInfo.cs file.
         /// </remarks>
-        /// <param name="packageName">The name of the required package name. Must follow the naming standard: domain.product eg. YetaWF.Scheduler</param>
-        /// <param name="minVersion">Optional. The required minimum version (n.n.n).</param>
-        /// <param name="maxVersion">Optional. The required maximum version (n.n.n).</param>
+        /// <param name="packageName">The name of the required package name. Must follow the naming standard: domain.product, e.g., YetaWF.Scheduler</param>
+        /// <param name="minVersion">Optional. The required minimum version (n.n.n). May be null.</param>
+        /// <param name="maxVersion">Optional. The required maximum version (n.n.n). May be null.</param>
         public RequiresPackageAttribute(string packageName, string minVersion = "", string maxVersion = "") {
             PackageName = packageName;
             MinVersion = minVersion;
@@ -44,18 +50,27 @@ namespace YetaWF.Core.Packages {
                 if (Package.CompareVersion(minVersion, maxVersion) > 0) throw new InternalError("The specified minimum version {0} is larger than the minimum version {1}", minVersion, maxVersion);
             }
         }
+        /// <summary>
+        /// The name of the required package.
+        /// </summary>
         public string PackageName { get; private set; }
+        /// <summary>
+        /// The minimum version of the required package. May be null.
+        /// </summary>
         public string MinVersion { get; private set; }
+        /// <summary>
+        /// The maximum version of the required package. May be null.
+        /// </summary>
         public string MaxVersion { get; private set; }
     }
 
     /// <summary>
-    /// Attribute class used in a package's AssemblyInfo.cs file to specify an installation order for its types (classes) implementing IInstallableModel.
+    /// This attribute class is used in a package's AssemblyInfo.cs file to specify the installation order for its types (classes) implementing IInstallableModel.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public class InstallOrderAttribute : Attribute {
         /// <summary>
-        /// Order in which to install classes (IInstallableModel) within this package.
+        /// Defines the order in which to install classes (IInstallableModel) within this package.
         /// </summary>
         /// <param name="type">The type that should be installed.</param>
         /// <remarks>
@@ -63,27 +78,61 @@ namespace YetaWF.Core.Packages {
         /// If a type is omitted it is installed last. If multiple types are omitted, their initialization order is undefined, but follows any types that are listed.
         /// This is used in a package's AssemblyInfo.cs file.
         /// </remarks>
-        /// <param name="order"></param>
+        /// <param name="order">This parameter defaults to the line number where the InstallOrderAttribute is used.
+        /// It should not be explicitly provided, as it insures that InstallOrderAttribute are processed in the order they appear in the source code.</param>
         public InstallOrderAttribute(Type type, [CallerLineNumber]int order = 0) {
             OrderType = type;
             Order = order;
         }
+        /// <summary>
+        /// The type that should be installed.
+        /// </summary>
         public Type OrderType { get; private set; }
+        /// <summary>
+        /// The order of installation, lowest value first.
+        /// </summary>
         public int Order { get; private set; }
     }
 
     /// <summary>
-    /// Service level of a package used to define its main purpose and is used to determine installation order (lowest value installed first).
+    /// Identities the service level of a package, which is used to define its main purpose and is used to determine installation order (lowest value installed first).
     /// </summary>
     public enum ServiceLevelEnum {
+        /// <summary>
+        /// Undetermined service level.
+        /// </summary>
         Unknown = -1,
+        /// <summary>
+        /// A core service.
+        /// </summary>
         Core = 0,
-        CachingProvider = 50, // Cache, FileSystem
+        /// <summary>
+        /// A caching or file system provider.
+        /// </summary>
+        CachingProvider = 50,
+        /// <summary>
+        /// Low level service provider (e.g., Language, Identity)
+        /// </summary>
         LowLevelServiceProvider = 100, // Language, Identity (can't use higher services,like Scheduling)
+        /// <summary>
+        /// Scheduling service.
+        /// </summary>
         SchedulerProvider = 150, // Scheduler
+        /// <summary>
+        /// A general service provider, e.g., logging.
+        /// </summary>
         ServiceProvider = 200, // Logging
+        /// <summary>
+        /// A service consumer.
+        /// </summary>
         ServiceConsumer = 300, // not currently used
+        /// <summary>
+        /// General package implementing modules or skins.
+        /// </summary>
         Module = 1000, // all modules
+        /// <summary>
+        /// A module consumer.
+        /// </summary>
         ModuleConsumer = 2000, // not currently used
     }
     /// <summary>
@@ -92,7 +141,7 @@ namespace YetaWF.Core.Packages {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public class ServiceLevelAttribute : Attribute {
         /// <summary>
-        /// Order in which to install packages.
+        /// Order in which to install packages, lowest service level value first.
         /// </summary>
         /// <remarks>
         /// This is used in a package's AssemblyInfo.cs file and defines its purpose and at which point the package is installed, relative to other packages.
@@ -100,6 +149,9 @@ namespace YetaWF.Core.Packages {
         public ServiceLevelAttribute(ServiceLevelEnum level = ServiceLevelEnum.Module) {
             Level = level;
         }
+        /// <summary>
+        /// Defines the service level of the package, which is used to define its main purpose and is used to determine installation order (lowest value installed first).
+        /// </summary>
         public ServiceLevelEnum Level { get; private set; }
     }
 
@@ -120,11 +172,20 @@ namespace YetaWF.Core.Packages {
             PackageAssembly = assembly;
         }
 
+        /// <summary>
+        /// The assembly implementing this package.
+        /// </summary>
         public Assembly PackageAssembly { get; private set; }
+
 
         /// <summary>
         /// Returns all packages referenced by this YetaWF instance, i.e., the website (this excludes templates, utilities)
         /// </summary>
+        /// <param name="skip">The number of records to skip (paging support).</param>
+        /// <param name="take">The number of records to retrieve (paging support). If more records are available they are dropped.</param>
+        /// <param name="sort">A collection describing the sort order.</param>
+        /// <param name="filters">A collection describing the filtering criteria.</param>
+        /// <returns>Returns information about the requested packages.</returns>
         public static DataProviderGetRecords<Package> GetAvailablePackages(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters) {
             List<Package> packages = (from p in GetAvailablePackages() select p).ToList();// copy
             //packages.AddRange(GetTemplatePackages());
@@ -133,8 +194,9 @@ namespace YetaWF.Core.Packages {
         }
 
         /// <summary>
-        /// Returns all packages referenced by this YetaWF instance, i.e., the website (this excludes templates, utilities)
+        /// Returns all packages referenced by this YetaWF instance, i.e., the website (this excludes templates, utilities).
         /// </summary>
+        /// <returns>Returns a collection of packages.</returns>
         public static List<Package> GetAvailablePackages() {
             if (_availablePackages == null) {
                 ICollection assemblies = null;
@@ -164,19 +226,19 @@ namespace YetaWF.Core.Packages {
             return (from p in _availablePackages select p).ToList();// copy
         }
 
-        // We statically hold a reference to ALL available, referenced packages- this is necessary for package information caching (notably localization)
+        // We statically hold a reference to ALL available, referenced packages - this is necessary for package information caching (notably localization)
         private static List<Package> _availablePackages = null;
 
-        public static async Task<List<Package>> GetTemplatePackagesAsync() {
-            string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
-            List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
-            return packages;
-        }
-        public static async Task<List<Package>> GetUtilityPackagesAsync() {
-            string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
-            List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
-            return packages;
-        }
+        //public static async Task<List<Package>> GetTemplatePackagesAsync() {
+        //    string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
+        //    List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyTemplateRegex);
+        //    return packages;
+        //}
+        //public static async Task<List<Package>> GetUtilityPackagesAsync() {
+        //    string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
+        //    List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
+        //    return packages;
+        //}
 
         private static readonly Regex csAssemblyTemplateRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Template\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly Regex csAssemblyUtilityRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Utility\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
@@ -213,14 +275,14 @@ namespace YetaWF.Core.Packages {
         }
 
         /// <summary>
-        /// Given an assembly, return the Package object.
+        /// Given an assembly, returns an instance of the Package class describing the package.
         /// </summary>
         /// <param name="assembly">An assembly for which the Package object is to be returned.</param>
-        /// <returns>The Package object, or null if it does not exist.</returns>
+        /// <returns>Returns the Package object, or null if it does not exist.</returns>
         public static Package TryGetPackageFromAssembly(Assembly assembly) {
             Package package = (from p in GetAvailablePackages() where p.PackageAssembly.FullName == assembly.FullName select p).FirstOrDefault();
             if (package == null) {
-                // special handling for assemblies that are not in referenced assemblies but are still accessible (like PackageAttributes)
+                // special handling for assemblies that are not in referenced assemblies but are still accessible.
                 package = new Package(assembly);
                 if (!package.IsValid)
                     return null;
@@ -229,45 +291,46 @@ namespace YetaWF.Core.Packages {
             return package;
         }
         /// <summary>
-        /// Given an assembly, return the Package object.
+        /// Given an assembly, returns an instance of the Package class describing the package.
         /// </summary>
         /// <param name="assembly">An assembly for which the Package object is to be returned.</param>
-        /// <returns>The Package object.</returns>
+        /// <returns>Returns the Package object.</returns>
+        /// <remarks>An exception occurs if the specified assembly is not a YetaWF package.</remarks>
         public static Package GetPackageFromAssembly(Assembly assembly) {
             Package package = TryGetPackageFromAssembly(assembly);
             if (package == null) throw new InternalError("Package assembly {0} not found", assembly.FullName);
             return package;
         }
         /// <summary>
-        /// Given a type, return the Package object.
+        /// Given a type, returns the YetaWF package implementing the type.
         /// </summary>
         /// <param name="type">The type for which the implementing Package object is to be returned.</param>
-        /// <returns>The Package object, or null if it does not exist.</returns>
+        /// <returns>Returns the Package object, or null if it does not exist.</returns>
         public static Package TryGetPackageFromType(Type type) {
             return TryGetPackageFromAssembly(type.Assembly);
         }
         /// <summary>
-        /// Given a type, return the Package object.
+        /// Given a type, returns the YetaWF package implementing the type.
         /// </summary>
         /// <param name="type">The type for which the implementing Package object is to be returned.</param>
-        /// <returns>The Package object.</returns>
+        /// <returns>Returns the Package object.</returns>
         public static Package GetPackageFromType(Type type) {
             return GetPackageFromAssembly(type.Assembly);
         }
         /// <summary>
-        /// Given an object, return the Package object.
+        /// Given an object, returns the YetaWF package implementing the object.
         /// </summary>
         /// <param name="obj">The object for which the implementing Package object is to be returned.</param>
-        /// <returns>The Package object.</returns>
+        /// <returns>Returns the Package object.</returns>
         public static Package GetCurrentPackage(object obj) {
             return GetPackageFromAssembly(obj.GetType().Assembly);
         }
 
         /// <summary>
-        /// Given a package name, return the Package object.
+        /// Given a package name, returns the Package object.
         /// </summary>
         /// <param name="shortName">The package name for which the Package object is to be returned.</param>
-        /// <returns>The Package object.</returns>
+        /// <returns>Returns the Package object.</returns>
         public static Package GetPackageFromPackageName(string shortName /*, bool Utilities = false, bool Templates = false*/) {
             Package package = (from p in GetAvailablePackages() where p.Name == shortName select p).FirstOrDefault();
             if (package != null) return package;
@@ -388,6 +451,7 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Returns the root path of the package's source files. This is used to determine the location of a source package on a development system.
         /// </summary>
+        /// <remarks>If a package doesn't have an associated source code folder, an exception occurs.</remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string PackageSourceRoot {
             get {
@@ -427,6 +491,9 @@ namespace YetaWF.Core.Packages {
         }
         private string _domain;
 
+        /// <summary>
+        /// The domain name (derived from the package domain) used for language resources.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string LanguageDomain {
             get {
@@ -442,7 +509,7 @@ namespace YetaWF.Core.Packages {
         private string _languageDomain;
 
         /// <summary>
-        /// Your company name, in displayable form.
+        /// Your company name (derived from the package company name), in displayable form.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string CompanyDisplayName {
@@ -476,7 +543,7 @@ namespace YetaWF.Core.Packages {
         private string _description;
 
         /// <summary>
-        /// The MVC Area name used by the current domain.
+        /// The MVC Area name used by the package.
         /// </summary>
         public string AreaName {
             get {
@@ -519,7 +586,7 @@ namespace YetaWF.Core.Packages {
         private string _version;
 
         /// <summary>
-        /// The Url for information about this package.
+        /// The URL for information about this package.
         /// </summary>
         public string InfoLink {
             get {
@@ -536,7 +603,7 @@ namespace YetaWF.Core.Packages {
         private string _infoLink;
 
         /// <summary>
-        /// The Url for the update server for this package.
+        /// The URL for the update server for this package.
         /// </summary>
         /// <remarks>This is not currently used.</remarks>
         public string UpdateServerLink {
@@ -554,7 +621,7 @@ namespace YetaWF.Core.Packages {
         private string _updateServerLink;
 
         /// <summary>
-        /// The Url for support information for this package.
+        /// The URL for support information for this package.
         /// </summary>
         public string SupportLink {
             get {
@@ -571,7 +638,7 @@ namespace YetaWF.Core.Packages {
         private string _supportLink;
 
         /// <summary>
-        /// The Url for the release notice for this package.
+        /// The URL for the release notice for this package.
         /// </summary>
         public string ReleaseNoticeLink {
             get {
@@ -588,7 +655,7 @@ namespace YetaWF.Core.Packages {
         private string _releaseNoticeLink;
 
         /// <summary>
-        /// The Url for the license information for this package.
+        /// The URL for the license information for this package.
         /// </summary>
         public string LicenseLink {
             get {
@@ -605,7 +672,7 @@ namespace YetaWF.Core.Packages {
         private string _licenseLink;
 
         /// <summary>
-        /// Store Url for purchasable packages.
+        /// Store URL for purchasable packages.
         /// </summary>
         /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
         public string StoreLink {
@@ -624,7 +691,7 @@ namespace YetaWF.Core.Packages {
 
 
         /// <summary>
-        /// The resources owned by this package.
+        /// The protected resources owned by this package.
         /// </summary>
         public List<ResourceAttribute> Resources {
             get {
@@ -634,7 +701,7 @@ namespace YetaWF.Core.Packages {
         }
 
         /// <summary>
-        /// The path to the Addon folder for this package.
+        /// The path to the Addons (JavaScript/CSS) folder for this package.
         /// </summary>
         public string AddonsFolder {
             get {
@@ -645,6 +712,7 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Returns a list of names of all packages required by the current package.
         /// </summary>
+        /// <returns>Returns a collection of packages required by the current package.</returns>
         public List<string> GetRequiredPackages() {
             List<string> requiredPackages = new List<string>();
 
@@ -657,8 +725,9 @@ namespace YetaWF.Core.Packages {
             return requiredPackages;
         }
         /// <summary>
-        /// Returns a list of all types in the current package, in the order they should be installed.
+        /// Returns a list of all public types in the current package, in the order they should be installed.
         /// </summary>
+        /// <returns>Returns a collection of types.</returns>
         /// <remarks>Only explicitly defined types using InstallOrderAttributes are listed.</remarks>
         public List<Type> GetInstallOrder() {
             List<Type> order = new List<Type>();
@@ -670,6 +739,7 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Returns a list of all installable models in the current package, defined using the IInstallableModel interface.
         /// </summary>
+        /// <returns>Returns a collection of types.</returns>
         /// <remarks>Only explicitly defined types using InstallOrderAttributes are listed.</remarks>
         public List<Type> InstallableModels {
             get {
@@ -685,8 +755,8 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         /// <typeparam name="TYPE">Type used to filter the classes.</typeparam>
         /// <param name="OrderByServiceLevel">Sort by service level (low to high).</param>
-        /// <param name="serviceLevel">Filter by service level (or ServiceLevelEnum.Unknown for all classes).</param>
-        /// <returns>List of classes.</returns>
+        /// <param name="ServiceLevel">Filter by service level (or ServiceLevelEnum.Unknown for all classes), set to ServiceLevelEnum.Unknown to return all types.</param>
+        /// <returns>Returns a collection of types.</returns>
         public static List<Type> GetClassesInPackages<TYPE>(bool OrderByServiceLevel = false, ServiceLevelEnum ServiceLevel = ServiceLevelEnum.Unknown) {
             List<Type> list = new List<Type>();
             List<Package> packages = Package.GetAvailablePackages();
@@ -711,7 +781,7 @@ namespace YetaWF.Core.Packages {
         /// Return a list of all classes in one package that support an interface or are derived from the specified type.
         /// </summary>
         /// <typeparam name="TYPE">Type used to filter the classes.</typeparam>
-        /// <returns>List of classes.</returns>
+        /// <returns>Returns a collection of types.</returns>
         public List<Type> GetClassesInPackage<TYPE>() {
             List<Type> list = new List<Type>();
             Type[] typesInAsm;
@@ -738,7 +808,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         /// <param name="vers1">First version string.</param>
         /// <param name="vers2">Second version string.</param>
-        /// <returns>0 for equality, -1 if the first version is less than the second, 1 if the first version is greater than the second.</returns>
+        /// <returns>Returns 0 for equality, -1 if the first version is less than the second, 1 if the first version is greater than the second.</returns>
         /// <remarks>
         /// Version strings have the format n.n.n, normally 3 components, but this function supports any number of components, including versions strings with unequal number of components.
         /// </remarks>
@@ -782,7 +852,7 @@ namespace YetaWF.Core.Packages {
         private ServiceLevelEnum _serviceLevel = ServiceLevelEnum.Unknown;
 
         /// <summary>
-        /// Used to cache a package's localized data. This is used by the LocalizationDataProvider.
+        /// Used to cache a package's localized data. This is available to localization data providers (e.g., YetaWF.DataProvider.Localization.LocalizationDataProvider) and is not used by YetaWF.
         /// </summary>
         public object CachedLocalization { get; set; }
 
