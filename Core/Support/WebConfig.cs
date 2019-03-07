@@ -2,11 +2,21 @@
 
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace YetaWF.Core.Support {
 
+    /// <summary>
+    /// Manages Appsettings.json.
+    /// </summary>
+    /// <remarks>This class is used exclusively to manage Appsettings.json.
+    ///
+    /// It retrieves values and supports saving new values.
+    ///
+    /// For retrieval, variables embedded in the values are substituted.
+    /// See the Appsettings.json topic for more information.</remarks>
     public static class WebConfigHelper {
 
         public static Task InitAsync(string settingsFile) {
@@ -14,11 +24,18 @@ namespace YetaWF.Core.Support {
                 throw new InternalError("Appsettings.json file not found ({0})", settingsFile);
             SettingsFile = settingsFile;
             Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+
+            JObject vars = Settings["Variables"];
+            foreach (JToken var in vars.Children()) {
+                JProperty p = (JProperty)var;
+                Variables.Add(p.Name, (string)p.Value);
+            }
             return Task.CompletedTask;
         }
 
         private static string SettingsFile;
         private static dynamic Settings;
+        private static Dictionary<string, object> Variables = new Dictionary<string, object>();
 
 #if COMPARE
         // compares web.config to appsettings.json
@@ -72,8 +89,12 @@ namespace YetaWF.Core.Support {
             if (typeof(TYPE) == typeof(string)) {
                 if (string.IsNullOrWhiteSpace((string)val))
                     return dflt;
-                else
-                    return (TYPE)val;
+                else {
+                    string s = (string)val;
+                    Variables vars = new Variables(null, Variables);
+                    s = vars.ReplaceVariables(s);
+                    return (TYPE)(object)s;
+                }
             } else if (typeof(TYPE).IsEnum) return (TYPE)(object)Convert.ToInt32(val);
             else if (typeof(TYPE) == typeof(bool)) {
                 bool boolVal;

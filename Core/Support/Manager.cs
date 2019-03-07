@@ -148,7 +148,7 @@ namespace YetaWF.Core.Support {
         public static bool HaveManager {
             get {
 #if MVC6
-                if (HttpContextAccessor.HttpContext != null) {
+                if (HttpContextAccessor != null && HttpContextAccessor.HttpContext != null) {
                     if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] == null) return false;
 #else
                 if (HttpContext.Current != null) {
