@@ -633,7 +633,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
 
-        [Category("Skin"), Caption("Default Bootstrap Skin"), Description("The default skin for overall page appearance and Bootstrap elements - individual pages can override the default skin")]
+        [Category("Skin"), Caption("Default Bootstrap Skin"), Description("The default skin for overall page appearance and Bootstrap elements (only supported for skins that support Bootswatch) - individual pages can override the default skin")]
         [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
         [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]

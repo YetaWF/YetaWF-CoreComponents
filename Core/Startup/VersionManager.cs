@@ -42,6 +42,12 @@ namespace YetaWF.Core.Addons {
         private const string NotUsedPrefix = "notused_";
 
         public class AddOnProduct {
+
+            public class UsesInfo {
+                public string PackageName { get; set; }
+                public string AddonName { get; set; }
+            }
+
             public AddOnProduct() {
                 JsFiles = new List<string>();
                 CssFiles = new List<string>();
@@ -64,8 +70,10 @@ namespace YetaWF.Core.Addons {
 
             public List<string> JsFiles { get; set; }
             public string JsPath { get; set; }
+            public List<UsesInfo> JsUses { get; set; }
             public List<string> CssFiles { get; set; }
             public string CssPath { get; set; }
+            public List<UsesInfo> CssUses { get; set; }
             public List<Type> SupportTypes { get; set; }
             public SkinCollectionInfo SkinInfo { get; set; }
 
@@ -539,9 +547,11 @@ namespace YetaWF.Core.Addons {
             ReadFileInfo info = await ReadFileAsync(version, Path.Combine(folder, Globals.Addons_JSFileList));
             version.JsFiles = info.Lines;
             version.JsPath = info.Files;
+            version.JsUses = info.Uses;
             info = await ReadFileAsync(version, Path.Combine(folder, Globals.Addons_CSSFileList));
             version.CssFiles = info.Lines;
             version.CssPath = info.Files;
+            version.CssUses = info.Uses;
             version.SupportTypes = await ReadSupportFileAsync(version, package, folder);
             if (version.Type == AddOnType.Skin) {
                 SkinAccess skinAccess = new SkinAccess();
@@ -621,14 +631,22 @@ namespace YetaWF.Core.Addons {
         private class ReadFileInfo {
             public string Files { get; set; }
             public List<string> Lines { get; set; }
+            public List<AddOnProduct.UsesInfo> Uses { get; set; }
         }
 
         private static async Task<ReadFileInfo> ReadFileAsync(AddOnProduct version, string file) {
             string filePath = "";
             List<string> lines = new List<string>();
+            List<AddOnProduct.UsesInfo> uses = new List<AddOnProduct.UsesInfo>();
             if (await FileSystem.FileSystemProvider.FileExistsAsync(file)) {
+
                 Logging.AddLog("Found {0}", file);
+
                 lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+
+                // remove comments
+                lines = (from l in lines where !l.StartsWith("#") && !string.IsNullOrWhiteSpace(l) select l.Trim()).ToList();
+
                 // remove MVC5/MVC6 lines that don't match current version
 #if MVC6
                 lines = (from l in lines where !l.StartsWith("MVC5 ") select l).ToList();
@@ -637,6 +655,7 @@ namespace YetaWF.Core.Addons {
                 lines = (from l in lines where !l.StartsWith("MVC6 ") select l).ToList();
                 lines = (from l in lines select (l.StartsWith("MVC5 ") ? l.Substring(4) : l).Trim()).ToList();
 #endif
+                // Find a Folder directive (1 only, others are ignored)
                 string path = (from l in lines where l.StartsWith("Folder ") select l.Trim()).FirstOrDefault();
                 if (path != null) {
                     path = path.Substring(6).Trim();
@@ -649,11 +668,27 @@ namespace YetaWF.Core.Addons {
                         filePath = path;
                     }
                 }
-                lines = (from l in lines where !l.StartsWith("#") && !l.StartsWith("Folder ") && !string.IsNullOrWhiteSpace(l) select l.Trim()).ToList();
+
+                // Find Uses directives
+                List<string> usesLines = (from l in lines where l.StartsWith("Uses ") select l.Substring(4).Trim()).ToList();
+                foreach (string usesLine in usesLines) {
+                    string[] parts = usesLine.Split(new char[] { ',' }, StringSplitOptions.None);
+                    if (parts.Length != 2)
+                        throw new InternalError($"Invalid Uses statement in file {file}");
+                    uses.Add(new AddOnProduct.UsesInfo {
+                        PackageName = parts[0].Trim(),
+                        AddonName = parts[1].Trim(),
+                    });
+                }
+
+                // remove comments, Folder and whitespace
+                lines = (from l in lines where !l.StartsWith("#") && !l.StartsWith("Folder ") && !l.StartsWith("Uses ") && !string.IsNullOrWhiteSpace(l) select l.Trim()).ToList();
+
             }
             return new ReadFileInfo {
                 Lines = lines,
                 Files = filePath,
+                Uses = uses,
             };
         }
     }

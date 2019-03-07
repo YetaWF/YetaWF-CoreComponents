@@ -1759,7 +1759,10 @@ namespace YetaWF.Core.Support {
                 CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
         }
 
-        public SkinCollectionInfo SkinInfo { get; set; }
+        /// <summary>
+        /// Contains skin information for the skin used by the current page.
+        /// </summary>
+        public SkinCollectionInfo SkinInfo { get; private set; }
 
         /// <summary>
         /// Adds the page's or popup's css classes (the current edit mode, the current page's defined css and other page css).
@@ -1790,7 +1793,7 @@ namespace YetaWF.Core.Support {
                     s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
             }
-            if (Manager.SkinInfo.UsingBootstrap) {
+            if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UseDefaultBootstrap) {
                 string skin = Manager.CurrentPage.BootstrapSkin;
                 if (string.IsNullOrWhiteSpace(skin))
                     skin = Manager.CurrentSite.BootstrapSkin;
