@@ -70,7 +70,7 @@ namespace YetaWF.Core.Pages {
         // Add all css files listed in filelistCSS.txt
         private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, params object[] args) {
             foreach (VersionManager.AddOnProduct.UsesInfo uses in version.CssUses) {
-                await Manager.AddOnManager.AddAddOnNamedAsync(uses.PackageName, uses.AddonName);
+                await Manager.AddOnManager.AddAddOnNamedCssAsync(uses.PackageName, uses.AddonName);
             }
             string productUrl = version.GetAddOnUrl();
             List<string> list = (from i in version.CssFiles select Path.Combine(version.CssPath, i)).ToList(); // make a copy

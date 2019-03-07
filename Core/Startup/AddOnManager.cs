@@ -62,6 +62,20 @@ namespace YetaWF.Core.Addons {
             await Manager.ScriptManager.AddAddOnAsync(version, args);
             await Manager.CssManager.AddAddOnAsync(version, args);
         }
+        internal async Task AddAddOnNamedJavaScriptAsync(string areaName, string name, params object[] args) {
+            if (Manager.IsPostRequest) return;
+            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
+            if (_AddedProducts.Contains(version)) return;
+            //_AddedProducts.Add(version); // do not add, only partial, script manager will catch duplicates
+            await Manager.ScriptManager.AddAddOnAsync(version, args);
+        }
+        internal async Task AddAddOnNamedCssAsync(string areaName, string name, params object[] args) {
+            if (Manager.IsPostRequest) return;
+            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
+            if (_AddedProducts.Contains(version)) return;
+            // _AddedProducts.Add(version); // do not add, only partial, css manager will catch duplicates
+            await Manager.CssManager.AddAddOnAsync(version, args);
+        }
         /// <summary>
         /// Returns the Url of a named addon.
         /// </summary>

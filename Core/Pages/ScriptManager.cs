@@ -180,7 +180,7 @@ namespace YetaWF.Core.Pages {
         // Add all javascript files listed in filelistJS.txt
         private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object[] args) {
             foreach (VersionManager.AddOnProduct.UsesInfo uses in version.JsUses) {
-                await Manager.AddOnManager.AddAddOnNamedAsync(uses.PackageName, uses.AddonName);
+                await Manager.AddOnManager.AddAddOnNamedJavaScriptAsync(uses.PackageName, uses.AddonName);
             }
             List<string> list = (from i in version.JsFiles select Path.Combine(version.JsPath, i)).ToList(); // make a copy
             foreach (var info in list) {
