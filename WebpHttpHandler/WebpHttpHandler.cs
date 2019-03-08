@@ -45,6 +45,11 @@ namespace YetaWF.Core.HttpHandler {
     public class WebpHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
 #endif
     {
+        /// <summary>
+        /// Tests whether the specified extension is handled by this HTTP handler.
+        /// </summary>
+        /// <param name="extension">The extension to test. This may be a full path name. Only the extension portion is inspected.</param>
+        /// <returns>Returns true if the HTTP handler processes this file extension, false otherwise.</returns>
         public static bool IsValidExtension(string extension) {
             return extension.EndsWith(".png") || extension.EndsWith(".jpg") || extension.EndsWith(".jpeg");
         }
@@ -193,7 +198,7 @@ namespace YetaWF.Core.HttpHandler {
 #if MVC6
             await context.Response.Body.WriteAsync(btes, 0, btes.Length);
 #else
-            await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
+            await context.Response.OutputStream.WriteAsync(btes, 0, btes.Length);
             context.ApplicationInstance.CompleteRequest();
 #endif
         }

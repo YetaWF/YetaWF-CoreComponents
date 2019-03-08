@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7881D87A-C00C-4765-BABB-4D76F558693E}</ProjectGuid>
+    <ProjectGuid>{7EFB9360-23CE-4D57-A8BF-8FC82689A006}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>YetaWF.Core.HttpHandler</RootNamespace>

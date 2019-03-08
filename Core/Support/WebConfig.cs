@@ -26,9 +26,11 @@ namespace YetaWF.Core.Support {
             Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
             JObject vars = Settings["Variables"];
-            foreach (JToken var in vars.Children()) {
-                JProperty p = (JProperty)var;
-                Variables.Add(p.Name, (string)p.Value);
+            if (vars != null) {
+                foreach (JToken var in vars.Children()) {
+                    JProperty p = (JProperty)var;
+                    Variables.Add(p.Name, (string)p.Value);
+                }
             }
             return Task.CompletedTask;
         }
