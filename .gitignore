@@ -104,3 +104,4 @@ Core/node_modules/
 Core/package-lock.json
 *.cshtml
 Core/bin/
+*.webp-gen
