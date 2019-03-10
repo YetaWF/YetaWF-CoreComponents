@@ -405,9 +405,10 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         // defines external permission levels so they can be translated to internal levels (extra1,2...)
         public class RoleDefinition {
-            public static readonly string View = "View";
-            public static readonly string Edit = "Edit";
-            public static readonly string Remove = "Remove";
+
+            public const string View = "View";
+            public const string Edit = "Edit";
+            public const string Remove = "Remove";
 
             public class Resource {
                 public string Caption { get; set; }
