@@ -120,14 +120,9 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "ModuleGuid", ModuleGuid);// ModuleGuid for form
 
             // volatile css
-            // add classes that don't use tooltips (cvt simple class names to jquery selector)
-            {
-                string css = "." + CssNoTooltip;
-                string[] s = manager.CurrentSite.CssNoTooltips.Split(new char[] { ' ' });
-                if (s.Length > 0)
-                    css += ",." + string.Join(",.", s);
-                scripts.AddVolatileOption("Basics", "CssNoTooltips", css);
-            }
+            // add classes that don't use tooltips
+            string css = CssManager.CombineCss(CssNoTooltip, manager.CurrentSite.CssNoTooltips);
+            scripts.AddVolatileOption("Basics", "CssNoTooltips", css);
 
             scripts.AddConfigOption("Basics", "TemplateName", TemplateName);
             scripts.AddConfigOption("Basics", "TemplateAction", TemplateAction);
