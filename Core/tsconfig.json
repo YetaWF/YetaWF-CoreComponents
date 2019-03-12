@@ -2,6 +2,7 @@
   "compilerOptions": {
     "noImplicitAny": false,
     "noEmitOnError": false,
+    "lib": [ "dom", "es2015" ],
     "removeComments": false,
     "sourceMap": false,
     "target": "es5",

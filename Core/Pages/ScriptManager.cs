@@ -463,12 +463,14 @@ namespace YetaWF.Core.Pages {
                 configOptions.Add(name, value);
         }
 
-        public void AddVolatileOption(string group, string name, object value) {
+        public void AddVolatileOption(string group, string name, object value, bool Replace = false) {
             Dictionary<string, object> volatileOptions = null;
             if (!_SavedVolatileOptionsGroups.TryGetValue(group, out volatileOptions)) {
                 volatileOptions = new Dictionary<string, object>();
                 _SavedVolatileOptionsGroups.Add(group, volatileOptions);
             }
+            if (Replace)
+                volatileOptions.Remove(name);
             volatileOptions.Add(name, value);
         }
 

@@ -1,8 +1,11 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
@@ -10,7 +13,6 @@ using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
-using System.Threading.Tasks;
 using YetaWF.Core.IO;
 #if MVC6
 using Microsoft.AspNetCore.Http;
@@ -47,6 +49,12 @@ namespace YetaWF.Core.HttpHandler {
     public class ImageHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
 #endif
     {
+        // A bit of a simplification - we're just looking for image/webp, don't care about quality and don't look for image/*
+        private bool UseWEBP(string acceptHeader) {
+            List<MediaTypeHeaderValue> mediaTypes = acceptHeader?.Split(',').Select(MediaTypeHeaderValue.Parse).ToList();
+            return (from m in mediaTypes where m.MediaType == "image/webp" select m).FirstOrDefault() != null;
+        }
+
         // IHttpHandler (Async)
         // IHttpHandler (Async)
         // IHttpHandler (Async)
@@ -171,6 +179,17 @@ namespace YetaWF.Core.HttpHandler {
                     string contentType;
                     if (filePath != null) {
                         MimeSection mimeSection = new MimeSection();
+
+                        bool useWebp = UseWEBP(context.Request.Headers["Accept"]);
+                        if (useWebp) {
+                            string webpImage = System.IO.Path.ChangeExtension(filePath, ".webp-gen");
+                            if (await FileSystem.FileSystemProvider.FileExistsAsync(webpImage)) {
+                                // use generated image
+                                filePath = webpImage;
+                            } else
+                                useWebp = false;
+                        }
+
                         contentType = mimeSection.GetContentTypeFromExtension(Path.GetExtension(filePath));
                         if (string.IsNullOrWhiteSpace(contentType))
                             throw new InternalError("File type not suitable as image - {0}", filePath);// shouldn't have been uploaded in the first place

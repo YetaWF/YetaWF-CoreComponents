@@ -37,6 +37,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Adds any skin-specific addons for the current page that are required by the package rendering components and views.
         /// </summary>
+        /// <remarks>This is called before the page is rendered.</remarks>
         Task AddSkinAddOnsAsync();
         /// <summary>
         /// Adds any form-specific addons for the current page that are required by the package rendering components and views.

@@ -1689,6 +1689,12 @@ namespace YetaWF.Core.Support {
         public bool RenderingUniqueModuleAddons { get; set; }
         public bool RenderingUniqueModuleAddonsAjax { get; set; }
 
+        /// <summary>
+        /// This property can be used by a component rendering package to save information for the current HTTP request.
+        /// It is not used by YetaWF.
+        /// </summary>
+        public object ComponentsData { get; set; }
+
         // FORM PROCESSING
         // FORM PROCESSING
         // FORM PROCESSING

@@ -19,6 +19,11 @@ namespace YetaWF {
         KnownCss: string[];
         KnownScripts: string[];
     }
+    interface AddonsContentData {
+        Addons: AddonDescription[];
+        KnownCss: string[];
+        KnownScripts: string[];
+    }
 
     export interface ContentResult {
         Status: string;
@@ -51,6 +56,11 @@ namespace YetaWF {
     export interface UrlEntry {
         Name: string;
         Url: string;
+    }
+    export interface AddonDescription {
+        AreaName: string;
+        ShortName: string;
+        Argument1: string|null;
     }
 
     export class Content {
@@ -108,10 +118,15 @@ namespace YetaWF {
             }
         }
 
-        // Change the current page to the specified Uri (may not be part of the unified page set)
-        // returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
-        // returns true if the page is now shown and is part of the unified page set
-        public setContent(uri: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult) => HTMLElement): boolean {
+        /**
+         * Changes the current page to the specified Uri (may not be part of the unified page set).
+         * Returns false if the uri couldn't be processed (i.e., it's not part of a unified page set).
+         * Returns true if the page is now shown and is part of the unified page set.
+         * @param uri
+         * @param setState Defines whether the browser's history should be updated.
+         * @param popupCB A callback to process popup content. May be null.
+         */
+        public setContent(uri: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void): boolean {
 
             if (YVolatile.Basics.EditModeActive) return false; // edit mode
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return false; // not unified mode
@@ -250,7 +265,7 @@ namespace YetaWF {
             }
         }
 
-        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult) => HTMLElement) : void {
+        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void ) : void {
 
             $YetaWF.closeOverlays();
 
@@ -337,7 +352,9 @@ namespace YetaWF {
                         tags.push(pane);
                     }
                 } else {
-                    tags.push(popupCB(result));
+                    popupCB(result, (dialog: HTMLElement): void => {
+                        tags.push(dialog);
+                    });
                 }
                 // add addons (can contain mixed html/scripts)
                 if (result.Addons.length > 0)
@@ -378,12 +395,107 @@ namespace YetaWF {
                 } catch (e) { }
                 $YetaWF.processNewPage(uri.toUrl());
                 // done, set focus
-                $YetaWF.setFocus(tags);
+                setTimeout(():void => { // defer setting focus (popups, controls may not yet be visible)
+                    $YetaWF.setFocus(tags);
+                }, 1);
                 $YetaWF.setLoading(false);
             });
         }
 
-        public init() : void {
+        public loadAddons(addons: AddonDescription[], run: () => void): void {
+
+            // build data context (like scripts, css files we have)
+            var data: AddonsContentData = {
+                Addons: addons,
+                KnownCss: [],
+                KnownScripts: []
+            };
+
+            var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (var c of css) {
+                data.KnownCss.push(c.getAttribute("data-name") as string);
+            }
+            css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
+            for (var c of css) {
+                data.KnownCss.push(c.getAttribute("data-name") as string);
+            }
+            data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
+            var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (var s of scripts) {
+                data.KnownScripts.push(s.getAttribute("data-name") as string);
+            }
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []);// add known javascript files that were added via bundles
+
+            $YetaWF.setLoading();
+
+            this.getAddonsData("/YetaWF_Core/AddonContent/ShowAddons", data)
+                .then((data: ContentResult): void => {
+                    this.processReceivedAddons(data, run);
+                })
+                .catch((error: Error): void => alert(error.message));
+        }
+
+        private getAddonsData(url: string, data: AddonsContentData): Promise<ContentResult> {
+            var p = new Promise<ContentResult>((resolve:(result:ContentResult)=>void, reject:(reason:Error)=>void): void => {
+
+                const request: XMLHttpRequest = new XMLHttpRequest();
+
+                request.open("POST", url, true);
+                request.setRequestHeader("Content-Type", "application/json");
+                request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
+                request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                request.onreadystatechange = (ev: Event): any => {
+                    if (request.readyState === 4 /*DONE*/) {
+                        $YetaWF.setLoading(false);
+                        if (request.status === 200) {
+                            resolve(JSON.parse(request.responseText) as ContentResult);
+                        } else {
+                            reject(new Error(YLocs.Forms.AjaxError.format(request.status, request.statusText)));
+                            // tslint:disable-next-line:no-debugger
+                            debugger;
+                        }
+                    }
+                };
+                request.send(JSON.stringify(data));
+            });
+            return p;
+        }
+
+        private processReceivedAddons(result: ContentResult, run: () => void): void {
+
+            if (result.Status != null && result.Status.length > 0) {
+                alert(result.Status);
+                return;
+            }
+            // run all global scripts (YConfigs, etc.)
+            $YetaWF.runGlobalScript(result.Scripts);
+            // add all new css files
+            for (let urlEntry of result.CssFiles) {
+                var found = result.CssFilesPayload.filter((elem: Payload) => { return elem.Name === urlEntry.Name; });
+                if (found.length > 0) {
+                    var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
+                    document.body.appendChild(elem);
+                } else {
+                    var elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
+                    document.body.appendChild(elem);
+                }
+            }
+            YVolatile.Basics.UnifiedCssBundleFiles = YVolatile.Basics.UnifiedCssBundleFiles || [];
+            YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles || []);
+
+            // add all new script files
+            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, () => {
+                YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
+                YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
+                // end of page scripts
+                $YetaWF.runGlobalScript(result.EndOfPageScripts);
+
+                run();
+            });
+        }
+
+        public init(): void {
         }
     }
 }

@@ -30,7 +30,7 @@ namespace YetaWF {
         /**
          * Opens a dynamic popup, usually a div added to the current document.
          */
-        openDynamicPopup(result: ContentResult): HTMLElement;
+        openDynamicPopup(result: ContentResult, done: (dialog: HTMLElement) => void): void;
 
         /**
          * Open a static popup, usually a popup based on iframe.

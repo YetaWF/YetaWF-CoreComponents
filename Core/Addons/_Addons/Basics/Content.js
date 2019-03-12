@@ -58,9 +58,14 @@ var YetaWF;
                 this.loadNextScript(scripts, payload, total, ix + 1, run);
             }
         };
-        // Change the current page to the specified Uri (may not be part of the unified page set)
-        // returns false if the uri couldn't be processed (i.e., it's not part of a unified page set)
-        // returns true if the page is now shown and is part of the unified page set
+        /**
+         * Changes the current page to the specified Uri (may not be part of the unified page set).
+         * Returns false if the uri couldn't be processed (i.e., it's not part of a unified page set).
+         * Returns true if the page is now shown and is part of the unified page set.
+         * @param uri
+         * @param setState Defines whether the browser's history should be updated.
+         * @param popupCB A callback to process popup content. May be null.
+         */
         Content.prototype.setContent = function (uri, setState, popupCB) {
             var _this = this;
             if (YVolatile.Basics.EditModeActive)
@@ -298,7 +303,9 @@ var YetaWF;
                     }
                 }
                 else {
-                    tags.push(popupCB(result));
+                    popupCB(result, function (dialog) {
+                        tags.push(dialog);
+                    });
                 }
                 // add addons (can contain mixed html/scripts)
                 if (result.Addons.length > 0)
@@ -340,8 +347,102 @@ var YetaWF;
                 catch (e) { }
                 $YetaWF.processNewPage(uri.toUrl());
                 // done, set focus
-                $YetaWF.setFocus(tags);
+                setTimeout(function () {
+                    $YetaWF.setFocus(tags);
+                }, 1);
                 $YetaWF.setLoading(false);
+            });
+        };
+        Content.prototype.loadAddons = function (addons, run) {
+            var _this = this;
+            // build data context (like scripts, css files we have)
+            var data = {
+                Addons: addons,
+                KnownCss: [],
+                KnownScripts: []
+            };
+            var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (var _i = 0, css_3 = css; _i < css_3.length; _i++) {
+                var c = css_3[_i];
+                data.KnownCss.push(c.getAttribute("data-name"));
+            }
+            css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
+            for (var _a = 0, css_4 = css; _a < css_4.length; _a++) {
+                var c = css_4[_a];
+                data.KnownCss.push(c.getAttribute("data-name"));
+            }
+            data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []); // add known css files that were added via bundles
+            var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (var _b = 0, scripts_2 = scripts; _b < scripts_2.length; _b++) {
+                var s = scripts_2[_b];
+                data.KnownScripts.push(s.getAttribute("data-name"));
+            }
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []); // known javascript files that were added by content pages
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []); // add known javascript files that were added via bundles
+            $YetaWF.setLoading();
+            this.getAddonsData("/YetaWF_Core/AddonContent/ShowAddons", data)
+                .then(function (data) {
+                _this.processReceivedAddons(data, run);
+            })
+                .catch(function (error) { return alert(error.message); });
+        };
+        Content.prototype.getAddonsData = function (url, data) {
+            var p = new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest();
+                request.open("POST", url, true);
+                request.setRequestHeader("Content-Type", "application/json");
+                request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
+                request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                request.onreadystatechange = function (ev) {
+                    if (request.readyState === 4 /*DONE*/) {
+                        $YetaWF.setLoading(false);
+                        if (request.status === 200) {
+                            resolve(JSON.parse(request.responseText));
+                        }
+                        else {
+                            reject(new Error(YLocs.Forms.AjaxError.format(request.status, request.statusText)));
+                            // tslint:disable-next-line:no-debugger
+                            debugger;
+                        }
+                    }
+                };
+                request.send(JSON.stringify(data));
+            });
+            return p;
+        };
+        Content.prototype.processReceivedAddons = function (result, run) {
+            if (result.Status != null && result.Status.length > 0) {
+                alert(result.Status);
+                return;
+            }
+            // run all global scripts (YConfigs, etc.)
+            $YetaWF.runGlobalScript(result.Scripts);
+            var _loop_2 = function (urlEntry) {
+                found = result.CssFilesPayload.filter(function (elem) { return elem.Name === urlEntry.Name; });
+                if (found.length > 0) {
+                    elem = $YetaWF.createElement("style", { type: "text/css", "data-name": found[0].Name }, found[0].Text);
+                    document.body.appendChild(elem);
+                }
+                else {
+                    elem = $YetaWF.createElement("link", { rel: "stylesheet", type: "text/css", "data-name": urlEntry.Name, href: urlEntry.Url });
+                    document.body.appendChild(elem);
+                }
+            };
+            var found, elem, elem;
+            // add all new css files
+            for (var _i = 0, _a = result.CssFiles; _i < _a.length; _i++) {
+                var urlEntry = _a[_i];
+                _loop_2(urlEntry);
+            }
+            YVolatile.Basics.UnifiedCssBundleFiles = YVolatile.Basics.UnifiedCssBundleFiles || [];
+            YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles || []);
+            // add all new script files
+            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, function () {
+                YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
+                YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
+                // end of page scripts
+                $YetaWF.runGlobalScript(result.EndOfPageScripts);
+                run();
             });
         };
         Content.prototype.init = function () {

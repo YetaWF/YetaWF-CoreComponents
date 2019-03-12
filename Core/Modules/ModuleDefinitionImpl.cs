@@ -591,6 +591,8 @@ namespace YetaWF.Core.Modules {
                 }
             }
 
+            await Manager.AddOnManager.AddModuleAsync(this);
+
             string moduleHtml = null;
             try {
 #if MVC6
@@ -619,8 +621,6 @@ namespace YetaWF.Core.Modules {
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
                 return HtmlStringExtender.Empty; // if the module contents are empty, we bail
-
-            await Manager.AddOnManager.AddModuleAsync(this);
 
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
                 return HtmlStringExtender.Empty; // if the module contents are empty, we bail
