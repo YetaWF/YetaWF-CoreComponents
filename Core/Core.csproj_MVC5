@@ -144,6 +144,8 @@
     <Compile Include="Components\Support\Grid\Grid.cs" />
     <Compile Include="Components\Support\ImageHTML.cs" />
     <Compile Include="Components\Support\StringTT.cs" />
+    <Compile Include="Controllers\AddonContentController.cs" />
+    <Compile Include="Controllers\AddonContentViewResult.cs" />
     <Compile Include="Controllers\Support\GridSaveSettings.cs" />
     <Compile Include="IO\Localization.cs" />
     <Compile Include="IO\Module.cs" />
