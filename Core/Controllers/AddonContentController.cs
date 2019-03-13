@@ -3,6 +3,7 @@
 using YetaWF.Core.Support;
 using System.Collections.Generic;
 #if MVC6
+using YetaWF.Core.Pages;
 using Microsoft.AspNetCore.Mvc;
 #else
 using System.Web;
@@ -72,7 +73,7 @@ namespace YetaWF.Core.Controllers {
 
             if (!YetaWFManager.HaveManager || dataIn.Addons == null || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
 #if MVC6
-                return new NotFoundObjectResult(dataIn.Path);
+                return new NotFoundObjectResult(null);
 #else
                 throw new HttpException(404, "Not found");
 #endif
