@@ -180,6 +180,7 @@ namespace YetaWF.Core.Controllers {
                     // served page to the then anonymous user before he/she logged on.
                     context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
                 }
+                context.HttpContext.Response.Headers.Add("Content-Type", "text/html");
 #if MVC6
                 byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
