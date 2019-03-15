@@ -106,3 +106,4 @@ Core/package-lock.json
 Core/bin/
 *.webp-gen
 .ts.map
+*.map
