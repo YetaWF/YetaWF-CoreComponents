@@ -25,6 +25,7 @@ namespace YetaWF.Core.Support {
             SettingsFile = settingsFile;
             Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
+            Variables = new Dictionary<string, object>();
             JObject vars = Settings["Variables"];
             if (vars != null) {
                 foreach (JToken var in vars.Children()) {
@@ -37,7 +38,7 @@ namespace YetaWF.Core.Support {
 
         private static string SettingsFile;
         private static dynamic Settings;
-        private static Dictionary<string, object> Variables = new Dictionary<string, object>();
+        private static Dictionary<string, object> Variables;
 
 #if COMPARE
         // compares web.config to appsettings.json
