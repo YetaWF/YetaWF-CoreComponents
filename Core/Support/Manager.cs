@@ -779,14 +779,30 @@ namespace YetaWF.Core.Support {
             if (string.IsNullOrWhiteSpace(s)) return null;
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
-            sb.Append(Uri.EscapeUriString(s));
+            string validChars = "_./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
+            for (int len = s.Length, ix = 0; ix < len; ++ix) {
+                char c = s[ix];
+                if (c == '?' || c == '#') {
+                    sb.Append(s.Substring(ix));
+                    break;
+                }
+                if (validChars.Contains(c)) {
+                    sb.Append(c);
+                } else if (c == '%') {
+                    if (ix + 1 < len && char.IsNumber(s[ix + 1])) {
+                        if (ix + 2 < len && char.IsNumber(s[ix + 2])) {
+                            sb.Append(s.Substring(ix, 3));
+                            ix += 2;// all good, skip %nn
+                            continue;
+                        }
+                    }
+                    sb.Append(string.Format("%{0:X2}", (int)c));
+                } else {
+                    sb.Append(string.Format("%{0:X2}", (int)c));
+                }
+            }
             return sb.ToString();
         }
-        /// <summary>
-        /// Decodes an encoded URL path.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         internal static string UrlDecodePath(string s) {
             if (string.IsNullOrWhiteSpace(s)) return null;
             StringBuilder sb = new StringBuilder();
