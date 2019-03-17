@@ -11,6 +11,7 @@ using YetaWF.Core.Serializers;
 namespace YetaWF.Core.Support.Serializers {
 
     //PERFORMANCE: serializing/deserializing is a significant hit on performance. RESEARCH: Alternatives
+    // Turns out JSON is slower than Simple (used in session state, cached main menu is a bit of a problem)
 
     /// <summary>
     /// General serializer/deserializer
@@ -35,15 +36,15 @@ namespace YetaWF.Core.Support.Serializers {
             [Obsolete]
             Binary = 2,
             /// <summary>
-            /// Used for small amounts of data that is in memory (usually cache and small data files)
+            /// Used for small amounts of data that is in memory (usually cache and small data files).
             /// </summary>
             Simple2 = 3,
             /// <summary>
-            /// JSON serialization
+            /// JSON serialization.
             /// </summary>
             JSON = 4,
             /// <summary>
-            /// JSON serialization with type information
+            /// JSON serialization with type information.
             /// </summary>
             JSONTyped = 6,
         };
