@@ -82,6 +82,18 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
+        /// Adds a value to the rel attribute.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public void AddRel(string value) {
+            string currentValue;
+            if (Attributes.TryGetValue("rel", out currentValue))
+                Attributes["rel"] = currentValue + " " + value;
+            else
+                Attributes["rel"] = value;
+        }
+
+        /// <summary>
         /// Merges a given dictionary of HTML attributes into the tag's HTML attributes.
         /// </summary>
         /// <param name="attributes">The dictionary of HTML attributes to merge into the tag's HTML attributes.</param>
@@ -123,6 +135,8 @@ namespace YetaWF.Core.Support {
                     Attributes[key] = value;
                 else if (key == "class") // special case for class as it's cumulative
                     AddCssClass(value);
+                else if (key == "rel") // special case for rel as it's cumulative
+                    AddRel(value);
             }
         }
         /// <summary>
