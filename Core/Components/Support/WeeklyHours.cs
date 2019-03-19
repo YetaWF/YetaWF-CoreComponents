@@ -63,6 +63,25 @@ namespace YetaWF.Core.Components {
                 return wk;
             }
         }
+        public static WeeklyHours Always {
+            get {
+                DayTimeRange available = new DayTimeRange {
+                    Start = new TimeOfDay(0, 0, 0),
+                    End = new TimeOfDay(23, 59, 59),
+                };
+                WeeklyHours wk = new WeeklyHours();
+                wk.Days = new SerializableList<DayTimeRange> {
+                    available, // Sunday
+                    available, // Monday
+                    available,
+                    available,
+                    available,
+                    available,
+                    available,// Saturday
+                };
+                return wk;
+            }
+        }
         public bool IsClosedAllDay(DateTime dt) {
             return Days[(int)dt.DayOfWeek].IsClosedAllDay();
         }
