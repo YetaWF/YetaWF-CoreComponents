@@ -221,7 +221,7 @@ namespace YetaWF.Core.Site {
 
         [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost' or when using the test domain Url, this property is ignored")]
         [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresPageReload]
         public bool EnforceSitePort { get; set; }
 
@@ -405,7 +405,7 @@ namespace YetaWF.Core.Site {
 
         [Category("Pages"), Caption("Allow Static Pages"), Description("Defines whether pages marked as static pages (for anonymous users only) are served as static pages - Any page whose content doesn't change can be marked as a static page, which results in faster page load for the end-user - Pages are marked static using the page's Page Settings (see Static Page property) - Only a deployed site uses static pages")]
         [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public bool StaticPages { get; set; }
 
         [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through Appsettings.json - typically used for debugging (can only be set using Appsettings.json)")]
@@ -454,7 +454,7 @@ namespace YetaWF.Core.Site {
 
         [Category("Pages"), Caption("Css Location"), Description("Defines whether CSS files are included at the top or bottom of the page")]
         [UIHint("Enum")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresPageReload]
         public CssLocationEnum CssLocation { get; set; }
 
@@ -470,19 +470,19 @@ namespace YetaWF.Core.Site {
 
         [Category("Pages"), Caption("JavaScript Location"), Description("Defines whether JavaScript files are included at the top or bottom of the page")]
         [UIHint("Enum")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresPageReload]
         public JSLocationEnum JSLocation { get; set; }
 
         [Category("Pages"), Caption("Disable Minimize FOUC"), Description("Normally CSS is injected to minimize the Flash Of Unstyled Content (FUOC) which can occur when JavaScript and/or CSS files are included at the bottom of the page - This feature can be disabled - Your mileage may vary (IE/Edge require this option to stay enabled)")]
         [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresPageReload]
         public bool DisableMinimizeFUOC { get; set; }
 
         [Category("Pages"), Caption("IFrame Use"), Description("Defines whether pages can be used in an IFrame by this and other sites (by setting the X-Frame-Options HTTP header) - Individual pages can override this default setting")]
         [UIHint("Enum")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public IFrameUseEnum IFrameUse { get; set; }
 
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
@@ -496,7 +496,7 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresRestart(RestartEnum.All)]
         public bool UseCDNComponents { get; set; }
 
@@ -629,7 +629,7 @@ namespace YetaWF.Core.Site {
 
         [Category("Skin"), Caption("Immediate Form Errors"), Description("Defines whether errors on forms are immediately marked using warning indicators when first displayed - otherwise indicators are shown as fields are edited and after a form is first submitted")]
         [UIHint("Boolean")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
 
@@ -724,11 +724,11 @@ namespace YetaWF.Core.Site {
 
         [Category("Meta"), Caption("SiteMap Default Priority"), Description("Defines the default page priority used for the site map - Each page can override the default value using its SiteMap Priority property")]
         [UIHint("Enum")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public PageDefinition.SiteMapPrioritySiteEnum SiteMapPriority { get; set; }
         [Category("Meta"), Caption("SiteMap Change Frequency Default"), Description("Defines the default page change frequency - Each page can override the default value using its Change Frequency property")]
         [UIHint("Enum")]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public PageDefinition.ChangeFrequencySiteEnum DefaultChangeFrequency { get; set; }
 
         // MODULE CONTROL & EDITING

@@ -346,11 +346,11 @@ namespace YetaWF.Core.Pages {
         [RequiresPageReload]
         public PageSecurityType PageSecurity { get; set; }
 
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [RequiresPageReload]
         public StaticPageEnum StaticPage { get; set; }
 
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public PageDefinition.IFrameUseEnum IFrameUse { get; set; }
 
         [StringLength(Globals.MaxUrl)]
@@ -379,9 +379,9 @@ namespace YetaWF.Core.Pages {
         [RequiresPageReload]
         public string PageMetaTags { get; set; }
 
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public ChangeFrequencyEnum ChangeFrequency { get; set; }
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public SiteMapPriorityEnum SiteMapPriority { get; set; }
 
         [Data_Binary]

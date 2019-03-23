@@ -46,13 +46,23 @@ namespace YetaWF.Core.DataProvider.Attributes {
         public new bool Value { get { return true; } }
     }
 
+    /// <summary>
+    /// Used in data models to identity properties that are new and must be added.
+    /// </summary>
+    /// <remarks>When updating existing data tables, the default value is 0/null in all cases. This cannot be changed.
+    ///
+    /// This attribute enforces that any new properties are properly marked, so no properties are accidentally saved.
+    /// If the attribute is missing, the model will fail to update any data tables.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class Data_NewValue : MoreMetadataAttribute {
 
         public static string AttributeName { get { return "Data_NewValue"; } }
 
+        [Obsolete("Warning: Default values are no longer used. All new properties are added with a default constraint of 0/null.")]
         public Data_NewValue(string value) : base(AttributeName, value) { }
-        public new string Value { get { return (string)base.Value; } }
+
+        public Data_NewValue() : base(AttributeName, null) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class Data_DontSave : MoreMetadataAttribute {

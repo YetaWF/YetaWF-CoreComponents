@@ -252,7 +252,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [UIHint("Boolean")]
         [Data_DontSave]
         public bool UsePartialFormCss { get { return !_SuppressPartialFormCss; } set { _SuppressPartialFormCss = !value; } }
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         [NoModelChange]
         public bool _SuppressPartialFormCss { get; set; }
 
@@ -263,7 +263,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Category("Skin"), Caption("Show Actions (Title)"), Description("Defines whether the module's action links are also shown next to the module title - Only the icons are shown if selected", Order = -88)]
         [UIHint("Boolean"), ProcessIf("ShowTitle", true, Disable = true)]
-        [Data_NewValue("(0)")]
+        [Data_NewValue]
         public bool ShowTitleActions { get; set; }
 
         [Category("Skin"), Caption("Show Help"), Description("Defines whether the module help link is shown in Display Mode - The help link is always shown in Edit Mode", Order = -86)]
