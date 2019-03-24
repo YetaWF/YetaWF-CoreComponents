@@ -23,8 +23,6 @@ namespace YetaWF.Core.Packages {
             public string Version { get; set; }
         }
 
-        public static bool MajorDataChange = false;
-
         /// <summary>
         /// Saves a map of all currently installed packages.
         /// </summary>
@@ -178,16 +176,8 @@ namespace YetaWF.Core.Packages {
             // get all currently installed packages
             List<Package> allPackages = Package.GetAvailablePackages();
 
-            PackageInfo coreInfo = (from p in list where p.Name == "YetaWF.Core" select p).FirstOrDefault();
-            if (coreInfo == null)
-                throw new InternalError("YetaWF.Core package not found in package map");
-            //bool dropIndexes = Package.CompareVersion(coreInfo.Version, "2.0.3") < 0; // we're upgrading from pre-2.0.3, need to upgrade all varchar columns -> drop all indexes
-            //bool dropIndexes = Package.CompareVersion(coreInfo.Version, "2.8.0") < 0; // we're upgrading from pre-2.8.0, need to upgrade for new SQL data provider
-            bool dropIndexes = Package.CompareVersion(coreInfo.Version, "3.0.0") < 0; // we're upgrading from pre-3.0.0, need to upgrade for new SQL data provider
-            MajorDataChange = dropIndexes;
-
             // update/create all models
-            if (dropIndexes || MustUpgrade()) {
+            if (MustUpgrade()) {
                 Logging.AddLog("Updating all packages");
                 await UpdateAllAsync();
                 Logging.AddLog("Updating models for all packages completed");
