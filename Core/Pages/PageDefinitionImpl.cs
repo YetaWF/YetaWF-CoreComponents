@@ -567,15 +567,17 @@ namespace YetaWF.Core.Pages {
                 SameHeight = sameHeight;
                 DisposableTracker.AddObject(this);
             }
+
             public void Dispose() { Dispose(true); }
+
             protected virtual void Dispose(bool disposing) {
-                if (disposing) DisposableTracker.RemoveObject(this);
+                if (disposing)
+                    DisposableTracker.RemoveObject(this);
+
                 HtmlBuilder hb = new HtmlBuilder();
                 hb.Append("<div class='y_cleardiv'></div>");
                 hb.Append(DivTag.ToString(TagRenderMode.EndTag));
-                hb.Append("<script>");
-                hb.Append("$YetaWF.showPaneSet('{0}', {1}, {2});", Id, Manager.EditMode ? 1 : 0, SameHeight ? 1 : 0);
-                hb.Append("</script>");
+                Manager.ScriptManager.AddLast($"$YetaWF.showPaneSet('{Id}', {(Manager.EditMode ? 1 : 0)}, {(SameHeight ? 1 : 0)});");
                 Html.ViewContext.Writer.Write(hb.ToString());
             }
             //~PaneSet() { Dispose(false); }

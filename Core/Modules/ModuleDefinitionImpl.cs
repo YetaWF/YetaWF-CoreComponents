@@ -605,7 +605,7 @@ namespace YetaWF.Core.Modules {
                 // module script initialization
                 if (!string.IsNullOrWhiteSpace(moduleHtml)) {
                     await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName); // add supporting files
-                    moduleHtml += Manager.ScriptManager.AddNow($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');").ToString();
+                    Manager.ScriptManager.AddLast($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');");
                 }
 
             } catch (Exception exc) {

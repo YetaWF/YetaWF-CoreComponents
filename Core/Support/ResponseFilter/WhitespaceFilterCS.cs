@@ -2,7 +2,6 @@
 
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
@@ -18,41 +17,6 @@ namespace YetaWF.Core.ResponseFilter {
     public class WhiteSpaceResponseFilter : MemoryStream {
 
         private YetaWFManager Manager { get; set; }
-        private readonly Stream _outputStream = null;
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="manager">An instance of the current YetaWF Manager.</param>
-        /// <param name="output">The output stream to write the compressed output.</param>
-        public WhiteSpaceResponseFilter(YetaWFManager manager, Stream output) {
-            _outputStream = output;
-            Manager = manager;
-        }
-
-        /// <summary>
-        /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
-        /// </summary>
-        public override void Flush() {
-            base.Flush();
-            if (_buffer == "") return;
-
-            string s = Compress(Manager, _buffer);
-            _outputStream.Write(Encoding.UTF8.GetBytes(s), 0, Encoding.UTF8.GetByteCount(s));
-
-            _buffer = "";
-        }
-        /// <summary>
-        /// Writes a block of bytes to the current stream using data read from a buffer.
-        /// </summary>
-        /// <param name="buffer">The buffer to write data from.</param>
-        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
-        /// <param name="count">The maximum number of bytes to write.</param>
-        public override void Write(byte[] buffer, int offset, int count) {
-            _buffer += Encoding.UTF8.GetString(buffer);
-        }
-
-        private string _buffer = "";
 
         /// <summary>
         /// Defines whether aggressive optimization is used.
@@ -81,7 +45,7 @@ namespace YetaWF.Core.ResponseFilter {
         ///
         /// Optimizing is very aggressive and removes all whitespace between tags. This can cause unexpected side-effect. For example,
         /// when using spaces to add distance between objects (usually in templates, these will be lost. Such spacing must be accomplished using
-        /// Css, not space character litter.
+        /// CSS, not space character litter.
         ///
         /// Inside areas marked &lt;!--LazyWSF--&gt; and &lt;!--LazyWSFEnd--&gt; (Text Modules (display only)), whitespace between tags is preserved.
         /// Inside pre and textarea tags no optimization is performed.
@@ -110,14 +74,17 @@ namespace YetaWF.Core.ResponseFilter {
                 int ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimization);
                 if (ix >= 0) {
                     output.Append(ProcessScriptInput(contentInBuffer.Substring(0, ix)));
-                    contentInBuffer = contentInBuffer.Substring(ix + Globals.LazyHTMLOptimization.Length);
-                }
-                ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimizationEnd);
-                if (ix >= 0) {
-                    Aggressive = false;
-                    output.Append(ProcessScriptInput(contentInBuffer.Substring(0, ix)));
-                    Aggressive = true;
-                    contentInBuffer = contentInBuffer.Substring(ix + Globals.LazyHTMLOptimizationEnd.Length);
+                    contentInBuffer = contentInBuffer.Substring(ix);
+
+                    ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimizationEnd);
+                    if (ix >= 0) {
+                        ix += Globals.LazyHTMLOptimizationEnd.Length;
+                        Aggressive = false;
+                        output.Append(ProcessScriptInput(contentInBuffer.Substring(0, ix)));
+                        Aggressive = true;
+                        contentInBuffer = contentInBuffer.Substring(ix);
+                    } else
+                        break;
                 } else
                     break;
             }
@@ -133,30 +100,28 @@ namespace YetaWF.Core.ResponseFilter {
         /// <summary>Find &lt;script&gt;>...&lt;/script&gt; and compress tags and JavaScript.</summary>
         private StringBuilder ProcessScriptInput(string inputBuffer) {
             // We're in html (optimize scripts)
+            string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
-            int currStart = 0;
-            Match m = scriptRe.Match(inputBuffer);
-            for (; m.Success ;) {
-                int start = m.Captures[0].Index;
-                int end = m.Captures[0].Index + m.Captures[0].Length;
-                if (currStart < start)
-                    output.Append(ProcessTextAreaInput(inputBuffer.Substring(currStart, start - currStart)));
-                output.Append(ProcessTextAreaInput(m.Groups["scripttag"].Value));
-                string script = ScriptManager.TrimScript(Manager, m.Groups["script"].Value);
-                if (!string.IsNullOrEmpty(script)) {
-                    //output.Append("\n//<![CDATA[\n");
-                    output.Append(script);
-                    //output.Append("\n//]]>\n");
-                }
-                output.Append("</script>");
-                currStart = end;
-                m = m.NextMatch();
+            for (;;) {
+                int ix = contentInBuffer.IndexOf("<script");
+                if (ix >= 0) {
+                    output.Append(ProcessTextAreaInput(contentInBuffer.Substring(0, ix)));
+                    contentInBuffer = contentInBuffer.Substring(ix);
+                    ix = contentInBuffer.IndexOf("</script>");
+                    if (ix >= 0) {
+                        ix += "</script>".Length;
+                        string script = ScriptManager.TrimScript(Manager, contentInBuffer.Substring(0, ix));
+                        if (!string.IsNullOrEmpty(script))
+                            output.Append(script);
+                        contentInBuffer = contentInBuffer.Substring(ix);
+                    } else
+                        break;
+                } else
+                    break;
             }
-            output.Append(ProcessTextAreaInput(inputBuffer.Substring(currStart)));
+            output.Append(ProcessTextAreaInput(contentInBuffer));
             return output;
         }
-
-        private static readonly Regex scriptRe = new Regex("(?'scripttag'<script[^>]*?>)(?'script'.*?)</script\\s*>", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Compress the HTML input buffer, looking for &lt;textarea&gt;...&lt;/textarea&gt;.
@@ -166,26 +131,27 @@ namespace YetaWF.Core.ResponseFilter {
         /// <summary>Find &lt;textarea&gt;>...&lt;/textarea&gt; and compress tags. Textarea contents are not compressed so formatting is preserved.</summary>
         private StringBuilder ProcessTextAreaInput(string inputBuffer) {
             // We're in html (no scripts)
-            // skip <textarea> (we can't optimize these as otherwise source editing doesn't reflect what user entered)
+            string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
-            int currStart = 0;
-            Match m = textareaRe.Match(inputBuffer);
-            for (; m.Success ;) {
-                int start = m.Captures[0].Index;
-                int end = m.Captures[0].Index + m.Captures[0].Length;
-                if (currStart < start)
-                    output.Append(ProcessPreInput(inputBuffer.Substring(currStart, start - currStart)));
-                output.Append(ProcessPreInput(m.Groups["textareatag"].Value));
-                output.Append(m.Groups["textarea"].Value); // unmodified
-                output.Append("</textarea>");
-                currStart = end;
-                m = m.NextMatch();
+            for (;;) {
+                int ix = contentInBuffer.IndexOf("<textarea");
+                if (ix >= 0) {
+                    output.Append(ProcessPreInput(contentInBuffer.Substring(0, ix)));
+                    contentInBuffer = contentInBuffer.Substring(ix);
+
+                    ix = contentInBuffer.IndexOf("</textarea>");
+                    if (ix >= 0) {
+                        ix += "</textarea>".Length;
+                        output.Append(contentInBuffer.Substring(0, ix));// unmodified
+                        contentInBuffer = contentInBuffer.Substring(ix);
+                    } else
+                        break;
+                } else
+                    break;
             }
-            output.Append(ProcessPreInput(inputBuffer.Substring(currStart)));
+            output.Append(ProcessPreInput(contentInBuffer));
             return output;
         }
-
-        private static readonly Regex textareaRe = new Regex("(?'textareatag'<textarea[^>]*?>)(?'textarea'.*?)</textarea\\s*>", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Compress the HTML input buffer, looking for &lt;pre&gt;...&lt;/pre&gt;.
@@ -195,39 +161,54 @@ namespace YetaWF.Core.ResponseFilter {
         /// <summary>Find &lt;pre&gt;>...&lt;/pre&gt; and compress tags. Pre contents are not compressed so formatting is preserved.</summary>
         private StringBuilder ProcessPreInput(string inputBuffer) {
             // We're in html (no scripts, no textarea)
-            // skip <pre> (we can't optimize these as otherwise formatted output doesn't reflect what user entered)
+            string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
-            int currStart = 0;
-            Match m = preRe.Match(inputBuffer);
-            for (; m.Success ;) {
-                int start = m.Captures[0].Index;
-                int end = m.Captures[0].Index + m.Captures[0].Length;
-                if (currStart < start)
-                    output.Append(ProcessRemainingInput(inputBuffer.Substring(currStart, start - currStart)));
-                output.Append(ProcessRemainingInput(m.Groups["pretag"].Value));
-                output.Append(m.Groups["pre"].Value); // unmodified
-                output.Append("</pre>");
-                currStart = end;
-                m = m.NextMatch();
+            for (;;) {
+                int ix = contentInBuffer.IndexOf("<pre");
+                if (ix >= 0) {
+                    output.Append(ProcessRemainingInput(contentInBuffer.Substring(0, ix)));
+                    contentInBuffer = contentInBuffer.Substring(ix);
+
+                    ix = contentInBuffer.IndexOf("</pre>");
+                    if (ix >= 0) {
+                        ix += "</pre>".Length;
+                        output.Append(contentInBuffer.Substring(0, ix));// unmodified
+                        contentInBuffer = contentInBuffer.Substring(ix);
+                    } else
+                        break;
+                } else
+                    break;
             }
-            output.Append(ProcessRemainingInput(inputBuffer.Substring(currStart)));
+            output.Append(ProcessRemainingInput(contentInBuffer));
             return output;
         }
-
-        private static readonly Regex preRe = new Regex("(?'pretag'<pre[^>]*?>)(?'pre'.*?)</pre\\s*>", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// White space compression.
         /// </summary>
         /// <param name="inputBuffer">The input buffer containing HTML.</param>
         /// <returns>Compressed output.</returns>
+        private string ProcessRemainingInput2(string inputBuffer) {
+            if (inputBuffer == "") return "";
+            inputBuffer = inputBuffer.Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
+            for (int oldLen = inputBuffer.Length; ; ) {
+                inputBuffer = inputBuffer.Replace("        ", " ").Replace("    ", " ").Replace("  ", " ");
+                int newLen = inputBuffer.Length;
+                if (oldLen == newLen)
+                    break;
+                oldLen = newLen;
+            }
+            if (Aggressive)
+                inputBuffer = inputBuffer.Replace("> <", "><");
+            return inputBuffer;
+        }
         private string ProcessRemainingInput(string inputBuffer) {
             if (inputBuffer == "") return "";
             StringBuilder sb = new StringBuilder(inputBuffer);
             sb.Replace('\t', ' ');
             sb.Replace('\r', ' ');
             sb.Replace('\n', ' ');
-            for (int oldLen = sb.Length; ; ) {
+            for (int oldLen = sb.Length; ;) {
                 sb.Replace("  ", " ");
                 int newLen = sb.Length;
                 if (oldLen == newLen)

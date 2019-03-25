@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
@@ -191,17 +190,30 @@ namespace YetaWF.Core.Controllers {
 #endif
         }
 
+        /// <summary>
+        /// Moves all &lt;script&gt;&lt;/script&gt; snippets to the end of the page.</script>
+        /// </summary>
+        /// <param name="viewHtml">The contents of the view.</param>
+        /// <returns>The contents of the view with all &lt;script&gt;&lt;/script&gt; snippets removed.</returns>
+        /// <remarks>Components and views do NOT generate &lt;script&gt;&lt;/script&gt;. They must use Manager.ScriptManager.AddLast instead.
+        /// This is only used to move &lt;script&gt;&lt;/script&gt; sections that were added in YetaWF.Text modules.
+        /// </remarks>
         private string ProcessInlineScripts(string viewHtml) {
-            viewHtml = _scriptTagsRe.Replace(viewHtml, new MatchEvaluator(SubstScriptTag));
+            // code snippets must use <script></script> (without any attributes)
+            int pos = 0;
+            for ( ; ; ) {
+                int index = viewHtml.IndexOf("<script>", pos);
+                if (index < 0)
+                    break;
+                int endIndex = viewHtml.IndexOf("</script>", pos + 8);
+                if (endIndex < 0)
+                    throw new InternalError("Missing </script> in view");
+                Manager.ScriptManager.AddLast(viewHtml.Substring(index + 8, endIndex - index - 8));
+                viewHtml = viewHtml.Remove(index, endIndex + 9 - index);
+                pos = index;
+            }
             return viewHtml;
         }
-        private string SubstScriptTag(Match match) {
-            string code = match.Groups["code"].Value;
-            Manager.ScriptManager.AddLast(code);
-            return "";
-        }
-        // code snippets in cshtml must use <script></script> (without any attributes)
-        static Regex _scriptTagsRe = new Regex(@"<script>(?'code'.*?)</script>", RegexOptions.Compiled | RegexOptions.Singleline);
     }
 
 #if MVC6

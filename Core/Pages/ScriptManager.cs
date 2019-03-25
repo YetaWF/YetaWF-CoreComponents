@@ -407,18 +407,6 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add javascript code right now (inline)
-        /// </summary>
-        public HtmlBuilder AddNow(string javascriptCode) {
-            HtmlBuilder tag = new HtmlBuilder();
-            if (string.IsNullOrEmpty(javascriptCode)) return tag;
-            tag.Append("<script>");
-            tag.Append(ScriptManager.TrimScript(Manager, javascriptCode));
-            tag.Append("</script>");
-            return tag;
-        }
-
-        /// <summary>
         /// Add javascript code (complete functions, etc.) at end of page and run on page load (document.ready).
         /// </summary>
         /// <remarks>
@@ -789,7 +777,7 @@ namespace YetaWF.Core.Pages {
                             str.Append(' ');
                     }
                 }
-                return str.ToString();
+                return str.ToString().Trim();
             } else
                 return script;
         }

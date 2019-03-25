@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Image;
 using YetaWF.Core.Site;
@@ -15,11 +14,6 @@ namespace YetaWF.Core.Pages {
 
         protected YetaWFManager Manager { get; private set; }
 
-        private static readonly Regex reHead = new Regex("<\\s*head\\s*>", RegexOptions.Compiled);
-        private static readonly Regex reEndHead = new Regex("</\\s*head\\s*>", RegexOptions.Compiled);
-        private static readonly Regex reStartBody = new Regex("<\\s*body[^>]*>", RegexOptions.Compiled);
-        private static readonly Regex reEndBody = new Regex("</\\s*body\\s*>", RegexOptions.Compiled);
-
         public async Task<string> PostProcessHtmlAsync(string pageHtml) {
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
@@ -32,19 +26,18 @@ namespace YetaWF.Core.Pages {
 
             string yetawfMsg;
             if (!currentSite.DEBUGMODE && currentSite.Compression) {
-                yetawfMsg = "/**** Powered by Yet Another Web Framework - https://YetaWF.com - (c) Copyright <<YEAR>> Softel vdm, Inc. */";
+                yetawfMsg = $"/**** Powered by Yet Another Web Framework - https://YetaWF.com - (c) Copyright {DateTime.Now.Year.ToString()} Softel vdm, Inc. */";// local time
             } else {
                 yetawfMsg = "\n" +
                     "/*****************************************/\n" +
                     "/* Powered by Yet Another Web Framework  */\n" +
                     "/* https://YetaWF.com                    */\n" +
-                    "/* (c) Copyright <<YEAR>> - Softel vdm, Inc. */\n" +
+                    $"/* (c) Copyright {DateTime.Now.Year.ToString()} - Softel vdm, Inc. */\n" + // local time
                     "/*****************************************/" +
                     "\n";
             }
-            yetawfMsg = yetawfMsg.Replace("<<YEAR>>", DateTime.Now.Year.ToString());//local time
             // <head>+yetawfMsg replaces <head>
-            pageHtml = reHead.Replace(pageHtml, (m) => "<head><!-- " + yetawfMsg + " -->", 1);
+            pageHtml = ReplaceOnce(pageHtml, "<head>", "<head><!-- " + yetawfMsg + " -->");
 
             // <link rel="alternate">
             string linkAlt = Manager.LinkAltManager.Render().ToString();
@@ -66,7 +59,7 @@ namespace YetaWF.Core.Pages {
             string js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Top)
                 js = (await Manager.ScriptManager.RenderAsync()).ToString();
-            pageHtml = reEndHead.Replace(pageHtml, (m) => linkAlt + css + js + head + "</head>", 1);
+            pageHtml = ReplaceOnce(pageHtml, "</head>", linkAlt + css + js + head + "</head>");
 
             string bodyStart = "";
             if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))
@@ -76,7 +69,7 @@ namespace YetaWF.Core.Pages {
             else if (!string.IsNullOrWhiteSpace(currentSite.ExtraBodyTop))
                 bodyStart += currentSite.ExtraBodyTop;
             if (!string.IsNullOrWhiteSpace(bodyStart))
-                pageHtml = reStartBody.Replace(pageHtml, (m) => m.Value + bodyStart, 1);
+                pageHtml = ReplaceBodyTag(pageHtml, bodyStart);
 
             // css + js + endofpage-js + </body> replaces </body>
             // <script ..>
@@ -103,10 +96,30 @@ namespace YetaWF.Core.Pages {
             else if (!string.IsNullOrWhiteSpace(currentSite.ExtraBodyBottom))
                 endstuff += currentSite.ExtraBodyBottom;
 
-            pageHtml = reEndBody.Replace(pageHtml, (m) => endstuff + "</body>", 1);
+            pageHtml = ReplaceOnce(pageHtml, "</body>", endstuff + "</body>");
 
             //DEBUG:  pageHtml has entire page
 
+            return pageHtml;
+        }
+
+        private string ReplaceBodyTag(string pageHtml, string bodyExtra) {
+            int index = pageHtml.IndexOf("<body");
+            if (index < 0)
+                throw new InternalError("Page without <body> tag");
+            int endIndex = pageHtml.IndexOf('>', index + 5);
+            if (endIndex < 0)
+                throw new InternalError("Page has a <body tag without ending >");
+            return pageHtml.Substring(0, endIndex + 1) + bodyExtra + pageHtml.Substring(endIndex + 1);
+        }
+        private string ReplaceOnce(string pageHtml, string searchString, string replaceString) {
+            int index = pageHtml.IndexOf(searchString);
+            if (index >= 0) {
+                if (index > 0)
+                    pageHtml = pageHtml.Substring(0, index) + replaceString + pageHtml.Substring(index + searchString.Length);
+                else
+                    pageHtml = replaceString + pageHtml.Substring(index + searchString.Length);
+            }
             return pageHtml;
         }
 

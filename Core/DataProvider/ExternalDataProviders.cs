@@ -24,13 +24,17 @@ namespace YetaWF.Core.DataProvider {
         void Register();
     }
 
-    public class ExternalDataProviders {
+    /// <summary>
+    /// This static class implements registering all data providers during application startup.
+    /// </summary>
+    public static class ExternalDataProviders {
 
+        /// <summary>
+        /// Called by the framework during application startup to discover and register all data providers, implementing the IExternalDataProvider interface.
+        /// </summary>
         public static void RegisterExternalDataProviders() {
 
-            Logging.AddLog($"Processing {nameof(RegisterExternalDataProviders)}");
-
-            Logging.AddLog($"Processing {nameof(IExternalDataProvider)}");
+            Logging.AddLog($"Processing {nameof(RegisterExternalDataProviders)} - {nameof(IExternalDataProvider)}");
 
             List<Type> types = Package.GetClassesInPackages<IExternalDataProvider>(OrderByServiceLevel: true);
             foreach (Type type in types) {
@@ -55,8 +59,17 @@ namespace YetaWF.Core.DataProvider {
         private string ExternalIOMode { get; set; }
 
         public class ExternalDataProviderInfo {
+            /// <summary>
+            /// The type that implements the application data provider.
+            /// </summary>
             public Type Type { get; set; }
+            /// <summary>
+            /// The I/O mode registered by the data provider (e.g, SQL, File).
+            /// </summary>
             public string IOModeName { get; set; }
+            /// <summary>
+            /// The specific object type that is implemented by the low-level data provider.
+            /// </summary>
             public Type TypeImpl { get; set; }
         }
 
@@ -73,13 +86,18 @@ namespace YetaWF.Core.DataProvider {
             return Activator.CreateInstance(ext.TypeImpl, options);
         }
 
+        /// <summary>
+        /// A collection of registered data providers.
+        /// </summary>
         public static List<ExternalDataProviderInfo> RegisteredExternalDataProviders = new List<ExternalDataProviderInfo>();
 
         /// <summary>
         /// Registers an external data provider, typically called during startup in a class implementing the IExternalDataProvider interface.
         /// </summary>
-        /// <param name="type">The implemented data provider type.</param>
-        /// <param name="getDP">A method that will create a data provider of the requested type.</param>
+        /// <param name="ioModeName">The I/O mode registered by the data provider (e.g, SQL, File).</param>
+        /// <param name="type">The type that implements the application data provider.</param>
+        /// <param name="typeImpl">The specific object type that is implemented by the low-level data provider.</param>
+        /// <remarks>The RegisterExternalDataProvider registers a data provider and "connects" the application data provider with a specific implementation in a low-level data provider.</remarks>
         public static void RegisterExternalDataProvider(string ioModeName, Type type, Type typeImpl) {
             ioModeName = ioModeName.ToLower();
             ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.IOModeName == ioModeName && r.Type == type select r).FirstOrDefault();
