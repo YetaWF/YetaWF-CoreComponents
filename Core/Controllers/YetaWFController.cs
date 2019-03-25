@@ -627,10 +627,10 @@ namespace YetaWF.Core.Controllers
                 Manager.CurrentModule = oldMod;
 
                 if (Gzip) {
-                // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
-                // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
+                    // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
+                    // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
 #if MVC6
-                // gzip encoding is performed by middleware
+                    // gzip encoding is performed by middleware
 #else
                     context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
                     context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
