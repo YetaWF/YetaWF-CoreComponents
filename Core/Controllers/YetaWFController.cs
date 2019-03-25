@@ -617,19 +617,20 @@ namespace YetaWF.Core.Controllers
                         viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
                     });
 #endif
+                    viewHtml += Manager.ScriptManager.RenderEndofPageScripts();
                 }
 #if DEBUG
                 if (sb.Length > 0)
                     throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sb.ToString()}\"");
 #endif
 
-                    Manager.CurrentModule = oldMod;
+                Manager.CurrentModule = oldMod;
 
-                    if (Gzip) {
-                    // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
-                    // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
+                if (Gzip) {
+                // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
+                // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
 #if MVC6
-                    // gzip encoding is performed by middleware
+                // gzip encoding is performed by middleware
 #else
                     context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
                     context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
