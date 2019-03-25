@@ -422,7 +422,7 @@ namespace YetaWF.Core.Controllers
         /// </summary>
         /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="PureContent">Set to false to process the partial view as a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
@@ -436,7 +436,7 @@ namespace YetaWF.Core.Controllers
         /// <param name="model">The model.</param>
         /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="PureContent">Set to false to process the partial view as a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
@@ -450,7 +450,7 @@ namespace YetaWF.Core.Controllers
         /// <param name="viewName">The name of the partial view.</param>
         /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="PureContent">Set to false to process the partial view as a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
@@ -465,7 +465,7 @@ namespace YetaWF.Core.Controllers
         /// <param name="model">The model.</param>
         /// <param name="Script">Optional JavaScript executed client-side when the view is rendered.</param>
         /// <param name="ContentType">The optional content type. Default is text/html.</param>
-        /// <param name="PureContent">Set to false to process the partial view a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
+        /// <param name="PureContent">Set to false to process the partial view as a regular response to a view (including any processing YetaWF adds). If true is specified, only the rendered view is returned, without YetaWF processing, JavaScript, etc.</param>
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
@@ -533,7 +533,7 @@ namespace YetaWF.Core.Controllers
             public bool AreaViewName { get; set; }
             public bool Gzip { get; set; }
 
-            private static readonly Regex reEndDiv = new Regex(@"</\s*div\s*>\s*$"); // very last div
+            private static readonly Regex reEndDiv = new Regex(@"</div>\s*$"); // very last div
 
             /// <summary>
             /// Renders the view.
@@ -617,7 +617,6 @@ namespace YetaWF.Core.Controllers
                         viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
                     });
 #endif
-                    viewHtml += Manager.ScriptManager.RenderEndofPageScripts();
                 }
 #if DEBUG
                 if (sb.Length > 0)

@@ -714,6 +714,9 @@ namespace YetaWF.Core.Pages {
             return sb;
         }
 
+        public string RenderEndofPageScripts() {
+            return RenderEndofPageScripts(null);
+        }
         internal string RenderEndofPageScripts(PageContentController.PageContentData cr = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
