@@ -30,11 +30,11 @@ namespace YetaWF.Core.Site {
         Kendo = 1,
     }
     public enum PageSecurityType {
-        [EnumDescription("As Provided in Url", "As Provided in Url - This can be overridden by pages using an explicit mode")]
+        [EnumDescription("As Provided in URL", "As Provided in URL - This can be overridden by pages using an explicit mode")]
         AsProvided = 0,
-        [EnumDescription("As Provided (Anonymous) - https:// (Logged on)", "As Provided in Url for anonymous users - Logged on users default to https:// - This can be overridden by pages using an explicit mode")]
+        [EnumDescription("As Provided (Anonymous) - https:// (Logged on)", "As Provided in URL for anonymous users - Logged on users default to https:// - This can be overridden by pages using an explicit mode")]
         AsProvidedAnonymous_LoggedOnhttps = 1,
-        [EnumDescription("As Provided (Logged on) - http:// (Anonymous)", "As Provided in Url for logged on users - Anonymous users default to http:// - This can be overridden by pages using an explicit mode")]
+        [EnumDescription("As Provided (Logged on) - http:// (Anonymous)", "As Provided in URL for logged on users - Anonymous users default to http:// - This can be overridden by pages using an explicit mode")]
         AsProvidedLoggedOn_Anonymoushttp = 2,
         [EnumDescription("Page/Module Settings", "Use Page or Module Property Settings")]
         UsePageModuleSettings = 10,
@@ -198,7 +198,7 @@ namespace YetaWF.Core.Site {
         [DontSave]
         public string OriginalSiteDomain { get; set; }
 
-        [Category("Site"), Caption("Test Domain"), Description("Defines the host name for the test domain - This can be used with tools such as ngrok to access the site using a different Url for testing purposes - This setting is only honored in DEBUG builds - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("Site"), Caption("Test Domain"), Description("Defines the host name for the test domain - This can be used with tools such as ngrok to access the site using a different URL for testing purposes - This setting is only honored in DEBUG builds - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Trim]
         [RequiresRestart(RestartEnum.All)]
         public string SiteTestDomain { get; set; }
@@ -209,17 +209,17 @@ namespace YetaWF.Core.Site {
         [UIHint("Text80"), StringLength(MaxSiteName), Required, Trim]
         public string SiteName { get; set; }
 
-        [Category("Site"), Caption("Enforce Domain Name"), Description("Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site Url, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost' or when using the test domain Url, this property is ignored")]
+        [Category("Site"), Caption("Enforce Domain Name"), Description("Defines whether incoming requests for the site will be redirected to the defined site domain name and links generated for the site will use the defined site domain. This allows multiple domain names to point to the same site, but all are redirected to the defined site URL, which is best for SEO (search engine optimization). When running locally (usually on a development system) using 'localhost' or when using the test domain URL, this property is ignored")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool EnforceSiteUrl { get; set; }
 
-        [Category("Site"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced - This property is ignored when using the test domain Url")]
+        [Category("Site"), Caption("Enforce Security"), Description("Defines how page security using http/https (SSL, Secure Sockets Layer) is enforced - This property is ignored when using the test domain URL")]
         [UIHint("Enum")]
         [RequiresPageReload]
         public PageSecurityType PageSecurity { get; set; }
 
-        [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost' or when using the test domain Url, this property is ignored")]
+        [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost' or when using the test domain URL, this property is ignored")]
         [UIHint("Boolean")]
         [Data_NewValue]
         [RequiresPageReload]
@@ -253,14 +253,14 @@ namespace YetaWF.Core.Site {
         }
         public int PortNumberSSL { get; set; }
 
-        [Category("Variables"), Caption("Site Url With http"), Description("The site Url including http:")]
+        [Category("Variables"), Caption("Site URL With http"), Description("The site URL including http:")]
         [UIHint("String"), ReadOnly]
         public string SiteUrlHttp {
             get {
                 return MakeRealUrl();
             }
         }
-        [Category("Variables"), Caption("Site Url With https"), Description("The site Url including https:")]
+        [Category("Variables"), Caption("Site URL With https"), Description("The site URL including https:")]
         [UIHint("String"), ReadOnly]
         public string SiteUrlHttps {
             get {
@@ -282,27 +282,27 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean")]
         public bool AllowAnonymousUsers { get; set; }
 
-        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect")]
+        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked URL Redirect")]
         [UIHint("Boolean"), SuppressIfEqual("IsLockedExternal", true)]
         public bool Locked { get; set; }
         [UIHint("Hidden")]
         public bool IsLocked { get { return Locked; } }
 
-        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked Url Redirect - Can only be enabled/disable using Appsettings.json")]
+        [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked URL Redirect - Can only be enabled/disable using Appsettings.json")]
         [UIHint("Boolean"), ReadOnly, SuppressIfEqual("IsLockedExternal", false)]
         [Data_DontSave]
         public bool LockedExternal { get; set; }
         [UIHint("Hidden")]
         public bool IsLockedExternal { get { return LockedExternal; } }
 
-        [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked Url Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
+        [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked URL Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
         [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIfEqual("IsLockedExternal", true)]
         public string LockedForIP { get; set; }
-        [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked Url Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
+        [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked URL Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
         [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIfEqual("IsLockedExternal", false)]
         public string LockedExternalForIP { get; set; }
 
-        [Category("Site"), Caption("Locked Url Redirect"), Description("The page where the user is redirected when the site is locked (down for maintenance)")]
+        [Category("Site"), Caption("Locked URL Redirect"), Description("The page where the user is redirected when the site is locked (down for maintenance)")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local| UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local| UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), RequiredIf("IsLocked", true), Trim]
         public string LockedUrl { get; set; }
@@ -494,19 +494,19 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
         [Data_NewValue]
         [RequiresRestart(RestartEnum.All)]
         public bool UseCDNComponents { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (P:YetaWF_Core:UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDNComponents { get { return Manager.CanUseCDNComponents && UseCDNComponents; } }
 
         //-----
 
-        [Category("CDN"), Caption("Use CDN (Site Content)"), Description("Defines whether the Content Delivery Network Url is used for the site's static files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("Use CDN (Site Content)"), Description("Defines whether the Content Delivery Network URL is used for the site's static files - This is typically only used for production sites - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for this setting to be honored, otherwise a CDN is not used for site content - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
         [RequiresRestart(RestartEnum.All)]
         public bool UseCDN { get; set; }
@@ -515,7 +515,7 @@ namespace YetaWF.Core.Site {
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDN { get { return Manager.CanUseCDN && UseCDN && HaveCDNUrl; } }
 
-        [Category("CDN"), Caption("CDN Url"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for http:// access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("CDN URL"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root URL for http:// access here - Based on whether you enabled the use of your CDN, the appropriate URL will be substituted - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         [RequiredIf("UseCDN", true)]
@@ -524,7 +524,7 @@ namespace YetaWF.Core.Site {
 
         public bool HaveCDNUrl { get { return !string.IsNullOrWhiteSpace(CDNUrl); } }
 
-        [Category("CDN"), Caption("CDN Url (Secure)"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root Url for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate Url will be substituted - If no secure Url is specified, the Url defined using the CDN Url is used instead - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("CDN URL (Secure)"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root URL for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate URL will be substituted - If no secure URL is specified, the URL defined using the CDN URL is used instead - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf("UseCDN", true)]
         [RequiresRestart(RestartEnum.All)]
@@ -539,7 +539,7 @@ namespace YetaWF.Core.Site {
 
         public bool HaveStaticDomain { get { return !string.IsNullOrWhiteSpace(StaticDomain); } }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate Url is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files Url\" setting to be honored, otherwise it is not used")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate URL is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files URL\" setting to be honored, otherwise it is not used")]
         [UIHint("Boolean"), ProcessIf("UseCDN", false), ReadOnly]
         public bool CanUseStaticDomain { get { return Manager.CanUseStaticDomain && HaveStaticDomain; } }
 
@@ -579,27 +579,27 @@ namespace YetaWF.Core.Site {
         }
         private string _homePageUrl = null;
 
-        [Category("Urls"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this Url")]
+        [Category("Urls"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this URL")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string NotFoundUrl { get; set; }
 
-        [Category("Urls"), Caption("Mobile Device Url"), Description("If a mobile device accesses this site, the user is redirected to this Url")]
+        [Category("Urls"), Caption("Mobile Device URL"), Description("If a mobile device accesses this site, the user is redirected to this URL")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string MobileSiteUrl { get; set; }
 
-        [Category("Urls"), Caption("Unsupported Browsers Url"), Description("If an unsupported browsers accesses this site, the user is redirected to this Url - If no Url is defined, browser versions are not checked")]
+        [Category("Urls"), Caption("Unsupported Browsers URL"), Description("If an unsupported browsers accesses this site, the user is redirected to this URL - If no URL is defined, browser versions are not checked")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string UnsupportedBrowserUrl { get; set; }
 
-        [Category("Urls"), Caption("Login Url"), Description("The Url where the user is redirected to log into the site")]
+        [Category("Urls"), Caption("Login URL"), Description("The URL where the user is redirected to log into the site")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string LoginUrl { get; set; }
 
-        [Category("Urls"), Caption("External Account Setup Url"), Description("The Url where the user is redirected to provide local information when using an external login provider")]
+        [Category("Urls"), Caption("External Account Setup URL"), Description("The URL where the user is redirected to provide local information when using an external login provider")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string ExternalAccountSetupUrl { get; set; }
@@ -677,7 +677,7 @@ namespace YetaWF.Core.Site {
         [UIHint("TextAreaSourceOnly"), StringLength(MaxAnalytics), Trim]
         [RequiresPageReload]
         public string Analytics { get; set; }
-        [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual Url - Pages can override this setting")]
+        [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual URL - Pages can override this setting")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxAnalytics), Trim]
         public string AnalyticsContent { get; set; }
 

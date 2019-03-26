@@ -191,11 +191,11 @@ namespace YetaWF.Core.Controllers {
         }
 
         /// <summary>
-        /// Moves all &lt;script&gt;&lt;/script&gt; snippets to the end of the page.</script>
+        /// Moves all &lt;script&gt;&lt;/script&gt; snippets to the end of the page.
         /// </summary>
         /// <param name="viewHtml">The contents of the view.</param>
         /// <returns>The contents of the view with all &lt;script&gt;&lt;/script&gt; snippets removed.</returns>
-        /// <remarks>Components and views do NOT generate &lt;script&gt;&lt;/script&gt;. They must use Manager.ScriptManager.AddLast instead.
+        /// <remarks>Components and views do NOT generate &lt;script&gt;&lt;/script&gt; tags. They must use Manager.ScriptManager.AddLast instead.
         /// This is only used to move &lt;script&gt;&lt;/script&gt; sections that were added in YetaWF.Text modules.
         /// </remarks>
         private string ProcessInlineScripts(string viewHtml) {
