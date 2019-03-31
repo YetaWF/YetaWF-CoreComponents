@@ -246,9 +246,9 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public string TempPageCssClass { get; set; }
 
         /// <summary>
-        /// Defines whether the skin's partial form Css is added to partial forms.
+        /// Defines whether the skin's partial form CSS is added to partial forms.
         /// </summary>
-        [Category("Skin"), Caption("Partial Form Css"), Description("Defines whether the skin's partial form Css is added to partial forms within this module - Partial form Css is never used in popup windows or on mobile devices", Order = -91)]
+        [Category("Skin"), Caption("Partial Form CSS"), Description("Defines whether the skin's partial form CSS is added to partial forms within this module - Partial form CSS is never used in popup windows or on mobile devices", Order = -91)]
         [UIHint("Boolean")]
         [Data_DontSave]
         public bool UsePartialFormCss { get { return !_SuppressPartialFormCss; } set { _SuppressPartialFormCss = !value; } }
@@ -541,9 +541,9 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// <summary>
         /// Defines the class that causes this module to be injected at the end of the page.
         /// </summary>
-        /// <remarks>Certain controls/templates use css that can be handled by skin modules. By defining InvokingCss, a module will automatically be
-        /// injected to implement the control/template - typically this is a javascript/client side implementation.</remarks>
-        [Category("Variables"), Caption("Invoking Css"), Description("Defines the Css that causes this module to be injected into the page, when the Css is used by a template - only supported for unique modules")]
+        /// <remarks>Certain controls/templates use CSS that can be handled by skin modules. By defining InvokingCss, a module will automatically be
+        /// injected to implement the control/template - typically this is a JavaScript/client side implementation.</remarks>
+        [Category("Variables"), Caption("Invoking CSS"), Description("Defines the CSS that causes this module to be injected into the page, when the CSS is used by a template - only supported for unique modules")]
         [UIHint("String"), ReadOnly]
         [DontSave]
         public string InvokingCss { get; protected set; }
