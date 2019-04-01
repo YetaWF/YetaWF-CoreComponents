@@ -202,16 +202,7 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public List<string> KnownScripts { get; set; }
         }
-#if MVC6
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public PageContentController(IViewRenderService viewRenderService) {
-            _viewRenderService = viewRenderService;
-        }
-        private readonly IViewRenderService _viewRenderService;
-#else
-#endif
+
         /// <summary>
         /// The Show action handles all page content requests within YetaWF.
         /// </summary>
@@ -371,11 +362,7 @@ namespace YetaWF.Core.Controllers {
                     case ProcessingStatus.Complete:
                         return cr;
                     case ProcessingStatus.Page:
-#if MVC6
-                        return new PageContentViewResult(_viewRenderService, ViewData, TempData, dataIn);
-#else
-                        return new PageContentViewResult(ViewData, TempData, dataIn);
-#endif
+                        return new PageContentViewResult(dataIn);
                     default:
                     case ProcessingStatus.No:
                         break;
@@ -387,11 +374,7 @@ namespace YetaWF.Core.Controllers {
                     case ProcessingStatus.Complete:
                         return cr;
                     case ProcessingStatus.Page:
-#if MVC6
-                        return new PageContentViewResult(_viewRenderService, ViewData, TempData, dataIn);
-#else
-                        return new PageContentViewResult(ViewData, TempData, dataIn);
-#endif
+                        return new PageContentViewResult(dataIn);
                     default:
                     case ProcessingStatus.No:
                         break;

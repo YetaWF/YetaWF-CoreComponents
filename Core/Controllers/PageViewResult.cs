@@ -28,23 +28,15 @@ namespace YetaWF.Core.Controllers {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 #if MVC6
+        //$$$FIX
         private IViewRenderService _viewRenderService;
 
         public PageViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData) {
             this._viewRenderService = _viewRenderService;
 #else
-        public PageViewResult(ViewDataDictionary viewData, TempDataDictionary tempData) {
+        public PageViewResult() {
 #endif
-            TempData = tempData;
-            ViewData = viewData;
         }
-#if MVC6
-        public ITempDataDictionary TempData { get; set; }
-#else
-        public TempDataDictionary TempData { get; set; }
-#endif
-        public IView View { get; set; }
-        public ViewDataDictionary ViewData { get; set; }
 
 #if MVC6
         public override async Task ExecuteResultAsync(ActionContext context) {

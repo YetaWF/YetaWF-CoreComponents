@@ -826,7 +826,8 @@ namespace YetaWF.Core.Controllers {
             public override async Task ExecuteResultAsync(ActionContext context) {
 
                 using (var sw = new StringWriter()) {
-                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
+                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();//$$$$$$
                     if (htmlHelper is IViewContextAware contextable) {
                         var viewContext = new ViewContext(
                             context,
@@ -856,8 +857,6 @@ namespace YetaWF.Core.Controllers {
             public override void ExecuteResult(ControllerContext context) {
 
                 TextWriter sw = context.HttpContext.Response.Output;
-                //$$$ ViewContext vc = new ViewContext(context, new ViewImpl(), RequestingController.ViewData, RequestingController.TempData, sw);
-                //$$$ IViewDataContainer vdc = new ViewDataContainer() { ViewData = RequestingController.ViewData };
                 YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
 
                 try {
@@ -872,15 +871,6 @@ namespace YetaWF.Core.Controllers {
                 } catch (Exception) {
                     throw;
                 } finally { }
-            }
-
-            private class ViewImpl : IView {
-                public void Render(ViewContext viewContext, TextWriter writer) {
-                    throw new NotImplementedException();
-                }
-            }
-            private class ViewDataContainer : IViewDataContainer {
-                public ViewDataDictionary ViewData { get; set; }
             }
 #endif
         }

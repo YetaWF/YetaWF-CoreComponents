@@ -18,6 +18,8 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
 
+    ///FIX $$$$
+
     public interface IViewRenderService {
         Task<string> RenderToStringAsync(ActionContext actionContext, string viewName, ViewDataDictionary viewData);
     }

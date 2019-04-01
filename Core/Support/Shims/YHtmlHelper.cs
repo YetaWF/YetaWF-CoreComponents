@@ -1,11 +1,5 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-//#if MVC6//$$$
-//using Microsoft.AspNetCore.Mvc;
-//#else
-//using System.Web.Mvc;
-//#endif
-
 using System.Collections.Generic;
 using System.Text;
 using System.Web.Routing;
@@ -18,7 +12,9 @@ using System.Web.Mvc;
 namespace YetaWF.Core.Support {
 
     /// <summary>
-    /// A class implementing an HtmlHelper/IHtmlHelper placeholder while removing Razor.
+    /// A class implementing a minimal HtmlHelper after removing Razor.
+    /// HtmlHelper in MVC is an abomination with a gazillion extension methods.
+    /// Since we dropped Razor, we don't need it.
     /// </summary>
     public class YHtmlHelper {
 
@@ -75,25 +71,37 @@ namespace YetaWF.Core.Support {
             errors = htmlHelper.ModelState.SelectMany(c => c.Value.Errors);
 
             bool hasErrors = errors != null && errors.Any();
-            if (!hasErrors) {
-                return null;
-            } else {
-                YTagBuilder tagBuilder = new YTagBuilder("div");
-                tagBuilder.AddCssClass(hasErrors ? "validation-summary-errors" : "validation-summary-valid");
-                tagBuilder.MergeAttribute("data-valmsg-summary", "true");
 
-                StringBuilder builder = new StringBuilder();
-                builder.AppendLine("<ul>");
+            YTagBuilder tagBuilder = new YTagBuilder("div");
+            tagBuilder.AddCssClass(hasErrors ? "validation-summary-errors" : "validation-summary-valid");
+            tagBuilder.MergeAttribute("data-valmsg-summary", "true");
+
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("<ul>");
+            if (hasErrors) {
                 foreach (var error in errors) {
                     builder.Append("<li>");
                     builder.Append(YetaWFManager.HtmlEncode(error.ErrorMessage));
                     builder.AppendLine("</li>");
                 }
-                builder.Append("</ul>");
-
-                tagBuilder.InnerHtml = builder.ToString();
-                return tagBuilder.ToString(YTagRenderMode.Normal);
+            } else {
+                builder.AppendLine("<li style='display:none'></li>");
             }
+            builder.Append("</ul>");
+            tagBuilder.InnerHtml = builder.ToString();
+            return tagBuilder.ToString(YTagRenderMode.Normal);
+        }
+
+        /// <summary>
+        /// Returns the client-side validation message for a component with the specified field name.
+        /// </summary>
+        /// <param name="containerFieldPrefix">The prefix used to build the final field name (for nested fields). May be null.</param>
+        /// <param name="fieldName">The HTML field name.</param>
+        /// <returns>Returns the client-side validation message for the component with the specified field name.</returns>
+        public static string ValidationMessage(this YHtmlHelper htmlHelper, string containerFieldPrefix, string fieldName) {
+            if (!string.IsNullOrEmpty(containerFieldPrefix))
+                fieldName = containerFieldPrefix + "." + fieldName;
+            return htmlHelper.BuildValidationMessage(fieldName);
         }
 
         public static string BuildValidationMessage(this YHtmlHelper htmlHelper, string fieldName) {

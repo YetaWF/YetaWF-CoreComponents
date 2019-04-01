@@ -338,6 +338,14 @@ namespace YetaWF.Core.Pages {
         [RequiresPageReload]
         public MultiString Copyright { get; set; }
 
+        [Category("Variables"), Caption("Copyright"), Description("The Copyright property with evaluated substitutions")]
+        [UIHint("String"), ReadOnly]
+        public string CopyrightEvaluated {
+            get {
+                return Copyright.ToString().Replace("<<Year>>", Formatting.FormatDateTimeYear(DateTime.UtcNow));
+            }
+        }
+
         public bool WantSearch { get; set; }
 
         public DateTime Created { get; set; }

@@ -47,7 +47,7 @@ namespace YetaWF.Core.Skins.Pages {
             if (string.IsNullOrEmpty(favIcon))
                 favIcon = Manager.CurrentSite.FavIconLink;
 
-            string copyright = Manager.CurrentPage.Copyright; //$$$evaluated!
+            string copyright = Manager.CurrentPage.CopyrightEvaluated;
             if (string.IsNullOrEmpty(copyright))
                 copyright = Manager.CurrentSite.CopyrightEvaluated;
 

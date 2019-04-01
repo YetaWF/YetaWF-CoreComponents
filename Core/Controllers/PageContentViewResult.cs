@@ -26,26 +26,13 @@ namespace YetaWF.Core.Controllers {
     internal class PageContentViewResult : ActionResult {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-#if MVC6
-        private IViewRenderService _viewRenderService;
 
-        public PageContentViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData, PageContentController.DataIn dataIn) {
-            this._viewRenderService = _viewRenderService;
-#else
-        public PageContentViewResult(ViewDataDictionary viewData, TempDataDictionary tempData, PageContentController.DataIn dataIn) {
-#endif
-            ViewData = viewData;
-            TempData = tempData;
+        public PageContentViewResult(PageContentController.DataIn dataIn) {
             DataIn = dataIn;
         }
-#if MVC6
-        public ITempDataDictionary TempData { get; set; }
-#else
-        public TempDataDictionary TempData { get; set; }
-#endif
-        public IView View { get; set; }
-        public ViewDataDictionary ViewData { get; set; }
+
         public PageContentController.DataIn DataIn { get; set; }
+
 #if MVC6
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
@@ -103,7 +90,7 @@ namespace YetaWF.Core.Controllers {
                 UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
                 cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
 
-                string json = YetaWFManager.JsonSerialize(ViewData.Model);
+                string json = YetaWFManager.JsonSerialize(cr);
                 context.HttpContext.Response.ContentType = "application/json";
 
                 // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.

@@ -549,63 +549,6 @@ namespace YetaWF.Core.Pages {
             return new HtmlString(sb.ToString());
         }
 
-        public class PaneSet : IDisposable {
-            protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-#if MVC6
-            public PaneSet(IHtmlHelper<object> Html, bool conditional, bool sameHeight) {
-#else
-            public PaneSet(HtmlHelper<object> Html, bool conditional, bool sameHeight) {
-#endif
-                this.Html = Html;
-                DivTag = new TagBuilder("div");
-                Id = Manager.UniqueId();
-                DivTag.Attributes.Add("id", Id);
-                Conditional = conditional;
-                SameHeight = sameHeight;
-                DisposableTracker.AddObject(this);
-            }
-
-            public void Dispose() { Dispose(true); }
-
-            protected virtual void Dispose(bool disposing) {
-                if (disposing)
-                    DisposableTracker.RemoveObject(this);
-
-                HtmlBuilder hb = new HtmlBuilder();
-                hb.Append("<div class='y_cleardiv'></div>");
-                hb.Append(DivTag.ToString(TagRenderMode.EndTag));
-                Manager.ScriptManager.AddLast($"$YetaWF.showPaneSet('{Id}', {(Manager.EditMode ? 1 : 0)}, {(SameHeight ? 1 : 0)});");
-                Html.ViewContext.Writer.Write(hb.ToString());
-            }
-            //~PaneSet() { Dispose(false); }
-
-#if MVC6
-            public IHtmlHelper<object> Html { get; private set; }
-#else
-            public HtmlHelper<object> Html { get; private set; }
-#endif
-            public TagBuilder DivTag { get; private set; }
-            public string Id { get; private set; }
-            public bool Conditional { get; private set; }
-            public bool SameHeight { get; private set; }
-        }
-        /// <summary>
-        /// Render a set of panes. If all panes are empty, the panes will be hidden (display:none) but still sent to the client
-        /// in case we may want to manipulate the panes on the client side
-        /// </summary>
-#if MVC6
-        public PaneSet RenderPaneSet(IHtmlHelper<object> htmlHelper, string cssClass = null, bool Conditional = true, bool SameHeight = true) {
-#else
-        public PaneSet RenderPaneSet(HtmlHelper<object> htmlHelper, string cssClass = null, bool Conditional = true, bool SameHeight = true) {
-#endif
-            PaneSet set = new PaneSet(htmlHelper, Conditional, SameHeight);
-            if (!string.IsNullOrWhiteSpace(cssClass))
-                set.DivTag.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-            set.DivTag.Attributes.Add("style","display:none");
-            htmlHelper.ViewContext.Writer.Write(set.DivTag.ToString(TagRenderMode.StartTag));
-            return set;
-        }
-
         /// <summary>
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>

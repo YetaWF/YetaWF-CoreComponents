@@ -22,12 +22,12 @@ namespace YetaWF.Core.Skins {
     public partial class SkinAccess {
 
         public const string FallbackSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPageFileName = "YetaWF_Core_Default";
-        public const string FallbackPagePlainFileName = "YetaWF_Core_Plain";
+        public const string FallbackPageFileName = "Default";
+        public const string FallbackPagePlainFileName = "Plain";
         public const string FallbackPopupSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPopupFileName = "YetaWF_Core_Popup";
-        public const string FallbackPopupMediumFileName = "YetaWF_Core_PopupMedium";
-        public const string FallbackPopupSmallFileName = "YetaWF_Core_PopupSmall";
+        public const string FallbackPopupFileName = "Popup";
+        public const string FallbackPopupMediumFileName = "PopupMedium";
+        public const string FallbackPopupSmallFileName = "PopupSmall";
 
         public SkinAccess() {  }
 

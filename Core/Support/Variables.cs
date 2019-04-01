@@ -373,14 +373,4 @@ namespace YetaWF.Core.Support {
             return text;
         }
     }
-
-    public static partial class HtmlVarExtender {
-#if MVC6
-        public static HtmlString Var(this IHtmlHelper htmlHelper, string var) {
-#else
-        public static HtmlString Var(this HtmlHelper htmlHelper, string var) {
-#endif
-            return new HtmlString(var);
-        }
-    }
 }

@@ -471,14 +471,12 @@ namespace YetaWF.Core.Controllers
         /// <returns>Returns an action to render a partial view.</returns>
         protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
 
-            if (model != null) {
+            if (model != null)
                 ViewData.Model = model;
-            }
 
             return new PartialViewResult {
                 ViewName = viewName,
                 ViewData = ViewData,
-                TempData = TempData,
 #if MVC6
 #else
                 ViewEngineCollection = ViewEngineCollection,
@@ -582,7 +580,6 @@ namespace YetaWF.Core.Controllers
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
 
-                    //$$$ context.Controller.ViewData, context.Controller.TempData
                     YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
 
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);//$$ needed?

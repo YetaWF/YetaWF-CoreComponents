@@ -13,10 +13,10 @@ using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
-// https://developer.yahoo.com/performance/rules.html
+// https://developer.yahoo.com/performance/rules.HTML
 // YetaWF satisfies most of these suggestions (except *)
 // Minimize HTTP Requests
-//    YetaWF bundles js and css files (except for large packages like jquery, kendo, etc.)
+//    YetaWF bundles js and CSS files (except for large packages like jquery, kendo, etc.)
 //    (*) No use of inline images
 //    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
@@ -29,17 +29,16 @@ using YetaWF.Core.Support;
 //      - Ajax responses for Unified Page Sets (navigating between pages in a Single Page Site)
 //      - Ajax responses for grid data when rendering/paging a grid
 //   In IIS dynamic & static compression can be enabled outside of YetaWF (which is fully supported by YetaWF and its CDN support)
-//   YetaWF (non-Gzip) compresses html, js and css by eliminating unnecessary comments, spaces, new lines, etc.
+//   YetaWF (non-Gzip) compresses HTML, js and CSS by eliminating unnecessary comments, spaces, new lines, etc.
 // Put Stylesheets at the Top
-//   YetaWF places style sheets at the top - It is possible to place them at the bottom (Site Settings)
+//   This is available as a configurable option (Admin > Site Settings, Page tab, CSS Location field)
 // Put Scripts at the Bottom
 //   This is available as a configurable option (Admin > Site Settings, Page tab, JavaScript Location field)
-//   However, YetaWF prefers avoiding FOUC (flash of unformatted content)
-//     see this opinion: http://demianlabs.com/lab/post/top-or-bottom-of-the-page-where-should-you-load-your-javascript/
+//     See this opinion: http://demianlabs.com/lab/post/top-or-bottom-of-the-page-where-should-you-load-your-JavaScript/
 // Avoid CSS Expressions
 //   Not used by YetaWF
 // Make JavaScript and CSS External
-//   Done for everything except small snippets that may be introduced by templates to serve one particular html tag
+//   Done for everything except small snippets that may be introduced by templates to serve one particular HTML tag
 // Reduce DNS Lookups
 //
 // Minify JavaScript and CSS
@@ -49,7 +48,7 @@ using YetaWF.Core.Support;
 // Remove Duplicate Scripts
 //   That's an automatic feature of the ScriptManager class which oversees all script use
 // Configure ETags
-//   used for images and other resources, css (javascript is static and reported as such without ETag)
+//   used for images and other resources, CSS (JavaScript is static and reported as such without ETag, with max-age)
 // Make Ajax Cacheable
 //   not typically done as Ajax requests in general expect current data
 // Flush the Buffer Early
@@ -61,9 +60,9 @@ using YetaWF.Core.Support;
 //   This could still be used for small requests.
 // Post-load Components
 //   (*) done for grids, captcha only
-//   Unified Page Sets (dynamic content) progressively adds page content as user navigates between pages of a set, including css, javascript, etc.
+//   Unified Page Sets (dynamic content) progressively add page content as user navigates between pages of a set, including CSS, JavaScript, etc.
 // Preload Components
-//   (*) This is somewhat in conflict with YetaWF's design philosophy as modules at the end of a page can affect modules at the top of the page, completely changing rendering of all affected html,css,js
+//   (*) This is somewhat in conflict with YetaWF's design philosophy as modules at the end of a page can affect modules at the top of the page, completely changing rendering of all affected HTML,CSS,JavaScript
 // Reduce the Number of DOM Elements
 //   Always considered when creating new templates, modules, etc.
 // Split Components Across Domains
@@ -87,8 +86,9 @@ using YetaWF.Core.Support;
 //   YetaWF makes no use of filters
 // Optimize Images
 //   Always considered for new images - YetaWF also dynamically re-renders images if requested at other than the natural size
+//   YetaWF automatically servers WEBP images for PNG and JPG images
 // Optimize CSS Sprites
-//   (*) No built-in support
+//   Built-in icons use sprites
 // Don't Scale Images in HTML
 //   YetaWF dynamically re-renders images server-side if requested at other than the natural size
 // Make favicon.ico Small and Cacheable
@@ -101,16 +101,16 @@ using YetaWF.Core.Support;
 //    No empty img src used by YetaWF
 
 // https://developers.google.com/speed/pagespeed/
-// YetaWF sites will generally have a desktop speed rating of around 90. The only penalties are due to "Leverage browser caching" when external
+// YetaWF sites will generally have a desktop speed rating of near 100. The only penalties are due to "Leverage browser caching" when external
 // JavaScript is used, like addthis.com, google-analytics.com (oh the irony) and some CDNs which may have an expiration interval of less than 7 days.
-// Google is looking for more than 7 days.
-// The other penalty is due to "Eliminate render-blocking JavaScript and CSS in above-the-fold content". Even with JavaScript/Css located at the bottom
+// Google is looking for more than 1 year.
+// The other penalty is due to "Eliminate render-blocking JavaScript and CSS in above-the-fold content". Even with JavaScript/CSS located at the bottom
 // of the page, a certain percentage of the above-the-fold content cannot be rendered without waiting for the resources to load.
 // We can't provide a general solution to this as this is content dependent. On the other hand, pretty much any menu (JavaScript dependent) and
-// layout (Css dependent) will cause this penalty. Unless you prefer a "Flash Of Unformatted Content" to avoid the "penalty" there is probably not
+// layout (CSS dependent) will cause this penalty. Unless you prefer a "Flash Of Unformatted Content" to avoid the "penalty" there is probably not
 // all that much that can be done about that.
-// YetaWF.com achieves a 97 rating (for desktop) thanks to its large above the fold image.
-// The mobile speed rating is generally lower due to the same penalties. There are no additional, mobile specific penalties.
+// YetaWF.com achieves a 100 rating (for desktop) thanks to its large above the fold image.
+// The mobile speed rating is generally a bit lower due to the same penalties. There are no additional, mobile specific penalties.
 
 // https://tools.pingdom.com
 // YetaWF sites rate A in all categories except one. There is a slight penalty for "Leverage browser caching", all related to Urls linking to other sites,
@@ -119,7 +119,7 @@ using YetaWF.Core.Support;
 // The one category where YetaWF will not achieve an A rating is "Remove query strings from static resources". Their explanation:
 // Resources with a "?" in the URL are not cached by some proxy caching servers. Remove the query string and encode the parameters into the URL.
 // The reasoning behind this recommendation seems antiquated and no longer valid:
-// https://webmasters.stackexchange.com/questions/86274/tradeoffs-around-using-a-query-string-vs-embedding-version-number-in-the-css-js/86277#86277
+// https://webmasters.stackexchange.com/questions/86274/tradeoffs-around-using-a-query-string-vs-embedding-version-number-in-the-CSS-js/86277#86277
 // https://webmasters.stackexchange.com/questions/109042/resources-with-a-in-the-url-are-not-cached-by-some-proxy-caching-servers
 // So for now YetaWF will not address this as it seems unnecessary.
 
@@ -144,13 +144,13 @@ namespace YetaWF.Core.Pages {
         private readonly List<string> _SavedScripts = new List<string>(); // included unnamed script snippets
         private readonly Dictionary<string, string> _SavedNamedScriptsDocReady = new Dictionary<string, string>(); // included unnamed script snippets wrapped in $document.ready
 
-        // permanent config options to pass to javascript (may be language dependent)
+        // permanent config options to pass to JavaScript (may be language dependent)
         private readonly Dictionary<string, Dictionary<string, object>> _SavedConfigOptionsGroups = new Dictionary<string, Dictionary<string, object>>();
 
-        // volatile config options to pass to javascript
+        // volatile config options to pass to JavaScript
         private readonly Dictionary<string, Dictionary<string, object>> _SavedVolatileOptionsGroups = new Dictionary<string, Dictionary<string, object>>();
 
-        // localized text to pass to javascript
+        // localized text to pass to JavaScript
         private readonly Dictionary<string, Dictionary<string, object>> _SavedLocalizationsGroups = new Dictionary<string, Dictionary<string, object>>();
 
 
@@ -177,7 +177,7 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        // Add all javascript files listed in filelistJS.txt
+        // Add all JavaScript files listed in filelistJS.txt
         private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object[] args) {
             foreach (VersionManager.AddOnProduct.UsesInfo uses in version.JsUses) {
                 await Manager.AddOnManager.AddAddOnNamedJavaScriptAsync(uses.PackageName, uses.AddonName);
@@ -356,21 +356,21 @@ namespace YetaWF.Core.Pages {
         // ADD SUPPORT
 
         /// <summary>
-        /// Add a named javascript code section BEFORE all other included FILES. If the named section has already been
+        /// Add a named JavaScript code section BEFORE all other included FILES. If the named section has already been
         /// added, it is not added again. This is useful for code sections that are added
         /// by controls/modules which may be used multiple times on a page.
         /// You must insure that the code sections with the same name are always identical.
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="javascript"></param>
+        /// <param name="JavaScript"></param>
         /// <returns></returns>
-        public bool AddFirst(string name, string javascript) {
+        public bool AddFirst(string name, string JavaScript) {
             if (_SavedFirstNamedScripts.ContainsKey(name)) {
-                if (_SavedFirstNamedScripts[name] != javascript)
-                    throw new InternalError("Named javascript section on this page is different than a previously added section by the same name");
+                if (_SavedFirstNamedScripts[name] != JavaScript)
+                    throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
                 return false; // already added
             }
-            _SavedFirstNamedScripts.Add(name, javascript);
+            _SavedFirstNamedScripts.Add(name, JavaScript);
             return true;
         }
         public bool AddFirst(string name, ScriptBuilder tag) {
@@ -378,21 +378,21 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add a named javascript code section at the end of the page. If the named section has already been
+        /// Add a named JavaScript code section at the end of the page. If the named section has already been
         /// added, it is not added again. This is useful for code sections that are added
         /// by controls/modules which may be used multiple times on a page.
         /// You must insure that the code sections with the same name are always identical.
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="javascript"></param>
+        /// <param name="JavaScript"></param>
         /// <returns></returns>
-        public bool AddLast(string name, string javascript) {
+        public bool AddLast(string name, string JavaScript) {
             if (_SavedNamedScripts.ContainsKey(name)) {
-                if (_SavedNamedScripts[name] != javascript)
-                    throw new InternalError("Named javascript section on this page is different than a previously added section by the same name");
+                if (_SavedNamedScripts[name] != JavaScript)
+                    throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
                 return false; // already added
             }
-            _SavedNamedScripts.Add(name, javascript);
+            _SavedNamedScripts.Add(name, JavaScript);
             return true;
         }
         public bool AddLast(string name, ScriptBuilder tag) {
@@ -400,14 +400,14 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add an unnamed javascript code section at end of page.
+        /// Add an unnamed JavaScript code section at end of page.
         /// </summary>
-        public void AddLast(string javascript) {
-            _SavedScripts.Add(javascript);
+        public void AddLast(string JavaScript) {
+            _SavedScripts.Add(JavaScript);
         }
 
         /// <summary>
-        /// Add javascript code (complete functions, etc.) at end of page and run on page load (document.ready).
+        /// Add JavaScript code (complete functions, etc.) at end of page and run on page load (document.ready).
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -421,20 +421,20 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add named javascript code at end of page and run on page load (document.ready).
+        /// Add named JavaScript code at end of page and run on page load (document.ready).
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="javascript"></param>
-        public void AddLastDocumentReady(string name, string javascript) {
+        /// <param name="JavaScript"></param>
+        public void AddLastDocumentReady(string name, string JavaScript) {
             if (_SavedNamedScriptsDocReady.ContainsKey(name)) {
-                if (_SavedNamedScriptsDocReady[name] != javascript)
-                    throw new InternalError("Named javascript section on this page is different than a previously added section by the same name");
+                if (_SavedNamedScriptsDocReady[name] != JavaScript)
+                    throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
                 return;
             }
-            _SavedNamedScriptsDocReady.Add(name, javascript);
+            _SavedNamedScriptsDocReady.Add(name, JavaScript);
         }
-        public void AddLastDocumentReady(string name, ScriptBuilder javascript) {
-            AddLastDocumentReady(name, javascript.ToString());
+        public void AddLastDocumentReady(string name, ScriptBuilder JavaScript) {
+            AddLastDocumentReady(name, JavaScript.ToString());
         }
 
         // CONFIG OPTIONS (User Specific)
@@ -705,7 +705,7 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// End of page script snippets.
         /// </summary>
-        /// <returns>The minimized javascript.</returns>
+        /// <returns>The minimized JavaScript.</returns>
         private ScriptBuilder RenderScriptsPartB() {
             ScriptBuilder sb = new ScriptBuilder();
             foreach (var script in _SavedScripts) {

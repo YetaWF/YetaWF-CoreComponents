@@ -393,7 +393,7 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
                         return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
-                        return new PageViewResult(ViewData, TempData);
+                        return new PageViewResult();
 #endif
                     case ProcessingStatus.No:
                         break;
@@ -410,7 +410,7 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
                         return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
-                        return new PageViewResult(ViewData, TempData);
+                        return new PageViewResult();
 #endif
                     case ProcessingStatus.No:
                         break;
@@ -438,7 +438,7 @@ namespace YetaWF.Core.Controllers {
                     return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
                     Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
-                    return new PageViewResult(ViewData, TempData);
+                    return new PageViewResult();
 #endif
                 }
             }
