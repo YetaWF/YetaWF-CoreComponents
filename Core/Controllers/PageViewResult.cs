@@ -10,6 +10,7 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Components;
+using System.Reflection;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -111,16 +112,13 @@ namespace YetaWF.Core.Controllers {
 
                 SkinAccess skinAccess = new SkinAccess();
                 SkinDefinition skin = SkinDefinition.EvaluatedSkin(masterPage, Manager.IsInPopup);
+                string pageViewName = skinAccess.GetPageViewName(skin, Manager.IsInPopup);
                 string skinCollection = skin.Collection;
 
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
                 Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);
 
-                string virtPath = skinAccess.PhysicalPageUrl(skin, Manager.IsInPopup);
-                if (YetaWFManager.DiagnosticsMode) {
-                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
-                        throw new InternalError("No page skin available - file {0} not found", virtPath);
-                }
+
                 // set new character dimensions and popup info
                 PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
                 Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
@@ -138,17 +136,9 @@ namespace YetaWF.Core.Controllers {
                 await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
                 await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
-                string pageHtml;
-#if MVC6
-                pageHtml = await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
-#else
-                View = new PageView(virtPath);
-                using (StringWriter writer = new StringWriter()) {
-                    ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
-                    View.Render(viewContext, writer);
-                    pageHtml = writer.ToString();
-                }
-#endif
+                YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, null);
+                string pageHtml = (await htmlHelper.ForPageAsync(pageViewName)).ToString();
+
                 Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs
                 if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
                     pageHtml = ProcessInlineScripts(pageHtml);
@@ -215,26 +205,4 @@ namespace YetaWF.Core.Controllers {
             return viewHtml;
         }
     }
-
-#if MVC6
-#else
-    internal class PageView : IView {
-
-        public PageView(string virtPath) {
-            VirtualPath = virtPath;
-        }
-        private string VirtualPath { get; set; }
-
-        public void Render(ViewContext viewContext, TextWriter writer) {
-
-            RazorPage razorPage = (RazorPage)RazorPage.CreateInstanceFromVirtualPath(VirtualPath);
-
-            razorPage.ViewContext = viewContext;
-            razorPage.ViewData = new ViewDataDictionary<object>(viewContext.ViewData);
-            razorPage.InitHelpers();
-
-            razorPage.RenderView(viewContext);
-        }
-    }
-#endif
 }

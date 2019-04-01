@@ -49,12 +49,7 @@ namespace YetaWF.Core.Components {
         /// <param name="module">The module on behalf of which this view is rendered.</param>
         /// <param name="model">The view's data model to render.</param>
         /// <returns>Returns HTML with the rendered view.</returns>
-#if MVC6
-        public static async Task<YHtmlString> ForViewAsync(this IHtmlHelper htmlHelper,
-#else
-        public static async Task<YHtmlString> ForViewAsync(this HtmlHelper htmlHelper,
-#endif
-                string viewName, ModuleDefinition module, object model) {
+        public static async Task<YHtmlString> ForViewAsync(this YHtmlHelper htmlHelper, string viewName, ModuleDefinition module, object model) {
 
             Type viewType;
             string v = viewName.TrimEnd(PartialSuffix);

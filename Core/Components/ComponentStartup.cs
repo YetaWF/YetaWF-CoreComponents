@@ -10,11 +10,11 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Components {
 
     /// <summary>
-    /// Locates all available components.
+    /// Locates all available components, views and pages.
     /// </summary>
     /// <remarks>
     /// An instance of this class is instantiated by the framework during application startup and the InitializeApplicationStartupAsync method is called to
-    /// locate all available components.
+    /// locate all available components, views and pages.
     /// </remarks>
     public class YetaWFComponentBaseStartup : IInitializeApplicationStartup {
 
@@ -30,6 +30,10 @@ namespace YetaWF.Core.Components {
         /// List of available views.
         /// </summary>
         private static Dictionary<string, Type> Views = new Dictionary<string, Type>();
+        /// <summary>
+        /// List of available pages.
+        /// </summary>
+        private static Dictionary<string, Type> Pages = new Dictionary<string, Type>();
 
         /// <summary>
         /// Called during application startup.
@@ -79,6 +83,19 @@ namespace YetaWF.Core.Components {
                 Views.Add(viewName, tp);
             }
 
+            Logging.AddLog("Locating pages");
+
+            types = Package.GetClassesInPackages<YetaWFPageBase>();
+            foreach (Type tp in types) {
+
+                YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(tp);
+                Package pagePackage = Package.GetPackageFromType(tp);
+                string pageName = $"{pagePackage.AreaName}_{page.GetPageName()}";
+
+                Logging.AddLog($"Found page {pageName} - {tp.FullName}");
+                Pages.Add(pageName, tp);
+            }
+
             return Task.CompletedTask;
         }
 
@@ -97,5 +114,10 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <returns>Returns a dictionary of available views.</returns>
         public static Dictionary<string, Type> GetViews() { return Views; }
+        /// <summary>
+        /// Returns a dictionary of available pages.
+        /// </summary>
+        /// <returns>Returns a dictionary of available pages.</returns>
+        public static Dictionary<string, Type> GetPages() { return Pages; }
     }
 }

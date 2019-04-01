@@ -2,14 +2,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
-using YetaWF.Core.IO;
 using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Html;
@@ -24,86 +22,29 @@ namespace YetaWF.Core.Skins {
     public partial class SkinAccess {
 
         public const string FallbackSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPageFileName = "Default.cshtml";
-        public const string FallbackPagePlainFileName = "Plain.cshtml";
+        public const string FallbackPageFileName = "YetaWF_Core_Default";
+        public const string FallbackPagePlainFileName = "YetaWF_Core_Plain";
         public const string FallbackPopupSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPopupFileName = "Popup.cshtml";
-        public const string FallbackPopupMediumFileName = "PopupMedium.cshtml";
-        public const string FallbackPopupSmallFileName = "PopupSmall.cshtml";
-        public const string PageFolder = "Pages";
-        public const string PopupFolder = "Popups";
+        public const string FallbackPopupFileName = "YetaWF_Core_Popup";
+        public const string FallbackPopupMediumFileName = "YetaWF_Core_PopupMedium";
+        public const string FallbackPopupSmallFileName = "YetaWF_Core_PopupSmall";
 
         public SkinAccess() {  }
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public string PhysicalPageUrl(SkinDefinition skin, bool popup) {
+        public string GetPageViewName(SkinDefinition skin, bool popup) {
             skin = SkinDefinition.EvaluatedSkin(skin, popup);
-            VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(ref skin, popup);
-            if (string.IsNullOrWhiteSpace(skin.Collection)) {
-                if (popup)
-                    skin = Manager.CurrentSite.SelectedPopupSkin;
-                else
-                    skin = Manager.CurrentSite.SelectedSkin;
-            }
-            string collection = skin.Collection;
-            if (string.IsNullOrWhiteSpace(collection)) {
-                if (popup) {
-                    collection = FallbackSkinCollectionName;
-                } else {
-                    collection = FallbackPopupSkinCollectionName;
-                }
-            }
-            string fileName = skin.FileName;
-            if (string.IsNullOrWhiteSpace(fileName)) {
-                if (popup)
-                    fileName = FallbackPopupFileName;
-                else
-                    fileName = FallbackPageFileName;
-            }
-            return addon.GetAddOnUrl() + (popup ? PopupFolder : PageFolder) +  "/" + fileName;
-        }
-
-        // get the local filename of the page skin
-        public string PageSkinFile(SkinDefinition skin, bool popup) {
-            return YetaWFManager.UrlToPhysical(PhysicalPageUrl(skin, popup));
-        }
-
-        // get the contents of the page skin file
-        public async Task<string> PageSkinFileContentsAsync(string filePath) {
-            string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(filePath);
-            contents = contents.Replace('\r', ' ').Replace('\n', ' ');
-            return contents;
+            SkinCollectionInfo info = FindSkinCollection(skin.Collection);
+            return $"{info.AreaName}_{skin.FileName}";
         }
 
         // Returns the panes defined by the page skin
-        public async Task<List<string>> GetPanesAsync(SkinDefinition pageSkin, bool popup) {
-            List<string> panes = new List<string>();
-            string fileName = PageSkinFile(pageSkin, popup);
-            string contents = await PageSkinFileContentsAsync(fileName);
-            Regex regex = new Regex(MakeRegexPattern(regexRazorRenderPane), RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-            Match m = regex.Match(contents);
-            while (m.Success) {
-
-                string content = m.Groups[1].Value;
-                if (content == Globals.MainPane)
-                    throw new InternalError("A pane cannot be named {0} as that is a reserved name.", Globals.MainPane);
-                if (content == "")
-                    content = Globals.MainPane;
-                panes.Add(content);
-                m = m.NextMatch();
-            }
-            if (panes.Count == 0)
-                throw new InternalError("No panes defined in {0}", fileName);
-            return panes;
+        public List<string> GetPanes(SkinDefinition pageSkin, bool popup) {
+            string pageView = GetPageViewName(pageSkin, popup);
+            return YetaWFPageExtender.GetPanes(pageView);
         }
-        private const string regexRazorRenderPane = "[\\@ ]RenderPaneAsync \\( \"([^\"]*)\"[^\\)]*\\)";
 
-        private static string MakeRegexPattern(string strPatt) {
-            strPatt = strPatt.Replace("  ", "\\s+");
-            strPatt = strPatt.Replace(" ", "\\s*");
-            return strPatt;
-        }
         public void GetModuleCharacterSizes(ModuleDefinition mod, out int width, out int height) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             width = modSkinEntry.CharWidthAvg;
@@ -132,9 +73,9 @@ namespace YetaWF.Core.Skins {
                         fileName = FallbackPageFileName;
                 }
                 if (Manager.IsInPopup) {
-                    pageSkinEntry = (from s in info.PopupSkins where s.FileName == fileName select s).FirstOrDefault();
+                    pageSkinEntry = (from s in info.PopupSkins where s.PageViewName == fileName select s).FirstOrDefault();
                 } else {
-                    pageSkinEntry = (from s in info.PageSkins where s.FileName == fileName select s).FirstOrDefault();
+                    pageSkinEntry = (from s in info.PageSkins where s.PageViewName == fileName select s).FirstOrDefault();
                 }
             }
             if (pageSkinEntry == null)
@@ -271,14 +212,14 @@ namespace YetaWF.Core.Skins {
         private static SkinCollectionInfoList _skinCollections;
 
         /// <summary>
-        /// Find a skin collections
+        /// Find a skin collection.
         /// </summary>
         /// <returns></returns>
         protected SkinCollectionInfo TryFindSkinCollection(string collection) {
             return (from c in VersionManager.GetAvailableSkinCollections() where c.SkinInfo.CollectionName == collection select c.SkinInfo).FirstOrDefault();
         }
         /// <summary>
-        /// Find a skin collections
+        /// Find a skin collection.
         /// </summary>
         /// <returns></returns>
         protected SkinCollectionInfo FindSkinCollection(string collection) {
@@ -299,12 +240,12 @@ namespace YetaWF.Core.Skins {
                     new PageSkinEntry {
                         Name = this.__ResStr("page", "Default Page"),
                         Description = this.__ResStr("pageTT", "Default Page"),
-                        FileName = FallbackPageFileName,
+                        PageViewName = FallbackPageFileName,
                     },
                     new PageSkinEntry {
                         Name = this.__ResStr("pagePlain", "Plain Page"),
                         Description = this.__ResStr("pagePlainTT", "Plain Page"),
-                        FileName = FallbackPagePlainFileName,
+                        PageViewName = FallbackPagePlainFileName,
                     },
                 };
                 return skinList;
@@ -323,17 +264,17 @@ namespace YetaWF.Core.Skins {
                     new PageSkinEntry {
                         Name = this.__ResStr("pop", "Popup (Default)"),
                         Description = this.__ResStr("popTT", "Large popup"),
-                        FileName = FallbackPopupFileName,
+                        PageViewName = FallbackPopupFileName,
                     },
                     new PageSkinEntry {
                         Name = this.__ResStr("popMed", "Medium Popup"),
                         Description = this.__ResStr("popMedTT", "Medium popup"),
-                        FileName = FallbackPopupMediumFileName,
+                        PageViewName = FallbackPopupMediumFileName,
                     },
                     new PageSkinEntry {
                         Name = this.__ResStr("popSmall", "Small Popup"),
                         Description = this.__ResStr("popSmallTT", "Small popup"),
-                        FileName = FallbackPopupSmallFileName,
+                        PageViewName = FallbackPopupSmallFileName,
                     }
                 };
                 return skinList;

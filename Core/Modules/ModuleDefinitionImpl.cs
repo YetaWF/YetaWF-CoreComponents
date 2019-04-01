@@ -557,13 +557,8 @@ namespace YetaWF.Core.Modules {
         // RENDERING
         // RENDERING
 
+        public async Task<HtmlString> RenderModuleAsync(YHtmlHelper htmlHelper) {
 
-#if MVC6
-        public async Task<HtmlString> RenderModuleAsync(IHtmlHelper htmlHelper)
-#else
-        public async Task<HtmlString> RenderModuleAsync(HtmlHelper htmlHelper)
-#endif
-        {
             if (!Visible && !Manager.EditMode) return HtmlStringExtender.Empty;
 
             // determine char dimensions for current skin
@@ -576,9 +571,6 @@ namespace YetaWF.Core.Modules {
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
             Manager.WantFocus = this.WantFocus;
-
-            RouteValueDictionary rvd = new RouteValueDictionary();
-            rvd.Add(Globals.RVD_ModuleDefinition, this);
 
             bool tempEditOverride = false;
             if (Manager.EditMode) {
@@ -596,11 +588,9 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName, rvd)).ToString();
+                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName)).ToString();
 #else
-                YetaWFManager.Syncify(async () => {
-                    moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
-                });
+                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #endif
                 // module script initialization
                 if (!string.IsNullOrWhiteSpace(moduleHtml)) {
@@ -696,23 +686,18 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 #if MVC6
         public async Task<HtmlString> RenderReferencedModule_AjaxAsync(IHtmlHelper htmlHelper)
 #else
-        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(HtmlHelper htmlHelper)
+        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper)
 #endif
         {
             // execute action
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
 
-            RouteValueDictionary rvd = new RouteValueDictionary();
-            rvd.Add(Globals.RVD_ModuleDefinition, this);
-
             string moduleHtml = null;
 #if MVC6
-            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName, rvd)).ToString();
+            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName)).ToString();
 #else
-            YetaWFManager.Syncify(async () => {
-                moduleHtml = await htmlHelper.ActionAsync(Action, Controller, AreaName, rvd);
-            });
+            moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)

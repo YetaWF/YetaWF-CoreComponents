@@ -582,18 +582,10 @@ namespace YetaWF.Core.Controllers
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
 
-#if MVC6
-                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
-                    if (htmlHelper is IViewContextAware contextable) {
-                        ViewContext viewContext = new ViewContext(context, NullView.Instance, this.ViewData, this.TempData, sw, new HtmlHelperOptions());
-                        contextable.Contextualize(viewContext);
-                    }
-#else
-                    ViewContext vc = new ViewContext(context, new ViewImpl(), context.Controller.ViewData, context.Controller.TempData, sw);
-                    IViewDataContainer vdc = new ViewDataContainer() { ViewData = context.Controller.ViewData };
-                    HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
-#endif
-                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);
+                    //$$$ context.Controller.ViewData, context.Controller.TempData
+                    YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
+
+                    context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);//$$ needed?
 
                     bool inPartialView = Manager.InPartialView;
                     Manager.InPartialView = true;
@@ -601,7 +593,7 @@ namespace YetaWF.Core.Controllers
 #if MVC6
                         viewHtml = (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
 #else
-                        viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                        viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you here :-(
                             return (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
                         });
 #endif
@@ -644,21 +636,9 @@ namespace YetaWF.Core.Controllers
             }
 
 #if MVC6
+            private async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, ActionContext context, string viewHtml)
 #else
-            private class ViewDataContainer : IViewDataContainer {
-                public ViewDataDictionary ViewData { get; set; }
-            }
-            private class ViewImpl : IView {
-                public void Render(ViewContext viewContext, TextWriter writer) {
-                    throw new NotImplementedException();
-                }
-            }
-#endif
-
-#if MVC6
-            private async Task<string> PostRenderAsync(IHtmlHelper htmlHelper, ActionContext context, string viewHtml)
-#else
-            private async Task<string> PostRenderAsync(HtmlHelper htmlHelper, ControllerContext context, string viewHtml)
+            private async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, ControllerContext context, string viewHtml)
 #endif
             {
 #if MVC6

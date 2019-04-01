@@ -12,15 +12,14 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using System.Web.Routing;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views {
 
     public static class YetaWFViews {
 
-        public static string RDVViewIndicator = "YetaWFView";
-
-        public static async Task<string> ActionAsync(this HtmlHelper htmlHelper, string actionName, string controllerName, string areaName, RouteValueDictionary routeValues) {
+        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string actionName, string controllerName, string areaName) {
 
             HttpContext currentContext = HttpContext.Current;
             if (currentContext != null) {
@@ -30,20 +29,20 @@ namespace YetaWF.Core.Views {
                 }
             }
 
+            RouteValueDictionary routeValues = new RouteValueDictionary();
+            routeValues.Add(Globals.RVD_ModuleDefinition, module);
             routeValues["action"] = actionName;
             routeValues["controller"] = controllerName;
             routeValues["area"] = areaName;
 
-            string html = null;
-
-            VirtualPathData vpd = htmlHelper.RouteCollection.GetVirtualPathForArea(htmlHelper.ViewContext.RequestContext, routeValues);
+            VirtualPathData vpd = RouteTable.Routes.GetVirtualPathForArea(htmlHelper.RequestContext, routeValues);
             if (vpd == null)
                 throw new InternalError($"No route found for {areaName}/{controllerName}/{actionName}");
 
             routeValues.Remove("area");
 
-            RouteData routeData = CreateRouteData(vpd.Route, routeValues, vpd.DataTokens, htmlHelper.ViewContext);
-            RequestContext requestContext = new RequestContext(htmlHelper.ViewContext.HttpContext, routeData);
+            RouteData routeData = CreateRouteData(vpd.Route, routeValues, vpd.DataTokens, null);
+            RequestContext requestContext = new RequestContext(htmlHelper.RequestContext.HttpContext, routeData);
 
             // Instantiate the controller and call Execute
             IControllerFactory factory = ControllerBuilder.Current.GetControllerFactory();
@@ -52,6 +51,7 @@ namespace YetaWF.Core.Views {
             if (controller == null)
                 throw new InternalError($"Controller {controllerName} not found");
 
+            string html = null;
             TextWriter oldOutput = YetaWFManager.Manager.CurrentContext.Response.Output;
             try {
                 using (var sw = new StringWriter()) {

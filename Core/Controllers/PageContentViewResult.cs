@@ -9,6 +9,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
+using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -59,12 +60,6 @@ namespace YetaWF.Core.Controllers {
                 PageDefinition currPage = Manager.CurrentPage;
                 SkinAccess skinAccess = new SkinAccess();
 
-                SkinDefinition skinContent = new Skins.SkinDefinition { Collection = SkinAccess.FallbackSkinCollectionName, FileName = Manager.IsInPopup ? "PopupContent.cshtml" : "PageContent.cshtml" };
-                string virtPath = skinAccess.PhysicalPageUrl(skinContent, Manager.IsInPopup);
-                if (YetaWFManager.DiagnosticsMode) {
-                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(virtPath)))
-                        throw new InternalError("No page content skin available {0}.{1}", skinContent.Collection, skinContent.FileName);
-                }
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
 
@@ -79,17 +74,9 @@ namespace YetaWF.Core.Controllers {
                 }
 
                 PageContentController.PageContentData cr = new PageContentController.PageContentData();
-                ViewData.Model = cr;
-                ViewData["DataIn"] = DataIn;
-#if MVC6
-                await _viewRenderService.RenderToStringAsync(context, "~/wwwroot" + virtPath, ViewData);
-#else
-                View = new PageView(virtPath);
-                using (StringWriter writer = new StringWriter()) {
-                    ViewContext viewContext = new ViewContext(context, View, ViewData, TempData, writer);
-                    View.Render(viewContext, writer);
-                }
-#endif
+                YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, null);
+                await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, DataIn, cr);
+
                 //Manager.PopCharSize();
 
                 Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());

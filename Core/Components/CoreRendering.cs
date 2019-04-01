@@ -57,11 +57,8 @@ namespace YetaWF.Core.Components {
         /// <param name="viewHtml">The current view contents to be wrapped in the view.</param>
         /// <param name="UsePartialFormCss">Defines whether the partial form CSS should be used.</param>
         /// <returns>Returns the complete view as HTML.</returns>
-#if MVC6
-        Task<YHtmlString> RenderViewAsync(IHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
-#else
-        Task<YHtmlString> RenderViewAsync(HtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
-#endif
+        Task<YHtmlString> RenderViewAsync(YHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
+
         /// <summary>
         /// Renders module links.
         /// </summary>
@@ -86,13 +83,7 @@ namespace YetaWF.Core.Components {
         /// <param name="cssClass">The optional CSS classes to use for the menu.</param>
         /// <param name="HtmlHelper">The HtmlHelper instance.</param>
         /// <returns>Returns the complete menu as HTML.</returns>
-        Task<YHtmlString> RenderMenuListAsync(MenuList menu, string id = null, string cssClass = null,
-#if MVC6
-            IHtmlHelper HtmlHelper = null
-#else
-            HtmlHelper HtmlHelper = null
-#endif
-            );
+        Task<YHtmlString> RenderMenuListAsync(MenuList menu, string id = null, string cssClass = null, YHtmlHelper HtmlHelper = null);
 
         /// <summary>
         /// Renders a module action.

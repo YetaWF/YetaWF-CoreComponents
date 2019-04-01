@@ -12,7 +12,12 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
 
+    // TODO: Convert to JSON
+
     public partial class SkinAccess {
+
+        private List<string> RequiredPages = new List<string> { "Default", "Plain" };
+        private List<string> RequiredPopups = new List<string> { "Popup", "PopupSmall", "PopupMedium" };
 
         public async Task<SkinCollectionInfo> ParseSkinFileAsync(string domain, string product, string name, string folder) {
 
@@ -23,7 +28,8 @@ namespace YetaWF.Core.Skins {
             List<string> lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(fileName);
             SkinCollectionInfo info = new SkinCollectionInfo() {
                 CollectionName = domain + "/" + product + "/" + name,
-                Folder = folder
+                Folder = folder,
+                AreaName = $"{domain}_{product}",
             };
             string line;
             int lineCount = 0;
@@ -48,12 +54,12 @@ namespace YetaWF.Core.Skins {
             if (lineCount >= totalLines) throw new InternalError("::Pages:: section missing - line {0}", lineCount);
             line = lines[lineCount++].Trim();
             if (line != "::Pages::") throw new InternalError("::Pages:: section expected - line {0}: {1}", lineCount, line);
-            lineCount = await ExtractPagesAsync(fileName, lines, lineCount, totalLines, info);
+            lineCount = ExtractPages(fileName, lines, lineCount, totalLines, info);
             // ::Popups::
             if (lineCount >= totalLines) throw new InternalError("::Popups:: section missing - line {0}", lineCount);
             line = lines[lineCount++].Trim();
             if (line != "::Popups::") throw new InternalError("::Popups:: section expected - line {0}: {1}", lineCount, line);
-            lineCount = await ExtractPagesAsync(fileName, lines, lineCount, totalLines, info, Popups: true);
+            lineCount = ExtractPages(fileName, lines, lineCount, totalLines, info, Popups: true);
             //::Modules::
             if (lineCount >= totalLines) throw new InternalError("::Modules:: section missing - line {0}", lineCount);
             line = lines[lineCount++].Trim();
@@ -67,17 +73,14 @@ namespace YetaWF.Core.Skins {
             if (info.PopupSkins.Count < 1) throw new InternalError("Skin collection {0} has no popup skins", info.CollectionName);
             if (info.ModuleSkins.Count < 1) throw new InternalError("Skin collection {0} has no module skins", info.CollectionName);
 
-            if ((from s in info.PageSkins where s.FileName == SkinAccess.FallbackPageFileName select s).FirstOrDefault() == null)
-                throw new InternalError("Skin collection {0} has no {1}", info.CollectionName, SkinAccess.FallbackPageFileName);
-            if ((from s in info.PageSkins where s.FileName == SkinAccess.FallbackPagePlainFileName select s).FirstOrDefault() == null)
-                throw new InternalError("Skin collection {0} has no {1}", info.CollectionName, SkinAccess.FallbackPagePlainFileName);
-
-            if ((from s in info.PopupSkins where s.FileName == SkinAccess.FallbackPopupFileName select s).FirstOrDefault() == null)
-                throw new InternalError("Skin collection {0} has no {1}", info.CollectionName, SkinAccess.FallbackPopupFileName);
-            if ((from s in info.PopupSkins where s.FileName == SkinAccess.FallbackPopupMediumFileName select s).FirstOrDefault() == null)
-                throw new InternalError("Skin collection {0} has no {1}", info.CollectionName, SkinAccess.FallbackPopupMediumFileName);
-            if ((from s in info.PopupSkins where s.FileName == SkinAccess.FallbackPopupSmallFileName select s).FirstOrDefault() == null)
-                throw new InternalError("Skin collection {0} has no {1}", info.CollectionName, SkinAccess.FallbackPopupSmallFileName);
+            foreach (string p in RequiredPages) {
+                if ((from s in info.PageSkins where s.PageViewName == p select s).FirstOrDefault() == null)
+                    throw new InternalError("Skin collection {0} has no {1} page", info.CollectionName, p);
+            }
+            foreach (string p in RequiredPopups) {
+                if ((from s in info.PopupSkins where s.PageViewName == p select s).FirstOrDefault() == null)
+                    throw new InternalError("Skin collection {0} has no {1} popup", info.CollectionName, p);
+            }
 
             return info;
         }
@@ -118,7 +121,7 @@ namespace YetaWF.Core.Skins {
             return s.Length > 1 ? s[1] : null;
         }
 
-        private async Task<int> ExtractPagesAsync(string fileName, List<string> lines, int lineCount, int totalLines, SkinCollectionInfo info, bool Popups = false) {
+        private int ExtractPages(string fileName, List<string> lines, int lineCount, int totalLines, SkinCollectionInfo info, bool Popups = false) {
             while (lineCount < totalLines) {
                 string line = lines[lineCount].Trim();
                 if (line.StartsWith("::")) // start of a new section?
@@ -126,16 +129,14 @@ namespace YetaWF.Core.Skins {
                 ++lineCount;
 
                 // Get a page
-                // Default,Default.cshtml, Standard page with a header, footer and a main pane
+                // Default;Default;Standard page (optional jumbotron, multi-column, footer);pageSkinDefault;8;16
                 string[] s = line.Split(new string[] { ";" }, StringSplitOptions.None);
                 int reqLength = Popups ? 9 : 6;
                 if (s.Length != reqLength) throw new InternalError("Invalid page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 string name = s[0].Trim();
                 if (name.Length == 0) throw new InternalError("Invalid page name for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 string file = s[1].Trim();
-                if (file.Length == 0) throw new InternalError("Invalid file name for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(Path.Combine(info.Folder, Popups ? PopupFolder : PageFolder, file)))
-                    throw new InternalError("File for skin entry not found - line {0}: {1} ({2})", lineCount, line, fileName);
+                if (file.Length == 0) throw new InternalError("Invalid page view name for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 string description = s[2].Trim();
                 if (description.Length == 0) throw new InternalError("Invalid description for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 string css = s[3].Trim();
@@ -163,7 +164,7 @@ namespace YetaWF.Core.Skins {
 
                 PageSkinEntry entry = new PageSkinEntry() {
                     Name = name,
-                    FileName = file,
+                    PageViewName = file,
                     Description = description,
                     Css = css,
                     Width = width,

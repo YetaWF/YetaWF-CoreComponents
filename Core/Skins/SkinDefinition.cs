@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
@@ -11,7 +12,7 @@ namespace YetaWF.Core.Skins {
     public class PageSkinList : List<PageSkinEntry> { }
     public class PageSkinEntry {
         public string Name { get; set; }
-        public string FileName { get; set; }
+        public string PageViewName { get; set; }
         public string Description { get; set; }
         public string Css { get; set; }
         public int Width { get; set; } // popup width
@@ -24,7 +25,6 @@ namespace YetaWF.Core.Skins {
     public class ModuleSkinList : List<ModuleSkinEntry> { }
     public class ModuleSkinEntry {
         public string Name { get; set; }
-        public string FileName { get; set; }
         public string CssClass { get; set; }
         public string Description { get; set; }
         public int CharWidthAvg { get; set; }
@@ -45,6 +45,7 @@ namespace YetaWF.Core.Skins {
         public PageSkinList PageSkins { get; set; }
         public PageSkinList PopupSkins { get; set; }
         public ModuleSkinList ModuleSkins { get; set; }
+        public string AreaName { get; set; }
 
         public string Folder { get; set; }
         public SkinCollectionInfo() {
@@ -69,7 +70,16 @@ namespace YetaWF.Core.Skins {
         public string Collection { get; set; } // may be null for site default
 
         [StringLength(MaxSkinFile)]
-        public string FileName { get; set; } // may be null for site default
+        public string FileName {
+            get {
+                return _fileName;
+            }
+            set {
+                // back when Razor was used, we saved file names with extensions
+                _fileName = value?.TrimEnd(".cshtml");
+            }
+        } // may be null for site default
+        private string _fileName;
 
         public static SkinDefinition EvaluatedSkin(PageDefinition page, bool popup) {
             SkinDefinition skin = (Manager.IsInPopup) ? page.SelectedPopupSkin : page.SelectedSkin;

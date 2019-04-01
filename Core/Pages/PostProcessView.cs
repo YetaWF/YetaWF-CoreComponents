@@ -18,11 +18,9 @@ namespace YetaWF.Core.Views {
     internal static class PostProcessView {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-#if MVC6
-        internal static async Task<string> ProcessAsync(IHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
-#else
-        internal static async Task<string> ProcessAsync(HtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
-#endif
+
+        internal static async Task<string> ProcessAsync(YHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
+
             viewHtml = (await YetaWFCoreRendering.Render.RenderViewAsync(htmlHelper, module, viewHtml, UsePartialFormCss)).ToString();
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
@@ -33,7 +31,7 @@ namespace YetaWF.Core.Views {
         }
 
         private static string ProcessImages(string viewHtml) {
-            if (!Manager.IsPostRequest) return viewHtml; // we'll handle it in RazorPage::PostProcessHtml
+            if (!Manager.IsPostRequest) return viewHtml; // we'll handle it in PageProcessing.PostProcessHtml
             if (Manager.CurrentSite.CanUseCDN || Manager.CurrentSite.CanUseStaticDomain)
                 return ImageSupport.ProcessImagesAsCDN(viewHtml);
             return viewHtml;

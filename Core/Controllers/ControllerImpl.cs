@@ -856,16 +856,16 @@ namespace YetaWF.Core.Controllers {
             public override void ExecuteResult(ControllerContext context) {
 
                 TextWriter sw = context.HttpContext.Response.Output;
-                ViewContext vc = new ViewContext(context, new ViewImpl(), RequestingController.ViewData, RequestingController.TempData, sw);
-                IViewDataContainer vdc = new ViewDataContainer() { ViewData = RequestingController.ViewData };
-                HtmlHelper htmlHelper = new HtmlHelper(vc, vdc);
+                //$$$ ViewContext vc = new ViewContext(context, new ViewImpl(), RequestingController.ViewData, RequestingController.TempData, sw);
+                //$$$ IViewDataContainer vdc = new ViewDataContainer() { ViewData = RequestingController.ViewData };
+                YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
 
                 try {
-                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
+                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you here :-(
                         YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
 #if DEBUG
                         if (sw.ToString().Length > 0)
-                            throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+                            throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
 #endif
                         sw.Write(data.ToString());
                     });

@@ -80,13 +80,8 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The HtmlHelper instance.
         /// </summary>
-#if MVC6
-        public IHtmlHelper HtmlHelper
-#else
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public HtmlHelper HtmlHelper
-#endif
-        {
+        public YHtmlHelper HtmlHelper {
             get {
                 if (_htmlHelper == null) throw new InternalError("No htmlHelper available");
                 return _htmlHelper;
@@ -95,11 +90,7 @@ namespace YetaWF.Core.Components {
                 _htmlHelper = value;
             }
         }
-#if MVC6
-        private IHtmlHelper _htmlHelper;
-#else
-        private HtmlHelper _htmlHelper;
-#endif
+        private YHtmlHelper _htmlHelper;
 
         /// <summary>
         /// The module on behalf of which this view is rendered.
@@ -111,14 +102,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="moduleBase">The module on behalf of which this view is rendered.</param>
-        public void SetRenderInfo(
-#if MVC6
-            IHtmlHelper htmlHelper
-#else
-            HtmlHelper htmlHelper
-#endif
-                , ModuleDefinition moduleBase
-        ) {
+        public void SetRenderInfo(YHtmlHelper htmlHelper, ModuleDefinition moduleBase) {
             HtmlHelper = htmlHelper;
             ModuleBase = moduleBase;
         }

@@ -108,11 +108,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         public readonly Package Package;
 
-#if MVC6
-        internal void SetRenderInfo(IHtmlHelper htmlHelper,
-#else
-        internal void SetRenderInfo(HtmlHelper htmlHelper,
-#endif
+        internal void SetRenderInfo(YHtmlHelper htmlHelper,
              object container, string propertyName, string fieldName, PropertyData propData, object htmlAttributes, bool validation)
         {
             HtmlHelper = htmlHelper;
@@ -127,7 +123,7 @@ namespace YetaWF.Core.Components {
             } else {
                 FieldName = fieldName;
             }
-            HtmlAttributes = htmlAttributes != null ? AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
+            HtmlAttributes = htmlAttributes != null ? YHtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
             Validation = validation;
         }
 
@@ -143,33 +139,10 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Converts an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object to a dictionary.
-        /// </summary>
-        /// <param name="htmlAttributes">An anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object.</param>
-        /// <returns>Returns a dictionary with the key/values of the provided object <paramref name="htmlAttributes"/>.</returns>
-        /// <remarks>
-        /// This is intended for use with HTML attributes that may use different containers (an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object).
-        ///
-        /// If an anonymous object is used, underscore characters (_) are replaced with hyphens (-) in the keys of the specified HTML attributes.</remarks>
-        public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
-            if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
-            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
-#if MVC6
-            return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-#else
-            return HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-#endif
-        }
-
-        /// <summary>
         /// Returns the HtmlHelper instance.
         /// </summary>
-#if MVC6
-        public IHtmlHelper HtmlHelper
-#else
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public HtmlHelper HtmlHelper
-#endif
+        public YHtmlHelper HtmlHelper
         {
             get {
                 if (_htmlHelper == null) throw new InternalError("No htmlHelper available");
@@ -179,11 +152,7 @@ namespace YetaWF.Core.Components {
                 _htmlHelper = value;
             }
         }
-#if MVC6
-        private IHtmlHelper _htmlHelper;
-#else
-        private HtmlHelper _htmlHelper;
-#endif
+        private YHtmlHelper _htmlHelper;
 
         /// <summary>
         /// The container model for which this component is used/rendered.

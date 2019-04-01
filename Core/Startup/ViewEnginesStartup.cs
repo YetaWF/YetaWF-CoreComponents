@@ -8,6 +8,8 @@ using System.Web.Mvc;
 #endif
 using YetaWF.Core.Log;
 
+//$$$remove
+
 namespace YetaWF.Core.Support {
 
     public static class ViewEnginesStartup {
@@ -23,27 +25,6 @@ namespace YetaWF.Core.Support {
             });
         }
 #else
-        public static void Start() {
-            Logging.AddLog("Establishing ViewEngines");
-
-            // Add global usings for razor pages
-            //System.Web.WebPages.Razor.WebPageRazorHost.AddGlobalImport("System.Web.Mvc.Html");
-
-            // remove any non razor precompiled engines
-            ViewEngines.Engines.Clear();
-
-            // Add a view engine that searches areas
-            RazorViewEngine engine = new RazorViewEngine {
-                AreaMasterLocationFormats = new string[] { },
-                MasterLocationFormats = new string[] { },
-                FileExtensions = new string[] { "cshtml" },
-                AreaPartialViewLocationFormats = new string[] { }, // we're not using partial views
-                AreaViewLocationFormats = new string[] { }, // we're not using views
-                PartialViewLocationFormats = new string[] { }, // we're not using partial views
-                ViewLocationFormats = new string[] { }, // we're not using views
-            };
-            ViewEngines.Engines.Add(engine);
-        }
 #endif
     }
 }

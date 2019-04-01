@@ -123,6 +123,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\PageBase.cs" />
+    <Compile Include="Components\PageExtender.cs" />
     <Compile Include="Controllers\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
     <Compile Include="Components\Support\CAProvinces.cs" />
@@ -200,6 +202,7 @@
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
     <Compile Include="Support\Shims\HtmlString.cs" />
     <Compile Include="Support\Shims\IHtmlContent.cs" />
+    <Compile Include="Support\Shims\YHtmlHelper.cs" />
     <Compile Include="Support\Shims\JsonResult.cs" />
     <Compile Include="Support\Shims\QueryHelper.cs" />
     <Compile Include="Support\Shims\SessionState.cs" />
@@ -336,7 +339,6 @@
     <Compile Include="Controllers\Rss.cs" />
     <Compile Include="Support\Site\SiteDefinitionImpl.cs" />
     <Compile Include="Support\Site\SiteDefinition.cs" />
-    <Compile Include="Pages\RazorPage.cs" />
     <Compile Include="Pages\PageDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\HtmlBuilder.cs" />
@@ -351,13 +353,14 @@
     <Compile Include="Controllers\ZippedResult.cs" />
     <Compile Include="Support\Upload\FileUpload.cs" />
     <Compile Include="Pages\ActionHelperMVC5.cs" />
+    <Compile Include="Views\HTML\Default.cs" />
+    <Compile Include="Views\HTML\Plain.cs" />
+    <Compile Include="Views\HTML\Popup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Addons\_Addons\Icons\Icons.scss" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedRole" />
     <None Include="Addons\_Main\Grids\ModuleDefinition.GridAllowedUser" />
-    <None Include="Addons\_Skins\Standard\Pages\Plain.cshtml" />
-    <None Include="Addons\_Skins\Standard\Pages\Default.cshtml" />
     <Content Include="Addons\_Addons\Basics\BasicsProto.js" />
     <Content Include="Addons\_Addons\fontawesome.com.fontawesome\filelistDeploy.txt" />
     <Content Include="Addons\_Addons\fontawesome.com.fontawesome\filelistCSS.txt" />
@@ -376,10 +379,6 @@
     <Content Include="Addons\_Addons\Image\NoImage.png" />
     <Content Include="Addons\_Addons\jqueryui.com.jqueryui-themes\themelist.txt" />
     <Content Include="Addons\_Addons\telerik.com.Kendo_UI_Core\themelist.txt" />
-    <Content Include="Addons\_Skins\Standard\Popups\PopupContent.cshtml" />
-    <None Include="Addons\_Skins\Standard\Popups\PopupSmall.cshtml" />
-    <None Include="Addons\_Skins\Standard\Popups\PopupMedium.cshtml" />
-    <None Include="Addons\_Skins\Standard\Popups\Popup.cshtml" />
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -398,7 +397,6 @@
     <Content Include="Addons\_Templates\CurrencyISO4217\Currencies.txt" />
     <Content Include="Addons\_Templates\CountryISO3166\Countries.txt" />
     <Content Include="Addons\_Templates\USState\USStates.txt" />
-    <Content Include="Addons\_Skins\Standard\Pages\PageContent.cshtml" />
     <None Include="tsconfig.json" />
     <None Include="tslint.json" />
   </ItemGroup>

@@ -255,10 +255,10 @@ namespace YetaWF.Core.Pages {
         // SKIN
 
         // Displays the panes defined by the page skin
-        public async Task<List<string>> GetPanesAsync() {
+        public List<string> GetPanes() {
             if (_panes == null) {
                 SkinAccess skinAccess = new SkinAccess();
-                _panes = await skinAccess.GetPanesAsync(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup);
+                _panes = skinAccess.GetPanes(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup);
             }
             return _panes;
         }
@@ -440,11 +440,8 @@ namespace YetaWF.Core.Pages {
         // RENDERING
         // RENDERING
 
-#if MVC6
-        public async Task<HtmlString> RenderPaneAsync(IHtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
-#else
-        public async Task<HtmlString> RenderPaneAsync(HtmlHelper<object> htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
-#endif
+        public async Task<HtmlString> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
             // copy page's moduleDefinitions
@@ -542,7 +539,7 @@ namespace YetaWF.Core.Pages {
             // don't consider template page for modules
             if (PaneDiv && pane == Globals.MainPane) {
                 List<string> leftOver = (from m in ModuleDefinitions select m.Pane).Distinct().ToList();
-                List<string> panes = await Manager.CurrentPage.GetPanesAsync();
+                List<string> panes = Manager.CurrentPage.GetPanes();
                 leftOver = (from l in leftOver where !panes.Contains(l) select l).ToList();
                 // now render what's left
                 foreach (string p in leftOver) {
@@ -612,11 +609,7 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>
-#if MVC6
-        internal async Task RenderPaneContentsAsync(IHtmlHelper<object> htmlHelper,
-#else
-        internal async Task RenderPaneContentsAsync(HtmlHelper<object> htmlHelper,
-#endif
+        internal async Task RenderPaneContentsAsync(YHtmlHelper htmlHelper,
             PageContentController.DataIn dataIn, PageContentController.PageContentData model, bool MainOnly = false)
         {
             Manager.SetSkinOptionsContent();
