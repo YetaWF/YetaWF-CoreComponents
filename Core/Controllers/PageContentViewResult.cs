@@ -1,15 +1,12 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
-using YetaWF.Core.IO;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
-using YetaWF.Core.Components;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -61,7 +58,12 @@ namespace YetaWF.Core.Controllers {
                 }
 
                 PageContentController.PageContentData cr = new PageContentController.PageContentData();
-                YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, null);
+                YHtmlHelper htmlHelper =
+#if MVC6
+                    //$$$
+#else
+                    new YHtmlHelper(context.RequestContext, null);
+#endif
                 await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, DataIn, cr);
 
                 //Manager.PopCharSize();

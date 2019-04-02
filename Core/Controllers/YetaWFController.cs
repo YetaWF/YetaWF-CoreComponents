@@ -580,7 +580,12 @@ namespace YetaWF.Core.Controllers
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
 
-                    YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
+                    YHtmlHelper htmlHelper =
+#if MVC6
+                        //$$$
+#else
+                        new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
+#endif
 
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);//$$ needed?
 

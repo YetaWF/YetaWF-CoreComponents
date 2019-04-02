@@ -128,7 +128,12 @@ namespace YetaWF.Core.Controllers {
                 await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
                 await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
-                YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, null);
+                YHtmlHelper htmlHelper =
+#if MVC6
+                    //$$$
+#else
+                    new YHtmlHelper(context.RequestContext, null);
+#endif
                 string pageHtml = (await htmlHelper.ForPageAsync(pageViewName)).ToString();
 
                 Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs

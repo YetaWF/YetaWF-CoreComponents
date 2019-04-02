@@ -18,13 +18,25 @@ namespace YetaWF.Core.Support {
     /// </summary>
     public class YHtmlHelper {
 
+#if MVC6
+        public RouteData RouteData { get; private set; }
+#else
         public RequestContext RequestContext { get; private set; }
+        public RouteData RouteData { get { return RequestContext.RouteData; } }
+#endif
         public ModelStateDictionary ModelState { get; private set; }
 
+#if MVC6
+        public YHtmlHelper(RouteData routeData, ModelStateDictionary modelState) {
+            this.RouteData = routeData;
+            ModelState = modelState ?? new ModelStateDictionary();
+        }
+#else
         public YHtmlHelper(RequestContext requestContext, ModelStateDictionary modelState) {
             this.RequestContext = requestContext;
             ModelState = modelState ?? new ModelStateDictionary();
         }
+#endif
 
         /// <summary>
         /// Converts an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object to a dictionary.
