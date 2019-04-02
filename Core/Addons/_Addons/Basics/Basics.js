@@ -829,8 +829,13 @@ var YetaWF;
          */
         BasicsServices.prototype.getElementsBySelector = function (selector, elems) {
             var all = [];
-            if (!elems)
+            if (!elems) {
+                if (!document.body)
+                    return all;
                 elems = [document.body];
+            }
+            if (!elems)
+                return all;
             for (var _i = 0, elems_1 = elems; _i < elems_1.length; _i++) {
                 var elem = elems_1[_i];
                 var list = elem.querySelectorAll(selector);
@@ -1104,12 +1109,14 @@ var YetaWF;
          */
         BasicsServices.prototype.elementEnable = function (elem) {
             elem.removeAttribute("disabled");
+            YetaWF_BasicsImpl.elementEnableToggle(elem, true);
         };
         /**
          * Disable element.
          */
         BasicsServices.prototype.elementDisable = function (elem) {
             elem.setAttribute("disabled", "disabled");
+            YetaWF_BasicsImpl.elementEnableToggle(elem, false);
         };
         /**
          * Enable or disable element.

@@ -953,8 +953,13 @@ namespace YetaWF {
          */
         public getElementsBySelector(selector: string, elems?: HTMLElement[]): HTMLElement[] {
             var all: HTMLElement[] = [];
-            if (!elems)
+            if (!elems) {
+                if (!document.body)
+                    return all;
                 elems = [document.body];
+            }
+            if (!elems)
+                return all;
             for (const elem of elems) {
                 var list: NodeListOf<Element> = elem.querySelectorAll(selector);
                 var len: number = list.length;
@@ -1226,12 +1231,14 @@ namespace YetaWF {
          */
         public elementEnable(elem: HTMLElement): void {
             elem.removeAttribute("disabled");
+            YetaWF_BasicsImpl.elementEnableToggle(elem, true);
         }
         /**
          * Disable element.
          */
         public elementDisable(elem: HTMLElement): void {
             elem.setAttribute("disabled", "disabled");
+            YetaWF_BasicsImpl.elementEnableToggle(elem, false);
         }
         /**
          * Enable or disable element.
