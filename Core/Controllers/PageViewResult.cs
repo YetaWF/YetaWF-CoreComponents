@@ -27,16 +27,8 @@ namespace YetaWF.Core.Controllers {
     internal class PageViewResult : ActionResult {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-#if MVC6
-        //$$$FIX
-        private IViewRenderService _viewRenderService;
 
-        public PageViewResult(IViewRenderService _viewRenderService, ViewDataDictionary viewData, ITempDataDictionary tempData) {
-            this._viewRenderService = _viewRenderService;
-#else
-        public PageViewResult() {
-#endif
-        }
+        public PageViewResult() { }
 
 #if MVC6
         public override async Task ExecuteResultAsync(ActionContext context) {
@@ -130,7 +122,7 @@ namespace YetaWF.Core.Controllers {
 
                 YHtmlHelper htmlHelper =
 #if MVC6
-                    //$$$
+                    new YHtmlHelper(context, null);
 #else
                     new YHtmlHelper(context.RequestContext, null);
 #endif

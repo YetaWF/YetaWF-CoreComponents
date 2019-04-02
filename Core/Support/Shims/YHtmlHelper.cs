@@ -2,10 +2,16 @@
 
 using System.Collections.Generic;
 using System.Text;
-using System.Web.Routing;
 using System.Linq;
 #if MVC6
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
 #else
+using System.Web.Routing;
 using System.Web.Mvc;
 #endif
 
@@ -19,7 +25,8 @@ namespace YetaWF.Core.Support {
     public class YHtmlHelper {
 
 #if MVC6
-        public RouteData RouteData { get; private set; }
+        public ActionContext ActionContext { get; private set; }
+        public RouteData RouteData { get { return ActionContext.RouteData; } }
 #else
         public RequestContext RequestContext { get; private set; }
         public RouteData RouteData { get { return RequestContext.RouteData; } }
@@ -27,8 +34,8 @@ namespace YetaWF.Core.Support {
         public ModelStateDictionary ModelState { get; private set; }
 
 #if MVC6
-        public YHtmlHelper(RouteData routeData, ModelStateDictionary modelState) {
-            this.RouteData = routeData;
+        public YHtmlHelper(ActionContext actionContext, ModelStateDictionary modelState) {
+            ActionContext = actionContext;
             ModelState = modelState ?? new ModelStateDictionary();
         }
 #else
@@ -66,10 +73,11 @@ namespace YetaWF.Core.Support {
         public static string AntiForgeryToken(this YHtmlHelper htmlHelper) {
             if (YetaWFManager.Manager.AntiForgeryTokenHTML == null) {
 #if MVC6
+                IAntiforgery antiForgery = (IAntiforgery)YetaWFManager.ServiceProvider.GetService(typeof(IAntiforgery));
+                IHtmlContent ihtmlContent  = antiForgery.GetHtml(YetaWFManager.Manager.CurrentContext);
                 using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
-                    IHtmlContent ihtmlContent = htmlHelper.AntiForgeryToken();
-                    ihtmlContent.WriteTo(writer, HtmlEncoder.Default);
-                    Manager.AntiForgeryTokenHTML = writer.ToString();
+                    ihtmlContent.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+                    YetaWFManager.Manager.AntiForgeryTokenHTML = writer.ToString();
                 }
 #else
                 YetaWFManager.Manager.AntiForgeryTokenHTML = System.Web.Helpers.AntiForgery.GetHtml().ToString();

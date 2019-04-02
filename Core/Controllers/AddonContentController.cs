@@ -53,16 +53,7 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public List<string> KnownScripts { get; set; }
         }
-#if MVC6
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public AddonContentController(IViewRenderService viewRenderService) {
-            _viewRenderService = viewRenderService;
-        }
-        private readonly IViewRenderService _viewRenderService;
-#else
-#endif
+
         /// <summary>
         /// The ShowAddons action handles all addon content requests issued client-side.
         /// </summary>

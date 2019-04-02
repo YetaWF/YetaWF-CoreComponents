@@ -582,7 +582,7 @@ namespace YetaWF.Core.Controllers
 
                     YHtmlHelper htmlHelper =
 #if MVC6
-                        //$$$
+                        new YHtmlHelper(context, context.ModelState);
 #else
                         new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
 #endif

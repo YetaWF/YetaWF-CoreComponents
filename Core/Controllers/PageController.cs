@@ -33,17 +33,6 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-#if MVC6
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public PageController(IViewRenderService viewRenderService) {
-            _viewRenderService = viewRenderService;
-        }
-        private readonly IViewRenderService _viewRenderService;
-#else
-#endif
-
         /// <summary>
         /// The Show action handles all page requests within YetaWF.
         /// </summary>
@@ -390,11 +379,7 @@ namespace YetaWF.Core.Controllers {
                         if (Manager.IsHeadRequest)
                             return new EmptyResult();
                         AddXFrameOptions();
-#if MVC6
-                        return new PageViewResult(_viewRenderService, ViewData, TempData);
-#else
                         return new PageViewResult();
-#endif
                     case ProcessingStatus.No:
                         break;
                 }
@@ -407,11 +392,7 @@ namespace YetaWF.Core.Controllers {
                         if (Manager.IsHeadRequest)
                             return new EmptyResult();
                         AddXFrameOptions();
-#if MVC6
-                        return new PageViewResult(_viewRenderService, ViewData, TempData);
-#else
                         return new PageViewResult();
-#endif
                     case ProcessingStatus.No:
                         break;
                 }
@@ -435,11 +416,10 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
                     Logging.AddErrorLog("404 Not Found");
                     Manager.CurrentResponse.StatusCode = 404;
-                    return new PageViewResult(_viewRenderService, ViewData, TempData);
 #else
                     Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
-                    return new PageViewResult();
 #endif
+                    return new PageViewResult();
                 }
             }
 #if MVC6

@@ -60,11 +60,11 @@ namespace YetaWF.Core.Controllers {
                 PageContentController.PageContentData cr = new PageContentController.PageContentData();
                 YHtmlHelper htmlHelper =
 #if MVC6
-                    //$$$
+                    new YHtmlHelper(context, null);
 #else
                     new YHtmlHelper(context.RequestContext, null);
 #endif
-                await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, DataIn, cr);
+            await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, DataIn, cr);
 
                 //Manager.PopCharSize();
 

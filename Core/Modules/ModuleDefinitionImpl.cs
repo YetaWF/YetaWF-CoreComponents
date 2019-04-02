@@ -683,12 +683,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         /// Ajax invoked modules - used to render REFERENCED modules during ajax calls
         /// </summary>
 
-#if MVC6
-        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(IHtmlHelper htmlHelper)
-#else
-        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper)
-#endif
-        {
+        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper) {
             // execute action
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;

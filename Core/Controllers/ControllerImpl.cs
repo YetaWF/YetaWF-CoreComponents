@@ -826,23 +826,11 @@ namespace YetaWF.Core.Controllers {
             public override async Task ExecuteResultAsync(ActionContext context) {
 
                 using (var sw = new StringWriter()) {
-                    YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
-                    IHtmlHelper htmlHelper = context.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();//$$$$$$
-                    if (htmlHelper is IViewContextAware contextable) {
-                        var viewContext = new ViewContext(
-                            context,
-                            NullView.Instance,
-                            RequestingController.ViewData,
-                            RequestingController.TempData,
-                            sw,
-                            new HtmlHelperOptions()
-                        );
-                        contextable.Contextualize(viewContext);
-                    }
+                    YHtmlHelper htmlHelper = new YHtmlHelper(context, context.ModelState);
                     YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
 #if DEBUG
                     if (sw.ToString().Length > 0)
-                        throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+                        throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
 #endif
                     byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
                     Stream body = context.HttpContext.Response.Body;

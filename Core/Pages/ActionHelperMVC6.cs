@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.IO;
@@ -20,27 +19,27 @@ namespace YetaWF.Core.Pages {
 
     public static class HtmlHelperActionExtensions {
 
-        public static async Task<IHtmlContent> ActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, object parameters = null) {
-            var controller = (string)helper.ViewContext.RouteData.Values["controller"];
-            return await ActionAsync(helper, module, action, controller, parameters);
+        public static async Task<IHtmlContent> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object parameters = null) {
+            var controller = (string)htmlHelper.RouteData.Values["controller"];
+            return await ActionAsync(htmlHelper, module, action, controller, parameters);
         }
 
-        public static async Task<IHtmlContent> ActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, object parameters = null) {
-            var area = (string)helper.ViewContext.RouteData.Values["area"];
-            return await ActionAsync(helper, module, action, controller, area, parameters);
+        public static async Task<IHtmlContent> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object parameters = null) {
+            var area = (string)htmlHelper.RouteData.Values["area"];
+            return await ActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        public static async Task<IHtmlContent> ActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        public static async Task<IHtmlContent> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             if (action == null)
                 throw new ArgumentNullException("action");
             if (controller == null)
                 throw new ArgumentNullException("controller");
             if (area == null)
                 throw new ArgumentNullException("area");
-            return await RenderActionAsync(helper, module, action, controller, area, parameters);
+            return await RenderActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        private static async Task<IHtmlContent> RenderActionAsync(this IHtmlHelper helper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        private static async Task<IHtmlContent> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             // fetching required services for invocation
             var httpContext = YetaWFManager.Manager.CurrentContext;
             IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory));
@@ -49,9 +48,9 @@ namespace YetaWF.Core.Pages {
             // creating new action invocation context
             var routeData = new RouteData();
             var routeParams = new RouteValueDictionary(parameters ?? new { });
-            var routeValues = new RouteValueDictionary(new { area = area, controller = controller, action = action, ModuleAction = module });
+            var routeValues = new RouteValueDictionary(new { area = area, controller = controller, action = action, ModuleDefinition = module });
 
-            foreach (var router in helper.ViewContext.RouteData.Routers)
+            foreach (var router in htmlHelper.RouteData.Routers)
                 routeData.PushState(router, null, null);
 
             routeData.PushState(null, routeValues, null);
