@@ -110,16 +110,29 @@ namespace YetaWF.Core.Modules {
                 return HtmlStringExtender.Empty;
         }
 
-        // unique, possibly new, typically used in skin to create unique non-pane modules
-        public static async Task<HtmlString> RenderModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
+        /// <summary>
+        /// Renders a unique module. This is typically used in pages to use or create unique modules, which are not part of a pane.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the module.</typeparam>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
+        /// <returns>The module rendered as HTML.</returns>
+        public static async Task<HtmlString> RenderUniqueModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
             return await htmlHelper.RenderUniqueModuleAsync(typeof(TYPE), (mod) => {
                 if (initModule != null)
-                    initModule((TYPE)mod);
+                    initModule((TYPE)(object)mod);
             });
         }
 
-        // unique, possibly new, typically used in skin to create unique non-pane modules
-        public static async Task<HtmlString> RenderModuleAsync(this YHtmlHelper htmlHelper, string packageName, string typeName, Action<object> initModule = null) {
+        /// <summary>
+        /// Renders a unique module. This is typically used in pages to use or create unique modules, which are not part of a pane.
+        /// </summary>
+        /// <param name="packageName">The name of the package implementing the module.</param>
+        /// <param name="typeName">The fully qualified type name of the module.</param>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
+        /// <returns>The module rendered as HTML.</returns>
+        public static async Task<HtmlString> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, string packageName, string typeName, Action<ModuleDefinition> initModule = null) {
             Package package = Package.GetPackageFromPackageName(packageName);
             Type type = package.PackageAssembly.GetType(typeName, true);
             return await htmlHelper.RenderUniqueModuleAsync(type, (mod) => {
@@ -127,8 +140,48 @@ namespace YetaWF.Core.Modules {
                     initModule(mod);
             });
         }
+        internal static async Task<HtmlString> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, Type modType, Action<ModuleDefinition> initModule = null) {
+            Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
+            ModuleDefinition mod = null;
+            try {
+                mod = await Module.LoadModuleDefinitionAsync(permGuid);
+                if (mod == null) {
+                    // doesn't exist, lock and try again
+                    using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
+                        mod = await Module.LoadModuleDefinitionAsync(permGuid);
+                        if (mod == null) {
+                            mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
+                            if (!mod.IsModuleUnique)
+                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
+                            mod.ModuleGuid = permGuid;
+                            mod.Temporary = false;
+                            if (initModule != null)
+                                initModule(mod);
+                            await mod.SaveAsync();
+                        } else {
+                            if (!mod.IsModuleUnique)
+                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
+                            mod.Temporary = false;
+                        }
+                        await lockObject.UnlockAsync();
+                    }
+                }
+                mod.Temporary = false;
+            } catch (Exception exc) {
+                HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
+                return hb.ToHtmlString();
+            }
+            return await mod.RenderModuleAsync(htmlHelper);
+        }
 
-        // non-unique, possibly new, typically used in skin to create non-unique non-pane modules
+        /// <summary>
+        /// Renders a non-unique module. This is typically used in pages to use or create modules, which are not part of a pane.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the module.</typeparam>
+        /// <param name="moduleGuid">The module Guid of the module to render. If the module doesn't exist, it is created.</param>
+        /// <param name="htmlHelper">The HtmlHelper instance.</param>
+        /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
+        /// <returns>The module rendered as HTML.</returns>
         public static async Task<HtmlString> RenderModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null) {
             ModuleDefinition mod = null;
             try {
@@ -158,40 +211,6 @@ namespace YetaWF.Core.Modules {
                 mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, moduleGuid.ToString());
-                return hb.ToHtmlString();
-            }
-            return await mod.RenderModuleAsync(htmlHelper);
-        }
-
-        public static async Task<HtmlString> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
-            Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
-            ModuleDefinition mod = null;
-            try {
-                mod = await Module.LoadModuleDefinitionAsync(permGuid);
-                if (mod == null) {
-                    // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
-                        mod = await Module.LoadModuleDefinitionAsync(permGuid);
-                        if (mod == null) {
-                            mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
-                            if (!mod.IsModuleUnique)
-                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
-                            mod.ModuleGuid = permGuid;
-                            mod.Temporary = false;
-                            if (initModule != null)
-                                initModule(mod);
-                            await mod.SaveAsync();
-                        } else {
-                            if (!mod.IsModuleUnique)
-                                throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
-                            mod.Temporary = false;
-                        }
-                        await lockObject.UnlockAsync();
-                    }
-                }
-                mod.Temporary = false;
-            } catch (Exception exc) {
-                HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToHtmlString();
             }
             return await mod.RenderModuleAsync(htmlHelper);

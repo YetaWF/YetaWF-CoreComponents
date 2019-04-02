@@ -172,7 +172,7 @@ namespace YetaWF.Core.Controllers
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
-        /// Redirects to a page that displaus a message - THIS ONLY WORKS FOR A GET REQUEST.
+        /// Redirects to a page that displays a message - THIS ONLY WORKS FOR A GET REQUEST.
         /// </summary>
         /// <param name="message">Error message to display.</param>
         /// <param name="statusCode">The HTTP status code.</param>
