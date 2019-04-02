@@ -185,7 +185,6 @@
     <Compile Include="Pages\ErrorHandlingMiddleware.cs" />
     <Compile Include="Pages\Export.cs" />
     <Compile Include="Pages\Import.cs" />
-    <Compile Include="Pages\ViewServiceRender.cs" />
     <Compile Include="Search\Search.cs" />
     <Compile Include="Skins\BootstrapSkins.cs" />
     <Compile Include="Startup\StartupLogging.cs" />
@@ -322,7 +321,6 @@
     <Compile Include="Support\GeoLocation\GeoLocation.cs" />
     <Compile Include="Support\Gravatar\Gravatar.cs" />
     <Compile Include="Support\PermanentManager.cs" />
-    <Compile Include="Startup\ViewEnginesStartup.cs" />
     <Compile Include="Support\Repository\Setting.cs" />
     <Compile Include="Support\Repository\SessionSettings.cs" />
     <Compile Include="Support\Repository\SettingsDictionary.cs" />
