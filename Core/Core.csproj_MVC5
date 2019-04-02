@@ -123,7 +123,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\PageBase.cs" />
+    <Compile Include="Components\PlainPageBase.cs" />
+    <Compile Include="Components\PopupPageBase.cs" />
+    <Compile Include="Components\YetaWFPageBase.cs" />
     <Compile Include="Components\PageExtender.cs" />
     <Compile Include="Controllers\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />

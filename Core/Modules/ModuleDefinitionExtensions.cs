@@ -78,7 +78,7 @@ namespace YetaWF.Core.Modules {
             return await htmlHelper.RenderEditControlAsync(permGuid);
         }
 
-        private static async Task<HtmlString> RenderEditControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
+        public static async Task<HtmlString> RenderEditControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
 
             if (Manager.IsInPopup) return HtmlStringExtender.Empty;
             //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
