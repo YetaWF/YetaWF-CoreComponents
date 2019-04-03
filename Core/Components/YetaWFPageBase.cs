@@ -33,7 +33,7 @@ namespace YetaWF.Core.Components {
         /// <returns>The HTML representing the page body.</returns>
         Task<YHtmlString> RenderPageBodyAsync();
         /// <summary>
-        /// Renders the page header (everything before &lt;body&gt; and &lt;/body&gt;).
+        /// Renders the page header (everything before &lt;body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page header.</returns>
         Task<YHtmlString> RenderPageHeaderAsync();

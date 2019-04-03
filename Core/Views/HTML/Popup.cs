@@ -30,7 +30,7 @@ namespace YetaWF.Core.Skins.Pages {
         }
 
         /// <summary>
-        /// Renders the page header (everything before &lt;body&gt; and &lt;/body&gt;).
+        /// Renders the page header (everything before &lt;body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page header.</returns>
         public Task<YHtmlString> RenderPageHeaderAsync() {
