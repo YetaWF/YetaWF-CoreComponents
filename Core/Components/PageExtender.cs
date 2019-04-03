@@ -42,26 +42,27 @@ namespace YetaWF.Core.Components {
             YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(pageType);
             page.SetRenderInfo(htmlHelper);
 
-            // Find RenderPageAsync
-            string methodName = nameof(IYetaWFPage.RenderPageAsync);
-            MethodInfo miAsync = pageType.GetMethod(methodName);
-            if (miAsync == null)
-                throw new InternalError($"Page {pageName} ({pageType.FullName}) doesn't have a {methodName} method");
+            IYetaWFPage iPage = (IYetaWFPage)page;
 
             // Add support for this page
             //await Manager.AddOnManager.TryAddAddOnNamedAsync(page.Package.AreaName, pageName);// RFFU page addons?
 
-            // Invoke RenderPageAsync
-            Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(page, new object[] { });
-            YHtmlString yhtml = await methStringTask;
+            // render page contents first so all data like title, meta becomes available
+            string contents = (await iPage.RenderPageBodyAsync()).ToString();
+
 #if DEBUG
-            string html = yhtml.ToString();
-            if (html.ToString().Contains("System.Threading.Tasks.Task"))
-                throw new InternalError($"Page {pageName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{html}\"");
-            if (html.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                throw new InternalError($"Page {pageName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{html}\"");
+            if (contents.ToString().Contains("System.Threading.Tasks.Task"))
+                throw new InternalError($"Page {pageName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{contents}\"");
+            if (contents.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                throw new InternalError($"Page {pageName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{contents}\"");
 #endif
-            return yhtml;
+
+            HtmlBuilder hb = new HtmlBuilder();
+            hb.Append((await iPage.RenderPageHeaderAsync()).ToString());
+            hb.Append(contents);
+            hb.Append("</html>");
+
+            return hb.ToYHtmlString();
         }
 
         /// <summary>

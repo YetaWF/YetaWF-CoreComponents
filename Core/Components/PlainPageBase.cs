@@ -28,20 +28,16 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Renders the page.
+        /// Renders the page header (everything before &lt;body&gt; and &lt;/body&gt;).
         /// </summary>
-        /// <returns>The HTML representing the page.</returns>
-        public async Task<YHtmlString> RenderPageAsync() {
+        /// <returns>The HTML representing the page header.</returns>
+        public Task<YHtmlString> RenderPageHeaderAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
             string favIcon = Manager.CurrentPage.FavIconLink;
             if (string.IsNullOrEmpty(favIcon))
                 favIcon = Manager.CurrentSite.FavIconLink;
-
-            string copyright = Manager.CurrentPage.CopyrightEvaluated;
-            if (string.IsNullOrEmpty(copyright))
-                copyright = Manager.CurrentSite.CopyrightEvaluated;
 
             hb.Append($@"
 <!DOCTYPE html>
@@ -55,7 +51,24 @@ namespace YetaWF.Core.Components {
     {favIcon}
     {Manager.CurrentPage.CanonicalUrlLink}
     {Manager.CurrentPage.HrefLangHtml}
-</head>
+</head>");
+
+            return Task.FromResult(hb.ToYHtmlString());
+        }
+
+        /// <summary>
+        /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
+        /// </summary>
+        /// <returns>The HTML representing the page body.</returns>
+        public async Task<YHtmlString> RenderPageBodyAsync() {
+
+            HtmlBuilder hb = new HtmlBuilder();
+
+            string copyright = Manager.CurrentPage.CopyrightEvaluated;
+            if (string.IsNullOrEmpty(copyright))
+                copyright = Manager.CurrentSite.CopyrightEvaluated;
+
+            hb.Append($@"
 <body class='{Manager.PageCss()}'>
     <noscript><div class='yDivWarning' style='height:100px;text-align:center;vertical-align:middle'>This site requires Javascript</div></noscript>
     {await HtmlHelper.RenderEditControlAsync(new Guid("{267f00cc-c619-4854-baed-9e4b812d7e95}"))}
@@ -65,8 +78,7 @@ namespace YetaWF.Core.Components {
     </div>
     <div class='pageFooter'>{HE(copyright)}</div>
     {await HtmlHelper.RenderUniqueModuleAddOnsAsync()}
-</body>
-</html>");
+</body>");
 
             return hb.ToYHtmlString();
         }

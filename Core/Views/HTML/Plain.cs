@@ -36,20 +36,16 @@ namespace YetaWF.Core.Skins.Pages {
         }
 
         /// <summary>
-        /// Renders the page.
+        /// Renders the page header (everything before &lt;body&gt; and &lt;/body&gt;).
         /// </summary>
-        /// <returns>The HTML representing the page.</returns>
-        public async Task<YHtmlString> RenderPageAsync() {
+        /// <returns>The HTML representing the page header.</returns>
+        public Task<YHtmlString> RenderPageHeaderAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
             string favIcon = Manager.CurrentPage.FavIconLink;
             if (string.IsNullOrEmpty(favIcon))
                 favIcon = Manager.CurrentSite.FavIconLink;
-
-            string copyright = Manager.CurrentPage.CopyrightEvaluated;
-            if (string.IsNullOrEmpty(copyright))
-                copyright = Manager.CurrentSite.CopyrightEvaluated;
 
             hb.Append($@"
 <!DOCTYPE html>
@@ -63,7 +59,24 @@ namespace YetaWF.Core.Skins.Pages {
     {favIcon}
     {Manager.CurrentPage.CanonicalUrlLink}
     {Manager.CurrentPage.HrefLangHtml}
-</head>
+</head>");
+
+            return Task.FromResult(hb.ToYHtmlString());
+        }
+
+        /// <summary>
+        /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
+        /// </summary>
+        /// <returns>The HTML representing the page body.</returns>
+        public async Task<YHtmlString> RenderPageBodyAsync() {
+
+            HtmlBuilder hb = new HtmlBuilder();
+
+            string copyright = Manager.CurrentPage.CopyrightEvaluated;
+            if (string.IsNullOrEmpty(copyright))
+                copyright = Manager.CurrentSite.CopyrightEvaluated;
+
+            hb.Append($@"
 <body class='{Manager.PageCss()}'>
     <noscript><div class='yDivWarning' style='height:100px;text-align:center;vertical-align:middle'>This site requires Javascript</div></noscript>
     <div class='pageOuterWrapper'>
@@ -77,8 +90,7 @@ namespace YetaWF.Core.Skins.Pages {
         {await HtmlHelper.RenderPageControlAsync(new System.Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}"))}
     </div>
     {await HtmlHelper.RenderUniqueModuleAddOnsAsync()}
-</body>
-</html>");
+</body>");
 
             return hb.ToYHtmlString();
         }

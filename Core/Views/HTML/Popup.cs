@@ -30,12 +30,16 @@ namespace YetaWF.Core.Skins.Pages {
         }
 
         /// <summary>
-        /// Renders the page.
+        /// Renders the page header (everything before &lt;body&gt; and &lt;/body&gt;).
         /// </summary>
-        /// <returns>The HTML representing the page.</returns>
-        public async Task<YHtmlString> RenderPageAsync() {
+        /// <returns>The HTML representing the page header.</returns>
+        public Task<YHtmlString> RenderPageHeaderAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
+
+            string favIcon = Manager.CurrentPage.FavIconLink;
+            if (string.IsNullOrEmpty(favIcon))
+                favIcon = Manager.CurrentSite.FavIconLink;
 
             hb.Append($@"
 <!DOCTYPE html>
@@ -46,12 +50,24 @@ namespace YetaWF.Core.Skins.Pages {
     {Manager.MetatagsHtml}
     {Manager.PageTitleHtml}
     {Manager.CurrentPage.HrefLangHtml}
-</head>
+</head>");
+
+            return Task.FromResult(hb.ToYHtmlString());
+        }
+
+        /// <summary>
+        /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
+        /// </summary>
+        /// <returns>The HTML representing the page body.</returns>
+        public async Task<YHtmlString> RenderPageBodyAsync() {
+
+            HtmlBuilder hb = new HtmlBuilder();
+
+            hb.Append($@"
 <body class='{Manager.PageCss()}'>
     {await RenderPaneAsync(Globals.MainPane, "MainPane AnyPane")}
     {await HtmlHelper.RenderUniqueModuleAddOnsAsync()}
-</body>
-</html>");
+</body>");
 
             return hb.ToYHtmlString();
         }

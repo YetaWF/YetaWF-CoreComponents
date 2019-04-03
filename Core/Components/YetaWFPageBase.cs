@@ -28,10 +28,15 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns a collection of pane names available in this page.</returns>
         List<string> GetPanes();
         /// <summary>
-        /// Renders the page.
+        /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
         /// </summary>
-        /// <returns>The HTML representing the page.</returns>
-        Task<YHtmlString> RenderPageAsync();
+        /// <returns>The HTML representing the page body.</returns>
+        Task<YHtmlString> RenderPageBodyAsync();
+        /// <summary>
+        /// Renders the page header (everything before &lt;body&gt; and &lt;/body&gt;).
+        /// </summary>
+        /// <returns>The HTML representing the page header.</returns>
+        Task<YHtmlString> RenderPageHeaderAsync();
     }
 
     /// <summary>
