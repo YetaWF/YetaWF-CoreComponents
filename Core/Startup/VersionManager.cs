@@ -26,7 +26,7 @@ namespace YetaWF.Core.Addons {
         public enum AddOnType {
             [EnumDescription("Package", "Package Support Addon")]
             Package = 0,
-            [EnumDescription("Template", "Template Addon")]
+            [EnumDescription("Component", "Component Addon")]
             Template = 1,
             [EnumDescription("Skin", "Skin Addon")]
             Skin = 2,
