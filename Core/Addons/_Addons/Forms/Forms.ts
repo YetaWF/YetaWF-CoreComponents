@@ -568,8 +568,7 @@ namespace YetaWF {
                         uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (originList.length > 0)
                             uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
-                        if (!$YetaWF.ContentHandling.setContent(uri, true))
-                            window.location.assign(uri.toUrl());
+                        $YetaWF.ContentHandling.setNewUri(uri);
                     } else {
                         // we don't know where to return so just close the browser
                         try {

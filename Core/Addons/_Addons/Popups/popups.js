@@ -85,8 +85,7 @@ var YetaWF;
             if (!$YetaWF.isInPopup())
                 return false; // this shouldn't really happen
             $YetaWF.setLoading(true);
-            if (!window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl(elem.href), true))
-                window.parent.location.assign(elem.href);
+            window.parent.$YetaWF.ContentHandling.setNewUri($YetaWF.parseUrl(elem.href));
             return true;
         };
         Popups.prototype.init = function () { };

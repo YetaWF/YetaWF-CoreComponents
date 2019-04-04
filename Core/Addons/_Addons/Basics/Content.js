@@ -59,10 +59,19 @@ var YetaWF;
             }
         };
         /**
-         * Changes the current page to the specified Uri (may not be part of the unified page set).
+         * Changes the current page to the specified Uri (may not be part of a unified page set). If a Unified Page Set is active,
+         * the page is incrementally updated, otherwise the entire page is loaded.
+         * @param uri The new page.
+         */
+        Content.prototype.setNewUri = function (uri) {
+            if (!$YetaWF.ContentHandling.setContent(uri, true))
+                window.location.assign(uri.toUrl());
+        };
+        /**
+         * Changes the current page to the specified Uri (may not be part of a unified page set).
          * Returns false if the uri couldn't be processed (i.e., it's not part of a unified page set).
          * Returns true if the page is now shown and is part of the unified page set.
-         * @param uri
+         * @param uri The new page.
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
