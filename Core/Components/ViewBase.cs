@@ -34,7 +34,7 @@ namespace YetaWF.Core.Components {
         /// <param name="module">The module on behalf of which the view is rendered.</param>
         /// <param name="model">The model being rendered by the view.</param>
         /// <returns>The HTML representing the view.</returns>
-        Task<YHtmlString> RenderViewAsync(TMODULE module, TMODEL model);
+        Task<string> RenderViewAsync(TMODULE module, TMODEL model);
     }
     /// <summary>
     /// This interface is implemented by views.
@@ -51,7 +51,7 @@ namespace YetaWF.Core.Components {
         /// <param name="module">The module on behalf of which the partial view is rendered.</param>
         /// <param name="model">The model being rendered by the partial view.</param>
         /// <returns>The HTML representing the partial view.</returns>
-        Task<YHtmlString> RenderPartialViewAsync(TMODULE module, TMODEL model);
+        Task<string> RenderPartialViewAsync(TMODULE module, TMODEL model);
     }
 
     /// <summary>
@@ -197,13 +197,13 @@ namespace YetaWF.Core.Components {
         /// <param name="UsePartialFormCss">Defines whether partial form CSS is used.</param>
         /// <param name="ShowView">Defines whether the partial view rendering method <paramref name="renderPartial"/> is called.</param>
         /// <returns>Returns the partial form as HTML.</returns>
-        public async Task<YHtmlString> PartialForm(Func<Task<YHtmlString>> renderPartial, bool UsePartialFormCss = true, bool ShowView = true) {
+        public async Task<string> PartialForm(Func<Task<string>> renderPartial, bool UsePartialFormCss = true, bool ShowView = true) {
             // PartialForm rendering called during regular form processing (not ajax)
             if (Manager.InPartialView)
                 throw new InternalError("Already in partial form");
             Manager.InPartialView = true;
 
-            YHtmlString viewHtml = new YHtmlString();
+            string viewHtml = null;
 
             try {
                 if (ShowView)
@@ -216,8 +216,8 @@ namespace YetaWF.Core.Components {
             } finally {
                 Manager.InPartialView = false;
             }
-            string html = await PostProcessView.ProcessAsync(HtmlHelper, ModuleBase, viewHtml.ToString(), UsePartialFormCss: UsePartialFormCss);
-            return new YHtmlString(html);
+            string html = await PostProcessView.ProcessAsync(HtmlHelper, ModuleBase, viewHtml, UsePartialFormCss: UsePartialFormCss);
+            return html;
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="buttons">The collection of form buttons to render.</param>
         /// <returns>Returns the rendered form buttons as HTML.</returns>
-        public async Task<YHtmlString> FormButtonsAsync(List<FormButton> buttons) {
+        public async Task<string> FormButtonsAsync(List<FormButton> buttons) {
             return await FormButtonsAsync(buttons.ToArray());
         }
         /// <summary>
@@ -233,16 +233,16 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="buttons">The array of form buttons to render.</param>
         /// <returns>Returns the rendered form buttons as HTML.</returns>
-        public async Task<YHtmlString> FormButtonsAsync(FormButton[] buttons) {
+        public async Task<string> FormButtonsAsync(FormButton[] buttons) {
             HtmlBuilder hb = new HtmlBuilder();
             if (ModuleBase.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
                 foreach (FormButton button in buttons) {
-                    hb.Append(await button.RenderAsync());
+                    hb.Append((await button.RenderAsync()));
                 }
                 hb.Append("</div>");
             }
-            return hb.ToYHtmlString();
+            return hb.ToString();
         }
     }
 }

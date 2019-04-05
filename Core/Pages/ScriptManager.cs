@@ -21,7 +21,7 @@ using YetaWF.Core.Support;
 //    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
 //   Built-in CDN support (off by default until you have a CDN provider)
-//   Optional CDN support for all major Javascript addons (jQuery, jQueryUI, KendoUI, CKEditor, etc.)
+//   Optional CDN support for all major JavaScript addons (jQuery, jQueryUI, KendoUI, CKEditor, etc.)
 // Add an Expires or a Cache-Control Header
 //   YetaWF uses Expires and a Cache-Control Header
 // Gzip Components
@@ -285,14 +285,14 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add a Javascript file explicitly. This is rarely used because Javascript files are automatically added for modules, templates, etc.
+        /// Adds a JavaScript file explicitly. This is rarely used because JavaScript files are automatically added for modules, templates, etc.
         /// </summary>
         public async Task AddScriptAsync(string areaName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
             VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(areaName);
             await AddAsync(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
         }
         /// <summary>
-        /// Add a Javascript file explicitly. This is rarely used because Javascript files are automatically added for modules, templates, etc.
+        /// Adds a JavaScript file explicitly. This is rarely used because JavaScript files are automatically added for modules, templates, etc.
         /// </summary>
         /// <param name="fullUrl">The Url of the script file (starting with /).</param>
         /// <param name="minify">Defines whether the file needs to be minified.</param>
@@ -362,15 +362,15 @@ namespace YetaWF.Core.Pages {
         /// You must insure that the code sections with the same name are always identical.
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="JavaScript"></param>
+        /// <param name="javaScript"></param>
         /// <returns></returns>
-        public bool AddFirst(string name, string JavaScript) {
+        public bool AddFirst(string name, string javaScript) {
             if (_SavedFirstNamedScripts.ContainsKey(name)) {
-                if (_SavedFirstNamedScripts[name] != JavaScript)
+                if (_SavedFirstNamedScripts[name] != javaScript)
                     throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
                 return false; // already added
             }
-            _SavedFirstNamedScripts.Add(name, JavaScript);
+            _SavedFirstNamedScripts.Add(name, javaScript);
             return true;
         }
         public bool AddFirst(string name, ScriptBuilder tag) {
@@ -386,13 +386,13 @@ namespace YetaWF.Core.Pages {
         /// <param name="name"></param>
         /// <param name="JavaScript"></param>
         /// <returns></returns>
-        public bool AddLast(string name, string JavaScript) {
+        public bool AddLast(string name, string javaScript) {
             if (_SavedNamedScripts.ContainsKey(name)) {
-                if (_SavedNamedScripts[name] != JavaScript)
+                if (_SavedNamedScripts[name] != javaScript)
                     throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
                 return false; // already added
             }
-            _SavedNamedScripts.Add(name, JavaScript);
+            _SavedNamedScripts.Add(name, javaScript);
             return true;
         }
         public bool AddLast(string name, ScriptBuilder tag) {
@@ -402,8 +402,8 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Add an unnamed JavaScript code section at end of page.
         /// </summary>
-        public void AddLast(string JavaScript) {
-            _SavedScripts.Add(JavaScript);
+        public void AddLast(string javaScript) {
+            _SavedScripts.Add(javaScript);
         }
 
         /// <summary>
@@ -425,16 +425,16 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         /// <param name="name"></param>
         /// <param name="JavaScript"></param>
-        public void AddLastDocumentReady(string name, string JavaScript) {
+        public void AddLastDocumentReady(string name, string javaScript) {
             if (_SavedNamedScriptsDocReady.ContainsKey(name)) {
-                if (_SavedNamedScriptsDocReady[name] != JavaScript)
+                if (_SavedNamedScriptsDocReady[name] != javaScript)
                     throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
                 return;
             }
-            _SavedNamedScriptsDocReady.Add(name, JavaScript);
+            _SavedNamedScriptsDocReady.Add(name, javaScript);
         }
-        public void AddLastDocumentReady(string name, ScriptBuilder JavaScript) {
-            AddLastDocumentReady(name, JavaScript.ToString());
+        public void AddLastDocumentReady(string name, ScriptBuilder javaScript) {
+            AddLastDocumentReady(name, javaScript.ToString());
         }
 
         // CONFIG OPTIONS (User Specific)
@@ -475,7 +475,7 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        internal async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
+        internal async Task<string> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
 
             if (cr == null)
                 Manager.Verify_NotPostRequest();
@@ -495,15 +495,15 @@ namespace YetaWF.Core.Pages {
             }
             if (cr != null) {
                 await RenderScriptsFilesAsync(cr, KnownScripts);
-                return new HtmlBuilder();
+                return null;
             } else {
                 HtmlBuilder hb = await RenderScriptsFilesAsync();
-                tag.Append(hb.ToHtmlString());
-                return tag;
+                tag.Append(hb.ToString());
+                return tag.ToString();
             }
         }
 
-        public async Task<HtmlBuilder> RenderAjaxAsync() {
+        public async Task<string> RenderAjaxAsync() {
 
             Manager.Verify_PostRequest();
 
@@ -511,10 +511,10 @@ namespace YetaWF.Core.Pages {
 
             HtmlBuilder hb = await RenderScriptsFilesAsync();
             if (hb.Length > 0) throw new InternalError("Somehow script file links were added in an Ajax request - this is not supported");
-            tag.Append(hb.ToHtmlString());
+            tag.Append(hb.ToString());
 
             tag.Append(RenderEndofPageScripts());
-            return tag;
+            return tag.ToString();
         }
 
         private ScriptBuilder RenderScriptsPartA(PageContentController.PageContentData cr = null) {

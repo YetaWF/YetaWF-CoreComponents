@@ -99,9 +99,9 @@ namespace YetaWF.Core.Components {
         /// Renders the button HTML.
         /// </summary>
         /// <returns>Returns the button as HTML.</returns>
-        public async Task<YHtmlString> RenderAsync() {
+        public async Task<string> RenderAsync() {
             if (ButtonType == ButtonTypeEnum.Empty)
-                return new YHtmlString("");
+                return null;
             if (Action != null) {
                 if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
                     return await Action.RenderAsIconAsync();

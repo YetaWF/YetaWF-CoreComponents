@@ -111,18 +111,18 @@ namespace YetaWF.Core.Skins {
         //    [[CONTENTS]]
         //    [ThisModule,ActionMenu]
         // </div>
-        internal async Task<HtmlString> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
+        internal async Task<string> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
 
-            TagBuilder anchor = null;
+            YTagBuilder anchor = null;
             if (!mod.IsModuleUnique && Manager.CurrentPage != null && !string.IsNullOrWhiteSpace(mod.AnchorId)) { // add an anchor
-                anchor = new TagBuilder("div");
+                anchor = new YTagBuilder("div");
                 anchor.AddCssClass("yAnchor");
                 anchor.Attributes.Add("id", mod.AnchorId);
             }
 
-            TagBuilder div = new TagBuilder("div");
+            YTagBuilder div = new YTagBuilder("div");
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName));
             div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName));
@@ -163,7 +163,7 @@ namespace YetaWF.Core.Skins {
                 if (mod.ShowTitleActions) {
                     string actions = null;
                     if (ShowTitle && mod.ShowTitleActions)
-                        actions = (await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer)).ToString();
+                        actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer);
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         inner.Append("<div class='yModuleTitle'>");
                         inner.Append(mod.TitleHtml);
@@ -187,11 +187,11 @@ namespace YetaWF.Core.Skins {
             if (showOwnership)
                 inner.Append("</div>");
 
-            div.SetInnerHtml(inner.ToString());
+            div.InnerHtml = inner.ToString();
             if (anchor != null)
-                return new HtmlString(anchor.ToString(TagRenderMode.Normal) + div.ToString(TagRenderMode.Normal));
+                return anchor.ToString(YTagRenderMode.Normal) + div.ToString(YTagRenderMode.Normal);
             else
-                return div.ToHtmlString(TagRenderMode.Normal);
+                return div.ToString(YTagRenderMode.Normal);
         }
 
         /// <summary>

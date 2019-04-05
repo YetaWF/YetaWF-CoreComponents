@@ -34,7 +34,7 @@ namespace YetaWF.Core.Components {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="pageName">The name of the page.</param>
         /// <returns>Returns HTML with the rendered page.</returns>
-        public static async Task<YHtmlString> ForPageAsync(this YHtmlHelper htmlHelper, string pageName) {
+        public static async Task<string> ForPageAsync(this YHtmlHelper htmlHelper, string pageName) {
 
             Type pageType;
             if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageName, out pageType))
@@ -48,21 +48,23 @@ namespace YetaWF.Core.Components {
             //await Manager.AddOnManager.TryAddAddOnNamedAsync(page.Package.AreaName, pageName);// RFFU page addons?
 
             // render page contents first so all data like title, meta becomes available
-            string contents = (await iPage.RenderPageBodyAsync()).ToString();
+            string contents = await iPage.RenderPageBodyAsync();
 
 #if DEBUG
-            if (contents.ToString().Contains("System.Threading.Tasks.Task"))
-                throw new InternalError($"Page {pageName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{contents}\"");
-            if (contents.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                throw new InternalError($"Page {pageName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{contents}\"");
+            if (!string.IsNullOrWhiteSpace(contents)) {
+                if (contents.Contains("System.Threading.Tasks.Task"))
+                    throw new InternalError($"Page {pageName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{contents}\"");
+                if (contents.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                    throw new InternalError($"Page {pageName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{contents}\"");
+            }
 #endif
 
             HtmlBuilder hb = new HtmlBuilder();
-            hb.Append((await iPage.RenderPageHeaderAsync()).ToString());
+            hb.Append(await iPage.RenderPageHeaderAsync());
             hb.Append(contents);
             hb.Append("</html>");
 
-            return hb.ToYHtmlString();
+            return hb.ToString();
         }
 
         /// <summary>

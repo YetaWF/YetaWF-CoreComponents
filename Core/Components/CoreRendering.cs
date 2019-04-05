@@ -57,7 +57,7 @@ namespace YetaWF.Core.Components {
         /// <param name="viewHtml">The current view contents to be wrapped in the view.</param>
         /// <param name="UsePartialFormCss">Defines whether the partial form CSS should be used.</param>
         /// <returns>Returns the complete view as HTML.</returns>
-        Task<YHtmlString> RenderViewAsync(YHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
+        Task<string> RenderViewAsync(YHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss);
 
         /// <summary>
         /// Renders module links.
@@ -66,14 +66,14 @@ namespace YetaWF.Core.Components {
         /// <param name="renderMode">The module links' rendering mode.</param>
         /// <param name="cssClass">The optional CSS classes to use for the module links.</param>
         /// <returns>Returns the module links as HTML.</returns>
-        Task<YHtmlString> RenderModuleLinksAsync(ModuleDefinition mod, ModuleAction.RenderModeEnum renderMode, string cssClass);
+        Task<string> RenderModuleLinksAsync(ModuleDefinition mod, ModuleAction.RenderModeEnum renderMode, string cssClass);
 
         /// <summary>
         /// Renders a complete module menu.
         /// </summary>
         /// <param name="mod">The module for which the module menu is rendered.</param>
         /// <returns>Returns the complete module menu as HTML.</returns>
-        Task<YHtmlString> RenderModuleMenuAsync(ModuleDefinition mod);
+        Task<string> RenderModuleMenuAsync(ModuleDefinition mod);
 
         /// <summary>
         /// Renders a complete menu.
@@ -83,7 +83,7 @@ namespace YetaWF.Core.Components {
         /// <param name="cssClass">The optional CSS classes to use for the menu.</param>
         /// <param name="HtmlHelper">The HtmlHelper instance.</param>
         /// <returns>Returns the complete menu as HTML.</returns>
-        Task<YHtmlString> RenderMenuListAsync(MenuList menu, string id = null, string cssClass = null, YHtmlHelper HtmlHelper = null);
+        Task<string> RenderMenuListAsync(MenuList menu, string id = null, string cssClass = null, YHtmlHelper HtmlHelper = null);
 
         /// <summary>
         /// Renders a module action.
@@ -92,14 +92,14 @@ namespace YetaWF.Core.Components {
         /// <param name="mode">The module action's rendering mode.</param>
         /// <param name="id">The ID to generate.</param>
         /// <returns>Returns the module action as HTML.</returns>
-        Task<YHtmlString> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string id);
+        Task<string> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string id);
 
         /// <summary>
         /// Renders a form button.
         /// </summary>
         /// <param name="formButton">The form button to render.</param>
         /// <returns>Returns the rendered form button as HTML.</returns>
-        Task<YHtmlString> RenderFormButtonAsync(FormButton formButton);
+        Task<string> RenderFormButtonAsync(FormButton formButton);
     }
 
     /// <summary>

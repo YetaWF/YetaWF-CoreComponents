@@ -849,12 +849,13 @@ namespace YetaWF.Core.Controllers {
 
                 try {
                     YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you here :-(
-                        YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+                        string data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
 #if DEBUG
                         if (sw.ToString().Length > 0)
-                            throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+                            throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a string - output rendered: \"{sw.ToString()}\"");
 #endif
-                        sw.Write(data.ToString());
+                        if (!string.IsNullOrWhiteSpace(data))
+                            sw.Write(data.ToString());
                     });
                 } catch (Exception) {
                     throw;

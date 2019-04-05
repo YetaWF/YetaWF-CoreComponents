@@ -174,20 +174,6 @@ namespace YetaWF.Core.Support {
             }
             return sb.ToString();
         }
-        /// <summary>
-        /// Returns the current tag as HTML with specified rendering.
-        /// </summary>
-        /// <returns>Returns the current tag as HTML.</returns>
-        public HtmlString ToHtmlString(YTagRenderMode renderMode) {
-            return new HtmlString(ToString(renderMode));
-        }
-        /// <summary>
-        /// Returns the current tag as HTML with specified rendering.
-        /// </summary>
-        /// <returns>Returns the current tag as HTML.</returns>
-        public YHtmlString ToYHtmlString(YTagRenderMode renderMode) {
-            return new YHtmlString(ToString(renderMode));
-        }
         private void AppendAttributes(StringBuilder sb) {
             foreach (var attribute in Attributes) {
                 string key = attribute.Key;

@@ -1775,7 +1775,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="css">The skin-defined Css class identifying the skin.</param>
         /// <returns>A Css class string.</returns>
-        public HtmlString PageCss() {
+        public string PageCss() {
             SkinAccess skinAccess = new SkinAccess();
             PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
             string s = pageSkin.Css;
@@ -1815,7 +1815,7 @@ namespace YetaWF.Core.Support {
                 sb.Append("document.body.setAttribute('data-pagecss', '{0}');", YetaWFManager.JserEncode(cssClasses));
                 Manager.ScriptManager.AddLast(sb.ToString());
             }
-            return new HtmlString(CssManager.CombineCss(s, cssClasses));
+            return CssManager.CombineCss(s, cssClasses);
         }
 
         // CURRENT USER

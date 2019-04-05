@@ -238,7 +238,7 @@ namespace YetaWF.Core.Pages {
                 return Manager.CurrentSite.BundleCSSFiles;
         }
 
-        internal async Task<HtmlBuilder> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
+        internal async Task<string> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
@@ -285,7 +285,7 @@ namespace YetaWF.Core.Pages {
                     }
                 }
             }
-            return tag;
+            return tag.ToString();
         }
         /// <summary>
         /// Returns the list of css files in the current bundle (if any).

@@ -593,10 +593,10 @@ namespace YetaWF.Core.Controllers
                     Manager.InPartialView = true;
                     try {
 #if MVC6
-                        viewHtml = (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
+                        viewHtml = await htmlHelper.ForViewAsync(base.ViewName, Module, Model);
 #else
                         viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you here :-(
-                            return (await htmlHelper.ForViewAsync(base.ViewName, Module, Model)).ToString();
+                            return await htmlHelper.ForViewAsync(base.ViewName, Module, Model);
                         });
 #endif
                     } catch (Exception) {
@@ -614,7 +614,7 @@ namespace YetaWF.Core.Controllers
                 }
 #if DEBUG
                 if (sb.Length > 0)
-                    throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sb.ToString()}\"");
+                    throw new InternalError($"View {ViewName} wrote output using HtmlHelper, which is not supported - All output must be rendered using ForViewAsync and returned as a string - output rendered: \"{sb.ToString()}\"");
 #endif
 
                 Manager.CurrentModule = oldMod;
@@ -670,7 +670,7 @@ namespace YetaWF.Core.Controllers
                         Manager.ScriptManager.AddLastDocumentReady(Script);
 
                     // add generated scripts
-                    string js = (await Manager.ScriptManager.RenderAjaxAsync()).ToString();
+                    string js = await Manager.ScriptManager.RenderAjaxAsync();
                     if (string.IsNullOrWhiteSpace(js))
                         js = "";
 

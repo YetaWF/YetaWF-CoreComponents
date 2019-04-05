@@ -29,7 +29,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="model">The model being rendered by the component.</param>
         /// <returns>The component rendered as HTML.</returns>
-        Task<YHtmlString> RenderAsync(TYPE model);
+        Task<string> RenderAsync(TYPE model);
     }
     /// <summary>
     /// This interface is implemented by components which act as containers for other components.
@@ -45,7 +45,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="model">The model being rendered by the component.</param>
         /// <returns>The component rendered as HTML.</returns>
-        Task<YHtmlString> RenderContainerAsync(TYPE model);
+        Task<string> RenderContainerAsync(TYPE model);
     }
 
     /// <summary>

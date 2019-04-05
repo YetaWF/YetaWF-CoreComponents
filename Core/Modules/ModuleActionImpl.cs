@@ -27,22 +27,22 @@ namespace YetaWF.Core.Modules {
         }
 
         // Render an action as button
-        public async Task<YHtmlString> RenderAsButtonAsync(string id = null) {
+        public async Task<string> RenderAsButtonAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.Button, Id: id);
         }
-        public async Task<YHtmlString> RenderAsButtonIconAsync(string id = null) {
+        public async Task<string> RenderAsButtonIconAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.ButtonIcon, Id: id);
         }
         // Render an action as icon
-        public async Task<YHtmlString> RenderAsIconAsync(string id = null) {
+        public async Task<string> RenderAsIconAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.IconsOnly, Id: id);
         }
         // Render an action as link
-        public async Task<YHtmlString> RenderAsLinkAsync(string id = null) {
+        public async Task<string> RenderAsLinkAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.LinksOnly, Id: id);
         }
         // Render an action as normal link with icon
-        public async Task<YHtmlString> RenderAsNormalLinkAsync(string id = null) {
+        public async Task<string> RenderAsNormalLinkAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.NormalLinks, Id: id);
         }
 
@@ -69,7 +69,7 @@ namespace YetaWF.Core.Modules {
         /// Render an action.
         /// </summary>
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
-        public async Task<YHtmlString> RenderAsync(RenderModeEnum mode, string Id = null) {
+        public async Task<string> RenderAsync(RenderModeEnum mode, string Id = null) {
 
             return await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id);
 

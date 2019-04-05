@@ -27,20 +27,20 @@ namespace YetaWF.Core.Modules {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public static async Task<HtmlString> RenderPageControlAsync<TYPE>(this YHtmlHelper htmlHelper) {
+        public static async Task<string> RenderPageControlAsync<TYPE>(this YHtmlHelper htmlHelper) {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
             return await htmlHelper.RenderPageControlAsync(permGuid);
         }
 
-        public static async Task<HtmlString> RenderPageControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
-            if (Manager.IsInPopup) return HtmlStringExtender.Empty;
-            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
+        public static async Task<string> RenderPageControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
+            if (Manager.IsInPopup) return null;
+            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return null;
 
 #if DEBUG
             // allow in debug mode without checking unless marked deployed
-            if (Manager.Deployed && !Manager.CurrentPage.IsAuthorized_Edit()) return HtmlStringExtender.Empty;
+            if (Manager.Deployed && !Manager.CurrentPage.IsAuthorized_Edit()) return null;
 #else
-            if (!Manager.CurrentPage.IsAuthorized_Edit()) return HtmlStringExtender.Empty;
+            if (!Manager.CurrentPage.IsAuthorized_Edit()) return null;
 #endif
             ModuleDefinition mod = await ModuleDefinition.LoadAsync(moduleGuid);
 
@@ -68,20 +68,20 @@ namespace YetaWF.Core.Modules {
             tag.Attributes.Add("id", Globals.IdPageControlDiv);
 
             Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
-            tag.SetInnerHtml((await action.RenderAsButtonIconAsync(Globals.IdPageControlButton)).ToString() + (await mod.RenderModuleAsync(htmlHelper)).ToString());
+            tag.SetInnerHtml(await action.RenderAsButtonIconAsync(Globals.IdPageControlButton) + await mod.RenderModuleAsync(htmlHelper));
             Manager.ForceModuleActionLinks = false;
-            return tag.ToHtmlString(TagRenderMode.Normal);
+            return tag.ToString(TagRenderMode.Normal);
         }
 
-        public static async Task<HtmlString> RenderEditControlAsync<TYPE>(this YHtmlHelper htmlHelper) {
+        public static async Task<string> RenderEditControlAsync<TYPE>(this YHtmlHelper htmlHelper) {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
             return await htmlHelper.RenderEditControlAsync(permGuid);
         }
 
-        public static async Task<HtmlString> RenderEditControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
+        public static async Task<string> RenderEditControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
 
-            if (Manager.IsInPopup) return HtmlStringExtender.Empty;
-            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return HtmlStringExtender.Empty;
+            if (Manager.IsInPopup) return null;
+            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return null;
 
             if (Manager.CurrentPage.IsAuthorized_Edit()) {
 
@@ -103,11 +103,11 @@ namespace YetaWF.Core.Modules {
                 }
                 if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UsingBootstrapButtons)
                     action.CssClass = CssManager.CombineCss(action.CssClass, "btn btn-outline-primary");
-                tag.SetInnerHtml((await action.RenderAsButtonIconAsync(Globals.IdEditControlButton)).ToString() + (await mod.RenderModuleAsync(htmlHelper)).ToString());// mainly just to get js/css, the module is normally empty
+                tag.SetInnerHtml(await action.RenderAsButtonIconAsync(Globals.IdEditControlButton) + await mod.RenderModuleAsync(htmlHelper));// mainly just to get js/css, the module is normally empty
 
-                return tag.ToHtmlString(TagRenderMode.Normal);
+                return tag.ToString(TagRenderMode.Normal);
             } else
-                return HtmlStringExtender.Empty;
+                return null;
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
         /// <returns>The module rendered as HTML.</returns>
-        public static async Task<HtmlString> RenderUniqueModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
+        public static async Task<string> RenderUniqueModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
             return await htmlHelper.RenderUniqueModuleAsync(typeof(TYPE), (mod) => {
                 if (initModule != null)
                     initModule((TYPE)(object)mod);
@@ -132,7 +132,7 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
         /// <returns>The module rendered as HTML.</returns>
-        public static async Task<HtmlString> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, string packageName, string typeName, Action<ModuleDefinition> initModule = null) {
+        public static async Task<string> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, string packageName, string typeName, Action<ModuleDefinition> initModule = null) {
             Package package = Package.GetPackageFromPackageName(packageName);
             Type type = package.PackageAssembly.GetType(typeName, true);
             return await htmlHelper.RenderUniqueModuleAsync(type, (mod) => {
@@ -140,7 +140,7 @@ namespace YetaWF.Core.Modules {
                     initModule(mod);
             });
         }
-        internal static async Task<HtmlString> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, Type modType, Action<ModuleDefinition> initModule = null) {
+        internal static async Task<string> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, Type modType, Action<ModuleDefinition> initModule = null) {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
             try {
@@ -169,7 +169,7 @@ namespace YetaWF.Core.Modules {
                 mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
-                return hb.ToHtmlString();
+                return hb.ToString();
             }
             return await mod.RenderModuleAsync(htmlHelper);
         }
@@ -182,7 +182,7 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
         /// <returns>The module rendered as HTML.</returns>
-        public static async Task<HtmlString> RenderModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null) {
+        public static async Task<string> RenderModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null) {
             ModuleDefinition mod = null;
             try {
                 mod = await Module.LoadModuleDefinitionAsync(moduleGuid);
@@ -211,12 +211,12 @@ namespace YetaWF.Core.Modules {
                 mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, moduleGuid.ToString());
-                return hb.ToHtmlString();
+                return hb.ToString();
             }
             return await mod.RenderModuleAsync(htmlHelper);
         }
 
-        public static async Task<HtmlString> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
+        public static async Task<string> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
             ModuleDefinition mod = null;
             try {
@@ -245,12 +245,12 @@ namespace YetaWF.Core.Modules {
                 mod.Temporary = false;
             } catch (Exception exc) {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
-                return hb.ToHtmlString();
+                return hb.ToString();
             }
             return await mod.RenderReferencedModule_AjaxAsync(htmlHelper);
         }
 
-        public static async Task<HtmlString> RenderUniqueModuleAddOnsAsync(this YHtmlHelper htmlHelper, List<Guid> ExcludedGuids = null) {
+        public static async Task<string> RenderUniqueModuleAddOnsAsync(this YHtmlHelper htmlHelper, List<Guid> ExcludedGuids = null) {
 
             Manager.Verify_NotPostRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
@@ -263,10 +263,10 @@ namespace YetaWF.Core.Modules {
                 }
             }
             Manager.RenderingUniqueModuleAddons = false;
-            return hb.ToHtmlString();
+            return hb.ToString();
         }
 
-        public static async Task<HtmlString> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper) {
+        public static async Task<string> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper) {
             Manager.Verify_PostRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();
             HtmlBuilder hb = new HtmlBuilder();
@@ -276,7 +276,7 @@ namespace YetaWF.Core.Modules {
                     hb.Append(await htmlHelper.RenderReferencedModule_AjaxAsync(mod.ModuleType));
             }
             Manager.RenderingUniqueModuleAddonsAjax = false;
-            return hb.ToHtmlString();
+            return hb.ToString();
         }
         public static void AddVolatileOptionsUniqueModuleAddOns(bool MarkPrevious = false) {
             Manager.Verify_NotPostRequest();

@@ -24,7 +24,7 @@ namespace YetaWF.Core.Components {
         /// Renders the page header (everything before &lt;body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page header.</returns>
-        public Task<YHtmlString> RenderPageHeaderAsync() {
+        public Task<string> RenderPageHeaderAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -39,14 +39,14 @@ namespace YetaWF.Core.Components {
     {Manager.CurrentPage.HrefLangHtml}
 </head>");
 
-            return Task.FromResult(hb.ToYHtmlString());
+            return Task.FromResult(hb.ToString());
         }
 
         /// <summary>
         /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page body.</returns>
-        public async Task<YHtmlString> RenderPageBodyAsync() {
+        public async Task<string> RenderPageBodyAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -56,7 +56,7 @@ namespace YetaWF.Core.Components {
     {await HtmlHelper.RenderUniqueModuleAddOnsAsync()}
 </body>");
 
-            return hb.ToYHtmlString();
+            return hb.ToString();
         }
     }
 }

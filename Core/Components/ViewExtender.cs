@@ -49,7 +49,7 @@ namespace YetaWF.Core.Components {
         /// <param name="module">The module on behalf of which this view is rendered.</param>
         /// <param name="model">The view's data model to render.</param>
         /// <returns>Returns HTML with the rendered view.</returns>
-        public static async Task<YHtmlString> ForViewAsync(this YHtmlHelper htmlHelper, string viewName, ModuleDefinition module, object model) {
+        public static async Task<string> ForViewAsync(this YHtmlHelper htmlHelper, string viewName, ModuleDefinition module, object model) {
 
             Type viewType;
             string v = viewName.TrimEnd(PartialSuffix);
@@ -84,14 +84,15 @@ namespace YetaWF.Core.Components {
             await Manager.AddOnManager.TryAddAddOnNamedAsync(view.Package.AreaName, shortName);
 
             // Invoke RenderViewAsync/RenderPartialViewAsync
-            Task<YHtmlString> methStringTask = (Task<YHtmlString>)miAsync.Invoke(view, new object[] { module, model });
-            YHtmlString yhtml = await methStringTask;
+            Task<string> methStringTask = (Task<string>)miAsync.Invoke(view, new object[] { module, model });
+            string yhtml = await methStringTask;
 #if DEBUG
-            string html = yhtml.ToString();
-            if (html.ToString().Contains("System.Threading.Tasks.Task"))
-                throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{html}\"");
-            if (html.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                throw new InternalError($"View {viewName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{html}\"");
+            if (!string.IsNullOrWhiteSpace(yhtml)) {
+                if (yhtml.Contains("System.Threading.Tasks.Task"))
+                    throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{yhtml}\"");
+                if (yhtml.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                    throw new InternalError($"View {viewName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{yhtml}\"");
+            }
 #endif
             return yhtml;
         }

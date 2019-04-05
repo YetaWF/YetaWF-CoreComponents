@@ -126,7 +126,7 @@ namespace YetaWF.Core.Controllers {
 #else
                     new YHtmlHelper(context.RequestContext, null);
 #endif
-                string pageHtml = (await htmlHelper.ForPageAsync(pageViewName)).ToString();
+                string pageHtml = await htmlHelper.ForPageAsync(pageViewName);
 
                 Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs
                 if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)

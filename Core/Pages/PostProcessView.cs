@@ -21,7 +21,7 @@ namespace YetaWF.Core.Views {
 
         internal static async Task<string> ProcessAsync(YHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
 
-            viewHtml = (await YetaWFCoreRendering.Render.RenderViewAsync(htmlHelper, module, viewHtml, UsePartialFormCss)).ToString();
+            viewHtml = await YetaWFCoreRendering.Render.RenderViewAsync(htmlHelper, module, viewHtml, UsePartialFormCss);
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
             viewHtml = vars.ReplaceModuleVariables(module, viewHtml);

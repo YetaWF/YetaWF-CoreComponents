@@ -28,10 +28,6 @@ namespace YetaWF.Core.Support {
             _sb.Append(writer.ToString());
         }
 #else
-        public void Append(IHtmlString content) {
-            if (content == null) return;
-            _sb.Append(content.ToHtmlString());
-        }
 #endif
         public void Append(string s, params object[] parms) {
             if (s == null) return;
@@ -45,12 +41,6 @@ namespace YetaWF.Core.Support {
         }
         public new string ToString() {
             return _sb.ToString();
-        }
-        public HtmlString ToHtmlString() {
-            return new HtmlString(_sb.ToString());
-        }
-        public YHtmlString ToYHtmlString() {
-            return new YHtmlString(_sb.ToString());
         }
         public int Length {
             get { return _sb.Length; }

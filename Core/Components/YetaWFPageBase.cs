@@ -31,12 +31,12 @@ namespace YetaWF.Core.Components {
         /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page body.</returns>
-        Task<YHtmlString> RenderPageBodyAsync();
+        Task<string> RenderPageBodyAsync();
         /// <summary>
         /// Renders the page header (everything before &lt;body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page header.</returns>
-        Task<YHtmlString> RenderPageHeaderAsync();
+        Task<string> RenderPageHeaderAsync();
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns the name of the page.</returns>
         public abstract string GetPageName();
 
-        public async Task<YHtmlString> RenderPaneAsync(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
+        public async Task<string> RenderPaneAsync(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
 
             if (!Manager.EditMode && Unified && Manager.UnifiedPages != null) {
                 PageDefinition realPage = Manager.CurrentPage;
@@ -160,9 +160,9 @@ namespace YetaWF.Core.Components {
                     sb.Append(await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
                 }
                 Manager.CurrentPage = realPage;
-                return new YHtmlString(sb.ToString());
+                return sb.ToString();
             } else {
-                return new YHtmlString(await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Conditional: Conditional));
+                return await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Conditional: Conditional);
             }
         }
     }

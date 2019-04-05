@@ -317,7 +317,7 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Read a file
         /// </summary>
-        public async Task<HtmlString> GetFileAsync(string path, object replacements = null) {
+        public async Task<string> GetFileAsync(string path, object replacements = null) {
             string file = "";
             try {
                 file = await FileSystem.FileSystemProvider.ReadAllTextAsync(YetaWFManager.UrlToPhysical(path));
@@ -325,7 +325,7 @@ namespace YetaWF.Core.Addons {
             QueryHelper query = QueryHelper.FromAnonymousObject(replacements);
             foreach (QueryHelper.Entry entry in query.Entries)
                 file = file.Replace("$" + entry.Key + "$", entry.Value.ToString());
-            return new HtmlString(file);
+            return file;
         }
     }
 }

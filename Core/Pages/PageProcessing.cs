@@ -40,14 +40,14 @@ namespace YetaWF.Core.Pages {
             pageHtml = ReplaceOnce(pageHtml, "<head>", "<head><!-- " + yetawfMsg + " -->");
 
             // <link rel="alternate">
-            string linkAlt = Manager.LinkAltManager.Render().ToString();
+            string linkAlt = Manager.LinkAltManager.Render();
             if (string.IsNullOrWhiteSpace(linkAlt))
                 linkAlt = "";
 
             // <link rel="stylesheet">
             string css = "";
             if (currentSite.CssLocation == Site.CssLocationEnum.Top)
-                css = (await Manager.CssManager.RenderAsync()).ToString();
+                css = await Manager.CssManager.RenderAsync();
 
             string head = "";
             if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.ExtraHead))
@@ -58,7 +58,7 @@ namespace YetaWF.Core.Pages {
             // linkAlt+css+js+</head> replaces </head>
             string js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Top)
-                js = (await Manager.ScriptManager.RenderAsync()).ToString();
+                js = await Manager.ScriptManager.RenderAsync();
             pageHtml = ReplaceOnce(pageHtml, "</head>", linkAlt + css + js + head + "</head>");
 
             string bodyStart = "";
@@ -75,10 +75,10 @@ namespace YetaWF.Core.Pages {
             // <script ..>
             js = "";
             if (currentSite.JSLocation == Site.JSLocationEnum.Bottom)
-                js = (await Manager.ScriptManager.RenderAsync()).ToString();
+                js = await Manager.ScriptManager.RenderAsync();
             css = "";
             if (currentSite.CssLocation == Site.CssLocationEnum.Bottom)
-                css = (await Manager.CssManager.RenderAsync()).ToString();
+                css = await Manager.CssManager.RenderAsync();
 
             string endstuff = css;
             if (!currentSite.DisableMinimizeFUOC && (currentSite.JSLocation == Site.JSLocationEnum.Bottom || currentSite.CssLocation == Site.CssLocationEnum.Bottom))

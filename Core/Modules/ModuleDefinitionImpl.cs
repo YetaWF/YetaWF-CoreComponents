@@ -557,9 +557,9 @@ namespace YetaWF.Core.Modules {
         // RENDERING
         // RENDERING
 
-        public async Task<HtmlString> RenderModuleAsync(YHtmlHelper htmlHelper) {
+        public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper) {
 
-            if (!Visible && !Manager.EditMode) return HtmlStringExtender.Empty;
+            if (!Visible && !Manager.EditMode) return null;
 
             // determine char dimensions for current skin
             SkinAccess skinAccess = new SkinAccess();
@@ -588,7 +588,7 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName)).ToString();
+                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #else
                 moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #endif
@@ -610,10 +610,10 @@ namespace YetaWF.Core.Modules {
             Manager.WantFocus = false;
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
-                return HtmlStringExtender.Empty; // if the module contents are empty, we bail
+                return null; // if the module contents are empty, we bail
 
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
-                return HtmlStringExtender.Empty; // if the module contents are empty, we bail
+                return null; // if the module contents are empty, we bail
 
             bool showTitle = ShowTitle;
             bool showMenu = true;
@@ -642,7 +642,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
                 }
             }
 
-            string containerHtml = (await skinAccess.MakeModuleContainerAsync(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction)).ToString();
+            string containerHtml = await skinAccess.MakeModuleContainerAsync(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction);
 
             if (!Manager.RenderingUniqueModuleAddons) {
                 string title = Manager.PageTitle;
@@ -672,7 +672,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             Manager.AddOnManager.AddExplicitlyInvokedModules(ReferencedModules);
 
             //DEBUG:  containerHtml has entire module
-            return new HtmlString(containerHtml);
+            return containerHtml;
         }
 
         private int GetModulesInMainPane() {
@@ -683,24 +683,24 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         /// Ajax invoked modules - used to render REFERENCED modules during ajax calls
         /// </summary>
 
-        public async Task<HtmlString> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper) {
+        public async Task<string> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper) {
             // execute action
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
 
             string moduleHtml = null;
 #if MVC6
-            moduleHtml = (await htmlHelper.ActionAsync(this, Action, Controller, AreaName)).ToString();
+            moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #else
             moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #endif
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
-                return HtmlStringExtender.Empty; // if the module contents are empty, we bail
+                return null; // if the module contents are empty, we bail
 
             await Manager.AddOnManager.AddModuleAsync(this);
 
-            return new HtmlString(moduleHtml);
+            return moduleHtml;
         }
 
         public static HtmlBuilder ProcessModuleError(Exception exc, string name) {
@@ -718,13 +718,13 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             return hb;
         }
 
-        public HtmlString TitleHtml {
+        public string TitleHtml {
             get {
                 if (string.IsNullOrWhiteSpace(Title))
-                    return HtmlStringExtender.Empty;
+                    return null;
                 TagBuilder tag = new TagBuilder("h1");
                 tag.SetInnerText(Title);
-                return tag.ToHtmlString(TagRenderMode.Normal);
+                return tag.ToString(TagRenderMode.Normal);
             }
         }
 

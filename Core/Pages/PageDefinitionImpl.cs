@@ -440,7 +440,7 @@ namespace YetaWF.Core.Pages {
         // RENDERING
         // RENDERING
 
-        public async Task<HtmlString> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
 
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
@@ -473,15 +473,15 @@ namespace YetaWF.Core.Pages {
                     try {
                         module = await modEntry.GetModuleAsync();
                         if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                            sb.Append((await module.RenderModuleAsync(htmlHelper)).ToString());
+                            sb.Append(await module.RenderModuleAsync(htmlHelper));
                     } catch (Exception exc) {
                         sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
                         ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                         if (modServices != null) {
                             ModuleAction action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
                             if (action != null) {
-                                HtmlString act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
-                                if (act != HtmlStringExtender.Empty) { // only render if the action actually is available
+                                string act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
+                                if (string.IsNullOrWhiteSpace(act)) { // only render if the action actually is available
                                     sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
                                     sb.Append("<li>");
                                     sb.Append(act);
@@ -546,7 +546,7 @@ namespace YetaWF.Core.Pages {
                     sb.Append(await RenderPaneAsync(htmlHelper, p, "yGeneratedPane"));
                 }
             }
-            return new HtmlString(sb.ToString());
+            return sb.ToString();
         }
 
         /// <summary>
@@ -563,7 +563,7 @@ namespace YetaWF.Core.Pages {
                 panes = new List<string> { Globals.MainPane };
             foreach (string pane in panes) {
 
-                string paneHtml = (await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false)).ToString();
+                string paneHtml = await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false);
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
@@ -575,7 +575,7 @@ namespace YetaWF.Core.Pages {
                     });
                 }
             }
-            model.Addons = (await htmlHelper.RenderUniqueModuleAddOnsAsync(ExcludedGuids: dataIn.UnifiedAddonMods)).ToString();
+            model.Addons = await htmlHelper.RenderUniqueModuleAddOnsAsync(ExcludedGuids: dataIn.UnifiedAddonMods);
 
             // clear any http errors that may have occurred if a module failed (otherwise our ajax request will fail)
             Manager.CurrentResponse.StatusCode = 200;
