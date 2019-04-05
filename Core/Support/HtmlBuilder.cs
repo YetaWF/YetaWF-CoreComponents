@@ -24,15 +24,6 @@ namespace YetaWF.Core.Support {
             if (s == null) return;
             _hb.Append(s);
         }
-#if MVC6
-        public void Append(IHtmlContent content) {
-            if (content == null) return;
-            System.IO.StringWriter writer = new System.IO.StringWriter();
-            content.WriteTo(writer, HtmlEncoder.Default);
-            _hb.Append(writer.ToString());
-        }
-#else
-#endif
         public void Append(string s, params object[] parms) {
             if (s == null) return;
             _hb.AppendFormat(s, parms);

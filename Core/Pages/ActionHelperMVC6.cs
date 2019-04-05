@@ -2,7 +2,6 @@
 
 #if MVC6
 
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -19,17 +18,17 @@ namespace YetaWF.Core.Pages {
 
     public static class HtmlHelperActionExtensions {
 
-        public static async Task<IHtmlContent> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object parameters = null) {
+        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object parameters = null) {
             var controller = (string)htmlHelper.RouteData.Values["controller"];
             return await ActionAsync(htmlHelper, module, action, controller, parameters);
         }
 
-        public static async Task<IHtmlContent> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object parameters = null) {
+        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object parameters = null) {
             var area = (string)htmlHelper.RouteData.Values["area"];
             return await ActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        public static async Task<IHtmlContent> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             if (action == null)
                 throw new ArgumentNullException("action");
             if (controller == null)
@@ -39,7 +38,7 @@ namespace YetaWF.Core.Pages {
             return await RenderActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        private static async Task<IHtmlContent> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        private static async Task<string> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             // fetching required services for invocation
             var httpContext = YetaWFManager.Manager.CurrentContext;
             IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory));
@@ -98,7 +97,7 @@ namespace YetaWF.Core.Pages {
             httpContext.Items.Remove(typeof(IUrlHelper));
             httpContext.Items.Add(typeof(IUrlHelper), oldUrlHelper);
 
-            return new HtmlString(content);
+            return content;
         }
     }
 }

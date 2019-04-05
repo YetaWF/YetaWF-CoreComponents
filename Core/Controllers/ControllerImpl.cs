@@ -827,14 +827,16 @@ namespace YetaWF.Core.Controllers {
 
                 using (var sw = new StringWriter()) {
                     YHtmlHelper htmlHelper = new YHtmlHelper(context, context.ModelState);
-                    YHtmlString data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
+                    string data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
 #if DEBUG
                     if (sw.ToString().Length > 0)
-                        throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a {nameof(YHtmlString)} - output rendered: \"{sw.ToString()}\"");
+                        throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a string - output rendered: \"{sw.ToString()}\"");
 #endif
-                    byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
-                    Stream body = context.HttpContext.Response.Body;
-                    body.Write(buffer, 0, buffer.Length);
+                    if (!string.IsNullOrWhiteSpace(data)) {
+                        byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
+                        Stream body = context.HttpContext.Response.Body;
+                        body.Write(buffer, 0, buffer.Length);
+                    }
                 }
             }
 #else

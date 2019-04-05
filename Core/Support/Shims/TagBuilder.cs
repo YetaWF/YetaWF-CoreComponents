@@ -38,12 +38,6 @@ namespace YetaWF.Core.Support {
                 return writer.ToString();
             }
         }
-        public static HtmlString ToHtmlString(this TagBuilder tagBuilder) {//$$$REMOVE
-            return new HtmlString(tagBuilder.ToString(TagRenderMode.Normal));
-        }
-        public static HtmlString ToHtmlString(this TagBuilder tagBuilder, TagRenderMode mode) {
-            return new HtmlString(tagBuilder.ToString(mode));
-        }
 #else
         public static string GetInnerHtml(this TagBuilder tagBuilder) {
             return tagBuilder.InnerHtml;
