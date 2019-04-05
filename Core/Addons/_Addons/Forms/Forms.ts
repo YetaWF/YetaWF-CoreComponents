@@ -8,15 +8,15 @@ namespace YetaWF {
 
     export interface IFormsImpl {
         /**
-         * Initializes a partialform.
+         * Initializes a partial form.
          */
         initPartialForm(partialForm: HTMLElement): void;
         /**
-         * Validates one elements.
+         * Validates one element.
          */
         validateElement(ctrl: HTMLElement): void;
         /**
-         * Re-validate all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
+         * Re-validates all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
          */
         updateValidation(div: HTMLElement): void;
         /**
@@ -29,7 +29,7 @@ namespace YetaWF {
         showErrors(elem: HTMLElement): void;
 
         /**
-         * Validate all fields in the current form.
+         * Validates all fields in the current form.
          */
         validate(form: HTMLFormElement): void;
         /**
@@ -41,7 +41,7 @@ namespace YetaWF {
          */
         serializeFormArray(form: HTMLFormElement): NameValuePair[];
         /**
-         * If there is a validation in the specified tab control, the tab is activated.
+         * If there is a validation error in the specified tab control, the tab is activated.
          */
         setErrorInTab(tabctrl: HTMLElement): void;
     }
