@@ -142,7 +142,6 @@
     <Compile Include="Components\ComponentStartup.cs" />
     <Compile Include="Components\ComponentExtender.cs" />
     <Compile Include="Components\ComponentBase.cs" />
-    <Compile Include="Components\HtmlString.cs" />
     <Compile Include="Components\Support\DropDown.cs" />
     <Compile Include="Components\Support\Grid\DataSourceResult.cs" />
     <Compile Include="Components\Support\Grid\Grid.cs" />
@@ -201,7 +200,6 @@
     <Compile Include="Support\Shims\FromBodyAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataAttribute.cs" />
     <Compile Include="Support\Shims\AdditionalMetadataProvider.cs" />
-    <Compile Include="Support\Shims\HtmlString.cs" />
     <Compile Include="Support\Shims\IHtmlContent.cs" />
     <Compile Include="Support\Shims\YHtmlHelper.cs" />
     <Compile Include="Support\Shims\JsonResult.cs" />
