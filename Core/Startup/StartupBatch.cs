@@ -41,11 +41,17 @@ namespace YetaWF.Core.Support {
         public static void Start(string baseDirectory, string siteDomain) {
 
             YetaWFManager.RootFolder = baseDirectory;
+#if MVC6
+            YetaWFManager.RootFolderWebProject = baseDirectory;
+#endif
             WebConfigHelper.InitAsync(Path.Combine(baseDirectory, APPSETTINGSFILE)).Wait();
             LanguageSection.InitAsync(Path.Combine(baseDirectory, "LanguageSettings.json")).Wait();
 
             // Initialize
             YetaWFManager.MakeInitialThreadInstance(null);
+#if MVC6
+            YetaWFManager.Init();
+#endif
             YetaWFManager.Syncify(async () => {
 
                 // Set up areas (load all dlls/packages explicitly)
