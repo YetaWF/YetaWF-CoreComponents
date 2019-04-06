@@ -1,14 +1,10 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
 using System.Text;
-using System.Threading.Tasks;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using System.Text.Encodings.Web;
 #else
-using System.Web;
-using System.Web.Mvc;
 #endif
 
 namespace YetaWF.Core.Support {

@@ -20,6 +20,10 @@ namespace YetaWF.Core.Support {
 #if MVC6
 #else
         public async Task InitializeApplicationStartupAsync() {
+
+            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE)
+                return;
+
             string rootFolder = YetaWFManager.RootFolder;
             await InitAsync(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
         }

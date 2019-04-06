@@ -369,6 +369,9 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         public static async Task RegisterAllAddOnsAsync() {
 
+            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE)
+                return;
+
             Logging.AddLog("Locating addons");
 
             if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(AddOnsFolder)) {

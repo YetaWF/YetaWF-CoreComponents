@@ -155,7 +155,8 @@ namespace YetaWF.Core.Support {
                     }
                 }
 
-                await YetaWF.Core.IO.FileSystem.FileSystemProvider.DeleteFileAsync(file);
+                if (await YetaWF.Core.IO.FileSystem.FileSystemProvider.DirectoryExistsAsync(Path.GetDirectoryName(file)))
+                    await YetaWF.Core.IO.FileSystem.FileSystemProvider.DeleteFileAsync(file);
                 await lockObject.UnlockAsync();
 
                 await YetaWF.Core.Audit.Auditing.AddAuditAsync($"{nameof(Startup)}.{nameof(CallStartupClassesAsync)}",

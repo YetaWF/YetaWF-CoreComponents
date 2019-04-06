@@ -25,7 +25,8 @@ namespace YetaWF.Core.Support.StaticPages {
         private SiteEntry Site { get; set; }
 
         public async Task InitializeFirstNodeStartupAsync() {
-            await RemoveAllPagesInternalAsync();
+            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE)
+                await RemoveAllPagesInternalAsync();
         }
 
         public enum PageEntryEnum {
@@ -53,7 +54,7 @@ namespace YetaWF.Core.Support.StaticPages {
         }
         public StaticPageManager() { }
 
-        string STATICPAGESKEY = $"__StaticPages_{YetaWFManager.Manager.CurrentSite.Identity}";
+        string STATICPAGESKEY { get { return $"__StaticPages_{YetaWFManager.Manager.CurrentSite.Identity}"; } }
 
         private Task<List<SiteEntry>> InitSiteWithLockAsync(ICacheDataProvider cacheStaticDP, ILockObject staticLock) {
             return InitSiteAsync(cacheStaticDP);

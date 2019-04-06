@@ -24,6 +24,8 @@ namespace YetaWF.Core.Components {
         /// Called during application startup.
         /// </summary>
         public Task InitializeApplicationStartupAsync() {
+            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE)
+                return Task.CompletedTask;
             return CountryISO3166.ReadCountryListAsync();
         }
     }
