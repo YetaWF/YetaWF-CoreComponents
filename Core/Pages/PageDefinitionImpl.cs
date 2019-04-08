@@ -481,7 +481,7 @@ namespace YetaWF.Core.Pages {
                             ModuleAction action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
                             if (action != null) {
                                 string act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
-                                if (string.IsNullOrWhiteSpace(act)) { // only render if the action actually is available
+                                if (!string.IsNullOrWhiteSpace(act)) { // only render if the action actually is available
                                     sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
                                     sb.Append("<li>");
                                     sb.Append(act);
