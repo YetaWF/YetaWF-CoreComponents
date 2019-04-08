@@ -147,7 +147,7 @@ namespace YetaWF.Core.Pages {
         }
 
         private static string GetBundleUrlName(int index, int startLength, string extension) {
-            return string.Format("/{0}/bundle{1}_{2}{3}", Globals.AddonsBundlesFolder, index, startLength, extension);
+            return string.Format("/{0}/{1}/bundle_{2}_{3}{4}", Globals.AddonsBundlesFolder, YetaWFManager.Manager.CurrentSite.Identity, index, startLength, extension);
         }
 
         private static readonly Regex varUrlRegex = new Regex("(?'pre'[ :\\,]url\\()(?'path'[^\\)]+)", RegexOptions.Compiled | RegexOptions.Multiline);
