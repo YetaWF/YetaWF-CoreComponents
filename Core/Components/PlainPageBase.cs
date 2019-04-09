@@ -31,7 +31,7 @@ namespace YetaWF.Core.Components {
         /// Renders the page header (everything before &lt;body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page header.</returns>
-        public Task<string> RenderPageHeaderAsync() {
+        public virtual Task<string> RenderPageHeaderAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -60,7 +60,7 @@ namespace YetaWF.Core.Components {
         /// Renders the page body (&lt;body&gt;, contents and &lt;/body&gt;).
         /// </summary>
         /// <returns>The HTML representing the page body.</returns>
-        public async Task<string> RenderPageBodyAsync() {
+        public virtual async Task<string> RenderPageBodyAsync() {
 
             HtmlBuilder hb = new HtmlBuilder();
 
