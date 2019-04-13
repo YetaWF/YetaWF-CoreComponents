@@ -64,7 +64,7 @@ namespace YetaWF.Core.Controllers {
 #else
                     new YHtmlHelper(context.RequestContext, null);
 #endif
-            await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, DataIn, cr);
+                await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, DataIn, cr);
 
                 //Manager.PopCharSize();
 

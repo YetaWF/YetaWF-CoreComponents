@@ -129,8 +129,7 @@ namespace YetaWF.Core.Controllers {
                 string pageHtml = await htmlHelper.ForPageAsync(pageViewName);
 
                 Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs
-                if (Manager.CurrentSite.JSLocation == Site.JSLocationEnum.Bottom)
-                    pageHtml = ProcessInlineScripts(pageHtml);
+                pageHtml = ProcessInlineScripts(pageHtml);
 
                 await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
                 Manager.PopCharSize();
@@ -177,7 +176,7 @@ namespace YetaWF.Core.Controllers {
         /// <remarks>Components and views do NOT generate &lt;script&gt;&lt;/script&gt; tags. They must use Manager.ScriptManager.AddLast instead.
         /// This is only used to move &lt;script&gt;&lt;/script&gt; sections that were added in YetaWF.Text modules.
         /// </remarks>
-        private string ProcessInlineScripts(string viewHtml) {
+        internal static string ProcessInlineScripts(string viewHtml) {
             // code snippets must use <script></script> (without any attributes)
             int pos = 0;
             for ( ; ; ) {
@@ -187,7 +186,7 @@ namespace YetaWF.Core.Controllers {
                 int endIndex = viewHtml.IndexOf("</script>", pos + 8);
                 if (endIndex < 0)
                     throw new InternalError("Missing </script> in view");
-                Manager.ScriptManager.AddLast(viewHtml.Substring(index + 8, endIndex - index - 8));
+                YetaWFManager.Manager.ScriptManager.AddLast(viewHtml.Substring(index + 8, endIndex - index - 8));
                 viewHtml = viewHtml.Remove(index, endIndex + 9 - index);
                 pos = index;
             }

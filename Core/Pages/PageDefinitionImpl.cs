@@ -564,6 +564,7 @@ namespace YetaWF.Core.Pages {
             foreach (string pane in panes) {
 
                 string paneHtml = await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false);
+                paneHtml = PageViewResult.ProcessInlineScripts(paneHtml);
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
