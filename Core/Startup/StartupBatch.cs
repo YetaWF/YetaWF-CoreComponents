@@ -57,7 +57,7 @@ namespace YetaWF.Core.Support {
                 // Set up areas (load all dlls/packages explicitly)
                 List<string> files = Directory.GetFiles(baseDirectory, "*.dll").ToList();
                 foreach (string file in files) {
-                    Assembly.LoadFile(file);
+                    Assembly.LoadFrom(file);
                 }
 
                 // Register all areas
