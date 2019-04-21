@@ -402,21 +402,18 @@ namespace YetaWF.Core.Addons {
             List<Package> packages = Package.GetAvailablePackages();
             foreach (Package package in packages) {
                 if (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage) {
-                    string addonsPath = Path.Combine(AddOnsFolder, package.Domain);
+                    string addonsPath = Path.Combine(AddOnsFolder, package.LanguageDomain);
                     string addonsProductPath = Path.Combine(addonsPath, package.Product);
                     if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsPath))
                         await FileSystem.FileSystemProvider.CreateDirectoryAsync(addonsPath);
                     if (await package.GetHasSourceAsync()) {
-                        // Make a symlink to the addons for this package
-                        {
-                            // Make a symlink to the source code for the addons of this package
-                            // make sure it's symlink not regular folder (which can occur when upgrading from bin to source package)
-                            string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
-                            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsProductPath) || !await Package.IsPackageSymLinkAsync(addonsProductPath)) {
-                                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(addonsProductPath);
-                                if (!await Package.CreatePackageSymLinkAsync(addonsProductPath, to))
-                                    throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
-                            }
+                        // Make a symlink to the source code for the addons of this package
+                        // make sure it's symlink not regular folder (which can occur when upgrading from bin to source package)
+                        string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
+                        if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsProductPath) || !await Package.IsPackageSymLinkAsync(addonsProductPath)) {
+                            await FileSystem.FileSystemProvider.DeleteDirectoryAsync(addonsProductPath);
+                            if (!await Package.CreatePackageSymLinkAsync(addonsProductPath, to))
+                                throw new InternalError("Couldn't create symbolic link from {0} to {1} - You will have to investigate the failure and manually create the link", addonsProductPath, to);
                         }
                     } else {
                         // no source

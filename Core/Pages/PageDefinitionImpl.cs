@@ -288,11 +288,9 @@ namespace YetaWF.Core.Pages {
             if (Temporary)
                 throw new InternalError("Temporary pages cannot be saved");
             foreach (var moduleEntry in ModuleDefinitions) {
-                try {
-                    ModuleDefinition mod = await moduleEntry.GetModuleAsync();
-                    mod.Temporary = false;
-                    await mod.SaveAsync();
-                } catch (Exception) { }// this can fail when modules no longer exist
+                ModuleDefinition mod = await moduleEntry.GetModuleAsync();
+                mod.Temporary = false;
+                await mod.SaveAsync();
             }
             await PageDefinition.SavePageDefinitionAsync(this);
         }
