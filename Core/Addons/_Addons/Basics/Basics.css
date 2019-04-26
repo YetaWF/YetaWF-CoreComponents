@@ -78,20 +78,6 @@ div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
     clear:both;
 }
 
-/* Module title */
-.yModuleTitle h1 {
-    float:left
-}
-.yModuleTitle .yModuleLinksContainer {
-    float:right;
-    clear:none;
-}
-@media print {
-    .yModuleLinksContainer {
-        display: none;
-    }
-}
-
 /* templates are inline unless they're large, like grids, propertylists etc. */
 /* Not all templates follow this rule (yet) */
 
