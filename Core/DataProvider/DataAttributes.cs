@@ -38,6 +38,14 @@ namespace YetaWF.Core.DataProvider.Attributes {
         public new bool Value { get { return true; } }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class Data_UniqueAttribute : MoreMetadataAttribute {
+
+        public static string AttributeName { get { return "Data_Unique"; } }
+
+        public Data_UniqueAttribute() : base(AttributeName, true) { }
+        public new bool Value { get { return true; } }
+    }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class Data_BinaryAttribute : MoreMetadataAttribute {
 
         public static string AttributeName { get { return "Data_Binary"; } }
