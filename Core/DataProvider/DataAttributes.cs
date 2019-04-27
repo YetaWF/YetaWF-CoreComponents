@@ -37,6 +37,9 @@ namespace YetaWF.Core.DataProvider.Attributes {
         public Data_IndexAttribute() : base(AttributeName, true) { }
         public new bool Value { get { return true; } }
     }
+    /// <summary>
+    /// The property (column) supports unique values only. This is ignored when using file I/O.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class Data_UniqueAttribute : MoreMetadataAttribute {
 
