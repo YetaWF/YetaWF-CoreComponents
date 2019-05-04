@@ -96,7 +96,7 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// Contructor.
+        /// Constructor.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFComponentBase() {

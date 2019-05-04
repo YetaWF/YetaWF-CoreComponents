@@ -37,6 +37,11 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <returns>The HTML representing the page header.</returns>
         Task<string> RenderPageHeaderAsync();
+        /// <summary>
+        /// Called by the framework for additional processing to be performed.
+        /// </summary>
+        /// <remarks>A possible use for this method is to add fonts to a page.</remarks>
+        Task AdditionalProcessingAsync();
     }
 
     /// <summary>
@@ -50,7 +55,7 @@ namespace YetaWF.Core.Components {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
-        /// Contructor.
+        /// Constructor.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFPageBase() {

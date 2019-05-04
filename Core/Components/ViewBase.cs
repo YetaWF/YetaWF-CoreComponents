@@ -65,7 +65,7 @@ namespace YetaWF.Core.Components {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
-        /// Contructor.
+        /// Constructor.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFViewBase() {

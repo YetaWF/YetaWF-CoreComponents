@@ -61,6 +61,7 @@ namespace YetaWF.Core.Components {
 
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append(await iPage.RenderPageHeaderAsync());
+            await iPage.AdditionalProcessingAsync();
             hb.Append(contents);
             hb.Append("</html>");
 

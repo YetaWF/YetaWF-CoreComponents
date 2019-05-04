@@ -58,5 +58,11 @@ namespace YetaWF.Core.Components {
 
             return hb.ToString();
         }
+
+        /// <summary>
+        /// Called by the framework for additional processing to be performed.
+        /// </summary>
+        /// <remarks>A possible use for this method is to add fonts to a page.</remarks>
+        public virtual Task AdditionalProcessingAsync() { return Task.CompletedTask; }
     }
 }
