@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,7 +58,9 @@ namespace YetaWF.Core.Support {
                 // Set up areas (load all dlls/packages explicitly)
                 List<string> files = Directory.GetFiles(baseDirectory, "*.dll").ToList();
                 foreach (string file in files) {
-                    Assembly.LoadFrom(file);
+                    try {
+                        Assembly.LoadFrom(file);
+                    } catch (Exception) { }
                 }
 
                 // Register all areas
