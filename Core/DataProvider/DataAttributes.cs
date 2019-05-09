@@ -38,6 +38,17 @@ namespace YetaWF.Core.DataProvider.Attributes {
         public new bool Value { get { return true; } }
     }
     /// <summary>
+    /// Defines the actual (column) name replacing the property name. This is not supported by all data providers.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class Data_ColumnNameAttribute : MoreMetadataAttribute {
+
+        public static string AttributeName { get { return "Data_ColumnName"; } }
+
+        public Data_ColumnNameAttribute(string name) : base(AttributeName, name) { }
+        public new string Value { get { return (string)base.Value; } }
+    }
+    /// <summary>
     /// The property (column) supports unique values only. This is ignored when using file I/O.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

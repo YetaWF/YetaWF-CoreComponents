@@ -101,7 +101,7 @@ namespace YetaWF.Core.Models {
     public class PropertyData {
 
         /// <summary>
-        ///  The property name
+        ///  The property name.
         /// </summary>
         public string Name { get; private set; }
         /// <summary>
@@ -161,6 +161,23 @@ namespace YetaWF.Core.Models {
 
         private ResourceRedirectListAttribute Redirect { get; set; }
         private ResourceRedirectAttribute Redirect1 { get; set; }
+
+        /// <summary>
+        ///  The column name used by the data provider. Defaults to the property name, but can be overridden using the Data_ColumnName attribute.
+        /// </summary>
+        public string ColumnName {
+            get {
+                if (_ColumnName == null) {
+                    Data_ColumnNameAttribute colAttr = TryGetAttribute<Data_ColumnNameAttribute>();
+                    if (colAttr != null)
+                        _ColumnName = colAttr.Value;
+                    else
+                        _ColumnName = Name;
+                }
+                return _ColumnName;
+            }
+        }
+        private string _ColumnName = null;
 
         /// <summary>
         /// Retrieves the property caption.
