@@ -126,6 +126,8 @@ namespace YetaWF.Core.Components {
             if (string.IsNullOrWhiteSpace(id))
                 return Manager.CurrentSite.Country;
             string country = (from c in GetCountries() where c.Id == id select c.Name).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(country))
+                return country;
             if (AllowMismatch)
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country id {0}", id);
@@ -160,6 +162,8 @@ namespace YetaWF.Core.Components {
             if (string.IsNullOrWhiteSpace(id))
                 return Manager.CurrentSite.Country;
             string country = (from c in GetCountries() where c.Id3 == id select c.Name).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(country))
+                return country;
             if (AllowMismatch)
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country id {0}", id);
@@ -195,6 +199,8 @@ namespace YetaWF.Core.Components {
             if (string.IsNullOrWhiteSpace(number))
                 return Manager.CurrentSite.Country;
             string country = (from c in GetCountries() where c.Number == number select c.Name).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(country))
+                return country;
             if (AllowMismatch)
                 return Manager.CurrentSite.Country;
             throw new InternalError("Invalid country number {0}", number);
