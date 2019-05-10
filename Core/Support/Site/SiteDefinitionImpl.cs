@@ -77,7 +77,7 @@ namespace YetaWF.Core.Site {
         /// <returns>Security settings.</returns>
         public PageDefinition.PageSecurityType DetermineSchema(PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any) {
             PageDefinition.PageSecurityType securityType = PagePageSecurity;// assume the page decides the security type
-            if (!Manager.IsTestSite && !Manager.IsLocalHost) {
+            if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                 switch (PageSecurity) {
                     case PageSecurityType.AsProvided:
                         if (securityType != PageDefinition.PageSecurityType.httpsOnly)
@@ -159,18 +159,18 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSiteUrl)
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSiteUrl)
                             host = currentSite.SiteDomain;
-                        if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSitePort) {
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
                             if (currentSite.PortNumberSSLEval != 443)
                                 port = currentSite.PortNumberSSLEval;
                         } else
                             port = Manager.HostPortUsed;
                     }
                 } else {
-                    if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSiteUrl)
+                    if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSiteUrl)
                         host = currentSite.SiteDomain;
-                    if (!Manager.IsTestSite && !Manager.IsLocalHost && currentSite.EnforceSitePort) {
+                    if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
                         if (currentSite.PortNumberEval != 80)
                             port = currentSite.PortNumberEval;
                     } else
@@ -196,7 +196,7 @@ namespace YetaWF.Core.Site {
         /// </returns>
         public string MakeRealUrl(bool Secure = false) {
             bool secure = Secure;
-            if (!Manager.IsTestSite && !Manager.IsLocalHost) {
+            if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                 switch (PageSecurity) {
                     case PageSecurityType.AsProvided:
                     case PageSecurityType.UsePageModuleSettings:

@@ -999,6 +999,17 @@ namespace YetaWF.Core.Support {
         /// Defines whether the test domain was used to access this website.
         /// </summary>
         public bool IsTestSite { get; set; }
+        /// <summary>
+        /// Defines whether the domain uses http:// only (overrides site/page settings)
+        /// </summary>
+        public static bool IsHTTPSite {
+            get {
+                if (_IsHTTPSite == null)
+                    _IsHTTPSite = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "ForceHttp", false);
+                return (bool)_IsHTTPSite;
+            }
+        }
+        private static bool? _IsHTTPSite = null;
 
         /// <summary>
         /// The current site definition.

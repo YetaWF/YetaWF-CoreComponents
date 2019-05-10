@@ -175,7 +175,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // http/https
-            if (!Manager.IsTestSite && !Manager.IsLocalHost) {
+            if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                 switch (Manager.CurrentSite.PageSecurity) {
                     default:
                     case PageSecurityType.AsProvided:
@@ -552,7 +552,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.IsInPopup = true;
                 }
                 bool usePageSettings = false;
-                if (!Manager.IsTestSite && !Manager.IsLocalHost) {
+                if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                     switch (Manager.CurrentSite.PageSecurity) {
                         case PageSecurityType.AsProvided:
                             usePageSettings = true;
