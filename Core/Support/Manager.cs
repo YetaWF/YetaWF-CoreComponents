@@ -1089,8 +1089,7 @@ namespace YetaWF.Core.Support {
                 if (originList.Count > 0) {
                     string urlOnly;
                     QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
-                    qh.Remove(Globals.Link_OriginList);
-                    qh.Add(Globals.Link_OriginList, YetaWFManager.JsonSerialize(originList));
+                    qh.Add(Globals.Link_OriginList, YetaWFManager.JsonSerialize(originList), Replace: true);
                     url = qh.ToUrl(urlOnly);
                 }
                 return url;

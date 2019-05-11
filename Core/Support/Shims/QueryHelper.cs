@@ -124,8 +124,7 @@ namespace YetaWF.Core.Support {
                 return entry.Value;
             }
             set {
-                Remove(key);
-                Add(key, value);
+                Add(key, value, Replace: true);
             }
         }
         public bool HasEntry(string key) {
@@ -135,7 +134,9 @@ namespace YetaWF.Core.Support {
         public void Remove(string key) {
             Entries = (from e in Entries where string.Compare(e.Key, key, true) != 0 select e).ToList();
         }
-        public void Add(string key, string value) {
+        public void Add(string key, string value, bool Replace = false) {
+            if (Replace)
+                Remove(key);
             Entries.Add(new Entry { Key = key, Value = value, });
         }
         public string ToQueryString() {

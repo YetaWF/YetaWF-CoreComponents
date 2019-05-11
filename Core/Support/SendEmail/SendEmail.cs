@@ -46,10 +46,6 @@ namespace YetaWF.Core.SendEmail {
             string file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
             if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return file;
-            // locate (not site specific) custom email
-            file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
-            if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
-                return file;
             // otherwise use default email
             file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", moduleAddOnUrl, EmailsFolder, filename));
             if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
@@ -127,6 +123,7 @@ namespace YetaWF.Core.SendEmail {
                         LinesHtml = linesHtml,
                         Files = new List<string>(),
                     };
+                    info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"url\(\s*file:///([^\)]*)\)"), info);
                     info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"=\""\s*file:///([^""]*)\"""), info);
                     info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"=\'\s*file:///([^']*)\'"), info);
 

@@ -1415,8 +1415,7 @@ namespace YetaWF.Core.Controllers {
                         string refUrlOnly;
                         QueryHelper qhRef = QueryHelper.FromUrl(referrer, out refUrlOnly);
                         if (qhRef.HasEntry(Globals.Link_EditMode)) { // referrer is edit
-                            qhUrl.Remove(Globals.Link_EditMode);
-                            qhUrl.Add(Globals.Link_EditMode, "y");
+                            qhUrl.Add(Globals.Link_EditMode, "y", Replace: true);
                         }
                     }
                 }
