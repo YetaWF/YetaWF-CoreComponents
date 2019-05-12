@@ -422,6 +422,16 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
                 if (!found) {
+                    List<SelectionRequiredIfAttribute> reqIfs = prop.TryGetAttributes<SelectionRequiredIfAttribute>();
+                    hasAttribute = hasAttribute || reqIfs.Count > 0;
+                    foreach (SelectionRequiredIfAttribute reqIf in reqIfs) {
+                        if (reqIf.IsValid(model)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
                     List<SuppressIfEqualAttribute> suppIfsEqual = prop.TryGetAttributes<SuppressIfEqualAttribute>();
                     foreach (SuppressIfEqualAttribute suppIfEqual in suppIfsEqual) {
                         if (suppIfEqual.IsEqual(model)) {
