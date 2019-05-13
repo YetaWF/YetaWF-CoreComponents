@@ -20,6 +20,7 @@ namespace YetaWF.Core.Modules {
             LinksOnly = 3,
             Button = 4,
             ButtonIcon = 5,
+            ButtonOnly = 6,
         }
         public enum RenderEngineEnum {
             KendoMenu = 0,
@@ -32,6 +33,9 @@ namespace YetaWF.Core.Modules {
         }
         public async Task<string> RenderAsButtonIconAsync(string id = null) {
             return await RenderAsync(RenderModeEnum.ButtonIcon, Id: id);
+        }
+        public async Task<string> RenderAsButtonOnlyAsync(string id = null) {
+            return await RenderAsync(RenderModeEnum.ButtonOnly, Id: id);
         }
         // Render an action as icon
         public async Task<string> RenderAsIconAsync(string id = null) {

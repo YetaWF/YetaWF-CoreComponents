@@ -103,10 +103,22 @@ namespace YetaWF.Core.Components {
             if (ButtonType == ButtonTypeEnum.Empty)
                 return null;
             if (Action != null) {
-                if (RenderAs == ModuleAction.RenderModeEnum.IconsOnly)
-                    return await Action.RenderAsIconAsync();
-                else
-                    return await Action.RenderAsButtonAsync();
+                switch (RenderAs) {
+                    default:
+                    case ModuleAction.RenderModeEnum.NormalMenu:
+                    case ModuleAction.RenderModeEnum.Button:
+                        return await Action.RenderAsButtonAsync();
+                    case ModuleAction.RenderModeEnum.ButtonIcon:
+                        return await Action.RenderAsButtonIconAsync();
+                    case ModuleAction.RenderModeEnum.ButtonOnly:
+                        return await Action.RenderAsButtonOnlyAsync();
+                    case ModuleAction.RenderModeEnum.IconsOnly:
+                        return await Action.RenderAsIconAsync();
+                    case ModuleAction.RenderModeEnum.LinksOnly:
+                        return await Action.RenderAsLinkAsync();
+                    case ModuleAction.RenderModeEnum.NormalLinks:
+                        return await Action.RenderAsNormalLinkAsync();
+                }
             } else {
                 return await YetaWFCoreRendering.Render.RenderFormButtonAsync(this);
             }
