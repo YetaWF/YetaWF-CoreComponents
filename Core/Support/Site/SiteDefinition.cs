@@ -160,7 +160,7 @@ namespace YetaWF.Core.Site {
         [Copy]
         public int Identity { get; set; }
 
-        public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "Urls", "References", "Encryption", "Skin", "Addons", "Meta", "Variables" }; } }
+        public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "URLs", "References", "Encryption", "Skin", "Addons", "Meta", "Variables" }; } }
 
         [Data_PrimaryKey]
         [Category("Site"), Caption("Site Domain"), Description("The domain name of your site (e.g., yourcompany.com, yetawf.com)")]
@@ -563,7 +563,7 @@ namespace YetaWF.Core.Site {
         // URLS
 
         [Description("The home page of your site")]
-        [Category("Urls")]
+        [Category("URLs")]
         [Caption("Site Home Page")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Required, Trim]
@@ -579,27 +579,33 @@ namespace YetaWF.Core.Site {
         }
         private string _homePageUrl = null;
 
-        [Category("Urls"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this URL")]
+        [Category("URLs"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this URL")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string NotFoundUrl { get; set; }
 
-        [Category("Urls"), Caption("Mobile Device URL"), Description("If a mobile device accesses this site, the user is redirected to this URL")]
+        [Category("URLs"), Caption("Mobile Device URL"), Description("If a mobile device accesses this site, the user is redirected to this URL")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string MobileSiteUrl { get; set; }
 
-        [Category("Urls"), Caption("Unsupported Browsers URL"), Description("If an unsupported browsers accesses this site, the user is redirected to this URL - If no URL is defined, browser versions are not checked")]
+        [Category("URLs"), Caption("Unsupported Browsers URL"), Description("If an unsupported browsers accesses this site, the user is redirected to this URL - If no URL is defined, browser versions are not checked")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         public string UnsupportedBrowserUrl { get; set; }
 
-        [Category("Urls"), Caption("Login URL"), Description("The URL where the user is redirected to log into the site")]
+        [Category("URLs"), Caption("Login URL"), Description("The URL where the user is redirected to log into the site")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string LoginUrl { get; set; }
 
-        [Category("Urls"), Caption("External Account Setup URL"), Description("The URL where the user is redirected to provide local information when using an external login provider")]
+        [Category("URLs"), Caption("Post Login URL"), Description("The URL where the user is redirected after logging into the site - If the next URL is already known, this field has no effect - Individual roles can override this setting")]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
+        [StringLength(Globals.MaxUrl), Trim]
+        [Data_NewValue]
+        public string PostLoginUrl { get; set; }
+
+        [Category("URLs"), Caption("External Account Setup URL"), Description("The URL where the user is redirected to provide local information when using an external login provider")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         public string ExternalAccountSetupUrl { get; set; }

@@ -173,12 +173,14 @@ namespace YetaWF.Core.Identity {
         Task<bool> IsResourceAuthorizedAsync(string resourceName);
 
         Task AddRoleAsync(string roleName, string description);
+        Task AddRoleWithUrlAsync(string roleName, string description, string postLoginUrl);
         Task RemoveRoleAsync(string roleName);
         Task AddRoleToUserAsync(int userId, string roleName);
         Task RemoveRoleFromUserAsync(int userId, string roleName);
         Task<List<SelectionItem<string>>> GetUserRolesAsync(int userId);
+        Task<string> GetUserPostLoginUrlAsync(List<int> userRoles);
 
-        Task<AddUserInfo> AddUserAsync(string name, string email, string password);
+            Task<AddUserInfo> AddUserAsync(string name, string email, string password);
         Task<bool> RemoveUserAsync(int userId);
 
         Task<int> GetUserIdAsync(string userName);

@@ -22,5 +22,6 @@ namespace YetaWF.Core.Identity {
         public int RoleId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string PostLoginUrl { get; set; }
     }
 }
