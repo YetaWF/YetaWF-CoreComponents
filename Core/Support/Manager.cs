@@ -1633,6 +1633,11 @@ namespace YetaWF.Core.Support {
         // RENDERING
 
         /// <summary>
+        /// Set when rendering content only (UPS)
+        /// </summary>
+        public bool RenderContentOnly { get; set; }
+
+        /// <summary>
         /// The current pane being rendered.
         /// </summary>
         public string PaneRendered { get; set; }

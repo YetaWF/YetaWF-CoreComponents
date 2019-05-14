@@ -63,7 +63,7 @@ namespace YetaWF.Core.Controllers {
             /// <remarks>The client will redirect the entire page to this new Url.</remarks>
             public string Redirect { get; set; }
             /// <summary>
-            /// Returns a new Url if the request can only be answered with page different content.
+            /// Returns a new Url if the request can only be answered with different page content.
             /// </summary>
             /// <remarks>The client will redirect the page content to this new Url.</remarks>
             public string RedirectContent { get; set; }
@@ -222,6 +222,7 @@ namespace YetaWF.Core.Controllers {
 
             Uri uri = new Uri(Manager.CurrentRequestUrl);
             SiteDefinition site = Manager.CurrentSite;
+            Manager.RenderContentOnly = true;
 
             // process logging type callbacks
             await PageLogging.HandleCallbacksAsync(dataIn.Path, false);

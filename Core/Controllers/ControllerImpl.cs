@@ -1301,13 +1301,41 @@ namespace YetaWF.Core.Controllers {
         // REDIRECT
         // REDIRECT
 
+
+        /// <summary>
+        /// Redirects to the specified URL, aborting page rendering. Can be used with UPS.
+        /// </summary>
+        /// <param name="url">The URL where the page is redirected.</param>
+        /// <returns>An ActionResult to be returned by the controller.</returns>
+        /// <remarks>
+        /// The Redirect method can be used for GET and also within content rendering (UPS).
+        /// </remarks>
+        protected ActionResult RedirectToUrl(string url) {
+#if MVC6
+            Manager.CurrentResponse.StatusCode = 307; // Temporary redirect
+            Manager.CurrentResponse.Headers.Add("Location", url);
+#else
+            Manager.CurrentResponse.Status = "307 - Redirect";
+            Manager.CurrentResponse.AddHeader("Location", url);
+#endif
+            if (Manager.RenderContentOnly) {
+                // nothing
+            } else {
+#if MVC6
+#else
+                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
+#endif
+            }
+            return new EmptyResult();
+        }
+
         /// <summary>
         /// Redirect to the specified target defined by the supplied action.
         /// </summary>
         /// <param name="action">The ModuleAction defining the target where the page is redirected.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
-        /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
+        /// The Redirect method can be used for PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
         protected ActionResult Redirect(ModuleAction action) {

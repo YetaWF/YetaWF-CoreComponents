@@ -562,6 +562,19 @@ namespace YetaWF.Core.Pages {
             foreach (string pane in panes) {
 
                 string paneHtml = await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false);
+
+                // Inspect for redirect, if so create PageContentData to reflect that, no need to process the remaining panes
+                string url = (string)Manager.CurrentResponse.Headers["Location"];
+                if (!string.IsNullOrWhiteSpace(url)) {
+                    if (url.StartsWith("/"))
+                        model.RedirectContent = url;
+                    else
+                        model.Redirect = url;
+                    // clear any http errors that may have occurred if a module failed (otherwise our ajax request will fail)
+                    Manager.CurrentResponse.StatusCode = 200;
+                    return;
+                }
+
                 paneHtml = PageViewResult.ProcessInlineScripts(paneHtml);
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);

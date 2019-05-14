@@ -51,6 +51,7 @@ namespace YetaWF.Core.Controllers {
             }
             SiteDefinition site = Manager.CurrentSite;
             Uri uri = new Uri(Manager.CurrentRequestUrl);
+            Manager.RenderContentOnly = false;
 
             // process logging type callbacks
             await PageLogging.HandleCallbacksAsync(Manager.CurrentRequestUrl, false);
