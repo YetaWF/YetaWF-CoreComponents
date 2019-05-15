@@ -34,12 +34,12 @@ namespace YetaWF.Core.Models.Attributes {
             HttpOnly = 1,
             HttpsOnly = 2,
         }
-        private string _regexLocalAndRemote = @"^\s*((http[s]{0,1}:){0,1}\/\/.+|\/.*)\s*$";
-        private string _regexLocal = @"^\s*\/.*\s*$";
-        private string _regexLocalNew = @"^\s*\/[^\&\*\,\?]*\s*$";// this may need to be more restrictive
-        private string _regexRemote = @"^\s*(http[s]{0,1}\:){0,1}\/\/.+\s*$";
-        private string _regexHttpsRemote = @"^\s*https:\/\/.+\s*$";
-        private string _regexHttpRemote = @"^\s*http:\/\/.+\s*$";
+        private string _regexLocalAndRemote = @"^(\s*((http[s]{0,1}:){0,1}\/\/.+|\/.*)\s*|)$";
+        private string _regexLocal = @"^(\s*\/.*\s*|)$";
+        private string _regexLocalNew = @"^(\s*\/[^\&\*\,\?]*\s*|)$";// this may need to be more restrictive
+        private string _regexRemote = @"^(\s*(http[s]{0,1}\:){0,1}\/\/.+\s*|)$";
+        private string _regexHttpsRemote = @"^(\s*https:\/\/.+\s*|)$";
+        private string _regexHttpRemote = @"^(\s*http:\/\/.+\s*|)$";
 
         private string GetMessage() {
             if ((UrlType & (UrlTypeEnum.Remote | UrlTypeEnum.Local)) == (UrlTypeEnum.Remote | UrlTypeEnum.Local)) {

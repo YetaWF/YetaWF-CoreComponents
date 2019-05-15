@@ -196,6 +196,7 @@ namespace YetaWF.Core.Modules {
 
         [Caption("Url"), Description("The Url")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
+        [RequiredIf(nameof(EntryType), (int)MenuEntryType.Entry)]
         [StringLength(Globals.MaxUrl), Trim]
         public string Url { get; set; } // The Url to cause this action
 

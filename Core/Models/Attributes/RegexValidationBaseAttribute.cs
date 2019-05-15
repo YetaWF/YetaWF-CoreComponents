@@ -8,6 +8,8 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models.Attributes {
 
+    //$$$$ TODO: Regex attributes should always allow empty entries, which will be handled by Required(If) attributes
+
     public class RegexValidationBaseAttribute : DataTypeAttribute, YIClientValidation {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
