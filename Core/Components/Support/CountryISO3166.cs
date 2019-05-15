@@ -24,8 +24,6 @@ namespace YetaWF.Core.Components {
         /// Called during application startup.
         /// </summary>
         public Task InitializeApplicationStartupAsync() {
-            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE)
-                return Task.CompletedTask;
             return CountryISO3166.ReadCountryListAsync();
         }
     }
@@ -269,19 +267,26 @@ namespace YetaWF.Core.Components {
         private static List<Country> CountryList { get; set; }
 
         internal static async Task ReadCountryListAsync() {
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
-            string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CountryISO3166");
-            string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+            string file;
+            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE) {
 
-            string path = YetaWFManager.UrlToPhysical(url);
-            string customPath = YetaWFManager.UrlToPhysical(customUrl);
+                file = ".\\Countries.txt";
 
-            string file = Path.Combine(path, "Countries.txt");
-            string customFile = Path.Combine(customPath, "Countries.txt");
-            if (await FileSystem.FileSystemProvider.FileExistsAsync(customFile))
-                file = customFile;
-            else if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
-                throw new InternalError("File {0} not found", file);
+            } else {
+                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
+                string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CountryISO3166");
+                string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+
+                string path = YetaWFManager.UrlToPhysical(url);
+                string customPath = YetaWFManager.UrlToPhysical(customUrl);
+
+                file = Path.Combine(path, "Countries.txt");
+                string customFile = Path.Combine(customPath, "Countries.txt");
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(customFile))
+                    file = customFile;
+                else if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    throw new InternalError("File {0} not found", file);
+            }
 
             CountryList = new List<Country>();
 
