@@ -95,6 +95,8 @@ var YetaWF;
             var _this = this;
             if (!form.getAttribute("method"))
                 return; // no method, don't submit
+            if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
+                return;
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
                 var div = divs_1[_i];

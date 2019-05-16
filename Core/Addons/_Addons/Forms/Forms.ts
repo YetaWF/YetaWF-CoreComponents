@@ -184,6 +184,7 @@ namespace YetaWF {
         public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, successFunc?: (hasErrors: boolean) => void, failFunc?: () => void) : void  {
 
             if (!form.getAttribute("method")) return; // no method, don't submit
+            if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return;
 
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (let div of divs)
