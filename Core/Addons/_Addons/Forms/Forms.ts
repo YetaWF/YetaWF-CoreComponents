@@ -184,7 +184,6 @@ namespace YetaWF {
         public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, successFunc?: (hasErrors: boolean) => void, failFunc?: () => void) : void  {
 
             if (!form.getAttribute("method")) return; // no method, don't submit
-            if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return;
 
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (let div of divs)
@@ -291,7 +290,9 @@ namespace YetaWF {
                 qs += `&${YConfigs.Basics.TemplateAction}=${encodeURIComponent(templateAction)}`;
             if (templateExtraData)
                 qs += `&${YConfigs.Basics.TemplateExtraData}=${encodeURIComponent(templateExtraData)}`;
-            this.submit(this.getForm(tag), useValidation, qs);
+            let form = this.getForm(tag);
+            if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return;
+            this.submit(form, useValidation, qs);
         }
 
         public serializeForm(form: HTMLFormElement): string {
@@ -484,6 +485,7 @@ namespace YetaWF {
         private submitFormOnChange(): void {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm) return;
+            if ($YetaWF.elementHasClass(this.submitForm, YConfigs.Forms.CssFormNoSubmit)) return;
             this.submit(this.submitForm, false);
         }
         private applyFormOnChange(): void {
@@ -591,6 +593,7 @@ namespace YetaWF {
 
             $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, (ev: Event) : boolean => {
                 var form = this.getForm(ev.target as HTMLElement);
+                if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return false;
                 this.submit(form, true);
                 return false;
             });

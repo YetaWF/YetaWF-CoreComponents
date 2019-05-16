@@ -95,8 +95,6 @@ var YetaWF;
             var _this = this;
             if (!form.getAttribute("method"))
                 return; // no method, don't submit
-            if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
-                return;
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
                 var div = divs_1[_i];
@@ -199,7 +197,10 @@ var YetaWF;
                 qs += "&" + YConfigs.Basics.TemplateAction + "=" + encodeURIComponent(templateAction);
             if (templateExtraData)
                 qs += "&" + YConfigs.Basics.TemplateExtraData + "=" + encodeURIComponent(templateExtraData);
-            this.submit(this.getForm(tag), useValidation, qs);
+            var form = this.getForm(tag);
+            if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
+                return;
+            this.submit(form, useValidation, qs);
         };
         Forms.prototype.serializeForm = function (form) {
             var pairs = this.serializeFormArray(form);
@@ -370,6 +371,8 @@ var YetaWF;
             clearInterval(this.submitFormTimer);
             if (!this.submitForm)
                 return;
+            if ($YetaWF.elementHasClass(this.submitForm, YConfigs.Forms.CssFormNoSubmit))
+                return;
             this.submit(this.submitForm, false);
         };
         Forms.prototype.applyFormOnChange = function () {
@@ -471,6 +474,8 @@ var YetaWF;
             // Submit the form when a submit button is clicked
             $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, function (ev) {
                 var form = _this.getForm(ev.target);
+                if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
+                    return false;
                 _this.submit(form, true);
                 return false;
             });
