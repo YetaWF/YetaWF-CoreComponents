@@ -234,6 +234,12 @@ namespace YetaWF.Core.Localize {
             else
                 return __ResStr("timeSpan", "{1:D2}:{2:D2}:{3:D2}", ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
         }
+        public static string FormatTimeSpanHM(TimeSpan? timeSpan) {
+            if (timeSpan == null) return "";
+            TimeSpan ts = (TimeSpan)timeSpan;
+            int hours = (int)ts.TotalHours;
+            return __ResStr("timeSpanHM", "{0:D2}:{1:D2}", hours, ts.Minutes);
+        }
 
         public static string LongMBDisplay(long value, bool detailed = false) {
             if (detailed) {
