@@ -20,6 +20,10 @@ namespace YetaWF {
          */
         updateValidation(div: HTMLElement): void;
         /**
+         * Clear any validation errors within the div
+         */
+        clearValidation(div: HTMLElement): void;
+        /**
          * Returns whether a div has form errors.
          */
         hasErrors(elem: HTMLElement): boolean;
@@ -145,6 +149,12 @@ namespace YetaWF {
          */
         public updateValidation(div: HTMLElement): void {
             YetaWF_FormsImpl.updateValidation(div);
+        }
+        /**
+         * Clear any validation errors within the div
+         */
+        public clearValidation(div: HTMLElement): void {
+            YetaWF_FormsImpl.clearValidation(div);
         }
         /**
          * Returns whether the form has errors.

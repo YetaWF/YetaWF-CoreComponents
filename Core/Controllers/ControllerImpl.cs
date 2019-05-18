@@ -392,20 +392,10 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
                 if (!found) {
-                    List<RequiredIfNotAttribute> reqIfsNot = prop.TryGetAttributes<RequiredIfNotAttribute>();
-                    hasAttribute = hasAttribute || reqIfsNot.Count > 0;
-                    foreach (RequiredIfNotAttribute reqIfNot in reqIfsNot) {
-                        if (reqIfNot.IsNotEqual(model)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if (!found) {
-                    List<RequiredIfAttribute> reqIfs = prop.TryGetAttributes<RequiredIfAttribute>();
-                    hasAttribute = hasAttribute || reqIfs.Count > 0;
-                    foreach (RequiredIfAttribute reqIf in reqIfs) {
-                        if (reqIf.IsEqual(model)) {
+                    List<ExprAttribute> exprAttrs = prop.TryGetAttributes<ExprAttribute>();
+                    hasAttribute = hasAttribute || exprAttrs.Count > 0;
+                    foreach (ExprAttribute exprAttr in exprAttrs) {
+                        if (exprAttr.IsValid(model)) {
                             found = true;
                             break;
                         }

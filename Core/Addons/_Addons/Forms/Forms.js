@@ -62,6 +62,12 @@ var YetaWF;
             YetaWF_FormsImpl.updateValidation(div);
         };
         /**
+         * Clear any validation errors within the div
+         */
+        Forms.prototype.clearValidation = function (div) {
+            YetaWF_FormsImpl.clearValidation(div);
+        };
+        /**
          * Returns whether the form has errors.
          */
         Forms.prototype.hasErrors = function (elem) {
