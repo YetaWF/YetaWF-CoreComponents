@@ -382,63 +382,21 @@ namespace YetaWF.Core.Controllers {
                 bool hasAttribute = false;// has at least one attribute
                 bool found = false;// found an enabling attribute
                 if (!found) {
-                    List<RequiredIfInRangeAttribute> reqIfsInRange = prop.TryGetAttributes<RequiredIfInRangeAttribute>();
-                    hasAttribute = hasAttribute || reqIfsInRange.Count > 0;
-                    foreach (RequiredIfInRangeAttribute reqIfInRange in reqIfsInRange) {
-                        if (reqIfInRange.InRange(model)) {
-                            found = true;
-                            break;
-                        }
+                    if (ExprAttribute.IsRequired(prop.ExprValidationAttributes, model)) {
+                        found = true;
+                        process = true;
                     }
                 }
                 if (!found) {
-                    List<ExprAttribute> exprAttrs = prop.TryGetAttributes<ExprAttribute>();
-                    hasAttribute = hasAttribute || exprAttrs.Count > 0;
-                    foreach (ExprAttribute exprAttr in exprAttrs) {
-                        if (exprAttr.IsValid(model)) {
-                            found = true;
-                            break;
-                        }
+                    if (ExprAttribute.IsSelectionRequired(prop.ExprValidationAttributes, model)) {
+                        found = true;
+                        process = true;
                     }
                 }
                 if (!found) {
-                    List<RequiredIfSuppliedAttribute> reqIfsSupplied = prop.TryGetAttributes<RequiredIfSuppliedAttribute>();
-                    hasAttribute = hasAttribute || reqIfsSupplied.Count > 0;
-                    foreach (RequiredIfSuppliedAttribute reqIfSupplied in reqIfsSupplied) {
-                        if (reqIfSupplied.IsSupplied(model)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if (!found) {
-                    List<SelectionRequiredIfAttribute> reqIfs = prop.TryGetAttributes<SelectionRequiredIfAttribute>();
-                    hasAttribute = hasAttribute || reqIfs.Count > 0;
-                    foreach (SelectionRequiredIfAttribute reqIf in reqIfs) {
-                        if (reqIf.IsValid(model)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if (!found) {
-                    List<SuppressIfEqualAttribute> suppIfsEqual = prop.TryGetAttributes<SuppressIfEqualAttribute>();
-                    foreach (SuppressIfEqualAttribute suppIfEqual in suppIfsEqual) {
-                        if (suppIfEqual.IsEqual(model)) {
-                            found = true;
-                            process = false;
-                            break;
-                        }
-                    }
-                }
-                if (!found) {
-                    List<SuppressIfNotEqualAttribute> suppIfsNotEqual = prop.TryGetAttributes<SuppressIfNotEqualAttribute>();
-                    foreach (SuppressIfNotEqualAttribute suppIfNotEqual in suppIfsNotEqual) {
-                        if (suppIfNotEqual.IsNotEqual(model)) {
-                            found = true;
-                            process = false;
-                            break;
-                        }
+                    if (ExprAttribute.IsSuppressed(prop.ExprValidationAttributes, model)) {
+                        found = true;
+                        process = false;
                     }
                 }
                 if (process) {

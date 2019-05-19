@@ -141,7 +141,7 @@ namespace YetaWF.Core.Pages {
             Top = 100,
         }
         public enum UnifiedModeEnum {
-            [EnumDescription("None", "The Unified Page Set does not combine page content - Each page is shown individually (used to disable the Unified Page Set) - Use with small page sets")]
+            [EnumDescription("None", "The Unified Page Set does not combine page content - Each page is shown individually (full page load)")]
             None = 0,
             [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible - Use with small page sets")]
             HideDivs = 1, // divs for other urls are hidden

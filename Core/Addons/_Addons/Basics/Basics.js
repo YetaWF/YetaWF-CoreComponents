@@ -1030,11 +1030,21 @@ var YetaWF;
         /**
          * Add a space separated list of css classes to an element.
          */
-        BasicsServices.prototype.elementAddClasses = function (elem, classNames) {
+        BasicsServices.prototype.elementAddClassList = function (elem, classNames) {
             if (!classNames)
                 return;
             for (var _i = 0, _a = classNames.split(" "); _i < _a.length; _i++) {
                 var s = _a[_i];
+                if (s.length > 0)
+                    this.elementAddClass(elem, s);
+            }
+        };
+        /**
+         * Add an array of css classes to an element.
+         */
+        BasicsServices.prototype.elementAddClasses = function (elem, classNames) {
+            for (var _i = 0, classNames_1 = classNames; _i < classNames_1.length; _i++) {
+                var s = classNames_1[_i];
                 if (s.length > 0)
                     this.elementAddClass(elem, s);
             }
@@ -1051,11 +1061,21 @@ var YetaWF;
         /**
          * Remove a space separated list of css classes from an element.
          */
-        BasicsServices.prototype.elementRemoveClasses = function (elem, classNames) {
+        BasicsServices.prototype.elementRemoveClassList = function (elem, classNames) {
             if (!classNames)
                 return;
             for (var _i = 0, _a = classNames.split(" "); _i < _a.length; _i++) {
                 var s = _a[_i];
+                if (s.length > 0)
+                    this.elementRemoveClass(elem, s);
+            }
+        };
+        /**
+         * Remove an array of css classes from an element.
+         */
+        BasicsServices.prototype.elementRemoveClasses = function (elem, classNames) {
+            for (var _i = 0, classNames_2 = classNames; _i < classNames_2.length; _i++) {
+                var s = classNames_2[_i];
                 if (s.length > 0)
                     this.elementRemoveClass(elem, s);
             }
@@ -1126,37 +1146,6 @@ var YetaWF;
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
-        };
-        /**
-         * Enable element and all child items.
-         */
-        BasicsServices.prototype.elementAndChildrenEnable = function (elem) {
-            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
-            for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
-                var child = children_1[_i];
-                child.removeAttribute("disabled");
-                YetaWF_BasicsImpl.elementEnableToggle(child, true);
-            }
-        };
-        /**
-         * Disable element and all child items.
-         */
-        BasicsServices.prototype.elementAndChildrenDisable = function (elem) {
-            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
-            for (var _i = 0, children_2 = children; _i < children_2.length; _i++) {
-                var child = children_2[_i];
-                child.setAttribute("disabled", "disabled");
-                YetaWF_BasicsImpl.elementEnableToggle(child, false);
-            }
-        };
-        /**
-         * Enable or disable element and all child items.
-         */
-        BasicsServices.prototype.elementAndChildrenEnableToggle = function (elem, enable) {
-            if (enable)
-                this.elementAndChildrenEnable(elem);
-            else
-                this.elementAndChildrenDisable(elem);
         };
         // Events
         BasicsServices.prototype.registerDocumentReady = function (callback) {

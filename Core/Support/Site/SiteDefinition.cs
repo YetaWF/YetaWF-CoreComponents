@@ -283,23 +283,23 @@ namespace YetaWF.Core.Site {
         public bool AllowAnonymousUsers { get; set; }
 
         [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked URL Redirect")]
-        [UIHint("Boolean"), SuppressIfEqual("IsLockedExternal", true)]
+        [UIHint("Boolean"), SuppressIf("IsLockedExternal", true)]
         public bool Locked { get; set; }
         [UIHint("Hidden")]
         public bool IsLocked { get { return Locked; } }
 
         [Category("Site"), Caption("Locked"), Description("Defines whether the site is locked for maintenance - If enabled, all users (except you) are redirected to a \'Maintenance\' page defined using Locked URL Redirect - Can only be enabled/disable using Appsettings.json")]
-        [UIHint("Boolean"), ReadOnly, SuppressIfEqual("IsLockedExternal", false)]
+        [UIHint("Boolean"), ReadOnly, SuppressIf("IsLockedExternal", false)]
         [Data_DontSave]
         public bool LockedExternal { get; set; }
         [UIHint("Hidden")]
         public bool IsLockedExternal { get { return LockedExternal; } }
 
         [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked URL Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
-        [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIfEqual("IsLockedExternal", true)]
+        [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIf("IsLockedExternal", true)]
         public string LockedForIP { get; set; }
         [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked URL Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
-        [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIfEqual("IsLockedExternal", false)]
+        [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIf("IsLockedExternal", false)]
         public string LockedExternalForIP { get; set; }
 
         [Category("Site"), Caption("Locked URL Redirect"), Description("The page where the user is redirected when the site is locked (down for maintenance)")]

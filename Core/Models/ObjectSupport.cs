@@ -157,7 +157,8 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// List of validation attributes.
         /// </summary>
-        public List<YIClientValidation> ValidationAttributes { get; set; }
+        public List<YIClientValidation> ClientValidationAttributes { get; set; }
+        public List<ExprAttribute> ExprValidationAttributes { get; set; }
 
         private ResourceRedirectListAttribute Redirect { get; set; }
         private ResourceRedirectAttribute Redirect1 { get; set; }
@@ -256,7 +257,8 @@ namespace YetaWF.Core.Models {
                 Categories = new List<string>();
             DescriptionAttribute descAttr = TryGetAttribute<DescriptionAttribute>();
             Order = descAttr != null ? descAttr.Order : 0;
-            ValidationAttributes = GetValidationAttributes();
+            ClientValidationAttributes = GetClientValidationAttributes();
+            ExprValidationAttributes = GetExprValidationAttributes();
             Redirect = TryGetAttribute<ResourceRedirectListAttribute>();// Check if there is a resource redirect for this property
             Redirect1 = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
@@ -286,7 +288,8 @@ namespace YetaWF.Core.Models {
                 Categories = cats.Categories;
             else
                 Categories = new List<string>();
-            ValidationAttributes = GetValidationAttributes();
+            ClientValidationAttributes = GetClientValidationAttributes();
+            ExprValidationAttributes = GetExprValidationAttributes();
             Redirect = TryGetAttribute<ResourceRedirectListAttribute>();// Check if there is a resource redirect for this property
             Redirect1 = TryGetAttribute<ResourceRedirectAttribute>();// Check if there is a resource redirect for this property
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
@@ -404,11 +407,11 @@ namespace YetaWF.Core.Models {
             return CustomAttributes;
         }
         /// <summary>
-        /// Retrieve list of validation attributes.
+        /// Retrieve list of client-side validation attributes.
         /// </summary>
         /// <returns></returns>
-        private List<YIClientValidation> GetValidationAttributes() {
-            if (ValidationAttributes == null) {
+        private List<YIClientValidation> GetClientValidationAttributes() {
+            if (ClientValidationAttributes == null) {
                 List<YIClientValidation>  validationAttributes = new List<YIClientValidation>();
                 var attrLists = GetAttributes().Values;
                 foreach (var attrList in attrLists) {
@@ -418,9 +421,28 @@ namespace YetaWF.Core.Models {
                             validationAttributes.Add(v);
                     }
                 }
-                ValidationAttributes = validationAttributes;
+                ClientValidationAttributes = validationAttributes;
             }
-            return ValidationAttributes;
+            return ClientValidationAttributes;
+        }
+        /// <summary>
+        /// Retrieve list of expression validation attributes.
+        /// </summary>
+        /// <returns></returns>
+        private List<ExprAttribute> GetExprValidationAttributes() {
+            if (ExprValidationAttributes == null) {
+                List<ExprAttribute> exprAttributes = new List<ExprAttribute>();
+                var attrLists = GetAttributes().Values;
+                foreach (var attrList in attrLists) {
+                    foreach (var attr in attrList) {
+                        ExprAttribute v = attr as ExprAttribute;
+                        if (v != null)
+                            exprAttributes.Add(v);
+                    }
+                }
+                ExprValidationAttributes = exprAttributes;
+            }
+            return ExprValidationAttributes;
         }
     }
     /// <summary>

@@ -48,7 +48,7 @@ namespace YetaWF.Core.Controllers {
                 if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfoAsync != null && !requestedPage.Temporary) {
                     // Load all unified pages that this page is part of
                     PageDefinition.UnifiedInfo info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
-                    if (info != null && info.Mode != PageDefinition.UnifiedModeEnum.None) {
+                    if (info != null && !info.Disabled && info.Mode != PageDefinition.UnifiedModeEnum.None) {
                         // Load the master page for this set
                         masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
                         if (masterPage != null) {

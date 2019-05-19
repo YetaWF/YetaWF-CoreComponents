@@ -1156,9 +1156,18 @@ namespace YetaWF {
         /**
          * Add a space separated list of css classes to an element.
          */
-        public elementAddClasses(elem: Element, classNames: string | null): void {
+        public elementAddClassList(elem: Element, classNames: string | null): void {
             if (!classNames) return;
             for (var s of classNames.split(" ")) {
+                if (s.length > 0)
+                    this.elementAddClass(elem, s);
+            }
+        }
+        /**
+         * Add an array of css classes to an element.
+         */
+        public elementAddClasses(elem: Element, classNames: string[]): void {
+            for (let s of classNames) {
                 if (s.length > 0)
                     this.elementAddClass(elem, s);
             }
@@ -1175,9 +1184,18 @@ namespace YetaWF {
         /**
          * Remove a space separated list of css classes from an element.
          */
-        public elementRemoveClasses(elem: Element, classNames: string | null): void {
+        public elementRemoveClassList(elem: Element, classNames: string | null): void {
             if (!classNames) return;
             for (var s of classNames.split(" ")) {
+                if (s.length > 0)
+                    this.elementRemoveClass(elem, s);
+            }
+        }
+        /**
+         * Remove an array of css classes from an element.
+         */
+        public elementRemoveClasses(elem: Element, classNames: string[]): void {
+            for (let s of classNames) {
                 if (s.length > 0)
                     this.elementRemoveClass(elem, s);
             }
@@ -1248,35 +1266,6 @@ namespace YetaWF {
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
-        }
-        /**
-         * Enable element and all child items.
-         */
-        public elementAndChildrenEnable(elem: HTMLElement): void {
-            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
-            for (let child of children) {
-                child.removeAttribute("disabled");
-                YetaWF_BasicsImpl.elementEnableToggle(child, true);
-            }
-        }
-        /**
-         * Disable element and all child items.
-         */
-        public elementAndChildrenDisable(elem: HTMLElement): void {
-            var children = $YetaWF.getElementsBySelector("input,select,textarea", [elem]);
-            for (let child of children) {
-                child.setAttribute("disabled", "disabled");
-                YetaWF_BasicsImpl.elementEnableToggle(child, false);
-            }
-        }
-        /**
-         * Enable or disable element and all child items.
-         */
-        public elementAndChildrenEnableToggle(elem: HTMLElement, enable: boolean): void {
-            if (enable)
-                this.elementAndChildrenEnable(elem);
-            else
-                this.elementAndChildrenDisable(elem);
         }
 
         // Events

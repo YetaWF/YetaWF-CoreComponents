@@ -344,9 +344,9 @@ namespace YetaWF {
                     // Notify that the page is changing
                     $YetaWF.processPageChange();
                     // remove prior page css classes
-                    $YetaWF.elementRemoveClasses(document.body, document.body.getAttribute("data-pagecss"));
+                    $YetaWF.elementRemoveClassList(document.body, document.body.getAttribute("data-pagecss"));
                     // add new css classes
-                    $YetaWF.elementAddClasses(document.body, result.PageCssClasses);
+                    $YetaWF.elementAddClassList(document.body, result.PageCssClasses);
                     document.body.setAttribute("data-pagecss", result.PageCssClasses);// remember so we can remove them for the next page
                 }
                 var tags: HTMLElement[] = []; // collect all panes

@@ -59,6 +59,7 @@ namespace YetaWF.Core.Pages {
         }
         public class UnifiedInfo {
             public Guid UnifiedSetGuid { get; set; }
+            public bool Disabled { get; set; }
             public UnifiedModeEnum Mode { get; set; }
             public string PageSkinCollectionName { get; set; }
             public string PageSkinFileName { get; set; }
