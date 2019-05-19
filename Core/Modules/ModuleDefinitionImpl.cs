@@ -561,6 +561,11 @@ namespace YetaWF.Core.Modules {
 
             if (!Visible && !Manager.EditMode) return null;
 
+            // If a module is authorized for anonymous but not users, we suppress it if we're Editor, Admin, Superuser, etc. to avoid cases where we
+            // have 2 of the same modules, one for anonymous users, the other for logged on users.
+            if (Manager.HaveUser && !Manager.EditMode && IsAuthorized_View_Anonymous() && !IsAuthorized_View_AnyUser())
+                return null;
+
             // determine char dimensions for current skin
             SkinAccess skinAccess = new SkinAccess();
             int charWidth, charHeight;
