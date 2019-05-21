@@ -733,6 +733,7 @@ var YetaWF;
             for (var i = 0; i < this.DataObjectCache.length;) {
                 var doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond("#" + doe.DivId, [tag])) {
+                    console.log("Element #" + doe.DivId + " is being removed but still has a data object - forced cleanup");
                     if (YConfigs.Basics.DEBUGBUILD) {
                         // tslint:disable-next-line:no-debugger
                         debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
@@ -749,6 +750,7 @@ var YetaWF;
                 for (var _i = 0, _a = this.DataObjectCache; _i < _a.length; _i++) {
                     var doe = _a[_i];
                     if (!this.getElement1BySelectorCond("#" + doe.DivId)) {
+                        console.log("Element #" + doe.DivId + " no longer exists but still has a data object");
                         // tslint:disable-next-line:no-debugger
                         debugger; // if we hit this, there is an object that has no associated dom element
                     }
@@ -854,6 +856,8 @@ var YetaWF;
                 elems = [document.body];
             for (var _i = 0, elems_2 = elems; _i < elems_2.length; _i++) {
                 var elem = elems_2[_i];
+                if (elem.matches(selector)) // oddly enough querySelectorAll doesn't return anything even though the element matches...
+                    return elem;
                 var list = elem.querySelectorAll(selector);
                 if (list.length > 0)
                     return list[0];
@@ -1026,6 +1030,28 @@ var YetaWF;
                 return elem.classList.contains(css);
             else
                 return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
+        };
+        /**
+         * Tests whether the specified element has a css class that starts with the given prefix.
+         * @param elem The element to test.
+         * @param cssPrefix - The css class prefix being tested.
+         * Returns the entire css class that matches the prefix, or null.
+         */
+        BasicsServices.prototype.elementHasClassPrefix = function (elem, cssPrefix) {
+            var list = [];
+            cssPrefix = cssPrefix.trim();
+            if (!elem)
+                return list;
+            if (elem.classList) {
+                // tslint:disable-next-line:prefer-for-of
+                for (var i = 0; i < elem.classList.length; ++i) {
+                    if (elem.classList[i].startsWith(cssPrefix))
+                        list.push(elem.classList[i]);
+                }
+                return list;
+            }
+            else
+                return list; //$$$$ new RegExp("(^| )" + cssPrefix, "gi").test(elem.className);//$$$$$
         };
         /**
          * Add a space separated list of css classes to an element.

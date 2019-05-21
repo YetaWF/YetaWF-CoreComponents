@@ -131,7 +131,7 @@ namespace YetaWF.Core.Components {
         /// A component can opt-in to use the HTML id provided by HtmlAttributes if one is available.
         /// </summary>
         /// <remarks>TODO: This method is a poor idea and will be reviewed/changed.</remarks>
-        protected void UseSuppliedIdAsControlId() {
+        public void UseSuppliedIdAsControlId() {
             if (HtmlAttributes.ContainsKey("id")) {
                 ControlId = (string)HtmlAttributes["id"];
                 HtmlAttributes.Remove("id");

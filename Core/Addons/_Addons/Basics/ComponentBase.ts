@@ -2,31 +2,61 @@
 
 namespace YetaWF {
 
-    /** A simple control without internal data management. */
-    export abstract class ComponentBaseImpl {
+    export interface TemplateDefinition {
+        Template: string;
+        HasData: boolean;
+        Selector: string;
+        Display: boolean;
+        UserData: any;
+        DestroyControl?: (tag: HTMLElement, control: any) => void;
+    }
+
+    /** A control without internal data management. Based on a native control. */
+    export abstract class ComponentBaseNoDataImpl {
 
         public readonly Control: HTMLElement;
         public readonly ControlId: string;
 
-        constructor(controlId: string) {
+        constructor(controlId: string, template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void, hasData?: boolean) {
             this.ControlId = controlId;
             this.Control = $YetaWF.getElementById(controlId);
+            this.registerTemplate(template, selector, userData, display, destroyControl, hasData);
+        }
+        public registerTemplate(template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void, hasData?: boolean): void {
+            display = display || false;
+            let found = ComponentBaseDataImpl.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
+                return (e.Template === template && e.Display === display);
+            });
+            if (found)
+                return;
+            ComponentBaseDataImpl.RegisteredTemplates.push({
+                Template: template, HasData: hasData||false, Selector: selector, UserData: userData, Display: display,
+                DestroyControl: destroyControl
+            });
         }
     }
 
-    /** A control with internal data management. clearDiv must be called to clean up, typically used with $YetaWF.registerClearDiv. */
-    export abstract class ComponentBaseDataImpl extends ComponentBaseImpl {
+    /** A control with internal data management. */
+    export abstract class ComponentBaseDataImpl extends ComponentBaseNoDataImpl {
 
-        constructor(controlId: string) {
-            super(controlId);
-
+        constructor(controlId: string, template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void) {
+            super(controlId, template, selector, userData, display, destroyControl, true);
             $YetaWF.addObjectDataById(controlId, this);
         }
 
         // Various ways to find the control object (using tag, selector or id)
 
+        /**
+         * Given an element within a component, find the containing component object.
+         * @param elem The element within the component.
+         * @param controlSelector The component-specific selector used to find the containing component object.
+         * Returns null if not found.
+         */
         public static getControlFromTagCond<CLSS extends ComponentBaseDataImpl>(elem: HTMLElement, controlSelector: string): CLSS | null {
-            var control = $YetaWF.elementClosestCond(elem, controlSelector) as HTMLElement;
+            let template = ComponentBaseDataImpl.elementClosestTemplateCond(elem) as HTMLElement;
+            if (!template)
+                return null;
+            var control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]) as HTMLElement;
             if (control == null)
                 return null;
             var obj = $YetaWF.getObjectData(control) as CLSS;
@@ -34,28 +64,57 @@ namespace YetaWF {
                 throw `object data doesn't match control type - ${controlSelector} - ${control.outerHTML}`;
             return obj;
         }
+        /**
+         * Given an element within a component, find the containing component object.
+         * @param elem The element within the component.
+         * @param controlSelector The component-specific selector used to find the containing component object.
+         */
         public static getControlFromTag<CLSS extends ComponentBaseDataImpl>(elem: HTMLElement, controlSelector: string): CLSS {
             var obj = ComponentBaseDataImpl.getControlFromTagCond<CLSS>(elem, controlSelector);
             if (obj == null)
                 throw `Object matching ${controlSelector} not found`;
             return obj;
         }
+        /**
+         * Finds an element within tags using the provided selector and then finds the containing component object.
+         * @param selector The selector used to find an element.
+         * @param controlSelector The component-specific selector used to find the containing component object.
+         * @param tags The elements to search for the specified selector.
+         * Returns null if not found.
+         */
         public static getControlFromSelectorCond<CLSS extends ComponentBaseDataImpl>(selector: string, controlSelector: string, tags: HTMLElement[]): CLSS | null {
             var tag = $YetaWF.getElement1BySelectorCond(selector, tags);
             if (tag == null)
                 return null;
             return ComponentBaseDataImpl.getControlFromTagCond(tag, controlSelector);
         }
+        /**
+         * Finds an element within tags using the provided selector and then finds the containing component object.
+         * @param selector The selector used to find an element.
+         * @param controlSelector The component-specific selector used to find the containing component object.
+         * @param tags The elements to search for the specified selector.
+         */
         public static getControlFromSelector<CLSS extends ComponentBaseDataImpl>(selector: string, controlSelector: string, tags: HTMLElement[]): CLSS {
             var tag = $YetaWF.getElement1BySelector(selector, tags);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         }
+        /**
+         * Given an id of an element, finds the containing component object.
+         * @param id The id to find.
+         * @param controlSelector The component-specific selector used to find the containing component object.
+         * Returns null if not found.
+         */
         public static getControlByIdCond<CLSS extends ComponentBaseDataImpl>(id: string, controlSelector: string): CLSS | null {
             var tag = $YetaWF.getElementByIdCond(id);
             if (tag == null)
                 return null;
             return ComponentBaseDataImpl.getControlFromTagCond(tag, controlSelector);
         }
+        /**
+         * Given an id of an element, finds the containing component object.
+         * @param id The id to find.
+         * @param controlSelector The component-specific selector used to find the containing component object.
+         */
         public static getControlById<CLSS extends ComponentBaseDataImpl>(id: string, controlSelector: string): CLSS {
             var tag = $YetaWF.getElementById(id);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
@@ -65,19 +124,110 @@ namespace YetaWF {
             $YetaWF.removeObjectDataById(this.Control.id);
         }
 
-        /**
-         * A <div> is being emptied. Destroy all controls described by controlSelector (the control type) and call the optional callback.
-         */
-        public static clearDiv<CLSS extends ComponentBaseDataImpl>(tag: HTMLElement, controlSelector: string, callback?: (control: CLSS) => void): void {
-            var list = $YetaWF.getElementsBySelector(controlSelector, [tag]);
-            for (let el of list) {
-                var control = ComponentBaseDataImpl.getControlFromTag<CLSS>(el, controlSelector);
-                if (callback)
-                    callback(control);
-                control.destroy();
+        // Template registration
+
+        public static RegisteredTemplates: TemplateDefinition[] = [];
+
+        public registerTemplate(template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void): void {
+            display = display ? true : false;
+            let found = ComponentBaseDataImpl.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
+                return (e.Template === template && e.Display === display);
+            });
+            if (found)
+                return;
+            ComponentBaseDataImpl.RegisteredTemplates.push({
+                Template: template, HasData: true, Selector: selector, UserData: userData, Display: display,
+                DestroyControl: destroyControl
+            });
+        }
+        public static getTemplateDefinitionCond(templateName: string, display?: boolean): TemplateDefinition | null {
+            display = display ? true : false;
+            let found = ComponentBaseDataImpl.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
+                return (e.Template === templateName && e.Display === display);
+            });
+            return found || null;
+        }
+        public static getTemplateDefinition(templateName: string, display?: boolean): TemplateDefinition {
+            let found = ComponentBaseDataImpl.getTemplateDefinitionCond(templateName, display);
+            if (!found)
+                throw `Template ${templateName} not found`;
+            return found;
+        }
+
+        public static getTemplateDefinitionFromTemplate(elem: HTMLElement): TemplateDefinition {
+            let cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
+            if (cls.length == 0)
+                throw `Template definition requested for element ${elem.outerHTML} that is not a template`;
+
+            for (let cl of cls) {
+                let templateDef: TemplateDefinition | null = null;
+                if ($YetaWF.elementHasClass(elem, "t_display"))
+                    templateDef = ComponentBaseDataImpl.getTemplateDefinitionCond(cl, true);
+                if (!templateDef)
+                    templateDef = ComponentBaseDataImpl.getTemplateDefinitionCond(cl, false);
+                if (templateDef)
+                    return templateDef;
             }
+            throw `No template definition for element ${elem.outerHTML}`;
+        }
+
+        public static getTemplateFromControlNameCond(name: string, containers: HTMLElement[]): HTMLElement | null {
+            let elem = $YetaWF.getElement1BySelectorCond(`[name='${name}']`, containers);
+            if (!elem)
+                return null;
+            let template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
+            if (!template)
+                throw `No template found in getTemplateFromControlNameCond`;
+            return template;
+        }
+        public static getTemplateFromControlName(name: string, containers: HTMLElement[]): HTMLElement {
+            let template = ComponentBaseDataImpl.getTemplateFromControlNameCond(name, containers);
+            if (!template)
+                throw `No template found in getTemplateFromControlName`;
+            return template;
+        }
+        public static getTemplateFromTagCond(elem: HTMLElement): HTMLElement | null {
+            let template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
+            return template;
+        }
+        public static getTemplateFromTag(elem: HTMLElement): HTMLElement {
+            let template = ComponentBaseDataImpl.getTemplateFromTagCond(elem);
+            if (!template)
+                throw `No template found in getTemplateFromControlName`;
+            return template;
+        }
+        protected static elementClosestTemplateCond(elem: HTMLElement): HTMLElement | null {
+            let template: HTMLElement | null = elem;
+            while (template) {
+                let cls = $YetaWF.elementHasClassPrefix(template, "yt_");
+                if (cls.length > 0)
+                    break;
+                else
+                    template = template.parentElement;
+            }
+            if (!template)
+                throw "Requesting control by name, but no containing template found";
+
+            return template;
         }
     }
+
+    // A <div> is being emptied. Destroy all controls the <div> may contain.
+    $YetaWF.registerClearDiv((tag: HTMLElement): void => {
+        for (let templateDef of ComponentBaseDataImpl.RegisteredTemplates) {
+            if (templateDef.HasData) {
+                var list = $YetaWF.getElementsBySelector(templateDef.Selector, [tag]);
+                for (let control of list) {
+                    var obj = $YetaWF.getObjectData(control) as ComponentBaseDataImpl;
+                    if (obj.Control !== control)
+                        throw `object data doesn't match control type - ${templateDef.Selector} - ${control.outerHTML}`;
+                    if (templateDef.DestroyControl)
+                        templateDef.DestroyControl(tag, obj);
+                    obj.destroy();
+                }
+            }
+        }
+    });
 }
 
 

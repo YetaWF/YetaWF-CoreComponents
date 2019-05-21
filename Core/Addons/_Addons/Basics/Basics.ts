@@ -109,7 +109,7 @@ namespace YetaWF {
         closeOverlays(): void;
         /**
          * Enable/disable an element.
-         * Some child items need some extra settings when disabled=disabled isn't enough.
+         * Some controls need some extra settings when disabled=disabled isn't enough.
          * Also used to update visual styles to reflect the status.
          */
         elementEnableToggle(elem: HTMLElement, enable: boolean): void;
@@ -854,6 +854,7 @@ namespace YetaWF {
             for (var i = 0; i < this.DataObjectCache.length; ) {
                 var doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond(`#${doe.DivId}`, [tag])) {
+                    console.log(`Element #${doe.DivId} is being removed but still has a data object - forced cleanup`);
                     if (YConfigs.Basics.DEBUGBUILD) {
                         // tslint:disable-next-line:no-debugger
                         debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
@@ -869,6 +870,7 @@ namespace YetaWF {
                 //DEBUG ONLY
                 for (let doe of this.DataObjectCache) {
                     if (!this.getElement1BySelectorCond(`#${doe.DivId}`)) {
+                        console.log(`Element #${doe.DivId} no longer exists but still has a data object`);
                         // tslint:disable-next-line:no-debugger
                         debugger; // if we hit this, there is an object that has no associated dom element
                     }
@@ -976,6 +978,8 @@ namespace YetaWF {
             if (!elems)
                 elems = [document.body];
             for (const elem of elems) {
+                if (elem.matches(selector)) // oddly enough querySelectorAll doesn't return anything even though the element matches...
+                    return elem;
                 var list: NodeListOf<Element> = elem.querySelectorAll(selector);
                 if (list.length > 0)
                     return list[0] as HTMLElement;
@@ -1154,6 +1158,26 @@ namespace YetaWF {
                 return new RegExp("(^| )" + css + "( |$)", "gi").test(elem.className);
         }
         /**
+         * Tests whether the specified element has a css class that starts with the given prefix.
+         * @param elem The element to test.
+         * @param cssPrefix - The css class prefix being tested.
+         * Returns the entire css class that matches the prefix, or null.
+         */
+        public elementHasClassPrefix(elem: Element | null, cssPrefix: string): string[] {
+            let list: string[] = [];
+            cssPrefix = cssPrefix.trim();
+            if (!elem) return list;
+            if (elem.classList) {
+                // tslint:disable-next-line:prefer-for-of
+                for (let i = 0; i < elem.classList.length; ++i) {
+                    if (elem.classList[i].startsWith(cssPrefix))
+                        list.push(elem.classList[i]);
+                }
+                return list;
+            } else
+                return list;//$$$$ new RegExp("(^| )" + cssPrefix, "gi").test(elem.className);//$$$$$
+        }
+        /**
          * Add a space separated list of css classes to an element.
          */
         public elementAddClassList(elem: Element, classNames: string | null): void {
@@ -1326,10 +1350,10 @@ namespace YetaWF {
         public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
             document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
         }
-        public registerCustomEventHandler(control: ComponentBaseImpl, eventName: string, callback: (ev: Event) => void): void {
+        public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: Event) => void): void {
             control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
         }
-        public registerMultipleCustomEventHandlers(controls: (ComponentBaseImpl|null)[], eventNames: string[], callback: (ev: Event) => void): void {
+        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl|null)[], eventNames: string[], callback: (ev: Event) => void): void {
             for (let control of controls) {
                 if (control) {
                     for (let eventName of eventNames) {

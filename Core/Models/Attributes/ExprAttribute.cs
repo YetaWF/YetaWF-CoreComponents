@@ -486,6 +486,66 @@ namespace YetaWF.Core.Models.Attributes {
                 LeftProperty = propLeft3, Cond = cond3, Value = val3
             });
         }
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
+                string propLeft4, OpCond cond4, object val4) {
+            Op = op;
+            ExprList = new List<Expr>();
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft1, Cond = cond1, Value = val1
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft2, Cond = cond2, Value = val2
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft3, Cond = cond3, Value = val3
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft4, Cond = cond4, Value = val4
+            });
+        }
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
+                string propLeft4, OpCond cond4, object val4, string propLeft5, OpCond cond5, object val5) {
+            Op = op;
+            ExprList = new List<Expr>();
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft1, Cond = cond1, Value = val1
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft2, Cond = cond2, Value = val2
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft3, Cond = cond3, Value = val3
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft4, Cond = cond4, Value = val4
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft5, Cond = cond5, Value = val5
+            });
+        }
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
+                string propLeft4, OpCond cond4, object val4, string propLeft5, OpCond cond5, object val5, string propLeft6, OpCond cond6, object val6) {
+            Op = op;
+            ExprList = new List<Expr>();
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft1, Cond = cond1, Value = val1
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft2, Cond = cond2, Value = val2
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft3, Cond = cond3, Value = val3
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft4, Cond = cond4, Value = val4
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft5, Cond = cond5, Value = val5
+            });
+            ExprList.Add(new Expr {
+                LeftProperty = propLeft6, Cond = cond6, Value = val6
+            });
+        }
 
         public class Expr {
             [JsonIgnore]

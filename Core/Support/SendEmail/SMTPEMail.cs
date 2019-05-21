@@ -5,6 +5,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
+using static YetaWF.Core.Models.Attributes.ExprAttribute;
 
 namespace YetaWF.Core.SendEmail {
 
@@ -60,7 +61,9 @@ namespace YetaWF.Core.SendEmail {
         public bool SSL { get; set; }
 
         [Caption("Send Test Email"), Description("Click to send a test email using the server information")]
-        [UIHint("ModuleAction"), ProcessIfSupplied(nameof(Server))]
+        [UIHint("ModuleAction")]
+        [Expr(OpEnum.ProcessIf, nameof(Server), OpCond.NotEq, null, nameof(Port), OpCond.NotEq, null, nameof(Authentication), OpCond.Eq, AuthEnum.Anonymous)]
+        [Expr(OpEnum.ProcessIf, nameof(Server), OpCond.NotEq, null, nameof(Port), OpCond.NotEq, null, nameof(Authentication), OpCond.Eq, AuthEnum.Signon, nameof(UserName), OpCond.NotEq, null, nameof(Password), OpCond.NotEq, null)]
         public ModuleAction SendTestEmail {
             get {
                 YetaWFManager manager = YetaWFManager.Manager;
