@@ -23,9 +23,9 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfNotAttribute : ExprAttribute {
-        public RequiredIfNotAttribute(string prop1, object val1) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1) { }
-        public RequiredIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public RequiredIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public RequiredIfNotAttribute(string prop1, object val1) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1) { }
+        public RequiredIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public RequiredIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfSuppliedAttribute : ExprAttribute {

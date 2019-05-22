@@ -54,6 +54,26 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
+        /// Returns a collection of integer/enum values suitable for rendering in a DropDownList component.
+        /// </summary>
+        /// <param name="uiHint">The component name found in a UIHintAttribute.</param>
+        /// <returns>Returns a collection of values suitable for rendering in a DropDownList component.</returns>
+        /// <remarks>
+        /// This method can be used with enum types to obtain a collection of values suitable for rendering in a DropDownList component.
+        /// Components can implement the GetSelectionListIntAsync method to support retrieval of this collection.
+        /// </remarks>
+        public static async Task<List<SelectionItem<int?>>> GetSelectionListIntNullFromUIHintAsync(string uiHint) {
+            Type compType;
+            if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
+                return null;
+            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
+            ISelectionListIntNull iSelList = component as ISelectionListIntNull;
+            if (iSelList == null)
+                return null;
+            return await iSelList.GetSelectionListIntNullAsync(false);
+        }
+
+        /// <summary>
         /// Returns a collection of string values suitable for rendering in a DropDownList component.
         /// </summary>
         /// <param name="uiHint">The component name found in a UIHintAttribute.</param>

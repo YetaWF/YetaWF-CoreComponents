@@ -467,6 +467,12 @@ var YetaWF;
                             window.close();
                         }
                         catch (e) { }
+                        try {
+                            // TODO: use home page
+                            var uri_1 = $YetaWF.parseUrl("/");
+                            $YetaWF.ContentHandling.setNewUri(uri_1);
+                        }
+                        catch (e) { }
                     }
                 }
                 return false;

@@ -60,6 +60,17 @@ namespace YetaWF.Core.Components {
         Task<List<SelectionItem<int>>> GetSelectionListIntAsync(bool showDefault);
     }
     /// <summary>
+        /// This interface is implemented by components that can return a collection of integer/enum values suitable for rendering in a DropDownList component.
+        /// </summary>
+    public interface ISelectionListIntNull {
+        /// <summary>
+        /// Returns a collection of integer/enum values suitable for rendering in a DropDownList component.
+        /// </summary>
+        /// <param name="showDefault">Set to true to add a "(select)" entry at the top of the list, false otherwise.</param>
+        /// <returns>Returns a collection of integer/enum values suitable for rendering in a DropDownList component.</returns>
+        Task<List<SelectionItem<int?>>> GetSelectionListIntNullAsync(bool showDefault);
+    }
+    /// <summary>
     /// This interface is implemented by components that can return a collection of string values suitable for rendering in a DropDownList component.
     /// </summary>
     public interface ISelectionListString {

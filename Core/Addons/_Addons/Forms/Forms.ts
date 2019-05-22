@@ -587,6 +587,11 @@ namespace YetaWF {
                         try {
                             window.close();
                         } catch (e) { }
+                        try {
+                            // TODO: use home page
+                            let uri = $YetaWF.parseUrl("/");
+                            $YetaWF.ContentHandling.setNewUri(uri);
+                        } catch (e) { }
                     }
                 }
                 return false;

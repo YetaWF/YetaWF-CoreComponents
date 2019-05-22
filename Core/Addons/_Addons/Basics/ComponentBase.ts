@@ -156,7 +156,7 @@ namespace YetaWF {
 
         public static getTemplateDefinitionFromTemplate(elem: HTMLElement): TemplateDefinition {
             let cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
-            if (cls.length == 0)
+            if (cls.length === 0)
                 throw `Template definition requested for element ${elem.outerHTML} that is not a template`;
 
             for (let cl of cls) {

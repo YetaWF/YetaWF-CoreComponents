@@ -149,7 +149,7 @@ var YetaWF;
         };
         ComponentBaseDataImpl.getTemplateDefinitionFromTemplate = function (elem) {
             var cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
-            if (cls.length == 0)
+            if (cls.length === 0)
                 throw "Template definition requested for element " + elem.outerHTML + " that is not a template";
             for (var _i = 0, cls_1 = cls; _i < cls_1.length; _i++) {
                 var cl = cls_1[_i];
