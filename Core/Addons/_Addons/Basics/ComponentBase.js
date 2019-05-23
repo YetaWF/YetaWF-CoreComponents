@@ -53,7 +53,7 @@ var YetaWF;
          * Returns null if not found.
          */
         ComponentBaseDataImpl.getControlFromTagCond = function (elem, controlSelector) {
-            var template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
+            var template = $YetaWF.elementClosest(elem, controlSelector);
             if (!template)
                 return null;
             var control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]);

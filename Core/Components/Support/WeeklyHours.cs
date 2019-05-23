@@ -82,6 +82,9 @@ namespace YetaWF.Core.Components {
                 return wk;
             }
         }
+        public DayTimeRange GetDayTimeRange(DayOfWeek dayOfWeek) {
+            return Days[(int)dayOfWeek];
+        }
         public bool IsClosedAllDay(DateTime dt) {
             return Days[(int)dt.DayOfWeek].IsClosedAllDay();
         }
