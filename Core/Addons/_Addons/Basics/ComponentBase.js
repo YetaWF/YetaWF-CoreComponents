@@ -15,27 +15,108 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var YetaWF;
 (function (YetaWF) {
-    /** A control without internal data management. Based on a native control. */
-    var ComponentBaseNoDataImpl = /** @class */ (function () {
-        function ComponentBaseNoDataImpl(controlId, template, selector, userData, display, destroyControl, hasData) {
-            this.ControlId = controlId;
-            this.Control = $YetaWF.getElementById(controlId);
-            this.registerTemplate(template, selector, userData, display, destroyControl, hasData);
+    var ComponentBase = /** @class */ (function () {
+        function ComponentBase() {
         }
-        ComponentBaseNoDataImpl.prototype.registerTemplate = function (template, selector, userData, display, destroyControl, hasData) {
-            display = display || false;
-            var found = ComponentBaseDataImpl.RegisteredTemplates.find(function (e) {
+        ComponentBase.register = function (template, selector, hasData, userData, display, destroyControl) {
+            display = display ? true : false;
+            var found = ComponentBase.RegisteredTemplates.find(function (e) {
                 return (e.Template === template && e.Display === display);
             });
             if (found)
                 return;
-            ComponentBaseDataImpl.RegisteredTemplates.push({
-                Template: template, HasData: hasData || false, Selector: selector, UserData: userData, Display: display,
+            ComponentBase.RegisteredTemplates.push({
+                Template: template, HasData: hasData, Selector: selector, UserData: userData, Display: display,
                 DestroyControl: destroyControl
             });
         };
-        return ComponentBaseNoDataImpl;
+        ComponentBase.getTemplateDefinitionCond = function (templateName, display) {
+            display = display ? true : false;
+            var found = ComponentBase.RegisteredTemplates.find(function (e) {
+                return (e.Template === templateName && e.Display === display);
+            });
+            return found || null;
+        };
+        ComponentBase.getTemplateDefinition = function (templateName, display) {
+            var found = ComponentBase.getTemplateDefinitionCond(templateName, display);
+            if (!found)
+                throw "Template " + templateName + " not found";
+            return found;
+        };
+        ComponentBase.getTemplateDefinitionFromTemplate = function (elem) {
+            var cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
+            if (cls.length === 0)
+                throw "Template definition requested for element " + elem.outerHTML + " that is not a template";
+            for (var _i = 0, cls_1 = cls; _i < cls_1.length; _i++) {
+                var cl = cls_1[_i];
+                var templateDef = null;
+                if ($YetaWF.elementHasClass(elem, "t_display"))
+                    templateDef = ComponentBase.getTemplateDefinitionCond(cl, true);
+                if (!templateDef)
+                    templateDef = ComponentBase.getTemplateDefinitionCond(cl, false);
+                if (templateDef)
+                    return templateDef;
+            }
+            throw "No template definition for element " + elem.outerHTML;
+        };
+        ComponentBase.getTemplateFromControlNameCond = function (name, containers) {
+            var elem = $YetaWF.getElement1BySelectorCond("[name='" + name + "']", containers);
+            if (!elem)
+                return null;
+            var template = ComponentBase.elementClosestTemplateCond(elem);
+            if (!template)
+                throw "No template found in getTemplateFromControlNameCond";
+            return template;
+        };
+        ComponentBase.getTemplateFromControlName = function (name, containers) {
+            var template = ComponentBase.getTemplateFromControlNameCond(name, containers);
+            if (!template)
+                throw "No template found in getTemplateFromControlName";
+            return template;
+        };
+        ComponentBase.getTemplateFromTagCond = function (elem) {
+            var template = ComponentBase.elementClosestTemplateCond(elem);
+            return template;
+        };
+        ComponentBase.getTemplateFromTag = function (elem) {
+            var template = ComponentBase.getTemplateFromTagCond(elem);
+            if (!template)
+                throw "No template found in getTemplateFromControlName";
+            return template;
+        };
+        ComponentBase.elementClosestTemplateCond = function (elem) {
+            var template = elem;
+            while (template) {
+                var cls = $YetaWF.elementHasClassPrefix(template, "yt_");
+                if (cls.length > 0)
+                    break;
+                else
+                    template = template.parentElement;
+            }
+            if (!template)
+                throw "Requesting control by name, but no containing template found";
+            return template;
+        };
+        // Template registration
+        ComponentBase.RegisteredTemplates = [];
+        return ComponentBase;
     }());
+    YetaWF.ComponentBase = ComponentBase;
+    /** A control without internal data management. Based on a native control. */
+    var ComponentBaseNoDataImpl = /** @class */ (function (_super) {
+        __extends(ComponentBaseNoDataImpl, _super);
+        function ComponentBaseNoDataImpl(controlId, template, selector, userData, display, destroyControl, hasData) {
+            var _this = _super.call(this) || this;
+            _this.ControlId = controlId;
+            _this.Control = $YetaWF.getElementById(controlId);
+            _this.registerTemplate(template, selector, userData, display, destroyControl, hasData);
+            return _this;
+        }
+        ComponentBaseNoDataImpl.prototype.registerTemplate = function (template, selector, userData, display, destroyControl, hasData) {
+            ComponentBase.register(template, selector, hasData || false, userData, display, destroyControl);
+        };
+        return ComponentBaseNoDataImpl;
+    }(ComponentBase));
     YetaWF.ComponentBaseNoDataImpl = ComponentBaseNoDataImpl;
     /** A control with internal data management. */
     var ComponentBaseDataImpl = /** @class */ (function (_super) {
@@ -123,86 +204,8 @@ var YetaWF;
             $YetaWF.removeObjectDataById(this.Control.id);
         };
         ComponentBaseDataImpl.prototype.registerTemplate = function (template, selector, userData, display, destroyControl) {
-            display = display ? true : false;
-            var found = ComponentBaseDataImpl.RegisteredTemplates.find(function (e) {
-                return (e.Template === template && e.Display === display);
-            });
-            if (found)
-                return;
-            ComponentBaseDataImpl.RegisteredTemplates.push({
-                Template: template, HasData: true, Selector: selector, UserData: userData, Display: display,
-                DestroyControl: destroyControl
-            });
+            ComponentBase.register(template, selector, true, userData, display, destroyControl);
         };
-        ComponentBaseDataImpl.getTemplateDefinitionCond = function (templateName, display) {
-            display = display ? true : false;
-            var found = ComponentBaseDataImpl.RegisteredTemplates.find(function (e) {
-                return (e.Template === templateName && e.Display === display);
-            });
-            return found || null;
-        };
-        ComponentBaseDataImpl.getTemplateDefinition = function (templateName, display) {
-            var found = ComponentBaseDataImpl.getTemplateDefinitionCond(templateName, display);
-            if (!found)
-                throw "Template " + templateName + " not found";
-            return found;
-        };
-        ComponentBaseDataImpl.getTemplateDefinitionFromTemplate = function (elem) {
-            var cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
-            if (cls.length === 0)
-                throw "Template definition requested for element " + elem.outerHTML + " that is not a template";
-            for (var _i = 0, cls_1 = cls; _i < cls_1.length; _i++) {
-                var cl = cls_1[_i];
-                var templateDef = null;
-                if ($YetaWF.elementHasClass(elem, "t_display"))
-                    templateDef = ComponentBaseDataImpl.getTemplateDefinitionCond(cl, true);
-                if (!templateDef)
-                    templateDef = ComponentBaseDataImpl.getTemplateDefinitionCond(cl, false);
-                if (templateDef)
-                    return templateDef;
-            }
-            throw "No template definition for element " + elem.outerHTML;
-        };
-        ComponentBaseDataImpl.getTemplateFromControlNameCond = function (name, containers) {
-            var elem = $YetaWF.getElement1BySelectorCond("[name='" + name + "']", containers);
-            if (!elem)
-                return null;
-            var template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
-            if (!template)
-                throw "No template found in getTemplateFromControlNameCond";
-            return template;
-        };
-        ComponentBaseDataImpl.getTemplateFromControlName = function (name, containers) {
-            var template = ComponentBaseDataImpl.getTemplateFromControlNameCond(name, containers);
-            if (!template)
-                throw "No template found in getTemplateFromControlName";
-            return template;
-        };
-        ComponentBaseDataImpl.getTemplateFromTagCond = function (elem) {
-            var template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
-            return template;
-        };
-        ComponentBaseDataImpl.getTemplateFromTag = function (elem) {
-            var template = ComponentBaseDataImpl.getTemplateFromTagCond(elem);
-            if (!template)
-                throw "No template found in getTemplateFromControlName";
-            return template;
-        };
-        ComponentBaseDataImpl.elementClosestTemplateCond = function (elem) {
-            var template = elem;
-            while (template) {
-                var cls = $YetaWF.elementHasClassPrefix(template, "yt_");
-                if (cls.length > 0)
-                    break;
-                else
-                    template = template.parentElement;
-            }
-            if (!template)
-                throw "Requesting control by name, but no containing template found";
-            return template;
-        };
-        // Template registration
-        ComponentBaseDataImpl.RegisteredTemplates = [];
         return ComponentBaseDataImpl;
     }(ComponentBaseNoDataImpl));
     YetaWF.ComponentBaseDataImpl = ComponentBaseDataImpl;

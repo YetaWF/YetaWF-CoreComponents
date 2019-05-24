@@ -11,28 +11,112 @@ namespace YetaWF {
         DestroyControl?: (tag: HTMLElement, control: any) => void;
     }
 
+    export abstract class ComponentBase {
+
+        // Template registration
+
+        public static RegisteredTemplates: TemplateDefinition[] = [];
+
+        public static register(template: string, selector: string, hasData: boolean, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void): void {
+            display = display ? true : false;
+            let found = ComponentBase.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
+                return (e.Template === template && e.Display === display);
+            });
+            if (found)
+                return;
+            ComponentBase.RegisteredTemplates.push({
+                Template: template, HasData: hasData, Selector: selector, UserData: userData, Display: display,
+                DestroyControl: destroyControl
+            });
+        }
+
+        public static getTemplateDefinitionCond(templateName: string, display?: boolean): TemplateDefinition | null {
+            display = display ? true : false;
+            let found = ComponentBase.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
+                return (e.Template === templateName && e.Display === display);
+            });
+            return found || null;
+        }
+        public static getTemplateDefinition(templateName: string, display?: boolean): TemplateDefinition {
+            let found = ComponentBase.getTemplateDefinitionCond(templateName, display);
+            if (!found)
+                throw `Template ${templateName} not found`;
+            return found;
+        }
+
+        public static getTemplateDefinitionFromTemplate(elem: HTMLElement): TemplateDefinition {
+            let cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
+            if (cls.length === 0)
+                throw `Template definition requested for element ${elem.outerHTML} that is not a template`;
+
+            for (let cl of cls) {
+                let templateDef: TemplateDefinition | null = null;
+                if ($YetaWF.elementHasClass(elem, "t_display"))
+                    templateDef = ComponentBase.getTemplateDefinitionCond(cl, true);
+                if (!templateDef)
+                    templateDef = ComponentBase.getTemplateDefinitionCond(cl, false);
+                if (templateDef)
+                    return templateDef;
+            }
+            throw `No template definition for element ${elem.outerHTML}`;
+        }
+
+        public static getTemplateFromControlNameCond(name: string, containers: HTMLElement[]): HTMLElement | null {
+            let elem = $YetaWF.getElement1BySelectorCond(`[name='${name}']`, containers);
+            if (!elem)
+                return null;
+            let template = ComponentBase.elementClosestTemplateCond(elem);
+            if (!template)
+                throw `No template found in getTemplateFromControlNameCond`;
+            return template;
+        }
+        public static getTemplateFromControlName(name: string, containers: HTMLElement[]): HTMLElement {
+            let template = ComponentBase.getTemplateFromControlNameCond(name, containers);
+            if (!template)
+                throw `No template found in getTemplateFromControlName`;
+            return template;
+        }
+        public static getTemplateFromTagCond(elem: HTMLElement): HTMLElement | null {
+            let template = ComponentBase.elementClosestTemplateCond(elem);
+            return template;
+        }
+        public static getTemplateFromTag(elem: HTMLElement): HTMLElement {
+            let template = ComponentBase.getTemplateFromTagCond(elem);
+            if (!template)
+                throw `No template found in getTemplateFromControlName`;
+            return template;
+        }
+        protected static elementClosestTemplateCond(elem: HTMLElement): HTMLElement | null {
+            let template: HTMLElement | null = elem;
+            while (template) {
+                let cls = $YetaWF.elementHasClassPrefix(template, "yt_");
+                if (cls.length > 0)
+                    break;
+                else
+                    template = template.parentElement;
+            }
+            if (!template)
+                throw "Requesting control by name, but no containing template found";
+
+            return template;
+        }
+    }
+
+
     /** A control without internal data management. Based on a native control. */
-    export abstract class ComponentBaseNoDataImpl {
+    export abstract class ComponentBaseNoDataImpl extends ComponentBase {
 
         public readonly Control: HTMLElement;
         public readonly ControlId: string;
 
         constructor(controlId: string, template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void, hasData?: boolean) {
+            super();
             this.ControlId = controlId;
             this.Control = $YetaWF.getElementById(controlId);
             this.registerTemplate(template, selector, userData, display, destroyControl, hasData);
         }
         public registerTemplate(template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void, hasData?: boolean): void {
-            display = display || false;
-            let found = ComponentBaseDataImpl.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
-                return (e.Template === template && e.Display === display);
-            });
-            if (found)
-                return;
-            ComponentBaseDataImpl.RegisteredTemplates.push({
-                Template: template, HasData: hasData||false, Selector: selector, UserData: userData, Display: display,
-                DestroyControl: destroyControl
-            });
+            ComponentBase.register(template, selector, hasData||false, userData, display, destroyControl);
         }
     }
 
@@ -124,91 +208,8 @@ namespace YetaWF {
             $YetaWF.removeObjectDataById(this.Control.id);
         }
 
-        // Template registration
-
-        public static RegisteredTemplates: TemplateDefinition[] = [];
-
         public registerTemplate(template: string, selector: string, userData: any, display?: boolean, destroyControl?: (tag: HTMLElement, control: any) => void): void {
-            display = display ? true : false;
-            let found = ComponentBaseDataImpl.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
-                return (e.Template === template && e.Display === display);
-            });
-            if (found)
-                return;
-            ComponentBaseDataImpl.RegisteredTemplates.push({
-                Template: template, HasData: true, Selector: selector, UserData: userData, Display: display,
-                DestroyControl: destroyControl
-            });
-        }
-        public static getTemplateDefinitionCond(templateName: string, display?: boolean): TemplateDefinition | null {
-            display = display ? true : false;
-            let found = ComponentBaseDataImpl.RegisteredTemplates.find((e: TemplateDefinition): boolean => {
-                return (e.Template === templateName && e.Display === display);
-            });
-            return found || null;
-        }
-        public static getTemplateDefinition(templateName: string, display?: boolean): TemplateDefinition {
-            let found = ComponentBaseDataImpl.getTemplateDefinitionCond(templateName, display);
-            if (!found)
-                throw `Template ${templateName} not found`;
-            return found;
-        }
-
-        public static getTemplateDefinitionFromTemplate(elem: HTMLElement): TemplateDefinition {
-            let cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
-            if (cls.length === 0)
-                throw `Template definition requested for element ${elem.outerHTML} that is not a template`;
-
-            for (let cl of cls) {
-                let templateDef: TemplateDefinition | null = null;
-                if ($YetaWF.elementHasClass(elem, "t_display"))
-                    templateDef = ComponentBaseDataImpl.getTemplateDefinitionCond(cl, true);
-                if (!templateDef)
-                    templateDef = ComponentBaseDataImpl.getTemplateDefinitionCond(cl, false);
-                if (templateDef)
-                    return templateDef;
-            }
-            throw `No template definition for element ${elem.outerHTML}`;
-        }
-
-        public static getTemplateFromControlNameCond(name: string, containers: HTMLElement[]): HTMLElement | null {
-            let elem = $YetaWF.getElement1BySelectorCond(`[name='${name}']`, containers);
-            if (!elem)
-                return null;
-            let template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
-            if (!template)
-                throw `No template found in getTemplateFromControlNameCond`;
-            return template;
-        }
-        public static getTemplateFromControlName(name: string, containers: HTMLElement[]): HTMLElement {
-            let template = ComponentBaseDataImpl.getTemplateFromControlNameCond(name, containers);
-            if (!template)
-                throw `No template found in getTemplateFromControlName`;
-            return template;
-        }
-        public static getTemplateFromTagCond(elem: HTMLElement): HTMLElement | null {
-            let template = ComponentBaseDataImpl.elementClosestTemplateCond(elem);
-            return template;
-        }
-        public static getTemplateFromTag(elem: HTMLElement): HTMLElement {
-            let template = ComponentBaseDataImpl.getTemplateFromTagCond(elem);
-            if (!template)
-                throw `No template found in getTemplateFromControlName`;
-            return template;
-        }
-        protected static elementClosestTemplateCond(elem: HTMLElement): HTMLElement | null {
-            let template: HTMLElement | null = elem;
-            while (template) {
-                let cls = $YetaWF.elementHasClassPrefix(template, "yt_");
-                if (cls.length > 0)
-                    break;
-                else
-                    template = template.parentElement;
-            }
-            if (!template)
-                throw "Requesting control by name, but no containing template found";
-
-            return template;
+            ComponentBase.register(template, selector, true, userData, display, destroyControl);
         }
     }
 
