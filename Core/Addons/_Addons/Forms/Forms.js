@@ -180,7 +180,7 @@ var YetaWF;
                 $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
-                var elems = $YetaWF.getElementsBySelector("div.yt_propertylisttabbed", [form]);
+                var elems = $YetaWF.getElementsBySelector("div.yt_propertylist.t_tabbed", [form]);
                 elems.forEach(function (tabctrl, index) {
                     YetaWF_FormsImpl.setErrorInTab(tabctrl);
                 });
@@ -218,6 +218,41 @@ var YetaWF;
                 formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
             }
             return formData;
+        };
+        // Cancel
+        Forms.prototype.cancel = function () {
+            if ($YetaWF.isInPopup()) {
+                // we're in a popup, just close it
+                $YetaWF.closePopup();
+            }
+            else {
+                // go to the last entry in the origin list, pop that entry and pass it in the url
+                var originList = YVolatile.Basics.OriginList;
+                if (originList.length > 0) {
+                    var origin = originList.pop();
+                    var uri = $YetaWF.parseUrl(origin.Url);
+                    uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
+                    if (origin.EditMode !== YVolatile.Basics.EditModeActive)
+                        uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0" : "1");
+                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                    if (originList.length > 0)
+                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                    $YetaWF.ContentHandling.setNewUri(uri);
+                }
+                else {
+                    // we don't know where to return so just close the browser
+                    try {
+                        window.close();
+                    }
+                    catch (e) { }
+                    try {
+                        // TODO: use home page
+                        var uri_1 = $YetaWF.parseUrl("/");
+                        $YetaWF.ContentHandling.setNewUri(uri_1);
+                    }
+                    catch (e) { }
+                }
+            }
         };
         /**
          * Add a callback to be called when a form is about to be submitted.
@@ -443,38 +478,7 @@ var YetaWF;
             // Cancel the form when a Cancel button is clicked
             var _this = this;
             $YetaWF.registerEventHandlerBody("click", "form ." + YConfigs.Forms.CssFormCancel, function (ev) {
-                if ($YetaWF.isInPopup()) {
-                    // we're in a popup, just close it
-                    $YetaWF.closePopup();
-                }
-                else {
-                    // go to the last entry in the origin list, pop that entry and pass it in the url
-                    var originList = YVolatile.Basics.OriginList;
-                    if (originList.length > 0) {
-                        var origin = originList.pop();
-                        var uri = $YetaWF.parseUrl(origin.Url);
-                        uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
-                        if (origin.EditMode !== YVolatile.Basics.EditModeActive)
-                            uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0" : "1");
-                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                        if (originList.length > 0)
-                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
-                        $YetaWF.ContentHandling.setNewUri(uri);
-                    }
-                    else {
-                        // we don't know where to return so just close the browser
-                        try {
-                            window.close();
-                        }
-                        catch (e) { }
-                        try {
-                            // TODO: use home page
-                            var uri_1 = $YetaWF.parseUrl("/");
-                            $YetaWF.ContentHandling.setNewUri(uri_1);
-                        }
-                        catch (e) { }
-                    }
-                }
+                _this.cancel();
                 return false;
             });
             // Submit the form when an apply button is clicked

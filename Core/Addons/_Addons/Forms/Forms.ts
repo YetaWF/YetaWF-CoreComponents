@@ -278,7 +278,7 @@ namespace YetaWF {
                 $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
-                var elems = $YetaWF.getElementsBySelector("div.yt_propertylisttabbed", [form]);
+                var elems = $YetaWF.getElementsBySelector("div.yt_propertylist.t_tabbed", [form]);
                 elems.forEach((tabctrl: HTMLElement, index: number) => {
                     YetaWF_FormsImpl.setErrorInTab(tabctrl);
                 });
@@ -315,6 +315,40 @@ namespace YetaWF {
             }
             return formData;
         }
+
+        // Cancel
+
+        public cancel(): void {
+            if ($YetaWF.isInPopup()) {
+                // we're in a popup, just close it
+                $YetaWF.closePopup();
+            } else {
+                // go to the last entry in the origin list, pop that entry and pass it in the url
+                var originList = YVolatile.Basics.OriginList;
+                if (originList.length > 0) {
+                    var origin = originList.pop() as OriginListEntry;
+                    var uri = $YetaWF.parseUrl(origin.Url);
+                    uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
+                    if (origin.EditMode !== YVolatile.Basics.EditModeActive)
+                        uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0" : "1");
+                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                    if (originList.length > 0)
+                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                    $YetaWF.ContentHandling.setNewUri(uri);
+                } else {
+                    // we don't know where to return so just close the browser
+                    try {
+                        window.close();
+                    } catch (e) { }
+                    try {
+                        // TODO: use home page
+                        let uri = $YetaWF.parseUrl("/");
+                        $YetaWF.ContentHandling.setNewUri(uri);
+                    } catch (e) { }
+                }
+            }
+        }
+
 
         // Pre/post submit
 
@@ -565,35 +599,7 @@ namespace YetaWF {
             // Cancel the form when a Cancel button is clicked
 
             $YetaWF.registerEventHandlerBody("click", "form ." + YConfigs.Forms.CssFormCancel, (ev: MouseEvent):boolean => {
-
-                if ($YetaWF.isInPopup()) {
-                    // we're in a popup, just close it
-                    $YetaWF.closePopup();
-                } else {
-                    // go to the last entry in the origin list, pop that entry and pass it in the url
-                    var originList = YVolatile.Basics.OriginList;
-                    if (originList.length > 0) {
-                        var origin = originList.pop() as OriginListEntry;
-                        var uri = $YetaWF.parseUrl(origin.Url);
-                        uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
-                        if (origin.EditMode !== YVolatile.Basics.EditModeActive)
-                            uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0":"1");
-                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                        if (originList.length > 0)
-                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
-                        $YetaWF.ContentHandling.setNewUri(uri);
-                    } else {
-                        // we don't know where to return so just close the browser
-                        try {
-                            window.close();
-                        } catch (e) { }
-                        try {
-                            // TODO: use home page
-                            let uri = $YetaWF.parseUrl("/");
-                            $YetaWF.ContentHandling.setNewUri(uri);
-                        } catch (e) { }
-                    }
-                }
+                this.cancel();
                 return false;
             });
 
