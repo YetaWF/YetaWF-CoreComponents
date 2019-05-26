@@ -78,6 +78,7 @@ namespace YetaWF.Core.Models.Attributes {
         public SuppressIfNotAttribute(string prop1, object val1) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1) { }
         public SuppressIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
         public SuppressIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public SuppressIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3, string prop4, object val4) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3, prop4, OpCond.Eq, val4) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SuppressIfSuppliedAttribute : ExprAttribute {

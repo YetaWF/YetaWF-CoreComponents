@@ -166,6 +166,7 @@
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Identity\Setup.cs" />
     <Compile Include="Models\Attributes\AllowHttpMethods.cs" />
+    <Compile Include="Models\Attributes\ExprAttribute.cs" />
     <Compile Include="Models\Attributes\RequiresPageReloadAttribute.cs" />
     <Compile Include="Models\Attributes\NoModelChangeAttribute.cs" />
     <Compile Include="Models\Attributes\RequiresRestartAttribute.cs" />
@@ -175,7 +176,6 @@
     <Compile Include="Models\Attributes\ListNoDuplicatesAttribute.cs" />
     <Compile Include="Models\Attributes\PackageDomainValidationAttribute.cs" />
     <Compile Include="Models\Attributes\AreaValidationAttribute.cs" />
-    <Compile Include="Models\Attributes\ProcessIfAttribute.cs" />
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
     <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
     <Compile Include="Models\Attributes\TimeSpanValidationAttributes.cs" />
@@ -219,7 +219,6 @@
     <Compile Include="Pages\PostProcessView.cs" />
     <Compile Include="Components\FormButton.cs" />
     <Compile Include="Components\TemplateAction.cs" />
-    <Compile Include="Models\Attributes\SuppressIfNotEqualAttribute.cs" />
     <Compile Include="PackageSupport\SiteTemplateData.cs" />
     <Compile Include="PackageSupport\Upgrade.cs" />
     <Compile Include="Startup\AddOnManager.cs" />
@@ -269,18 +268,14 @@
     <Compile Include="Log\SetupLogging.cs" />
     <Compile Include="Components\Support\Menu.cs" />
     <Compile Include="Models\AttributeHelper.cs" />
-    <Compile Include="Models\Attributes\RequiredAttribute.cs" />
     <Compile Include="Models\Attributes\UrlValidationAttribute.cs" />
     <Compile Include="Models\Attributes\EmailValidationAttribute.cs" />
-    <Compile Include="Models\Attributes\SuppressIfEqualAttribute.cs" />
     <Compile Include="Models\Attributes\ValidationAttributes.cs" />
     <Compile Include="Models\GridDefinition.cs" />
     <Compile Include="Models\Attributes\Attributes.cs" />
     <Compile Include="Models\MultiString.cs" />
     <Compile Include="Models\ObjectSupport.cs" />
-    <Compile Include="Models\Attributes\RequiredIfSuppliedAttribute.cs" />
     <Compile Include="Models\Attributes\SameAsAttribute.cs" />
-    <Compile Include="Models\Attributes\RequiredIfAttribute.cs" />
     <Compile Include="Modules\DesignedModules.cs" />
     <Compile Include="Modules\Export.cs" />
     <Compile Include="Modules\InstalledModules.cs" />

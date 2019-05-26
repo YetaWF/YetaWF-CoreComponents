@@ -15,19 +15,6 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Components {
 
     /// <summary>
-    /// This class is used to initialize the country list during application startup.
-    ///
-    /// This class is not used by applications.
-    /// </summary>
-    public class CountryISO3166Startup : IInitializeApplicationStartup {
-        /// <summary>
-        /// Called during application startup.
-        /// </summary>
-        public Task InitializeApplicationStartupAsync() {
-            return CountryISO3166.ReadCountryListAsync();
-        }
-    }
-    /// <summary>
     /// This static class offers access to the list of countries
     /// and implements a number of services to convert between different country IDs.
     /// </summary>
@@ -264,9 +251,16 @@ namespace YetaWF.Core.Components {
             return countries;
         }
 
-        private static List<Country> CountryList { get; set; }
+        private static List<Country> CountryList {
+            get {
+                if (_CountryList == null)
+                    _CountryList = CountryISO3166.ReadCountryListAsync().Result;// ok, only wait once, cached
+                return _CountryList;
+            }
+        }
+        private static List<Country> _CountryList = null;
 
-        internal static async Task ReadCountryListAsync() {
+        internal static async Task<List<Country>> ReadCountryListAsync() {
             string file;
             if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE) {
 
@@ -288,7 +282,7 @@ namespace YetaWF.Core.Components {
                     throw new InternalError("File {0} not found", file);
             }
 
-            CountryList = new List<Country>();
+            List<Country> countryList = new List<Country>();
 
             List<string> cts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
             foreach (var st in cts) {
@@ -296,7 +290,7 @@ namespace YetaWF.Core.Components {
                     string[] s = st.Trim().Split(new string[] { "+" }, 5, StringSplitOptions.RemoveEmptyEntries);
                     if (s.Length < 4 || s.Length > 5)
                         throw new InternalError("Invalid input in country list - {0} - {1}", st, file);
-                    CountryList.Add(new Country {
+                    countryList.Add(new Country {
                         Name = s[0],
                         Id = s[1].ToUpper(),
                         Id3 = s[2].ToUpper(),
@@ -305,7 +299,7 @@ namespace YetaWF.Core.Components {
                     });
                 }
             }
-            CountryList = CountryList.OrderBy(m => m.Name).ToList();
+            return countryList.OrderBy(m => m.Name).ToList();
         }
     }
 }

@@ -110,8 +110,12 @@ namespace YetaWF.Core.Site {
                         securityType = PageDefinition.PageSecurityType.httpsOnly;
                         break;
                 }
-            } else
-                securityType = PageDefinition.PageSecurityType.Any;
+            } else {
+                if (YetaWFManager.IsHTTPSite)
+                    securityType = PageDefinition.PageSecurityType.httpOnly;
+                else
+                    securityType = PageDefinition.PageSecurityType.Any;
+            }
             return securityType;
         }
         /// <summary>
@@ -196,6 +200,8 @@ namespace YetaWF.Core.Site {
         /// </returns>
         public string MakeRealUrl(bool Secure = false) {
             bool secure = Secure;
+            if (YetaWFManager.IsHTTPSite)
+                secure = false;
             if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                 switch (PageSecurity) {
                     case PageSecurityType.AsProvided:
