@@ -580,7 +580,7 @@ namespace YetaWF.Core.Models.Attributes {
                     if (_Value == null)
                         throw new InternalError("Property used when the attribute describes a value");
                     string v = _Value.ToString();
-                    if (v.StartsWith(ValueOf))
+                    if (!v.StartsWith(ValueOf))
                         throw new InternalError("Property used when the attribute describes a value");
                     return v.Substring(ValueOf.Length);
                 }

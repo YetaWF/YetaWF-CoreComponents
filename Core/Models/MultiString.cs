@@ -42,18 +42,19 @@ namespace YetaWF.Core.Models {
                     LanguageEntryElement defaultLanguage = (from LanguageEntryElement l in LanguageSection.Languages where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
                     if (defaultLanguage == null)
                         throw new InternalError("The defined default language doesn't exist");
-                    _languages = (from LanguageEntryElement l in LanguageSection.Languages
+                    List<LanguageData> languages = (from LanguageEntryElement l in LanguageSection.Languages
                                   where l.Id != MultiString.DefaultLanguage
                                   select new LanguageData {
                                       Id = l.Id,
                                       ShortName = l.ShortName,
                                       Description = l.Description
                                   }).ToList();
-                    _languages.Insert(0, new LanguageData {
+                    languages.Insert(0, new LanguageData {
                         Id = defaultLanguage.Id,
                         ShortName = defaultLanguage.ShortName,
                         Description = defaultLanguage.Description
                     });// default at the top
+                    _languages = languages;
                 }
                 return _languages;
             }
