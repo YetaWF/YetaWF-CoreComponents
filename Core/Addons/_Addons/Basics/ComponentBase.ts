@@ -219,6 +219,8 @@ namespace YetaWF {
             if (templateDef.HasData) {
                 var list = $YetaWF.getElementsBySelector(templateDef.Selector, [tag]);
                 for (let control of list) {
+                    //if ($YetaWF.elementHasClass(control, "yt_propertylist"))
+                    //    debugger;
                     var obj = $YetaWF.getObjectData(control) as ComponentBaseDataImpl;
                     if (obj.Control !== control)
                         throw `object data doesn't match control type - ${templateDef.Selector} - ${control.outerHTML}`;

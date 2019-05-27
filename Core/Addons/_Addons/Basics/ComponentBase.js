@@ -217,6 +217,8 @@ var YetaWF;
                 var list = $YetaWF.getElementsBySelector(templateDef.Selector, [tag]);
                 for (var _b = 0, list_1 = list; _b < list_1.length; _b++) {
                     var control = list_1[_b];
+                    //if ($YetaWF.elementHasClass(control, "yt_propertylist"))
+                    //    debugger;
                     var obj = $YetaWF.getObjectData(control);
                     if (obj.Control !== control)
                         throw "object data doesn't match control type - " + templateDef.Selector + " - " + control.outerHTML;
