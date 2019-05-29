@@ -163,20 +163,20 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSiteUrl)
-                            host = currentSite.SiteDomain;
                         if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
+                            host = currentSite.SiteDomain;
                             if (currentSite.PortNumberSSLEval != 443)
-                                port = currentSite.PortNumberSSLEval;
+                            port = currentSite.PortNumberSSLEval;
                         } else
                             port = Manager.HostPortUsed;
                     }
                 } else {
-                    if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSiteUrl)
-                        host = currentSite.SiteDomain;
                     if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
+                        host = currentSite.SiteDomain;
                         if (currentSite.PortNumberEval != 80)
                             port = currentSite.PortNumberEval;
+                    } else if (Manager.IsTestSite || Manager.IsLocalHost || YetaWFManager.IsHTTPSite) {
+                        port = -1;
                     } else
                         port = Manager.HostPortUsed;
                 }
