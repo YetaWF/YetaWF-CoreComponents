@@ -5,17 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
-using YetaWF.Core.DataProvider;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Models;
-using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Support.Repository;
-using YetaWF.Core.IO;
 #if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 #endif
 
