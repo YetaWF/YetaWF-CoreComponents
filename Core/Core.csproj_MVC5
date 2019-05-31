@@ -125,6 +125,7 @@
   <ItemGroup>
     <Compile Include="Components\PlainPageBase.cs" />
     <Compile Include="Components\PopupPageBase.cs" />
+    <Compile Include="Components\Support\PropertyList\PropertyList.cs" />
     <Compile Include="Components\YetaWFPageBase.cs" />
     <Compile Include="Components\PageExtender.cs" />
     <Compile Include="Controllers\HttpForbiddenResult.cs" />
