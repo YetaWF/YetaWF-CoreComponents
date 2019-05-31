@@ -104,12 +104,24 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns an object describing the propertylist.</returns>
         /// <remarks>This method is not used by applications. It is reserved for component implementation.</remarks>
         public static async Task<PropertyListSetup> LoadPropertyListDefinitionsAsync(Type model) {
-            string className = model.FullName.Split(new char[] { '.' }).Last();
-            string[] s = className.Split(new char[] { '+' });
-            int len = s.Length;
-            if (len != 2) throw new InternalError($"Unexpected class {className} in propertylist model {model.FullName}");
-            string controller = s[0];
-            string objClass = s[1];
+            string controller;
+            string objClass;
+            if (model.FullName.Contains("+")) {
+                string className = model.FullName.Split(new char[] { '.' }).Last();
+                string[] s = className.Split(new char[] { '+' });
+                int len = s.Length;
+                if (len != 2)
+                    throw new InternalError($"Unexpected class {className} in propertylist model {model.FullName}");
+                controller = s[0];
+                objClass = s[1];
+            } else {
+                string[] s = model.FullName.Split(new char[] { '.' });
+                int len = s.Length;
+                if (len < 2)
+                    throw new InternalError($"Unexpected class {model.FullName} as propertylist model");
+                controller = s[len-2];
+                objClass = s[len-1];
+            }
             string file = controller + "." + objClass;
 
             Package package = Package.GetPackageFromType(model);
