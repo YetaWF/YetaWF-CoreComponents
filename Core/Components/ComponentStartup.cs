@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
@@ -17,6 +18,8 @@ namespace YetaWF.Core.Components {
     /// locate all available components, views and pages.
     /// </remarks>
     public class YetaWFComponentBaseStartup : IInitializeApplicationStartup {
+
+        public const string CONTROLLERPREPROCESSMETHOD = "ControllerPreprocessActionAsync";
 
         /// <summary>
         /// List of edit components.
@@ -34,6 +37,10 @@ namespace YetaWF.Core.Components {
         /// List of available pages.
         /// </summary>
         private static Dictionary<string, Type> Pages = new Dictionary<string, Type>();
+        /// <summary>
+        /// Dictionary of components that have a controller preprocessor action.
+        /// </summary>
+        private static Dictionary<string, MethodInfo> ComponentsWithControllerPreprocessAction = new Dictionary<string, MethodInfo>();
 
         /// <summary>
         /// Called during application startup.
@@ -44,6 +51,8 @@ namespace YetaWF.Core.Components {
 
             List<Type> types = Package.GetClassesInPackages<YetaWFComponentBase>();
             foreach (Type tp in types) {
+
+                // Find all components
 
                 YetaWFComponentBase component = (YetaWFComponentBase) Activator.CreateInstance(tp);
                 Package compPackage = Package.GetPackageFromType(tp);
@@ -63,6 +72,13 @@ namespace YetaWF.Core.Components {
                     case YetaWFComponentBase.ComponentType.Edit:
                         ComponentsEdit.Add(templateName, tp);
                         break;
+                }
+
+                // check if the component has a controller preprocessor action
+                // Invoke RenderAsync
+                MethodInfo meth = component.GetType().GetMethod(CONTROLLERPREPROCESSMETHOD, BindingFlags.Static| BindingFlags.Public);
+                if (meth != null) {
+                    ComponentsWithControllerPreprocessAction.Add(templateName, meth);
                 }
             }
 
@@ -119,5 +135,9 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <returns>Returns a dictionary of available pages.</returns>
         public static Dictionary<string, Type> GetPages() { return Pages; }
+        /// <summary>
+        /// Returns a dictionary of components that have a controller preprocessor action.
+        /// </summary>
+        public static Dictionary<string, MethodInfo> GetComponentsWithControllerPreprocessAction() { return ComponentsWithControllerPreprocessAction; }
     }
 }

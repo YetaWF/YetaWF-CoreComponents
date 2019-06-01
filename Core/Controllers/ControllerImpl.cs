@@ -17,16 +17,12 @@ using System.Linq;
 using YetaWF.Core.Components;
 using System.IO;
 #if MVC6
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -308,7 +304,7 @@ namespace YetaWF.Core.Controllers {
                         foreach (var parm in parms) {
                             FixArgumentParmTrim(parm.Value);
                             FixArgumentParmCase(parm.Value);
-                            FixDates(parm.Value);
+                            await FixDataAsync(parm.Value);
                             CorrectModelState(parm.Value, modelState);
                         }
 
@@ -444,10 +440,12 @@ namespace YetaWF.Core.Controllers {
         // INPUT CLEANUP
         // INPUT CLEANUP
 
-        // change all dates to utc - internally YetaWF ALWAYS uses utc
-        // incoming dates are sent from client in utc, but arrive in local time ("thanks" to ASP.NET translating them)
-        // so we translate them back to utc. There is probably a better way somewhere in ASP.NET, but haven't figured it out yet.
-        private bool FixDates(object parm) {
+        /// <summary>
+        /// Handle all input fields and call template-specific pre-controller action.
+        /// </summary>
+        /// <param name="parm"></param>
+        /// <returns></returns>
+        private async Task<bool> FixDataAsync(object parm) {
             if (parm == null) return false;
             bool any = false;
 
@@ -457,6 +455,27 @@ namespace YetaWF.Core.Controllers {
                 any = true;
                 PropertyInfo pi = prop.PropInfo;
                 if (pi.CanRead && pi.CanWrite) {
+
+                    if (prop.UIHint != null) {
+                        // check template-specific processing
+                        Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
+                        MethodInfo meth;
+                        if (meths.TryGetValue(prop.UIHint, out meth)) {
+                            if (!ModelState.ContainsKey(prop.Name)) { // don't call component if there already is an error
+                                //string caption = prop.GetCaption(parm);
+                                object obj = prop.GetPropertyValue<object>(parm);
+                                Task methObjTask = (Task)meth.Invoke(null, new object[] { prop.Name, obj, ModelState });
+                                await methObjTask.ConfigureAwait(false);
+                                PropertyInfo resultProp = methObjTask.GetType().GetProperty("Result");
+                                pi.SetValue(parm, resultProp.GetValue(methObjTask));
+                            }
+                        }
+                    }
+
+                    // Date/Time translation to UTC (independent of any templates)
+                    // change all dates to utc - internally YetaWF ALWAYS uses utc
+                    // incoming dates are sent from client in utc, but arrive in local time ("thanks" to ASP.NET translating them)
+                    // so we translate them back to utc. There is probably a better way somewhere in ASP.NET, but haven't figured it out yet.
                     if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
                         DateTime? dt = prop.GetPropertyValue<DateTime?>(parm);
                         if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local) {
@@ -472,7 +491,7 @@ namespace YetaWF.Core.Controllers {
                         int indexParmsLen = indexParms.Length;
                         if (indexParmsLen == 0) {
                             try {
-                                FixDates(prop.GetPropertyValue<object>(parm));  // try to handle nested types
+                                await FixDataAsync(prop.GetPropertyValue<object>(parm));  // try to handle nested types
                             } catch (Exception) { }
                         } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
                             // enumerable types
@@ -480,7 +499,7 @@ namespace YetaWF.Core.Controllers {
                             if (ienum != null) {
                                 IEnumerator<object> ienumerator = ienum.GetEnumerator();
                                 for (int i = 0; ienumerator.MoveNext(); i++) {
-                                    FixDates(ienumerator.Current);
+                                    await FixDataAsync(ienumerator.Current);
                                 }
                             }
                         }
@@ -1479,7 +1498,7 @@ namespace YetaWF.Core.Controllers {
             if (obj != null) {
                 FixArgumentParmTrim(obj);
                 FixArgumentParmCase(obj);
-                FixDates(obj);
+                await FixDataAsync(obj);
 
                 CorrectModelState(obj, ViewData.ModelState, modelName + ".");
 
