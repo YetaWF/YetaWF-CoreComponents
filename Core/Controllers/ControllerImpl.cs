@@ -456,12 +456,20 @@ namespace YetaWF.Core.Controllers {
                 PropertyInfo pi = prop.PropInfo;
                 if (pi.CanRead && pi.CanWrite) {
 
-                    if (prop.UIHint != null) {
+                    if (prop.UIHint != null && !prop.ReadOnly) {
                         // check template-specific processing
                         Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
                         MethodInfo meth;
                         if (meths.TryGetValue(prop.UIHint, out meth)) {
-                            if (!ModelState.ContainsKey(prop.Name)) { // don't call component if there already is an error
+                            ModelStateEntry modelStateEntry;
+                            bool preprocess = false;
+                            if (ModelState.TryGetValue(prop.UIHint, out modelStateEntry)) {
+                                if (modelStateEntry.ValidationState == ModelValidationState.Valid)
+                                    preprocess = true;
+                            } else {
+                                preprocess = true;
+                            }
+                            if (preprocess) { // don't call component if there already is an error
                                 //string caption = prop.GetCaption(parm);
                                 object obj = prop.GetPropertyValue<object>(parm);
                                 Task methObjTask = (Task)meth.Invoke(null, new object[] { prop.Name, obj, ModelState });
