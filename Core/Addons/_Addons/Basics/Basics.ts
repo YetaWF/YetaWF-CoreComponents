@@ -1325,18 +1325,18 @@ namespace YetaWF {
             }
         }
         public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
-            document.addEventListener(eventName, (ev: DocumentEventMap[K]) => this.handleEvent(null, ev, selector, callback));
+            document.addEventListener(eventName, (ev: DocumentEventMap[K]):void => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
         }
         public registerMultipleEventHandlersDocument(eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
             for (let eventName of eventNames) {
-                document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
+                document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
             }
         }
         public registerEventHandlerWindow<K extends keyof WindowEventMap>(eventName: K, selector: string | null, callback: (ev: WindowEventMap[K]) => boolean): void {
-            window.addEventListener(eventName, (ev: WindowEventMap[K]) => this.handleEvent(null, ev, selector, callback));
+            window.addEventListener(eventName, (ev: WindowEventMap[K]) => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
-            tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback));
+            tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback as (ev:Event)=>boolean));
         }
         public registerMultipleEventHandlers(tags: (HTMLElement|null)[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
             for (let tag of tags) {
