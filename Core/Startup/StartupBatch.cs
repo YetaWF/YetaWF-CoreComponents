@@ -21,7 +21,7 @@ namespace YetaWF.Core.Support {
 #if DEBUG
             "AppSettings.json";
 #else
-            "AppSettings.PROD.json";
+            "AppSettings.Prod.json";
 #endif
         /// <summary>
         /// Called to initialize a console application so it can use all of YetaWF's services, including data providers, caching, etc.
