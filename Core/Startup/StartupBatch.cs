@@ -17,19 +17,13 @@ namespace YetaWF.Core.Support {
     /// </summary>
     public static class StartupBatch {
 
-        private static readonly string APPSETTINGSFILE =
-#if DEBUG
-            "AppSettings.json";
-#else
-            "AppSettings.Prod.json";
-#endif
         /// <summary>
         /// Called to initialize a console application so it can use all of YetaWF's services, including data providers, caching, etc.
         /// </summary>
         /// <param name="baseDirectory">The base folder where the executable and all assemblies for the console application are located.</param>
-        /// <param name="siteDomain">The domain name used to access data. This must be an existing domain with a YetaWF site and Appsettings.json must contain data provider information.</param>
+        /// <param name="siteDomain">The domain name used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.</param>
         /// <remarks>
-        /// The Start method makes all settings from Appsettings.json available. In release builds, Appsettings.PROD.json is used instead.
+        /// The Start method makes all settings from AppSettings.json available. In release builds, AppSettings.PROD.json is used instead.
         ///
         /// A LanguageSettings.json file must be present defining all languages use by the specified site <paramref name="siteDomain"/> (a copy of the LanguageSettings.json file used for the website).
         ///
@@ -45,8 +39,8 @@ namespace YetaWF.Core.Support {
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
 #endif
-            WebConfigHelper.InitAsync(Path.Combine(baseDirectory, APPSETTINGSFILE)).Wait();
-            LanguageSection.InitAsync(Path.Combine(baseDirectory, "LanguageSettings.json")).Wait();
+            WebConfigHelper.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.APPSETTINGS)).Wait();
+            LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize
             YetaWFManager.MakeInitialThreadInstance(null);

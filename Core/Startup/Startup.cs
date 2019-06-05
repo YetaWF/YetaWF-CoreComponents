@@ -49,6 +49,35 @@ namespace YetaWF.Core.Support {
         private const string MULTIINSTANCESTARTTIMEKEY = "__MultiInstanceStartTime";
 
         /// <summary>
+        /// Returns the name of the LanguageSettings file, based on the current environment.
+        /// </summary>
+        public static string LANGUAGESETTINGS {
+            get { return "LanguageSettings.json"; }
+        }
+
+        /// <summary>
+        /// Returns whether the application is running in a container (Docker).
+        /// </summary>
+        public static bool RunningInContainer {
+            get {
+                string env = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+                return env == "true";
+            }
+        }
+        /// <summary>
+        /// Returns the name of the AppSettings file, based on the current environment.
+        /// </summary>
+        public static string APPSETTINGS {
+            get {
+                if (RunningInContainer) {
+                    return "AppSettings.Docker.json";
+                } else {
+                    return "AppSettings.json";
+                }
+            }
+        }
+
+        /// <summary>
         /// The date/time when the sing-instance site or the first node of a multi-instance site was started.
         /// </summary>
         public static DateTime MultiInstanceStartTime { get; private set; }
