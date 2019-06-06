@@ -67,6 +67,10 @@ namespace YetaWF.Core.Components {
             /// Category that is initially expanded. May be null which means no category is initially expanded.
             /// </summary>
             public string InitialExpanded { get; set; }
+            /// <summary>
+            /// Category order. May be null or an empty collection, which means there is no explicit category order.
+            /// </summary>
+            public List<string> CategoryOrder { get; set; }
 
             /// <summary>
             /// Defines whether the propertylist has a definitions file.
@@ -81,6 +85,7 @@ namespace YetaWF.Core.Components {
                 ColumnStyles = new List<PropertyListColumnDef>();
                 ExpandableList = new List<string>();
                 InitialExpanded = null;
+                CategoryOrder = new List<string>();
             }
         }
         /// <summary>

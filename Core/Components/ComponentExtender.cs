@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
+using System.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
@@ -42,35 +43,23 @@ namespace YetaWF.Core.Components {
         /// This method can be used with enum types to obtain a collection of values suitable for rendering in a DropDownList component.
         /// Components can implement the GetSelectionListIntAsync method to support retrieval of this collection.
         /// </remarks>
-        public static async Task<List<SelectionItem<int>>> GetSelectionListIntFromUIHintAsync(string uiHint) {
+        public static async Task<List<SelectionItem<int?>>> GetSelectionListIntFromUIHintAsync(string uiHint) {
             Type compType;
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
                 return null;
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
-            ISelectionListInt iSelList = component as ISelectionListInt;
-            if (iSelList == null)
-                return null;
-            return await iSelList.GetSelectionListIntAsync(false);
-        }
 
-        /// <summary>
-        /// Returns a collection of integer/enum values suitable for rendering in a DropDownList component.
-        /// </summary>
-        /// <param name="uiHint">The component name found in a UIHintAttribute.</param>
-        /// <returns>Returns a collection of values suitable for rendering in a DropDownList component.</returns>
-        /// <remarks>
-        /// This method can be used with enum types to obtain a collection of values suitable for rendering in a DropDownList component.
-        /// Components can implement the GetSelectionListIntAsync method to support retrieval of this collection.
-        /// </remarks>
-        public static async Task<List<SelectionItem<int?>>> GetSelectionListIntNullFromUIHintAsync(string uiHint) {
-            Type compType;
-            if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
-                return null;
-            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
-            ISelectionListIntNull iSelList = component as ISelectionListIntNull;
-            if (iSelList == null)
-                return null;
-            return await iSelList.GetSelectionListIntNullAsync(false);
+            ISelectionListInt iSelList = component as ISelectionListInt;
+            if (iSelList != null) {
+                List<SelectionItem<int>> list = await iSelList.GetSelectionListIntAsync(false);
+                return (from l in list select new SelectionItem<int?> { Text = l.Text, Tooltip = l.Tooltip, Value = l.Value }).ToList();
+            }
+
+            ISelectionListIntNull iSelNullList = component as ISelectionListIntNull;
+            if (iSelNullList != null)
+                return await iSelNullList.GetSelectionListIntNullAsync(false);
+
+            return null;
         }
 
         /// <summary>
