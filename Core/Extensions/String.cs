@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace YetaWF.Core.Extensions {
 
-    public static class Extensions {
+    public static partial class Extensions {
 
         public static string Truncate(this string text, int maxLength) {
             if (string.IsNullOrEmpty(text)) return text;
