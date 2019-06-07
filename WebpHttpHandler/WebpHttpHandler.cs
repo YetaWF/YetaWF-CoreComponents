@@ -21,22 +21,36 @@ using System.Web.SessionState;
 namespace YetaWF.Core.HttpHandler {
 
 #if MVC6
+    /// <summary>
+    /// Class implementing middleware for the WEBP HTTP handler.
+    /// </summary>
     public class WebpMiddleware {
 
         private readonly RequestDelegate _next;
         private WebpHttpHandler Handler;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="next">The delegate representing the remaining middleware in the request pipeline.</param>
         public WebpMiddleware(RequestDelegate next) {
             _next = next;
             Handler = new WebpHttpHandler();
         }
 
+        /// <summary>
+        /// Request handling method.
+        /// </summary>
+        /// <param name="context">The HttpContext for the current request.</param>
         public async Task InvokeAsync(HttpContext context) {
             await Handler.ProcessRequest(context);
             //await _next(context);
         }
     }
 
+    /// <summary>
+    /// Implements the WEBP HTTP Handler. Responds to image requests for PNG, JPG files by returning a WEBP image (if available).
+    /// </summary>
     public class WebpHttpHandler
 #else
     /// <summary>
@@ -64,6 +78,11 @@ namespace YetaWF.Core.HttpHandler {
         // IHttpHandler (Async)
         // IHttpHandler (Async)
 #if MVC6
+        /// <summary>
+        /// Called by the IIS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
+        /// a request for a CSS file.
+        /// </summary>
+        /// <param name="context">The HTTP context of the request.</param>
         public async Task ProcessRequest(HttpContext context) {
             await StartupRequest.StartRequestAsync(context, true);
 #else
