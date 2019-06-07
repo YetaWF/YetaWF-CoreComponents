@@ -38,7 +38,8 @@ namespace YetaWF.Core.Support {
 
         private static string SettingsFile;
         private static dynamic Settings;
-        private static Dictionary<string, object> Variables;
+
+        public static Dictionary<string, object> Variables;
 
 #if COMPARE
         // compares web.config to appsettings.json

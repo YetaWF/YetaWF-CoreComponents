@@ -126,7 +126,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>If a "class" attribute is added, existing CSS classes are preserved and the new class added to the existing CSS classes (<paramref name="replaceExisting"/> true), otherwise the class attribute is replaced.
         /// </remarks>
         public void MergeAttribute(string key, string value, bool replaceExisting) {
-            if (key == "--NoTemplate") return;
+            if (key == "--NoTemplate" || key == "__NoTemplate") return;
             if (string.IsNullOrWhiteSpace(key))
                 throw new InternalError($"Invalid attribute key");
             if (replaceExisting) {
