@@ -1173,9 +1173,14 @@ namespace YetaWF {
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
                 }
-                return list;
-            } else
-                return list;//$$$$ new RegExp("(^| )" + cssPrefix, "gi").test(elem.className);//$$$$$
+            } else {
+                let cs = elem.className.split(" ");
+                for (let c of cs) {
+                    if (c.startsWith(cssPrefix))
+                        list.push(c);
+                }
+            }
+            return list;
         }
         /**
          * Add a space separated list of css classes to an element.

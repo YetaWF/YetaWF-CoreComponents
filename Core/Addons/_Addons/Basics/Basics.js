@@ -1048,10 +1048,16 @@ var YetaWF;
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
                 }
-                return list;
             }
-            else
-                return list; //$$$$ new RegExp("(^| )" + cssPrefix, "gi").test(elem.className);//$$$$$
+            else {
+                var cs = elem.className.split(" ");
+                for (var _i = 0, cs_1 = cs; _i < cs_1.length; _i++) {
+                    var c = cs_1[_i];
+                    if (c.startsWith(cssPrefix))
+                        list.push(c);
+                }
+            }
+            return list;
         };
         /**
          * Add a space separated list of css classes to an element.
