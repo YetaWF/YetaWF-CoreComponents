@@ -25,7 +25,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// The Start method makes all settings from AppSettings.json available. In release builds, AppSettings.PROD.json is used instead.
         ///
-        /// A LanguageSettings.json file must be present defining all languages use by the specified site <paramref name="siteDomain"/> (a copy of the LanguageSettings.json file used for the website).
+        /// A LanguageSettings.json file must be present defining all languages used by the specified site <paramref name="siteDomain"/> (a copy of the LanguageSettings.json file used for the website).
         ///
         /// The console application must have references to the YetaWF.Core, YetaWF.Caching and YetaWF.SiteProperties packages.
         /// Additional references must be added for services used by the console application.
@@ -35,6 +35,45 @@ namespace YetaWF.Core.Support {
         /// </remarks>
         public static void Start(string baseDirectory, string siteDomain) {
 
+            Start(baseDirectory);
+
+            YetaWFManager.Syncify(async () => {
+                // Set up specific site to use
+                YetaWFManager.Manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
+
+                YetaWF.Core.Support.Startup.Started = true;
+            });
+        }
+        /// <summary>
+        /// Called to initialize a console application so it can use all of YetaWF's services, including data providers, caching, etc.
+        /// </summary>
+        /// <param name="baseDirectory">The base folder where the executable and all assemblies for the console application are located.</param>
+        /// <param name="siteIdentity">The domain's site identity used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.</param>
+        /// <remarks>
+        /// The Start method makes all settings from AppSettings.json available. In release builds, AppSettings.PROD.json is used instead.
+        ///
+        /// A LanguageSettings.json file must be present defining all languages used by the specified site <paramref name="siteIdentity"/> (a copy of the LanguageSettings.json file used for the website).
+        ///
+        /// The console application must have references to the YetaWF.Core and YetaWF.Caching. The YetaWF.SiteProperties package is not required.
+        /// Using this method to start, limited services can be used. Any services that require a complete SiteDefinition (derived from the site's domain name) will fail.
+        /// Additional references must be added for services used by the console application.
+        ///
+        /// Because all YetaWF services are available, all data providers and config settings can be accessed (and modified).
+        /// Many data providers use site specific data. The data for the specified site <paramref name="siteIdentity"/> is used.
+        /// </remarks>
+        public static void StartByIdentity(string baseDirectory, int siteIdentity) {
+
+            Start(baseDirectory);
+
+            // Set up specific site to use
+            YetaWFManager.Manager.CurrentSite = new SiteDefinition() {
+                Identity = siteIdentity
+            };
+
+            YetaWF.Core.Support.Startup.Started = true;
+        }
+
+        private static void Start(string baseDirectory) {
             YetaWFManager.RootFolder = baseDirectory;
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
@@ -66,10 +105,6 @@ namespace YetaWF.Core.Support {
                 YetaWFManager.Manager.CurrentSite = new SiteDefinition();
                 await YetaWF.Core.Support.Startup.CallStartupClassesAsync();
 
-                // Set up specific site to use
-                YetaWFManager.Manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
-
-                YetaWF.Core.Support.Startup.Started = true;
             });
         }
     }
