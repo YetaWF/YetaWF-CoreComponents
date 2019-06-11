@@ -1133,6 +1133,12 @@ namespace YetaWF.Core.Support {
                     return false;
                 }
                 return true;
+            } else if (typeof(TYPE) == typeof(DateTime) || typeof(TYPE) == typeof(DateTime?)) {
+                if (DateTime.TryParse(v, out DateTime dt)) {
+                    val = (TYPE)(object)dt;
+                    return true;
+                }
+                return false;
             } else {
                 // TryGetUrlArg doesn't support this type
                 return false;
