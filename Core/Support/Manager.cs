@@ -1255,8 +1255,8 @@ namespace YetaWF.Core.Support {
         /// <returns>Returns a unique HTML id.</returns>
         /// <remarks>Every call to the Unique() method returns a new, unique id.
         ///
-        /// Whenever an HTML id is needed, this method must be used. This insures that Ajax/Post requests do not use
-        /// accidentally use ids that were used in proior request.
+        /// Whenever an HTML id is needed, this method must be used. This insures that Ajax/Post requests do not
+        /// accidentally use ids that were used in prior request.
         /// </remarks>
         public string UniqueId(string name = "a") {
             ++_uniqueIdCounter;

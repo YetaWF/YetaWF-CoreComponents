@@ -68,6 +68,8 @@ namespace YetaWF.Core.Controllers {
 
                 //Manager.PopCharSize();
 
+                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdPrefixCounter", Manager.UniqueIdPrefixCounter);
+
                 Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
 
                 Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
