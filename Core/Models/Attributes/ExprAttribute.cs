@@ -39,7 +39,7 @@ namespace YetaWF.Core.Models.Attributes {
         public RequiredIfNotSuppliedAttribute(string prop1, string prop2) : base(OpEnum.RequiredIfNotSupplied, prop1, OpCond.None, null, prop2, OpCond.None, null) { }
         public RequiredIfNotSuppliedAttribute(string prop1, string prop2, string prop3) : base(OpEnum.RequiredIfNotSupplied, prop1, OpCond.None, null, prop2, OpCond.None, null, prop3, OpCond.None, null) { }
     }
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SelectionRequiredAttribute : ExprAttribute {
         public SelectionRequiredAttribute() : base(OpEnum.SelectionRequired) { }
     }
@@ -591,7 +591,18 @@ namespace YetaWF.Core.Models.Attributes {
             public OpCond Cond { get; set; }
             public string _Left { get { return AttributeHelper.GetDependentPropertyName(LeftProperty); } }
             public string _Right { get { return IsRightProperty ? AttributeHelper.GetDependentPropertyName(RightProperty) : ""; } }
-            public object _RightVal { get { return !IsRightProperty ? _Value : null; } }
+            public string _RightVal {
+                get {
+                    // normalize to string
+                    if (_Value == null || IsRightProperty) return null;
+                    Type valType = _Value.GetType();
+                    if (valType == typeof(bool))
+                        return (bool)_Value ? "True" : "False";
+                    if (valType.IsEnum)
+                        return ((int)_Value).ToString();
+                    return _Value.ToString();
+                }
+            }
         }
 
         public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
@@ -604,9 +615,22 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.RequiredIfSupplied:
                 case OpEnum.RequiredIfNotSupplied: {
                         string msg = __ResStr("requiredExpr", "The '{0}' field is required", propData.GetCaption(container));
+                        string op = ((int)Op).ToString();
+                        string newExpr = YetaWFManager.JsonSerialize(ExprList);
+                        string oldExpr = "";
+                        if (tag.Attributes.TryGetValue("data-val-requiredexpr-json", out oldExpr)) {
+                            oldExpr = oldExpr.Substring(1, oldExpr.Length - 2); // remove leading/trailing []
+                            oldExpr += ",";
+                        }
+#if DEBUG
+                        if (tag.Attributes.ContainsKey("data-val-requiredexpr") && tag.Attributes["data-val-requiredexpr"] != msg)
+                            throw new InternalError($"Multiple Requiredxxx attributes on the {propData.Name} property must use the same error message");
+                        if (tag.Attributes.ContainsKey("data-val-requiredexpr-op") && tag.Attributes["data-val-requiredexpr-op"] != op)
+                            throw new InternalError($"Multiple Requiredxxx attributes on the {propData.Name} property must use the same operator (If, IfNot, etc.)");
+#endif
                         tag.MergeAttribute("data-val-requiredexpr", msg);
                         tag.MergeAttribute("data-val-requiredexpr-op", ((int)Op).ToString());
-                        tag.MergeAttribute("data-val-requiredexpr-json", YetaWFManager.JsonSerialize(ExprList));
+                        tag.MergeAttribute("data-val-requiredexpr-json", $"[{oldExpr}{newExpr}]", replaceExisting: true);
                         tag.MergeAttribute("data-val", "true");
                         break;
                     }
@@ -616,9 +640,22 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.SelectionRequiredIfSupplied:
                 case OpEnum.SelectionRequiredIfNotSupplied: {
                         string msg = __ResStr("requiredSelExpr", "The '{0}' field requires a selection", propData.GetCaption(container));
+                        string op = ((int)Op).ToString();
+                        string newExpr = YetaWFManager.JsonSerialize(ExprList);
+                        string oldExpr = "";
+                        if (tag.Attributes.TryGetValue("data-val-requiredexpr-json", out oldExpr)) {
+                            oldExpr = oldExpr.Substring(1, oldExpr.Length - 2); // remove leading/trailing []
+                            oldExpr += ",";
+                        }
+#if DEBUG
+                        if (tag.Attributes.ContainsKey("data-val-requiredexpr") && tag.Attributes["data-val-requiredexpr"] != msg)
+                            throw new InternalError($"Multiple SelectionRequiredxxx attributes on the {propData.Name} property must use the same error message");
+                        if (tag.Attributes.ContainsKey("data-val-requiredexpr-op") && tag.Attributes["data-val-requiredexpr-op"] != op)
+                            throw new InternalError($"Multiple SelectionRequiredxxx attributes on the {propData.Name} property must use the same operator (If, IfNot, etc.)");
+#endif
                         tag.MergeAttribute("data-val-requiredexpr", msg);
                         tag.MergeAttribute("data-val-requiredexpr-op", ((int)Op).ToString());
-                        tag.MergeAttribute("data-val-requiredexpr-json", YetaWFManager.JsonSerialize(ExprList));
+                        tag.MergeAttribute("data-val-requiredexpr-json", $"[{oldExpr}{newExpr}]", replaceExisting: true);
                         tag.MergeAttribute("data-val", "true");
                         break;
                     }
