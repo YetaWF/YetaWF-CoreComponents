@@ -162,7 +162,8 @@ namespace YetaWF.Core.Packages {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
-        private const string SOURCE_IDENTIFIER = "Properties\\AssemblyInfo.cs";
+        private const string SOURCE_IDENTIFIER_FOLDER = "Properties";
+        private const string SOURCE_IDENTIFIER_FILE = "AssemblyInfo.cs";
 #if MVC6
         public /* Only so startup code can access */
 #else
@@ -248,11 +249,11 @@ namespace YetaWF.Core.Packages {
             if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(packageRoot)) return packages;
             List<string> packageDirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageRoot);
             foreach (string dir in packageDirs) {
-                string propsFile = Path.Combine(dir, SOURCE_IDENTIFIER);
+                string propsFile = Path.Combine(dir, SOURCE_IDENTIFIER_FOLDER, SOURCE_IDENTIFIER_FILE);
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(propsFile)) {
                     string target = await ExtractAssemblyNameAsync(propsFile, regex);
                     if (string.IsNullOrWhiteSpace(target))
-                        throw new InternalError("Folder {0} does not define an assembly name in {1}", dir, SOURCE_IDENTIFIER);
+                        throw new InternalError($"Folder {dir} does not define an assembly name in {SOURCE_IDENTIFIER_FOLDER}/{SOURCE_IDENTIFIER_FILE}");
                     string asmPath = Path.Combine(dir, "Bin", target);
                     if (!await FileSystem.FileSystemProvider.FileExistsAsync(asmPath))
                         throw new InternalError("Package assembly {0} not found", asmPath);
@@ -455,10 +456,14 @@ namespace YetaWF.Core.Packages {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string PackageSourceRoot {
             get {
-                const string sourceEnd = SOURCE_IDENTIFIER; // source file always ends in this string
                 string path = SourceFile;
-                if (!path.EndsWith(sourceEnd, StringComparison.OrdinalIgnoreCase)) throw new InternalError("Package error - source file name {0} doesn't end in {1}", SourceFile, sourceEnd);
-                return path.Substring(0, path.Length - sourceEnd.Length);
+                if (Path.GetFileName(path) != SOURCE_IDENTIFIER_FILE)
+                    throw new InternalError($"Package error - source file name {SourceFile} should be {SOURCE_IDENTIFIER_FILE}");
+                path = Path.GetDirectoryName(path);
+                if (Path.GetFileName(path) != SOURCE_IDENTIFIER_FOLDER)
+                    throw new InternalError($"Package error - source file name {SourceFile} should be located in {SOURCE_IDENTIFIER_FOLDER}");
+                path = Path.GetDirectoryName(path);
+                return path;
             }
         }
         /// <summary>

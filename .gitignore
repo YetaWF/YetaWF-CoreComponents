@@ -34,9 +34,7 @@ globals.js
 **/Addons/YetaWF/**/*.min.css
 **/Addons/YetaWF/**/*.min.scss
 **/obj/
-**/bin/**/*.xml
-**/bin/**/*.config
-**/bin/**/*.manifest
+**/bin/
 
 Core/Addons/_JS/alexgorbatchev.com/SyntaxHighlighter/**/*.min.js
 Core/Addons/_JS/alexgorbatchev.com/SyntaxHighlighter/**/*.min.css

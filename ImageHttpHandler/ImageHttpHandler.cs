@@ -21,6 +21,8 @@ using System.Web;
 using System.Web.SessionState;
 #endif
 
+//$$$ sudo apt install libgdiplus
+
 namespace YetaWF.Core.HttpHandler {
 
 #if MVC6

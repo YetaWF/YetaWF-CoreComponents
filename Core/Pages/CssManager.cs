@@ -112,16 +112,16 @@ namespace YetaWF.Core.Pages {
                         if (allowCustom)
                             throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                         bundle = false;
-                    } else if (file.StartsWith("\\")) {
+                    } else if (file.StartsWith("/")) {
                         string f;
 #if MVC6
-                        if (file.StartsWith("\\" + Globals.NodeModulesFolder + "\\"))
-                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                        else if (file.StartsWith("\\" + Globals.BowerComponentsFolder + "\\"))
-                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                        if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, YetaWFManager.FileToPhysical(file.Substring(1)));
+                        else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, YetaWFManager.FileToPhysical(file.Substring(1)));
                         else
 #endif
-                        f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                        f = Path.Combine(YetaWFManager.RootFolder, YetaWFManager.FileToPhysical(file.Substring(1)));
                         if (YetaWFManager.DiagnosticsMode) {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
                                 throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
@@ -129,7 +129,7 @@ namespace YetaWF.Core.Pages {
                         filePathURL = YetaWFManager.PhysicalToUrl(f);
                     } else {
                         file = file.Replace("\\", "/");// convert to Url in case this is file spec
-                        filePathURL = string.Format("{0}{1}", productUrl, file);
+                        filePathURL = $"{productUrl}{file}";
                         string fullPath = YetaWFManager.UrlToPhysical(filePathURL);
                         if (YetaWFManager.DiagnosticsMode) {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))

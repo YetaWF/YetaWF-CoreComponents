@@ -575,7 +575,7 @@ namespace YetaWF.Core.Support {
             } else if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + YetaWFManager.UrlToPhysicalRaw(url);
             } else {
-                path = RootFolder + UrlToPhysicalRaw(url);
+                path = $"{RootFolder}{UrlToPhysicalRaw(url)}";
             }
             return path;
 #else
@@ -587,9 +587,14 @@ namespace YetaWF.Core.Support {
         }
         private static string UrlToPhysicalRaw(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
-            url = url.Replace('/', '\\');
+            url = FileToPhysical(url);
             url = url.Replace("%20", " ");
             return url;
+        }
+        public static string FileToPhysical(string file) {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                file = file.Replace('/', '\\');
+            return file;
         }
 
         /// <summary>
@@ -1968,6 +1973,7 @@ namespace YetaWF.Core.Support {
         public TimeZoneInfo GetTimeZoneInfo() {
             if (timeZoneInfo == null) {
                 string tz = UserSettings.GetProperty<string>("TimeZone");
+tz = "America/New_York";//$$$$$$$$$$$$$$$$$$$
                 if (!string.IsNullOrWhiteSpace(tz))
                     timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
                 if (timeZoneInfo == null)
