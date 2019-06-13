@@ -40,7 +40,7 @@ namespace YetaWF.Core.Support {
 #else
         private
 #endif
-                Task InitAsync(string settingsFile) {
+            Task InitAsync(string settingsFile) {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;

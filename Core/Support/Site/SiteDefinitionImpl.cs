@@ -175,8 +175,6 @@ namespace YetaWF.Core.Site {
                         host = currentSite.SiteDomain;
                         if (currentSite.PortNumberEval != 80)
                             port = currentSite.PortNumberEval;
-                    } else if (Manager.IsTestSite || Manager.IsLocalHost || YetaWFManager.IsHTTPSite) {
-                        port = -1;
                     } else
                         port = Manager.HostPortUsed;
                 }
