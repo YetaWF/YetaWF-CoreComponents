@@ -98,12 +98,11 @@ Core/Addons/_JS/no-margin-for-errors.com/prettyLoader/**/*.min.scss
 
 # telerik.com/Kendo_UI_Core - provides min files
 
-Core/node_modules/
-
-
 Core/package-lock.json
 *.cshtml
 Core/bin/
 *.webp-gen
 .ts.map
 *.map
+
+Core/node_modules
