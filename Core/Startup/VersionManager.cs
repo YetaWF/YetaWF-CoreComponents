@@ -107,13 +107,15 @@ namespace YetaWF.Core.Addons {
             /// The Url where an addon's javascript files are located (this could be changed using the Folder directive in the filelistJS.txt file)
             /// </summary>
             public string GetAddOnJsUrl() {
+                string url;
                 if (string.IsNullOrWhiteSpace(JsPath)) {
-                    return Url + "/";
-                } else if (JsPath.StartsWith("\\")) {
-                    return JsPath.Replace("\\", "/");
+                    url = Url;
                 } else {
-                    return Url + "/" + JsPath;
+                    url = JsPath;
                 }
+                if (!url.EndsWith("/"))
+                    url = $"{url}/";
+                return url;
             }
             /// <summary>
             /// The Url where an addon's css/scss files are located (this could be changed using the Folder directive in the filelistCSS.txt file)
@@ -659,8 +661,8 @@ namespace YetaWF.Core.Addons {
                 string path = (from l in lines where l.StartsWith("Folder ") select l.Trim()).FirstOrDefault();
                 if (path != null) {
                     path = path.Substring(6).Trim();
-                    if (path.StartsWith("\\")) {
-                        if (!path.EndsWith("\\")) path = path + "\\";
+                    if (path.StartsWith("/")) {
+                        if (!path.EndsWith("/")) path = path + "/";
                     } else if (!path.EndsWith("/")) {
                         path = path + "/";
                     }

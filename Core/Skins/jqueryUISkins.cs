@@ -13,7 +13,7 @@ namespace YetaWF.Core.Skins {
 
     public partial class SkinAccess {
 
-        private const string ThemeFile = "Themelist.txt";
+        private const string ThemeFile = "themelist.txt";
 
         public class JQueryTheme {
             public string Name { get; set; }

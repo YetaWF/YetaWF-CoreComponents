@@ -13,7 +13,7 @@ namespace YetaWF.Core.Skins {
 
     public partial class SkinAccess {
 
-        private const string KendoThemeFile = "Themelist.txt";
+        private const string KendoThemeFile = "themelist.txt";
 
         public class KendoTheme {
             public string Name { get; set; }

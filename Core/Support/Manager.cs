@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using System.Globalization;
 using Newtonsoft.Json;
+using TimeZoneConverter;
 #if MVC6
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -575,7 +576,7 @@ namespace YetaWF.Core.Support {
             } else if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + YetaWFManager.UrlToPhysicalRaw(url);
             } else {
-                path = RootFolder + UrlToPhysicalRaw(url);
+                path = $"{RootFolder}{UrlToPhysicalRaw(url)}";
             }
             return path;
 #else
@@ -587,9 +588,14 @@ namespace YetaWF.Core.Support {
         }
         private static string UrlToPhysicalRaw(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
-            url = url.Replace('/', '\\');
+            url = FileToPhysical(url);
             url = url.Replace("%20", " ");
             return url;
+        }
+        public static string FileToPhysical(string file) {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                file = file.Replace('/', '\\');
+            return file;
         }
 
         /// <summary>
@@ -1967,9 +1973,19 @@ namespace YetaWF.Core.Support {
 
         public TimeZoneInfo GetTimeZoneInfo() {
             if (timeZoneInfo == null) {
+                // Timezones don't use the same ids between Windows and other environments (nothing is ever easy)
+                // We store Windows Id so we translate on non-windows environments
                 string tz = UserSettings.GetProperty<string>("TimeZone");
-                if (!string.IsNullOrWhiteSpace(tz))
-                    timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
+                if (!string.IsNullOrWhiteSpace(tz)) {
+                    if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+                        try {
+                            tz = TZConvert.WindowsToIana(tz);
+                        } catch (Exception) { }
+                    }
+                    try {
+                        timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
+                    } catch (Exception) { }
+                }
                 if (timeZoneInfo == null)
                     timeZoneInfo = TimeZoneInfo.Local;
             }
