@@ -271,8 +271,8 @@ namespace YetaWF.Core.Components {
                 string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CountryISO3166");
                 string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                string path = YetaWFManager.UrlToPhysical(url);
-                string customPath = YetaWFManager.UrlToPhysical(customUrl);
+                string path = Utility.UrlToPhysical(url);
+                string customPath = Utility.UrlToPhysical(customUrl);
 
                 file = Path.Combine(path, "Countries.txt");
                 string customFile = Path.Combine(customPath, "Countries.txt");

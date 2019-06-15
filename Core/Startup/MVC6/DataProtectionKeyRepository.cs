@@ -18,7 +18,7 @@ namespace YetaWF2.Support {
         public IReadOnlyCollection<XElement> GetAllElements() {
             string s = WebConfigHelper.GetValue<string>("DataProtection", "List", null, false);
             if (s == null) return new List<XElement>();
-            return YetaWFManager.JsonDeserialize<List<XElement>>(s);
+            return Utility.JsonDeserialize<List<XElement>>(s);
         }
 
         public void StoreElement(XElement element, string friendlyName) {
@@ -28,7 +28,7 @@ namespace YetaWF2.Support {
                 list.Remove(elem);
             list.Add(element);
 
-            string s = YetaWFManager.JsonSerialize(list);
+            string s = Utility.JsonSerialize(list);
             WebConfigHelper.SetValue<string>("DataProtection", "List", s, false);
             WebConfigHelper.SaveAsync().Wait();// oh well
         }

@@ -32,8 +32,8 @@ namespace YetaWF.Core.Skins {
         private async Task<List<KendoTheme>> LoadKendoUIThemesAsync() {
             string kendoUIUrl = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "telerik.com.Kendo_UI_Core");
             string customUrl = VersionManager.GetCustomUrlFromUrl(kendoUIUrl);
-            string path = YetaWFManager.UrlToPhysical(kendoUIUrl);
-            string customPath = YetaWFManager.UrlToPhysical(customUrl);
+            string path = Utility.UrlToPhysical(kendoUIUrl);
+            string customPath = Utility.UrlToPhysical(customUrl);
 
             // use custom or default theme list
             string filename = Path.Combine(customPath, KendoThemeFile);

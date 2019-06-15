@@ -231,12 +231,12 @@ namespace YetaWF.Core.Addons {
 
             // try to find customization
             url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
-            if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);
                 await Manager.CssManager.AddFileAsync(true, url);
             } else {
                 url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                     AddCache(skinCollection, url);
                     await Manager.CssManager.AddFileAsync(true, url);
                 }
@@ -245,12 +245,12 @@ namespace YetaWF.Core.Addons {
             string domainName, productName, skinName;
             VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
             url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-            if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);
                 await Manager.CssManager.AddFileAsync(true, url);
             } else {
                 url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(url))) {
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                     AddCache(skinCollection, url);
                     await Manager.CssManager.AddFileAsync(true, url);
                 }
@@ -320,7 +320,7 @@ namespace YetaWF.Core.Addons {
         public async Task<string> GetFileAsync(string path, object replacements = null) {
             string file = "";
             try {
-                file = await FileSystem.FileSystemProvider.ReadAllTextAsync(YetaWFManager.UrlToPhysical(path));
+                file = await FileSystem.FileSystemProvider.ReadAllTextAsync(Utility.UrlToPhysical(path));
             } catch (System.Exception) { }
             QueryHelper query = QueryHelper.FromAnonymousObject(replacements);
             foreach (QueryHelper.Entry entry in query.Entries)

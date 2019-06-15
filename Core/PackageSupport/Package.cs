@@ -869,12 +869,12 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// The Asp.Net Mvc version for which this package was built
         /// </summary>
-        public YetaWFManager.AspNetMvcVersion AspNetMvc {
+        public Utility.AspNetMvcVersion AspNetMvc {
             get {
 #if MVC6
-                return YetaWFManager.AspNetMvcVersion.MVC6;
+                return Utility.AspNetMvcVersion.MVC6;
 #else
-                return YetaWFManager.AspNetMvcVersion.MVC5;
+                return Utility.AspNetMvcVersion.MVC5;
 #endif
             }
         }

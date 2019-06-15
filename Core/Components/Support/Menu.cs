@@ -226,7 +226,7 @@ namespace YetaWF.Core.Components {
         }
 
         public static MenuList DeserializeFromJSON(string menuJSON, MenuList Original) {
-            List<ModuleAction> actions = (List<ModuleAction>) YetaWFManager.JsonDeserialize(menuJSON, typeof(List<ModuleAction>));
+            List<ModuleAction> actions = (List<ModuleAction>) Utility.JsonDeserialize(menuJSON, typeof(List<ModuleAction>));
             // fix some settings that aren't updated on the browser side
             FixMenuEntries(actions);
             MenuList menu = new MenuList(actions);

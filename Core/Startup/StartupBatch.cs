@@ -100,7 +100,7 @@ namespace YetaWF.Core.Support {
 
             // Set up specific site to use
             string siteDefJson = File.ReadAllText(filePath);
-            SiteDefinition site = YetaWFManager.JsonDeserialize<SiteDefinition>(siteDefJson);
+            SiteDefinition site = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);
             YetaWFManager.Manager.CurrentSite = site;
 
             YetaWF.Core.Support.Startup.Started = true;

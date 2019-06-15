@@ -359,7 +359,7 @@ namespace YetaWF.Core.Pages {
             if (!url.StartsWith("/")) throw new InternalError("Not a local Url");
             int index = url.IndexOf("?");
             if (index >= 0) url = url.Truncate(index);
-            PageUrlInfo pageInfo = await GetPageUrlFromUrlWithSegmentsAsync(YetaWFManager.UrlDecodePath(url), "");
+            PageUrlInfo pageInfo = await GetPageUrlFromUrlWithSegmentsAsync(Utility.UrlDecodePath(url), "");
             return pageInfo.Page;
         }
 
@@ -393,7 +393,7 @@ namespace YetaWF.Core.Pages {
 
                 newUrl = "/" + string.Join("/", segs, 0, seglen - 2);
                 newQs += string.IsNullOrWhiteSpace(newQs) ? "" : "&";
-                newQs += string.Format("{0}={1}", YetaWFManager.UrlEncodeArgs(key), YetaWFManager.UrlEncodeArgs(val));
+                newQs += string.Format("{0}={1}", Utility.UrlEncodeArgs(key), Utility.UrlEncodeArgs(val));
             }
             return new PageUrlInfo {
                 Page = page,
@@ -520,7 +520,7 @@ namespace YetaWF.Core.Pages {
                     if (Conditional)
                         tagDiv.Attributes.Add("data-conditional", "true");
                     if (UnifiedMainPage != null) {
-                        tagDiv.Attributes.Add("data-url", YetaWFManager.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
+                        tagDiv.Attributes.Add("data-url", Utility.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
                         tagDiv.AddCssClass("yUnified");
                         if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
                             hide = true;
@@ -751,7 +751,7 @@ namespace YetaWF.Core.Pages {
             // hreflang - google
 
             // <link rel="alternate" href="http://example.com/" hreflang = "x-default" />
-            string canonUrl = YetaWFManager.HtmlAttributeEncode(EvaluatedCanonicalUrl);
+            string canonUrl = Utility.HtmlAttributeEncode(EvaluatedCanonicalUrl);
             hb.Append("<link rel='alternate' href='{0}' hreflang='x-default' />", canonUrl);
             if (string.IsNullOrWhiteSpace(LanguageId)) {
                 // page in multiple languages

@@ -366,9 +366,9 @@ namespace YetaWF.Core.Support {
         private string EncodeText(string text) {
             switch (EncodingType) {
                 case EncodingTypeEnum.HTML:
-                    return YetaWFManager.HtmlEncode(text);
+                    return Utility.HtmlEncode(text);
                 case EncodingTypeEnum.XML:
-                    return YetaWFManager.HtmlEncode(text);
+                    return Utility.HtmlEncode(text);
             }
             return text;
         }

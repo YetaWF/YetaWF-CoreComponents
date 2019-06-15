@@ -85,7 +85,7 @@ namespace YetaWF.Core.Skins.Pages {
 
         {await RenderPaneAsync("", "MainPane AnyPane", Unified: true)}
 
-        <div class='pageFooter'>{YetaWFManager.HtmlEncode(copyright)}</div>
+        <div class='pageFooter'>{Utility.HtmlEncode(copyright)}</div>
 
         {await HtmlHelper.RenderPageControlAsync(new System.Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}"))}
     </div>

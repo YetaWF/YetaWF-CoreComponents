@@ -72,7 +72,7 @@ namespace YetaWF.Core.Serializers {
                     ObjectCreationHandling = ObjectCreationHandling.Replace
                 });
             else
-                return YetaWFManager.JsonDeserialize<TObj>(s);
+                return Utility.JsonDeserialize<TObj>(s);
         }
     }
 }

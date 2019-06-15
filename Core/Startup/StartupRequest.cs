@@ -133,7 +133,7 @@ namespace YetaWF.Core.Support {
                     if (string.IsNullOrWhiteSpace(logoffUrl))
                         throw new InternalError("MvcApplication LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
                     Uri newUri = new Uri("http://" + host);// new site to display
-                    logoffUrl += YetaWFManager.UrlEncodeArgs(newUri.ToString());
+                    logoffUrl += Utility.UrlEncodeArgs(newUri.ToString());
 #if MVC6
                     Logging.AddLog("302 Found - {0}", logoffUrl).Truncate(100);
                     httpContext.Response.StatusCode = 302;

@@ -15,7 +15,7 @@ namespace YetaWF.Core.Packages {
         public string PackageVersion { get; set; }
         public PackageTypeEnum PackageType { get; set; }
         public string CoreVersion { get; set; }
-        public YetaWFManager.AspNetMvcVersion AspNetMvcVersion { get; set; }
+        public Utility.AspNetMvcVersion AspNetMvcVersion { get; set; }
 
         public SerializableList<SerializableFile> BinFiles { get; set; }
         public SerializableList<SerializableFile> AddOns { get; set; }

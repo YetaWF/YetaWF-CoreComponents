@@ -149,7 +149,7 @@ namespace YetaWF.Core.Components {
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns an encoded HTML attribute data value.</returns>
         public string HAE(string text) {
-            return YetaWFManager.HtmlAttributeEncode(text);
+            return Utility.HtmlAttributeEncode(text);
         }
         /// <summary>
         /// Encodes the provided <paramref name="text"/> suitable for use as HTML.
@@ -157,7 +157,7 @@ namespace YetaWF.Core.Components {
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns encoded HTML.</returns>
         public string HE(string text) {
-            return YetaWFManager.HtmlEncode(text);
+            return Utility.HtmlEncode(text);
         }
         /// <summary>
         /// Encodes the provided <paramref name="text"/> suitable for use as a JavaScript string.
@@ -168,7 +168,7 @@ namespace YetaWF.Core.Components {
         /// These must be added after encoding.
         /// </returns>
         public string JE(string text) {
-            return YetaWFManager.JserEncode(text);
+            return Utility.JserEncode(text);
         }
         /// <summary>
         /// Encodes the provided <paramref name="val"/> a JavaScript true/false string.

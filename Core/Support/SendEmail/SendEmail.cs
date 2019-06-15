@@ -43,11 +43,11 @@ namespace YetaWF.Core.SendEmail {
             string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
 
             // locate site specific custom email
-            string file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
+            string file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
             if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return file;
             // otherwise use default email
-            file = YetaWFManager.UrlToPhysical(string.Format("{0}/{1}/{2}", moduleAddOnUrl, EmailsFolder, filename));
+            file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", moduleAddOnUrl, EmailsFolder, filename));
             if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                 return file;
             throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);

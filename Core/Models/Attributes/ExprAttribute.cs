@@ -616,7 +616,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.RequiredIfNotSupplied: {
                         string msg = __ResStr("requiredExpr", "The '{0}' field is required", propData.GetCaption(container));
                         string op = ((int)Op).ToString();
-                        string newExpr = YetaWFManager.JsonSerialize(ExprList);
+                        string newExpr = Utility.JsonSerialize(ExprList);
                         string oldExpr = "";
                         if (tag.Attributes.TryGetValue("data-val-requiredexpr-json", out oldExpr)) {
                             oldExpr = oldExpr.Substring(1, oldExpr.Length - 2); // remove leading/trailing []
@@ -641,7 +641,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.SelectionRequiredIfNotSupplied: {
                         string msg = __ResStr("requiredSelExpr", "The '{0}' field requires a selection", propData.GetCaption(container));
                         string op = ((int)Op).ToString();
-                        string newExpr = YetaWFManager.JsonSerialize(ExprList);
+                        string newExpr = Utility.JsonSerialize(ExprList);
                         string oldExpr = "";
                         if (tag.Attributes.TryGetValue("data-val-requiredexpr-json", out oldExpr)) {
                             oldExpr = oldExpr.Substring(1, oldExpr.Length - 2); // remove leading/trailing []

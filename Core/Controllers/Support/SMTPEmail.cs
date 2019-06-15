@@ -44,7 +44,7 @@ namespace YetaWF.Core.Controllers {
             await sendEmail.SendAsync();
             string msg = this.__ResStr("emailSent", "A test email has just been sent to {0}", Manager.UserEmail);
             YJsonResult jr = new YJsonResult {
-                Data = $"{Basics.AjaxJavascriptReturn}$YetaWF.message('{YetaWFManager.JserEncode(msg)}');"
+                Data = $"{Basics.AjaxJavascriptReturn}$YetaWF.message('{Utility.JserEncode(msg)}');"
             };
             return jr;
         }

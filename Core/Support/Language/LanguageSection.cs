@@ -24,7 +24,7 @@ namespace YetaWF.Core.Language {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Language settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            Settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
             Languages = GetLanguages();
             return Task.CompletedTask;
         }
@@ -41,7 +41,7 @@ namespace YetaWF.Core.Language {
             return list;
         }
         //public static void Save() {
-        //    string s = YetaWFManager.JsonSerialize(Settings);
+        //    string s = Utility.JsonSerialize(Settings);
         //    File.WriteAllText(SettingsFile, s);
         //}
     }

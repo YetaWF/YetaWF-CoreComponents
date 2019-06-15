@@ -101,7 +101,7 @@ namespace YetaWF.Core.Support {
             if (hasErrors) {
                 foreach (var error in errors) {
                     builder.Append("<li>");
-                    builder.Append(YetaWFManager.HtmlEncode(error.ErrorMessage));
+                    builder.Append(Utility.HtmlEncode(error.ErrorMessage));
                     builder.AppendLine("</li>");
                 }
             } else {
@@ -138,7 +138,7 @@ namespace YetaWF.Core.Support {
             }
 
             YTagBuilder tagBuilder = new YTagBuilder("span");
-            tagBuilder.InnerHtml = YetaWFManager.HtmlEncode(error);
+            tagBuilder.InnerHtml = Utility.HtmlEncode(error);
             bool replaceValidationMessageContents = string.IsNullOrWhiteSpace(error);
             tagBuilder.MergeAttribute("data-valmsg-for", fieldName);
             tagBuilder.MergeAttribute("data-valmsg-replace", replaceValidationMessageContents.ToString().ToLowerInvariant());

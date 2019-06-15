@@ -42,7 +42,7 @@ namespace YetaWF.Core.Controllers {
                 await Manager.ScriptManager.RenderAsync(cr, DataIn.KnownScripts);
                 Manager.ScriptManager.RenderEndofPageScripts(cr);
 
-                string json = YetaWFManager.JsonSerialize(cr);
+                string json = Utility.JsonSerialize(cr);
                 context.HttpContext.Response.ContentType = "application/json";
 
                 // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.

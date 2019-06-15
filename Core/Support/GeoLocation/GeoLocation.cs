@@ -191,13 +191,13 @@ namespace YetaWF.Core.Support {
                     using (resp = http.GetResponse()) {
                         System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
                         string response = sr.ReadToEnd().Trim();
-                        geoData = YetaWFManager.JsonDeserialize<GeoData>(response);
+                        geoData = Utility.JsonDeserialize<GeoData>(response);
                     }
                 } else {
                     using (resp = await http.GetResponseAsync()) {
                         System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
                         string response = (await sr.ReadToEndAsync()).Trim();
-                        geoData = YetaWFManager.JsonDeserialize<GeoData>(response);
+                        geoData = Utility.JsonDeserialize<GeoData>(response);
                     }
                 }
             } catch (Exception exc) {

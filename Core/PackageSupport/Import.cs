@@ -58,9 +58,9 @@ namespace YetaWF.Core.Packages {
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
 
-                if (serPackage.AspNetMvcVersion != YetaWFManager.AspNetMvc) {
+                if (serPackage.AspNetMvcVersion != Utility.AspNetMvc) {
                     errorList.Add(__ResStr("invMvc", "This package was built for {0}, but this site is running {1}",
-                        YetaWFManager.GetAspNetMvcName(serPackage.AspNetMvcVersion), YetaWFManager.GetAspNetMvcName(YetaWFManager.AspNetMvc)));
+                        Utility.GetAspNetMvcName(serPackage.AspNetMvcVersion), Utility.GetAspNetMvcName(Utility.AspNetMvc)));
                     return false;
                 }
                 if (Package.CompareVersion("4.0.0", serPackage.CoreVersion) > 0) {

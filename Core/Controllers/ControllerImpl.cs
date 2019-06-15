@@ -337,7 +337,7 @@ namespace YetaWF.Core.Controllers {
                     // origin list (we already do this in global.asax.cs for GET, maybe move it there)
                     //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
                     //if (!string.IsNullOrWhiteSpace(originList))
-                    //    Manager.OriginList = YetaWFManager.JSONDeserialize<List<Origin>>(originList);
+                    //    Manager.OriginList = Utility.JsonDeserialize<List<Origin>>(originList);
                     //else
                     //    Manager.OriginList = new List<Origin>();
 
@@ -671,7 +671,7 @@ namespace YetaWF.Core.Controllers {
             // NOT SUPPORTED FOR DIRECT PARMS (MUST USE MODEL)
             //foreach (var parm in actionParms) {
             //    if (string.Compare(parm.Key, parmName, true) == 0) {
-            //        object parmData = YetaWFManager.JSONDeserialize(jsonData, parm.Value.GetType());
+            //        object parmData = Utility.JsonDeserialize(jsonData, parm.Value.GetType());
             //        parm.Value = parmData;
             //        return;
             //    }
@@ -684,7 +684,7 @@ namespace YetaWF.Core.Controllers {
                         PropertyInfo propInfo = ObjectSupport.TryGetProperty(tpParm, parmName);
                         if (propInfo != null) {
                             // if fails if we found a xx.JSON form arg and a matching model property, but the JSON data isn't valid
-                            object parmData = YetaWFManager.JsonDeserialize(jsonData, propInfo.PropertyType);
+                            object parmData = Utility.JsonDeserialize(jsonData, propInfo.PropertyType);
                             propInfo.SetValue(parm.Value, parmData);
                         }
                     }
@@ -906,8 +906,8 @@ namespace YetaWF.Core.Controllers {
                 sb.Append(Basics.AjaxJavascriptReloadPage);
                 return new YJsonResult { Data = sb.ToString() };
             } else {
-                popupText = YetaWFManager.JsonSerialize(popupText);
-                popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
+                popupText = Utility.JsonSerialize(popupText);
+                popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
                 sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
@@ -920,8 +920,8 @@ namespace YetaWF.Core.Controllers {
                 sb.Append(Basics.AjaxJavascriptReloadModule);
                 return new YJsonResult { Data = sb.ToString() };
             } else {
-                popupText = YetaWFManager.JsonSerialize(popupText);
-                popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
+                popupText = Utility.JsonSerialize(popupText);
+                popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
                 sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadModule(); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
@@ -934,8 +934,8 @@ namespace YetaWF.Core.Controllers {
                 sb.Append(Basics.AjaxJavascriptReloadModuleParts);
                 return new YJsonResult { Data = sb.ToString() };
             } else {
-                popupText = YetaWFManager.JsonSerialize(popupText);
-                popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
+                popupText = Utility.JsonSerialize(popupText);
+                popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReloadModuleParts);
                 sb.Append("$YetaWF.alert({0}, {1});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
@@ -1071,8 +1071,8 @@ namespace YetaWF.Core.Controllers {
             if (ExtraJavaScript != null)
                 sb.Append(ExtraJavaScript);
 
-            popupText = string.IsNullOrWhiteSpace(popupText) ? null : YetaWFManager.JsonSerialize(popupText);
-            popupTitle = YetaWFManager.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
+            popupText = string.IsNullOrWhiteSpace(popupText) ? null : Utility.JsonSerialize(popupText);
+            popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
             PopupOptions = PopupOptions ?? "null";
 
             bool isApply = IsApply || IsReload;
@@ -1108,7 +1108,7 @@ namespace YetaWF.Core.Controllers {
                 url = AddUrlPayload(url, false, false);
                 if (ForceRedirect)
                     url = QueryHelper.AddRando(url);
-                url = YetaWFManager.JsonSerialize(url);
+                url = Utility.JsonSerialize(url);
 
                 if (Manager.IsInPopup) {
                     if (ForceRedirect) {
@@ -1227,7 +1227,7 @@ namespace YetaWF.Core.Controllers {
                                 else
                                     sb.Append("$YetaWF.alert({0}, {1}, function() {{ window.close(); }}, {2});", popupText, popupTitle, PopupOptions);
                             } else {
-                                url = YetaWFManager.JsonSerialize(Manager.ReturnToUrl);
+                                url = Utility.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
                                     sb.Append("if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                                             "window.location.assign({0});", url);
@@ -1376,7 +1376,7 @@ namespace YetaWF.Core.Controllers {
                             // who knows
                         }
                     }
-                    url = YetaWFManager.JsonSerialize(url);
+                    url = Utility.JsonSerialize(url);
                     if (Manager.IsInPopup) {
                         // simply replace the current popup with the new popup
                         sb.Append("window.parent.$YetaWF.Popups.openPopup({0}, false);", url);
@@ -1385,7 +1385,7 @@ namespace YetaWF.Core.Controllers {
                         sb.Append("$YetaWF.Popups.openPopup({0}, false);", url);
                     }
                 } else {
-                    url = YetaWFManager.JsonSerialize(url);
+                    url = Utility.JsonSerialize(url);
                     if (ForceRedirect) {
                         sb.Append("$YetaWF.setLoading(); window.location.assign({0});", url);
                     } else if (Manager.IsInPopup) {

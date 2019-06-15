@@ -638,7 +638,7 @@ namespace YetaWF.Core.Modules {
             if (Manager.CurrentPage.Temporary) {
                 // add the module's temporary page css class
                 if (!string.IsNullOrWhiteSpace(this.TempPageCssClass)) {
-                    string tempCss = YetaWFManager.JserEncode(this.TempPageCssClass);
+                    string tempCss = Utility.JserEncode(this.TempPageCssClass);
                     Manager.ScriptManager.AddLast(
 $"$YetaWF.elementRemoveClass(document.body, 'data-pagecss');" + // remove existing page specific classes
 $"$YetaWF.elementAddClass(document.body, '{tempCss}');" + // add our new class(es)
@@ -712,11 +712,11 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("<div class='{0}'>", Globals.CssDivAlert);
 #if DEBUG
-            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", YetaWFManager.HtmlEncode(name)));
+            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", Utility.HtmlEncode(name)));
 #endif
             // skip first exception (because it's not user friendly)
             if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;
-            hb.Append(YetaWFManager.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
+            hb.Append(Utility.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
             hb.Append("</div>");
             if (Manager.CurrentResponse.StatusCode == 200)
                 Manager.CurrentResponse.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)

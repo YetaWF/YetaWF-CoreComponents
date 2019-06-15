@@ -65,7 +65,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        file = Utility.UrlToPhysical(urlCustom);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(urlCustom);
                         else
@@ -78,7 +78,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(url);
+                        file = Utility.UrlToPhysical(url);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(url);
                         else
@@ -103,7 +103,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        file = Utility.UrlToPhysical(urlCustom);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(urlCustom);
                         else
@@ -116,7 +116,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(url);
+                        file = Utility.UrlToPhysical(url);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(url);
                         else
@@ -139,7 +139,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        file = Utility.UrlToPhysical(urlCustom);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(urlCustom);
                         else
@@ -152,7 +152,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(url);
+                        file = Utility.UrlToPhysical(url);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(url);
                         else
@@ -172,7 +172,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(urlCustom);
+                        file = Utility.UrlToPhysical(urlCustom);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(urlCustom);
                         else
@@ -185,7 +185,7 @@ namespace YetaWF.Core.Skins {
                     case CachedEnum.NotFound:
                         break;
                     case CachedEnum.Unknown:
-                        file = YetaWFManager.UrlToPhysical(url);
+                        file = Utility.UrlToPhysical(url);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
                             return AddCache(url);
                         else

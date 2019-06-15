@@ -142,7 +142,7 @@ namespace YetaWF.Core.HttpHandler {
                     if ((img == null || bytes == null) && (filePath == null || !await FileSystem.FileSystemProvider.FileExistsAsync(filePath))) {
                         Package package = Package.GetPackageFromType(typeof(YetaWFManager));// get the core package
                         string addonUrl = VersionManager.GetAddOnNamedUrl(package.AreaName, "Image");// and the Url of the Image template
-                        filePath = YetaWFManager.UrlToPhysical(Path.Combine(addonUrl, "NoImage.png"));
+                        filePath = Utility.UrlToPhysical(Path.Combine(addonUrl, "NoImage.png"));
                         if (!await FileSystem.FileSystemProvider.FileExistsAsync(filePath))
                             throw new InternalError("The image {0} is missing", filePath);
                     }

@@ -61,7 +61,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="text">The inner text.</param>
         public void SetInnerText(string text) {
-            InnerHtml = YetaWFManager.HtmlEncode(text);
+            InnerHtml = Utility.HtmlEncode(text);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace YetaWF.Core.Support {
                 string key = attribute.Key;
                 if (String.Equals(key, "id", StringComparison.Ordinal /* case-sensitive */) && String.IsNullOrEmpty(attribute.Value))
                     continue;
-                string value = YetaWFManager.HtmlAttributeEncode(attribute.Value);
+                string value = Utility.HtmlAttributeEncode(attribute.Value);
                 sb.Append(' ').Append(key).Append("=\"").Append(value).Append('"');
             }
         }

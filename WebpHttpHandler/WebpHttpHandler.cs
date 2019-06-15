@@ -103,7 +103,7 @@ namespace YetaWF.Core.HttpHandler {
             YetaWFManager manager = YetaWFManager.Manager;
 
             string fullUrl = context.Request.Path;
-            string file = YetaWFManager.UrlToPhysical(fullUrl);
+            string file = Utility.UrlToPhysical(fullUrl);
 
             if (!IsValidExtension(file)) {
                 context.Response.StatusCode = 404;

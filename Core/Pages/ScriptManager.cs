@@ -252,17 +252,17 @@ namespace YetaWF.Core.Pages {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
                                 throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                         }
-                        filePathURL = YetaWFManager.PhysicalToUrl(f);
+                        filePathURL = Utility.PhysicalToUrl(f);
                     } else {
                         filePathURL = $"{productUrl}{file}";
                         if (YetaWFManager.DiagnosticsMode) {
-                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(YetaWFManager.UrlToPhysical(filePathURL)))
+                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(filePathURL)))
                                 throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
                         }
                     }
                     if (allowCustom) {
                         string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
-                        string f = YetaWFManager.UrlToPhysical(customUrl);
+                        string f = Utility.UrlToPhysical(customUrl);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             filePathURL = customUrl;
                     }
@@ -339,7 +339,7 @@ namespace YetaWF.Core.Pages {
 
             if (!_ScriptFiles.Contains(key)) {
                 if (!fullUrl.IsAbsoluteUrl()) {
-                    string path = YetaWFManager.UrlToPhysical(fullUrl);
+                    string path = Utility.UrlToPhysical(fullUrl);
                     if (YetaWFManager.DiagnosticsMode) {
                         if (!await FileSystem.FileSystemProvider.FileExistsAsync(path))
                             throw new InternalError($"File {path} not found for {fullUrl}");
@@ -534,7 +534,7 @@ namespace YetaWF.Core.Pages {
                         sb.Append("{0}:{{", groupName);
 
                         foreach (var confEntry in confEntries)
-                            sb.Append("'{0}':{1},", confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
+                            sb.Append("'{0}':{1},", confEntry.Key, Utility.JsonSerialize(confEntry.Value));
                         sb.RemoveLast(); // remove last ,
                         sb.Append("},");
                     }
@@ -547,7 +547,7 @@ namespace YetaWF.Core.Pages {
                         sb.Append("YVolatile.{0}=YVolatile.{0}||{{}};", groupName);
                         Dictionary <string, object> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries)
-                            sb.Append("YVolatile.{0}.{1}={2};", groupName, confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
+                            sb.Append("YVolatile.{0}.{1}={2};", groupName, confEntry.Key, Utility.JsonSerialize(confEntry.Value));
                     }
                 }
             }
@@ -577,7 +577,7 @@ namespace YetaWF.Core.Pages {
                         sb.Append("{0}:{{", groupName);
 
                         foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
-                            sb.Append("'{0}':{1},", confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
+                            sb.Append("'{0}':{1},", confEntry.Key, Utility.JsonSerialize(confEntry.Value));
                         sb.RemoveLast(); // remove last ,
                         sb.Append("},");
                     }
@@ -589,7 +589,7 @@ namespace YetaWF.Core.Pages {
                         sb.Append("YConfigs.{0}=YConfigs.{0}||{{}};", groupName);
                         Dictionary<string, object> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
-                            sb.Append("YConfigs.{0}.{1}={2};", groupName, confEntry.Key, YetaWFManager.JsonSerialize(confEntry.Value));
+                            sb.Append("YConfigs.{0}.{1}={2};", groupName, confEntry.Key, Utility.JsonSerialize(confEntry.Value));
                     }
                 }
             }
@@ -607,7 +607,7 @@ namespace YetaWF.Core.Pages {
 
                         foreach (var locEntry in locEntries.OrderBy(kvp => kvp.Key)) {
                             var loc = locEntry;
-                            string val = YetaWFManager.JsonSerialize(loc.Value);
+                            string val = Utility.JsonSerialize(loc.Value);
                             sb.Append("'{0}':{1},", loc.Key, val);
                         }
                         sb.RemoveLast(); // remove last ,
@@ -622,7 +622,7 @@ namespace YetaWF.Core.Pages {
                         Dictionary<string, object> locEntries = groupEntry.Value;
                         foreach (var locEntry in locEntries.OrderBy(kvp => kvp.Key)) {
                             var loc = locEntry;
-                            string val = YetaWFManager.JsonSerialize(loc.Value);
+                            string val = Utility.JsonSerialize(loc.Value);
                             sb.Append("YLocs.{0}.{1}={2};", groupName, loc.Key, val);
                         }
                     }
@@ -673,7 +673,7 @@ namespace YetaWF.Core.Pages {
                     opts += entry.Async ? " async" : "";
                     opts += entry.Defer ? " defer" : "";
                     hb.Append(string.Format("<script data-name='{0}' src='{1}'{2}></script>",
-                        YetaWFManager.UrlEncodePath(entry.Url), YetaWFManager.UrlEncodePath(url), opts));
+                        Utility.UrlEncodePath(entry.Url), Utility.UrlEncodePath(url), opts));
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(entry.Url)) {
                         cr.ScriptFiles.Add(new Controllers.PageContentController.UrlEntry {
@@ -681,7 +681,7 @@ namespace YetaWF.Core.Pages {
                             Url = url,
                         });
                         if (entry.Bundle) {
-                            string file = YetaWFManager.UrlToPhysical(entry.Url);
+                            string file = Utility.UrlToPhysical(entry.Url);
                             string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                             cr.ScriptFilesPayload.Add(new PageContentController.Payload {
                                 Name = entry.Url,

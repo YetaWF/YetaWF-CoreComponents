@@ -257,11 +257,11 @@ namespace YetaWF.Core.Components {
             string predefUrl = VersionManager.GetAddOnPackageUrl(package.AreaName) + "Grids/" + file;
             string customUrl = VersionManager.GetCustomUrlFromUrl(predefUrl);
             ObjectSupport.ReadGridDictionaryInfo info;
-            ObjectSupport.ReadGridDictionaryInfo predefInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, YetaWFManager.UrlToPhysical(predefUrl));
+            ObjectSupport.ReadGridDictionaryInfo predefInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, Utility.UrlToPhysical(predefUrl));
             if (!predefInfo.Success)
                 throw new InternalError("No grid definition exists for {0}", file);
             info = predefInfo;
-            ObjectSupport.ReadGridDictionaryInfo customInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, YetaWFManager.UrlToPhysical(customUrl));
+            ObjectSupport.ReadGridDictionaryInfo customInfo = await ObjectSupport.ReadGridDictionaryAsync(package, recordType, Utility.UrlToPhysical(customUrl));
             if (customInfo.Success)
                 info = customInfo;
             if (info.ColumnInfo.Count == 0)

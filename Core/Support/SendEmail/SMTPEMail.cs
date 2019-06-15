@@ -70,7 +70,7 @@ namespace YetaWF.Core.SendEmail {
                 if (!manager.HaveUser) return null;
                 string userName = manager.UserEmail;
                 return new ModuleAction {
-                    Url = YetaWFManager.UrlFor(typeof(SMTPEmailController), nameof(SMTPEmailController.SendTestEmail)),
+                    Url = Utility.UrlFor(typeof(SMTPEmailController), nameof(SMTPEmailController.SendTestEmail)),
                     LinkText = this.__ResStr("send", "Send"),
                     Category = ModuleAction.ActionCategoryEnum.Update,
                     ConfirmationText = this.__ResStr("confirmSend", "Are you sure you want to send a test email to {0} using the provided server information?", userName),

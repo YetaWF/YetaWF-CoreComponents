@@ -67,7 +67,7 @@ namespace YetaWF.Core.Models.Attributes {
                 string resp = client.DownloadString(string.Format("https://www.google.com/recaptcha/api/siteverify?secret={0}&response={1}&remoteIp={2}",
                     config.PrivateKey, response, ipAddress));
                 Logging.AddLog("Validating CaptchaV2 - received \"{0}\"", resp);
-                RecaptchaV2Response recaptchaResp = YetaWFManager.JsonDeserialize<RecaptchaV2Response>(resp);
+                RecaptchaV2Response recaptchaResp = Utility.JsonDeserialize<RecaptchaV2Response>(resp);
                 return recaptchaResp.Success;
             }
         }

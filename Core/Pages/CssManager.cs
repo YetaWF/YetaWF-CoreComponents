@@ -35,11 +35,11 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         /// <param name="version">The MVC version.</param>
         /// <returns>Returns CSS classes.</returns>
-        public static string GetAspNetCss(YetaWFManager.AspNetMvcVersion version) {
+        public static string GetAspNetCss(Utility.AspNetMvcVersion version) {
             switch (version) {
-                case YetaWFManager.AspNetMvcVersion.MVC5:
+                case Utility.AspNetMvcVersion.MVC5:
                     return "yASPNET4 yMVC5";
-                case YetaWFManager.AspNetMvcVersion.MVC6:
+                case Utility.AspNetMvcVersion.MVC6:
                     return "yASPNETCore yMVC6";
                 default:
                     return null;
@@ -116,21 +116,21 @@ namespace YetaWF.Core.Pages {
                         string f;
 #if MVC6
                         if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
-                            f = Path.Combine(YetaWFManager.RootFolderWebProject, YetaWFManager.FileToPhysical(file.Substring(1)));
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, Utility.FileToPhysical(file.Substring(1)));
                         else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
-                            f = Path.Combine(YetaWFManager.RootFolderWebProject, YetaWFManager.FileToPhysical(file.Substring(1)));
+                            f = Path.Combine(YetaWFManager.RootFolderWebProject, Utility.FileToPhysical(file.Substring(1)));
                         else
 #endif
-                        f = Path.Combine(YetaWFManager.RootFolder, YetaWFManager.FileToPhysical(file.Substring(1)));
+                        f = Path.Combine(YetaWFManager.RootFolder, Utility.FileToPhysical(file.Substring(1)));
                         if (YetaWFManager.DiagnosticsMode) {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
                                 throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                         }
-                        filePathURL = YetaWFManager.PhysicalToUrl(f);
+                        filePathURL = Utility.PhysicalToUrl(f);
                     } else {
                         file = file.Replace("\\", "/");// convert to Url in case this is file spec
                         filePathURL = $"{productUrl}{file}";
-                        string fullPath = YetaWFManager.UrlToPhysical(filePathURL);
+                        string fullPath = Utility.UrlToPhysical(filePathURL);
                         if (YetaWFManager.DiagnosticsMode) {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
                                 throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
@@ -138,7 +138,7 @@ namespace YetaWF.Core.Pages {
                     }
                     if (allowCustom) {
                         string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
-                        string f = YetaWFManager.UrlToPhysical(customUrl);
+                        string f = Utility.UrlToPhysical(customUrl);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             filePathURL = customUrl;
                     }
@@ -216,7 +216,7 @@ namespace YetaWF.Core.Pages {
                 return true;
             if (!fullUrl.ContainsIgnoreCase($"{Globals.AddOnsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddOnsCustomUrl}/"))
                 return true;
-            string fullPath = YetaWFManager.UrlToPhysical(fullUrl);
+            string fullPath = Utility.UrlToPhysical(fullUrl);
             if (YetaWFManager.DiagnosticsMode) {
                 if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
                     throw new InternalError("File {0} not found - can't be processed", fullPath);
@@ -266,7 +266,7 @@ namespace YetaWF.Core.Pages {
             foreach (CssEntry entry in externalList) {
                 string url = Manager.GetCDNUrl(entry.Url);
                 if (cr == null) {
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", YetaWFManager.HtmlAttributeEncode(entry.Url), YetaWFManager.HtmlAttributeEncode(url)));
+                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", Utility.HtmlAttributeEncode(entry.Url), Utility.HtmlAttributeEncode(url)));
                 } else {
                     if (KnownCss == null || !KnownCss.Contains(entry.Url)) {
                         cr.CssFiles.Add(new Controllers.PageContentController.UrlEntry {
@@ -274,7 +274,7 @@ namespace YetaWF.Core.Pages {
                             Url = entry.Url,
                         });
                         if (entry.Bundle) {
-                            string file = YetaWFManager.UrlToPhysical(entry.Url);
+                            string file = Utility.UrlToPhysical(entry.Url);
                             string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                             contents = FileBundles.ProcessIncludedFiles(contents, entry.Url);
                             cr.CssFilesPayload.Add(new PageContentController.Payload {

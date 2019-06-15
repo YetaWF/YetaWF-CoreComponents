@@ -32,8 +32,8 @@ namespace YetaWF.Core.Skins {
         private async Task<List<JQueryTheme>> LoadJQueryUIThemesAsync() {
             string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "jqueryui.com.jqueryui-themes");
             string customUrl = VersionManager.GetCustomUrlFromUrl(url);
-            string path = YetaWFManager.UrlToPhysical(url);
-            string customPath = YetaWFManager.UrlToPhysical(customUrl);
+            string path = Utility.UrlToPhysical(url);
+            string customPath = Utility.UrlToPhysical(customUrl);
 
             // use custom or default theme list
             string filename = Path.Combine(customPath, ThemeFile);

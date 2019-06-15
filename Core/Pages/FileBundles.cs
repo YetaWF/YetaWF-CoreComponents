@@ -82,7 +82,7 @@ namespace YetaWF.Core.Pages {
                             sb.Append("/* File Map: ----------------------------------------\n");
                             long total = 0;
                             foreach (string file in fileList) {
-                                long len = new FileInfo(YetaWFManager.UrlToPhysical(file)).Length;
+                                long len = new FileInfo(Utility.UrlToPhysical(file)).Length;
                                 total += len;
                                 sb.Append($"{len:##,#}\t{file}\n");
                             }
@@ -90,7 +90,7 @@ namespace YetaWF.Core.Pages {
                             sb.Append("--------------------------------------------------*/\n");
 #endif
                             foreach (var file in fileList) {
-                                string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(YetaWFManager.UrlToPhysical(file));
+                                string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(Utility.UrlToPhysical(file));
                                 if (!string.IsNullOrWhiteSpace(fileText)) {
 #if DEBUG
                                     sb.AppendFormat("/**** {0} ****/\n", file);
@@ -127,7 +127,7 @@ namespace YetaWF.Core.Pages {
                                 };
                             }
                             bundles.Add(bundle);
-                            string realFile = YetaWFManager.UrlToPhysical(bundle.Url);
+                            string realFile = Utility.UrlToPhysical(bundle.Url);
                             await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
                             await FileSystem.TempFileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
                             await cacheStaticDP.AddAsync(BUNDLEKEY, bundles);

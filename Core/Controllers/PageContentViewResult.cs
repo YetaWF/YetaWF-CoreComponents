@@ -86,7 +86,7 @@ namespace YetaWF.Core.Controllers {
                     else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.AnalyticsContent))
                         cr.AnalyticsContent = Manager.CurrentSite.AnalyticsContent;
                     if (!string.IsNullOrWhiteSpace(cr.AnalyticsContent))
-                        cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", YetaWFManager.JserEncode(Manager.CurrentPage.EvaluatedCanonicalUrl));
+                        cr.AnalyticsContent = cr.AnalyticsContent.Replace("<<Url>>", Utility.JserEncode(Manager.CurrentPage.EvaluatedCanonicalUrl));
                 }
                 cr.PageTitle = Manager.PageTitle.ToString();
                 cr.PageCssClasses = Manager.CurrentPage.GetCssClass();
@@ -94,7 +94,7 @@ namespace YetaWF.Core.Controllers {
                 UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
                 cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
 
-                string json = YetaWFManager.JsonSerialize(cr);
+                string json = Utility.JsonSerialize(cr);
                 context.HttpContext.Response.ContentType = "application/json";
 
                 // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.

@@ -27,7 +27,7 @@ namespace YetaWF.Core.Support.Image {
 
             if (!name.StartsWith(Globals.VaultUrl) && !name.StartsWith(Globals.VaultPrivateUrl)) // only allow vault files, otherwise this would be a huge security hole
                 return fail;
-            string file = YetaWFManager.UrlToPhysical(name);
+            string file = Utility.UrlToPhysical(name);
 
             if (YetaWFManager.DiagnosticsMode) {
                 if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))

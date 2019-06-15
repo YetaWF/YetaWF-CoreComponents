@@ -168,7 +168,7 @@ namespace YetaWF.Core.Controllers
             filterContext.HttpContext.Response.StatusCode = 200;
             filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
             filterContext.ExceptionHandled = true;
-            YJsonResult cr = new YJsonResult { Data = Basics.AjaxJavascriptErrorReturn + $"$YetaWF.error({YetaWFManager.JsonSerialize(msg)});" };
+            YJsonResult cr = new YJsonResult { Data = Basics.AjaxJavascriptErrorReturn + $"$YetaWF.error({Utility.JsonSerialize(msg)});" };
             cr.ExecuteResult(filterContext);
         }
         /// <summary>
@@ -345,7 +345,7 @@ namespace YetaWF.Core.Controllers
             } catch (Exception) { }
             if (!string.IsNullOrWhiteSpace(originList)) {
                 try {
-                    return YetaWFManager.JsonDeserialize<List<Origin>>(originList);
+                    return Utility.JsonDeserialize<List<Origin>>(originList);
                 } catch (Exception) {
                     throw new InternalError("Invalid Url arguments");
                 }
@@ -365,7 +365,7 @@ namespace YetaWF.Core.Controllers
         protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             // save settings
             YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
-            List<TYPE> list = YetaWFManager.JsonDeserialize<List<TYPE>>(data);
+            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(data);
             List<object> objList = (from l in list select (object)l).ToList();
             DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, sorts, filters);
             return await GridPartialViewAsync(gridModel, ds, objList, fieldPrefix, skip, take, sorts, filters);

@@ -100,7 +100,7 @@ namespace YetaWF.Core.HttpHandler {
             }
 #else
 #endif
-            file = YetaWFManager.UrlToPhysical(fullUrl);
+            file = Utility.UrlToPhysical(fullUrl);
 
             DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(file);
 

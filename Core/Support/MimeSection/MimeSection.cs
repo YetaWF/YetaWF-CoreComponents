@@ -44,7 +44,7 @@ namespace YetaWF.Core.Support {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            Settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
             return Task.CompletedTask;
         }
 
@@ -89,7 +89,7 @@ namespace YetaWF.Core.Support {
             return false;
         }
         //public static void Save() {
-        //    string s = YetaWFManager.JsonSerialize(Settings);
+        //    string s = Utility.JsonSerialize(Settings);
         //    File.WriteAllText(SettingsFile, s);
         //}
     }

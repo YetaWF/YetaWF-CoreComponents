@@ -23,7 +23,7 @@ namespace YetaWF.Core.Support {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Appsettings.json file not found ({0})", settingsFile);
             SettingsFile = settingsFile;
-            Settings = YetaWFManager.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            Settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
             Variables = new Dictionary<string, object>();
             JObject vars = Settings["Variables"];
@@ -147,7 +147,7 @@ namespace YetaWF.Core.Support {
             throw new InternalError("Updating Application Settings not supported");
         }
         public static Task SaveAsync() {
-            string s = YetaWFManager.JsonSerialize(Settings, Indented: true);
+            string s = Utility.JsonSerialize(Settings, Indented: true);
             File.WriteAllText(SettingsFile, s);
             return Task.CompletedTask;
         }

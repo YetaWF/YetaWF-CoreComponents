@@ -159,8 +159,8 @@ namespace YetaWF.Core.Components {
                 string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CurrencyISO4217");
                 string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 
-                string path = YetaWFManager.UrlToPhysical(url);
-                string customPath = YetaWFManager.UrlToPhysical(customUrl);
+                string path = Utility.UrlToPhysical(url);
+                string customPath = Utility.UrlToPhysical(customUrl);
 
                 string file = Path.Combine(path, "Currencies.txt");
                 string customFile = Path.Combine(customPath, "Currencies.txt");

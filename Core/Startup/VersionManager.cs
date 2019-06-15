@@ -538,7 +538,7 @@ namespace YetaWF.Core.Addons {
                 Domain = package.Domain,
                 Product = package.Product,
                 Name = name,
-                Url = YetaWFManager.PhysicalToUrl(folder),
+                Url = Utility.PhysicalToUrl(folder),
             };
             await AddFileListsAsync(version, package, folder);
             Products.Add(key, version);

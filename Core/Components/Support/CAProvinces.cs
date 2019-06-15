@@ -30,7 +30,7 @@ namespace YetaWF.Core.Components {
             if (_provincesList == null) {
                 Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
                 string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CAProvince");
-                string path = YetaWFManager.UrlToPhysical(url);
+                string path = Utility.UrlToPhysical(url);
                 string file = Path.Combine(path, "CAProvinces.txt");
                 List<SelectionItem<string>> newList = new List<SelectionItem<string>>();
                 if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) throw new InternalError("File {0} not found", file);

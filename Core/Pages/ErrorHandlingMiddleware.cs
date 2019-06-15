@@ -71,7 +71,7 @@ namespace YetaWF.Core.Pages {
             //context.ExceptionHandled = true;
             response.StatusCode = 200;
             response.ContentType = "application/json";
-            string content = YetaWFManager.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", YetaWFManager.JsonSerialize(msg)));
+            string content = Utility.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", Utility.JsonSerialize(msg)));
             await context.Response.WriteAsync(content);
             return true;// handled
         }

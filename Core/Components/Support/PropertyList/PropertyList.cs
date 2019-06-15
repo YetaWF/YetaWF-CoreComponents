@@ -133,10 +133,10 @@ namespace YetaWF.Core.Components {
             string predefUrl = VersionManager.GetAddOnPackageUrl(package.AreaName) + "PropertyLists/" + file;
             string customUrl = VersionManager.GetCustomUrlFromUrl(predefUrl);
             PropertyListSetup setup = null;
-            PropertyListSetup predefSetup = await ReadPropertyListSetupAsync(package, model, YetaWFManager.UrlToPhysical(predefUrl));
+            PropertyListSetup predefSetup = await ReadPropertyListSetupAsync(package, model, Utility.UrlToPhysical(predefUrl));
             if (predefSetup.ExplicitDefinitions)
                 setup = predefSetup;
-            PropertyListSetup customInfo = await ReadPropertyListSetupAsync(package, model, YetaWFManager.UrlToPhysical(customUrl));
+            PropertyListSetup customInfo = await ReadPropertyListSetupAsync(package, model, Utility.UrlToPhysical(customUrl));
             if (customInfo.ExplicitDefinitions)
                 setup = customInfo;
             if (setup == null)
@@ -163,7 +163,7 @@ namespace YetaWF.Core.Components {
                 };
             }
 
-            PropertyListSetup setup = YetaWFManager.JsonDeserialize<PropertyListSetup>(text);
+            PropertyListSetup setup = Utility.JsonDeserialize<PropertyListSetup>(text);
             setup.ExplicitDefinitions = true;
             return setup;
         }

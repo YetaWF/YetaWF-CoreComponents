@@ -309,7 +309,7 @@ namespace YetaWF.Core.Pages {
                     string url = string.IsNullOrWhiteSpace(CanonicalUrl) ? Url : CanonicalUrl;
                     Variables vars = new Variables(Manager);
                     url = vars.ReplaceVariables(url);
-                    _canonicalUrl = Manager.CurrentSite.MakeUrl(YetaWFManager.UrlEncodePath(url), PagePageSecurity: PageSecurity);
+                    _canonicalUrl = Manager.CurrentSite.MakeUrl(Utility.UrlEncodePath(url), PagePageSecurity: PageSecurity);
                 }
                 return _canonicalUrl;
             }

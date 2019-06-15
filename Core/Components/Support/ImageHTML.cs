@@ -28,10 +28,10 @@ namespace YetaWF.Core.Components {
                 bool Stretch = false) {
             string url;
             if (width > 0 && height > 0) {
-                url = string.Format(FormatUrlWithSizeString, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name),
+                url = string.Format(FormatUrlWithSizeString, Utility.UrlEncodeArgs(imageType), Utility.UrlEncodeArgs(location), Utility.UrlEncodeArgs(name),
                     width, height, Stretch ? "1" : "0");
             } else {
-                url = string.Format(FormatUrlString, YetaWFManager.UrlEncodeArgs(imageType), YetaWFManager.UrlEncodeArgs(location), YetaWFManager.UrlEncodeArgs(name));
+                url = string.Format(FormatUrlString, Utility.UrlEncodeArgs(imageType), Utility.UrlEncodeArgs(location), Utility.UrlEncodeArgs(name));
             }
             if (!string.IsNullOrWhiteSpace(CacheBuster))
                 url += url.AddUrlCacheBuster(CacheBuster);

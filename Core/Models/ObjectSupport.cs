@@ -1061,7 +1061,7 @@ namespace YetaWF.Core.Models {
                 if (oNew == null) return true;
                 changes.Add(new ChangedProperty {
                     Name = propData.Name,
-                    Value = YetaWFManager.JsonSerialize(oNew),
+                    Value = Utility.JsonSerialize(oNew),
                 });
                 return false;
             } else if (oNew == null) {
@@ -1075,7 +1075,7 @@ namespace YetaWF.Core.Models {
                 if (oOld.Equals(oNew)) return true;
                 changes.Add(new ChangedProperty {
                     Name = propData.Name,
-                    Value = YetaWFManager.JsonSerialize((string)oNew),
+                    Value = Utility.JsonSerialize((string)oNew),
                 });
                 return false;
             } else if (propData.PropInfo.PropertyType == typeof(MultiString)) {
@@ -1088,7 +1088,7 @@ namespace YetaWF.Core.Models {
                         if (newS != oldS) {
                             changes.Add(new ChangedProperty {
                                 Name = $"{propData.Name}[{newKey}]",
-                                Value = YetaWFManager.JsonSerialize(newS),
+                                Value = Utility.JsonSerialize(newS),
                             });
                         }
                     } else {
@@ -1150,7 +1150,7 @@ namespace YetaWF.Core.Models {
                         if (!newSame[newIx]) {
                             changes.Add(new ChangedProperty {
                                 Name = $"+{propData.Name}[{newIx}]",
-                                Value = YetaWFManager.JsonSerialize(newList[newIx]),
+                                Value = Utility.JsonSerialize(newList[newIx]),
                             });
                         }
                     }
@@ -1176,7 +1176,7 @@ namespace YetaWF.Core.Models {
                     if (oOld.Equals(oNew)) return true;
                     changes.Add(new ChangedProperty {
                         Name = propData.Name,
-                        Value = YetaWFManager.JsonSerialize(oNew),
+                        Value = Utility.JsonSerialize(oNew),
                     });
                     return false;
                 }

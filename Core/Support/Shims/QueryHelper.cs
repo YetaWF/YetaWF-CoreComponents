@@ -145,7 +145,7 @@ namespace YetaWF.Core.Support {
                 if (entry.Value == null)
                     sb.AppendFormat("{0}&", entry.Key);
                 else
-                    sb.AppendFormat("{0}={1}&", entry.Key, YetaWFManager.UrlEncodeArgs(entry.Value));
+                    sb.AppendFormat("{0}={1}&", entry.Key, Utility.UrlEncodeArgs(entry.Value));
             }
             if (sb.Length > 0) sb.Remove(sb.Length - 1, 1); // remove last &
             return sb.ToString();
@@ -170,7 +170,7 @@ namespace YetaWF.Core.Support {
                 if (entry.Value != null) {
                     if (!url.EndsWith("/"))
                         url += "/";
-                    url += string.Format("{0}/{1}", YetaWFManager.UrlEncodeSegment(entry.Key), YetaWFManager.UrlEncodeSegment(entry.Value));
+                    url += string.Format("{0}/{1}", Utility.UrlEncodeSegment(entry.Key), Utility.UrlEncodeSegment(entry.Value));
                 }
             }
             if (Anchor != null)
