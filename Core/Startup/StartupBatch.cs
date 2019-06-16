@@ -23,8 +23,7 @@ namespace YetaWF.Core.Support {
         /// <param name="baseDirectory">The base folder where the executable and all assemblies for the console application are located.</param>
         /// <param name="siteDomain">The domain name used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.</param>
         /// <remarks>
-        /// The Start method makes all settings from AppSettings.json available. In release builds, AppSettings.PROD.json is used instead.
-        /// In a docker container, AppSettings.Docker.json is used.
+        /// The Start method makes all settings from AppSettings.json available.
         ///
         /// A LanguageSettings.json file must be present defining all languages used by the specified site <paramref name="siteDomain"/> (a copy of the LanguageSettings.json file used for the website).
         ///
@@ -51,8 +50,7 @@ namespace YetaWF.Core.Support {
         /// <param name="baseDirectory">The base folder where the executable and all assemblies for the console application are located.</param>
         /// <param name="siteIdentity">The domain's site identity used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.</param>
         /// <remarks>
-        /// The Start method makes all settings from AppSettings.json available. In release builds, AppSettings.PROD.json is used instead.
-        /// In a docker container, AppSettings.Docker.json is used.
+        /// The Start method makes all settings from AppSettings.json available.
         ///
         /// A LanguageSettings.json file must be present defining all languages used by the specified site <paramref name="siteIdentity"/> (a copy of the LanguageSettings.json file used for the website).
         ///
@@ -82,8 +80,7 @@ namespace YetaWF.Core.Support {
         /// <param name="filePath">The path and file name of a file containing json describing the site to use. Files with json information are saved in the website's
         ///  ./Website/Data/Sites folder whenever site settings are saved.</param>
         /// <remarks>
-        /// The Start method makes all settings from AppSettings.json available. In release builds, AppSettings.PROD.json is used instead.
-        /// In a docker container, AppSettings.Docker.json is used.
+        /// The Start method makes all settings from AppSettings.json available. 
         ///
         /// A LanguageSettings.json file must be present defining all languages used by the specified site <paramref name="filePath"/> (a copy of the LanguageSettings.json file used for the website).
         ///
