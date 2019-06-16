@@ -69,11 +69,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public static string APPSETTINGS {
             get {
-                if (RunningInContainer) {
-                    return "AppSettings.Docker.json";
-                } else {
-                    return "AppSettings.json";
-                }
+                return "AppSettings.json";
             }
         }
 
