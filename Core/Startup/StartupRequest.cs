@@ -121,7 +121,17 @@ namespace YetaWF.Core.Support {
             manager.IsTestSite = testHost;
             manager.IsLocalHost = loopBack;
 
-            manager.HostUsed = uri.Host;
+            string hostUsed, portUsed, schemeUsed;
+#if MVC6
+            hostUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Host"];
+            portUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Port"];
+            schemeUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Proto"];
+#else
+            hostUsed = httpContext.Request.Headers["X-Forwarded-Host"];
+            portUsed = httpContext.Request.Headers["X-Forwarded-Port"];
+            schemeUsed = httpContext.Request.Headers["X-Forwarded-Proto"];
+#endif
+            manager.HostUsed = hostUsed ?? uri.Host;
             manager.HostPortUsed = uri.Port;
             manager.HostSchemeUsed = uri.Scheme;
 

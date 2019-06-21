@@ -313,6 +313,17 @@ namespace YetaWF.Core.Support {
                     if (!string.IsNullOrWhiteSpace(siteDomain))
                         overridden = true;
                 }
+            } else {
+                string domain;
+#if MVC6
+                domain = HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Host"];
+#else
+                domain = HttpContext.Request.Headers["X-Forwarded-Host"];
+#endif
+                if (!string.IsNullOrWhiteSpace(domain)) {
+                    overridden = true;
+                    siteDomain = domain;
+                }
             }
             if (!overridden)
                 siteDomain = uri.Host;
@@ -1065,15 +1076,15 @@ namespace YetaWF.Core.Support {
 #if DEBUG
             context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 #else
-# if MVC6
+#if MVC6
             SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
             if (site != null)
                 context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Scheme}://{site.SiteDomain.ToLower()}");
-# else
+#else
             SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Url.Host).Result;// cached, so ok to use result
             if (site != null)
                 context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Url.Scheme}://{site.SiteDomain.ToLower()}");
-# endif
+#endif
 #endif
         }
         public static int StaticCacheDuration {

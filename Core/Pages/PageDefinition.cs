@@ -342,7 +342,7 @@ namespace YetaWF.Core.Pages {
         [UIHint("String"), ReadOnly]
         public string CopyrightEvaluated {
             get {
-                return Copyright.ToString().Replace("<<Year>>", Formatting.FormatDateTimeYear(DateTime.UtcNow));
+                return Copyright.ToString()?.Replace("<<Year>>", Formatting.FormatDateTimeYear(DateTime.UtcNow));
             }
         }
 
