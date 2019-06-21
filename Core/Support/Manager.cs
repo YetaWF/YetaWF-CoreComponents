@@ -320,10 +320,8 @@ namespace YetaWF.Core.Support {
 #else
                 domain = HttpContext.Request.Headers["X-Forwarded-Host"];
 #endif
-                if (!string.IsNullOrWhiteSpace(domain)) {
-                    overridden = true;
+                if (!string.IsNullOrWhiteSpace(domain))
                     siteDomain = domain;
-                }
             }
             if (!overridden)
                 siteDomain = uri.Host;
