@@ -145,9 +145,6 @@ namespace YetaWF.Core.Site {
                 throw new InternalError("All pages must start with /");
             pathAndQs = pathAndQs.Substring(1);
 
-            if (SecurityType == PageDefinition.PageSecurityType.Any)
-                SecurityType = PageDefinition.PageSecurityType.httpOnly;
-
             UriBuilder uri;
             if (!string.IsNullOrWhiteSpace(RealDomain) && !Manager.IsLocalHost) {
                 // if we're not using localhost, we can simply access the other domain
