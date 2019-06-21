@@ -156,7 +156,7 @@ namespace YetaWF.Core.Site {
                 SiteDefinition currentSite = Manager.CurrentSite;
                 string host = Manager.HostUsed;
                 int port = -1;
-                string scheme = "http";
+                string scheme = Manager.HostSchemeUsed;
                 if (SecurityType == PageDefinition.PageSecurityType.httpsOnly) {
                     scheme = "https";
                     if (Manager.IsLocalHost) {
@@ -167,7 +167,21 @@ namespace YetaWF.Core.Site {
                             if (currentSite.EnforceSiteUrl)
                                 host = currentSite.SiteDomain;
                             if (currentSite.PortNumberSSLEval != 443)
-                            port = currentSite.PortNumberSSLEval;
+                                port = currentSite.PortNumberSSLEval;
+                        } else
+                            port = Manager.HostPortUsed;
+                    }
+                } else if (SecurityType == PageDefinition.PageSecurityType.httpOnly) {
+                    scheme = "http";
+                    if (Manager.IsLocalHost) {
+                        if (Manager.HostPortUsed != 80)
+                            port = Manager.HostPortUsed;
+                    } else {
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
+                            if (currentSite.EnforceSiteUrl)
+                                host = currentSite.SiteDomain;
+                            if (currentSite.PortNumberSSLEval != 80)
+                                port = currentSite.PortNumberSSLEval;
                         } else
                             port = Manager.HostPortUsed;
                     }
@@ -175,8 +189,13 @@ namespace YetaWF.Core.Site {
                     if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
                         if (currentSite.EnforceSiteUrl)
                             host = currentSite.SiteDomain;
-                        if (currentSite.PortNumberEval != 80)
-                            port = currentSite.PortNumberEval;
+                        if (scheme == "https") {
+                            if (currentSite.PortNumberEval != 443)
+                                port = currentSite.PortNumberEval;
+                        } else {
+                            if (currentSite.PortNumberEval != 80)
+                                port = currentSite.PortNumberEval;
+                        }
                     } else
                         port = Manager.HostPortUsed;
                 }
