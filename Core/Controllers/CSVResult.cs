@@ -4,15 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
+using YetaWF.Core.Support;
+using System.Threading.Tasks;
+using System.IO.Compression;
+#if MVC6
+using Microsoft.AspNetCore.Mvc;
 #else
+using System.Web;
 using System.Web.Mvc;
 #endif
 
@@ -50,7 +53,6 @@ namespace YetaWF.Core.Controllers {
         public override async Task ExecuteResultAsync(ActionContext context) {
 #else
         public override void ExecuteResult(ControllerContext context) {
-            YetaWFManager.Syncify(async () => { // sorry, MVC5, no async for you
 #endif
             Type objType = typeof(TYPE);
             List<PropertyInfo> propInfos = ObjectSupport.GetProperties(objType);

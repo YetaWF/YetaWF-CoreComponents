@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
@@ -23,7 +22,6 @@ using YetaWF.Core.Skins;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using System.Globalization;
-using Newtonsoft.Json;
 using TimeZoneConverter;
 #if MVC6
 using Microsoft.AspNetCore.Html;
@@ -34,7 +32,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 #else
 using System.Web;
-using System.Web.Hosting;
 #endif
 
 namespace YetaWF.Core.Support {
@@ -318,7 +315,7 @@ namespace YetaWF.Core.Support {
 #if MVC6
                 domain = HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Host"];
 #else
-                domain = HttpContext.Request.Headers["X-Forwarded-Host"];
+                domain = HttpContext.Current.Request.Headers["X-Forwarded-Host"];
 #endif
                 if (!string.IsNullOrWhiteSpace(domain))
                     siteDomain = domain;
@@ -792,7 +789,8 @@ namespace YetaWF.Core.Support {
                 }
                 return true;
             } else if (typeof(TYPE) == typeof(DateTime) || typeof(TYPE) == typeof(DateTime?)) {
-                if (DateTime.TryParse(v, out DateTime dt)) {
+                DateTime dt;
+                if (DateTime.TryParse(v, out dt)) {
                     val = (TYPE)(object)dt;
                     return true;
                 }

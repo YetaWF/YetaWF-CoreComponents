@@ -121,6 +121,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TimeZoneConverter, Version=3.2.0.0, Culture=neutral, PublicKeyToken=e20ab7d0d9479841, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\TimeZoneConverter.3.2.0\lib\net471\TimeZoneConverter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\PlainPageBase.cs" />
@@ -128,6 +132,7 @@
     <Compile Include="Components\Support\PropertyList\PropertyList.cs" />
     <Compile Include="Components\YetaWFPageBase.cs" />
     <Compile Include="Components\PageExtender.cs" />
+    <Compile Include="Controllers\CSVResult.cs" />
     <Compile Include="Controllers\HttpForbiddenResult.cs" />
     <Compile Include="Audit\AuditInfo.cs" />
     <Compile Include="Components\Support\CAProvinces.cs" />
@@ -151,6 +156,7 @@
     <Compile Include="Controllers\AddonContentController.cs" />
     <Compile Include="Controllers\AddonContentViewResult.cs" />
     <Compile Include="Controllers\Support\GridSaveSettings.cs" />
+    <Compile Include="Extensions\StringBuilderExtender.cs" />
     <Compile Include="IO\Localization.cs" />
     <Compile Include="IO\Module.cs" />
     <Compile Include="IO\FileSystem.cs" />
@@ -216,6 +222,7 @@
     <Compile Include="Components\Support\RecaptchaV2.cs" />
     <Compile Include="Support\TwoStepAuthorization\TwoStepAuthorization.cs" />
     <Compile Include="Support\SendSMS\SendSMS.cs" />
+    <Compile Include="Support\Utility.cs" />
     <Compile Include="Support\Zip\YetaWFZipFile.cs" />
     <Compile Include="Pages\PostProcessView.cs" />
     <Compile Include="Components\FormButton.cs" />

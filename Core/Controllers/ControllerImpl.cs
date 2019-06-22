@@ -461,11 +461,20 @@ namespace YetaWF.Core.Controllers {
                         Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
                         MethodInfo meth;
                         if (meths.TryGetValue(prop.UIHint, out meth)) {
+#if MVC6
                             ModelStateEntry modelStateEntry;
+#else
+                            ModelState modelStateEntry;
+#endif
                             bool preprocess = false;
                             if (ModelState.TryGetValue(prop.UIHint, out modelStateEntry)) {
+#if MVC6
                                 if (modelStateEntry.ValidationState == ModelValidationState.Valid)
                                     preprocess = true;
+#else
+                                if (modelStateEntry.Errors.Count == 0)
+                                    preprocess = true;
+#endif
                             } else {
                                 preprocess = true;
                             }
@@ -1476,7 +1485,7 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
         protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName)
 #else
-        protected Task<object> GetObjectFromModelAsync(Type objType, string modelName)
+        protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName)
 #endif
         {
             object obj;
