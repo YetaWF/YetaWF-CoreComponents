@@ -517,8 +517,8 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("CDN URL"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root URL for http:// access here - Based on whether you enabled the use of your CDN, the appropriate URL will be substituted - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
-        [ProcessIf("UseCDN", true)]
-        [RequiredIf("UseCDN", true)]
+        [ProcessIf(nameof(UseCDN), true)]
+        [RequiredIf(nameof(UseCDN), true)]
         [RequiresRestart(RestartEnum.All)]
         public string CDNUrl { get; set; }
 
@@ -526,21 +526,21 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("CDN URL (Secure)"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root URL for https:// (secure) access here - Based on whether you enabled the use of your CDN, the appropriate URL will be substituted - If no secure URL is specified, the URL defined using the CDN URL is used instead - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
-        [ProcessIf("UseCDN", true)]
+        [ProcessIf(nameof(UseCDN), true)]
         [RequiresRestart(RestartEnum.All)]
         public string CDNUrlSecure { get; set; }
 
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
         [Category("CDN"), Caption("Static Files Domain"), Description("You can optionally serve static files from an alternate domain which can improve your site's performance - Enter the domain name here (without http:// or https://) - The site (and all instances) must be restarted for this setting to take effect")]
-        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), ProcessIf("UseCDN", false), Trim]
+        [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), ProcessIf(nameof(UseCDN), false), Trim]
         [RequiresRestart(RestartEnum.All)]
         public string StaticDomain { get; set; }
 
         public bool HaveStaticDomain { get { return !string.IsNullOrWhiteSpace(StaticDomain); } }
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate URL is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files URL\" setting to be honored, otherwise it is not used")]
-        [UIHint("Boolean"), ProcessIf("UseCDN", false), ReadOnly]
+        [UIHint("Boolean"), ProcessIf(nameof(UseCDN), false), ReadOnly]
         public bool CanUseStaticDomain { get { return Manager.CanUseStaticDomain && HaveStaticDomain; } }
 
         // EMAIL

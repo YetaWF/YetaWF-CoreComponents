@@ -597,7 +597,7 @@ namespace YetaWF.Core.Models.Attributes {
                     if (_Value == null || IsRightProperty) return null;
                     Type valType = _Value.GetType();
                     if (valType == typeof(bool))
-                        return (bool)_Value ? "True" : "False";
+                        return (bool)_Value ? "true" : "false";
                     if (valType.IsEnum)
                         return ((int)_Value).ToString();
                     return _Value.ToString();
