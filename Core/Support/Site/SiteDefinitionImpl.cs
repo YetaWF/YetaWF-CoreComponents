@@ -160,11 +160,13 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 443)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                             if (currentSite.EnforceSiteUrl)
                                 host = currentSite.SiteDomain;
-                            if (currentSite.PortNumberSSLEval != 443)
-                                port = currentSite.PortNumberSSLEval;
+                            if (currentSite.EnforceSitePort) {
+                                if (currentSite.PortNumberSSLEval != 443)
+                                    port = currentSite.PortNumberSSLEval;
+                            }
                         } else
                             port = Manager.HostPortUsed;
                     }
@@ -174,24 +176,28 @@ namespace YetaWF.Core.Site {
                         if (Manager.HostPortUsed != 80)
                             port = Manager.HostPortUsed;
                     } else {
-                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
+                        if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                             if (currentSite.EnforceSiteUrl)
                                 host = currentSite.SiteDomain;
-                            if (currentSite.PortNumberSSLEval != 80)
-                                port = currentSite.PortNumberSSLEval;
+                            if (currentSite.EnforceSitePort) {
+                                if (currentSite.PortNumberSSLEval != 80)
+                                    port = currentSite.PortNumberSSLEval;
+                            }
                         } else
                             port = Manager.HostPortUsed;
                     }
                 } else {
-                    if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite && currentSite.EnforceSitePort) {
+                    if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                         if (currentSite.EnforceSiteUrl)
                             host = currentSite.SiteDomain;
-                        if (scheme == "https") {
-                            if (currentSite.PortNumberEval != 443)
-                                port = currentSite.PortNumberEval;
-                        } else {
-                            if (currentSite.PortNumberEval != 80)
-                                port = currentSite.PortNumberEval;
+                        if (currentSite.EnforceSitePort) {
+                            if (scheme == "https") {
+                                if (currentSite.PortNumberEval != 443)
+                                    port = currentSite.PortNumberEval;
+                            } else {
+                                if (currentSite.PortNumberEval != 80)
+                                    port = currentSite.PortNumberEval;
+                            }
                         }
                     } else
                         port = Manager.HostPortUsed;
