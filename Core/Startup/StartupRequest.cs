@@ -121,6 +121,7 @@ namespace YetaWF.Core.Support {
             manager.IsTestSite = testHost;
             manager.IsLocalHost = loopBack;
 
+            // Handle any headers that alter the requested url
             string hostUsed, portUsed, schemeUsed;
 #if MVC6
             hostUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Host"];
@@ -137,6 +138,12 @@ namespace YetaWF.Core.Support {
                 try { manager.HostPortUsed = Convert.ToInt32(portUsed); } catch (Exception) { }
             }
             manager.HostSchemeUsed = schemeUsed ?? uri.Scheme;
+
+            UriBuilder uriBuilder = new UriBuilder(uri);
+            uriBuilder.Scheme = manager.HostSchemeUsed;
+            uriBuilder.Port = manager.HostPortUsed;
+            uriBuilder.Host = manager.HostUsed;
+            manager.CurrentRequestUrl = uriBuilder.ToString();
 
             if (forcedHost && newSwitch) {
                 if (!manager.HasSuperUserRole) { // if superuser, don't log off (we could be creating a new site)

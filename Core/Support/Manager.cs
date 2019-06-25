@@ -1127,13 +1127,21 @@ namespace YetaWF.Core.Support {
 
         public string CurrentRequestUrl {
             get {
+                if (_currentRequestUrl == null) {
 #if MVC6
-                return UriHelper.GetDisplayUrl(Manager.CurrentRequest);
+                    _currentRequestUrl = UriHelper.GetDisplayUrl(Manager.CurrentRequest);
 #else
-                return Manager.CurrentRequest.Url.ToString();
+                    _currentRequestUrl = Manager.CurrentRequest.Url.ToString();
 #endif
+                }
+                return _currentRequestUrl;
+            }
+            set {
+                _currentRequestUrl = value;
             }
         }
+        private string _currentRequestUrl = null;
+
         public void RestartSite(string url = null) {
 #if MVC6
             IApplicationLifetime applicationLifetime = (IApplicationLifetime)ServiceProvider.GetService(typeof(IApplicationLifetime));
