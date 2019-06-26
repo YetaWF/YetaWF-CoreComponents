@@ -16,6 +16,9 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons {
 
     public class VersionManagerStartup : IInitializeApplicationStartup {
+        /// <summary>
+        /// Called when any node of a (single- or multi-instance) site is starting up.
+        /// </summary>
         public async Task InitializeApplicationStartupAsync() {
             await VersionManager.RegisterAllAddOnsAsync();
         }

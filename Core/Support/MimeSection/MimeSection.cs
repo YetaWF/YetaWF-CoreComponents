@@ -19,6 +19,9 @@ namespace YetaWF.Core.Support {
         // IInitializeApplicationStartup
 #if MVC6
 #else
+        /// <summary>
+        /// Called when any node of a (single- or multi-instance) site is starting up.
+        /// </summary>
         public async Task InitializeApplicationStartupAsync() {
 
             if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE)

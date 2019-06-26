@@ -32,6 +32,9 @@ namespace YetaWF.Core.Pages {
 #endif
         }
 
+        /// <summary>
+        /// Called when the first node of a multi-instance site is starting up.
+        /// </summary>
         public async Task InitializeFirstNodeStartupAsync() {
             // delete all files from last session and recreate the folder
             Logging.AddLog("Removing/creating bundle folder");

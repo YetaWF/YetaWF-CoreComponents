@@ -22,6 +22,9 @@ namespace YetaWF.Core.Image {
         // IInitializeApplicationStartup
         // IInitializeApplicationStartup
 
+        /// <summary>
+        /// Called when the first node of a multi-instance site is starting up.
+        /// </summary>
         public async Task InitializeFirstNodeStartupAsync() {
             // Delete all temp images
             string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);

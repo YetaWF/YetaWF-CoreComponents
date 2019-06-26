@@ -173,6 +173,7 @@ namespace YetaWF.Core.Packages {
         }
 
         private async Task ParseSourceFilesAsync(string path) {
+            //$$$$ so much badness
             if (path.EndsWith("\\Addons", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\AddonsBundles", StringComparison.OrdinalIgnoreCase)) return;
             if (path.EndsWith("\\AddonsCustom", StringComparison.OrdinalIgnoreCase)) return;
