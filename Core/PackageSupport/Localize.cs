@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -173,22 +174,20 @@ namespace YetaWF.Core.Packages {
         }
 
         private async Task ParseSourceFilesAsync(string path) {
-            //$$$$ so much badness
-            if (path.EndsWith("\\Addons", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\AddonsBundles", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\AddonsCustom", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\Properties", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\bin", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\bower_components", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\Data", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\DataXFER", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\Docs", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\node_modules", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\obj", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\Properties", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\Sites", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\SitesHtml", StringComparison.OrdinalIgnoreCase)) return;
-            if (path.EndsWith("\\Vault", StringComparison.OrdinalIgnoreCase)) return;
+            string folder = Path.GetFileName(path);
+            if (string.Compare(folder, "Addons", true) == 0) return;
+            if (string.Compare(folder, "AddonsBundles", true) == 0) return;
+            if (string.Compare(folder, "AddonsCustom", true) == 0) return;
+            if (string.Compare(folder, "Properties", true) == 0) return;
+            if (string.Compare(folder, "bin", true) == 0) return;
+            if (string.Compare(folder, "bower_components", true) == 0) return;
+            if (string.Compare(folder, "Data", true) == 0) return;
+            if (string.Compare(folder, "Docs", true) == 0) return;
+            if (string.Compare(folder, "node_modules", true) == 0) return;
+            if (string.Compare(folder, "obj", true) == 0) return;
+            if (string.Compare(folder, "Properties", true) == 0) return;
+            if (string.Compare(folder, "Sites", true) == 0) return;
+            if (string.Compare(folder, "Vault", true) == 0) return;
             List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.cs");
             foreach (string file in files)
                 await ParseCsSourceFileAsync(file);

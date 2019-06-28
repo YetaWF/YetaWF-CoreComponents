@@ -65,7 +65,7 @@ namespace YetaWF.Core.Packages {
 #else
             rootFolder = YetaWFManager.RootFolder;
 #endif
-            string path = Path.Combine(rootFolder, Globals.SiteTemplatesData);
+            string path = Path.Combine(rootFolder, Globals.SiteTemplates, "Data");
             // delete all existing zip files
             List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.zip");
             foreach (string file in files) {

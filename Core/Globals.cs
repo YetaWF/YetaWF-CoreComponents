@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.IO;
+
 namespace YetaWF.Core {
 
     public class Globals {
@@ -46,7 +48,6 @@ namespace YetaWF.Core {
         public const string SitesFolder = "Sites";
         public const string TempFiles = "TempFiles";
         public const string SiteTemplates = "SiteTemplates";
-        public const string SiteTemplatesData = SiteTemplates + "\\Data";
         public const string VaultPrivateFolder = "VaultPrivate";
         public const string VaultFolder = "Vault";
 
