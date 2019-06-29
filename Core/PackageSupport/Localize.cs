@@ -186,7 +186,7 @@ namespace YetaWF.Core.Packages {
             if (string.Compare(folder, "node_modules", true) == 0) return;
             if (string.Compare(folder, "obj", true) == 0) return;
             if (string.Compare(folder, "Properties", true) == 0) return;
-            if (string.Compare(folder, "Sites", true) == 0) return;
+            //if (string.Compare(folder, "Sites", true) == 0) return;
             if (string.Compare(folder, "Vault", true) == 0) return;
             List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.cs");
             foreach (string file in files)
