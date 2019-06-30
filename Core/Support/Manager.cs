@@ -79,21 +79,14 @@ namespace YetaWF.Core.Support {
 #endif
 
 #if MVC6
-        public static void Init(IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null) {
+        public static void Init(IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null, IServiceProvider svp = null) {
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
             MemoryCache = memoryCache ?? new DummyMemoryCache();
+            ServiceProvider = svp;
         }
         public static IHttpContextAccessor HttpContextAccessor = null;
         public static IMemoryCache MemoryCache = null;
-
-        // TODO: Arghh, get rid of this, but oh well - who's got time...
-        // This is used by out ActionHelper and Identity (Identity could fairly easily use DI, except for the data providers)
-        public static IServiceProvider ServiceProvider {
-            get {
-                HttpContext context = HttpContextAccessor.HttpContext;
-                return context.RequestServices;
-            }
-        }
+        public static IServiceProvider ServiceProvider = null;
 #else
 #endif
 
@@ -166,7 +159,6 @@ namespace YetaWF.Core.Support {
         /// This is only used by the framework during request startup as soon as the site URL has been determined.
         /// </summary>
         /// <param name="siteHost">The site name as it would appear in a URL (without scheme).</param>
-#if MVC6
         public static YetaWFManager MakeInstance(HttpContext httpContext, string siteHost) {
             if (siteHost == null)
                 throw new Error("Site host required to create a YetaWFManager object.");
@@ -176,27 +168,15 @@ namespace YetaWF.Core.Support {
 #endif
             YetaWFManager manager = new YetaWFManager(siteHost);
             httpContext.Items[YetaWF_ManagerKey] = manager;
+            manager._HttpContext = httpContext;
             return manager;
         }
-#else
-        public static YetaWFManager MakeInstance(string siteHost) {
-            if (siteHost == null)
-                throw new Error("Site host required to create a YetaWFManager object.");
-#if DEBUG
-            if (HttpContext.Current.Items[YetaWF_ManagerKey] != null)
-                throw new Error("We already have a YetaWFManager object.");
-#endif
-            YetaWFManager manager = new YetaWFManager(siteHost);
-            HttpContext.Current.Items[YetaWF_ManagerKey] = manager;
-            return manager;
-        }
-#endif
 
         /// <summary>
         /// Creates an instance of the YetaWFManager - used for non-site specific threads (e.g., scheduler).
         /// Can only be used once MakeInitialThreadInstance has been used
         /// </summary>
-        public static YetaWFManager MakeThreadInstance(SiteDefinition site) {
+        public static YetaWFManager MakeThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
             YetaWFManager manager;
             if (site != null) {
                 manager = new YetaWFManager(site.Identity.ToString());
@@ -215,6 +195,10 @@ namespace YetaWF.Core.Support {
                     manager.HostUsed = BATCHMODE;
                 }
             }
+            manager._HttpContext = context;
+            if (forceSync)
+                manager._syncCount++;
+
             LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
             Thread.SetData(slot, manager);
             manager.LocalizationSupportEnabled = false;
@@ -249,7 +233,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="site">A SiteDefinition object. Is always null as this is not available in console applications.</param>
         /// <returns></returns>
-        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
+        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
 #if DEBUG
             if (Thread.GetNamedDataSlot(YetaWF_ManagerKey) == null) { // avoid exception spam
 #endif
@@ -259,7 +243,7 @@ namespace YetaWF.Core.Support {
 #if DEBUG
             }
 #endif
-            return MakeThreadInstance(site);
+            return MakeThreadInstance(site, context, forceSync);
         }
         /// <summary>
         /// Removes the YetaWF instance from the current thread.
@@ -986,53 +970,34 @@ namespace YetaWF.Core.Support {
         }
         private FormHelper _requestForm = null;
 
+        private HttpContext _HttpContext = null;
+
         public bool HaveCurrentContext {
             get {
-#if MVC6
-                return HttpContextAccessor.HttpContext != null;
-#else
-                return HttpContext.Current != null;
-#endif
+                return _HttpContext != null;
             }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpContext CurrentContext {
             get {
-#if MVC6
-                HttpContext context = HttpContextAccessor.HttpContext;
-#else
-                HttpContext context = HttpContext.Current;
-#endif
-                if (context == null) throw new InternalError("No HttpContext available");
-                return context;
+                if (_HttpContext == null) throw new InternalError("No HttpContext available");
+                return _HttpContext;
             }
             set {
-#if MVC6
-                HttpContextAccessor.HttpContext = value;
-#else
-                throw new InternalError("Can't set current context");
-#endif
+                _HttpContext = value;
             }
         }
 
         public bool HaveCurrentRequest {
             get {
-#if MVC6
                 return HaveCurrentContext && CurrentContext.Request != null;
-#else
-                return HaveCurrentContext && HttpContext.Current.Request != null;
-#endif
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpRequest CurrentRequest {
             get {
-#if MVC6
                 HttpRequest request = CurrentContext.Request;
-#else
-                HttpRequest request = HttpContext.Current.Request;
-#endif
                 if (request == null) throw new InternalError("No current Request available");
                 return request;
             }
@@ -1040,11 +1005,7 @@ namespace YetaWF.Core.Support {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpResponse CurrentResponse {
             get {
-#if MVC6
                 HttpResponse response = CurrentContext.Response;
-#else
-                HttpResponse response = HttpContext.Current.Response;
-#endif
                 if (response == null) throw new InternalError("No current Response available");
                 return response;
             }
@@ -1095,11 +1056,11 @@ namespace YetaWF.Core.Support {
 
         public bool HaveCurrentSession {
             get {
-#if MVC6
-                return HaveCurrentContext && CurrentContext.Session != null;
-#else
-                return HaveCurrentContext && HttpContext.Current.Session != null;
-#endif
+                try {
+                    return HaveCurrentContext && CurrentContext.Session != null;
+                } catch (Exception) {
+                    return false;
+                }
             }
         }
 

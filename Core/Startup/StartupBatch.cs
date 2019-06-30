@@ -80,7 +80,7 @@ namespace YetaWF.Core.Support {
         /// <param name="filePath">The path and file name of a file containing json describing the site to use. Files with json information are saved in the website's
         ///  ./Website/Data/Sites folder whenever site settings are saved.</param>
         /// <remarks>
-        /// The Start method makes all settings from AppSettings.json available. 
+        /// The Start method makes all settings from AppSettings.json available.
         ///
         /// A LanguageSettings.json file must be present defining all languages used by the specified site <paramref name="filePath"/> (a copy of the LanguageSettings.json file used for the website).
         ///
@@ -112,7 +112,7 @@ namespace YetaWF.Core.Support {
             LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize
-            YetaWFManager.MakeInitialThreadInstance(null);
+            YetaWFManager.MakeInitialThreadInstance(null, null);
 #if MVC6
             YetaWFManager.Init();
 #endif

@@ -66,29 +66,29 @@ namespace YetaWF.Core {
         /// <summary>
         /// Set up environment info for SignalR requests.
         /// </summary>
-        public static async Task<YetaWFManager> SetupSignalRAsync(this Hub hub) {
+        /// <remarks>
+        /// Any inbound signalr request must call this to set up the proper environment.
+        /// Currently the implementation is a bit borked and the caller must wrap the code in a await Task.Run(async () => {...code... });
+        /// We need to revisit this, but I don't have time to do it right, right now.
+        /// </remarks>
+        public static async Task<YetaWFManager> SetupSignalRHubAsync(this Hub hub) {
 
-            YetaWFManager manager;
+            string host;
 #if MVC6
-            if (!YetaWFManager.HaveManager) {
-                HttpContext httpContext = hub.Context.GetHttpContext();
-                HttpRequest httpReq = httpContext.Request;
-                string host = httpReq.Host.Host;
-                YetaWFManager.MakeInstance(httpContext, host);
-            }
+            HttpContext httpContext = hub.Context.GetHttpContext();
+            HttpRequest httpReq = httpContext.Request;
+            host = httpReq.Host.Host;
 #else
-            if (!YetaWFManager.HaveManager) {
-                HttpRequest httpReq = HttpContext.Current.Request;
-                string host = httpReq.Url.Host;
-                YetaWFManager.MakeInstance(host);
-            }
+            HttpRequest httpReq = HttpContext.Current.Request;
+            host = httpReq.Url.Host;
 #endif
-            manager = YetaWFManager.Manager;
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(host);
+            if (site == null) throw new InternalError($"No site definition for {host}");
+            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(site, httpContext, true);
 
-            manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(manager.SiteDomain);
-            if (manager.CurrentSite == null) throw new InternalError("No site definition for {0}", manager.SiteDomain);
+            if (manager != YetaWFManager.Manager)
+                throw new InternalError("Mismatched Manager");
             await YetaWFController.SetupEnvironmentInfoAsync();
-
             return manager;
         }
 
