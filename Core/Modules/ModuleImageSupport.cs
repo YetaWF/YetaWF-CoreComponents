@@ -14,7 +14,7 @@ namespace YetaWF.Core.Modules {
         public const string ImageType = "YetaWF_Core_ModuleImage";
 
         public Task InitializeApplicationStartupAsync() {
-           ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
+            ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
             return Task.CompletedTask;
         }
 

@@ -20,7 +20,8 @@ namespace YetaWF.Core.Addons {
         /// Called when any node of a (single- or multi-instance) site is starting up.
         /// </summary>
         public async Task InitializeApplicationStartupAsync() {
-            await VersionManager.RegisterAllAddOnsAsync();
+            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE)
+                await VersionManager.RegisterAllAddOnsAsync();
         }
     }
 

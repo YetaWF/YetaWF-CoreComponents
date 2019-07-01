@@ -37,10 +37,12 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         public async Task InitializeFirstNodeStartupAsync() {
             // delete all files from last session and recreate the folder
-            Logging.AddLog("Removing/creating bundle folder");
-            string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-            if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
-                await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
+            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE) {
+                Logging.AddLog("Removing/creating bundle folder");
+                string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
+                if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
+                    await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
+            }
         }
 
         public static async Task<string> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
