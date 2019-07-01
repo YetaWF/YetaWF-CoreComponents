@@ -178,21 +178,26 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public static YetaWFManager MakeThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
             YetaWFManager manager;
-            if (site != null) {
-                manager = new YetaWFManager(site.Identity.ToString());
-                manager.CurrentSite = site;
-                manager.HostUsed = site.SiteDomain;
-                manager.HostPortUsed = 80;
-                manager.HostSchemeUsed = "http";
+
+            if (YetaWFManager.HaveManager) {
+                manager = YetaWFManager.Manager;
             } else {
-                manager = new YetaWFManager(null);
-                manager.UserLanguage = MultiString.DefaultLanguage;
-                if (SiteDefinition.LoadSiteDefinitionAsync != null) {
-                    manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // sync OK as it's cached - this will not run async as we don't have a Manager
+                if (site != null) {
+                    manager = new YetaWFManager(site.Identity.ToString());
+                    manager.CurrentSite = site;
+                    manager.HostUsed = site.SiteDomain;
                     manager.HostPortUsed = 80;
                     manager.HostSchemeUsed = "http";
                 } else {
-                    manager.HostUsed = BATCHMODE;
+                    manager = new YetaWFManager(null);
+                    manager.UserLanguage = MultiString.DefaultLanguage;
+                    if (SiteDefinition.LoadSiteDefinitionAsync != null) {
+                        manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // sync OK as it's cached - this will not run async as we don't have a Manager
+                        manager.HostPortUsed = 80;
+                        manager.HostSchemeUsed = "http";
+                    } else {
+                        manager.HostUsed = BATCHMODE;
+                    }
                 }
             }
             manager._HttpContext = context;
@@ -243,6 +248,8 @@ namespace YetaWF.Core.Support {
 #if DEBUG
             }
 #endif
+            LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
+            Thread.SetData(slot, null);// clear any old remnant
             return MakeThreadInstance(site, context, forceSync);
         }
         /// <summary>
