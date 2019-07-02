@@ -24,7 +24,6 @@ using YetaWF.Core.Controllers;
 using System.Globalization;
 using TimeZoneConverter;
 #if MVC6
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
@@ -1435,7 +1434,6 @@ namespace YetaWF.Core.Support {
             s = CssManager.CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
-            s = CssManager.CombineCss(s, CssManager.GetAspNetCss(Utility.AspNetMvc)); // asp/net version used (doesn't change in same Unified page set)
             switch (UnifiedMode) { // unified page set mode (if any) (doesn't change in same Unified page set)
                 case PageDefinition.UnifiedModeEnum.None:
                     break;

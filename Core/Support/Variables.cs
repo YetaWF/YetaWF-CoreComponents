@@ -227,6 +227,22 @@ namespace YetaWF.Core.Support {
                                 return (encode) ? EncodeText(ret) : ret;
                             }
                         }
+                    } else if (loc == "Opsys") {
+                        if (!string.IsNullOrWhiteSpace(var)) {
+                            switch (var) {
+                                case "MVC":
+                                    ret = Utility.GetAspNetMvcName(Utility.AspNetMvc);
+                                    return (encode) ? EncodeText(ret) : ret;
+                                case "Name":
+                                    ret = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+                                    return (encode) ? EncodeText(ret) : ret;
+                                case "Framework":
+                                    ret = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+                                    return (encode) ? EncodeText(ret) : ret;
+                                default:
+                                    break;
+                            }
+                        }
                     } else if (loc.StartsWith("Unique-")) {
                         // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
                         string fullName = loc.Substring("Unique-".Length);
