@@ -112,7 +112,7 @@ namespace YetaWF.Core.Support {
             LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize
-            YetaWFManager.MakeInitialThreadInstance(null, null);
+            YetaWFManager.MakeInitialThreadInstance(null);
 #if MVC6
             YetaWFManager.Init();
 #endif

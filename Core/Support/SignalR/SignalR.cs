@@ -79,7 +79,8 @@ namespace YetaWF.Core {
             HttpRequest httpReq = httpContext.Request;
             host = httpReq.Host.Host;
 #else
-            HttpRequest httpReq = HttpContext.Current.Request;
+            HttpContext httpContext = HttpContext.Current;
+            HttpRequest httpReq = httpContext.Request;
             host = httpReq.Url.Host;
 #endif
             SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(host);

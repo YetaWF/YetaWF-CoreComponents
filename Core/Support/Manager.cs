@@ -236,7 +236,29 @@ namespace YetaWF.Core.Support {
         /// This is only used by console applications.
         /// </summary>
         /// <param name="site">A SiteDefinition object. Is always null as this is not available in console applications.</param>
-        /// <returns></returns>
+        /// <returns>The Manager instance for the current request.</returns>
+        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
+#if DEBUG
+            if (Thread.GetNamedDataSlot(YetaWF_ManagerKey) == null) { // avoid exception spam
+#endif
+                try {
+                    Thread.AllocateNamedDataSlot(YetaWF_ManagerKey);
+                } catch (Exception) { }
+#if DEBUG
+            }
+#endif
+            LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
+            Thread.SetData(slot, null);// clear any old remnant
+            return MakeThreadInstance(site, null, true);
+        }
+        /// <summary>
+        /// Attaches a YetaWFManager instance to the current thread.
+        /// This is only used by console applications.
+        /// </summary>
+        /// <param name="site">A SiteDefinition object. Is always null as this is not available in console applications.</param>
+        /// <param name="context">The HttpContext instance for the current request. If null is specified, a thread named slot is used instead of attaching the Manager instance to the HttpRequest.</param>
+        /// <param name="forceSync">Specify true to force synchronous requests, otherwise async requests are used.</param>
+        /// <returns>The Manager instance for the current request.</returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
 #if DEBUG
             if (Thread.GetNamedDataSlot(YetaWF_ManagerKey) == null) { // avoid exception spam
