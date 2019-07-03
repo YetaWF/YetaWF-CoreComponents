@@ -109,11 +109,9 @@ namespace YetaWF.Core.Support {
             // We have a valid request for a known domain or the default domain
             // create a YetaWFManager object to keep track of everything (it serves
             // as a global anchor for everything we need to know while processing this request)
-#if MVC6
+
             YetaWFManager manager = YetaWFManager.MakeInstance(httpContext, host);
-#else
-            YetaWFManager manager = YetaWFManager.MakeInstance(host);
-#endif
+
             // Site properties are ONLY valid AFTER this call to YetaWFManager.MakeInstance
 
             manager.CurrentSite = site;
@@ -123,15 +121,11 @@ namespace YetaWF.Core.Support {
 
             // Handle any headers that alter the requested url
             string hostUsed, portUsed, schemeUsed;
-#if MVC6
-            hostUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Host"];
-            portUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Port"];
-            schemeUsed = YetaWFManager.HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Proto"];
-#else
+
             hostUsed = httpContext.Request.Headers["X-Forwarded-Host"];
             portUsed = httpContext.Request.Headers["X-Forwarded-Port"];
             schemeUsed = httpContext.Request.Headers["X-Forwarded-Proto"];
-#endif
+
             manager.HostUsed = hostUsed ?? uri.Host;
             manager.HostPortUsed = uri.Port;
             if (!string.IsNullOrWhiteSpace(portUsed)) {
