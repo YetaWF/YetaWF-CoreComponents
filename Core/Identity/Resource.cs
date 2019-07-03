@@ -180,7 +180,7 @@ namespace YetaWF.Core.Identity {
         Task<List<SelectionItem<string>>> GetUserRolesAsync(int userId);
         Task<string> GetUserPostLoginUrlAsync(List<int> userRoles);
 
-        Task<AddUserInfo> AddUserAsync(string name, string email, string password);
+        Task<AddUserInfo> AddUserAsync(string name, string email, string password, bool needsNewPassword);
         Task<bool> RemoveUserAsync(int userId);
 
         Task<int> GetUserIdAsync(string userName);
