@@ -55,25 +55,28 @@ namespace YetaWF.Core.Pages {
                 Logging.ForceFlush();// make sure this is recorded immediately so we can see it in the log
                 LastError = DateTime.Now;
             }
-            var response = context.Response;
-            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest) {
-                if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
-                    return false;// not handled
-                } else { // this was a direct action GET so we need to show an error page
-                    ActionContext actionContext = new ActionContext(context, new Microsoft.AspNetCore.Routing.RouteData() { }, new ActionDescriptor());
-                    RedirectResult redir = new RedirectResult(MessageUrl(msg, 500));
-                    redir.ExecuteResult(actionContext);
-                    return true;
+            if (YetaWFManager.HaveManager) {
+                var response = context.Response;
+                if (!Manager.IsPostRequest) {
+                    if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
+                        return false;// not handled
+                    } else { // this was a direct action GET so we need to show an error page
+                        ActionContext actionContext = new ActionContext(context, new Microsoft.AspNetCore.Routing.RouteData() { }, new ActionDescriptor());
+                        RedirectResult redir = new RedirectResult(MessageUrl(msg, 500));
+                        redir.ExecuteResult(actionContext);
+                        return true;
+                    }
                 }
-            }
 
-            // for post/ajax requests, respond in a way we can display the error
-            //context.ExceptionHandled = true;
-            response.StatusCode = 200;
-            response.ContentType = "application/json";
-            string content = Utility.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", Utility.JsonSerialize(msg)));
-            await context.Response.WriteAsync(content);
-            return true;// handled
+                // for post/ajax requests, respond in a way we can display the error
+                //context.ExceptionHandled = true;
+                response.StatusCode = 200;
+                response.ContentType = "application/json";
+                string content = Utility.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", Utility.JsonSerialize(msg)));
+                await context.Response.WriteAsync(content);
+                return true;// handled
+            }
+            return false;
         }
         private static DateTime? LastError = null;// use local time
 
