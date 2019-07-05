@@ -39,9 +39,9 @@ namespace YetaWF.Core.Support {
             bool testHost = false;
             bool loopBack = uri.IsLoopback;
 #if MVC6
-            string host = YetaWFManager.GetRequestedDomain(uri, loopBack, loopBack ? (string)httpReq.Query[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
+            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? (string)httpReq.Query[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
 #else
-            string host = YetaWFManager.GetRequestedDomain(uri, loopBack, loopBack ? httpReq.QueryString[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
+            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? httpReq.QueryString[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
 #endif
             string host2 = null;
 

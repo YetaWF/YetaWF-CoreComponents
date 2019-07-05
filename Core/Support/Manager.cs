@@ -284,14 +284,14 @@ namespace YetaWF.Core.Support {
         // DOMAIN
         // DOMAIN
 
-        private static void SetRequestedDomain(string siteDomain) {
+        private static void SetRequestedDomain(HttpContext httpContext, string siteDomain) {
 #if MVC6
             if (siteDomain == null)
-                HttpContextAccessor.HttpContext.Session.Remove(Globals.Link_ForceSite);
+                httpContext.Session.Remove(Globals.Link_ForceSite);
             else
-                HttpContextAccessor.HttpContext.Session.SetString(Globals.Link_ForceSite, siteDomain);
+                httpContext.Session.SetString(Globals.Link_ForceSite, siteDomain);
 #else
-            HttpContext.Current.Session[Globals.Link_ForceSite] = siteDomain;
+            httpContext.Session[Globals.Link_ForceSite] = siteDomain;
 #endif
         }
 
@@ -304,36 +304,37 @@ namespace YetaWF.Core.Support {
         /// <param name="overridden">Returns whether the domain name was explicitly defined using the !Domain query string argument.</param>
         /// <param name="newSwitch">Returns whether this is a request for a new domain (being created).</param>
         /// <returns></returns>
-        public static string GetRequestedDomain(Uri uri, bool loopBack, string siteDomain, out bool overridden, out bool newSwitch) {
+        public static string GetRequestedDomain(HttpContext httpContext, Uri uri, bool loopBack, string siteDomain, out bool overridden, out bool newSwitch) {
             overridden = newSwitch = false;
 
             if (loopBack) {
                 if (!string.IsNullOrWhiteSpace(siteDomain)) {
                     overridden = newSwitch = true;
-                    SetRequestedDomain(siteDomain);
+                    SetRequestedDomain(httpContext, siteDomain);
                 }
+                if (!overridden && httpContext.Session != null) {
 #if MVC6
-                if (!overridden && HttpContextAccessor.HttpContext.Session != null) {
-                    siteDomain = (string)HttpContextAccessor.HttpContext.Session.GetString(Globals.Link_ForceSite);
+                    siteDomain = (string)httpContext.Session.GetString(Globals.Link_ForceSite);
 #else
-                if (!overridden && HttpContext.Current.Session != null) {
-                    siteDomain = (string)HttpContext.Current.Session[Globals.Link_ForceSite];
+                    siteDomain = (string)httpContext.Session[Globals.Link_ForceSite];
 #endif
                     if (!string.IsNullOrWhiteSpace(siteDomain))
                         overridden = true;
                 }
-            } else {
-                string domain;
-#if MVC6
-                domain = HttpContextAccessor.HttpContext.Request.Headers["X-Forwarded-Host"];
-#else
-                domain = HttpContext.Current.Request.Headers["X-Forwarded-Host"];
-#endif
-                if (!string.IsNullOrWhiteSpace(domain))
-                    siteDomain = domain;
             }
             if (!overridden)
                 siteDomain = uri.Host;
+
+            // check headers, trumps all
+            string domain;
+#if MVC6
+            domain = httpContext.Request.Headers["X-Forwarded-Host"];
+#else
+            domain = httpContext.Request.Headers["X-Forwarded-Host"];
+#endif
+            if (!string.IsNullOrWhiteSpace(domain))
+                siteDomain = domain;
+
             // beautify the host name a bit
             if (siteDomain.Length > 1)
                 siteDomain = char.ToUpper(siteDomain[0]) + siteDomain.Substring(1).ToLower();
