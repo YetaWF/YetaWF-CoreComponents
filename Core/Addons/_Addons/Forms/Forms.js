@@ -206,6 +206,8 @@ var YetaWF;
             var form = this.getForm(tag);
             if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
                 return;
+            if ($YetaWF.elementHasClass(form, "yform-nosubmit-temp"))
+                return;
             this.submit(form, useValidation, qs);
         };
         Forms.prototype.serializeForm = function (form) {
@@ -414,6 +416,8 @@ var YetaWF;
                 return;
             if ($YetaWF.elementHasClass(this.submitForm, YConfigs.Forms.CssFormNoSubmit))
                 return;
+            if ($YetaWF.elementHasClass(this.submitForm, "yform-nosubmit-temp"))
+                return;
             this.submit(this.submitForm, false);
         };
         Forms.prototype.applyFormOnChange = function () {
@@ -491,6 +495,8 @@ var YetaWF;
             $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, function (ev) {
                 var form = _this.getForm(ev.target);
                 if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
+                    return false;
+                if ($YetaWF.elementHasClass(form, "yform-nosubmit-temp"))
                     return false;
                 _this.submit(form, true);
                 return false;

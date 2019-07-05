@@ -27,7 +27,7 @@ namespace YetaWF.Core.Models {
                     if (string.IsNullOrEmpty(_defaultId))
                         throw new InternalError("No LanguageId found in Appsettings.json");
                     if (_defaultId != "en-US")
-                        throw new InternalError("The default language in Appsettings.json is currently restricted to en-US. The site (or users) can select a default language using Admin > Site Settings or User > Settings.");
+                        throw new InternalError("The default language in AppSettings.json is currently restricted to en-US. The site (or users) can select a default language using Admin > Site Settings or User > Settings.");
                 }
                 return _defaultId;
             }
