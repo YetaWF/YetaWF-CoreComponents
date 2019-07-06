@@ -176,11 +176,12 @@ namespace YetaWF.Core.Support {
         /// Can only be used once MakeInitialThreadInstance has been used
         /// </summary>
         public static YetaWFManager MakeThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
-            YetaWFManager manager;
+            YetaWFManager manager = null;
 
-            if (YetaWFManager.HaveManager) {
-                manager = YetaWFManager.Manager;
-            } else {
+            LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
+            if (slot != null)
+                manager = (YetaWFManager)Thread.GetData(slot);
+            if (manager == null) {
                 if (site != null) {
                     manager = new YetaWFManager(site.Identity.ToString());
                     manager.CurrentSite = site;
@@ -203,7 +204,7 @@ namespace YetaWF.Core.Support {
             if (forceSync)
                 manager._syncCount++;
 
-            LocalDataStoreSlot slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
+            slot = Thread.GetNamedDataSlot(YetaWF_ManagerKey);
             Thread.SetData(slot, manager);
             manager.LocalizationSupportEnabled = false;
 

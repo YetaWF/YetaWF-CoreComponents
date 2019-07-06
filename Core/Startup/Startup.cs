@@ -190,8 +190,8 @@ namespace YetaWF.Core.Support {
                     firstNode ? "Site Started (all instances)" : "Site Started",
                     ExpensiveMultiInstance: true
                 );
+                Logging.AddLog("Processing IInitializeApplicationStartup Ended");
             }
-            Logging.AddLog("Processing IInitializeApplicationStartup Ended");
         }
 
         private class StartupInfoObject {
