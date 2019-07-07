@@ -161,6 +161,7 @@ namespace YetaWF.Core.Support {
 #endif
             YetaWFManager manager = new YetaWFManager(siteHost);
             httpContext.Items[YetaWF_ManagerKey] = manager;
+            _ManagerThreadInstance = null;
             manager._HttpContext = httpContext;
             return manager;
         }
