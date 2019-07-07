@@ -105,25 +105,17 @@ namespace YetaWF.Core.Support {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public static YetaWFManager Manager {
             get {
+                YetaWFManager manager = _ManagerThreadInstance;
+                if (manager != null)
+                    return manager;
 #if MVC6
-                YetaWFManager manager = null;
                 HttpContext context = HttpContextAccessor.HttpContext;
-
                 if (context != null) {
                     manager = context.Items[YetaWF_ManagerKey] as YetaWFManager;
-                } else {
-                    // not a webrequest - most likely a scheduled task
-                    // check if we have thread data
-                    manager = _ManagerThreadInstance;
                 }
 #else
-                YetaWFManager manager = null;
                 if (HttpContext.Current != null) {
                     manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
-                } else {
-                    // not a webrequest - most likely a scheduled task
-                    // check if we have thread data
-                    manager = _ManagerThreadInstance;
                 }
 #endif
                 if (manager == null)
@@ -138,17 +130,20 @@ namespace YetaWF.Core.Support {
         /// <remarks>During application startup or during HTTP request startup, the YetaWFManager instance may not yet be available.</remarks>
         public static bool HaveManager {
             get {
+                if (_ManagerThreadInstance != null)
+                    return true;
 #if MVC6
                 if (HttpContextAccessor != null && HttpContextAccessor.HttpContext != null) {
-                    if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] == null) return false;
+                    if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] != null)
+                        return true;
+                }
 #else
                 if (HttpContext.Current != null) {
-                    if (HttpContext.Current.Items[YetaWF_ManagerKey] == null) return false;
-#endif
-                } else {
-                    if (_ManagerThreadInstance == null) return false;
+                    if (HttpContext.Current.Items[YetaWF_ManagerKey] != null)
+                        return true;
                 }
-                return true;
+#endif
+                return false;
             }
         }
 

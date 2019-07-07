@@ -8,6 +8,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
+using System.Threading;
 #if MVC6
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
@@ -68,10 +69,10 @@ namespace YetaWF.Core {
         /// </summary>
         /// <remarks>
         /// Any inbound signalr request must call this to set up the proper environment.
-        /// Currently the implementation is a bit borked and the caller must wrap the code in a await Task.Run(async () => {...code... });
+        /// Currently the implementation is a bit borked and the caller must wrap the code in a thread.
         /// We need to revisit this, but I don't have time to do it right, right now.
         /// </remarks>
-        public static async Task<YetaWFManager> SetupSignalRHubAsync(this Hub hub) {
+        public static async Task SetupSignalRHubAsync(Hub hub, Func<Task> run) {
 
             string host;
 #if MVC6
@@ -85,12 +86,33 @@ namespace YetaWF.Core {
 #endif
             SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(host);
             if (site == null) throw new InternalError($"No site definition for {host}");
-            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(site, httpContext, true);
 
+            ExecuteParms parms = new ExecuteParms {
+                HttpContext = httpContext,
+                Run = run,
+                Site = site,
+            };
+            Thread signalRThread = new Thread(new ParameterizedThreadStart(Execute));
+            signalRThread.Start(parms);
+            signalRThread.Join();
+        }
+
+        private static void Execute(object p) {
+            ExecuteParms parms = (ExecuteParms)p;
+            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(parms.Site, parms.HttpContext, true);
             if (manager != YetaWFManager.Manager)
                 throw new InternalError("Mismatched Manager");
-            await YetaWFController.SetupEnvironmentInfoAsync();
-            return manager;
+            YetaWFManager.Syncify(async () => {
+                await YetaWFController.SetupEnvironmentInfoAsync();
+                await parms.Run();
+            });
+            YetaWFManager.RemoveThreadInstance();
+        }
+
+        private class ExecuteParms {
+            public HttpContext HttpContext { get; set; }
+            public SiteDefinition Site { get; set; }
+            public Func<Task> Run { get; set; }
         }
 
         /// <summary>
