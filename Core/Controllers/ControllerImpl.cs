@@ -1075,8 +1075,6 @@ namespace YetaWF.Core.Controllers {
 
             ScriptBuilder sb = new ScriptBuilder();
 
-            sb.Append(Basics.AjaxJavascriptReturn);
-
             if (ExtraJavaScript != null)
                 sb.Append(ExtraJavaScript);
 
@@ -1271,14 +1269,11 @@ namespace YetaWF.Core.Controllers {
                         else
                             sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                     } else {
-                        if (sb.Length == Basics.AjaxJavascriptReturn.Length)
-                            return PartialView(model);// no javascript after all
-                        else
-                            return PartialView(model, sb);
+                        return PartialView(model, sb);
                     }
                 }
             }
-            return new YJsonResult { Data = sb.ToString() };
+            return new YJsonResult { Data = $"{Basics.AjaxJavascriptReturn}{sb.ToString()}" };
         }
 
         // REDIRECT
