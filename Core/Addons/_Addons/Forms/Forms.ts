@@ -302,7 +302,6 @@ namespace YetaWF {
                 qs += `&${YConfigs.Basics.TemplateExtraData}=${encodeURIComponent(templateExtraData)}`;
             let form = this.getForm(tag);
             if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return;
-            if ($YetaWF.elementHasClass(form, "yform-nosubmit-temp")) return;
             this.submit(form, useValidation, qs);
         }
 
@@ -531,7 +530,6 @@ namespace YetaWF {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm) return;
             if ($YetaWF.elementHasClass(this.submitForm, YConfigs.Forms.CssFormNoSubmit)) return;
-            if ($YetaWF.elementHasClass(this.submitForm, "yform-nosubmit-temp")) return;
             this.submit(this.submitForm, false);
         }
         private applyFormOnChange(): void {
@@ -617,7 +615,6 @@ namespace YetaWF {
             $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, (ev: Event) : boolean => {
                 var form = this.getForm(ev.target as HTMLElement);
                 if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return false;
-                if ($YetaWF.elementHasClass(form, "yform-nosubmit-temp")) return false;
                 this.submit(form, true);
                 return false;
             });
