@@ -981,7 +981,8 @@ namespace YetaWF.Core.Support {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpContext CurrentContext {
             get {
-                if (_HttpContext == null) throw new InternalError("No HttpContext available");
+                if (_HttpContext == null)
+                    throw new InternalError("No HttpContext available");
                 return _HttpContext;
             }
             set {
