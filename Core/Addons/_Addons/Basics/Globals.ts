@@ -72,13 +72,17 @@ namespace YetaWF {
         UnifiedPopups: boolean;
         UnifiedSkinCollection: string;
         UnifiedSkinName: string;
-        UniqueIdPrefixCounter: number;
+        UniqueIdCounters: UniqueIdInfo;
         UnifiedCssBundleFiles: string[];
         UnifiedScriptBundleFiles: string[];
         UnifiedAddonModsPrevious: string[];
         UnifiedAddonMods: string[];
 
         KnownScriptsDynamic: string[];
+    }
+    export interface UniqueIdInfo {
+        UniqueIdPrefixCounter: number;
+        UniqueIdCounter: number;
     }
     export interface IVolatileSkin {
 

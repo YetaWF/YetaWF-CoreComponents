@@ -11,7 +11,7 @@ namespace YetaWF {
         UnifiedSetGuid: string;
         UnifiedMode: number;
         UnifiedAddonMods: string[];
-        UniqueIdPrefixCounter: number;
+        UniqueIdCounters: UniqueIdInfo;
         IsMobile: boolean;
         UnifiedSkinCollection: string | null;
         UnifiedSkinFileName: string | null;
@@ -160,7 +160,7 @@ namespace YetaWF {
                     UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,
                     UnifiedMode: YVolatile.Basics.UnifiedMode,
                     UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
-                    UniqueIdPrefixCounter: YVolatile.Basics.UniqueIdPrefixCounter,
+                    UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     IsMobile: YVolatile.Skin.MinWidthForPopups > window.outerWidth,
                     UnifiedSkinCollection: null,
                     UnifiedSkinFileName: null,

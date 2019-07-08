@@ -899,20 +899,32 @@ namespace YetaWF.Core.Support {
         /// accidentally use ids that were used in prior request.
         /// </remarks>
         public string UniqueId(string name = "a") {
-            ++_uniqueIdCounter;
-            return UniqueIdPrefix + "_" + name + _uniqueIdCounter;
+            ++UniqueIdCounter;
+            return $"u{UniqueIdPrefixCounter}_{name}{UniqueIdCounter}";
         }
-        private int _uniqueIdCounter = 0;
-        private int _uniqueIdPrefixCounter = 0;
-
-        public string UniqueIdPrefix { get; set; } = "u0";
 
         public void NextUniqueIdPrefix() {
-            UniqueIdPrefix = string.Format("u{0}", ++UniqueIdPrefixCounter);
+            ++UniqueIdPrefixCounter;
+            UniqueIdCounter = 0;
         }
-        public int UniqueIdPrefixCounter {
-            get { return _uniqueIdPrefixCounter; }
-            set { _uniqueIdPrefixCounter = value; UniqueIdPrefix = string.Format("u{0}", UniqueIdPrefixCounter); }
+        internal int UniqueIdPrefixCounter { get; set; } = 0;
+        internal int UniqueIdCounter { get; set; } = 0;
+
+        public UniqueIdInfo UniqueIdCounters {
+            get {
+                return new UniqueIdInfo {
+                    UniqueIdPrefixCounter = UniqueIdPrefixCounter,
+                    UniqueIdCounter = UniqueIdCounter,
+                };
+            }
+            set {
+                UniqueIdPrefixCounter = value.UniqueIdPrefixCounter;
+                UniqueIdCounter = value.UniqueIdCounter;
+            }
+        }
+        public class UniqueIdInfo {
+            public int UniqueIdPrefixCounter { get; set; }
+            public int UniqueIdCounter { get; set; }
         }
 
         // HTTPCONTEXT

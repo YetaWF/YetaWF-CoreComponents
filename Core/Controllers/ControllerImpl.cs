@@ -234,87 +234,94 @@ namespace YetaWF.Core.Controllers {
 
             await SetupActionContextAsync(filterContext);
             if (Manager.IsPostRequest) {
-                // find the unique Id prefix (saved as hidden field in Form)
-                string uniqueIdPrefix = null;
+                // find the unique Id prefix info
+                string uniqueIdCounters = null;
 #if MVC6
-                if (HttpContext.Request.HasFormContentType)
-                    uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
+                if (HttpContext.Request.HasFormContentType) {
+                    uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
 #else
-                    uniqueIdPrefix = HttpContext.Request.Form[Forms.UniqueIdPrefix];
+                    uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
 #endif
-                    if (string.IsNullOrEmpty(uniqueIdPrefix)) {
-#if MVC6
-                        uniqueIdPrefix = HttpContext.Request.Query[Forms.UniqueIdPrefix];
-#else
-                        uniqueIdPrefix = HttpContext.Request.QueryString[Forms.UniqueIdPrefix];
-#endif
-                    }
-                    if (!string.IsNullOrEmpty(uniqueIdPrefix))
-                        Manager.UniqueIdPrefix = uniqueIdPrefix;
                 }
-                Type ctrlType;
-                string actionName;
+                if (string.IsNullOrEmpty(uniqueIdCounters)) {
 #if MVC6
-                ctrlType = filterContext.Controller.GetType();
-                actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+                    uniqueIdCounters = HttpContext.Request.Query[Forms.UniqueIdCounters];
 #else
-                ctrlType = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
-                actionName = filterContext.ActionDescriptor.ActionName;
+                    uniqueIdCounters = HttpContext.Request.QueryString[Forms.UniqueIdCounters];
 #endif
-                MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-                // check if the action is authorized by checking the module's authorization
-                string level = null;
-                PermissionAttribute permAttr = (PermissionAttribute)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
-                if (permAttr != null)
-                    level = permAttr.Level;
-
-                ModuleDefinition mod = CurrentModule;
-                if (!mod.IsAuthorized(level)) {
-                    if (Manager.IsPostRequest) {
-#if MVC6
-                        filterContext.Result = new UnauthorizedResult();
-#else
-                        filterContext.Result = new HttpUnauthorizedResult();
-#endif
-                    } else {
-                        // We get here if an action is attempted that the user is not authorized for
-                        // we could attempt to capture and redirect to user login, whatevz
-                        filterContext.Result = new EmptyResult();
-                    }
-                    return;
                 }
+                if (string.IsNullOrEmpty(uniqueIdCounters))
+                    throw new InternalError("Missing unique id counters");
 
-                // action is about to start - if this is a postback or ajax request, we'll clean up parameters
+                if (!string.IsNullOrEmpty(uniqueIdCounters)) {
+                    YetaWFManager.UniqueIdInfo info = Utility.JsonDeserialize<YetaWFManager.UniqueIdInfo>(uniqueIdCounters);
+                    Manager.UniqueIdPrefixCounter = info.UniqueIdPrefixCounter;
+                    Manager.UniqueIdCounter = info.UniqueIdCounter;
+                }
+            }
+            Type ctrlType;
+            string actionName;
+#if MVC6
+            ctrlType = filterContext.Controller.GetType();
+            actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+#else
+            ctrlType = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
+            actionName = filterContext.ActionDescriptor.ActionName;
+#endif
+            MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            // check if the action is authorized by checking the module's authorization
+            string level = null;
+            PermissionAttribute permAttr = (PermissionAttribute)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
+            if (permAttr != null)
+                level = permAttr.Level;
+
+            ModuleDefinition mod = CurrentModule;
+            if (!mod.IsAuthorized(level)) {
                 if (Manager.IsPostRequest) {
 #if MVC6
-                    IDictionary<string,object> parms = filterContext.ActionArguments;
+                    filterContext.Result = new UnauthorizedResult();
 #else
-                    IDictionary<string, object> parms = filterContext.ActionParameters;
+                    filterContext.Result = new HttpUnauthorizedResult();
 #endif
-                    if (parms != null) {
-                        // remove leading/trailing spaces based on TrimAttribute for properties
-                        // and update ModelState for RequiredIfxxx attributes
+                } else {
+                    // We get here if an action is attempted that the user is not authorized for
+                    // we could attempt to capture and redirect to user login, whatevz
+                    filterContext.Result = new EmptyResult();
+                }
+                return;
+            }
+
+            // action is about to start - if this is a postback or ajax request, we'll clean up parameters
+            if (Manager.IsPostRequest) {
 #if MVC6
-                        Controller controller = (Controller)filterContext.Controller;
-                        ViewDataDictionary viewData = controller.ViewData;
+                IDictionary<string,object> parms = filterContext.ActionArguments;
 #else
-                        ViewDataDictionary viewData = filterContext.Controller.ViewData;
+                IDictionary<string, object> parms = filterContext.ActionParameters;
 #endif
-                        ModelStateDictionary modelState = viewData.ModelState;
-                        foreach (var parm in parms) {
-                            FixArgumentParmTrim(parm.Value);
-                            FixArgumentParmCase(parm.Value);
-                            await FixDataAsync(parm.Value);
-                            CorrectModelState(parm.Value, modelState);
-                        }
-
-                        // translate any xxx.JSON properties to native objects
-                        if (modelState.IsValid)
-                            ReplaceJSONParms(parms);
-
-                        // if we have a template action, search parameters for templates with actions and execute it
+                if (parms != null) {
+                    // remove leading/trailing spaces based on TrimAttribute for properties
+                    // and update ModelState for RequiredIfxxx attributes
 #if MVC6
-                        if (HttpContext.Request.HasFormContentType) {
+                    Controller controller = (Controller)filterContext.Controller;
+                    ViewDataDictionary viewData = controller.ViewData;
+#else
+                    ViewDataDictionary viewData = filterContext.Controller.ViewData;
+#endif
+                    ModelStateDictionary modelState = viewData.ModelState;
+                    foreach (var parm in parms) {
+                        FixArgumentParmTrim(parm.Value);
+                        FixArgumentParmCase(parm.Value);
+                        await FixDataAsync(parm.Value);
+                        CorrectModelState(parm.Value, modelState);
+                    }
+
+                    // translate any xxx.JSON properties to native objects
+                    if (modelState.IsValid)
+                        ReplaceJSONParms(parms);
+
+                    // if we have a template action, search parameters for templates with actions and execute it
+#if MVC6
+                    if (HttpContext.Request.HasFormContentType) {
 #else
 #endif
                         string templateName = HttpContext.Request.Form[Basics.TemplateName];
@@ -329,28 +336,28 @@ namespace YetaWF.Core.Controllers {
                             }
                         }
 #if MVC6
-                        }
+                    }
 #else
 #endif
-                    }
-
-                    // origin list (we already do this in global.asax.cs for GET, maybe move it there)
-                    //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
-                    //if (!string.IsNullOrWhiteSpace(originList))
-                    //    Manager.OriginList = Utility.JsonDeserialize<List<Origin>>(originList);
-                    //else
-                    //    Manager.OriginList = new List<Origin>();
-
-                    //string inPopup = HttpContext.Request.Form[Globals.Link_InPopup];
-                    //if (!string.IsNullOrWhiteSpace(inPopup))
-                    //    Manager.IsInPopup = true;
-
-                    ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
                 }
+
+                // origin list (we already do this in global.asax.cs for GET, maybe move it there)
+                //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
+                //if (!string.IsNullOrWhiteSpace(originList))
+                //    Manager.OriginList = Utility.JsonDeserialize<List<Origin>>(originList);
+                //else
+                //    Manager.OriginList = new List<Origin>();
+
+                //string inPopup = HttpContext.Request.Form[Globals.Link_InPopup];
+                //if (!string.IsNullOrWhiteSpace(inPopup))
+                //    Manager.IsInPopup = true;
+
+                ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
+            }
 #if MVC6
-                await base.OnActionExecutionAsync(filterContext, next);
+            await base.OnActionExecutionAsync(filterContext, next);
 #else
-                base.OnActionExecuting(filterContext);
+            base.OnActionExecuting(filterContext);
 #endif
 #if MVC6
 #else

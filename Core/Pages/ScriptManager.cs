@@ -503,6 +503,23 @@ namespace YetaWF.Core.Pages {
             }
         }
 
+        internal Task<string> RenderVolatileChangesAsync() {
+
+            Manager.Verify_PostRequest();
+
+            ScriptBuilder sb = new ScriptBuilder();
+
+            foreach (var groupEntry in _SavedVolatileOptionsGroups) {
+                string groupName = groupEntry.Key;
+                Dictionary<string, object> entries = groupEntry.Value;
+                foreach (var entry in entries) {
+                    sb.Append($"YVolatile.{groupEntry.Key}.{entry.Key} = {Utility.JsonSerialize(entry.Value)};");
+                }
+            }
+            if (sb.Length == 0) return Task.FromResult<string>(null);
+            return Task.FromResult($"<script>{sb.ToString()}</script>");
+        }
+
         public async Task<string> RenderAjaxAsync() {
 
             Manager.Verify_PostRequest();
@@ -693,6 +710,7 @@ namespace YetaWF.Core.Pages {
             }
             return hb;
         }
+
         internal List<string> GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
                 List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();

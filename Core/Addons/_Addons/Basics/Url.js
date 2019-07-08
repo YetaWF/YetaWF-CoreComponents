@@ -90,10 +90,10 @@ var YetaWF;
                 }
             }
         };
-        Url.prototype.addFormInfo = function (tag, counter) {
-            var formInfo = $YetaWF.Forms.getFormInfo(tag, undefined, counter);
+        Url.prototype.addFormInfo = function (tag) {
+            var formInfo = $YetaWF.Forms.getFormInfo(tag);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
-            this.addSearch(YConfigs.Forms.UniqueIdPrefix, formInfo.UniqueIdPrefix);
+            this.addSearch(YConfigs.Forms.UniqueIdCounters, JSON.stringify(formInfo.UniqueIdCounters));
             this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
             this.addSearch(YConfigs.Basics.Link_CharInfo, formInfo.CharInfo);
         };

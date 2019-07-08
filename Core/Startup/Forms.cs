@@ -10,7 +10,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons {
     public class Forms : IAddOnSupport {
 
-        public const string UniqueIdPrefix = "__UniqueIdPrefix";
+        public const string UniqueIdCounters = "__UniqueIdCounters";
 
         // Http request Form[] variables
         public const string ConditionPropertyName = "conditionpropertyname";
@@ -39,7 +39,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Form Error"));
             scripts.AddLocalization("Forms", "FormErrors", this.__ResStr("FormErrors", ""));
 
-            scripts.AddConfigOption("Forms", "UniqueIdPrefix", UniqueIdPrefix);
+            scripts.AddConfigOption("Forms", "UniqueIdCounters", UniqueIdCounters);
             scripts.AddConfigOption("Forms", "RequestVerificationToken", "__RequestVerificationToken");
 
             // Validation (not implementation specific) used by validation attributes

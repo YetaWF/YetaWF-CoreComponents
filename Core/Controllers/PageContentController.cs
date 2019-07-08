@@ -176,7 +176,7 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// The unique id prefix counter used by the current page. This value is used to prevent collisions when generating unique HTML tag ids.
             /// </summary>
-            public int UniqueIdPrefixCounter { get; set; }
+            public YetaWFManager.UniqueIdInfo UniqueIdCounters { get; set; }
             /// <summary>
             /// Defines whether the current page was rendered on a mobile device.
             /// </summary>
@@ -224,6 +224,8 @@ namespace YetaWF.Core.Controllers {
             SiteDefinition site = Manager.CurrentSite;
             Manager.RenderContentOnly = true;
 
+            Manager.UniqueIdCounters = dataIn.UniqueIdCounters;
+
             // process logging type callbacks
             await PageLogging.HandleCallbacksAsync(dataIn.Path, false);
 
@@ -257,7 +259,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // set the unique id prefix so all generated ids start where the main page left off
-            Manager.UniqueIdPrefixCounter = YetaWFController.GoingToPopup() ? dataIn.UniqueIdPrefixCounter + 1 : dataIn.UniqueIdPrefixCounter;
+            Manager.NextUniqueIdPrefix();
 
             // Check if this is a static page
             // It seems if we can handle a page as a content replacement, that's better than a static page, which reruns all javascript

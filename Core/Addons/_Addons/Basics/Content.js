@@ -100,7 +100,7 @@ var YetaWF;
                     UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,
                     UnifiedMode: YVolatile.Basics.UnifiedMode,
                     UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
-                    UniqueIdPrefixCounter: YVolatile.Basics.UniqueIdPrefixCounter,
+                    UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     IsMobile: YVolatile.Skin.MinWidthForPopups > window.outerWidth,
                     UnifiedSkinCollection: null,
                     UnifiedSkinFileName: null,

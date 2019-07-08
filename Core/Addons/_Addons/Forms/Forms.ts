@@ -72,7 +72,7 @@ namespace YetaWF {
     export interface IConfigsForms {
 
         // Global form related items (not implementation specific)
-        UniqueIdPrefix: string;
+        UniqueIdCounters: string;
         RequestVerificationToken: string;
 
         // Validation (not implementation specific) used by validation attributes
@@ -110,7 +110,7 @@ namespace YetaWF {
     }
     export interface FormInfo {
         RequestVerificationToken: string;
-        UniqueIdPrefix: string;
+        UniqueIdCounters: UniqueIdInfo;
         ModuleGuid: string;
         CharInfo: string;
         QS: string;
@@ -187,6 +187,9 @@ namespace YetaWF {
             return YetaWF_FormsImpl.isValid(form);
         }
 
+        //$$$public GetUniqueId() {
+//        }
+
         // Submit
 
         public DATACLASS: string = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
@@ -227,13 +230,16 @@ namespace YetaWF {
                     if (originList.length > 5)// only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
                 }
+                formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
                 // include the character dimension info
                 {
                     var charSize = $YetaWF.getCharSizeFromTag(form);
                     formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
                 }
-
-                formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
+                // add uniqueidcounters
+                {
+                    formData = formData + "&" + YConfigs.Forms.UniqueIdCounters + "=" + encodeURIComponent(JSON.stringify(YVolatile.Basics.UniqueIdCounters));
+                }
                 // add the status of the Pagecontrol
                 if (YVolatile.Basics.PageControlVisible)
                     formData = formData + "&" + YConfigs.Basics.Link_PageControl + "=y";
@@ -459,15 +465,11 @@ namespace YetaWF {
         public getInnerFormCond(tag: HTMLElement): HTMLFormElement | null {
             return $YetaWF.getElement1BySelectorCond("form", [tag]) as HTMLFormElement | null;
         }
-        // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
-        public getFormInfo(tag: HTMLElement, addAmpersand?: boolean, counter?: number) : FormInfo {
+        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid in query string format (usually for ajax requests)
+        public getFormInfo(tag: HTMLElement, addAmpersand?: boolean) : FormInfo {
             var form = this.getForm(tag);
             var req = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement).value;
             if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
-            var pre = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.UniqueIdPrefix}']`, [form]) as HTMLInputElement).value;
-            if (!pre || pre.length === 0) throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix;/*DEBUG*/
-            if (counter)
-                pre += `_${counter}`;
             var guid = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
             if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
             var charSize = $YetaWF.getCharSizeFromTag(form);
@@ -476,13 +478,13 @@ namespace YetaWF {
             if (addAmpersand !== false)
                 qs += "&";
             qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
-                "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
+                "&" + YConfigs.Forms.UniqueIdCounters + "=" + JSON.stringify(YVolatile.Basics.UniqueIdCounters) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
                 "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
 
             var info: FormInfo = {
                 RequestVerificationToken: req,
-                UniqueIdPrefix: pre,
+                UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                 ModuleGuid: guid,
                 CharInfo: charSize.width.toString() + "," + charSize.height.toString(),
                 QS: qs

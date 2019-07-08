@@ -130,12 +130,16 @@ var YetaWF;
                     if (originList.length > 5) // only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
                 }
+                formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
                 // include the character dimension info
                 {
                     var charSize = $YetaWF.getCharSizeFromTag(form);
                     formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
                 }
-                formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
+                // add uniqueidcounters
+                {
+                    formData = formData + "&" + YConfigs.Forms.UniqueIdCounters + "=" + encodeURIComponent(JSON.stringify(YVolatile.Basics.UniqueIdCounters));
+                }
                 // add the status of the Pagecontrol
                 if (YVolatile.Basics.PageControlVisible)
                     formData = formData + "&" + YConfigs.Basics.Link_PageControl + "=y";
@@ -343,17 +347,12 @@ var YetaWF;
         Forms.prototype.getInnerFormCond = function (tag) {
             return $YetaWF.getElement1BySelectorCond("form", [tag]);
         };
-        // get RequestVerificationToken, UniqueIdPrefix and ModuleGuid in query string format (usually for ajax requests)
-        Forms.prototype.getFormInfo = function (tag, addAmpersand, counter) {
+        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid in query string format (usually for ajax requests)
+        Forms.prototype.getFormInfo = function (tag, addAmpersand) {
             var form = this.getForm(tag);
             var req = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
             if (!req || req.length === 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var pre = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.UniqueIdPrefix + "']", [form]).value;
-            if (!pre || pre.length === 0)
-                throw "Can't locate " + YConfigs.Forms.UniqueIdPrefix; /*DEBUG*/
-            if (counter)
-                pre += "_" + counter;
             var guid = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
             if (!guid || guid.length === 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
@@ -362,12 +361,12 @@ var YetaWF;
             if (addAmpersand !== false)
                 qs += "&";
             qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
-                "&" + YConfigs.Forms.UniqueIdPrefix + "=" + encodeURIComponent(pre) +
+                "&" + YConfigs.Forms.UniqueIdCounters + "=" + JSON.stringify(YVolatile.Basics.UniqueIdCounters) +
                 "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
                 "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
             var info = {
                 RequestVerificationToken: req,
-                UniqueIdPrefix: pre,
+                UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                 ModuleGuid: guid,
                 CharInfo: charSize.width.toString() + "," + charSize.height.toString(),
                 QS: qs

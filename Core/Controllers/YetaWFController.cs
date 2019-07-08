@@ -543,6 +543,8 @@ namespace YetaWF.Core.Controllers
             public override void ExecuteResult(ControllerContext context) {
 #endif
                 Manager.Verify_PostRequest();
+                Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
+                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
 
                 if (context == null)
                     throw new ArgumentNullException("context");
@@ -670,9 +672,8 @@ namespace YetaWF.Core.Controllers
                         Manager.ScriptManager.AddLastDocumentReady(Script);
 
                     // add generated scripts
-                    string js = await Manager.ScriptManager.RenderAjaxAsync();
-                    if (string.IsNullOrWhiteSpace(js))
-                        js = "";
+                    string js = await Manager.ScriptManager.RenderVolatileChangesAsync() ?? "";
+                    js += await Manager.ScriptManager.RenderAjaxAsync() ?? "";
 
                     viewHtml = reEndDiv.Replace(viewHtml, js + "</div>", 1);
 
