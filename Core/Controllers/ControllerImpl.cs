@@ -250,9 +250,6 @@ namespace YetaWF.Core.Controllers {
                     uniqueIdCounters = HttpContext.Request.QueryString[Forms.UniqueIdCounters];
 #endif
                 }
-                if (string.IsNullOrEmpty(uniqueIdCounters))
-                    throw new InternalError("Missing unique id counters");
-
                 if (!string.IsNullOrEmpty(uniqueIdCounters)) {
                     YetaWFManager.UniqueIdInfo info = Utility.JsonDeserialize<YetaWFManager.UniqueIdInfo>(uniqueIdCounters);
                     Manager.UniqueIdPrefixCounter = info.UniqueIdPrefixCounter;
