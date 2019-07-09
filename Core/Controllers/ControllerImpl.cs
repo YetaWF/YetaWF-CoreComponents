@@ -239,10 +239,10 @@ namespace YetaWF.Core.Controllers {
 #if MVC6
                 if (HttpContext.Request.HasFormContentType) {
                     uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
-#else
-                    uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
-#endif
                 }
+#else
+                uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
+#endif
                 if (string.IsNullOrEmpty(uniqueIdCounters)) {
 #if MVC6
                     uniqueIdCounters = HttpContext.Request.Query[Forms.UniqueIdCounters];
