@@ -544,7 +544,6 @@ namespace YetaWF.Core.Controllers
 #endif
                 Manager.Verify_PostRequest();
                 Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
-                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
 
                 if (context == null)
                     throw new ArgumentNullException("context");
@@ -660,6 +659,7 @@ namespace YetaWF.Core.Controllers
                 {
                     if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
 
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
 
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
