@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using System.Globalization;
 using TimeZoneConverter;
+using Newtonsoft.Json;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -899,32 +900,25 @@ namespace YetaWF.Core.Support {
         /// accidentally use ids that were used in prior request.
         /// </remarks>
         public string UniqueId(string name = "a") {
-            ++UniqueIdCounter;
-            return $"u{UniqueIdPrefixCounter}_{name}{UniqueIdCounter}";
+            ++UniqueIdCounters.UniqueIdCounter;
+            return $"{UniqueIdCounters.UniqueIdPrefix}{UniqueIdCounters.UniqueIdPrefixCounter}_{name}{UniqueIdCounters.UniqueIdCounter}";
         }
 
         public void NextUniqueIdPrefix() {
-            ++UniqueIdPrefixCounter;
-            UniqueIdCounter = 0;
+            UniqueIdCounters.UniqueIdPrefixCounter++;
+            UniqueIdCounters.UniqueIdCounter = 0;
         }
-        internal int UniqueIdPrefixCounter { get; set; } = 0;
-        internal int UniqueIdCounter { get; set; } = 0;
 
-        public UniqueIdInfo UniqueIdCounters {
-            get {
-                return new UniqueIdInfo {
-                    UniqueIdPrefixCounter = UniqueIdPrefixCounter,
-                    UniqueIdCounter = UniqueIdCounter,
-                };
-            }
-            set {
-                UniqueIdPrefixCounter = value.UniqueIdPrefixCounter;
-                UniqueIdCounter = value.UniqueIdCounter;
-            }
-        }
+        public UniqueIdInfo UniqueIdCounters { get; set; } = new UniqueIdInfo { UniqueIdPrefix = UniqueIdTracked };
+        public const string UniqueIdTracked = "u";
+
         public class UniqueIdInfo {
+            public string UniqueIdPrefix { get; set; }
             public int UniqueIdPrefixCounter { get; set; }
             public int UniqueIdCounter { get; set; }
+
+            [JsonIgnore]
+            public bool IsTracked { get { return UniqueIdPrefix == UniqueIdTracked; } }
         }
 
         // HTTPCONTEXT

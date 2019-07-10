@@ -187,9 +187,6 @@ namespace YetaWF {
             return YetaWF_FormsImpl.isValid(form);
         }
 
-        //$$$public GetUniqueId() {
-//        }
-
         // Submit
 
         public DATACLASS: string = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.

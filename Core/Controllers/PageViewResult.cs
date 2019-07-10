@@ -131,7 +131,8 @@ namespace YetaWF.Core.Controllers {
                 await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
                 Manager.PopCharSize();
 
-                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
+                if (Manager.UniqueIdCounters.IsTracked)
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
                 if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
                     Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
                     Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());

@@ -93,7 +93,6 @@ var YetaWF;
         Url.prototype.addFormInfo = function (tag) {
             var formInfo = $YetaWF.Forms.getFormInfo(tag);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
-            this.addSearch(YConfigs.Forms.UniqueIdCounters, JSON.stringify(formInfo.UniqueIdCounters));
             this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
             this.addSearch(YConfigs.Basics.Link_CharInfo, formInfo.CharInfo);
         };

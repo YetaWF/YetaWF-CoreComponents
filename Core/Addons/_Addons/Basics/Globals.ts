@@ -81,6 +81,7 @@ namespace YetaWF {
         KnownScriptsDynamic: string[];
     }
     export interface UniqueIdInfo {
+        UniqueIdPrefix: string;
         UniqueIdPrefixCounter: number;
         UniqueIdCounter: number;
     }

@@ -251,9 +251,7 @@ namespace YetaWF.Core.Controllers {
 #endif
                 }
                 if (!string.IsNullOrEmpty(uniqueIdCounters)) {
-                    YetaWFManager.UniqueIdInfo info = Utility.JsonDeserialize<YetaWFManager.UniqueIdInfo>(uniqueIdCounters);
-                    Manager.UniqueIdPrefixCounter = info.UniqueIdPrefixCounter;
-                    Manager.UniqueIdCounter = info.UniqueIdCounter;
+                    Manager.UniqueIdCounters = Utility.JsonDeserialize<YetaWFManager.UniqueIdInfo>(uniqueIdCounters);
                 }
             }
             Type ctrlType;

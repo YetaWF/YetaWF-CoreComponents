@@ -66,7 +66,8 @@ namespace YetaWF.Core.Controllers {
 
                 //Manager.PopCharSize();
 
-                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
+                if (Manager.UniqueIdCounters.IsTracked)
+                    Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
 
                 Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
 

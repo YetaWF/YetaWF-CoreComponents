@@ -21,15 +21,10 @@ using YetaWF.Core.Views;
 using YetaWF.Core.DataProvider;
 using System.Linq;
 #if MVC6
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
-using YetaWF.Core.Pages;
 #else
 using System.IO.Compression;
 using System.Web;
@@ -659,7 +654,6 @@ namespace YetaWF.Core.Controllers
                 {
                     if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
 
-                    Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
 
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
@@ -670,6 +664,9 @@ namespace YetaWF.Core.Controllers
 
                     if (Script != null)
                         Manager.ScriptManager.AddLastDocumentReady(Script);
+
+                    if (Manager.UniqueIdCounters.IsTracked)
+                        Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
 
                     // add generated scripts
                     string js = await Manager.ScriptManager.RenderVolatileChangesAsync() ?? "";

@@ -49,6 +49,7 @@ namespace YetaWF.Core.Controllers {
                 throw new HttpException(404, string.Format("Url {0} not found", __path));
 #endif
             }
+
             SiteDefinition site = Manager.CurrentSite;
             Uri uri = new Uri(Manager.CurrentRequestUrl);
             Manager.RenderContentOnly = false;
