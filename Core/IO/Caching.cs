@@ -50,6 +50,11 @@ namespace YetaWF.Core.IO {
         /// If locking for a single instance only is required even in a multi-instance site, simply use the C# lock statement instead.
         /// </remarks>
         public static ILockProvider LockProvider { get; set; }
+
+        /// <summary>
+        /// A pub/sub provider for publish/subscribe messaging shared among all instances of a site.
+        /// </summary>
+        public static IPubSubProvider PubSubProvider { get; set; }
     };
 
     /// <summary>
@@ -78,6 +83,16 @@ namespace YetaWF.Core.IO {
         /// </summary>
         Task UnlockAsync();
     }
+
+    /// <summary>
+    /// Interface implemented by pub/sub providers.
+    /// </summary>
+    public interface IPubSubProvider : IDisposable {
+        Task SubscribeAsync(string channel, Action<string, object> callback);
+        Task UnsubscribeAsync(string channel);
+        Task PublishAsync(string channel, object message);
+    }
+
     /// <summary>
     /// All caching data providers implement this interface which is used to access cached data.
     /// </summary>
