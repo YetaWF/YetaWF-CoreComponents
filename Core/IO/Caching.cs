@@ -88,8 +88,22 @@ namespace YetaWF.Core.IO {
     /// Interface implemented by pub/sub providers.
     /// </summary>
     public interface IPubSubProvider : IDisposable {
+        /// <summary>
+        /// Subscribe to a channel.
+        /// </summary>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="callback">The callback invoked when a message is published to the channel.</param>
         Task SubscribeAsync(string channel, Func<string, object, Task> callback);
+        /// <summary>
+        /// Unsubscribe from a channel.
+        /// </summary>
+        /// <param name="channel">The channel name.</param>
         Task UnsubscribeAsync(string channel);
+        /// <summary>
+        /// Publish a message to a channel.
+        /// </summary>
+        /// <param name="channel">The channel name.</param>
+        /// <param name="message">The message object.</param>
         Task PublishAsync(string channel, object message);
     }
 
