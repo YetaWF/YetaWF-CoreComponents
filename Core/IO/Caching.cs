@@ -88,7 +88,7 @@ namespace YetaWF.Core.IO {
     /// Interface implemented by pub/sub providers.
     /// </summary>
     public interface IPubSubProvider : IDisposable {
-        Task SubscribeAsync(string channel, Action<string, object> callback);
+        Task SubscribeAsync(string channel, Func<string, object, Task> callback);
         Task UnsubscribeAsync(string channel);
         Task PublishAsync(string channel, object message);
     }
