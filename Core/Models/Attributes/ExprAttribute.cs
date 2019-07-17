@@ -190,6 +190,11 @@ namespace YetaWF.Core.Models.Attributes {
         /// Only simple controls (input, select) can currently be used with the Disabled property.
         /// </remarks>
         public bool Disable { get; set; }
+        /// <summary>
+        /// Defines whether the property value is cleared when the property is disabled.
+        /// The default is to preserve the property value.
+        /// </summary>
+        public bool ClearOnDisable { get; set; }
 
         public OpEnum Op { get; protected set; }
         public List<Expr> ExprList { get; protected set; }
