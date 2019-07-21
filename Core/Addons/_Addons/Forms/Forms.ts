@@ -100,6 +100,7 @@ namespace YetaWF {
     export interface ILocsForms {
         AjaxError: string;
         AjaxErrorTitle: string;
+        AjaxConnLost: string;
         FormErrors: string;
     }
 
