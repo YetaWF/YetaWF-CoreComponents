@@ -380,6 +380,12 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public string Country { get; set; }
 
+        [Category("Site"), Caption("Timezone"), Description("The default timezone for all users of this site")]
+        [UIHint("TimeZone"), StringLength(Globals.MaxTimeZone), Required, Trim]
+        [RequiresPageReload]
+        [Data_NewValue]
+        public string TimeZone { get; set; }
+
         [Category("Site"), Caption("Currency"), Description("The default currency used")]
         [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217.Currency.MaxId), Trim, Required]
         [RequiresPageReload]
