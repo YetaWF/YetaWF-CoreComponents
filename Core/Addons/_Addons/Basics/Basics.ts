@@ -52,9 +52,11 @@ namespace YetaWF {
     }
     interface NewPageEntry {
         callback(url: string): void;
+        onceOnly: boolean;
     }
     interface PageChangeEntry {
-        callback() : void;
+        callback(): void;
+        onceOnly: boolean;
     }
     interface DataObjectEntry {
         DivId: string;
@@ -1486,8 +1488,8 @@ namespace YetaWF {
         /**
          * Register a callback to be called when a new page has become active.
          */
-        public registerNewPage(callback: (url: string) => void): void {
-            this.NewPageHandlers.push({ callback: callback });
+        public registerNewPage(onceOnly: boolean, callback: (url: string) => void): void {
+            this.NewPageHandlers.push({ callback: callback, onceOnly: onceOnly });
         }
         /**
          * Called to call all registered callbacks when a new page has become active.
@@ -1496,6 +1498,8 @@ namespace YetaWF {
             for (var entry of this.NewPageHandlers) {
                 entry.callback(url);
             }
+            // remove once only entries
+            this.NewPageHandlers = this.NewPageHandlers.filter((el: NewPageEntry) : boolean => !el.onceOnly);
         }
 
         // PAGECHANGE
@@ -1507,8 +1511,8 @@ namespace YetaWF {
         /**
          * Register a callback to be called when the current page is going away (about to be replaced by a new page).
          */
-        public registerPageChange(callback: () => void): void {
-            this.PageChangeHandlers.push({ callback: callback });
+        public registerPageChange(onceOnly: boolean, callback: () => void): void {
+            this.PageChangeHandlers.push({ callback: callback, onceOnly: onceOnly });
         }
         /**
          * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
@@ -1517,6 +1521,8 @@ namespace YetaWF {
             for (var entry of this.PageChangeHandlers) {
                 entry.callback();
             }
+            // remove once only entries
+            this.PageChangeHandlers = this.PageChangeHandlers.filter((el: PageChangeEntry) : boolean => !el.onceOnly);
         }
 
         // Expand/collapse Support

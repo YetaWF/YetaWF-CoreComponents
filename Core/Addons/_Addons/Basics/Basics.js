@@ -1371,8 +1371,8 @@ var YetaWF;
         /**
          * Register a callback to be called when a new page has become active.
          */
-        BasicsServices.prototype.registerNewPage = function (callback) {
-            this.NewPageHandlers.push({ callback: callback });
+        BasicsServices.prototype.registerNewPage = function (onceOnly, callback) {
+            this.NewPageHandlers.push({ callback: callback, onceOnly: onceOnly });
         };
         /**
          * Called to call all registered callbacks when a new page has become active.
@@ -1382,12 +1382,14 @@ var YetaWF;
                 var entry = _a[_i];
                 entry.callback(url);
             }
+            // remove once only entries
+            this.NewPageHandlers = this.NewPageHandlers.filter(function (el) { return !el.onceOnly; });
         };
         /**
          * Register a callback to be called when the current page is going away (about to be replaced by a new page).
          */
-        BasicsServices.prototype.registerPageChange = function (callback) {
-            this.PageChangeHandlers.push({ callback: callback });
+        BasicsServices.prototype.registerPageChange = function (onceOnly, callback) {
+            this.PageChangeHandlers.push({ callback: callback, onceOnly: onceOnly });
         };
         /**
          * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
@@ -1397,6 +1399,8 @@ var YetaWF;
                 var entry = _a[_i];
                 entry.callback();
             }
+            // remove once only entries
+            this.PageChangeHandlers = this.PageChangeHandlers.filter(function (el) { return !el.onceOnly; });
         };
         // Expand/collapse Support
         /**
