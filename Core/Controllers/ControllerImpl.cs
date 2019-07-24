@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Collections.Generic;
@@ -497,11 +497,12 @@ namespace YetaWF.Core.Controllers {
                     // so we translate them back to utc. There is probably a better way somewhere in ASP.NET, but haven't figured it out yet.
                     if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
                         DateTime? dt = prop.GetPropertyValue<DateTime?>(parm);
+
                         if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local) {
                             DateTime dl = (DateTime)dt;
                             if (prop.UIHint == "DateTime" || prop.UIHint == "Time" || prop.UIHint == "Date") {
-                                // we're receiving date/time in the user's specified timezone so we now have to convert it to Utc
-                                dt = Formatting.GetUtcDateTime(dl);
+                                // we're receiving date/time in the local timezone so we now have to convert it to Utc
+                                dt = dl.ToUniversalTime();
                                 pi.SetValue(parm, dt, null);
                             }
                         }
