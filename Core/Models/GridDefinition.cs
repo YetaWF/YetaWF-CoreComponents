@@ -93,6 +93,8 @@ namespace YetaWF.Core.Models {
         public SizeStyleEnum SizeStyle { get; set; }
         public bool HighlightOnClick { get; set; }
 
+        public ColumnDictionary InitialFilters { get; set; }
+
         public string NoRecordsText { get; set; }// text shown when there are no records
 
         public int InitialPageSize { get; set; }
@@ -126,6 +128,7 @@ namespace YetaWF.Core.Models {
             ShowFilter = null;
             UseSkinFormatting = true;
             HighlightOnClick = true;
+            InitialFilters = new ColumnDictionary();
 
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };
