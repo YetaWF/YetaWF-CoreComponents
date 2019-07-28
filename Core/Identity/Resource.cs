@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
+using YetaWF.Core.Models.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -108,7 +109,7 @@ namespace YetaWF.Core.Identity {
         public string Name { get; private set; }
 
         /// <summary>
-        /// Handles authorization checking based for protected named resoures.
+        /// Handles authorization checking based for protected named resources.
         /// </summary>
         /// <param name="httpContext">The HTTP context.</param>
         /// <returns>Returns whether access to the protected named resource is permitted.</returns>
@@ -119,6 +120,19 @@ namespace YetaWF.Core.Identity {
             return YetaWFManager.Syncify<bool>(() => Resource.ResourceAccess.IsResourceAuthorizedAsync(Name)); // Must sync, no async attributes in mvc5
         }
 #endif
+    }
+
+    public enum UserStatusEnum {
+        [EnumDescription("Needs Verification", "A new user account that has not yet been verified or approved")]
+        NeedValidation = 0,
+        [EnumDescription("Needs Approval", "A user account whose email address has been validated but still needs approval")]
+        NeedApproval = 1,
+        [EnumDescription("Approved User", "A user account that has been approved")]
+        Approved = 2,
+        [EnumDescription("Rejected User", "A user account that has been rejected")]
+        Rejected = 20,
+        [EnumDescription("Suspended User", "A user account that has been suspended")]
+        Suspended = 21,
     }
 
     /// <summary>
@@ -186,6 +200,9 @@ namespace YetaWF.Core.Identity {
         Task<int> GetUserIdAsync(string userName);
         Task<string> GetUserNameAsync(int userId);
         Task<string> GetUserEmailAsync(int userId);
+        Task<UserStatusEnum> GetUserStatusAsync(int userId);
+        Task SetUserStatusAsync(int userId, UserStatusEnum status);
+
         int GetSuperuserId();
         List<RoleInfo> GetDefaultRoleList(bool Exclude2FA = false);
         List<User> GetDefaultUserList();
