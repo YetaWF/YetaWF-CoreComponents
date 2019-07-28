@@ -17,7 +17,7 @@ namespace YetaWF.Core.Components {
         public TimeOfDay(int hours, int minutes, int seconds) { TOD = new TimeSpan(hours, minutes, seconds); }
         public TimeOfDay(DateTime dt) {
             if (dt.Kind != DateTimeKind.Utc) throw new InternalError($"DateTime has incorrect Kind {dt.Kind}");
-            dt = Formatting.GetLocalDateTime(dt);
+            dt = Formatting.GetUserDateTime(dt);
             TOD = dt.TimeOfDay;
         }
         public TimeSpan TOD { get; private set; }

@@ -56,7 +56,7 @@ namespace YetaWF.Core.Localize {
         /// </summary>
         public static string Date_Month_YYYY(DateTime dt)
         {
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             string month = GetMonthName(dt.Month);
             return __ResStr("strMonth_YYYY", "{0} {1}", month, dt.Year);
         }
@@ -64,11 +64,11 @@ namespace YetaWF.Core.Localize {
         /// Format a date - Example "November 1"
         /// </summary>
         public static string Date_Month_Day(DateTime dt) {
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             return __ResStr("strMonth_Day", "{0} {1}", Formatting.GetMonthName(dt.Month), dt.Day);
         }
 
-        public static DateTime GetLocalDateTime(DateTime dateTime, DateFormatEnum? dateFormat = null) {
+        public static DateTime GetUserDateTime(DateTime dateTime, DateFormatEnum? dateFormat = null) {
             if (dateTime.Kind != DateTimeKind.Utc && dateTime.Kind != DateTimeKind.Unspecified) throw new InternalError($"DateTime has incorrect Kind {dateTime.Kind}");
             if (dateTime == DateTime.MinValue) return dateTime;
             TimeZoneInfo tzi = Manager.GetTimeZoneInfo();// user's timezone
@@ -114,7 +114,7 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             string fmt = GetFormatDateFormat(dateFormat);
             return dt.ToString(fmt);
         }
@@ -144,7 +144,7 @@ namespace YetaWF.Core.Localize {
         public static string FormatTime(DateTime? dateTime, TimeFormatEnum? timeFormat = null) {
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             string fmt = GetFormatTimeFormat(timeFormat);
             return dt.ToString(fmt);
         }
@@ -152,7 +152,7 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             TimeFormatEnum tf = UserSettings.GetProperty<TimeFormatEnum>("TimeFormat");
 
             switch (tf) {
@@ -175,7 +175,7 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             string fmtTime = GetFormatTimeFormat();
             string fmtDate = GetFormatDateFormat();
             return dt.ToString(fmtDate) + " " + dt.ToString(fmtTime);
@@ -189,13 +189,13 @@ namespace YetaWF.Core.Localize {
             if (dateTime == null) return "";
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             return dt.Year.ToString();
         }
         public static string FormatLongDate(DateTime? dateTime) {
             DateTime dt = (DateTime)dateTime;
             if (dt == DateTime.MinValue) return "";
-            dt = GetLocalDateTime(dt);
+            dt = GetUserDateTime(dt);
             string day = GetDayName(dt.DayOfWeek);
             string month = GetMonthName(dt.Month);
             return __ResStr("longDate", "{0}, {1} {2}, {3}", day, month, dt.Day, dt.Year);

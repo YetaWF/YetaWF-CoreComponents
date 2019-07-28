@@ -77,7 +77,7 @@ namespace YetaWF.Core.Controllers {
                         if (propInfo.PropertyType == typeof(string))
                             sb.Append($@"""{o.ToString()}""");
                         else if (propInfo.PropertyType == typeof(DateTime) || propInfo.PropertyType == typeof(DateTime?))
-                            sb.Append($@"""{Formatting.GetLocalDateTime((DateTime)o)}""");
+                            sb.Append($@"""{Formatting.GetUserDateTime((DateTime)o)}""");
                         else
                             sb.Append($@"{o.ToString()}");
                     }
