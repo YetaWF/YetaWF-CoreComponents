@@ -101,8 +101,9 @@ namespace YetaWF.Core.Localize {
             }
         }
         public static DateTime GetUtcDateTime(DateTime dateTime) {
+            if (dateTime.Kind == DateTimeKind.Utc)
+                return dateTime;
             // dateTime is the user's time zone (NOT local)
-            if (dateTime.Kind != DateTimeKind.Local && dateTime.Kind != DateTimeKind.Unspecified) throw new InternalError($"DateTime has incorrect Kind {dateTime.Kind}");
             DateTime dt = new DateTime(dateTime.Ticks, DateTimeKind.Unspecified);
             TimeZoneInfo tzi = Manager.GetTimeZoneInfo();// user's timezone
             return TimeZoneInfo.ConvertTimeToUtc(dt, tzi);
