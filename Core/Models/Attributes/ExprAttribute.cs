@@ -461,6 +461,7 @@ namespace YetaWF.Core.Models.Attributes {
         public ExprAttribute(OpEnum op) {
             Op = op;
             ExprList = new List<Expr>();
+            ClearOnDisable = true;
         }
         public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1) {
             Op = op;
@@ -468,6 +469,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList.Add(new Expr {
                 LeftProperty = propLeft1, Cond = cond1, Value = val1
             });
+            ClearOnDisable = true;
         }
         public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2) {
             Op = op;
@@ -478,6 +480,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList.Add(new Expr {
                 LeftProperty = propLeft2, Cond = cond2, Value = val2
             });
+            ClearOnDisable = true;
         }
         public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3) {
             Op = op;
@@ -491,6 +494,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList.Add(new Expr {
                 LeftProperty = propLeft3, Cond = cond3, Value = val3
             });
+            ClearOnDisable = true;
         }
         public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
                 string propLeft4, OpCond cond4, object val4) {
@@ -508,6 +512,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList.Add(new Expr {
                 LeftProperty = propLeft4, Cond = cond4, Value = val4
             });
+            ClearOnDisable = true;
         }
         public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
                 string propLeft4, OpCond cond4, object val4, string propLeft5, OpCond cond5, object val5) {
@@ -528,6 +533,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList.Add(new Expr {
                 LeftProperty = propLeft5, Cond = cond5, Value = val5
             });
+            ClearOnDisable = true;
         }
         public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
                 string propLeft4, OpCond cond4, object val4, string propLeft5, OpCond cond5, object val5, string propLeft6, OpCond cond6, object val6) {
@@ -551,6 +557,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList.Add(new Expr {
                 LeftProperty = propLeft6, Cond = cond6, Value = val6
             });
+            ClearOnDisable = true;
         }
 
         public class Expr {
