@@ -106,13 +106,13 @@ var YetaWF;
                 var div = divs_1[_i];
                 $YetaWF.removeElement(div);
             }
+            var onSubmitExtraData = extraData ? extraData : "";
+            onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
             if (useValidation)
                 this.validate(form);
             $YetaWF.closeOverlays();
             $YetaWF.setLoading(true);
             if (!useValidation || this.isValid(form)) {
-                var onSubmitExtraData = extraData ? extraData : "";
-                onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
                 // serialize the form
                 var formData = this.serializeForm(form);
                 // add extra data

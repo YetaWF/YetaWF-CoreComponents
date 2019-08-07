@@ -1164,14 +1164,12 @@ var YetaWF;
          * Enable element.
          */
         BasicsServices.prototype.elementEnable = function (elem) {
-            elem.removeAttribute("disabled");
             YetaWF_BasicsImpl.elementEnableToggle(elem, true);
         };
         /**
          * Disable element.
          */
         BasicsServices.prototype.elementDisable = function (elem) {
-            elem.setAttribute("disabled", "disabled");
             YetaWF_BasicsImpl.elementEnableToggle(elem, false);
         };
         /**

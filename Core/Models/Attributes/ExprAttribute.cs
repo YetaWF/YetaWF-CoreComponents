@@ -186,13 +186,11 @@ namespace YetaWF.Core.Models.Attributes {
         /// The default is to hide the property.
         /// </summary>
         /// <remarks>This property is only used for Processxxx attributes and ignored for others.
-        ///
-        /// Only simple controls (input, select) can currently be used with the Disabled property.
         /// </remarks>
         public bool Disable { get; set; }
         /// <summary>
         /// Defines whether the property value is cleared when the property is disabled.
-        /// The default is to preserve the property value.
+        /// The default is to clear the property value.
         /// </summary>
         public bool ClearOnDisable { get; set; }
 

@@ -200,6 +200,9 @@ namespace YetaWF {
             for (let div of divs)
                 $YetaWF.removeElement(div);
 
+            var onSubmitExtraData = extraData ? extraData : "";
+            onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
+
             if (useValidation)
                 this.validate(form);
 
@@ -207,9 +210,6 @@ namespace YetaWF {
             $YetaWF.setLoading(true);
 
             if (!useValidation || this.isValid(form)) {
-
-                var onSubmitExtraData = extraData ? extraData : "";
-                onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
 
                 // serialize the form
                 var formData = this.serializeForm(form);

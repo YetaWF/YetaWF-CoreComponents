@@ -63,8 +63,16 @@ namespace YetaWF {
 
         public static getTemplateFromControlNameCond(name: string, containers: HTMLElement[]): HTMLElement | null {
             let elem = $YetaWF.getElement1BySelectorCond(`[name='${name}']`, containers);
-            if (!elem)
-                return null;
+            if (!elem) {
+                elem = $YetaWF.getElement1BySelectorCond(`[name^='${name}.']`, containers); // composite fields
+                if (!elem)
+                    return null;
+                // we found an element (a composite field). This may be a template within another template (usually a propertylist)
+                // so we use its parent element instead
+                elem = elem.parentElement;
+                if (!elem)
+                    return null;
+            }
             let template = ComponentBase.elementClosestTemplateCond(elem);
             if (!template)
                 throw `No template found in getTemplateFromControlNameCond`;

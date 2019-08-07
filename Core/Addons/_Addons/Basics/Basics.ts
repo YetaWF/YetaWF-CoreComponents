@@ -1282,14 +1282,12 @@ namespace YetaWF {
          * Enable element.
          */
         public elementEnable(elem: HTMLElement): void {
-            elem.removeAttribute("disabled");
             YetaWF_BasicsImpl.elementEnableToggle(elem, true);
         }
         /**
          * Disable element.
          */
         public elementDisable(elem: HTMLElement): void {
-            elem.setAttribute("disabled", "disabled");
             YetaWF_BasicsImpl.elementEnableToggle(elem, false);
         }
         /**
