@@ -87,7 +87,7 @@ var YetaWF;
                 }
                 if (!target || target === "" || target === "_self")
                     target = "_self";
-                anchor.href = uri.toUrl(); // update original href in case let default handling take place
+                anchor.href = uri.toUrl(); // update original href in case default handling takes place
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
                     if ($YetaWF.Popups.handleOuterWindow(anchor))
@@ -164,8 +164,30 @@ var YetaWF;
                 if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||
                     (url.startsWith("https://") !== window.document.location.href.startsWith("https://")))
                     return true; // switching http<>https
-                if (target === "_self")
-                    return !$YetaWF.ContentHandling.setContent(uri, true);
+                if (target === "_self") {
+                    // handle inplace content replacement if requested
+                    var inplace = undefined;
+                    var contentTarget = $YetaWF.getAttributeCond(anchor, "data-contenttarget");
+                    var contentPane = $YetaWF.getAttributeCond(anchor, "data-contentpane");
+                    if (!contentPane)
+                        contentPane = "MainPane";
+                    if (contentTarget) {
+                        // get the requested Url
+                        var origUri = $YetaWF.parseUrl(url);
+                        origUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
+                        origUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
+                        var contentUrl = origUri.getSearch("!ContentUrl");
+                        if (!contentUrl)
+                            throw "In place content must have a !ContentUrl query string argument - " + url;
+                        // remove noise from requested url
+                        // build the new requested url
+                        var uriBase = $YetaWF.parseUrl(window.location.href);
+                        uriBase.removeSearch("!ContentUrl");
+                        uriBase.addSearch("!ContentUrl", contentUrl);
+                        inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
+                    }
+                    return !$YetaWF.ContentHandling.setContent(uri, true, undefined, inplace);
+                }
                 return true;
             });
         };

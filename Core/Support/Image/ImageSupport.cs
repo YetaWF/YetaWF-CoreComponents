@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -154,9 +155,7 @@ namespace YetaWF.Core.Image {
             System.Drawing.Bitmap newImage = new System.Drawing.Bitmap(width, height);
             using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(newImage)) {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                System.Drawing.Brush b = new System.Drawing.SolidBrush(System.Drawing.Color.White);
-                g.FillRectangle(b, new System.Drawing.Rectangle(0, 0, width, height));
+                g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawImage(imgOrig,
                     new System.Drawing.Rectangle(new System.Drawing.Point(0 + (width - newSize.Width) / 2, 0 + (height - newSize.Height) / 2), newSize),
                     new System.Drawing.Rectangle(System.Drawing.Point.Empty, imgOrig.Size),
@@ -164,7 +163,7 @@ namespace YetaWF.Core.Image {
             }
             imgOrig.Dispose();
             using (MemoryStream ms = new MemoryStream()) {
-                newImage.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                newImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 bytes = ms.GetBuffer();
             }
             return newImage;
