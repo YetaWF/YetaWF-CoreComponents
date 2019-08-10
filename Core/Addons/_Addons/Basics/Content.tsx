@@ -25,6 +25,13 @@ namespace YetaWF {
         KnownScripts: string[];
     }
 
+    export interface InplaceContents {
+        TargetTag: string; // The target tag to be replaced by the content
+        FromPane: string; // The pane (within ContentUrl) where the content is located
+        ContentUrl: string; // the URL where the content is located
+        PageUrl: string;// The URL used by the browser state
+    }
+
     export interface ContentResult {
         Status: string;
         Redirect: string;
@@ -132,11 +139,11 @@ namespace YetaWF {
          * Changes the current page to the specified Uri (may not be part of a unified page set).
          * Returns false if the uri couldn't be processed (i.e., it's not part of a unified page set).
          * Returns true if the page is now shown and is part of the unified page set.
-         * @param uri The new page.
+         * @param uriRequested The new page.
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
-        public setContent(uri: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void): boolean {
+        public setContent(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents): boolean {
 
             if (YVolatile.Basics.EditModeActive) return false; // edit mode
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return false; // not unified mode
@@ -148,10 +155,21 @@ namespace YetaWF {
             }
 
             // check if we're clicking a link which is part of this unified page
+            let uri: YetaWF.Url;
+            if (inplace)
+                uri = $YetaWF.parseUrl(inplace.ContentUrl);
+            else
+                uri = uriRequested;
             var path = uri.getPath();
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
-                // find all panes that support dynamic content and replace with new modules
-                var divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]");
+                var divs: HTMLElement[];
+                if (inplace)
+                    divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
+                else
+                    divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
+                if (divs.length === 0)
+                    throw "No panes support dynamic content";
+
                 // build data context (like scripts, css files we have)
                 var data: ContentData = {
                     CacheVersion: YVolatile.Basics.CacheVersion,
@@ -203,7 +221,7 @@ namespace YetaWF {
                         $YetaWF.setLoading(false);
                         if (request.status === 200) {
                             var result: ContentResult = JSON.parse(request.responseText);
-                            this.processReceivedContent(result, uri, divs, setState, popupCB);
+                            this.processReceivedContent(result, uri, divs, setState, popupCB, inplace);
                         } else {
                             $YetaWF.setLoading(false);
                             $YetaWF.alert(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
@@ -222,7 +240,7 @@ namespace YetaWF {
                     $YetaWF.closeOverlays();
 
                     // Update the browser address bar with the new path
-                    if (setState)
+                    if (setState) //$$$inplace
                         $YetaWF.setUrl(uri.toUrl());
                     if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {
                         // hide all unified sections
@@ -275,7 +293,7 @@ namespace YetaWF {
             }
         }
 
-        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void ) : void {
+        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents ) : void {
 
             $YetaWF.closeOverlays();
 
@@ -327,39 +345,57 @@ namespace YetaWF {
             this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, () => {
                 YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
                 YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
+                var tags: HTMLElement[] = []; // collect all panes
                 if (!popupCB) {
                     // Update the browser page title
                     document.title = result.PageTitle;
                     // Update the browser address bar with the new path
-                    if (setState)
-                        $YetaWF.setUrl(uri.toUrl());
+                    if (setState) {
+                        if (inplace)
+                            $YetaWF.setUrl(inplace.PageUrl);
+                        else
+                            $YetaWF.setUrl(uri.toUrl());
+                    }
                     // remove all pane contents
-                    for (var div of divs) {
-                        $YetaWF.processClearDiv(div);
-                        div.innerHTML = "";
-                        if (div.getAttribute("data-conditional")) {
-                            div.style.display = "none";// hide, it's a conditional pane
+                    if (inplace) {
+                        let target = $YetaWF.getElementById(inplace.TargetTag);
+                        $YetaWF.processClearDiv(target);
+                        target.innerHTML = "";
+                    } else {
+                        for (var div of divs) {
+                            $YetaWF.processClearDiv(div);
+                            div.innerHTML = "";
+                            if (div.getAttribute("data-conditional")) {
+                                div.style.display = "none";// hide, it's a conditional pane
+                            }
                         }
                     }
                     // Notify that the page is changing
                     $YetaWF.processPageChange();
                     // remove prior page css classes
-                    $YetaWF.elementRemoveClassList(document.body, document.body.getAttribute("data-pagecss"));
-                    // add new css classes
-                    $YetaWF.elementAddClassList(document.body, result.PageCssClasses);
-                    document.body.setAttribute("data-pagecss", result.PageCssClasses);// remember so we can remove them for the next page
-                }
-                var tags: HTMLElement[] = []; // collect all panes
-                if (!popupCB) {
+                    if (!inplace) {
+                        $YetaWF.elementRemoveClassList(document.body, document.body.getAttribute("data-pagecss"));
+                        // add new css classes
+                        $YetaWF.elementAddClassList(document.body, result.PageCssClasses);
+                        document.body.setAttribute("data-pagecss", result.PageCssClasses);// remember so we can remove them for the next page
+                    }
                     // add pane content
-                    for (let content of result.Content) {
-                        // replace the pane
-                        var pane = $YetaWF.getElement1BySelector(`.yUnified[data-pane="${content.Pane}"]`);
-                        pane.style.display = "block";// show in case this is a conditional pane
-                        // add pane (can contain mixed html/scripts)
-                        $YetaWF.appendMixedHTML(pane, content.HTML);
-                        // run all registered initializations for the pane
-                        tags.push(pane);
+                    if (inplace) {
+                        if (result.Content.length != 1)
+                            throw "Unexpected content in inplace mode";
+                        let pane = $YetaWF.getElementById(inplace.TargetTag);
+                        $YetaWF.appendMixedHTML(pane, result.Content[0].HTML);
+                        tags.push(pane);// run all registered initializations for the pane
+                    } else {
+                        for (let content of result.Content) {
+                            // replace the pane
+                            let pane = $YetaWF.getElement1BySelector(`.yUnified[data-pane="${content.Pane}"]`);
+                            pane.style.display = "block";// show in case this is a conditional pane
+                            // add pane (can contain mixed html/scripts)
+                            $YetaWF.appendMixedHTML(pane, content.HTML);
+                            // run all registered initializations for the pane
+                            tags.push(pane);
+                        }
                     }
                 } else {
                     popupCB(result, (dialog: HTMLElement): void => {

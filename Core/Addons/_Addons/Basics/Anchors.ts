@@ -21,7 +21,7 @@ namespace YetaWF {
                 var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a,area") as HTMLAnchorElement;
                 if (!anchor) return true;
 
-                var url = anchor.href;
+                let url = anchor.href;
 
                 // send tracking info
                 if ($YetaWF.elementHasClass(anchor, "yTrack")) {
@@ -98,7 +98,7 @@ namespace YetaWF {
                 if (!target || target === "" || target === "_self")
                     target = "_self";
 
-                anchor.href = uri.toUrl(); // update original href in case let default handling take place
+                anchor.href = uri.toUrl(); // update original href in case default handling takes place
 
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
@@ -176,12 +176,33 @@ namespace YetaWF {
                 if ((url.startsWith("http://") !== window.document.location.href.startsWith("http://")) ||
                     (url.startsWith("https://") !== window.document.location.href.startsWith("https://"))) return true; // switching http<>https
 
-                if (target === "_self")
-                    return !$YetaWF.ContentHandling.setContent(uri, true);
-
+                if (target === "_self") {
+                    // handle inplace content replacement if requested
+                    let inplace: YetaWF.InplaceContents | undefined = undefined;
+                    let contentTarget = $YetaWF.getAttributeCond(anchor, "data-contenttarget");
+                    let contentPane = $YetaWF.getAttributeCond(anchor, "data-contentpane");
+                    if (!contentPane) contentPane = "MainPane";
+                    if (contentTarget) {
+                        // get the requested Url
+                        let origUri = $YetaWF.parseUrl(url);
+                        origUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
+                        origUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
+                        let contentUrl = origUri.getSearch("!ContentUrl");
+                        if (!contentUrl)
+                            throw `In place content must have a !ContentUrl query string argument - ${url}`;
+                        // remove noise from requested url
+                        // build the new requested url
+                        let uriBase = $YetaWF.parseUrl(window.location.href);
+                        uriBase.removeSearch("!ContentUrl");
+                        uriBase.addSearch("!ContentUrl", contentUrl);
+                        inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
+                    }
+                    return !$YetaWF.ContentHandling.setContent(uri, true, undefined, inplace);
+                }
                 return true;
             });
         }
+
         private waitForCookie(cookieToReturn: number | null) : void {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
