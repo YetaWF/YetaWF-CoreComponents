@@ -178,7 +178,7 @@ namespace YetaWF {
 
                 if (target === "_self") {
                     // handle inplace content replacement if requested
-                    let inplace: YetaWF.InplaceContents | undefined = undefined;
+                    let inplace: YetaWF.InplaceContents | undefined;
                     let contentTarget = $YetaWF.getAttributeCond(anchor, "data-contenttarget");
                     let contentPane = $YetaWF.getAttributeCond(anchor, "data-contentpane");
                     if (!contentPane) contentPane = "MainPane";

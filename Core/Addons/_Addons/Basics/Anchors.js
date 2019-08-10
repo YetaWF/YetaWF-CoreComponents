@@ -166,7 +166,7 @@ var YetaWF;
                     return true; // switching http<>https
                 if (target === "_self") {
                     // handle inplace content replacement if requested
-                    var inplace = undefined;
+                    var inplace = void 0;
                     var contentTarget = $YetaWF.getAttributeCond(anchor, "data-contenttarget");
                     var contentPane = $YetaWF.getAttributeCond(anchor, "data-contentpane");
                     if (!contentPane)

@@ -322,7 +322,7 @@ var YetaWF;
                     }
                     // add pane content
                     if (inplace) {
-                        if (result.Content.length != 1)
+                        if (result.Content.length !== 1)
                             throw "Unexpected content in inplace mode";
                         var pane = $YetaWF.getElementById(inplace.TargetTag);
                         $YetaWF.appendMixedHTML(pane, result.Content[0].HTML);
