@@ -128,8 +128,8 @@ namespace YetaWF.Core.Pages {
                 // save the page
                 pageDef.Temporary = false;
                 pageDef.PageGuid = newPage.Page.PageGuid;
-                pageDef.AllowedUsers = newPage.Page.AllowedUsers;// set default authorizations (Admin only)
-                pageDef.AllowedRoles = newPage.Page.AllowedRoles;
+                pageDef.AllowedUsers = serPage.PageDef.AllowedUsers;// set default authorizations (Admin only)
+                pageDef.AllowedRoles = serPage.PageDef.AllowedRoles;
                 await pageDef.SaveAsync();
                 info.Success = true;
                 info.Url = pageDef.Url;
