@@ -1480,12 +1480,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="objType">The module type (the derived type).</param>
         /// <param name="modelName">The model name (always "Module").</param>
         /// <returns>The bound object of the specified type.</returns>
-#if MVC6
-        protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName)
-#else
-        protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName)
-#endif
-        {
+        protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName) {
             object obj;
 #if MVC6
             obj = Activator.CreateInstance(objType);
@@ -1530,11 +1525,7 @@ namespace YetaWF.Core.Controllers {
                         ViewData.ModelState.Clear();
                 }
             }
-#if MVC6
             return obj;
-#else
-            return Task.FromResult<object>(obj);
-#endif
         }
     }
 }
