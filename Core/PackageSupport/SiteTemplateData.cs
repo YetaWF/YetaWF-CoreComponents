@@ -13,7 +13,7 @@ namespace YetaWF.Core.Packages {
 
         private List<string> PackageNames = new List<string> {
 #if MVC6
-            "Softelvdm.IVR",
+            //"Softelvdm.IVR",
 #endif
             "Softelvdm.TwilioProcessor",
             "YetaWF.AddThis",
