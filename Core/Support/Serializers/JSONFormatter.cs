@@ -3,8 +3,10 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Serialization;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
@@ -69,10 +71,22 @@ namespace YetaWF.Core.Serializers {
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<TObj>(s, new JsonSerializerSettings {
                     TypeNameHandling = TypeNameHandling.Auto,
                     DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
-                    ObjectCreationHandling = ObjectCreationHandling.Replace
-                });
+                    ObjectCreationHandling = ObjectCreationHandling.Replace,
+                    SerializationBinder = new TypeNameSerializationBinder()
+            });
             else
                 return Utility.JsonDeserialize<TObj>(s);
+        }
+    }
+    public class TypeNameSerializationBinder : ISerializationBinder {
+        public void BindToName(Type serializedType, out string assemblyName, out string typeName) {
+            assemblyName = serializedType.Assembly.FullName;
+            typeName = serializedType.FullName;
+        }
+        public Type BindToType(string assemblyName, string typeName) {
+            typeName = typeName.Replace("System.Private.CoreLib", "mscorlib");
+            string resolvedTypeName = string.Format($"{typeName}, {assemblyName}");
+            return Type.GetType(resolvedTypeName, true);
         }
     }
 }
