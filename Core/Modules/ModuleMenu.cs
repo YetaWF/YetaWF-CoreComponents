@@ -84,7 +84,10 @@ namespace YetaWF.Core.Modules {
                 if (!this.Temporary && page != null && !page.Temporary) {
                     // remove module
                     if (!page.Temporary && !this.Temporary) {
-                        ModuleAction action = await modServices.GetModuleActionAsync("Remove", page, this, Guid.Empty, Manager.PaneRendered);
+                        ModuleAction action;
+                        action = await modServices.GetModuleActionAsync("Remove", page, this, Guid.Empty, Manager.PaneRendered);
+                        moduleMenu.New(action, location);
+                        action = await modServices.GetModuleActionAsync("RemovePermanent", page, this, Guid.Empty, Manager.PaneRendered);
                         moduleMenu.New(action, location);
                     }
                 }

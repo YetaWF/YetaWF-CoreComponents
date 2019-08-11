@@ -475,17 +475,19 @@ namespace YetaWF.Core.Pages {
                             sb.Append(await module.RenderModuleAsync(htmlHelper));
                     } catch (Exception exc) {
                         sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
-                        ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
-                        if (modServices != null) {
-                            ModuleAction action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
-                            if (action != null) {
-                                string act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
-                                if (!string.IsNullOrWhiteSpace(act)) { // only render if the action actually is available
-                                    sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
-                                    sb.Append("<li>");
-                                    sb.Append(act);
-                                    sb.Append("</li>");
-                                    sb.Append("</ul>");
+                        if (Manager.EditMode) {
+                            ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
+                            if (modServices != null) {
+                                ModuleAction action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
+                                if (action != null) {
+                                    string act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
+                                    if (!string.IsNullOrWhiteSpace(act)) { // only render if the action actually is available
+                                        sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
+                                        sb.Append("<li>");
+                                        sb.Append(act);
+                                        sb.Append("</li>");
+                                        sb.Append("</ul>");
+                                    }
                                 }
                             }
                         }
