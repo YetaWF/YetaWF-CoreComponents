@@ -94,26 +94,28 @@ namespace YetaWF.Core.Log {
             string assembly = WebConfigHelper.GetValue<string>("Logging", "Assembly");
             string type = WebConfigHelper.GetValue<string>("Logging", "Type");
 
-            // load the assembly/type implementing logging
-            Type tp = null;
-            try {
-                Assembly asm = Assemblies.Load(assembly);
-                tp = asm.GetType(type);
-                DefinedLoggerType = tp;
-            } catch (Exception) { }
+            if (!string.IsNullOrWhiteSpace(assembly) && !string.IsNullOrWhiteSpace(type)) {
+                // load the assembly/type implementing logging
+                Type tp = null;
+                try {
+                    Assembly asm = Assemblies.Load(assembly);
+                    tp = asm.GetType(type);
+                    DefinedLoggerType = tp;
+                } catch (Exception) { }
 
-            // create an instance of the class implementing logging
-            ILogging log = null;
-            try {
-                log = (ILogging)Activator.CreateInstance(tp);
-            } catch (Exception) { }
+                // create an instance of the class implementing logging
+                ILogging log = null;
+                try {
+                    log = (ILogging)Activator.CreateInstance(tp);
+                } catch (Exception) { }
 
-            if (log != null) {
-                if (await log.IsInstalledAsync()) {
-                    DefaultLogger = log;
-                    DefaultLoggerType = tp;
-                    await RegisterLoggingAsync(log);
-                    await log.ClearAsync();
+                if (log != null) {
+                    if (await log.IsInstalledAsync()) {
+                        DefaultLogger = log;
+                        DefaultLoggerType = tp;
+                        await RegisterLoggingAsync(log);
+                        await log.ClearAsync();
+                    }
                 }
             }
         }
