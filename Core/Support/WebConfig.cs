@@ -33,6 +33,11 @@ namespace YetaWF.Core.Support {
                     Variables.Add(p.Name, (string)p.Value);
                 }
             }
+            string env = Environment.GetEnvironmentVariable("YETAWF_DEPLOYSUFFIX");
+            if (!string.IsNullOrWhiteSpace(env)) {
+                Variables.Add("deploysuffix", env.ToLower());
+                Variables.Add("DEPLOYSUFFIX", env.ToUpper());
+            }
             return Task.CompletedTask;
         }
 
