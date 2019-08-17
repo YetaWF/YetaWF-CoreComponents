@@ -353,8 +353,8 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Retrieves a sibling property. Used to extract related properties from container, which typically are used for additional component customization.
         /// </summary>
-        public TYPE GetSiblingProperty<TYPE>(string property, TYPE dflt = default(TYPE)) {
-            TYPE value = dflt;
+        public TYPE GetSiblingProperty<TYPE>(string property) {
+            TYPE value;
             if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out value))
                 throw new InternalError($"No sibling property {property} found");
             return value;
