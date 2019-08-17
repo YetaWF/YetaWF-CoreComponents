@@ -35,7 +35,9 @@ namespace YetaWF.Core.Skins {
 
         public string GetPageViewName(SkinDefinition skin, bool popup) {
             skin = SkinDefinition.EvaluatedSkin(skin, popup);
-            SkinCollectionInfo info = FindSkinCollection(skin.Collection);
+            SkinCollectionInfo info = TryFindSkinCollection(skin.Collection);
+            if (info == null)
+                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
             return $"{info.AreaName}_{skin.FileName}";
         }
 
