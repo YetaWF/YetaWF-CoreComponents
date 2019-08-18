@@ -20,6 +20,7 @@ namespace YetaWF.Core.Support {
 
             HttpRequest httpReq = httpContext.Request;
             Uri uri = new Uri(UriHelper.GetDisplayUrl(httpReq));
+            Logging.AddLog(uri.ToString());
 
             // We have a valid request for the default domain
             // create a YetaWFManager object to keep track of everything (it serves
@@ -67,8 +68,9 @@ namespace YetaWF.Core.Support {
 
                         YetaWFManager.Syncify(async () => { // startup code
 
-                            // start logging
-                            await Logging.SetupLoggingAsync();
+                            // Create a startup log file
+                            StartupLogging startupLog = new StartupLogging();
+                            await Logging.RegisterLoggingAsync(startupLog);
 
                             Logging.AddLog($"{nameof(StartYetaWFService)} starting");
 
@@ -81,6 +83,12 @@ namespace YetaWF.Core.Support {
 
                                 YetaWF.Core.Support.Startup.Started = true;
                             });
+
+                            // Stop startup log file
+                            Logging.UnregisterLogging(startupLog);
+
+                            // start real logging
+                            await Logging.SetupLoggingAsync();
 
                             YetaWFManager.RemoveThreadInstance(); // Remove startup manager
 
