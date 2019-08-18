@@ -58,7 +58,11 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Defines the name used by the HostUsed property to identity that the current execution is a console application.
         /// </summary>
-        public const string BATCHMODE = "Batch";
+        public const string BATCHMODE = "__Batch";
+        /// <summary>
+        /// Defines the name used by the HostUsed property to identity that the current execution is a service application.
+        /// </summary>
+        public const string SERVICEMODE = "__Service";
 
         private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
 
@@ -227,7 +231,7 @@ namespace YetaWF.Core.Support {
         /// Attaches a YetaWFManager instance to the current thread.
         /// This is only used by console applications.
         /// </summary>
-        /// <param name="site">A SiteDefinition object. Is always null as this is not available in console applications.</param>
+        /// <param name="site">A SiteDefinition object.</param>
         /// <returns>The Manager instance for the current request.</returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
             _ManagerThreadInstance = null;

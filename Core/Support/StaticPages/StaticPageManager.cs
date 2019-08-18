@@ -28,7 +28,7 @@ namespace YetaWF.Core.Support.StaticPages {
         /// Called when the first node of a multi-instance site is starting up.
         /// </summary>
         public async Task InitializeFirstNodeStartupAsync() {
-            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE)
+            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE && YetaWFManager.Manager.HostUsed != YetaWFManager.SERVICEMODE)
                 await RemoveAllPagesInternalAsync();
         }
 

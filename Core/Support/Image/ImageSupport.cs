@@ -103,7 +103,7 @@ namespace YetaWF.Core.Image {
         }
 
         public static void AddHandler(string type, GetImageInBytesAsync GetBytesAsync = null, GetImageAsFileAsync GetAsFileAsync = null) {
-            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE)
+            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE && YetaWFManager.Manager.HostUsed != YetaWFManager.SERVICEMODE)
                 HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetImageInBytesAsync = GetBytesAsync, GetImageAsFileAsync = GetAsFileAsync });
         }
 

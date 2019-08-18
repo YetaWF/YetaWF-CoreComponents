@@ -47,7 +47,8 @@ namespace YetaWF.Core.Components {
         /// </summary>
         public Task InitializeApplicationStartupAsync() {
 
-            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE) return Task.CompletedTask;
+            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE || YetaWFManager.Manager.HostUsed == YetaWFManager.SERVICEMODE)
+                return Task.CompletedTask;
 
             Logging.AddLog("Locating components");
 

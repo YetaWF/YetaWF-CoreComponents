@@ -9,7 +9,8 @@ using YetaWF.Core.Site;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Collections.Generic;
-using YetaWF.Core.Support;
+using YetaWF.Core.DataProvider;
+using YetaWF.Core.Packages;
 #else
 using System.Collections.Specialized;
 using System.Web;
@@ -17,7 +18,7 @@ using System.Web;
 
 namespace YetaWF.Core.Support {
 
-    public static class StartupRequest {
+    public static partial class StartupRequest {
 
         public static async Task StartRequestAsync(HttpContext httpContext, bool? isStaticHost) {
 
@@ -224,6 +225,54 @@ namespace YetaWF.Core.Support {
             qs.Remove(qsKey);
             newUri.Query = qs.ToString();
             return newUri.Uri;
+        }
+#endif
+
+#if MVC6
+        private static object _lockObject = new object();
+
+        public static void StartYetaWF() {
+
+            if (!YetaWF.Core.Support.Startup.Started) {
+
+                lock (_lockObject) { // protect from duplicate startup
+
+                    if (!YetaWF.Core.Support.Startup.Started) {
+
+                        YetaWFManager.Syncify(async () => { // startup code
+
+                            // Create a startup log file
+                            StartupLogging startupLog = new StartupLogging();
+                            await Logging.RegisterLoggingAsync(startupLog);
+
+                            Logging.AddLog($"{nameof(StartYetaWF)} starting");
+
+                            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(new SiteDefinition() { SiteDomain = "__STARTUP" }, null); // while loading packages we need a manager
+                            YetaWFManager.Syncify(async () => {
+                                // External data providers
+                                ExternalDataProviders.RegisterExternalDataProviders();
+                                // Call all classes that expose the interface IInitializeApplicationStartup
+                                await YetaWF.Core.Support.Startup.CallStartupClassesAsync();
+
+                                if (!YetaWF.Core.Support.Startup.MultiInstance)
+                                    await Package.UpgradeToNewPackagesAsync();
+
+                                YetaWF.Core.Support.Startup.Started = true;
+                            });
+
+                            // Stop startup log file
+                            Logging.UnregisterLogging(startupLog);
+
+                            // start real logging
+                            await Logging.SetupLoggingAsync();
+
+                            YetaWFManager.RemoveThreadInstance(); // Remove startup manager
+
+                            Logging.AddLog($"{nameof(StartYetaWF)} completed");
+                        });
+                    }
+                }
+            }
         }
 #endif
     }
