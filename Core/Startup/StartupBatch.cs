@@ -34,9 +34,9 @@ namespace YetaWF.Core.Support {
         /// Because all YetaWF services are available, all data providers and config settings can be accessed (and modified).
         /// Many data providers use site specific data. The data for the specified site <paramref name="siteDomain"/> is used.
         /// </remarks>
-        public static void Start(string baseDirectory, string siteDomain, IRouteBuilder Routes = null) {
+        public static void Start(string baseDirectory, string siteDomain) {
 
-            Start(baseDirectory, Routes);
+            Start(baseDirectory);
 
             YetaWFManager.Syncify(async () => {
                 // Set up specific site to use
@@ -62,9 +62,9 @@ namespace YetaWF.Core.Support {
         /// Because all YetaWF services are available, all data providers and config settings can be accessed (and modified).
         /// Many data providers use site specific data. The data for the specified site <paramref name="siteIdentity"/> is used.
         /// </remarks>
-        public static void StartByIdentity(string baseDirectory, int siteIdentity, IRouteBuilder Routes = null) {
+        public static void StartByIdentity(string baseDirectory, int siteIdentity) {
 
-            Start(baseDirectory, Routes);
+            Start(baseDirectory);
 
             // Set up specific site to use
             YetaWFManager.Manager.CurrentSite = new SiteDefinition() {
@@ -92,9 +92,9 @@ namespace YetaWF.Core.Support {
         /// Because all YetaWF services are available, all data providers and config settings can be accessed (and modified).
         /// Many data providers use site specific data. The data for the specified site <paramref name="filePath"/> is used.
         /// </remarks>
-        public static void StartBySiteDefinitionFile(string baseDirectory, string filePath, IRouteBuilder Routes = null) {
+        public static void StartBySiteDefinitionFile(string baseDirectory, string filePath) {
 
-            Start(baseDirectory, Routes);
+            Start(baseDirectory);
 
             // Set up specific site to use
             string siteDefJson = File.ReadAllText(filePath);
@@ -104,7 +104,7 @@ namespace YetaWF.Core.Support {
             YetaWF.Core.Support.Startup.Started = true;
         }
 
-        private static void Start(string baseDirectory, IRouteBuilder routes) {
+        private static void Start(string baseDirectory) {
             YetaWFManager.RootFolder = baseDirectory;
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
@@ -128,7 +128,7 @@ namespace YetaWF.Core.Support {
                 }
 
                 // Register all areas
-                AreaRegistrationBase.RegisterPackages(routes);
+                AreaRegistrationBase.RegisterPackages();
                 // Register external data providers
                 ExternalDataProviders.RegisterExternalDataProviders();
 
