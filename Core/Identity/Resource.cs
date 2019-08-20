@@ -229,7 +229,167 @@ namespace YetaWF.Core.Identity {
 
     public static class Resource {
 
-        public static IResource ResourceAccess { get; set; }
+        public static IResource ResourceAccess { get { return _ResourceAccess; } set { _ResourceAccess = value; } }
 
+        private static IResource _ResourceAccess = new DefaultResourceAccess();
+    }
+
+    public class DefaultResourceAccess : IResource {
+
+        public Task AddEnabledTwoStepAuthenticationAsync(int userId, string auth) {
+            throw new NotImplementedException();
+        }
+
+        public Task AddRoleAsync(string roleName, string description) {
+            throw new NotImplementedException();
+        }
+
+        public Task AddRoleToUserAsync(int userId, string roleName) {
+            throw new NotImplementedException();
+        }
+
+        public Task AddRoleWithUrlAsync(string roleName, string description, string postLoginUrl) {
+            throw new NotImplementedException();
+        }
+
+        public Task AddTwoStepLoginFailureAsync() {
+            throw new NotImplementedException();
+        }
+
+        public Task<AddUserInfo> AddUserAsync(string name, string email, string password, bool needsNewPassword) {
+            throw new NotImplementedException();
+        }
+
+        public int GetAdministratorRoleId() {
+            throw new NotImplementedException();
+        }
+
+        public int GetAnonymousRoleId() {
+            throw new NotImplementedException();
+        }
+
+        public List<RoleInfo> GetDefaultRoleList(bool Exclude2FA = false) {
+            throw new NotImplementedException();
+        }
+
+        public List<User> GetDefaultUserList() {
+            throw new NotImplementedException();
+        }
+
+        public int GetEditorRoleId() {
+            throw new NotImplementedException();
+        }
+
+        public Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url) {
+            throw new NotImplementedException();
+        }
+
+        public int GetRoleId(string roleName) {
+            throw new NotImplementedException();
+        }
+
+        public ModuleAction GetSelectTwoStepAction(int userId, string userName, string email) {
+            throw new NotImplementedException();
+        }
+
+        public int GetSuperuserId() {
+            throw new NotImplementedException();
+        }
+
+        public int GetSuperuserRoleId() {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> GetTwoStepLoginFailuresExceededAsync() {
+            throw new NotImplementedException();
+        }
+
+        public int GetUser2FARoleId() {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetUserEmailAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetUserIdAsync(string userName) {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetUserNameAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetUserPostLoginUrlAsync(List<int> userRoles) {
+            throw new NotImplementedException();
+        }
+
+        public int GetUserRoleId() {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<SelectionItem<string>>> GetUserRolesAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserStatusEnum> GetUserStatusAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth) {
+            throw new NotImplementedException();
+        }
+
+        public bool IsBackDoorWideOpen() {
+            return false;
+        }
+
+        public Task<bool> IsResourceAuthorizedAsync(string resourceName) {
+            throw new NotImplementedException();
+        }
+
+        public Task LoginAsAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task LogoffAsync() {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveEnabledTwoStepAuthenticationAsync(int userId, string auth) {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveRoleAsync(string roleName) {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveRoleFromUserAsync(int userId, string roleName) {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> RemoveUserAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task ResolveUserAsync() {
+            return Task.CompletedTask;
+        }
+
+        public Task SetUserStatusAsync(int userId, UserStatusEnum status) {
+            throw new NotImplementedException();
+        }
+
+        public void ShowNeed2FA() {
+            throw new NotImplementedException();
+        }
+
+        public void ShowNeedNewPassword() {
+            throw new NotImplementedException();
+        }
+
+        public Task ShutTheBackDoorAsync() {
+            throw new NotImplementedException();
+        }
     }
 }
