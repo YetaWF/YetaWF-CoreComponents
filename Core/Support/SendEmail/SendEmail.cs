@@ -86,7 +86,7 @@ namespace YetaWF.Core.SendEmail {
             }
             await PrepareEmailMessageAsync(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, parameters);
         }
-        protected async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
+        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
             try {
                 if (string.IsNullOrEmpty(server))
                     throw new Error(this.__ResStr("errMailServer", "No mail server specified."));
