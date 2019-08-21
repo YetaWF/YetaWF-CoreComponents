@@ -104,6 +104,14 @@ namespace YetaWF.Core.Extensions {
             else
                 return "?";
         }
+        public static string AddSlashIfNone(this string text) {
+            if (string.IsNullOrWhiteSpace(text))
+                return "/";
+            if (!text.EndsWith('/'))
+                return $"{text}/";
+            else
+                return text;
+        }
         public static string AddUrlCacheBuster(this string text, string cacheBuster) {
             if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
             if (text == null) return "";
