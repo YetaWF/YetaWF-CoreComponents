@@ -262,7 +262,7 @@ namespace YetaWF.Core.Components {
 
         internal static async Task<List<Country>> ReadCountryListAsync() {
             string file;
-            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE || YetaWFManager.Manager.HostUsed == YetaWFManager.SERVICEMODE) {
+            if (YetaWFManager.IsBatchMode || YetaWFManager.IsServiceMode) {
 
                 file = ".\\Countries.txt";
 

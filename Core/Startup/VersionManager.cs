@@ -20,7 +20,7 @@ namespace YetaWF.Core.Addons {
         /// Called when any node of a (single- or multi-instance) site is starting up.
         /// </summary>
         public async Task InitializeApplicationStartupAsync() {
-            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE && YetaWFManager.Manager.HostUsed != YetaWFManager.SERVICEMODE)
+            if (!YetaWFManager.IsBatchMode && !YetaWFManager.IsServiceMode)
                 await VersionManager.RegisterAllAddOnsAsync();
         }
     }
@@ -375,7 +375,7 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         public static async Task RegisterAllAddOnsAsync() {
 
-            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE || YetaWFManager.Manager.HostUsed == YetaWFManager.SERVICEMODE)
+            if (YetaWFManager.IsBatchMode || YetaWFManager.IsServiceMode)
                 return;
 
             Logging.AddLog("Locating addons");

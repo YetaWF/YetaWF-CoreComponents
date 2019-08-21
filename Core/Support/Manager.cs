@@ -63,6 +63,10 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public const string SERVICEMODE = "__Service";
 
+        public static string Mode { get; set; }
+        public static bool IsBatchMode { get { return Mode == BATCHMODE; } }
+        public static bool IsServiceMode { get { return Mode == SERVICEMODE; } }
+
         private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
 
 #if MVC6

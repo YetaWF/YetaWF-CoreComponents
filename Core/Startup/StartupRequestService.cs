@@ -14,13 +14,18 @@ namespace YetaWF.Core.Support {
 
     public static partial class StartupRequest {
 
-        public static Task StartRequestServiceAsync(HttpContext httpContext, SiteDefinition site) {
+        public static async Task StartRequestServiceAsync(HttpContext httpContext) {
 
             // all code here is synchronous until a Manager is available.
 
             HttpRequest httpReq = httpContext.Request;
             Uri uri = new Uri(UriHelper.GetDisplayUrl(httpReq));
             Logging.AddLog(uri.ToString());
+
+            // Requires YetaWF.SitePropertiesService
+            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(null);// always from cache
+            if (site == null)
+                throw new InternalError("Default site not defined (AppSettings.json) or not found");
 
             // We have a valid request for the default domain
             // create a YetaWFManager object to keep track of everything (it serves
@@ -54,8 +59,6 @@ namespace YetaWF.Core.Support {
             uriBuilder.Port = manager.HostPortUsed;
             uriBuilder.Host = manager.HostUsed;
             manager.CurrentRequestUrl = uriBuilder.ToString();
-
-            return Task.CompletedTask;
         }
 
         public static void StartYetaWFService() {
@@ -67,6 +70,8 @@ namespace YetaWF.Core.Support {
                     if (!YetaWF.Core.Support.Startup.Started) {
 
                         YetaWFManager.Syncify(async () => { // startup code
+
+                            YetaWFManager.Mode = YetaWFManager.SERVICEMODE;
 
                             // Create a startup log file
                             StartupLogging startupLog = new StartupLogging();

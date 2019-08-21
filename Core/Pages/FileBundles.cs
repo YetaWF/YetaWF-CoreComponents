@@ -37,7 +37,7 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         public async Task InitializeFirstNodeStartupAsync() {
             // delete all files from last session and recreate the folder
-            if (YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE && YetaWFManager.Manager.HostUsed != YetaWFManager.SERVICEMODE) {
+            if (!YetaWFManager.IsBatchMode && !YetaWFManager.IsServiceMode) {
                 Logging.AddLog("Removing/creating bundle folder");
                 string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
                 if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))

@@ -22,7 +22,9 @@ namespace YetaWF.Core.Support {
         /// Called to initialize a console application so it can use all of YetaWF's services, including data providers, caching, etc.
         /// </summary>
         /// <param name="baseDirectory">The base folder where the executable and all assemblies for the console application are located.</param>
-        /// <param name="siteDomain">The domain name used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.</param>
+        /// <param name="siteDomain">The domain name used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.
+        /// May be null to load use the default site.
+        /// </param>
         /// <remarks>
         /// The Start method makes all settings from AppSettings.json available.
         ///
@@ -39,8 +41,11 @@ namespace YetaWF.Core.Support {
             Start(baseDirectory);
 
             YetaWFManager.Syncify(async () => {
-                // Set up specific site to use
-                YetaWFManager.Manager.CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
+                // Set up specific site to use, requires YetaWF.SitePropertiesService
+                SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
+                if (site == null)
+                    throw new InternalError("Default site not defined (AppSettings.json) or not found");
+                YetaWFManager.Manager.CurrentSite = site;
 
                 YetaWF.Core.Support.Startup.Started = true;
             });
@@ -105,6 +110,9 @@ namespace YetaWF.Core.Support {
         }
 
         private static void Start(string baseDirectory) {
+
+            YetaWFManager.Mode = YetaWFManager.BATCHMODE;
+
             YetaWFManager.RootFolder = baseDirectory;
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
