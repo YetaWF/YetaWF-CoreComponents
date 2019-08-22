@@ -208,6 +208,9 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(TimeSpan) || tp == typeof(TimeSpan?)) {
                 stream.Write("V");
                 stream.Write(((TimeSpan)o).Ticks.ToString());
+            } else if (tp == typeof(DayOfWeek) || tp == typeof(DayOfWeek?)) {
+                stream.Write("V");
+                string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
                 System.Drawing.Image img = (System.Drawing.Image)o;
                 using (MemoryStream ms = new MemoryStream()) {
@@ -350,6 +353,8 @@ namespace YetaWF.Core.Serializers {
                                 objVal = Convert.FromBase64String(strVal);
                         } else if (strVal == null) {
                             objVal = null;
+                        } else if (pType == typeof(int) || pType == typeof(int?)) {
+                            objVal = Convert.ToInt32(strVal);
                         } else if (pType.IsEnum) {
                             objVal = Convert.ChangeType(strVal, typeof(long), CultureInfo.InvariantCulture);
                             objVal = Enum.ToObject(pType, objVal);
@@ -360,6 +365,8 @@ namespace YetaWF.Core.Serializers {
                             objVal = new Guid(strVal);
                         } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
                             objVal = new TimeSpan(Convert.ToInt64(strVal));
+                        } else if (pType == typeof(DayOfWeek) || pType == typeof(DayOfWeek?)) {
+                            objVal = (DayOfWeek)(Convert.ToInt64(strVal));
                         } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
                             using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(strVal))) {
                                 objVal = System.Drawing.Image.FromStream(ms);
