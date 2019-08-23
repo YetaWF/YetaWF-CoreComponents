@@ -57,6 +57,7 @@ namespace YetaWF.Core.Scheduler {
         public bool SiteSpecific { get; set; } // this item runs for each site
         public SchedulerFrequency Frequency { get; set; }// run every ...
         public List<string> Log { get; set; }
+        public DateTime? NextRun { get; set; }
 
         public SchedulerItemBase() {
             Frequency = new SchedulerFrequency();

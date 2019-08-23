@@ -964,6 +964,12 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         public bool IsAuthorized_View_AnyUser() {
             return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetUserRoleId());
         }
+        public bool IsAuthorized_View_Editor() {
+            return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetEditorRoleId());
+        }
+        public bool IsAuthorized_View_Administrator() {
+            return IsAuthorized_Role((allowedRole) => allowedRole.View, Resource.ResourceAccess.GetAdministratorRoleId());
+        }
 
         // MODULE USAGE
         // MODULE USAGE

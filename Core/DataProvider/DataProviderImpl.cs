@@ -193,7 +193,8 @@ namespace YetaWF.Core.DataProvider {
                             if (origFileGuid != newFileGuid) {
                                 pGuid.PropInfo.SetValue(obj, newFileGuid);
                                 prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
-                            }
+                            } else if (fileName == "(CLEARED)")
+                                prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
                         } else if (hasData) {
                             // save as data
                             PropertyData pData = ObjectSupport.GetPropertyData(objType, prop.Name + "_Data");

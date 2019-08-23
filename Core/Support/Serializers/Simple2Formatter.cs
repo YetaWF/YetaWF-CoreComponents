@@ -276,6 +276,9 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(TimeSpan) || tp == typeof(TimeSpan?)) {
                 WriteString("V");
                 WriteBytes(BitConverter.GetBytes(((TimeSpan)o).Ticks));
+            } else if (tp == typeof(DayOfWeek) || tp == typeof(DayOfWeek?)) {
+                WriteString("V");
+                WriteBytes(BitConverter.GetBytes((int)o));
             } else if (tp == typeof(Guid) || tp == typeof(Guid?)) {
                 WriteString("V");
                 WriteBytes(((Guid)o).ToByteArray());
@@ -510,6 +513,10 @@ namespace YetaWF.Core.Serializers {
                 } else if (pType == typeof(TimeSpan) || pType == typeof(TimeSpan?)) {
                     ReadBytes((btes, offs, len) => {
                         objVal = new TimeSpan(BitConverter.ToInt64(btes, offs));
+                    }, () => { objVal = null; }, () => { objVal = null; });
+                } else if (pType == typeof(DayOfWeek) || pType == typeof(DayOfWeek?)) {
+                    ReadBytes((btes, offs, len) => {
+                        objVal = (DayOfWeek)BitConverter.ToInt32(btes, offs);
                     }, () => { objVal = null; }, () => { objVal = null; });
                 } else if (pType == typeof(Guid) || pType == typeof(Guid?)) {
                     ReadBytes((btes, offs, len) => {
