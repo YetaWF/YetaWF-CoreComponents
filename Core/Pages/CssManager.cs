@@ -57,7 +57,7 @@ namespace YetaWF.Core.Pages {
         public static string CombineCss(string css1, string css2) {
             if (string.IsNullOrWhiteSpace(css1)) return css2;
             if (string.IsNullOrWhiteSpace(css2)) return css1;
-            return string.Format("{0} {1}", css1.Trim(), css2.Trim());
+            return $"{css1.Trim()} {css2.Trim()}";
         }
 
         public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
