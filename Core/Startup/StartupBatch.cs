@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
@@ -112,6 +113,9 @@ namespace YetaWF.Core.Support {
         private static void Start(string baseDirectory) {
 
             YetaWFManager.Mode = YetaWFManager.BATCHMODE;
+
+            // Enable all required protocols
+            ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
             YetaWFManager.RootFolder = baseDirectory;
 #if MVC6
