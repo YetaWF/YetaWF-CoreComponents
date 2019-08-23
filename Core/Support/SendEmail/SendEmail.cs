@@ -17,7 +17,38 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.SendEmail {
 
-    public class SendEmail {
+    /// <summary>
+    /// Any class implementing this interface acts as a SendEmail provider, replacing the built-in email sending support.
+    /// </summary>
+    /// <remarks>There can only be on SendEmail provider.</remarks>
+    public interface ISendEmail {
+        Task<object> PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null);
+        Task<string> GetEmailFileAsync(Package package, string filename);
+        void AddBcc(object sendEmailData, string ccEmail);
+        Task SendAsync(object sendEmailData, bool fThrowError = true);
+    }
+
+    public class SendEmail : IInitializeApplicationStartup {
+
+        public static ISendEmail SendEmailProvider = null;
+        public object SendEmailData = null;
+
+        public Task InitializeApplicationStartupAsync() {
+            List<Type> types = Package.GetClassesInPackages<ISendEmail>();
+            if (types.Count > 0) {
+                // Installing sendemail provider
+                if (types.Count > 1)
+                    throw new InternalError("More than 1 SendEmail provider installed");
+                Type type = types[0];
+                ISendEmail isendEmail = (ISendEmail)Activator.CreateInstance(type);
+                SendEmailProvider = isendEmail ?? throw new InternalError($"Unable to create ISendEmail provider {type.FullName}");
+            }
+            return Task.CompletedTask;
+        }
+        void NoSendEmailProviderAllowed() {
+            if (SendEmailProvider != null)
+                throw new InternalError("Not supported when a SendEmail provider is installed");
+        }
 
         public const string EmailsFolder = "Emails";
         public const string EmailHtmlExtension = ".html";
@@ -30,7 +61,8 @@ namespace YetaWF.Core.SendEmail {
         public MailMessage MailMessage { get; protected set; }
         protected SmtpClient SmtpClient { get; set; }
 
-        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fomEmail = null, object parameters = null) {
+        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fromEmail = null, object parameters = null) {
+            NoSendEmailProviderAllowed();
             Manager.CurrentSite.SMTP.Validate();
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
             emailHTML = "<!DOCTYPE html><html><head>" +
@@ -39,25 +71,34 @@ namespace YetaWF.Core.SendEmail {
             await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
         }
         public async Task<string> GetEmailFileAsync(Package package, string filename) {
-            string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.AreaName);
-            string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
+            if (SendEmailProvider != null) {
+                return await SendEmailProvider.GetEmailFileAsync(package, filename);
+            } else {
+                string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.AreaName);
+                string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
 
-            // locate site specific custom email
-            string file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
-            if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
-                return file;
-            // otherwise use default email
-            file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", moduleAddOnUrl, EmailsFolder, filename));
-            if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
-                return file;
-            throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);
+                // locate site specific custom email
+                string file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    return file;
+                // otherwise use default email
+                file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", moduleAddOnUrl, EmailsFolder, filename));
+                if (await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    return file;
+                throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);
+            }
         }
         public async Task PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null) {
-            Manager.CurrentSite.SMTP.Validate();
-            SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
-            await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, parameters);
+            if (SendEmailProvider != null) {
+                SendEmailData = await SendEmailProvider.PrepareEmailMessageAsync(toEmail, subject, emailFile, fromEmail, parameters);
+            } else {
+                Manager.CurrentSite.SMTP.Validate();
+                SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
+                await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, parameters);
+            }
         }
         public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null) {
+            NoSendEmailProviderAllowed();
             string file = emailFile;
             if (!file.EndsWith(EmailTxtExtension, StringComparison.CurrentCultureIgnoreCase))
                 throw new Error(this.__ResStr("errEmailTextInv", "The base email file {0} must be a text file (ending in .txt)"), file);
@@ -87,6 +128,7 @@ namespace YetaWF.Core.SendEmail {
             await PrepareEmailMessageAsync(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, parameters);
         }
         public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
+            NoSendEmailProviderAllowed();
             try {
                 if (string.IsNullOrEmpty(server))
                     throw new Error(this.__ResStr("errMailServer", "No mail server specified."));
@@ -172,7 +214,6 @@ namespace YetaWF.Core.SendEmail {
             public string LinesHtml { get; set; }
         }
         private static async Task<MakeInlineItemsInfo> MakeInlineItemsAsync(string htmlFolder, Regex regex, MakeInlineItemsInfo info) {
-
             Match m;
             int pos = 0;
             for (;;) {
@@ -198,23 +239,31 @@ namespace YetaWF.Core.SendEmail {
         }
 
         public void AddBcc(string ccEmail) {
-            if (!string.IsNullOrEmpty(ccEmail))
-                MailMessage.Bcc.Add(new MailAddress(ccEmail));
+            if (SendEmailProvider != null) {
+                SendEmailProvider.AddBcc(SendEmailData, ccEmail);
+            } else {
+                if (!string.IsNullOrEmpty(ccEmail))
+                    MailMessage.Bcc.Add(new MailAddress(ccEmail));
+            }
         }
 
         public async Task SendAsync(bool fThrowError = true) {
-            try {
-                if (YetaWFManager.IsSync()) {
-                    SmtpClient.Send(MailMessage);
-                } else {
-                    await SmtpClient.SendMailAsync(MailMessage);
+            if (SendEmailProvider != null) {
+                await SendEmailProvider.SendAsync(SendEmailData, fThrowError);
+            } else {
+                try {
+                    if (YetaWFManager.IsSync()) {
+                        SmtpClient.Send(MailMessage);
+                    } else {
+                        await SmtpClient.SendMailAsync(MailMessage);
+                    }
+                } catch (Exception exc) {
+                    Logging.AddErrorLog("Server={0}, SSL={1}, Auth={2}", SmtpClient.Host, SmtpClient.EnableSsl.ToString(), SmtpClient.UseDefaultCredentials.ToString(), exc);
+                    if (fThrowError)
+                        throw;
+                } finally {
+                    SmtpClient.Dispose();
                 }
-            } catch (Exception exc) {
-                Logging.AddErrorLog("Server={0}, SSL={1}, Auth={2}", SmtpClient.Host, SmtpClient.EnableSsl.ToString(), SmtpClient.UseDefaultCredentials.ToString(), exc);
-                if (fThrowError)
-                    throw;
-            } finally {
-                SmtpClient.Dispose();
             }
         }
     }
