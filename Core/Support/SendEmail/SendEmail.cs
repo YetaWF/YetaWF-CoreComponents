@@ -26,12 +26,19 @@ namespace YetaWF.Core.SendEmail {
         Task<string> GetEmailFileAsync(Package package, string filename);
         void AddBcc(object sendEmailData, string ccEmail);
         Task SendAsync(object sendEmailData, bool fThrowError = true);
+        /// <summary>
+        /// Returns the sending email address. Only valid after the email has been sent.
+        /// </summary>
+        /// <returns>The sending email address.</returns>
+        Task<string> GetSendingEmailAddressAsync(object sendEmailData);
     }
 
     public class SendEmail : IInitializeApplicationStartup {
 
         public static ISendEmail SendEmailProvider = null;
         public object SendEmailData = null;
+
+        private string SendingEmailAddress = null;
 
         public Task InitializeApplicationStartupAsync() {
             List<Type> types = Package.GetClassesInPackages<ISendEmail>();
@@ -60,6 +67,18 @@ namespace YetaWF.Core.SendEmail {
 
         public MailMessage MailMessage { get; protected set; }
         protected SmtpClient SmtpClient { get; set; }
+
+        public async Task<string> GetSendingEmailAddressAsync() {
+            string email;
+            if (SendEmailProvider != null) {
+                email = await SendEmailProvider.GetSendingEmailAddressAsync(SendEmailData);
+            } else {
+                email = SendingEmailAddress;
+            }
+            if (string.IsNullOrWhiteSpace(email))
+                email = this.__ResStr("n/a", "(n/a)");
+            return email;
+        }
 
         public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fromEmail = null, object parameters = null) {
             NoSendEmailProviderAllowed();
@@ -141,6 +160,8 @@ namespace YetaWF.Core.SendEmail {
                     fromEmail = Manager.CurrentSite.AdminEmail;
                 if (string.IsNullOrEmpty(fromEmail))
                     throw new Error(this.__ResStr("errNoSender", "No sending email address specified"));
+
+                SendingEmailAddress = fromEmail;
 
                 Variables varSubst = new Variables(Manager, parameters);
                 linesText = varSubst.ReplaceVariables(linesText);
@@ -250,6 +271,7 @@ namespace YetaWF.Core.SendEmail {
         public async Task SendAsync(bool fThrowError = true) {
             if (SendEmailProvider != null) {
                 await SendEmailProvider.SendAsync(SendEmailData, fThrowError);
+                SendingEmailAddress = await SendEmailProvider.GetSendingEmailAddressAsync(SendEmailData);
             } else {
                 try {
                     if (YetaWFManager.IsSync()) {
