@@ -282,6 +282,11 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [UIHint("Text40"), StringLength(MaxHtmlId), AnchorValidationAttribute, Trim]
         public virtual string AnchorId { get; set; }
 
+        [Category("Skin"), Caption("AutoComplete"), Description("Defines whether autocomplete is used for input fields on the form", Order = -78)]
+        [UIHint("Boolean")]
+        [Data_NewValue]
+        public bool FormAutoComplete { get; set; }
+
         // AUTHORIZATION
         // AUTHORIZATION
         // AUTHORIZATION
