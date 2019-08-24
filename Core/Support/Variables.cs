@@ -189,6 +189,15 @@ namespace YetaWF.Core.Support {
                     if (Parameters != null) {
                         if (EvalObjectVariable(Parameters, var, subvar, out ret))
                             return (encode) ? EncodeText(ret) : ret;
+                        try {
+                            if (string.IsNullOrWhiteSpace(subvar)) {// JSON converted objects
+                                ret = ((dynamic)Parameters)[var];
+                                return (encode) ? EncodeText(ret) : ret;
+                            } else {
+                                ret = ((dynamic)((dynamic)Parameters)[var])[subvar];
+                                return (encode) ? EncodeText(ret) : ret;
+                            }
+                        } catch (Exception) { }
                     }
                 } else if (Manager != null) {
                     if (loc == "ThisPage") {
