@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using YetaWF.Core.Localize;
@@ -26,13 +27,13 @@ namespace YetaWF.Core.Components {
         public int Minutes { get { return TOD.Minutes; } }
         public int Seconds { get { return TOD.Seconds; } }
 
-        public static bool operator > (TimeOfDay thisTime, TimeOfDay thatTime) {
+        public static bool operator >(TimeOfDay thisTime, TimeOfDay thatTime) {
             return thisTime.TOD > thatTime.TOD;
         }
         public static bool operator >=(TimeOfDay thisTime, TimeOfDay thatTime) {
             return thisTime.TOD >= thatTime.TOD;
         }
-        public static bool operator < (TimeOfDay thisTime, TimeOfDay thatTime) {
+        public static bool operator <(TimeOfDay thisTime, TimeOfDay thatTime) {
             return thisTime.TOD < thatTime.TOD;
         }
         public static bool operator <=(TimeOfDay thisTime, TimeOfDay thatTime) {
@@ -95,6 +96,22 @@ namespace YetaWF.Core.Components {
                 return new TimeOfDay(dt);
             }
             return base.ConvertFrom(context, culture, value);
+        }
+    }
+    public class TimeOfDayNullLastComparer : IComparer<TimeOfDay> {
+        public int Compare(TimeOfDay x, TimeOfDay y) {
+            if (x == null) {
+                if (y == null)
+                    return 0;
+                else
+                    return 1;
+            } else {
+                if (y == null)
+                    return -1;
+                if (x.TOD < y.TOD) return -1;
+                else if (x.TOD > y.TOD) return 1;
+                return 0;
+            }
         }
     }
 }
