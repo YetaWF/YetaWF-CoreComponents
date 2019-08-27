@@ -179,7 +179,7 @@ namespace YetaWF.Core.Support {
         /// Can only be used once MakeInitialThreadInstance has been used
         /// </summary>
         public static YetaWFManager MakeThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
-            YetaWFManager manager = _ManagerThreadInstance;
+            YetaWFManager manager;
             if (site != null) {
                 manager = new YetaWFManager(site.Identity.ToString());
                 manager.CurrentSite = site;
