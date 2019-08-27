@@ -468,7 +468,14 @@ namespace YetaWF.Core.Pages {
                 locOptions = new Dictionary<string, object>();
                 _SavedLocalizationsGroups.Add(group, locOptions);
             }
-            locOptions.Add(name, value);
+            if (!locOptions.ContainsKey(name)) {
+                locOptions.Add(name, value);
+            } else {
+#if DEBUG
+                if (locOptions[name] != value)
+                    throw new InternalError($"Duplication localization string {name} with different values {value.ToString()} and {locOptions[name].ToString()}");
+#endif
+            }
         }
 
         // RENDER
