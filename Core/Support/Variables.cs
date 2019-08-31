@@ -236,6 +236,11 @@ namespace YetaWF.Core.Support {
                                 return (encode) ? EncodeText(ret) : ret;
                             }
                         }
+                    } else if (loc == "Env") {
+                        if (!string.IsNullOrWhiteSpace(var)) {
+                            string env = Environment.GetEnvironmentVariable(var);
+                            return (encode) ? EncodeText(env) : env;
+                        }
                     } else if (loc == "Opsys") {
                         if (!string.IsNullOrWhiteSpace(var)) {
                             switch (var) {
