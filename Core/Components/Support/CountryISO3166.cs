@@ -264,7 +264,7 @@ namespace YetaWF.Core.Components {
             string file;
             if (YetaWFManager.IsBatchMode || YetaWFManager.IsServiceMode) {
 
-                file = ".\\Countries.txt";
+                file = "Countries.txt";
 
             } else {
                 Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
