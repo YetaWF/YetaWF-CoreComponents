@@ -103,9 +103,6 @@ namespace YetaWF {
                 else
                     template = template.parentElement;
             }
-            if (!template)
-                throw "Requesting control by name, but no containing template found";
-
             return template;
         }
     }
