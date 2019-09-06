@@ -472,8 +472,8 @@ namespace YetaWF.Core.Pages {
                 locOptions.Add(name, value);
             } else {
 #if DEBUG
-                if (locOptions[name] != value)
-                    throw new InternalError($"Duplication localization string {name} with different values {value.ToString()} and {locOptions[name].ToString()}");
+                if (locOptions[name].ToString() != value.ToString())
+                    throw new InternalError($"Duplicate localization string {name} with different values {value.ToString()} and {locOptions[name].ToString()}");
 #endif
             }
         }
