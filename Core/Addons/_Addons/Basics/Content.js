@@ -322,11 +322,11 @@ var YetaWF;
                     }
                     // add pane content
                     if (inplace) {
-                        if (result.Content.length !== 1)
-                            throw "Unexpected content in inplace mode";
-                        var pane = $YetaWF.getElementById(inplace.TargetTag);
-                        $YetaWF.appendMixedHTML(pane, result.Content[0].HTML);
-                        tags.push(pane); // run all registered initializations for the pane
+                        if (result.Content.length > 0) {
+                            var pane = $YetaWF.getElementById(inplace.TargetTag);
+                            $YetaWF.appendMixedHTML(pane, result.Content[0].HTML);
+                            tags.push(pane); // run all registered initializations for the pane
+                        }
                     }
                     else {
                         for (var _a = 0, _b = result.Content; _a < _b.length; _a++) {

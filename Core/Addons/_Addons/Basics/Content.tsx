@@ -381,11 +381,11 @@ namespace YetaWF {
                     }
                     // add pane content
                     if (inplace) {
-                        if (result.Content.length !== 1)
-                            throw "Unexpected content in inplace mode";
-                        let pane = $YetaWF.getElementById(inplace.TargetTag);
-                        $YetaWF.appendMixedHTML(pane, result.Content[0].HTML);
-                        tags.push(pane);// run all registered initializations for the pane
+                        if (result.Content.length > 0) {
+                            let pane = $YetaWF.getElementById(inplace.TargetTag);
+                            $YetaWF.appendMixedHTML(pane, result.Content[0].HTML);
+                            tags.push(pane);// run all registered initializations for the pane
+                        }
                     } else {
                         for (let content of result.Content) {
                             // replace the pane
