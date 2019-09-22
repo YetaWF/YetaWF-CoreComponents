@@ -277,7 +277,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Process the page
-            CanProcessAsStaticPageInfo info = await CanProcessAsStaticPageAsync(uri.LocalPath);
+            CanProcessAsStaticPageInfo info = await CanProcessAsStaticPageAsync(uri);
             if (info.Success) {
                 AddXFrameOptions();
                 return Content(info.Contents, "text/html");
@@ -465,8 +465,10 @@ namespace YetaWF.Core.Controllers {
             public string Contents { get; set; }
             public bool Success { get; set; }
         }
-        private async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(string localUrl) {
-            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers) {
+        private async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(Uri uri) {
+            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower()) {
+                // support static pages for exact domain match only (so other sites, like blue/green don't use static pages)
+                string localUrl = uri.LocalPath;
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;

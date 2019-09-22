@@ -98,7 +98,7 @@ namespace YetaWF.Core.Models.Attributes {
         }
 
         protected virtual bool ShouldValidate(AuthorizationFilterContext context) {
-            if (!Manager.HaveUser && Manager.CurrentSite.StaticPages)
+            if (!Manager.HaveUser && Manager.CurrentSite.StaticPages && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower())
                 return false; // don't validate AntiForgeryToken when we use static pages and have an anonymous user
             return true;
         }

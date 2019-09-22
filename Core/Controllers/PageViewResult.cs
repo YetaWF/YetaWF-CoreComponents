@@ -88,7 +88,7 @@ namespace YetaWF.Core.Controllers {
 
                 bool staticPage = false;
                 if (Manager.Deployed)
-                    staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser;
+                    staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower();
                 Manager.RenderStaticPage = staticPage;
 
                 SkinAccess skinAccess = new SkinAccess();
@@ -149,7 +149,7 @@ namespace YetaWF.Core.Controllers {
                     // Last-Modified is dependent on which user is logged on (if any) and any module that generates data which changes each time will defeat last-modified
                     // so is only helpful for static pages and can't be used for dynamic pages
                     context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", Manager.LastUpdated));
-                } else if (Manager.HaveUser && requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages) {
+                } else if (Manager.HaveUser && requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower()) {
                     // if we have a user for what would be a static page, we have to make sure the last modified date is set to override any previously
                     // served page to the then anonymous user before he/she logged on.
                     context.HttpContext.Response.Headers.Add("Last-Modified", string.Format("{0:R}", DateTime.UtcNow));
