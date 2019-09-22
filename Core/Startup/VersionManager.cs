@@ -394,10 +394,12 @@ namespace YetaWF.Core.Addons {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
-            List<string> folders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(templateFolder, "*.*");
-            foreach (string folder in folders) {
-                if (Path.GetFileName(folder) != Globals.DataFolder)
-                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(templateFolder)) {
+                List<string> folders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(templateFolder, "*.*");
+                foreach (string folder in folders) {
+                    if (Path.GetFileName(folder) != Globals.DataFolder)
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
+                }
             }
 
             Logging.AddLog("Searching assemblies");
@@ -458,7 +460,6 @@ namespace YetaWF.Core.Addons {
         }
 
         private static async Task CopySiteTemplatesAsync(string folder) {
-            List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.txt");
             string rootFolder;
 #if MVC6
             rootFolder = YetaWFManager.RootFolderWebProject;
@@ -466,15 +467,16 @@ namespace YetaWF.Core.Addons {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
-            foreach (string file in files) {
-                string newFile = Path.Combine(templateFolder, Path.GetFileName(file));
-                await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(templateFolder)) {
+                List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.txt");
+                foreach (string file in files) {
+                    string newFile = Path.Combine(templateFolder, Path.GetFileName(file));
+                    await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
+                }
             }
         }
         private static async Task CopySiteUpgradesAsync(Package package, string sourceFolder) {
 
-            List<string> folders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(sourceFolder, "*.*");
-
             string rootFolder;
 #if MVC6
             rootFolder = YetaWFManager.RootFolderWebProject;
@@ -482,17 +484,19 @@ namespace YetaWF.Core.Addons {
             rootFolder = YetaWFManager.RootFolder;
 #endif
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(templateFolder)) {
+                List<string> folders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(sourceFolder, "*.*");
+                foreach (string folder in folders) {
+                    string upgradeVersion = Path.GetFileName(folder);
+                    string newFolder = Path.Combine(templateFolder, package.AreaName, upgradeVersion);
 
-            foreach (string folder in folders) {
-                string upgradeVersion = Path.GetFileName(folder);
-                string newFolder = Path.Combine(templateFolder, package.AreaName, upgradeVersion);
-
-                List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.zip");
-                if (files.Count > 0)
-                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(newFolder);
-                foreach (string file in files) {
-                    string newFile = Path.Combine(templateFolder, newFolder, Path.GetFileName(file));
-                    await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
+                    List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.zip");
+                    if (files.Count > 0)
+                        await FileSystem.FileSystemProvider.CreateDirectoryAsync(newFolder);
+                    foreach (string file in files) {
+                        string newFile = Path.Combine(templateFolder, newFolder, Path.GetFileName(file));
+                        await FileSystem.FileSystemProvider.CopyFileAsync(file, newFile);
+                    }
                 }
             }
         }
