@@ -26,17 +26,22 @@ namespace YetaWF.Core.Support {
             Settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
             Variables = new Dictionary<string, object>();
-            JObject vars = Settings["Variables"];
-            if (vars != null) {
-                foreach (JToken var in vars.Children()) {
-                    JProperty p = (JProperty)var;
-                    Variables.Add(p.Name, (string)p.Value);
-                }
-            }
+
             string env = Environment.GetEnvironmentVariable("YETAWF_DEPLOYSUFFIX");
             if (!string.IsNullOrWhiteSpace(env)) {
                 Variables.Add("deploysuffix", env.ToLower());
                 Variables.Add("DEPLOYSUFFIX", env.ToUpper());
+            }
+
+            Variables varSubst = new Variables(null, Variables);
+
+            JObject vars = Settings["Variables"];
+            if (vars != null) {
+                foreach (JToken var in vars.Children()) {
+                    JProperty p = (JProperty)var;
+                    string s = varSubst.ReplaceVariables((string)p.Value);
+                    Variables.Add(p.Name, s);
+                }
             }
             return Task.CompletedTask;
         }
@@ -99,9 +104,8 @@ namespace YetaWF.Core.Support {
                 if (string.IsNullOrWhiteSpace((string)val))
                     return dflt;
                 else {
-                    string s = (string)val;
-                    Variables vars = new Variables(null, Variables);
-                    s = vars.ReplaceVariables(s);
+                    Variables varSubst = new Variables(null, Variables);
+                    string s = varSubst.ReplaceVariables((string)val);
                     return (TYPE)(object)s;
                 }
             } else if (typeof(TYPE).IsEnum) return (TYPE)(object)Convert.ToInt32(val);
