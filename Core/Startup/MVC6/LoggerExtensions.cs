@@ -4,8 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using YetaWF.Core.Log;
+using YetaWF.Core.Support;
 
 namespace YetaWF2.Logger {
+
     public static class LoggerExtensions {
         public static ILoggingBuilder AddYetaWFLogger(this ILoggingBuilder builder) {
             builder.Services.AddSingleton<ILoggerProvider, YetaWFLoggerProvider>();
@@ -14,9 +16,22 @@ namespace YetaWF2.Logger {
     }
 
     public class YetaWFLoggerProvider : ILoggerProvider {
+
         public ILogger CreateLogger(string categoryName) {
             return new YetaWFLogger(this, categoryName);
         }
+        public static string IgnoredCategory {
+            get {
+                return _IgnoredCategory;
+            }
+            set {
+                if (_IgnoredCategory != null)
+                    throw new Error($"Multiple ignored categories, existing {_IgnoredCategory} and new {value}");
+                _IgnoredCategory = value;
+            }
+        }
+        private static string _IgnoredCategory { get; set; }
+
         public void Dispose() { }
     }
 
@@ -39,6 +54,8 @@ namespace YetaWF2.Logger {
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) {
+            if (CategoryName == YetaWFLoggerProvider.IgnoredCategory)
+                return;
             Logging.LevelEnum level;
             switch (logLevel) {
                 case LogLevel.None: return;
