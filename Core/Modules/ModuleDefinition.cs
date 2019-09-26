@@ -270,6 +270,12 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [UIHint("Boolean")]
         public bool ShowHelp { get; set; }
 
+        [Category("Skin"), Caption("Help URL"), Description("Defines the URL used to display help for this module - If omitted, the package's help link is used instead", Order = -85)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
+        [StringLength(Globals.MaxUrl), Trim]
+        [Data_NewValue]
+        public string HelpURL { get; set; }
+
         [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed", Order = -84)]
         [UIHint("Boolean")]
         public bool Print { get; set; }
