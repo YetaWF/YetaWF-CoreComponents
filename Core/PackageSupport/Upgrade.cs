@@ -241,6 +241,22 @@ namespace YetaWF.Core.Packages {
 
             // Save new package map (only if successful)
             await Package.SavePackageMapAsync();
+
+            // Scan website's Addons folder for packages that aren't referenced and remove folder
+
+            Logging.AddLog("Removing unnecessary website Addons folders");
+
+            List<Package> packages = GetAvailablePackages();
+            List<string> usedFolders = (from p in packages select p.AddonsFolder).ToList();
+            List<string> domains = await FileSystem.FileSystemProvider.GetDirectoriesAsync(Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder));
+            foreach (string domain in domains) {
+                List<string> definedFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(domain);
+                foreach (string definedFolder in definedFolders) {
+                    if (!usedFolders.Contains(definedFolder)) {
+                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(definedFolder);
+                    }
+                }
+            }
         }
 
         /// <summary>
