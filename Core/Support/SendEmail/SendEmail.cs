@@ -48,7 +48,10 @@ namespace YetaWF.Core.SendEmail {
                     throw new InternalError("More than 1 SendEmail provider installed");
                 Type type = types[0];
                 ISendEmail isendEmail = (ISendEmail)Activator.CreateInstance(type);
-                SendEmailProvider = isendEmail ?? throw new InternalError($"Unable to create ISendEmail provider {type.FullName}");
+                if (isendEmail != null)
+                    SendEmailProvider = isendEmail;
+                else
+                    throw new InternalError($"Unable to create ISendEmail provider {type.FullName}");
             }
             return Task.CompletedTask;
         }

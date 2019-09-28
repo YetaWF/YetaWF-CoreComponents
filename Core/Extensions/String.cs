@@ -107,7 +107,7 @@ namespace YetaWF.Core.Extensions {
         public static string AddSlashIfNone(this string text) {
             if (string.IsNullOrWhiteSpace(text))
                 return "/";
-            if (!text.EndsWith('/'))
+            if (!text.EndsWith("/"))
                 return $"{text}/";
             else
                 return text;

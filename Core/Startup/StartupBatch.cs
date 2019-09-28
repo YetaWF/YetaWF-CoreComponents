@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +10,10 @@ using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Language;
 using YetaWF.Core.Site;
+#if MVC6
+using Microsoft.AspNetCore.Routing;
+#else
+#endif
 
 namespace YetaWF.Core.Support {
 
