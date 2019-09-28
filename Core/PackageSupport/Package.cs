@@ -710,7 +710,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public string AddonsFolder {
             get {
-                return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, Domain, Product);
+                return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, LanguageDomain, Product);
             }
         }
 
