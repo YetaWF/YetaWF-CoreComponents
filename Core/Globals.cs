@@ -8,6 +8,7 @@ namespace YetaWF.Core {
 
 #if MVC6
         public const string RUNTIME = "netcoreapp2.2"; // runtime
+        public const string RUNTIMEVERSION = "2.2";
 #endif
 
         public const int MaxIP = 15; // "xxx.xxx.xxx.xxx"
