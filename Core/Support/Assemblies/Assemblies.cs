@@ -30,5 +30,12 @@ namespace YetaWF.Core.Support {
             }
             return assembly;
         }
+
+        public static void AddLoaded(Assembly assembly) {
+            string name = System.IO.Path.GetFileNameWithoutExtension(assembly.ManifestModule.Name);
+            name = name.ToLower();
+            if (!LoadedAssemblies.ContainsKey(name))
+                LoadedAssemblies.Add(name.ToLower(), assembly);
+        }
     }
 }

@@ -11,6 +11,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Identity;
 using System.Threading.Tasks;
+using YetaWF.Core.Models.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace YetaWF.Core.Controllers {
     /// </summary>
     /// <remarks>This controller is a plain MVC controller because we don't want any startup processing to take place (like authorization, etc.)
     /// because we handle all this here. This controller is used for page and single module display (GET/HEAD requests only).</remarks>
+    [AreaConvention]
     public class PageController : Controller {
 
         /// <summary>
