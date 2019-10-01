@@ -3,7 +3,6 @@
 #if MVC6
 
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Mvc.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +12,6 @@ using YetaWF.Core.Packages;
 
 namespace YetaWF2.Support
 {
-    //$$$$$$$$$$$$$$ TODO: Disabled for now, use case testing in private sites pending
-
     public class YetaWFApplicationPartManager : ApplicationPartManager {
         public YetaWFApplicationPartManager() {
 
@@ -28,7 +25,10 @@ namespace YetaWF2.Support
             foreach (ApplicationPart part in extraParts)
                 ApplicationParts.Add(part);
         }
+        // Well this is what it was originally for:
         // Add assemblies located in the folder which are not part of referenced assemblies (these are from installed binary packages)
+        // But then ASP.NET Core 3.0 came and broke System.AppDomain.CurrentDomain.GetAssemblies(); It no longer returns all referenced assemblies. Thanks Snowflakes...
+        // So now we locate all assemblies like this.
         private List<ApplicationPart> FindExtraAssemblies(List<Assembly> assemblies, string baseDirectory) {
             List<ApplicationPart> list = new List<ApplicationPart>();
             string[] files = Directory.GetFiles(baseDirectory, "*.dll");
