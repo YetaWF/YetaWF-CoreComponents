@@ -2,6 +2,7 @@
 
 using YetaWF.Core.Support;
 using System.Collections.Generic;
+using YetaWF.Core.Models.Attributes;
 #if MVC6
 using YetaWF.Core.Pages;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ namespace YetaWF.Core.Controllers {
     /// </summary>
     /// <remarks>This controller is a plain MVC controller because we don't want any startup processing to take place (like authorization, etc.)
     /// because we handle all this here.</remarks>
+    [AreaConvention]
     public class AddonContentController : Controller {
 
         internal static YetaWFManager Manager { get { return YetaWFManager.Manager; } }

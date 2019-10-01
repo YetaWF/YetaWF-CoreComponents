@@ -38,6 +38,7 @@ namespace YetaWF.Core.Controllers
     /// <summary>
     /// Base class for all controllers used by YetaWF (including "plain old" MVC controllers).
     /// </summary>
+    [AreaConvention]
     public class YetaWFController :
 #if MVC6
                                     Microsoft.AspNetCore.Mvc.Controller
