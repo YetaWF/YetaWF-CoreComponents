@@ -55,8 +55,10 @@ namespace YetaWF.Core.Support {
             switch (version) {
                 case AspNetMvcVersion.MVC5:
                     return "MVC5";
+#if MVC6
                 case AspNetMvcVersion.MVC6:
                     return $"ASP.NET Core {Globals.RUNTIMEVERSION} - MVC ";
+#endif
                 default:
                     return "(unknown)";
             }
