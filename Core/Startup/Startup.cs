@@ -64,6 +64,8 @@ namespace YetaWF.Core.Support {
                 return env == "true";
             }
         }
+        
+        //$$$ REMOVE?
         /// <summary>
         /// Returns the name of the AppSettings file, based on the current environment.
         /// </summary>
@@ -71,6 +73,60 @@ namespace YetaWF.Core.Support {
             get {
                 return "AppSettings.json";
             }
+        }
+
+        /// <summary>
+        /// Returns a file name composed of the current environment and debug/release build, probing for existing files.
+        /// </summary>
+        /// <param name="folder">The base folder where the file is located.</param>
+        /// <param name="name">The base file name.</param>
+        /// <param name="ext">The file extension.</param>
+        /// <returns>Returns the file name composed of the current environment and debug/release build, probing for existing files.</returns>
+        /// <remarks>
+        /// GetEnvironmentFile(folder, name, ext) return a file path as follows folder/name{.Windows|.Linux|.Docker|}{.Prod|}.ext
+        /// depending on the environment. Release builds contain .Prod, debug builds do not carry a modifier.
+        /// Running on Windows adds .Windows, running natively on Linux adds .Linux, running in a container adds .Docker.
+        /// 
+        /// If the file with modifiers doesn't exist, the default folder/name.ext or folder/name.Prod.ext is returned instead (depending on
+        /// debug/release build). If folder/name.Prod.ext doesn't exist, folder/name.ext is returned instead.
+        /// 
+        /// If no file matching the environment can be found, an exception occurs.
+        /// </remarks>
+        public static string GetEnvironmentFile(string folder, string name, string ext) {
+            string prod;
+#if DEBUG
+            prod = "";
+#else
+            prod = ".Prod";
+#endif
+            string file = null;
+            if (file == null && Startup.RunningInContainer) {
+                string f = Path.Combine(folder, $"{name}.Docker{prod}.{ext}");
+                if (File.Exists(f))
+                    file = f;
+            }
+            if (file == null && System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+                string f = Path.Combine(folder, $"{name}.Windows{prod}.{ext}");
+                if (File.Exists(f))
+                    file = f;
+            }
+            if (file == null && System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux)) {
+                string f = Path.Combine(folder, $"{name}.Linux{prod}.{ext}");
+                if (File.Exists(f))
+                    file = f;
+            }
+            if (file == null) {
+                string f = Path.Combine(folder, $"{name}{prod}.{ext}");
+                if (File.Exists(f)) {
+                    file = f;
+                } else {
+                    f = Path.Combine(folder, $"{name}.{ext}");
+                    if (!File.Exists(f))
+                        throw new InternalError($"File {f} doesn't exist");
+                    file = f;
+                }
+            }
+            return file;
         }
 
         /// <summary>
