@@ -9,6 +9,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 using System.Threading;
+using Microsoft.AspNetCore.Routing;
 #if MVC6
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
@@ -24,7 +25,7 @@ namespace YetaWF.Core {
 
     public interface ISignalRHub { // not really needed for mvc5
 #if MVC6
-        void AddToRouteMap(HubRouteBuilder routes);
+        void MapHub(IEndpointRouteBuilder bldr);
 #endif
     }
 
@@ -42,16 +43,14 @@ namespace YetaWF.Core {
             });
         }
 
-        public static void ConfigureHubs(IApplicationBuilder app) {
+        public static void ConfigureHubs(IEndpointRouteBuilder endpoints) {
             // Find all hubs
             Logging.AddLog("Configuring SignalR hubs");
             List<Type> hubTypes = Package.GetClassesInPackages<ISignalRHub>();
             foreach (Type hubType in hubTypes) {
                 Logging.AddLog($"Adding {hubType.FullName}");
-                app.UseSignalR((routes) => {
-                    ISignalRHub hub = (ISignalRHub)Activator.CreateInstance(hubType);
-                    hub.AddToRouteMap(routes);
-                });
+                ISignalRHub hub = (ISignalRHub)Activator.CreateInstance(hubType);
+                hub.MapHub(endpoints);
             }
             Logging.AddLog("Done configuring SignalR hubs");
         }

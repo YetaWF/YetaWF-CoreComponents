@@ -1,2 +1,2 @@
-﻿MVC6 /node_modules/@aspnet/signalr/dist/browser/signalr.min.js,nobundle
+﻿MVC6 /node_modules/@microsoft/signalr/dist/browser/signalr.min.js,nobundle
 MVC5 /node_modules/signalr/jquery.signalR.min.js,nobundle
