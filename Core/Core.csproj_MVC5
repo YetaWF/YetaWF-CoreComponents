@@ -166,14 +166,16 @@
     <Compile Include="Controllers\PageContentViewResult.cs" />
     <Compile Include="Controllers\PageViewResult.cs" />
     <Compile Include="Controllers\Support\ControllerErrorHandlingFilterAttribute.cs" />
-    <Compile Include="Controllers\YetaWFApplicationModelProvider.cs" />
     <Compile Include="DataProvider\DataProviderImpl.cs" />
     <Compile Include="DataProvider\ExternalDataProviders.cs" />
     <Compile Include="DataProvider\SortsFilters.cs" />
     <Compile Include="DataProvider\JoinData.cs" />
     <Compile Include="Identity\Setup.cs" />
     <Compile Include="Models\Attributes\AllowHttpMethods.cs" />
+    <Compile Include="Models\Attributes\AreaConventionAttribute.cs" />
     <Compile Include="Models\Attributes\ExprAttribute.cs" />
+    <Compile Include="Models\Attributes\FilePathValidationAttribute.cs" />
+    <Compile Include="Models\Attributes\FolderPathValidationAttribute.cs" />
     <Compile Include="Models\Attributes\RequiresPageReloadAttribute.cs" />
     <Compile Include="Models\Attributes\NoModelChangeAttribute.cs" />
     <Compile Include="Models\Attributes\RequiresRestartAttribute.cs" />
@@ -199,6 +201,7 @@
     <Compile Include="Startup\StartupLogging.cs" />
     <Compile Include="Startup\StartupRequest.cs" />
     <Compile Include="Startup\StartupOwin.cs" />
+    <Compile Include="Startup\StartupRequestService.cs" />
     <Compile Include="Support\Disposable\DisposableTracker.cs" />
     <Compile Include="Support\Language\LanguageSection.cs" />
     <Compile Include="Support\Lock\AsyncLock.cs" />

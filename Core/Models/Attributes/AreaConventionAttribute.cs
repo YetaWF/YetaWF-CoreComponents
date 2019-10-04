@@ -17,7 +17,7 @@ namespace YetaWF.Core.Models.Attributes {
         public void Apply(ControllerModel ctrlModel) {
 
             //string debug = ctrlModel.ControllerType.FullName;
-            
+
             string area = Lookup(ctrlModel.ControllerType);
             if (area != null && !ctrlModel.RouteValues.ContainsKey("area"))
                 ctrlModel.RouteValues.Add("area", area); // add our area name based on the package containing the controller
@@ -28,9 +28,9 @@ namespace YetaWF.Core.Models.Attributes {
         }
     }
 #else
-    
+
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class AreaAttribute : System.Attribute { }
+    public class AreaConventionAttribute : System.Attribute { }
 
 #endif
 }

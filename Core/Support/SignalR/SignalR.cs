@@ -9,12 +9,12 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 using System.Threading;
-using Microsoft.AspNetCore.Routing;
 #if MVC6
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.SignalR;
 #else
 using Owin;
 using Microsoft.AspNet.SignalR;
