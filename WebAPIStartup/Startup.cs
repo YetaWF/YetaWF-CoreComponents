@@ -76,7 +76,7 @@ namespace YetaWF.WebAPIStartup {
 
             // Everything else
             app.Use(async (context, next) => {
-                await StartupRequest.StartRequestServiceAsync(context);
+                await StartupRequest.StartRequestAsync(context);
                 await next();
             });
 
@@ -88,7 +88,7 @@ namespace YetaWF.WebAPIStartup {
                 AreaRegistrationBase.RegisterPackages(endpoints);
             });
 
-            StartupRequest.StartYetaWFService();
+            StartupRequest.StartYetaWF();
         }
     }
 

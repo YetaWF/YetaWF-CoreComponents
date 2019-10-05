@@ -30,7 +30,7 @@ namespace YetaWF.WebStartup {
                 StartupLogging startupLog = new StartupLogging();
                 await Logging.RegisterLoggingAsync(startupLog);
 
-                Logging.AddLog("YetaWF.App_Start.Startup starting");
+                Logging.AddLog("{nameof(StartupMVC5)}.{nameof(Start)} starting");
 
                 RouteTable.Routes.IgnoreRoute("FileHndlr.image/{*pathInfo}");
 
@@ -61,7 +61,7 @@ namespace YetaWF.WebStartup {
                     await Package.UpgradeToNewPackagesAsync();
 
                 YetaWF.Core.Support.Startup.Started = true;
-                Logging.AddLog("YetaWF.App_Start.Startup completed");
+                Logging.AddLog($"{nameof(StartupMVC5)}.{nameof(Start)} completed");
             });
         }
     }
