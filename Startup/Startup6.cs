@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#if MVC6
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -68,7 +70,7 @@ namespace YetaWF.StartupMVC6 {
             {
                 options.AllowSynchronousIO = true;
             });
-            
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddRouting();
@@ -332,3 +334,5 @@ namespace YetaWF.StartupMVC6 {
         }
     }
 }
+
+#endif
