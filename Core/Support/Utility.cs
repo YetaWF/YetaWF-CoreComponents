@@ -390,13 +390,14 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="httpContext">The Http context.</param>
         /// <remarks>See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.0#synchronous-io for more info.</remarks>
-        public static void AllowSyncIO(HttpContext httpContext) {
 #if MVC6
+        public static void AllowSyncIO(HttpContext httpContext) {
             var syncIOFeature = httpContext.Features.Get<IHttpBodyControlFeature>();
             if (syncIOFeature != null)
                 syncIOFeature.AllowSynchronousIO = true;
-#else
-#endif
         }
+#else
+        public static void AllowSyncIO(object dummy) { }
+#endif
     }
 }

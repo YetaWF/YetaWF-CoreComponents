@@ -12,7 +12,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 
-[assembly: WebActivatorEx.PostApplicationStartMethod(typeof(YetaWF.StartupMVC5.Startup), nameof(YetaWF.StartupMVC5.Startup.Start))]
+[assembly: WebActivatorEx.PostApplicationStartMethod(typeof(YetaWF.WebStartup.StartupMVC5), nameof(YetaWF.WebStartup.StartupMVC5.Start))]
 
 namespace YetaWF.WebStartup {
 
