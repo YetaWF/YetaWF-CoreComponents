@@ -323,7 +323,7 @@ namespace YetaWF.WebStartup {
 
                 endpoints.MapHealthChecks("/_health");
 
-                Logging.AddLog("Calling AreaRegistration.RegisterPackages()");
+                Logging.AddLog($"Calling {nameof(AreaRegistrationBase)}.{nameof(AreaRegistrationBase.RegisterPackages)}");
                 AreaRegistrationBase.RegisterPackages(endpoints);
 
                 YetaWF.Core.SignalR.ConfigureHubs(endpoints);

@@ -82,7 +82,7 @@ namespace YetaWF.Core.Support {
         /// 
         /// If no file matching the environment can be found, an exception occurs.
         /// </remarks>
-        public static string GetEnvironmentFile(string folder, string name, string ext) {
+        public static string GetEnvironmentFile(string folder, string name, string ext, bool Optional = false) {
             string prod;
 #if DEBUG
             prod = "";
@@ -111,8 +111,12 @@ namespace YetaWF.Core.Support {
                     file = f;
                 } else {
                     f = Path.Combine(folder, $"{name}.{ext}");
-                    if (!File.Exists(f))
-                        throw new InternalError($"File {f} doesn't exist");
+                    if (!File.Exists(f)) {
+                        if (Optional)
+                            return null;
+                        else
+                            throw new InternalError($"File {f} doesn't exist");
+                    }
                     file = f;
                 }
             }

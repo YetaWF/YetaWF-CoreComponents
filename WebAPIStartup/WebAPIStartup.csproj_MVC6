@@ -4,8 +4,8 @@
     <Version>5.0.0.0</Version>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
-    <AssemblyName>YetaWF.WebStartup</AssemblyName>
-    <PackageId>WebStartup</PackageId>
+    <AssemblyName>YetaWF.WebAPIStartup</AssemblyName>
+    <PackageId>WebAPIStartup</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -13,7 +13,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <RootNamespace>YetaWF.WebStartup</RootNamespace>
+    <RootNamespace>YetaWF.WebAPIStartup</RootNamespace>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
@@ -22,30 +22,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="**\*.cshtml_MVC5" />
-    <None Remove="**\*.cshtml_MVC6" />
-    <!-- TODO: Review for final release - this is a workaround for slow solution load -->
-    <Compile Remove="node_modules\**" />
-    <Content Remove="node_modules\**" />
-    <None Remove="node_modules\**" />
-    <EmbeddedResource Remove="node_modules\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\CssHttpHandler\CssHttpHandler.csproj" />
-    <ProjectReference Include="..\ImageHttpHandler\ImageHttpHandler.csproj" />
-    <ProjectReference Include="..\WebpHttpHandler\WebpHttpHandler.csproj" />
   </ItemGroup>
 
 </Project>

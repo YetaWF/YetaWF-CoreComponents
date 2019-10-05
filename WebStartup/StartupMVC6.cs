@@ -40,7 +40,7 @@ namespace YetaWF.WebStartup {
 
             //Host.CreateDefaultBuilder(args)
 
-            new HostBuilder()
+            IHost host = new HostBuilder()
                 .UseContentRoot(currPath)
                 .ConfigureHostConfiguration(configHost => {
                     configHost.SetBasePath(currPath);
@@ -69,7 +69,9 @@ namespace YetaWF.WebStartup {
                     logging.AddDebug();
 #endif
                 })
-                .Start();
+                .Build();
+
+            host.Run();
         }
 
         public static string GetAppSettingsFile() {
