@@ -15,6 +15,10 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF2.Support;
 
+#if !DEBUG
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+#endif
+
 namespace YetaWF.WebAPIStartup {
 
     public class Startup {
