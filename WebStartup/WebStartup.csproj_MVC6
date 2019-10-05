@@ -4,8 +4,8 @@
     <Version>5.0.0.0</Version>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
-    <AssemblyName>YetaWF.Core</AssemblyName>
-    <PackageId>Core</PackageId>
+    <AssemblyName>YetaWF.WebStartup</AssemblyName>
+    <PackageId>WebStartup</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -13,7 +13,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <RootNamespace>YetaWF.Core</RootNamespace>
+    <RootNamespace>YetaWF.WebStartup</RootNamespace>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
@@ -45,6 +46,13 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\CssHttpHandler\CssHttpHandler.csproj" />
+    <ProjectReference Include="..\ImageHttpHandler\ImageHttpHandler.csproj" />
+    <ProjectReference Include="..\WebpHttpHandler\WebpHttpHandler.csproj" />
   </ItemGroup>
 
 </Project>

@@ -14,9 +14,9 @@ using YetaWF.Core.Support;
 
 [assembly: WebActivatorEx.PostApplicationStartMethod(typeof(YetaWF.StartupMVC5.Startup), nameof(YetaWF.StartupMVC5.Startup.Start))]
 
-namespace YetaWF.StartupMVC5 {
+namespace YetaWF.WebStartup {
 
-    public class Startup {
+    public static class StartupMVC5 {
 
         public static void Start() {
 

@@ -65,16 +65,6 @@ namespace YetaWF.Core.Support {
             }
         }
         
-        //$$$ REMOVE?
-        /// <summary>
-        /// Returns the name of the AppSettings file, based on the current environment.
-        /// </summary>
-        public static string APPSETTINGS {
-            get {
-                return "AppSettings.json";
-            }
-        }
-
         /// <summary>
         /// Returns a file name composed of the current environment and debug/release build, probing for existing files.
         /// </summary>

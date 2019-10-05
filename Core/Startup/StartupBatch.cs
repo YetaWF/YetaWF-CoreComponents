@@ -124,7 +124,7 @@ namespace YetaWF.Core.Support {
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
 #endif
-            WebConfigHelper.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.APPSETTINGS)).Wait();
+            WebConfigHelper.InitAsync(Path.Combine(baseDirectory, "AppSettings.json")).Wait();
             LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize

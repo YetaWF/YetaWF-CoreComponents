@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -36,21 +35,25 @@ using YetaWF.Core.Views;
 using YetaWF2.Middleware;
 using YetaWF2.Support;
 
+#if !DEBUG
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+#endif
+
 // Migrating to asp.net core 3.0 https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0
 
-namespace YetaWF.StartupMVC6 {
+namespace YetaWF.WebStartup {
 
-    public partial class Startup6 {
+    public partial class StartupMVC6 {
 
         private IServiceCollection Services = null;
 
-        public Startup6(IWebHostEnvironment env) {
+        public StartupMVC6(IWebHostEnvironment env) {
 
             YetaWFManager.RootFolder = env.WebRootPath;
             YetaWFManager.RootFolderWebProject = env.ContentRootPath;
 
-            WebConfigHelper.InitAsync(StartupMVC6.GetAppSettingsFile()).Wait();
-            LanguageSection.InitAsync(Path.Combine(YetaWFManager.RootFolderWebProject, Globals.DataFolder, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
+            WebConfigHelper.InitAsync(GetAppSettingsFile()).Wait();
+            LanguageSection.InitAsync(Path.Combine(YetaWFManager.RootFolderWebProject, Globals.DataFolder, Startup.LANGUAGESETTINGS)).Wait();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -58,9 +61,8 @@ namespace YetaWF.StartupMVC6 {
 
             Services = services;
 
-            // OK, but whose fucking idea was this crap??? This breaks every 3rd party library. Fucking snowflakes with their idea of forcing people to do it their way.
-            // So let's "fix" this.
-            // If using Kestrel:
+#if !DEBUG
+            // in release builds we allow sync I/O - Simply can't be sure that all sync I/O has been corrected in development
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
@@ -70,7 +72,8 @@ namespace YetaWF.StartupMVC6 {
             {
                 options.AllowSynchronousIO = true;
             });
-
+#endif
+            
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddRouting();

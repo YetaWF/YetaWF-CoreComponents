@@ -11,7 +11,7 @@ using YetaWF.Core;
 using YetaWF.Core.Support;
 using YetaWF2.Logger;
 
-namespace YetaWF.StartupMVC6 {
+namespace YetaWF.WebStartup {
 
     public partial class StartupMVC6 {
 
@@ -55,7 +55,7 @@ namespace YetaWF.StartupMVC6 {
                     webBuilder.UseIISIntegration();
                     webBuilder.CaptureStartupErrors(true);
                     webBuilder.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
-                    webBuilder.UseStartup<Startup6>();
+                    webBuilder.UseStartup<StartupMVC6>();
                 })
                 .ConfigureAppConfiguration((bldr) => {
                     bldr.AddEnvironmentVariables();
