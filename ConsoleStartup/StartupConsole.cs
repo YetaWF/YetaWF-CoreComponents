@@ -10,17 +10,18 @@ using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Language;
 using YetaWF.Core.Site;
+using YetaWF.Core.Support;
 #if MVC6
 using Microsoft.AspNetCore.Routing;
 #else
 #endif
 
-namespace YetaWF.Core.Support {
+namespace YetaWF.ConsoleStartup {
 
     /// <summary>
     /// This class is used by a console application during startup to initialize packages and perform startup processing.
     /// </summary>
-    public static class StartupBatch {
+    public static class StartupConsole {
 
         /// <summary>
         /// Called to initialize a console application so it can use all of YetaWF's services, including data providers, caching, etc.
@@ -44,7 +45,7 @@ namespace YetaWF.Core.Support {
 
             Start(baseDirectory);
 
-            YetaWFManager.Syncify(async () => {
+            YetaWFManager.Syncify((Func<System.Threading.Tasks.Task>)(async () => {
                 // Set up specific site to use, requires YetaWF.SitePropertiesService
                 SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
                 if (site == null)
@@ -52,7 +53,7 @@ namespace YetaWF.Core.Support {
                 YetaWFManager.Manager.CurrentSite = site;
 
                 YetaWF.Core.Support.Startup.Started = true;
-            });
+            }));
         }
         /// <summary>
         /// Called to initialize a console application so it can use all of YetaWF's services, including data providers, caching, etc.
@@ -118,13 +119,13 @@ namespace YetaWF.Core.Support {
             YetaWFManager.Mode = YetaWFManager.BATCHMODE;
 
             // Enable all required protocols
-            ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
 
             YetaWFManager.RootFolder = baseDirectory;
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
 #endif
-            WebConfigHelper.InitAsync(Path.Combine(baseDirectory, "AppSettings.json")).Wait();
+            WebConfigHelper.InitAsync(YetaWF.Core.Support.Startup.GetEnvironmentFile(baseDirectory, "AppSettings", "json")).Wait();
             LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize
@@ -132,7 +133,7 @@ namespace YetaWF.Core.Support {
 #if MVC6
             YetaWFManager.Init();
 #endif
-            YetaWFManager.Syncify(async () => {
+            YetaWFManager.Syncify((Func<System.Threading.Tasks.Task>)(async () => {
 
                 // Set up areas (load all dlls/packages explicitly)
                 List<string> files = Directory.GetFiles(baseDirectory, "*.dll").ToList();
@@ -151,7 +152,7 @@ namespace YetaWF.Core.Support {
                 YetaWFManager.Manager.CurrentSite = new SiteDefinition();
                 await YetaWF.Core.Support.Startup.CallStartupClassesAsync();
 
-            });
+            }));
         }
     }
 }
