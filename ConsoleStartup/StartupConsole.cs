@@ -119,7 +119,11 @@ namespace YetaWF.ConsoleStartup {
             YetaWFManager.Mode = YetaWFManager.BATCHMODE;
 
             // Enable all required protocols
+#if MVC6
             ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+#else
+            ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+#endif
 
             YetaWFManager.RootFolder = baseDirectory;
 #if MVC6
