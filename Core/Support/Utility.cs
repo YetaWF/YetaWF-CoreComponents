@@ -7,6 +7,8 @@ using YetaWF.Core.Extensions;
 using YetaWF.Core.Packages;
 using System.Linq;
 #if MVC6
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 #else
 using System.Web;
 using System.Web.Hosting;
@@ -378,5 +380,24 @@ namespace YetaWF.Core.Support {
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
             return query.ToUrl(url);
         }
+
+        // HTTP Sync I/O Handling
+        // HTTP Sync I/O Handling
+        // HTTP Sync I/O Handling
+
+        /// <summary>
+        /// Used to enable sync I/O for the current request. Only enable sync I/O when there is no way to use async I/O (e.g., when using a 3rd party library).
+        /// </summary>
+        /// <param name="httpContext">The Http context.</param>
+        /// <remarks>See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.0#synchronous-io for more info.</remarks>
+#if MVC6
+        public static void AllowSyncIO(HttpContext httpContext) {
+            var syncIOFeature = httpContext.Features.Get<IHttpBodyControlFeature>();
+            if (syncIOFeature != null)
+                syncIOFeature.AllowSynchronousIO = true;
+        }
+#else
+        public static void AllowSyncIO(object dummy) { }
+#endif
     }
 }

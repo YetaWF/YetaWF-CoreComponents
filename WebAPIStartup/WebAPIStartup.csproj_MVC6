@@ -4,8 +4,8 @@
     <Version>5.0.0.0</Version>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
-    <AssemblyName>YetaWF.Core.WebpHttpHandler</AssemblyName>
-    <PackageId>WebpHttpHandler</PackageId>
+    <AssemblyName>YetaWF.WebAPIStartup</AssemblyName>
+    <PackageId>WebAPIStartup</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -13,14 +13,24 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <RootNamespace>YetaWF.Core.HttpHandler</RootNamespace>
+    <RootNamespace>YetaWF.WebAPIStartup</RootNamespace>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>YetaWF.Core.WebpHttpHandler.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
+
 </Project>

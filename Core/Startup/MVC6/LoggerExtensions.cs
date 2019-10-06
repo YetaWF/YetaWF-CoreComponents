@@ -25,7 +25,7 @@ namespace YetaWF2.Logger {
                 return _IgnoredCategory;
             }
             set {
-                if (_IgnoredCategory != null)
+                if (_IgnoredCategory != null && _IgnoredCategory != value)
                     throw new Error($"Multiple ignored categories, existing {_IgnoredCategory} and new {value}");
                 _IgnoredCategory = value;
             }

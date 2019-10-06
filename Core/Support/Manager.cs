@@ -27,8 +27,8 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 #else
 using System.Web;
 #endif
@@ -1119,7 +1119,7 @@ namespace YetaWF.Core.Support {
 
         public void RestartSite(string url = null) {
 #if MVC6
-            IApplicationLifetime applicationLifetime = (IApplicationLifetime)ServiceProvider.GetService(typeof(IApplicationLifetime));
+            IHostApplicationLifetime applicationLifetime = (IHostApplicationLifetime)ServiceProvider.GetService(typeof(IHostApplicationLifetime));
             applicationLifetime.StopApplication();
 
             if (!string.IsNullOrWhiteSpace(url)) {

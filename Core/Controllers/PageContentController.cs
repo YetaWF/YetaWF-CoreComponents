@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Models.Attributes;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -26,6 +27,7 @@ namespace YetaWF.Core.Controllers {
     /// </summary>
     /// <remarks>This controller is a plain MVC controller because we don't want any startup processing to take place (like authorization, etc.)
     /// because we handle all this here.</remarks>
+    [AreaConvention]
     public class PageContentController : Controller {
 
         internal static YetaWFManager Manager { get { return YetaWFManager.Manager; } }

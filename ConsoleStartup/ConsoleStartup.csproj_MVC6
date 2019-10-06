@@ -4,8 +4,8 @@
     <Version>5.0.0.0</Version>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
-    <AssemblyName>YetaWF.Core</AssemblyName>
-    <PackageId>Core</PackageId>
+    <AssemblyName>YetaWF.ConsoleStartup</AssemblyName>
+    <PackageId>ConsoleStartup</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -13,24 +13,22 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <RootNamespace>YetaWF.Core</RootNamespace>
+    <RootNamespace>YetaWF.ConsoleStartup</RootNamespace>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>.\YetaWF.ConsoleStartup.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
-    <PackageReference Include="SharpZipLib" Version="1.2.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
-    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.19" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="4.6.0" />
-    <PackageReference Include="TimeZoneConverter" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +43,10 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
 </Project>

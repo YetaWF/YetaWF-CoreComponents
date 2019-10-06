@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.Site;
@@ -9,12 +7,13 @@ using YetaWF.Core.DataProvider;
 using YetaWF.Core.Log;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using YetaWF.Core.Support;
 
-namespace YetaWF.Core.Support {
+namespace YetaWF.WebAPIStartup {
 
-    public static partial class StartupRequest {
+    public static class StartupRequest {
 
-        public static async Task StartRequestServiceAsync(HttpContext httpContext) {
+        public static async Task StartRequestAsync(HttpContext httpContext) {
 
             // all code here is synchronous until a Manager is available.
 
@@ -61,7 +60,9 @@ namespace YetaWF.Core.Support {
             manager.CurrentRequestUrl = uriBuilder.ToString();
         }
 
-        public static void StartYetaWFService() {
+        private static object _lockObject = new object();
+
+        public static void StartYetaWF() {
 
             if (!YetaWF.Core.Support.Startup.Started) {
 
@@ -77,7 +78,7 @@ namespace YetaWF.Core.Support {
                             StartupLogging startupLog = new StartupLogging();
                             await Logging.RegisterLoggingAsync(startupLog);
 
-                            Logging.AddLog($"{nameof(StartYetaWFService)} starting");
+                            Logging.AddLog($"{nameof(StartYetaWF)} starting");
 
                             YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(new SiteDefinition() { SiteDomain = YetaWFManager.SERVICEMODE }, null); // while loading packages we need a manager
                             YetaWFManager.Syncify(async () => {
@@ -97,7 +98,7 @@ namespace YetaWF.Core.Support {
 
                             YetaWFManager.RemoveThreadInstance(); // Remove startup manager
 
-                            Logging.AddLog($"{nameof(StartYetaWFService)} completed");
+                            Logging.AddLog($"{nameof(StartYetaWF)} completed");
                         });
                     }
                 }
@@ -105,5 +106,3 @@ namespace YetaWF.Core.Support {
         }
     }
 }
-
-#endif

@@ -54,13 +54,9 @@ namespace YetaWF.Core.Controllers {
         /// Used internally to register area routes. Don't mess with this.
         /// </summary>
 #if MVC6
-        public void RegisterArea(IRouteBuilder routes) {
+        public void RegisterArea(IEndpointRouteBuilder endpoints) {
             Logging.AddLog("Found {0} in namespace {1}", AreaName, GetType().Namespace);
-            routes.MapAreaRoute(
-                AreaName,
-                AreaName,
-                AreaName + "/{controller}/{action}/{*whatevz}"
-            );
+            endpoints.MapAreaControllerRoute(AreaName, AreaName, AreaName + "/{controller}/{action}/{*whatevz}");
         }
 #else
         public override void RegisterArea(AreaRegistrationContext context) {
@@ -82,7 +78,7 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <remarks>This is typically used by tools that need access to data providers used by YetaWF.</remarks>
 #if MVC6
-        public static void RegisterPackages(IRouteBuilder routes = null) {
+        public static void RegisterPackages(IEndpointRouteBuilder endpoints = null) {
 #else
         public static void RegisterPackages() {
 #endif
@@ -100,8 +96,8 @@ namespace YetaWF.Core.Controllers {
                         Logging.AddLog("AreaRegistration class \'{0}\' found", type.FullName);
                     }
 #if MVC6
-                    if (routes != null)
-                        areaReg.RegisterArea(routes);
+                    if (endpoints != null)
+                        areaReg.RegisterArea(endpoints);
 #else
 #endif
                 } catch (Exception exc) {

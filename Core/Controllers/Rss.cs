@@ -27,6 +27,8 @@ namespace YetaWF.Core.Support.Rss {
         public override void ExecuteResult(ControllerContext context) {
 #endif
 
+            Utility.AllowSyncIO(context.HttpContext);
+
             context.HttpContext.Response.ContentType = "application/rss+xml";
             Rss20FeedFormatter formatter = new Rss20FeedFormatter(this.Feed);
 #if MVC6

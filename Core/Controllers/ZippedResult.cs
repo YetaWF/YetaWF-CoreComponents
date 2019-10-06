@@ -51,6 +51,7 @@ namespace YetaWF.Core.Controllers {
                 Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
                 Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" } );
 
+                Utility.AllowSyncIO(context.HttpContext);
                 using (Zip) {
                     await Zip.SaveAsync(Response.Body);
                     await Zip.CleanupFoldersAsync();
