@@ -39,9 +39,28 @@ namespace YetaWF.Core.Pages {
             // delete all files from last session and recreate the folder
             if (!YetaWFManager.IsBatchMode && !YetaWFManager.IsServiceMode) {
                 Logging.AddLog("Removing/creating bundle folder");
-                string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-                if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
-                    await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
+                await RemoveFolderAsync();
+            }
+        }
+        private static async Task RemoveFolderAsync() {
+            string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
+            if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
+                await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
+        }
+
+        /// <summary>
+        /// Clear the bundle files and cache.
+        /// </summary>
+        public static async Task ResetCacheAsync() {
+
+            string BUNDLEKEY = $"__FileBundles_{YetaWFManager.Manager.CurrentSite.Identity}";
+
+            using (ILockObject bundleLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(BUNDLEKEY)) {
+                using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                    await cacheStaticDP.RemoveAsync<SerializableList<Bundle>>(BUNDLEKEY);
+                    await bundleLock.UnlockAsync();
+                    await RemoveFolderAsync();
+                }
             }
         }
 
@@ -183,10 +202,10 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Make a key name based on the file list
+        /// Make a key name based on a list of files.
         /// </summary>
-        /// <param name="fileList"></param>
-        /// <returns></returns>
+        /// <param name="fileList">The list of files for which a key should be generated.</param>
+        /// <returns>Returns the generated key.</returns>
         private static string MakeName(List<string> fileList) {
             string name = "";
 

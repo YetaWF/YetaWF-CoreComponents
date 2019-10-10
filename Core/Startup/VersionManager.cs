@@ -25,6 +25,10 @@ namespace YetaWF.Core.Addons {
         }
     }
 
+    /// <summary>
+    /// The "version" manager is an extension of the AddonManager class. Historically it was meant to manager addon versions. That is no longer the case.
+    /// It manages addons. Eventually we'll rename/merge VersionManager into AddonManager.
+    /// </summary>
     public static class VersionManager {
 
         public enum AddOnType {
