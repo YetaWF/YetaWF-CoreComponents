@@ -15,7 +15,6 @@ namespace YetaWF.Core.Packages {
 #if MVC6
             //"Softelvdm.IVR",
 #endif
-            "Softelvdm.TwilioProcessor",
             "YetaWF.AddThis",
             "YetaWF.Backups",
             "YetaWF.Basics",
