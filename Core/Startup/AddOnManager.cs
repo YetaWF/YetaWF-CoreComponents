@@ -95,14 +95,15 @@ namespace YetaWF.Core.Addons {
         /// <param name="args">Any optional arguments supported by the addon.</param>
         /// <param name="name">The name of the addon.</param>
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
-        public async Task TryAddAddOnNamedAsync(string areaName, string name, params object[] args) {
-            if (Manager.IsPostRequest) return;
+        public async Task<bool> TryAddAddOnNamedAsync(string areaName, string name, params object[] args) {
+            if (Manager.IsPostRequest) return false;
             VersionManager.AddOnProduct version = VersionManager.TryFindAddOnNamedVersion(areaName, name);
-            if (version == null) return;
-            if (_AddedProducts.Contains(version)) return;
+            if (version == null) return false;
+            if (_AddedProducts.Contains(version)) return true;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
             await Manager.CssManager.AddAddOnAsync(version, args);
+            return true;
         }
 
         public enum UrlType {

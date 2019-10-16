@@ -374,8 +374,13 @@ var YetaWF;
                 if (!popupCB) {
                     // scroll
                     var scrolled = $YetaWF.setScrollPosition();
-                    if (!scrolled)
+                    if (!scrolled) {
                         window.scroll(0, 0);
+                        if (inplace) {
+                            var pane = $YetaWF.getElementById(inplace.TargetTag);
+                            pane.scroll(0, 0);
+                        }
+                    }
                     // in case there is a popup open, close it now (typically when returning to the page from a popup)
                     if ($YetaWF.PopupsAvailable())
                         $YetaWF.Popups.closeInnerPopup();

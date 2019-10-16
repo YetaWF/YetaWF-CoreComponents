@@ -557,7 +557,7 @@ namespace YetaWF.Core.Modules {
         // RENDERING
         // RENDERING
 
-        public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper) {
+        public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper, object Args = null) {
 
             if (!Visible && !Manager.EditMode) return null;
 
@@ -593,14 +593,14 @@ namespace YetaWF.Core.Modules {
             string moduleHtml = null;
             try {
 #if MVC6
-                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
+                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
 #else
-                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
+                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);//$$$$
 #endif
                 // module script initialization
                 if (!string.IsNullOrWhiteSpace(moduleHtml)) {
-                    await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName); // add supporting files
-                    Manager.ScriptManager.AddLast($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');");
+                    if (await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName)) // add supporting files
+                        Manager.ScriptManager.AddLast($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');");
                 }
 
             } catch (Exception exc) {

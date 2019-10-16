@@ -439,7 +439,7 @@ namespace YetaWF.Core.Pages {
         // RENDERING
         // RENDERING
 
-        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true) {
+        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true, object Args = null) {
 
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
             Manager.PaneRendered = pane;
@@ -472,7 +472,7 @@ namespace YetaWF.Core.Pages {
                     try {
                         module = await modEntry.GetModuleAsync();
                         if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                            sb.Append(await module.RenderModuleAsync(htmlHelper));
+                            sb.Append(await module.RenderModuleAsync(htmlHelper, Args: Args));
                     } catch (Exception exc) {
                         sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
                         if (Manager.EditMode) {
