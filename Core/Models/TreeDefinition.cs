@@ -16,6 +16,10 @@ namespace YetaWF.Core.Models {
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
 
+        public string ContentTargetId { get; set; }
+        public string ContentTargetPane { get; set; }
+        public string AjaxUrl { get; set; } // for dynamic population during expand
+
         // other settings
         public string Id { get; set; } // html id of the grid
 

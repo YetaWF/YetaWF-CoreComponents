@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 /* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, some defs are global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
@@ -599,8 +599,8 @@ namespace YetaWF {
 
         // Utility functions
 
-        public htmlEscape(s: string | undefined, preserveCR?: string): string {
-            preserveCR = preserveCR ? "&#13;" : "\n";
+        public htmlEscape(s: string | undefined, preserveCR?: boolean): string {
+            let pre = preserveCR ? "&#13;" : "\n";
             return ("" + s) /* Forces the conversion to string. */
                 .replace(/&/g, "&amp;") /* This MUST be the 1st replacement. */
                 .replace(/'/g, "&apos;") /* The 4 other predefined entities, required. */
@@ -612,8 +612,8 @@ namespace YetaWF {
                 (but it's not necessary).
                 Or for XML, only if the named entities are defined in its DTD.
                 */
-                .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-                .replace(/[\r\n]/g, preserveCR);
+                .replace(/\r\n/g, pre) /* Must be before the next replacement. */
+                .replace(/[\r\n]/g, pre);
         }
         public htmlAttrEscape(s: string): string {
             this.escElement.textContent = s;

@@ -490,7 +490,7 @@ var YetaWF;
         };
         // Utility functions
         BasicsServices.prototype.htmlEscape = function (s, preserveCR) {
-            preserveCR = preserveCR ? "&#13;" : "\n";
+            var pre = preserveCR ? "&#13;" : "\n";
             return ("" + s) /* Forces the conversion to string. */
                 .replace(/&/g, "&amp;") /* This MUST be the 1st replacement. */
                 .replace(/'/g, "&apos;") /* The 4 other predefined entities, required. */
@@ -502,8 +502,8 @@ var YetaWF;
                 (but it's not necessary).
                 Or for XML, only if the named entities are defined in its DTD.
                 */
-                .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-                .replace(/[\r\n]/g, preserveCR);
+                .replace(/\r\n/g, pre) /* Must be before the next replacement. */
+                .replace(/[\r\n]/g, pre);
         };
         BasicsServices.prototype.htmlAttrEscape = function (s) {
             this.escElement.textContent = s;
