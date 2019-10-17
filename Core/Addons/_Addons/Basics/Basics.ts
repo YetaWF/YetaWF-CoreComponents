@@ -1613,6 +1613,31 @@ namespace YetaWF {
                 this.processAllReadyOnce();
             });
         }
+
+        /* Print support */
+        public get isPrinting(): boolean {
+            return BasicsServices.printing;
+        }
+
+        private static printing: boolean = false;
+
+        public DoPrint(): void {
+            YetaWF.BasicsServices.onBeforePrint(); // window.print doesn't generate onBeforePrint
+            window.print();
+        }
+
+        public static onBeforePrint(): void {
+            BasicsServices.printing = true;
+            var event = document.createEvent("Event");
+            event.initEvent("print_before", true, true);
+            window.document.dispatchEvent(event);
+        }
+        public static onAfterPrint(): void {
+            BasicsServices.printing = false;
+            var event = document.createEvent("Event");
+            event.initEvent("print_after", true, true);
+            window.document.dispatchEvent(event);
+        }
     }
 }
 
@@ -1620,3 +1645,19 @@ namespace YetaWF {
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+
+/* Print support */
+
+if (window.matchMedia) {
+    let mediaQueryList = window.matchMedia("print");
+    mediaQueryList.addListener(function (this: MediaQueryList, ev: MediaQueryListEvent): void {
+        if (this.matches) {
+            YetaWF.BasicsServices.onBeforePrint();
+        } else {
+            YetaWF.BasicsServices.onAfterPrint();
+        }
+    });
+}
+
+window.onbeforeprint = (ev: Event): void => { YetaWF.BasicsServices.onBeforePrint(); };
+window.onafterprint = (ev: Event): void => { YetaWF.BasicsServices.onAfterPrint(); };

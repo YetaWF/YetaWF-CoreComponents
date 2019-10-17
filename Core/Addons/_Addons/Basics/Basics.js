@@ -5,7 +5,7 @@
  */
 var YetaWF;
 (function (YetaWF) {
-    var BasicsServices /* implements IBasicsImpl */ = /** @class */ (function () {
+    var BasicsServices = /** @class */ (function () {
         function BasicsServices() {
             // Form handling
             this.forms = null;
@@ -1470,6 +1470,31 @@ var YetaWF;
                 _this.processAllReadyOnce();
             });
         };
+        Object.defineProperty(BasicsServices.prototype, "isPrinting", {
+            /* Print support */
+            get: function () {
+                return BasicsServices.printing;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BasicsServices.prototype.DoPrint = function () {
+            YetaWF.BasicsServices.onBeforePrint(); // window.print doesn't generate onBeforePrint
+            window.print();
+        };
+        BasicsServices.onBeforePrint = function () {
+            BasicsServices.printing = true;
+            var event = document.createEvent("Event");
+            event.initEvent("print_before", true, true);
+            window.document.dispatchEvent(event);
+        };
+        BasicsServices.onAfterPrint = function () {
+            BasicsServices.printing = false;
+            var event = document.createEvent("Event");
+            event.initEvent("print_after", true, true);
+            window.document.dispatchEvent(event);
+        };
+        BasicsServices.printing = false;
         return BasicsServices;
     }());
     YetaWF.BasicsServices = BasicsServices;
@@ -1478,5 +1503,19 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+/* Print support */
+if (window.matchMedia) {
+    var mediaQueryList = window.matchMedia("print");
+    mediaQueryList.addListener(function (ev) {
+        if (this.matches) {
+            YetaWF.BasicsServices.onBeforePrint();
+        }
+        else {
+            YetaWF.BasicsServices.onAfterPrint();
+        }
+    });
+}
+window.onbeforeprint = function (ev) { YetaWF.BasicsServices.onBeforePrint(); };
+window.onafterprint = function (ev) { YetaWF.BasicsServices.onAfterPrint(); };
 
 //# sourceMappingURL=Basics.js.map
