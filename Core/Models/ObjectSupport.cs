@@ -1115,7 +1115,7 @@ namespace YetaWF.Core.Models {
                 });
                 return false;
             } else {
-                // compare two enumerated type values be ignoring order
+                // compare two enumerated type values by ignoring order
                 IEnumerable listOld = oOld as IEnumerable;
                 if (listOld != null) {
                     IEnumerable listNew = oNew as IEnumerable;

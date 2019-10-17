@@ -19,6 +19,7 @@ namespace YetaWF.Core.Models {
         public string ContentTargetId { get; set; }
         public string ContentTargetPane { get; set; }
         public string AjaxUrl { get; set; } // for dynamic population during expand
+        public bool JSONData { get; set; }
 
         // other settings
         public string Id { get; set; } // html id of the grid
@@ -29,6 +30,7 @@ namespace YetaWF.Core.Models {
             DragDrop = false;
             NoRecordsText = this.__ResStr("noRecs", "(None)");
             UseSkinFormatting = true;
+            JSONData = false;
 
             Id = YetaWFManager.Manager.UniqueId("tree");
         }
