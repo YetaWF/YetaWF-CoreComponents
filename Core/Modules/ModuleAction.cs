@@ -281,7 +281,7 @@ namespace YetaWF.Core.Modules {
             return OwningModuleGuid;
         }
         [DontSave, ReadOnly]// THIS IS STRICTLY USED FOR SERIALIZATION - DO NOT ACCESS DIRECTLY
-        public Guid OwningModuleGuid { get; set; }//$$$needed?
+        public Guid OwningModuleGuid { get; set; }
         private ModuleDefinition OwningModule { get; set; }
 
         [Obsolete("Discontinued - preserve property so deserializing existing data doesn't fail")]
