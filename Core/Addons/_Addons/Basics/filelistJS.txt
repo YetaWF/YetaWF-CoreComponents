@@ -4,4 +4,5 @@ Content.tsx
 Anchors.ts
 Basics.ts
 ComponentBase.ts
+ModuleBase.ts
 Url.ts
