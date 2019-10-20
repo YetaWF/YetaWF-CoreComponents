@@ -76,7 +76,7 @@ namespace YetaWF.WebStartup {
                 options.AllowSynchronousIO = true;
             });
 #endif
-            
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddRouting();
@@ -106,6 +106,8 @@ namespace YetaWF.WebStartup {
             // set antiforgery cookie
             services.AddAntiforgery(opts => {
                 opts.Cookie.Name = "__ReqVerToken_" + YetaWFManager.DefaultSiteName;
+                opts.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+                opts.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
                 opts.SuppressXFrameOptionsHeader = true;
             });
             // antiforgery filter for conditional antiforgery attribute
@@ -146,6 +148,8 @@ namespace YetaWF.WebStartup {
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);
                 options.Cookie.Name = sessionCookie;
+                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = SameSiteMode.Strict;
             });
 
             services.AddSingleton<IAuthorizationHandler, ResourceAuthorizeHandler>();

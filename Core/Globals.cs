@@ -119,14 +119,10 @@ namespace YetaWF.Core {
         public const string VaultUrl = "/" + VaultFolder + "/";
         public const string VaultPrivateUrl = "/" + VaultPrivateFolder + "/";
 
-        public const string LibFolder = "lib";
-
         public const string NodeModulesFolder = "node_modules";
         public const string NodeModulesUrl = "/node_modules/";
         public const string BowerComponentsFolder = "bower_components";
         public const string BowerComponentsUrl = "/bower_components/";
-
-        public const string TempImagesFolder = "_img_";
 
         // Module format strings
         public const string PermanentModuleNameFormat = "{0}.{1}";

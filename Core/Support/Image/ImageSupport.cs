@@ -17,24 +17,6 @@ using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.Image {
 
-    public class ImageSupportInit : IInitializeApplicationStartupFirstNodeOnly {
-
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-
-        /// <summary>
-        /// Called when the first node of a multi-instance site is starting up.
-        /// </summary>
-        public async Task InitializeFirstNodeStartupAsync() {
-            // Delete all temp images
-            string physFolder = Path.Combine(YetaWFManager.RootFolder, Globals.LibFolder, Globals.TempImagesFolder);
-            await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(physFolder);
-            // Create folder for temp images
-            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(physFolder);
-        }
-
-    }
     public class ImageSupportScheduling : IScheduling {
 
         protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ImageSupport), name, defaultValue, parms); }
