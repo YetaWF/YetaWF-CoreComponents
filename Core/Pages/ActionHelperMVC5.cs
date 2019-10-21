@@ -19,7 +19,7 @@ namespace YetaWF.Core.Views {
 
     public static class YetaWFViews {
 
-        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string actionName, string controllerName, string areaName) {
+        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string actionName, string controllerName, string areaName, object parameters = null) {
 
             HttpContext currentContext = HttpContext.Current;
             if (currentContext != null) {
@@ -29,7 +29,7 @@ namespace YetaWF.Core.Views {
                 }
             }
 
-            RouteValueDictionary routeValues = new RouteValueDictionary();
+            RouteValueDictionary routeValues = new RouteValueDictionary(parameters ?? new { });
             routeValues.Add(Globals.RVD_ModuleDefinition, module);
             routeValues["action"] = actionName;
             routeValues["controller"] = controllerName;

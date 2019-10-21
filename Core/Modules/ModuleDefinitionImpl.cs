@@ -595,7 +595,7 @@ namespace YetaWF.Core.Modules {
 #if MVC6
                 moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
 #else
-                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);//$$$$
+                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
 #endif
                 // module script initialization
                 if (!string.IsNullOrWhiteSpace(moduleHtml)) {
