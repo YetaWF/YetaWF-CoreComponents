@@ -15,6 +15,10 @@ namespace YetaWF.WebStartup {
 
     public partial class StartupMVC6 {
 
+        /// <summary>
+        /// The main application entry point.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args) {
 
             string currPath = Directory.GetCurrentDirectory();
@@ -74,6 +78,10 @@ namespace YetaWF.WebStartup {
             host.Run();
         }
 
+        /// <summary>
+        /// Returns an environment and runtime specific AppSettings.json file name.
+        /// </summary>
+        /// <returns>Returns an environment and runtime specific AppSettings.json file name.</returns>
         public static string GetAppSettingsFile() {
             if (_AppSettingsFile == null)
                 _AppSettingsFile = Startup.GetEnvironmentFile(Path.Combine(Directory.GetCurrentDirectory(), Globals.DataFolder), "AppSettings", "json");
@@ -81,6 +89,10 @@ namespace YetaWF.WebStartup {
         }
         private static string _AppSettingsFile = null;
 
+        /// <summary>
+        /// Returns an environment and runtime specific hosting.json file name.
+        /// </summary>
+        /// <returns>Returns an environment and runtime specific hosting.json file name.</returns>
         public static string GetHostingFile() {
             if (_HostingFile == null)
                 _HostingFile = Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json");

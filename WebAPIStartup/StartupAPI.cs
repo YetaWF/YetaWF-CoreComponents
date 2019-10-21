@@ -11,8 +11,15 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.WebAPIStartup {
 
+    /// <summary>
+    /// The class implenting a YetaWF API service .
+    /// </summary>
     public class StartupAPI {
 
+        /// <summary>
+        /// The main entry point of a YetaWF API service.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args) {
 
             string currPath = AppDomain.CurrentDomain.BaseDirectory;

@@ -11,8 +11,15 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.WebAPIStartup {
 
+    /// <summary>
+    /// The class implementing YetaWF API service requests.
+    /// </summary>
     public static class StartupRequest {
 
+        /// <summary>
+        /// Processes an HTTP request (startup, initial processing).
+        /// </summary>
+        /// <param name="httpContext">The HttpContent instance.</param>
         public static async Task StartRequestAsync(HttpContext httpContext) {
 
             // all code here is synchronous until a Manager is available.
@@ -62,6 +69,9 @@ namespace YetaWF.WebAPIStartup {
 
         private static object _lockObject = new object();
 
+        /// <summary>
+        /// First time YetaWF API service startup processing.
+        /// </summary>
         public static void StartYetaWF() {
 
             if (!YetaWF.Core.Support.Startup.Started) {

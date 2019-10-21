@@ -46,10 +46,17 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace YetaWF.WebStartup {
 
+    /// <summary>
+    /// The class implementing all startup processing for a YetaWF website.
+    /// </summary>
     public partial class StartupMVC6 {
 
         private IServiceCollection Services = null;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="env">An instance of an IWebHostEnvironment interface.</param>
         public StartupMVC6(IWebHostEnvironment env) {
 
             YetaWFManager.RootFolder = env.WebRootPath;
@@ -59,7 +66,10 @@ namespace YetaWF.WebStartup {
             LanguageSection.InitAsync(Path.Combine(YetaWFManager.RootFolderWebProject, Globals.DataFolder, Startup.LANGUAGESETTINGS)).Wait();
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. This method adds services to the container.
+        /// </summary>
+        /// <param name="services">An instance of an IServiceCollection interface.</param>
         public void ConfigureServices(IServiceCollection services) {
 
             Services = services;
@@ -196,12 +206,16 @@ namespace YetaWF.WebStartup {
             YetaWF.Core.SignalR.ConfigureServices(services);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. This method configures the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app">An instance of an IApplicationBuilder interface.</param>
+        /// <param name="env">An instance of an IWebHostEnvironment interface.</param>
+        /// <param name="svp">An instance of an IServiceProvider interface.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
             ConfigureAsync(app, env, svp).Wait(); // sync Wait because we want to be async in Configure()/ConfigureAsync()
         }
-
-        public async Task ConfigureAsync(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
+        private async Task ConfigureAsync(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
 
             IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor));
             IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));

@@ -26,8 +26,16 @@ namespace YetaWF.WebAPIStartup {
     /// </summary>
     public class Startup {
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="configuration">An instance of an IConfiguration interface.</param>
         public Startup(IConfiguration configuration) { }
 
+        /// <summary>
+        /// Configures all services used by the application.
+        /// </summary>
+        /// <param name="services">An instance of an IServiceCollection interface.</param>
         public void ConfigureServices(IServiceCollection services) {
 
             services.AddMvc((options) => {
@@ -67,6 +75,12 @@ namespace YetaWF.WebAPIStartup {
             });
         }
 
+        /// <summary>
+        /// Configures the application.
+        /// </summary>
+        /// <param name="app">An instance of an IApplicationBuilder interface.</param>
+        /// <param name="env">An instance of an IWebHostEnvironment interface.</param>
+        /// <param name="svp">An instance of an IServiceProvider interface.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
 
             IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor));
@@ -99,5 +113,8 @@ namespace YetaWF.WebAPIStartup {
         }
     }
 
+    /// <summary>
+    /// A dummy implementation of IAuthorizationRequirement to provide an implementation of the IAuthorizationRequirement interface.
+    /// </summary>
     public class ResourceAuthorizeRequirement : IAuthorizationRequirement { }
 }
