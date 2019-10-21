@@ -8,6 +8,8 @@ using YetaWF.Core.Identity;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Components;
+using YetaWF.Core.Extensions;
+using System.Linq;
 
 namespace YetaWF.Core.Modules {
 
@@ -158,34 +160,51 @@ namespace YetaWF.Core.Modules {
                 return true;
             }
 
-            // validate by Url
+            // Validate by Url
+            // TODO: This gets used a lot - cache based on user role would improve this a lot
             if (!string.IsNullOrEmpty(Url)) {
                 string url = Url;
+                url = url.RemoveStartingAt('?').RemoveStartingAt('#').ToLower(); // remove querystring and hash
                 // the url could start with http://ourdomain or https://ourdomain
-                if (url.StartsWith(Manager.CurrentSite.SiteUrlHttp, System.StringComparison.OrdinalIgnoreCase))
+                if (url.StartsWith(Manager.CurrentSite.SiteUrlHttp.ToLower()))
                     url = url.Substring(Manager.CurrentSite.SiteUrlHttp.Length - 1);
-                else if (url.StartsWith(Manager.CurrentSite.SiteUrlHttps, System.StringComparison.OrdinalIgnoreCase))
+                else if (url.StartsWith(Manager.CurrentSite.SiteUrlHttps.ToLower()))
                     url = url.Substring(Manager.CurrentSite.SiteUrlHttps.Length - 1);
                 if (url.StartsWith("/")) {
                     if (Manager.UserAuthorizedUrls != null && Manager.UserAuthorizedUrls.Contains(url)) return true;
                     if (Manager.UserNotAuthorizedUrls != null && Manager.UserNotAuthorizedUrls.Contains(url)) return false;
-                    PageDefinition page = await PageDefinition.LoadFromUrlAsync(url);
-                    if (page != null) {
-                        PageSecurity = page.PageSecurity;
-                        if (Manager.EditMode)
-                            return AddUserUrl(url, page.IsAuthorized_Edit());
-                        else
-                            return AddUserUrl(url, page.IsAuthorized_View());
-                    }
-                    ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
-                    if (module == null)
-                        module = await ModuleDefinition.LoadByUrlAsync(url);
-                    if (module != null) {
-                        PageSecurity = module.ModuleSecurity;
-                        if (Manager.EditMode)
-                            return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit));
-                        else
-                            return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.View));
+                    if (url.ToLower().StartsWith(Globals.ModuleUrl.ToLower())) {
+                        ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
+                        if (module == null)
+                            module = await ModuleDefinition.LoadByUrlAsync(url);
+                        if (module != null) {
+                            PageSecurity = module.ModuleSecurity;
+                            if (Manager.EditMode) {
+                                return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit));
+                            } else {
+                                return AddUserUrl(url, module.IsAuthorized(ModuleDefinition.RoleDefinition.View));
+                            }
+                        }
+                    } else {
+                        if (Manager.UserAuthorizedUrls != null) {
+                            // handle canonical urls with queryargs as path components
+                            if ((from u in Manager.UserAuthorizedUrls where u.Last()=='/' && url.StartsWith(u) select u).FirstOrDefault() != null)
+                                return true;
+                        }
+                        if (Manager.UserNotAuthorizedUrls != null) {
+                            if ((from u in Manager.UserNotAuthorizedUrls where u.Last() == '/' && url.StartsWith(u) select u).FirstOrDefault() != null)
+                                return false;
+                        }
+                        PageDefinition page = await PageDefinition.LoadFromUrlAsync(url);
+                        if (page != null) {
+                            if (page.Url.ToLower() != url)
+                                url = $"{page.Url}/".ToLower();
+                            PageSecurity = page.PageSecurity;
+                            if (Manager.EditMode)
+                                return AddUserUrl(url, page.IsAuthorized_Edit());
+                            else
+                                return AddUserUrl(url, page.IsAuthorized_View());
+                        }
                     }
                     AddUserUrl(url, true);
                 }
@@ -199,10 +218,10 @@ namespace YetaWF.Core.Modules {
         private bool AddUserUrl(string url, bool authorized) {
             if (authorized) {
                 if (Manager.UserAuthorizedUrls == null) Manager.UserAuthorizedUrls = new List<string>();
-                Manager.UserAuthorizedUrls.Add(url);
+                Manager.UserAuthorizedUrls.Add(url.ToLower());
             } else {
                 if (Manager.UserNotAuthorizedUrls == null) Manager.UserNotAuthorizedUrls = new List<string>();
-                Manager.UserNotAuthorizedUrls.Add(url);
+                Manager.UserNotAuthorizedUrls.Add(url.ToLower());
             }
             return authorized;
         }
