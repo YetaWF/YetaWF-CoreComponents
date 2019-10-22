@@ -188,11 +188,11 @@ namespace YetaWF.Core.Modules {
                     } else {
                         if (Manager.UserAuthorizedUrls != null) {
                             // handle canonical urls with queryargs as path components
-                            if ((from u in Manager.UserAuthorizedUrls where u.Last()=='/' && url.StartsWith(u) select u).FirstOrDefault() != null)
+                            if ((from u in Manager.UserAuthorizedUrls where u.Length > 1 && u.Last()=='/' && url.StartsWith(u) select u).FirstOrDefault() != null)
                                 return true;
                         }
                         if (Manager.UserNotAuthorizedUrls != null) {
-                            if ((from u in Manager.UserNotAuthorizedUrls where u.Last() == '/' && url.StartsWith(u) select u).FirstOrDefault() != null)
+                            if ((from u in Manager.UserNotAuthorizedUrls where u.Length > 1 && u.Last() == '/' && url.StartsWith(u) select u).FirstOrDefault() != null)
                                 return false;
                         }
                         PageDefinition page = await PageDefinition.LoadFromUrlAsync(url);
