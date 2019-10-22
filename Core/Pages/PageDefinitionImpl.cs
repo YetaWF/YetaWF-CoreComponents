@@ -365,7 +365,7 @@ namespace YetaWF.Core.Pages {
 
         // We'll accept any URL that looks like this:
         // /...local.../segment/segment/segment/segment/segment/segment
-        // as there could be keywords which need to xlated to &segment=segment?...
+        // as there could be keywords which need to be xlated to &segment=segment?...
         // we'll check if there is a page by checking the longest sequence of
         // segments, removing a pair at a time, until we find a page
         public class PageUrlInfo {
