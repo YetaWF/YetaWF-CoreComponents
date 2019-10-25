@@ -143,8 +143,11 @@ namespace YetaWF.Core.Packages {
                 if (baseType != null && baseType != typeof(object)) {
                     if (!AllowedBaseTypes.Contains(baseType)) {
                         // even if the base type is not allowed, if the base type is in the same package, it still OK.
-                        if (!IsSamePackage(type, baseType))
-                            throw new InternalError("Can't localize - unsupported base type {0} for {1}", baseType.FullName, type.FullName);
+                        // TODO: Evaluate whether this test is necessary. Softelvdm.Modules.Documentation.DataProvider.Topic derived from YetaWF.Modules.ComponentsHTML.Components.TreeEntry,
+                        // which has no localizations caused the error. May need to probe base type for more info.
+                        if (!IsSamePackage(type, baseType)) {
+                            // throw new InternalError("Can't localize - unsupported base type {0} for {1}", baseType.FullName, type.FullName);
+                        }
                     }
                 }
                 data.Classes.Add(cls);
