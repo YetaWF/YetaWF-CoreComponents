@@ -181,7 +181,7 @@ namespace YetaWF.Core.Skins {
             }
 
             inner.Append(htmlContents);
-            if (ShowAction && (!string.IsNullOrWhiteSpace(Manager.PaneRendered) || Manager.ForceModuleActionLinks)) { // only show action menus in a pane
+            if (ShowAction && !string.IsNullOrWhiteSpace(Manager.PaneRendered)) { // only show action menus in a pane
                 if (mod.ShowActionMenu)
                     inner.Append(await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer));
             }

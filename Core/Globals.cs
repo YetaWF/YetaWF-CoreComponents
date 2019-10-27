@@ -128,12 +128,6 @@ namespace YetaWF.Core {
         public const string PermanentModuleNameFormat = "{0}.{1}";
         public const string RVD_ModuleDefinition = "ModuleDefinition";
 
-        // Ids
-        // Page/Edit Control
-        public const string IdPageControlDiv = "yPageControlDiv";
-        public const string IdPageControlButton = "yPageControlButton";
-        public const string IdEditControlDiv = "yEditControlDiv";
-        public const string IdEditControlButton = "yEditControlButton";
         // CSS classes
         // Pane
         public const string CssPaneTag = "yPaneTag";

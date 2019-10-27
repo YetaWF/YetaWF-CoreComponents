@@ -1,6 +1,5 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
@@ -71,8 +70,6 @@ namespace YetaWF.Core.Components {
             hb.Append($@"
 <body class='{Manager.PageCss()}'>
     <noscript><div class='yDivWarning' style='height:100px;text-align:center;vertical-align:middle'>This site requires Javascript</div></noscript>
-    {await HtmlHelper.RenderEditControlAsync(new Guid("{267f00cc-c619-4854-baed-9e4b812d7e95}"))}
-    {await HtmlHelper.RenderPageControlAsync(new Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}"))}
     <div class='MainPane'>
         {await RenderPaneAsync(Globals.MainPane, "MainPane AnyPane", Unified: true)}
     </div>

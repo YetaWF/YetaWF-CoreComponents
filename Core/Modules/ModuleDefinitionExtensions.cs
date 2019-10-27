@@ -12,7 +12,6 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Pages;
 #if MVC6
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web;
@@ -26,89 +25,6 @@ namespace YetaWF.Core.Modules {
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinitionExtensions), name, defaultValue, parms); }
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-
-        public static async Task<string> RenderPageControlAsync<TYPE>(this YHtmlHelper htmlHelper) {
-            Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
-            return await htmlHelper.RenderPageControlAsync(permGuid);
-        }
-
-        public static async Task<string> RenderPageControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
-            if (Manager.IsInPopup) return null;
-            if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return null;
-
-#if DEBUG
-            // allow in debug mode without checking unless marked deployed
-            if (Manager.Deployed && !Manager.CurrentPage.IsAuthorized_Edit()) return null;
-#else
-            if (!Manager.CurrentPage.IsAuthorized_Edit()) return null;
-#endif
-            ModuleDefinition mod = await ModuleDefinition.LoadAsync(moduleGuid);
-
-            string css = null;
-            if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UsingBootstrapButtons)
-                css = "btn btn-outline-primary";
-            ModuleAction action = new ModuleAction(mod) {
-                Category = ModuleAction.ActionCategoryEnum.Significant,
-                CssClass = css,
-                Image = await new SkinImages().FindIcon_PackageAsync("PageEdit.png", Package.GetCurrentPackage(mod)),
-                Location = ModuleAction.ActionLocationEnum.Any,
-                Mode = ModuleAction.ActionModeEnum.Any,
-                Style = ModuleAction.ActionStyleEnum.Nothing,
-                LinkText = __ResStr("pageControlLink", "Control Panel"),
-                MenuText = __ResStr("pageControlMenu", "Control Panel"),
-                Tooltip = __ResStr("pageControlTT", "Control Panel - Add new or existing modules, add new pages, switch to edit mode, access page settings and other site management tasks"),
-                Legend = __ResStr("pageControlLeg", "Control Panel - Adds new or existing modules, adds new pages, switches to edit mode, accesses page settings and other site management tasks"),
-            };
-
-            // <div id=IdPageControlDiv>
-            //  action button (with id CssPageControlButton)
-            //  module html...
-            // </div>
-            TagBuilder tag = new TagBuilder("div");
-            tag.Attributes.Add("id", Globals.IdPageControlDiv);
-
-            Manager.ForceModuleActionLinks = true; // so we get module action links (we're not in a pane)
-            tag.SetInnerHtml(await action.RenderAsButtonIconAsync(Globals.IdPageControlButton) + await mod.RenderModuleAsync(htmlHelper));
-            Manager.ForceModuleActionLinks = false;
-            return tag.ToString(TagRenderMode.Normal);
-        }
-
-        public static async Task<string> RenderEditControlAsync<TYPE>(this YHtmlHelper htmlHelper) {
-            Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
-            return await htmlHelper.RenderEditControlAsync(permGuid);
-        }
-
-        public static async Task<string> RenderEditControlAsync(this YHtmlHelper htmlHelper, Guid moduleGuid) {
-
-            if (Manager.IsInPopup) return null;
-            //if (Manager.CurrentPage == null || Manager.CurrentPage.Temporary) return null;
-
-            if (Manager.CurrentPage.IsAuthorized_Edit()) {
-
-                ModuleDefinition mod = await ModuleDefinition.LoadAsync(moduleGuid);
-
-                // <div class=CssEditControlDiv>
-                //  action button (with id CssEditControlButton)
-                // </div>
-                TagBuilder tag = new TagBuilder("div");
-                tag.Attributes.Add("id", Globals.IdEditControlDiv);
-
-                ModuleAction action = await mod.GetModuleActionAsync(Manager.EditMode ? "SwitchToView" : "SwitchToEdit");
-                if (Manager.EditMode) {
-                    action.LinkText = __ResStr("editControlLinkToEdit", "Switch to Edit Mode");
-                    action.MenuText = __ResStr("editControlLinkToEdit", "Switch to Edit Mode");
-                } else {
-                    action.LinkText = __ResStr("editControlLinkToView", "Switch to View Mode");
-                    action.MenuText = __ResStr("editControlLinkToView", "Switch to View Mode");
-                }
-                if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UsingBootstrapButtons)
-                    action.CssClass = CssManager.CombineCss(action.CssClass, "btn btn-outline-primary");
-                tag.SetInnerHtml(await action.RenderAsButtonIconAsync(Globals.IdEditControlButton) + await mod.RenderModuleAsync(htmlHelper));// mainly just to get js/css, the module is normally empty
-
-                return tag.ToString(TagRenderMode.Normal);
-            } else
-                return null;
-        }
 
         /// <summary>
         /// Renders a unique module. This is typically used in pages to use or create unique modules, which are not part of a pane.
