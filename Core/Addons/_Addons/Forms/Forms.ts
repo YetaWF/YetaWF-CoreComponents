@@ -117,6 +117,15 @@ namespace YetaWF {
         QS: string;
     }
 
+    export enum PanelAction {
+        Apply = 0,
+        MoveLeft = 1,
+        MoveRight = 2,
+        Add = 3,
+        Insert = 4,
+        Remove = 5,
+    }
+
     export class Forms {
 
         // Partial Form
@@ -298,7 +307,7 @@ namespace YetaWF {
                 $YetaWF.removeElement(div);
         }
 
-        public submitTemplate(tag: HTMLElement, useValidation: boolean, templateName: string, templateAction: string, templateExtraData: string) : void {
+        public submitTemplate(tag: HTMLElement, useValidation: boolean, templateName: string, templateAction: PanelAction, templateExtraData: string) : void {
             var qs = `${YConfigs.Basics.TemplateName}=${templateName}&${YConfigs.Basics.Link_SubmitIsApply}=y`;
             if (templateAction)
                 qs += `&${YConfigs.Basics.TemplateAction}=${encodeURIComponent(templateAction)}`;

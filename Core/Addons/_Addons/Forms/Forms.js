@@ -7,6 +7,15 @@ var YetaWF;
         TabStyleEnum[TabStyleEnum["JQuery"] = 0] = "JQuery";
         TabStyleEnum[TabStyleEnum["Kendo"] = 1] = "Kendo";
     })(TabStyleEnum = YetaWF.TabStyleEnum || (YetaWF.TabStyleEnum = {}));
+    var PanelAction;
+    (function (PanelAction) {
+        PanelAction[PanelAction["Apply"] = 0] = "Apply";
+        PanelAction[PanelAction["MoveLeft"] = 1] = "MoveLeft";
+        PanelAction[PanelAction["MoveRight"] = 2] = "MoveRight";
+        PanelAction[PanelAction["Add"] = 3] = "Add";
+        PanelAction[PanelAction["Insert"] = 4] = "Insert";
+        PanelAction[PanelAction["Remove"] = 5] = "Remove";
+    })(PanelAction = YetaWF.PanelAction || (YetaWF.PanelAction = {}));
     var Forms = /** @class */ (function () {
         function Forms() {
             // Partial Form
