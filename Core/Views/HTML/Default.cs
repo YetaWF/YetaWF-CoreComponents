@@ -78,7 +78,7 @@ namespace YetaWF.Core.Skins.Pages {
 
             hb.Append($@"
 <body class='{Manager.PageCss()}'>
-    <noscript><div class='yDivWarning' style='height:100px;text-align:center;vertical-align:middle'>This site requires Javascript</div></noscript>
+    {await HtmlHelper.RenderPageStatus()}
     <div class='pageOuterWrapper'>
         {await HtmlHelper.RenderUniqueModuleAsync("YetaWF.TinyLogin", "YetaWF.Modules.TinyLogin.Modules.TinyLoginModule")}
         {await HtmlHelper.RenderUniqueModuleAsync("YetaWF.Menus", "YetaWF.Modules.Menus.Modules.MainMenuModule")}

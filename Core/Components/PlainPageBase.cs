@@ -69,7 +69,7 @@ namespace YetaWF.Core.Components {
 
             hb.Append($@"
 <body class='{Manager.PageCss()}'>
-    <noscript><div class='yDivWarning' style='height:100px;text-align:center;vertical-align:middle'>This site requires Javascript</div></noscript>
+    {await HtmlHelper.RenderPageStatus(WantLocked:false)}
     <div class='MainPane'>
         {await RenderPaneAsync(Globals.MainPane, "MainPane AnyPane", Unified: true)}
     </div>
