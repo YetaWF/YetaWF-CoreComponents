@@ -155,10 +155,12 @@ namespace YetaWF.Core.Support {
             // This is not currently used (except ::WEBCONFIG-SECTION:: which is not yet present in site templates)
             throw new InternalError("Updating Application Settings not supported");
         }
-        public static Task SaveAsync() {
+        public static async Task SaveAsync() {
             string s = Utility.JsonSerialize(Settings, Indented: true);
-            File.WriteAllText(SettingsFile, s);
-            return Task.CompletedTask;
+            if (YetaWFManager.IsSync())
+                File.WriteAllText(SettingsFile, s);
+            else
+                await File.WriteAllTextAsync(SettingsFile, s);
         }
     }
 }

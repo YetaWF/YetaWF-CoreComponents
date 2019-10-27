@@ -107,7 +107,7 @@ namespace YetaWF.ConsoleStartup {
             Start(baseDirectory);
 
             // Set up specific site to use
-            string siteDefJson = File.ReadAllText(filePath);
+            string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
             SiteDefinition site = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);
             YetaWFManager.Manager.CurrentSite = site;
 

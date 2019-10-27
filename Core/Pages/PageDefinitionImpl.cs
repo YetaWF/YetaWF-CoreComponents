@@ -458,10 +458,10 @@ namespace YetaWF.Core.Pages {
             bool empty = true;
             if (Manager.EditMode && !Manager.IsInPopup && !Manager.CurrentPage.Temporary) { // add the pane name in edit mode
                 if (UnifiedMainPage == null || UnifiedMainPage.Url == Manager.CurrentPage.Url) { // but only for main page
-                    TagBuilder tagDiv = new TagBuilder("div");
+                    YTagBuilder tagDiv = new YTagBuilder("div");
                     tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag));
                     tagDiv.SetInnerText(pane);
-                    sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
+                    sb = new StringBuilder(tagDiv.ToString(YTagRenderMode.Normal));
                 }
             }
 
@@ -514,7 +514,7 @@ namespace YetaWF.Core.Pages {
                     }
                 }
                 if (generate) {
-                    TagBuilder tagDiv = new TagBuilder("div");
+                    YTagBuilder tagDiv = new YTagBuilder("div");
                     tagDiv.Attributes.Add("data-pane", pane);// add pane name
                     if (!string.IsNullOrWhiteSpace(cssClass))
                         tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
@@ -529,8 +529,8 @@ namespace YetaWF.Core.Pages {
                     }
                     if (hide)
                         tagDiv.Attributes.Add("style", "display:none");
-                    tagDiv.SetInnerHtml(sb.ToString());
-                    sb = new StringBuilder(tagDiv.ToString(TagRenderMode.Normal));
+                    tagDiv.InnerHtml = sb.ToString();
+                    sb = new StringBuilder(tagDiv.ToString(YTagRenderMode.Normal));
                 }
             }
 

@@ -18,7 +18,7 @@ namespace YetaWF2.Middleware {
         }
 
         private List<string> Extensions = new List<string> { ".cs", ".cshtml", ".json" };
-        private List<string> Folders = new List<string> { @"/addons/_main/grids/", @"/addons/_main/localization/", @"/addons/_sitetemplates/" };
+        private List<string> Folders = new List<string> { @"/addons/_main/grids/", @"/addons/_main/localization/", @"/addons/_main/propertylists/", @"/addons/_sitetemplates/" };
 
         public async Task Invoke(HttpContext context) {
             if (context.Request.Path.HasValue) {

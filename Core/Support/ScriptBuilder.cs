@@ -2,12 +2,6 @@
 
 using System.Collections.Generic;
 using System.Text;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using System.Text.Encodings.Web;
-#else
-using System.Web;
-#endif
 
 namespace YetaWF.Core.Support {
 
@@ -20,15 +14,6 @@ namespace YetaWF.Core.Support {
             if (s == null) return;
             _sb.Append(s);
         }
-#if MVC6
-        public void Append(IHtmlContent content) {
-            if (content == null) return;
-            System.IO.StringWriter writer = new System.IO.StringWriter();
-            content.WriteTo(writer, HtmlEncoder.Default);
-            _sb.Append(writer.ToString());
-        }
-#else
-#endif
         public void Append(string s, params object[] parms) {
             if (s == null) return;
             _sb.AppendFormat(s, parms);

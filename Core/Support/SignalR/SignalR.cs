@@ -10,7 +10,6 @@ using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 using System.Threading;
 #if MVC6
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

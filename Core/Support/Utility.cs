@@ -3,15 +3,15 @@
 using Newtonsoft.Json;
 using System;
 using System.Text;
-using YetaWF.Core.Extensions;
 using YetaWF.Core.Packages;
-using System.Linq;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 #else
+using System.Linq;
 using System.Web;
 using System.Web.Hosting;
+using YetaWF.Core.Extensions;
 #endif
 
 namespace YetaWF.Core.Support {

@@ -727,9 +727,9 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             get {
                 if (string.IsNullOrWhiteSpace(Title))
                     return null;
-                TagBuilder tag = new TagBuilder("h1");
+                YTagBuilder tag = new YTagBuilder("h1");
                 tag.SetInnerText(Title);
-                return tag.ToString(TagRenderMode.Normal);
+                return tag.ToString(YTagRenderMode.Normal);
             }
         }
 

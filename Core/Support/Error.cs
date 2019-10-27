@@ -12,12 +12,10 @@ using YetaWF.Core.Log;
 
 namespace YetaWF.Core.Support {
 
-    [Serializable]
     public class Error : Exception {
         public Error(string message, params object[] parms) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog(message, parms))) { }
         public Error(string message) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog(message))) { }
     }
-    [Serializable]
     public class InternalError : Exception {
         private const string IntErr = "Internal Error: ";
         public InternalError(string message, params object[] parms) : base(ErrorHandling.HandleCallbacks(Logging.AddErrorLog(message.StartsWith(IntErr) ? message : IntErr+message, parms))) { }
