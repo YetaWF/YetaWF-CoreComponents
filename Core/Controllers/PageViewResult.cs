@@ -87,7 +87,7 @@ namespace YetaWF.Core.Controllers {
                 Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
 
                 bool staticPage = false;
-                if (Manager.Deployed)
+                if (YetaWFManager.Deployed)
                     staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower();
                 Manager.RenderStaticPage = staticPage;
 

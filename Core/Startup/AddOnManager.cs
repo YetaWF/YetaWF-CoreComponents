@@ -262,7 +262,7 @@ namespace YetaWF.Core.Addons {
         private static Dictionary<string, string> CustomizationCache = new Dictionary<string, string>();
 
         private static void AddCache(string skinCollection, string url) {
-            if (!YetaWFManager.Manager.Deployed) return;
+            if (!YetaWFManager.Deployed) return;
             try { // could fail if already added
                 CustomizationCache.Add(skinCollection, url);
             } catch (Exception) { }

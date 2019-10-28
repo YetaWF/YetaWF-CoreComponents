@@ -508,7 +508,7 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
-        public bool CanUseCDNComponents { get { return Manager.CanUseCDNComponents && UseCDNComponents; } }
+        public bool CanUseCDNComponents { get { return YetaWFManager.CanUseCDNComponents && UseCDNComponents; } }
 
         //-----
 
@@ -519,7 +519,7 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for the site's static files - Appsettings.json (P:YetaWF_Core:UseCDN) must be set to true for the \"Use CDN (Site Content)\" setting to be honored, otherwise a CDN is not used for site content")]
         [UIHint("Boolean"), ReadOnly]
-        public bool CanUseCDN { get { return Manager.CanUseCDN && UseCDN && HaveCDNUrl; } }
+        public bool CanUseCDN { get { return YetaWFManager.CanUseCDN && UseCDN && HaveCDNUrl; } }
 
         [Category("CDN"), Caption("CDN URL"), Description("If you are using a Content Delivery Network for static files located on your site, enter the CDN root URL for http:// access here - Based on whether you enabled the use of your CDN, the appropriate URL will be substituted - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
@@ -547,7 +547,7 @@ namespace YetaWF.Core.Site {
 
         [Category("CDN"), Caption("Current Status"), Description("Shows whether a separate URL is used for the site's static files - Appsettings.json (P:YetaWF_Core:UseStaticDomain) must be set to true for the \"Static Files URL\" setting to be honored, otherwise it is not used")]
         [UIHint("Boolean"), ProcessIf(nameof(UseCDN), false), ReadOnly]
-        public bool CanUseStaticDomain { get { return Manager.CanUseStaticDomain && HaveStaticDomain; } }
+        public bool CanUseStaticDomain { get { return YetaWFManager.CanUseStaticDomain && HaveStaticDomain; } }
 
         // EMAIL
         // EMAIL

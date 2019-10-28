@@ -79,7 +79,7 @@ namespace YetaWF.Core.Controllers {
                 await Manager.ScriptManager.RenderAsync(cr, DataIn.KnownScripts);
                 Manager.ScriptManager.RenderEndofPageScripts(cr);
 
-                if (Manager.Deployed) {
+                if (YetaWFManager.Deployed) {
                     if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.AnalyticsContent))
                         cr.AnalyticsContent = Manager.CurrentPage.AnalyticsContent;
                     else if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.AnalyticsContent))

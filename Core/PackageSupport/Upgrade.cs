@@ -67,7 +67,7 @@ namespace YetaWF.Core.Packages {
         public static async Task UpgradeToNewPackagesAsync() {
 
             if (SiteDefinition.INITIAL_INSTALL) return;
-            if (YetaWFManager.Manager.Deployed && !MustUpgrade()) return;
+            if (YetaWFManager.Deployed && !MustUpgrade()) return;
 
             //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
 

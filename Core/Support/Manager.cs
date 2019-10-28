@@ -516,17 +516,6 @@ namespace YetaWF.Core.Support {
         // BUILD
 
         /// <summary>
-        /// Defines whether the currently running instance of YetaWF is a deployed instance or not.
-        /// </summary>
-        /// <value>false for a deployed site, true otherwise.</value>
-        [Obsolete("Horribly misnamed property - Do not use because it's confusing - Use the Deployed property instead")]
-        public bool DebugBuild {
-            get {
-                return !GetDeployed();
-            }
-        }
-
-        /// <summary>
         /// Defines whether the currently running instance of YetaWF is using additional run-time diagnostics to find issues, typically used during development.
         /// </summary>
         public static bool DiagnosticsMode {
@@ -551,37 +540,21 @@ namespace YetaWF.Core.Support {
         /// Appsettings.json (Application.P.YetaWF_Core.Deployed) is used to define whether the site is a deployed site.
         /// </remarks>
         /// <value>true for a deployed site, false otherwise.</value>
-        public bool Deployed {
+        public static bool Deployed {
             get {
-                return GetDeployed();
+                if (deployed == null) {
+                    deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Deployed");
+                }
+                return (bool)deployed;
             }
         }
         private static bool? deployed = null;
 
-        /// <summary>
-        /// Returns whether the currently running instance of YetaWF is a deployed instance or not.
-        /// </summary>
-        /// <remarks>
-        /// A "deployed" instance is not necessarily a Release build, but behaves as though it is.
-        ///
-        /// A deployed instance is considered to run as a public website with all development features disabled.
-        /// TODO: Need an actual list of development features here.
-        ///
-        /// Appsettings.json (Application.P.YetaWF_Core.Deployed) is used to define whether the site is a deployed site.
-        /// </remarks>
-        /// <value>true for a deployed site, false otherwise.</value>
-        public static bool GetDeployed() {
-            if (deployed == null) {
-                deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Deployed");
-            }
-            return (bool)deployed;
-        }
-
         // SETTINGS
         // SETTINGS
         // SETTINGS
 
-        public bool CanUseCDN {
+        public static bool CanUseCDN {
             get {
                 if (canUseCDN == null) {
                     canUseCDN = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseCDN");
@@ -591,7 +564,7 @@ namespace YetaWF.Core.Support {
         }
         private static bool? canUseCDN = null;
 
-        public bool CanUseCDNComponents {
+        public static bool CanUseCDNComponents {
             get {
                 if (canUseCDNComponents == null) {
                     canUseCDNComponents = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseCDNComponents");
@@ -601,7 +574,7 @@ namespace YetaWF.Core.Support {
         }
         private static bool? canUseCDNComponents = null;
 
-        public bool CanUseStaticDomain {
+        public static bool CanUseStaticDomain {
             get {
                 if (canUseStaticDomain == null) {
                     canUseStaticDomain = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseStaticDomain");
@@ -620,7 +593,7 @@ namespace YetaWF.Core.Support {
         ///
         /// Demo mode is enabled/disabled using Appsettings.json (Application.P.YetaWF_Core.Demo).
         /// </remarks>
-        public bool IsDemo {
+        public static bool IsDemo {
             get {
                 if (isDemo == null)
                     isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Demo");
@@ -693,7 +666,6 @@ namespace YetaWF.Core.Support {
                 return _currentSite != null;
             }
         }
-
 
 
         /// <summary>
@@ -1047,7 +1019,7 @@ namespace YetaWF.Core.Support {
         }
 
         public static void SetStaticCacheInfo(HttpContext context) {
-            if (GetDeployed() && StaticCacheDuration > 0) {
+            if (YetaWFManager.Deployed && StaticCacheDuration > 0) {
 #if MVC6
                 context.Response.Headers.Add("Cache-Control", string.Format("max-age={0}", StaticCacheDuration * 60));
 #else

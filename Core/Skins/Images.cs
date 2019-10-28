@@ -206,7 +206,7 @@ namespace YetaWF.Core.Skins {
         }
         private string AddCache(string urlCustom) {
             string cdnUrl = Manager.GetCDNUrl(urlCustom);
-            if (Manager.Deployed) {
+            if (YetaWFManager.Deployed) {
                 try {// could fail if it was already added
 #if DEBUG // minimize exception spam
                     if (!Cache.ContainsKey(urlCustom))
@@ -217,7 +217,7 @@ namespace YetaWF.Core.Skins {
             return cdnUrl;
         }
         private void AddCacheNotFound(string url) {
-            if (Manager.Deployed) {
+            if (YetaWFManager.Deployed) {
                 try {// could fail if it was already added
 #if DEBUG // minimize exception spam
                     if (!Cache.ContainsKey(url))

@@ -190,7 +190,7 @@ namespace YetaWF.Core.Pages {
                 if (minify) {
                     if (!fullUrl.EndsWith(".css"))
                         throw new InternalError("Unsupported extension for {0}", fullUrl);
-                    if (Manager.Deployed && Manager.CurrentSite.CompressCSSFiles) {
+                    if (YetaWFManager.Deployed && Manager.CurrentSite.CompressCSSFiles) {
                         fullUrl = fullUrl.Substring(0, fullUrl.Length - 4) + ".min.css";
                     }
                 }

@@ -203,7 +203,7 @@ namespace YetaWF.Core.Controllers
             await SetupEnvironmentInfoAsync();
             await GetModuleAsync();
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
-            if (Manager.IsDemo) {
+            if (YetaWFManager.IsDemo) {
 #if MVC6
                 Type ctrlType = filterContext.Controller.GetType();
                 string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;

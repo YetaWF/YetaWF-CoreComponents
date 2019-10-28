@@ -85,7 +85,7 @@ namespace YetaWF.Core.Pages {
                 endstuff += "<script>document.body.style.display='block';</script>";
             endstuff += js;
             endstuff += Manager.ScriptManager.RenderEndofPageScripts();
-            if (Manager.Deployed) {
+            if (YetaWFManager.Deployed) {
                 if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Analytics))
                     endstuff += Manager.CurrentPage.Analytics;
                 else if (!string.IsNullOrWhiteSpace(currentSite.Analytics))
