@@ -213,7 +213,6 @@
     <Compile Include="Support\Shims\JsonResult.cs" />
     <Compile Include="Support\Shims\QueryHelper.cs" />
     <Compile Include="Support\Shims\SessionState.cs" />
-    <Compile Include="Support\Shims\TagBuilder.cs" />
     <Compile Include="Support\SignalR\SignalR.cs" />
     <Compile Include="Support\StaticPages\StaticPageManager.cs" />
     <Compile Include="Components\TagBuilder.cs" />

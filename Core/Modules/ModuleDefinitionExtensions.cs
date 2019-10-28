@@ -201,7 +201,7 @@ namespace YetaWF.Core.Modules {
         public static Task<string> RenderPageStatus(this YHtmlHelper htmlHelper, bool WantNoJavaScript = true, bool WantLocked = true) {
             HtmlBuilder hb = new HtmlBuilder();
             if (WantNoJavaScript) {
-                hb.Append(@$"<noscript><div class='{Globals.CssDivWarning}' style='height:100px;text-align:center;vertical-align:middle'>{Utility.HtmlEncode(__ResStr("reqJS", "This site requires Javascript"))}</div></noscript>");
+                hb.Append($@"<noscript><div class='{Globals.CssDivWarning}' style='height:100px;text-align:center;vertical-align:middle'>{Utility.HtmlEncode(__ResStr("reqJS", "This site requires Javascript"))}</div></noscript>");
             }
             if (WantLocked && Manager.CurrentSite.IsLockedAny) {
                 hb.Append($@"<div class='{Globals.CssDivAlert}'>{Utility.HtmlEncode(__ResStr("locked", "Site is locked!"))}</div>");
