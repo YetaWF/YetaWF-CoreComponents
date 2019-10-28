@@ -155,12 +155,12 @@ namespace YetaWF.Core.Support {
             StringBuilder sb = new StringBuilder();
             switch (renderMode) {
                 case YTagRenderMode.StartTag:
-                    sb.Append('<').Append(Tag);
+                    sb.Append($"<{Tag}");
                     AppendAttributes(sb);
                     sb.Append('>');
                     break;
                 case YTagRenderMode.EndTag:
-                    sb.Append("</").Append(Tag).Append('>');
+                    sb.Append($"</{Tag}>");
                     break;
                 case YTagRenderMode.SelfClosing:
                     sb.Append('<').Append(Tag);
@@ -168,9 +168,9 @@ namespace YetaWF.Core.Support {
                     sb.Append(" />");
                     break;
                 default:
-                    sb.Append('<').Append(Tag);
+                    sb.Append($"<{Tag}");
                     AppendAttributes(sb);
-                    sb.Append('>').Append(InnerHtml).Append("</").Append(Tag).Append('>');
+                    sb.Append($">{InnerHtml}</{Tag}>");
                     break;
             }
             return sb.ToString();
@@ -181,7 +181,7 @@ namespace YetaWF.Core.Support {
                 if (String.Equals(key, "id", StringComparison.Ordinal /* case-sensitive */) && String.IsNullOrEmpty(attribute.Value))
                     continue;
                 string value = Utility.HtmlAttributeEncode(attribute.Value);
-                sb.Append(' ').Append(key).Append("=\"").Append(value).Append('"');
+                sb.Append($" {key}=\"{value}\"");
             }
         }
     }

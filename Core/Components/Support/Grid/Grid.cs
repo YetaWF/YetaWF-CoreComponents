@@ -15,6 +15,8 @@ using YetaWF.Core.Support.Repository;
 
 namespace YetaWF.Core.Components {
 
+    // TODO: Much of this should be moved into ComponentsHTML
+
     /// <summary>
     /// This static class implements services used by the Grid component.
     /// </summary>
