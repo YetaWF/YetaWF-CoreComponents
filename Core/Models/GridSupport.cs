@@ -11,11 +11,6 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-#endif
 
 namespace YetaWF.Core.Models {
 
@@ -38,100 +33,123 @@ namespace YetaWF.Core.Models {
             }
         }
 
-        //RESEARCH: this could use some caching
         public static async Task<ReadGridDictionaryInfo> ReadGridDictionaryAsync(Package package, Type recordType, string file) {
-            Dictionary<string, GridColumnInfo> dict = new Dictionary<string, GridColumnInfo>();
 
-            if (YetaWFManager.DiagnosticsMode) {
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
-                    return new ReadGridDictionaryInfo {
+            using (ICacheDataProvider cacheDP = YetaWF.Core.IO.Caching.GetStaticSmallObjectCacheProvider()) {
+
+                // Check cache first
+                GetObjectInfo<ReadGridDictionaryInfo> info = await cacheDP.GetAsync<ReadGridDictionaryInfo>(file);
+                if (info.Success)
+                    return info.Data;
+
+                // Load the file
+                Dictionary<string, GridColumnInfo> dict = new Dictionary<string, GridColumnInfo>();
+
+                if (YetaWFManager.DiagnosticsMode) {// to avoid exception spam
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) {
+                        ReadGridDictionaryInfo dictInfo = new ReadGridDictionaryInfo {
+                            ColumnInfo = dict,
+                            SortColumn = null,
+                            SortBy = GridDefinition.SortBy.NotSpecified,
+                            Success = false,
+                        };
+                        await cacheDP.AddAsync<ReadGridDictionaryInfo>(file, dictInfo);// failure also saved in cache
+                        return dictInfo;
+                    }
+                }
+
+                List<string> lines;
+                try {
+                    lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
+                } catch (Exception) {
+                    ReadGridDictionaryInfo dictInfo = new ReadGridDictionaryInfo {
                         ColumnInfo = dict,
                         SortColumn = null,
                         SortBy = GridDefinition.SortBy.NotSpecified,
                         Success = false,
                     };
-            }
+                    await cacheDP.AddAsync<ReadGridDictionaryInfo>(file, dictInfo);// failure also saved in cache
+                    return dictInfo;
+                }
 
-            string sortCol = null;
-            GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
+                // Parse the file
+                string sortCol = null;
+                GridDefinition.SortBy sortDir = GridDefinition.SortBy.NotSpecified;
 
-            List<string> lines;
-            try {
-                lines = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
-            } catch (Exception) {
-                return new ReadGridDictionaryInfo {
-                    ColumnInfo = dict,
-                    SortColumn = null,
-                    SortBy = GridDefinition.SortBy.NotSpecified,
-                    Success = false,
-                };
-            }
-            foreach (string line in lines) {
-                string[] parts = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                GridColumnInfo gridCol = new GridColumnInfo();
-                int len = parts.Length;
-                if (len > 0) {
-                    bool add = true;
-                    string name = parts[0];
-                    for (int i = 1; i < len; ++i) {
-                        string part = GetPart(parts[i], package, recordType, file, name);
-                        if (string.Compare(part, "sort", true) == 0) gridCol.Sortable = true;
-                        else if (string.Compare(part, "locked", true) == 0) gridCol.Locked = true;
-                        else if (string.Compare(part, "left", true) == 0) gridCol.Alignment = GridHAlignmentEnum.Left;
-                        else if (string.Compare(part, "center", true) == 0) gridCol.Alignment = GridHAlignmentEnum.Center;
-                        else if (string.Compare(part, "right", true) == 0) gridCol.Alignment = GridHAlignmentEnum.Right;
-                        else if (string.Compare(part, "hidden", true) == 0) gridCol.Hidden = true;
-                        else if (string.Compare(part, "onlysubmitwhenchecked", true) == 0) gridCol.OnlySubmitWhenChecked = true;
-                        else if (string.Compare(part, "icons", true) == 0) {
-                            int n = GetNextNumber(parts, i, part, file, name);
-                            if (n < 1) throw new InternalError("Icons must be >= 1 for column {0} in {1}", name, file);
-                            gridCol.Icons = n;
-                            ++i;
-                        } else if (string.Compare(part, "defaultSort", true) == 0) {
-                            sortCol = name;
-                            part = GetNextPart(parts, i, part, file, name);
-                            if (part == "asc") sortDir = GridDefinition.SortBy.Ascending;
-                            else if (part == "desc") sortDir = GridDefinition.SortBy.Descending;
-                            else throw new InternalError("Missing Asc/Desc following defaultSort for column {1} in {2}", part, name, file);
-                            ++i;
-                        } else if (string.Compare(part, "internal", true) == 0) {
-                            bool showInternals = UserSettings.GetProperty<bool>("ShowInternals");
-                            if (!showInternals) {
-                                add = false;
-                                break;
+                foreach (string line in lines) {
+                    string[] parts = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    GridColumnInfo gridCol = new GridColumnInfo();
+                    int len = parts.Length;
+                    if (len > 0) {
+                        bool add = true;
+                        string name = parts[0];
+                        for (int i = 1; i < len; ++i) {
+                            string part = GetPart(parts[i], package, recordType, file, name);
+                            if (string.Compare(part, "sort", true) == 0) gridCol.Sortable = true;
+                            else if (string.Compare(part, "locked", true) == 0) gridCol.Locked = true;
+                            else if (string.Compare(part, "left", true) == 0) gridCol.Alignment = GridHAlignmentEnum.Left;
+                            else if (string.Compare(part, "center", true) == 0) gridCol.Alignment = GridHAlignmentEnum.Center;
+                            else if (string.Compare(part, "right", true) == 0) gridCol.Alignment = GridHAlignmentEnum.Right;
+                            else if (string.Compare(part, "hidden", true) == 0) gridCol.Hidden = true;
+                            else if (string.Compare(part, "onlysubmitwhenchecked", true) == 0) gridCol.OnlySubmitWhenChecked = true;
+                            else if (string.Compare(part, "icons", true) == 0) {
+                                int n = GetNextNumber(parts, i, part, file, name);
+                                if (n < 1) throw new InternalError("Icons must be >= 1 for column {0} in {1}", name, file);
+                                gridCol.Icons = n;
+                                ++i;
+                            } else if (string.Compare(part, "defaultSort", true) == 0) {
+                                sortCol = name;
+                                part = GetNextPart(parts, i, part, file, name);
+                                if (part == "asc") sortDir = GridDefinition.SortBy.Ascending;
+                                else if (part == "desc") sortDir = GridDefinition.SortBy.Descending;
+                                else throw new InternalError("Missing Asc/Desc following defaultSort for column {1} in {2}", part, name, file);
+                                ++i;
+                            } else if (string.Compare(part, "internal", true) == 0) {
+                                bool showInternals = UserSettings.GetProperty<bool>("ShowInternals");
+                                if (!showInternals) {
+                                    add = false;
+                                    break;
+                                }
+                            } else if (string.Compare(part, "filter", true) == 0) {
+                                if (gridCol.FilterOptions.Count > 0) throw new InternalError("Multiple filter options in {0} for {1}", file, name);
+                                gridCol.FilterOptions = GetAllFilterOptions();
+                            } else if (part.StartsWith("filter(", StringComparison.InvariantCultureIgnoreCase)) {
+                                if (gridCol.FilterOptions.Count > 0) throw new InternalError("Multiple filter options in {0} for {1}", file, name);
+                                gridCol.FilterOptions = GetFilterOptions(part.Substring(6), file, name);
+                            } else if (part.EndsWith("pix", StringComparison.InvariantCultureIgnoreCase)) {
+                                if (gridCol.ChWidth != 0) throw new InternalError("Can't use character width and pixel width at the same time in {0} for {1}", file, name);
+                                part = part.Substring(0, part.Length - 3);
+                                int n = GetNumber(part, file, name);
+                                gridCol.PixWidth = n;
+                            } else {
+                                if (gridCol.PixWidth != 0) throw new InternalError("Can't use character width and pixel width at the same time in {0} for {1}", file, name);
+                                int n = GetNumber(part, file, name);
+                                gridCol.ChWidth = n;
                             }
-                        } else if (string.Compare(part, "filter", true) == 0) {
-                            if (gridCol.FilterOptions.Count > 0) throw new InternalError("Multiple filter options in {0} for {1}", file, name);
-                            gridCol.FilterOptions = GetAllFilterOptions();
-                        } else if (part.StartsWith("filter(", StringComparison.InvariantCultureIgnoreCase)) {
-                            if (gridCol.FilterOptions.Count > 0) throw new InternalError("Multiple filter options in {0} for {1}", file, name);
-                            gridCol.FilterOptions = GetFilterOptions(part.Substring(6), file, name);
-                        } else if (part.EndsWith("pix", StringComparison.InvariantCultureIgnoreCase)) {
-                            if (gridCol.ChWidth != 0) throw new InternalError("Can't use character width and pixel width at the same time in {0} for {1}", file, name);
-                            part = part.Substring(0, part.Length - 3);
-                            int n = GetNumber(part, file, name);
-                            gridCol.PixWidth = n;
-                        } else {
-                            if (gridCol.PixWidth != 0) throw new InternalError("Can't use character width and pixel width at the same time in {0} for {1}", file, name);
-                            int n = GetNumber(part, file, name);
-                            gridCol.ChWidth = n;
                         }
-                    }
-                    if (add) {
-                        try {
-                            dict.Add(name, gridCol);
-                        } catch (Exception exc) {
-                            throw new InternalError("Can't add {1} in {0} - {2}", file, name, ErrorHandling.FormatExceptionMessage(exc));
+                        if (add) {
+                            try {
+                                dict.Add(name, gridCol);
+                            } catch (Exception exc) {
+                                throw new InternalError("Can't add {1} in {0} - {2}", file, name, ErrorHandling.FormatExceptionMessage(exc));
+                            }
                         }
                     }
                 }
+                {
+                    ReadGridDictionaryInfo dictInfo = new ReadGridDictionaryInfo {
+                        ColumnInfo = dict,
+                        SortBy = sortDir,
+                        SortColumn = sortCol,
+                        Success = true,
+                    };
+
+                    // save in cache
+                    await cacheDP.AddAsync<ReadGridDictionaryInfo>(file, dictInfo);
+
+                    return dictInfo;
+                }
             }
-            return new ReadGridDictionaryInfo {
-                ColumnInfo = dict,
-                SortBy = sortDir,
-                SortColumn = sortCol,
-                Success = true,
-            };
         }
         private static List<GridColumnInfo.FilterOptionEnum> GetAllFilterOptions() {
             List<GridColumnInfo.FilterOptionEnum> filterFlags = new List<GridColumnInfo.FilterOptionEnum>() {

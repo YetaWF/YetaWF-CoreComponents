@@ -558,7 +558,19 @@ namespace YetaWF.Core.Support {
         }
         private static bool? deployed = null;
 
-        internal static bool GetDeployed() {
+        /// <summary>
+        /// Returns whether the currently running instance of YetaWF is a deployed instance or not.
+        /// </summary>
+        /// <remarks>
+        /// A "deployed" instance is not necessarily a Release build, but behaves as though it is.
+        ///
+        /// A deployed instance is considered to run as a public website with all development features disabled.
+        /// TODO: Need an actual list of development features here.
+        ///
+        /// Appsettings.json (Application.P.YetaWF_Core.Deployed) is used to define whether the site is a deployed site.
+        /// </remarks>
+        /// <value>true for a deployed site, false otherwise.</value>
+        public static bool GetDeployed() {
             if (deployed == null) {
                 deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Deployed");
             }

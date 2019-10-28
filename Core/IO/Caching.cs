@@ -44,6 +44,15 @@ namespace YetaWF.Core.IO {
         public static Func<ICacheDataProvider> GetStaticCacheProvider { get; set; }
 
         /// <summary>
+        /// A caching data provider for locally cached SMALL data without serialization/deserialization.
+        /// </summary>
+        /// <remarks>
+        /// This caching data provider can be used for SMALL data that needs to be cached individually in each instance of a site.
+        /// If multiple instances of the site are active, the cached data is not shared between instances.
+        /// </remarks>
+        public static Func<ICacheDataProvider> GetStaticSmallObjectCacheProvider { get; set; }
+
+        /// <summary>
         /// A locking data provider for locks shared among all instances of a site.
         /// </summary>
         /// <remarks>
@@ -135,6 +144,16 @@ namespace YetaWF.Core.IO {
         /// </remarks>
         Task RemoveAsync<TYPE>(string key);
     }
+    /// <summary>
+    /// Some caching data providers implement this interface which is used to clear all cached data.
+    /// </summary>
+    public interface ICacheClearable {
+        /// <summary>
+        /// Clears the cache completely.
+        /// </summary>
+        Task ClearAllAsync();
+    }
+
     /// <summary>
     /// An instance of this class is returned by the ICacheDataProvider.GetAsync method containing success indicators and the data, if available.
     /// </summary>

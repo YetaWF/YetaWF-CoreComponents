@@ -58,8 +58,8 @@ namespace YetaWF.Core.Pages {
             using (ILockObject bundleLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(BUNDLEKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     await cacheStaticDP.RemoveAsync<SerializableList<Bundle>>(BUNDLEKEY);
-                    await bundleLock.UnlockAsync();
                     await RemoveFolderAsync();
+                    await bundleLock.UnlockAsync();
                 }
             }
         }

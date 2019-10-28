@@ -9,9 +9,6 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-#if MVC6
-#else
-#endif
 
 namespace YetaWF.Core.Components {
 
@@ -144,28 +141,46 @@ namespace YetaWF.Core.Components {
             return setup;
         }
 
-        //RESEARCH: this could use some caching
         private static async Task<PropertyListSetup> ReadPropertyListSetupAsync(Package package, Type model, string file) {
-            if (YetaWFManager.DiagnosticsMode) {
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) {
-                    return new PropertyListSetup {
+
+            using (ICacheDataProvider cacheDP = YetaWF.Core.IO.Caching.GetStaticSmallObjectCacheProvider()) {
+
+                // Check cache first
+                GetObjectInfo<PropertyListSetup> info = await cacheDP.GetAsync<PropertyListSetup>(file);
+                if (info.Success)
+                    return info.Data;
+
+                // Load the file
+                if (YetaWFManager.DiagnosticsMode) {// to avoid exception spam
+                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) {
+                        PropertyListSetup setup = new PropertyListSetup {
+                            ExplicitDefinitions = false,
+                        };
+                        await cacheDP.AddAsync<PropertyListSetup>(file, setup);// failure also saved in cache
+                        return setup;
+                    }
+                }
+                string text;
+                try {
+                    text = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
+                } catch (Exception) {
+                    PropertyListSetup setup = new PropertyListSetup {
                         ExplicitDefinitions = false,
                     };
+                    await cacheDP.AddAsync<PropertyListSetup>(file, setup);// failure also saved in cache
+                    return setup;
+                }
+
+                {
+                    PropertyListSetup setup = Utility.JsonDeserialize<PropertyListSetup>(text);
+                    setup.ExplicitDefinitions = true;
+
+                    // save in cache
+                    await cacheDP.AddAsync<PropertyListSetup>(file, setup);
+
+                    return setup;
                 }
             }
-
-            string text;
-            try {
-                text = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
-            } catch (Exception) {
-                return new PropertyListSetup {
-                    ExplicitDefinitions = false,
-                };
-            }
-
-            PropertyListSetup setup = Utility.JsonDeserialize<PropertyListSetup>(text);
-            setup.ExplicitDefinitions = true;
-            return setup;
         }
     }
 }
