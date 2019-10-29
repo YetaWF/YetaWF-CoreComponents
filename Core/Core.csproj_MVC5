@@ -127,9 +127,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\DataSourceResult.cs" />
     <Compile Include="Components\PlainPageBase.cs" />
     <Compile Include="Components\PopupPageBase.cs" />
-    <Compile Include="Components\Support\PropertyList\PropertyList.cs" />
+    <Compile Include="Components\Support\Enums.cs" />
     <Compile Include="Components\YetaWFPageBase.cs" />
     <Compile Include="Components\PageExtender.cs" />
     <Compile Include="Controllers\CSVResult.cs" />
@@ -137,7 +138,6 @@
     <Compile Include="Audit\AuditInfo.cs" />
     <Compile Include="Components\Support\CAProvinces.cs" />
     <Compile Include="Components\Support\FileUpload.cs" />
-    <Compile Include="Components\Support\Grid\GridData.cs" />
     <Compile Include="Components\Support\USState.cs" />
     <Compile Include="Components\Support\WeeklyHours.cs" />
     <Compile Include="Components\Support\TimeOfDay.cs" />
@@ -149,13 +149,10 @@
     <Compile Include="Components\ComponentExtender.cs" />
     <Compile Include="Components\ComponentBase.cs" />
     <Compile Include="Components\Support\DropDown.cs" />
-    <Compile Include="Components\Support\Grid\DataSourceResult.cs" />
-    <Compile Include="Components\Support\Grid\Grid.cs" />
     <Compile Include="Components\Support\ImageHTML.cs" />
     <Compile Include="Components\Support\StringTT.cs" />
     <Compile Include="Controllers\AddonContentController.cs" />
     <Compile Include="Controllers\AddonContentViewResult.cs" />
-    <Compile Include="Controllers\Support\GridSaveSettings.cs" />
     <Compile Include="Extensions\StringBuilderExtender.cs" />
     <Compile Include="IO\Localization.cs" />
     <Compile Include="IO\Module.cs" />
@@ -189,7 +186,6 @@
     <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
     <Compile Include="Models\Attributes\TimeSpanValidationAttributes.cs" />
     <Compile Include="Models\TreeDefinition.cs" />
-    <Compile Include="Models\GridSupport.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Pages\ActionHelperMVC6.cs" />
     <Compile Include="Pages\ErrorHandlingMiddleware.cs" />
