@@ -205,10 +205,6 @@ namespace YetaWF.Core.Models.Attributes {
         public new string Value { get { return (string)base.Value; } }
     }
 
-    public enum GridHAlignmentEnum {
-        Unspecified = -1, Left = 0, Center = 1, Right = 2
-    }
-
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
 #if MVC6
     public class MoreMetadataAttribute : Attribute, IAdditionalAttribute {

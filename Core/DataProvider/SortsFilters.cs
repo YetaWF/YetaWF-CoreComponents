@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using YetaWF.Core.Components;
 using YetaWF.Core.Models;
 using YetaWF.Core.Support;
 
@@ -36,7 +35,7 @@ namespace YetaWF.Core.DataProvider {
         }
         public static List<OBJTYPE> Filter(List<OBJTYPE> list, List<DataProviderFilterInfo> filters) {
             if (filters != null && filters.Count > 0) {
-                Grid.NormalizeFilters(typeof(OBJTYPE), filters);
+                DataProviderFilterInfo.NormalizeFilters(typeof(OBJTYPE), filters);
                 // get a flat list of all filters
                 List<DataProviderFilterInfo> flatFilters = DataProviderFilterInfo.CollectAllFilters(filters);
                 // get all filter values as array (needed by the Where method of Dynamic Linq)
@@ -92,6 +91,41 @@ namespace YetaWF.Core.DataProvider {
             if (sort == null || sort.Count == 0) return new List<DataProviderSortInfo> { addSort };
             sort.Add(addSort);
             return sort;
+        }
+
+        /// <summary>
+        /// Used to change a sort column when another column is used to sort rather than the displayed property.
+        /// This method translates the displayed property name to the actual sort column name.
+        /// </summary>
+        /// <remarks>
+        /// This is typically used when one property is displayed in a grid, but another property should be used for sort purposes.
+        /// It is called before retrieving data from a data provider to translate the grid's column(s) to the column(s) used to sort/filter by the data provider.
+        ///
+        /// The parameter <paramref name="sort"/> only supports 1 sort field.
+        /// </remarks>
+        /// <param name="displayProperty">The name of the property as displayed by the grid.</param>
+        /// <param name="realColumn">The name of the property that should be used by the data provider for sort/filter purposes.</param>
+        /// <param name="filters">A collection describing the filtering criteria.</param>
+        /// <param name="sort">A collection describing the sort order.</param>
+        // sortas, sort as
+        public static void UpdateAlternateSortColumn(List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, string displayProperty, string realColumn) {
+            if (sort != null && sort.Count == 1) {
+                DataProviderSortInfo sortInfo = sort.First();
+                if (sortInfo.Field == displayProperty)
+                    sortInfo.Field = realColumn;
+            }
+            UpdateNavigatedFilters(filters, displayProperty, realColumn);
+        }
+
+        private static void UpdateNavigatedFilters(List<DataProviderFilterInfo> filters, string displayProperty, string realColumn) {
+            if (filters == null) return;
+            foreach (DataProviderFilterInfo f in filters) {
+                if (f.Field == displayProperty) {
+                    f.Field = realColumn;
+                } else {
+                    UpdateNavigatedFilters(f.Filters, displayProperty, realColumn);
+                }
+            }
         }
     }
 
@@ -417,6 +451,20 @@ namespace YetaWF.Core.DataProvider {
                 });
             }
             return newFilters;
+        }
+        /// <summary>
+        /// Normalize filters.
+        /// RESEARCH! The purpose of this method is unclear.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="filters">A collection describing the filtering criteria.</param>
+        public static void NormalizeFilters(Type type, List<DataProviderFilterInfo> filters) {
+            if (filters != null) {
+                foreach (DataProviderFilterInfo f in filters) {
+                    f.NormalizeFilterProperty(type);
+                    NormalizeFilters(type, f.Filters);
+                }
+            }
         }
     }
     public static class GuidExtender {

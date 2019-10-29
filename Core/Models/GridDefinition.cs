@@ -12,49 +12,15 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models {
 
-    public class GridColumnInfo {
-        public int ChWidth { get; set; }
-        public int PixWidth { get; set; }
-        public bool Sortable { get; set; }
-        public bool Locked { get; set; }
-        public bool Hidden { get; set; }
-        public bool OnlySubmitWhenChecked { get; set; }
-        public GridHAlignmentEnum Alignment { get; set; }
-        public int Icons { get; set; }
-        public List<FilterOptionEnum> FilterOptions { get; set; }
-        public enum FilterOptionEnum {
-            Equal = 1,
-            NotEqual,
-            LessThan,
-            LessEqual,
-            GreaterThan,
-            GreaterEqual,
-            StartsWith,
-            NotStartsWith,
-            Contains,
-            NotContains,
-            Endswith,
-            NotEndswith,
-            All = 0xffff,
-        }
-
-        public GridColumnInfo() {
-            PixWidth = ChWidth = 0;
-            Sortable = false;
-            Locked = false;
-            Hidden = false;
-            OnlySubmitWhenChecked = false;
-            Alignment = GridHAlignmentEnum.Unspecified;
-            Icons = 0;
-            FilterOptions = new List<FilterOptionEnum>();
-        }
-    }
-
+    /// <summary>
+    /// An instance of this class describes a grid. The implementation of the grid is deferred to a component provider.
+    /// </summary>
     public class GridDefinition {
 
         public enum SortBy {
             NotSpecified = 0, Ascending, Descending
         };
+
         public enum SizeStyleEnum {
             SizeGiven = 0,
             SizeToFit = 1,
@@ -71,8 +37,7 @@ namespace YetaWF.Core.Models {
                 Width = -1;
             }
         }
-        public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> {
-        }
+        public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> { }
 
         // set up by application
         public Type RecordType { get; set; }
@@ -82,7 +47,7 @@ namespace YetaWF.Core.Models {
 
         public object ExtraData { get; set; }// additional data to return during ajax callback
 
-        public Guid ModuleGuid { get; set; }
+        public Guid ModuleGuid { get; set; } // the module owning the grid
         public Guid? SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
 
         public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button, ajax only)
@@ -116,11 +81,10 @@ namespace YetaWF.Core.Models {
 
         public bool IsStatic { get { return SortFilterStaticData != null; } }
 
-        // The following items are cached by GridHelper.LoadGridColumnDefinitions - don't mess with it
-        public ObjectSupport.ReadGridDictionaryInfo CachedDict { get; set; }
+        // The following can be used by a component implementation to cache data for the duration of the GridDefinition object.
+        public object CachedData { get; set; }
 
         public GridDefinition() {
-
             SupportReload = true;
             ShowHeader = true;
             ShowPager = true;
@@ -142,5 +106,94 @@ namespace YetaWF.Core.Models {
                 Total = data.Count,
             };
         }
+    }
+
+    /// <summary>
+    /// This static class defines basic services offered by the Grid component.
+    /// </summary>
+    public static class Grid {
+
+        /// <summary>
+        /// Defines the appearance of actions in a grid.
+        /// </summary>
+        public enum GridActionsEnum {
+            /// <summary>
+            /// Actions in grids are displayed as icons.
+            /// </summary>
+            [EnumDescription("Icons", "Actions in grids are displayed as icons")]
+            Icons = 0,
+            /// <summary>
+            /// If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed.
+            /// </summary>
+            [EnumDescription("Dropdown Menu", "If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed")]
+            DropdownMenu = 1,
+        }
+    }
+
+    /// <summary>
+    /// Describes the records to be rendered for a grid.
+    ///
+    /// This class is not used by applications. It is reserved for component implementation.
+    /// An instance of the GridPartialData class defines all data to be rendered to replace a grid component's contents.
+    /// The implementation of rendering the grid data is deferred to a component provider.
+    /// </summary>
+    public class GridPartialData {
+        /// <summary>
+        /// The prefix to be prepended to any field name generated.
+        /// </summary>
+        public string FieldPrefix { get; set; }
+        /// <summary>
+        /// The GridDefinition object describing the current grid.
+        /// </summary>
+        public GridDefinition GridDef { get; set; }
+        /// <summary>
+        /// The collection of data to be rendered.
+        /// </summary>
+        public DataSourceResult Data { get; set; }
+        /// <summary>
+        /// The collection of static data to be rendered.
+        /// </summary>
+        public List<object> StaticData { get; set; }
+        /// <summary>
+        /// The number of records skipped (paging).
+        /// </summary>
+        public int Skip { get; set; }
+        /// <summary>
+        /// The number of records retrieved (paging).
+        /// </summary>
+        public int Take { get; set; }
+        /// <summary>
+        /// The sort order of the grid's columns.
+        /// </summary>
+        public List<DataProviderSortInfo> Sorts { get; set; }
+        /// <summary>
+        /// The filter options for the grid.
+        /// </summary>
+        public List<DataProviderFilterInfo> Filters { get; set; }
+    }
+    /// <summary>
+    /// Describes one grid record.
+    ///
+    /// This class is not used by applications. It is reserved for component implementation.
+    /// An instance of the GridRecordData class defines one record to be rendered by a grid component.
+    /// The implementation of rendering the grid data is deferred to a component provider.
+    /// </summary>
+    public class GridRecordData {
+        /// <summary>
+        /// The GridDefinition object describing the current grid.
+        /// </summary>
+        public GridDefinition GridDef { get; set; }
+        /// <summary>
+        /// The data representing the current record.
+        /// </summary>
+        public object Data { get; set; }
+        /// <summary>
+        /// The static data representing the current record.
+        /// </summary>
+        public string StaticData { get; set; }
+        /// <summary>
+        /// The prefix to be prepended to any field name generated.
+        /// </summary>
+        public string FieldPrefix { get; set; }
     }
 }

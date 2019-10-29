@@ -353,35 +353,42 @@ namespace YetaWF.Core.Controllers
         // GRID PARTIALVIEW
         // GRID PARTIALVIEW
 
-        /// <summary>
-        /// Returns an action result that renders a grid as a partial view.
-        /// </summary>
-        /// <remarks>Used for static grids.</remarks>
-        /// <returns>Returns an action result that renders a grid as a partial view.</returns>
-        protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, string data, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
-            // save settings
-            YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
-            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(data);
-            List<object> objList = (from l in list select (object)l).ToList();
-            DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, sorts, filters);
-            return await GridPartialViewAsync(gridModel, ds, objList, fieldPrefix, skip, take, sorts, filters);
+        public class GridPartialViewData {
+            public string Data { get; set; }
+            public string FieldPrefix { get; set; }
+            public int Skip { get; set; }
+            public int Take { get; set; }
+            public List<DataProviderSortInfo> Sorts { get; set; }
+            public List<DataProviderFilterInfo> Filters { get; set; }
         }
+
         /// <summary>
-        /// Returns an action result that renders a grid as a partial view.
+        /// Returns an action result that renders grid contents as a partial view.
         /// </summary>
         /// <remarks>Used for Ajax grids.</remarks>
         /// <returns>Returns an action result that renders a grid as a partial view.</returns>
-        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
-            // save settings
-            YetaWF.Core.Components.Grid.SaveSettings(skip, take, sorts, filters, gridModel.SettingsModuleGuid);
-            DataSourceResult data = await gridModel.DirectDataAsync(skip, take, sorts, filters);
-            return await GridPartialViewAsync(gridModel, data, null, fieldPrefix, skip, take, sorts, filters);
+        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, GridPartialViewData gridPVData) {
+            DataSourceResult ds = await gridModel.DirectDataAsync(gridPVData.Skip, gridPVData.Take, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            return await GridPartialViewAsync(gridModel, ds, null, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters);
         }
+
         /// <summary>
-        /// Returns an action result that renders a grid as a partial view.
+        /// Returns an action result that renders grid contents as a partial view.
+        /// </summary>
+        /// <remarks>Used for static grids.</remarks>
+        /// <returns>Returns an action result that renders a grid as a partial view.</returns>
+        protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, GridPartialViewData gridPVData) {
+            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPVData.Data);
+            List<object> objList = (from l in list select (object)l).ToList();
+            DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            return await GridPartialViewAsync(gridModel, ds, objList, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters);
+        }
+
+        /// <summary>
+        /// Returns an action result that renders grid contents as a partial view.
         /// </summary>
         /// <remarks>Returns an action result that renders a grid as a partial view.</remarks>
-        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        private Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
             GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
                 StaticData = staticData,
@@ -392,22 +399,34 @@ namespace YetaWF.Core.Controllers
                 FieldPrefix = fieldPrefix,
                 GridDef = gridModel,
             };
-            // handle async properties
-            await HandlePropertiesAsync(gridPartialModel.Data.Data);
-            // render
-            return PartialView("GridPartialData", gridPartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true);
+            return Task.FromResult(PartialView("GridPartialDataView", gridPartialModel, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
         protected Task<PartialViewResult> GridRecordViewAsync(GridRecordData model) {
             return Task.FromResult(PartialView("GridRecord", model, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
 
-        public static async Task HandlePropertiesAsync(List<object> data) {
-            foreach (object item in data)
-                await HandlePropertiesAsync(item);
+        // TREE PARTIALVIEW
+        // TREE PARTIALVIEW
+        // TREE PARTIALVIEW
+
+        /// <summary>
+        /// Returns an action result that renders tree contents as a partial view.
+        /// </summary>
+        /// <remarks>Used for tree components.</remarks>
+        /// <returns>Returns an action result that renders tree contents as a partial view.</returns>
+        protected Task<PartialViewResult> TreePartialViewAsync<TYPE>(TreeDefinition treeModel, List<TYPE> list) {
+            List<object> data = (from l in list select (object)l).ToList<object>();
+            DataSourceResult ds = new DataSourceResult() {
+                Data = data,
+                Total = data.Count,
+            };
+            TreePartialData treePartial = new TreePartialData {
+                TreeDef = treeModel,
+                Data = ds,
+            };
+            return Task.FromResult(PartialView("TreePartialDataView", treePartial, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
-        public static async Task HandlePropertiesAsync(object data) {
-            await ObjectSupport.HandlePropertyAsync<MenuList>("Commands", "__GetCommandsAsync", data);
-        }
+
 
         // PARTIAL VIEW
         // PARTIAL VIEW
