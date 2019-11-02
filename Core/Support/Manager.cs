@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 #else
 using System.Web;
 #endif
@@ -1021,7 +1022,7 @@ namespace YetaWF.Core.Support {
         public static void SetStaticCacheInfo(HttpContext context) {
             if (YetaWFManager.Deployed && StaticCacheDuration > 0) {
 #if MVC6
-                context.Response.Headers.Add("Cache-Control", string.Format("max-age={0}", StaticCacheDuration * 60));
+                context.Response.Headers[HeaderNames.CacheControl] = string.Format("public,max-age={0}", StaticCacheDuration * 60);
 #else
                 context.Response.Cache.SetCacheability(HttpCacheability.Public);
                 context.Response.Cache.SetMaxAge(new TimeSpan(0, StaticCacheDuration, 0));
