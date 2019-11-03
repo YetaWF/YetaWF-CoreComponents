@@ -224,7 +224,7 @@ namespace YetaWF.Core.Packages {
                     }
                 }
             }
-            return (from p in _availablePackages select p).ToList();// copy
+            return _availablePackages.ToList();// copy
         }
 
         // We statically hold a reference to ALL available, referenced packages - this is necessary for package information caching (notably localization)

@@ -209,6 +209,12 @@ namespace YetaWF.Core.Support {
                 return Collection[key];
             }
         }
+        public Dictionary<string, string> GetCollection() {
+            Dictionary<string, string> d = new Dictionary<string, string>();
+            foreach (string key in Collection.Keys)
+                d.Add(key, Collection[key]);
+            return d;
+        }
 #if MVC6
         public FormHelper() {
             Collection = null;
