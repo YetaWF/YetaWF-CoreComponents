@@ -318,6 +318,7 @@ namespace YetaWF.Core.Addons {
         /// <summary>
         /// Read a file
         /// </summary>
+        // $$$used?
         public async Task<string> GetFileAsync(string path, object replacements = null) {
             string file = "";
             try {
