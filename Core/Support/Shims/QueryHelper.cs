@@ -211,6 +211,7 @@ namespace YetaWF.Core.Support {
         }
         public Dictionary<string, string> GetCollection() {
             Dictionary<string, string> d = new Dictionary<string, string>();
+            if (Collection == null) return d;
             foreach (string key in Collection.Keys)
                 d.Add(key, Collection[key]);
             return d;
