@@ -85,7 +85,7 @@ namespace YetaWF.Core.Upload {
 #if MVC6
         public async Task<string> StoreFileAsync(IFormFile uploadFile, string folder, string useType, bool TempFile = false)
 #else
-        public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType)
+        public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType, bool TempFile = false)
 #endif
         {
             if (TempFile && folder != null)
