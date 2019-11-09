@@ -52,19 +52,18 @@ namespace YetaWF.Core.Pages {
                     // export the module
                     YetaWFZipFile modZip = await mod.ExportDataAsync();
                     // save the module zip file to a temp file
-                    string modZipFileName = Path.GetTempFileName();
+                    string modZipFileName = FileSystem.TempFileSystemProvider.GetTempFile();
+                    zipFile.TempFiles.Add(modZipFileName);
                     await modZip.SaveAsync(modZipFileName);
-                    await modZip.CleanupFoldersAsync();
                     // add the module zip file to the page zip file
                     serPage.ModuleZips.Add(mod.ModuleGuidName + ".zip");
                     zipFile.AddFile(modZipFileName, mod.ModuleGuidName + ".zip");
-                    zipFile.TempFiles.Add(modZipFileName);
                 }
             }
 
             // serialize zipfile contents
             {
-                string fileName = Path.GetTempFileName();
+                string fileName = FileSystem.TempFileSystemProvider.GetTempFile();
                 zipFile.TempFiles.Add(fileName);
 
                 using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {

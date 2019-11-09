@@ -47,7 +47,6 @@ namespace YetaWF.Core {
         // Data Folder
         public const string DataFolder = "Data";
         public const string SitesFolder = "Sites";
-        public const string TempFiles = "TempFiles";
         public const string SiteTemplates = "SiteTemplates";
         public const string VaultPrivateFolder = "VaultPrivate";
         public const string VaultFolder = "Vault";

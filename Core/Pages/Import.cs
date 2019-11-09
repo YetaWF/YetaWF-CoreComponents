@@ -47,7 +47,7 @@ namespace YetaWF.Core.Pages {
                 }
 
                 // read contents file
-                jsonFile = Path.GetTempFileName();
+                jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(PageContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {
@@ -143,7 +143,7 @@ namespace YetaWF.Core.Pages {
         private static async Task<ModuleDefinition> ImportModuleAsync(ZipFile zip, string displayFileName, SerializablePage serPage, string modZipFile, List<string> errorList) {
 
             // read module zip file
-            string modZipFileName = Path.GetTempFileName();
+            string modZipFileName = FileSystem.TempFileSystemProvider.GetTempFile();
             using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(modZipFileName)) {
                 ZipEntry ze = zip.GetEntry(modZipFile);
                 using (Stream entryStream = zip.GetInputStream(ze)) {
@@ -157,7 +157,7 @@ namespace YetaWF.Core.Pages {
             using (ZipFile modZip = new ZipFile(modZipFileName)) {
 
                 // read contents file
-                string jsonFile = Path.GetTempFileName();
+                string jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ZipEntry ze = modZip.GetEntry(ModuleContentsFile);
                     using (Stream entryStream = modZip.GetInputStream(ze)) {

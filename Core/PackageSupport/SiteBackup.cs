@@ -50,7 +50,7 @@ namespace YetaWF.Core.Packages {
                 // create a don't deploy marker
                 await FileSystem.FileSystemProvider.WriteAllTextAsync(Path.Combine(backupFolder, Globals.DontDeployMarker), "");
 
-                string tempFolder = Path.Combine(backupFolder, Path.GetRandomFileName());
+                string tempFolder = FileSystem.TempFileSystemProvider.GetTempFolder();
                 await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(tempFolder);
                 zipBackupFile.TempFolders.Add(tempFolder);
 
@@ -96,7 +96,7 @@ namespace YetaWF.Core.Packages {
 
                 // serialize backup file
                 {
-                    string fileName = Path.GetTempFileName();
+                    string fileName = FileSystem.TempFileSystemProvider.GetTempFile();
                     zipBackupFile.TempFiles.Add(fileName);
 
                     using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {

@@ -44,8 +44,8 @@ namespace YetaWF.Core.Pages {
         }
         private static async Task RemoveFolderAsync() {
             string tempPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder);
-            if (await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(tempPath))
-                await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(tempPath);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(tempPath))
+                await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempPath);
         }
 
         /// <summary>
@@ -152,8 +152,8 @@ namespace YetaWF.Core.Pages {
                             }
                             bundles.Add(bundle);
                             string realFile = Utility.UrlToPhysical(bundle.Url);
-                            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
-                            await FileSystem.TempFileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
+                            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
+                            await FileSystem.FileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
                             await cacheStaticDP.AddAsync(BUNDLEKEY, bundles);
                         } else {
                             // existing bundle

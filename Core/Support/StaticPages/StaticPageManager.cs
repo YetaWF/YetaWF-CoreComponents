@@ -101,7 +101,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     string localUrlLower = localUrl.ToLower();
 
                     string folder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder, YetaWFManager.Manager.CurrentSite.Identity.ToString());
-                    await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(folder);
+                    await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
 
                     string tempFile;
                     if (GetScheme() == "https") {
@@ -117,7 +117,7 @@ namespace YetaWF.Core.Support.StaticPages {
                             tempFile = "http#";
                         }
                     }
-                    tempFile = Path.Combine(folder, tempFile + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
+                    tempFile = Path.Combine(folder, tempFile + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
 
                     PageEntry entry;
                     if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
@@ -137,7 +137,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     SetFileName(entry, tempFile);
 
                     // save the file image
-                    await FileSystem.TempFileSystemProvider.WriteAllTextAsync(tempFile, pageHtml);
+                    await FileSystem.FileSystemProvider.WriteAllTextAsync(tempFile, pageHtml);
 
                     await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
                     await staticLock.UnlockAsync();
@@ -234,7 +234,7 @@ namespace YetaWF.Core.Support.StaticPages {
                         if (tempFile != null) {
                             try {
                                 return new GetPageInfo {
-                                    FileContents = await FileSystem.TempFileSystemProvider.ReadAllTextAsync(tempFile),
+                                    FileContents = await FileSystem.FileSystemProvider.ReadAllTextAsync(tempFile),
                                     LastUpdate = lastUpdate,
                                 };
                             } catch (System.Exception) {
@@ -279,14 +279,14 @@ namespace YetaWF.Core.Support.StaticPages {
 
         private async Task RemovePageSet(string localUrl) {
             string siteFolder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder, YetaWFManager.Manager.CurrentSite.Identity.ToString());
-            string tempFile = Path.Combine(siteFolder, "http#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
-            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
-            tempFile = Path.Combine(siteFolder, "https#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
-            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
-            tempFile = Path.Combine(siteFolder, "http_popup#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
-            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
-            tempFile = Path.Combine(siteFolder, "https_popup#" + FileSystem.TempFileSystemProvider.MakeValidDataFileName(localUrl));
-            if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFile);
+            string tempFile = Path.Combine(siteFolder, "http#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
+            tempFile = Path.Combine(siteFolder, "https#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
+            tempFile = Path.Combine(siteFolder, "http_popup#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
+            tempFile = Path.Combine(siteFolder, "https_popup#" + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
+            if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
         }
 
         public async Task RemovePagesAsync(List<PageDefinition> pages) {
@@ -319,10 +319,10 @@ namespace YetaWF.Core.Support.StaticPages {
         private async Task RemoveAllPagesInternalAsync() {
             Logging.AddLog("Removing/creating bundle folder");
             string folder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder);
-            await FileSystem.TempFileSystemProvider.DeleteDirectoryAsync(folder);
-            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(folder);
+            await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
+            await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
             // create a don't deploy marker
-            await FileSystem.TempFileSystemProvider.WriteAllTextAsync(Path.Combine(folder, Globals.DontDeployMarker), "");
+            await FileSystem.FileSystemProvider.WriteAllTextAsync(Path.Combine(folder, Globals.DontDeployMarker), "");
         }
     }
 }

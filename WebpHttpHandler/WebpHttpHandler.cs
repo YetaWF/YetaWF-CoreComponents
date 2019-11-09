@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using YetaWF.Core.Extensions;
@@ -11,8 +11,6 @@ using System.Linq;
 using System.Collections.Generic;
 #if MVC6
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using System.Globalization;
 #else
 using System.Web;
 using System.Web.SessionState;
@@ -26,15 +24,15 @@ namespace YetaWF.Core.HttpHandler {
     /// </summary>
     public class WebpMiddleware {
 
-        private readonly RequestDelegate _next;
-        private WebpHttpHandler Handler;
+        //private readonly RequestDelegate _next;
+        private readonly WebpHttpHandler Handler;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="next">The delegate representing the remaining middleware in the request pipeline.</param>
         public WebpMiddleware(RequestDelegate next) {
-            _next = next;
+            //_next = next;
             Handler = new WebpHttpHandler();
         }
 

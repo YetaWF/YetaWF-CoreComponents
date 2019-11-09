@@ -39,7 +39,7 @@ namespace YetaWF.Core.Modules {
                 }
 
                 // read contents file
-                jsonFile = Path.GetTempFileName();
+                jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(ModuleContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {

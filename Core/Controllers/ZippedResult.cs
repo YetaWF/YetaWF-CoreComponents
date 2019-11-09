@@ -54,7 +54,6 @@ namespace YetaWF.Core.Controllers {
                 Utility.AllowSyncIO(context.HttpContext);
                 using (Zip) {
                     await Zip.SaveAsync(Response.Body);
-                    await Zip.CleanupFoldersAsync();
                 }
 #else
                 Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));

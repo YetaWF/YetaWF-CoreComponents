@@ -86,14 +86,15 @@ namespace YetaWF.Core.Support.Zip {
             });
         }
         public async Task AddFolderAsync(string tempFolder) {
-            List<string> files = await FileSystem.TempFileSystemProvider.GetFilesAsync(tempFolder);
+            List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(tempFolder);
             foreach (string file in files)
                 AddFile(file, Path.GetFileName(file));
         }
         public async Task SaveAsync(string file) {
-            using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(file)) {
+            using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(file)) {
                 await SaveAsync(fs.GetFileStream());
             }
+            await CleanupFoldersAsync();
         }
         public async Task SaveAsync(Stream stream) {
             // add all files
@@ -126,8 +127,8 @@ namespace YetaWF.Core.Support.Zip {
         }
 
         private async Task WriteFileAsync(ZipOutputStream zipStream, string absoluteFileName, string relativeName) {
-            using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(absoluteFileName)) {
-                DateTime lastWrite = await FileSystem.TempFileSystemProvider.GetLastWriteTimeUtcAsync(absoluteFileName);
+            using (IFileStream fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(absoluteFileName)) {
+                DateTime lastWrite = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(absoluteFileName);
                 ZipEntry newEntry = new ZipEntry(relativeName);
                 newEntry.DateTime = lastWrite;
                 newEntry.Size = fs.GetLength();

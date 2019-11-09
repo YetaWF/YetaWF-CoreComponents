@@ -24,6 +24,8 @@ namespace YetaWF.Core.IO {
 
     public interface IFileSystem {
 
+        string RootFolder { get; }
+
         /// <summary>
         /// Locks a file or directory by name (not the folder contents).
         /// </summary>
@@ -62,6 +64,9 @@ namespace YetaWF.Core.IO {
         Task MoveFileAsync(string fromPath, string toPath);
         Task CopyFileAsync(string fromPath, string toPath);
         Task DeleteFileAsync(string filePath);
+
+        string GetTempFile();
+        string GetTempFolder();
 
         // Data Files
 

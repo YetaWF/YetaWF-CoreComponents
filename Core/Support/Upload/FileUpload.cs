@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.IO;
@@ -16,37 +16,49 @@ using System.Web;
 #endif
 
 namespace YetaWF.Core.Upload {
+
     public class FileUpload {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public const string TempId = "temp";
 
+        public static string TempUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RootFolder, "Uploads"); } }
+        public static string TempSiteUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RootFolder, "Uploads", Manager.CurrentSite.Identity.ToString()); } }
+
         // UPLOAD
         // UPLOAD
         // UPLOAD
 
         /// <summary>
-        /// Returns whether a file name (no path) is a temporary file (based on naming conventions).
+        /// Returns whether a file name (with path) is a temporary file (based on naming conventions).
         /// </summary>
-        /// <param name="file">The file name (no path)</param>
-        /// <returns>true if the file is a temporary file.</returns>
+        /// <param name="file">The file name (with path).</param>
+        /// <returns>Returns true if the file is a temporary file.</returns>
         public static bool IsUploadedFile(string file) {
-            string tempFile = Path.Combine(Manager.SiteFolder, Globals.TempFiles);
-            return file.StartsWith(tempFile, StringComparison.OrdinalIgnoreCase);
+            return file.StartsWith(TempSiteUploadFolder, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
         /// Saves an uploaded package file as a temporary file.
         /// </summary>
         /// <param name="uploadFile">Package file being uploaded.</param>
-        /// <returns>A file name (no path) of the uploaded file in the site's temporary folder.</returns>
+        /// <returns>Returns a file name (with path) of the uploaded file in the site's temporary folder.</returns>
 #if MVC6
         public async Task<string> StoreTempPackageFileAsync(IFormFile uploadFile) {
 #else
         public async Task<string> StoreTempPackageFileAsync(HttpPostedFileBase uploadFile) {
 #endif
-            string name = await StoreTempFileAsync(uploadFile, MimeSection.PackageUse);
+            string name = await StoreFileAsync(uploadFile, null, MimeSection.PackageUse, TempFile: true);
+            return await GetTempFilePathFromNameAsync(name);
+        }
+        /// <summary>
+        /// Saves a remote package file as a temporary file.
+        /// </summary>
+        /// <param name="remoteUrl">Remote URL of a package file being uploaded.</param>
+        /// <returns>Returns a file name (with path) of the uploaded file in the site's temporary folder.</returns>
+        public async Task<string> StoreTempPackageFileAsync(string remoteUrl) {
+            string name = await StoreTempFileAsync(remoteUrl, MimeSection.PackageUse);
             return await GetTempFilePathFromNameAsync(name);
         }
 
@@ -54,50 +66,33 @@ namespace YetaWF.Core.Upload {
         /// Saves an uploaded image file as a temporary file.
         /// </summary>
         /// <param name="uploadFile">Image file being uploaded.</param>
-        /// <returns>A file name (no path) of the uploaded file in the site's temporary folder.</returns>
+        /// <returns>A file name (no path) of the uploaded file.</returns>
 #if MVC6
         public async Task<string> StoreTempImageFileAsync(IFormFile uploadFile) {
 #else
         public async Task<string> StoreTempImageFileAsync(HttpPostedFileBase uploadFile) {
 #endif
-            return await StoreTempFileAsync(uploadFile, MimeSection.ImageUse);
+            return await StoreFileAsync(uploadFile, null, MimeSection.ImageUse, TempFile: true);
         }
 
         /// <summary>
-        /// Saves an uploaded file as a temporary file.
+        /// Saves an uploaded file as a file in the permanent or temporary file system.
         /// </summary>
         /// <param name="uploadFile">File being uploaded.</param>
+        /// <param name="folder">The folder (absolute path) where the file is saved. Must be null for temporary files.</param>
         /// <param name="canUse"></param>
-        /// <returns>A file name (with path) of the uploaded file in the site's temporary folder.</returns>
+        /// <returns>Returns a file name (without path) of the uploaded file in the specified folder.</returns>
 #if MVC6
-        public async Task<string> StoreTempFileAsync(IFormFile uploadFile, string useType) {
+        public async Task<string> StoreFileAsync(IFormFile uploadFile, string folder, string useType, bool TempFile = false)
 #else
-        public async Task<string> StoreTempFileAsync(HttpPostedFileBase uploadFile, string useType) {
-#endif
-            return await StoreFileAsync(uploadFile, Globals.TempFiles, useType,
-                (uf => {
-                    string tempExt = Path.GetExtension(uf.FileName);
-                    string name = TempId + Guid.NewGuid().ToString();
-                    return Path.ChangeExtension(name, tempExt);
-                })
-            );
-        }
-
-        /// <summary>
-        /// Saves an uploaded file as a file.
-        /// </summary>
-        /// <param name="uploadFile">File being uploaded.</param>
-        /// <param name="folder"></param>
-        /// <param name="canUse"></param>
-        /// <param name="getFileName"></param>
-        /// <returns>A file name (with path) of the uploaded file in the specified folder</returns>
-
-#if MVC6
-        public async Task<string> StoreFileAsync(IFormFile uploadFile, string folder, string useType, Func<IFormFile, string> getFileName)
-#else
-        public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType, Func<HttpPostedFileBase, string> getFileName)
+        public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType)
 #endif
         {
+            if (TempFile && folder != null)
+                throw new InternalError("Can't provide folder for temporary files");
+            if (!TempFile && folder == null)
+                throw new InternalError("Must provide folder for permanent files");
+
             long fileLength = 0;
             if (uploadFile != null) {
 #if MVC6
@@ -113,50 +108,47 @@ namespace YetaWF.Core.Upload {
             if (!mimeSection.CanUse(uploadFile.ContentType, useType))
                 throw new Error(this.__ResStr("errPkgType", "Upload not allowed - The file type '{0}' is not an allowable file type"), uploadFile.ContentType);
 
-            string name = getFileName(uploadFile);
+            string fileName = Path.GetFileName(uploadFile.FileName);
 
-            folder = Path.Combine(Manager.SiteFolder, folder);
-            await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
-            string filePath = Path.Combine(folder, name);
+            if (TempFile) {
+
+                string tempExt = Path.GetExtension(fileName);
+                fileName = TempId + Guid.NewGuid().ToString();
+                fileName = Path.ChangeExtension(fileName, tempExt);
+
+                await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(TempSiteUploadFolder);
+                string filePath = Path.Combine(TempSiteUploadFolder, fileName);
+
 #if MVC6
-            using (FileStream fileStream = File.Create(filePath)) {
-                uploadFile.CopyTo(fileStream);
-            }
+                using (FileStream fileStream = File.Create(filePath)) {// TODO: use FileSystemProvider
+                    uploadFile.CopyTo(fileStream);
+                }
 #else
-            uploadFile.SaveAs(filePath);
+                uploadFile.SaveAs(filePath);
 #endif
-            return Path.GetFileName(name);
+            } else {
+
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
+                string filePath = Path.Combine(folder, fileName);
+#if MVC6
+                using (FileStream fileStream = File.Create(filePath)) {// TODO: use FileSystemProvider
+                    uploadFile.CopyTo(fileStream);
+                }
+#else
+                uploadFile.SaveAs(filePath);
+#endif
+            }
+            return fileName;
         }
 
-        // DOWNLOAD
-        // DOWNLOAD
-        // DOWNLOAD
-
         /// <summary>
-        /// Saves a remote package file as a temporary file.
+        /// Downloads a remote file and saves it as an uploaded file in the temporary file system.
         /// </summary>
-        /// <param name="remoteUrl">Package file being downloaded.</param>
-        /// <returns>A file name (no path) of the downloaded file in the site's temporary folder.</returns>
-        public async Task<string> StoreTempPackageFileAsync(string remoteUrl) {
-            string name = await StoreTempFileAsync(remoteUrl, MimeSection.PackageUse);
-            return await GetTempFilePathFromNameAsync(name);
-        }
-        /// <summary>
-        /// Saves a remote file as a temporary file.
-        /// </summary>
-        /// <param name="remoteUrl">File being downloaded.</param>
-        /// <param name="canUse"></param>
-        /// <returns>A file name (with path) of the downloaded file in the site's temporary folder.</returns>
+        /// <param name="remoteUrl"></param>
+        /// <param name="folder"></param>
+        /// <param name="useType"></param>
+        /// <returns>Returns the file name (without path).</returns>
         private async Task<string> StoreTempFileAsync(string remoteUrl, string useType) {
-            return await StoreFileAsync(remoteUrl, Globals.TempFiles, useType,
-                (uf => {
-                    string tempExt = Path.GetExtension(remoteUrl);
-                    string name = TempId + Guid.NewGuid().ToString();
-                    return Path.ChangeExtension(name, tempExt);
-                })
-            );
-        }
-        private async Task<string> StoreFileAsync(string remoteUrl, string folder, string useType, Func<string, string> getFileName) {
 
             MimeSection mimeSection = new MimeSection();
 
@@ -181,16 +173,17 @@ namespace YetaWF.Core.Upload {
                 throw new Error(this.__ResStr("errDownloadPkgType", "Download not allowed - The file type '{0}' is not an allowable file type"), contentType);
             }
 
-            string name = getFileName(remoteUrl);
+            string tempExt = Path.GetExtension(remoteUrl);
+            string name = TempId + Guid.NewGuid().ToString();
+            name = Path.ChangeExtension(name, tempExt);
 
-            folder = Path.Combine(Manager.SiteFolder, folder);
-            await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
-            string filePath = Path.Combine(folder, name);
+            await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(TempSiteUploadFolder);
+            string filePath = Path.Combine(TempSiteUploadFolder, name);
 
             using (Stream strm = resp.GetResponseStream()) {
                 int totlen = (int)resp.ContentLength;
                 byte[] bts = new byte[totlen];
-                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
+                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(filePath)) {
                     int remlen = totlen;
                     for (int offset = 0; remlen > 0;) {
                         int nRead;
@@ -237,9 +230,9 @@ namespace YetaWF.Core.Upload {
             if (!string.IsNullOrWhiteSpace(name) && name.StartsWith(FileUpload.TempId)) {
                 string tempFilePath;
                 if (string.IsNullOrWhiteSpace(location))
-                    tempFilePath = Path.Combine(Manager.SiteFolder, Globals.TempFiles, name);
+                    tempFilePath = Path.Combine(TempSiteUploadFolder, name);
                 else
-                    tempFilePath = Path.Combine(Manager.SiteFolder, Globals.TempFiles, location, name);
+                    tempFilePath = Path.Combine(TempSiteUploadFolder, location, name);
                 if (await FileSystem.TempFileSystemProvider.FileExistsAsync(tempFilePath))
                     return tempFilePath;
             }
@@ -266,11 +259,11 @@ namespace YetaWF.Core.Upload {
         }
         public async Task RemoveAllExpiredTempFilesAsync(TimeSpan timeSpan) {
             // remove all temp files on all sites that are older than "timeSpan"
-            List<string> siteFolders = await FileSystem.TempFileSystemProvider.GetDirectoriesAsync(YetaWFManager.RootSitesFolder);
+            if (!await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(TempUploadFolder)) return;
+            List<string> siteFolders = await FileSystem.TempFileSystemProvider.GetDirectoriesAsync(TempUploadFolder);
             foreach (var siteFolder in siteFolders) {
                 Logging.AddLog("Removing temp files in {0}", siteFolder);
-                string tempFolder = Path.Combine(siteFolder, Globals.TempFiles);
-                await RemoveExpiredTempFilesAsync(tempFolder, timeSpan);
+                await RemoveExpiredTempFilesAsync(siteFolder, timeSpan);
             }
         }
         private async Task RemoveExpiredTempFilesAsync(string tempFolder, TimeSpan timeSpan) {

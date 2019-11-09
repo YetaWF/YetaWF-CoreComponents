@@ -29,15 +29,15 @@ namespace YetaWF.Core.HttpHandler {
     /// </summary>
     public class ImageMiddleware {
 
-        private readonly RequestDelegate _next;
-        private ImageHttpHandler Handler;
+        //private readonly RequestDelegate _next;
+        private readonly ImageHttpHandler Handler;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="next">The delegate representing the remaining middleware in the request pipeline.</param>
         public ImageMiddleware(RequestDelegate next) {
-            _next = next;
+            //_next = next;
             Handler = new ImageHttpHandler();
         }
 

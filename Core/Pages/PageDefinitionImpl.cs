@@ -442,7 +442,10 @@ namespace YetaWF.Core.Pages {
         public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string cssClass = null, bool Conditional = true, PageDefinition UnifiedMainPage = null, bool PaneDiv = true, object Args = null) {
 
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
+
+            string oldPaneRendered = Manager.PaneRendered;
             Manager.PaneRendered = pane;
+
             // copy page's moduleDefinitions
             List<ModuleEntry> moduleList = (from m in ModuleDefinitions select m).ToList();
             // add templatepage moduleDefinitions
@@ -534,7 +537,7 @@ namespace YetaWF.Core.Pages {
                 }
             }
 
-            Manager.PaneRendered = null;
+            Manager.PaneRendered = oldPaneRendered;
 
             // figure out which modules are not in a defined pane on this page and add these panes dynamically after the Main pane
             // don't consider template page for modules

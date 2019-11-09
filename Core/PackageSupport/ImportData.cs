@@ -38,7 +38,7 @@ namespace YetaWF.Core.Packages {
                 }
 
                 // read contents file
-                xmlFile = Path.GetTempFileName();
+                xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                     ze = zip.GetEntry(PackageContentsFile);
                     if (ze == null) {
@@ -117,7 +117,7 @@ namespace YetaWF.Core.Packages {
                                     return false;
                                 }
 
-                                string xmlFile = Path.GetTempFileName();
+                                string xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                                     using (Stream entryStream = zip.GetInputStream(e)) {
                                         Extract(entryStream, fs);

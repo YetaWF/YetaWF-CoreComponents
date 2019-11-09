@@ -53,7 +53,7 @@ namespace YetaWF.Core.Modules {
 
             // serialize zipfile contents
             {
-                string fileName = Path.GetTempFileName();
+                string fileName = FileSystem.TempFileSystemProvider.GetTempFile();
                 zipFile.TempFiles.Add(fileName);
 
                 using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
