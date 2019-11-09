@@ -12,7 +12,7 @@ namespace YetaWF.Core.IO {
         // Data providers set by available data providers during application startup
 
         /// <summary>
-        /// A filesystem provider that accesses/updates a permanent file system.
+        /// A filesystem provider that accesses/updates a permanent file system. The permanent file system is shared between all nodes of a multi-instance site.
         /// </summary>
         public static IFileSystem FileSystemProvider { get; set; }
         /// <summary>
