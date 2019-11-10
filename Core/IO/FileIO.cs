@@ -8,8 +8,6 @@ using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.IO {
 
-    //TODO: Asyncify using FileIO WriteTextAsync etc. (Win 10 only)
-
     /// <summary>
     /// Implements file I/O for an object of type TObj.
     /// </summary>

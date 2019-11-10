@@ -120,8 +120,12 @@ namespace YetaWF.Core.Upload {
                 string filePath = Path.Combine(TempSiteUploadFolder, fileName);
 
 #if MVC6
-                using (FileStream fileStream = File.Create(filePath)) {// TODO: use FileSystemProvider
-                    uploadFile.CopyTo(fileStream);
+                using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
+                    if (YetaWFManager.IsSync()) {
+                        uploadFile.CopyTo(fileStream.GetFileStream());
+                    } else {
+                        await uploadFile.CopyToAsync(fileStream.GetFileStream());
+                    }
                 }
 #else
                 uploadFile.SaveAs(filePath);
@@ -131,8 +135,12 @@ namespace YetaWF.Core.Upload {
                 await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
                 string filePath = Path.Combine(folder, fileName);
 #if MVC6
-                using (FileStream fileStream = File.Create(filePath)) {// TODO: use FileSystemProvider
-                    uploadFile.CopyTo(fileStream);
+                using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
+                    if (YetaWFManager.IsSync()) {
+                        uploadFile.CopyTo(fileStream.GetFileStream());
+                    } else {
+                        await uploadFile.CopyToAsync(fileStream.GetFileStream());
+                    }
                 }
 #else
                 uploadFile.SaveAs(filePath);
