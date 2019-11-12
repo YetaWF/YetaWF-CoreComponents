@@ -25,14 +25,16 @@ namespace YetaWF.WebStartup {
 
             if (Startup.RunningInContainer) {
                 string dataFolder = Path.Combine(currPath, Globals.DataFolder);
-                if (!Directory.Exists(dataFolder)) {
+                if (!Directory.Exists(dataFolder) || IsEmptyDirectory(dataFolder)) {
+                    System.Console.WriteLine($"Initializing {dataFolder}");
                     // If we don't have a Data folder, copy the /DataInit folder to /Data
                     // This is needed with Docker during first-time installs.
                     string dataInitFolder = Path.Combine(currPath, "DataInit");
                     CopyFiles(dataInitFolder, dataFolder);
                 }
                 string maintFolder = Path.Combine(currPath, "wwwroot", "Maintenance");
-                if (!Directory.Exists(maintFolder)) {
+                if (!Directory.Exists(maintFolder) || IsEmptyDirectory(maintFolder)) {
+                    System.Console.WriteLine($"Initializing {maintFolder}");
                     // If we don't have a Maintenance folder, copy the MaintenanceInit folder to Maintenance
                     // This is needed with Docker during first-time installs.
                     string maintInitFolder = Path.Combine(currPath, "wwwroot", "MaintenanceInit");
@@ -43,7 +45,6 @@ namespace YetaWF.WebStartup {
             string hosting = GetHostingFile();
 
             //Host.CreateDefaultBuilder(args)
-
             IHost host = new HostBuilder()
                 .UseContentRoot(currPath)
                 .ConfigureHostConfiguration(configHost => {
@@ -100,16 +101,19 @@ namespace YetaWF.WebStartup {
         }
         private static string _HostingFile = null;
 
-        private static void CopyFiles(string srcInitFolder, string srcFolder) {
-            Directory.CreateDirectory(srcFolder);
+        private static void CopyFiles(string srcInitFolder, string targetFolder) {
+            Directory.CreateDirectory(targetFolder);
             string[] files = Directory.GetFiles(srcInitFolder);
             foreach (string file in files) {
-                File.Copy(file, Path.Combine(srcFolder, Path.GetFileName(file)));
+                File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
             }
             string[] dirs = Directory.GetDirectories(srcInitFolder);
             foreach (string dir in dirs) {
-                CopyFiles(dir, Path.Combine(srcFolder, Path.GetFileName(dir)));
+                CopyFiles(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
             }
+        }
+        private static bool IsEmptyDirectory(string folder) {
+            return Directory.GetFiles(folder).Length == 0 && Directory.GetDirectories(folder).Length == 0;
         }
     }
 

@@ -124,7 +124,7 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// The date/time when the sing-instance site or the first node of a multi-instance site was started.
+        /// The date/time when the single-instance site or the first node of a multi-instance site was started.
         /// </summary>
         public static DateTime MultiInstanceStartTime { get; private set; }
         /// <summary>
