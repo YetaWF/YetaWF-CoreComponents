@@ -106,12 +106,11 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Loads a file, returns a new instance of the object.
         /// </summary>
-        /// <param name="SpecificTypeOnly">Reserved for framework use.</param>
         /// <returns>Returns the data.</returns>
-        public async Task<TObj> LoadAsync(bool SpecificTypeOnly = false) {
+        public async Task<TObj> LoadAsync() {
             object data = null;
             GetObjectInfo<TObj> info = null;
-            if (Cacheable && !SpecificTypeOnly) {
+            if (Cacheable) {
                 using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                     info = await sharedCacheDP.GetAsync<TObj>(CacheKey);
                 }
@@ -123,7 +122,7 @@ namespace YetaWF.Core.IO {
                     Data = data,
                     Format = Format,
                 };
-                if (Cacheable && !SpecificTypeOnly) {
+                if (Cacheable) {
                     using (ILockObject lockObject = await FileSystem.FileSystemProvider.LockResourceAsync(Path.Combine(BaseFolder, FileName))) {
                         data = await io.LoadAsync();
                         if (Cacheable) {
@@ -134,19 +133,18 @@ namespace YetaWF.Core.IO {
                         await lockObject.UnlockAsync();
                     }
                 } else {
-                    data = await io.LoadAsync(SpecificTypeOnly: SpecificTypeOnly);
+                    data = await io.LoadAsync();
                 }
                 Date = (data != null) ? io.Date : null;
             } else {
                 data = info.Data;
             }
-            if (SpecificTypeOnly) {
-                if (data != null && typeof(TObj) == data.GetType())
+            if (data != null) {
+                try {
                     return (TObj)data;
-                else
-                    return default(TObj);
+                } catch (Exception) { }
             }
-            return (TObj)data;
+            return default(TObj);
         }
         /// <summary>
         /// Updates the object in an existing file.

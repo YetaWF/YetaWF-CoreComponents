@@ -46,7 +46,7 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Loads an object from a file.
         /// </summary>
-        public async Task<TObj> LoadAsync(bool SpecificTypeOnly = false) {
+        public async Task<TObj> LoadAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
             object data = null;
             try {
@@ -75,25 +75,18 @@ namespace YetaWF.Core.IO {
                 try {
                     data = new GeneralFormatter(Format).Deserialize<TObj>(btes);
                 } catch (Exception) {
-                    if (SpecificTypeOnly)
-                        data = null;
-                    else
-                        throw;
+                    data = null;
                 }
 
             }
-            if (SpecificTypeOnly) {
-                if (data != null && typeof(TObj) == data.GetType()) {
-                    Data = data;
+            if (data != null) {
+                try {
+                    Data = (TObj)data;
                     return (TObj)data;
-                } else {
-                    Data = null;
-                    return default(TObj);
-                }
-            } else {
-                Data = data;
-                return (TObj)Data;
+                } catch (Exception) { }
             }
+            Data = null;
+            return default(TObj);
         }
 
         /// <summary>
