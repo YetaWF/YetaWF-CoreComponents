@@ -438,7 +438,7 @@ namespace YetaWF.Core.Site {
             }
         }
 
-        [Category("Pages"), Caption("Allow Cache Use"), Description("Defines whether data caching is enabled (for example, client-side CSS file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - This is only honored in a Debug build")]
+        [Category("Pages"), Caption("Allow Cache Use"), Description("Defines whether data caching is enabled (for example, client-side CSS file caching) - When developing modules and for testing purposes, you can disable all caching by setting this property to No - Otherwise, caching should be enabled for optimal performance by setting this property to Yes - A site that is not marked deployed (see AppSettings.json, Application.P.YetaWF_Core.Deployed) does not use caching and this setting is ignored")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool AllowCacheUse { get; set; }
