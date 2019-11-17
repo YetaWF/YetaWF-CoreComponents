@@ -7,11 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using YetaWF.Core;
 using YetaWF.Core.Support;
 using YetaWF2.Logger;
 
-namespace YetaWF.WebStartup {
+namespace YetaWF.Core.WebStartup {
 
     public partial class StartupMVC6 {
 

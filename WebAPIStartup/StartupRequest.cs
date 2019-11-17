@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using YetaWF.Core.Support;
 
-namespace YetaWF.WebAPIStartup {
+namespace YetaWF.Core.WebAPIStartup {
 
     /// <summary>
     /// The class implementing YetaWF API service requests.

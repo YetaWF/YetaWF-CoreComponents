@@ -44,7 +44,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 // Migrating to asp.net core 3.0 https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0
 
-namespace YetaWF.WebStartup {
+namespace YetaWF.Core.WebStartup {
 
     /// <summary>
     /// The class implementing all startup processing for a YetaWF website.

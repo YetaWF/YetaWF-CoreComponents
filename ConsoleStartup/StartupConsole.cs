@@ -11,12 +11,8 @@ using YetaWF.Core.DataProvider;
 using YetaWF.Core.Language;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Routing;
-#else
-#endif
 
-namespace YetaWF.ConsoleStartup {
+namespace YetaWF.Core.ConsoleStartup {
 
     /// <summary>
     /// This class is used by a console application during startup to initialize packages and perform startup processing.

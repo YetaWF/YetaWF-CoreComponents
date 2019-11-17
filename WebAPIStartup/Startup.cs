@@ -19,7 +19,7 @@ using YetaWF2.Support;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 #endif
 
-namespace YetaWF.WebAPIStartup {
+namespace YetaWF.Core.WebAPIStartup {
 
     /// <summary>
     /// This class is used by a Web API service (typically a Docker container) during startup to initialize packages and perform startup processing.

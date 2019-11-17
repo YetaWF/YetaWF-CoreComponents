@@ -9,7 +9,7 @@ using System.IO;
 using YetaWF.Core.Language;
 using YetaWF.Core.Support;
 
-namespace YetaWF.WebAPIStartup {
+namespace YetaWF.Core.WebAPIStartup {
 
     /// <summary>
     /// The class implenting a YetaWF API service .

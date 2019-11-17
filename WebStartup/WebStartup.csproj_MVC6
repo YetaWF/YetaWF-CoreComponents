@@ -4,7 +4,7 @@
     <Version>5.0.0.0</Version>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
-    <AssemblyName>YetaWF.WebStartup</AssemblyName>
+    <AssemblyName>YetaWF.Core.WebStartup</AssemblyName>
     <PackageId>WebStartup</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
@@ -13,7 +13,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <RootNamespace>YetaWF.WebStartup</RootNamespace>
+    <RootNamespace>YetaWF.Core.WebStartup</RootNamespace>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />

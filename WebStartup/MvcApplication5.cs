@@ -11,7 +11,7 @@ using YetaWF.Core;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
 
-namespace YetaWF.WebStartup {
+namespace YetaWF.Core.WebStartup {
 
     public class MvcApplication5 : System.Web.HttpApplication {
 
