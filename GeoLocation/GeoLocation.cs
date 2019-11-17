@@ -4,8 +4,9 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
+using YetaWF.Core.Support;
 
-namespace YetaWF.Core.Support {
+namespace YetaWF.Core.GeoLocation {
 
     /// <summary>
     /// Manages geolocation information as provided by https://www.geoplugin.com/.
@@ -180,7 +181,7 @@ namespace YetaWF.Core.Support {
 
             if (ipAddress == "127.0.0.1")
                 return null;
-            UriBuilder uri = new UriBuilder(string.Format("http://www.geoplugin.net/json.gp?ip={0}", ipAddress));
+            UriBuilder uri = new UriBuilder($"http://www.geoplugin.net/json.gp?ip={ipAddress}");
             GeoData geoData = null;
             try {
                 var http = (HttpWebRequest)WebRequest.Create(uri.ToString());
