@@ -317,7 +317,6 @@
     <Compile Include="Skins\Images.cs" />
     <Compile Include="Skins\SkinAccess.cs" />
     <Compile Include="Support\Assemblies\Assemblies.cs" />
-    <Compile Include="Support\GeoLocation\GeoLocation.cs" />
     <Compile Include="Support\Gravatar\Gravatar.cs" />
     <Compile Include="Support\PermanentManager.cs" />
     <Compile Include="Support\Repository\Setting.cs" />
