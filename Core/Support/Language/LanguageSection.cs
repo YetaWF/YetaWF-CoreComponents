@@ -44,9 +44,6 @@ namespace YetaWF.Core.Language {
             }
         }
 
-        private static string SettingsFile;
-        private static dynamic Settings;
-
         private static LanguageEntryElementCollection GetLanguages(dynamic settings) {
             dynamic LanguageSection = settings["LanguageSection"];
             LanguageEntryElementCollection list = new LanguageEntryElementCollection();
