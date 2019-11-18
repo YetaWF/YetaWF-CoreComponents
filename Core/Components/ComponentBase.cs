@@ -6,7 +6,6 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 using System.Collections.Generic;
 #if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 #else
 using System.Web.Mvc;
 using System.Web.Routing;

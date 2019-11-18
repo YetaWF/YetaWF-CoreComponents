@@ -18,31 +18,42 @@ namespace YetaWF.Core.Language {
 
         // Languages
 
-        public static LanguageEntryElementCollection Languages { get; set; }
+        /// <summary>
+        /// List of supported languages.
+        /// </summary>
+        public static LanguageEntryElementCollection Languages { get; private set; }
 
+        /// <summary>
+        /// Load the specified languages definition file.
+        /// </summary>
+        /// <param name="settingsFile">The languages definition file. May be null in which case only the default language US-en is available.</param>
         public static Task InitAsync(string settingsFile) {
-            if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
-                throw new InternalError("Language settings not defined - file {0} not found", settingsFile);
-            SettingsFile = settingsFile;
-            Settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
-            Languages = GetLanguages();
-            return Task.CompletedTask;
+            if (settingsFile == null || !File.Exists(settingsFile)) { // use local file system as we need this during initialization
+                Languages = new LanguageEntryElementCollection {
+                    new LanguageEntryElement {
+                        Id = "en-US",
+                        ShortName = "English",
+                        Description = "US English"
+                    },
+                };
+                return Task.CompletedTask;
+            } else {
+                dynamic settings = Utility.JsonDeserialize(File.ReadAllText(settingsFile)); // use local file system as we need this during initialization
+                Languages = GetLanguages(settings);
+                return Task.CompletedTask;
+            }
         }
 
         private static string SettingsFile;
         private static dynamic Settings;
 
-        private static LanguageEntryElementCollection GetLanguages() {
-            dynamic LanguageSection = Settings["LanguageSection"];
+        private static LanguageEntryElementCollection GetLanguages(dynamic settings) {
+            dynamic LanguageSection = settings["LanguageSection"];
             LanguageEntryElementCollection list = new LanguageEntryElementCollection();
             foreach (var t in LanguageSection["Languages"]) {
                 list.Add(new LanguageEntryElement { Id = (string)t["Id"], ShortName = (string)t["ShortName"], Description = (string)t["Description"] });
             }
             return list;
         }
-        //public static void Save() {
-        //    string s = Utility.JsonSerialize(Settings);
-        //    File.WriteAllText(SettingsFile, s);
-        //}
     }
 }

@@ -11,8 +11,6 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using System.Linq;
 #if MVC6
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Html;
 #else
 using System.Web;
 using System.Web.Mvc;

@@ -500,7 +500,8 @@ namespace YetaWF.Core.Controllers {
 
                         if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local) {
                             DateTime dl = (DateTime)dt;
-                            if (prop.UIHint == "DateTime" || prop.UIHint == "Time" || prop.UIHint == "Date") {
+                            if (prop.UIHint == "DateTime" || prop.UIHint == "Time" || prop.UIHint == "Date" ||
+                                prop.UIHint.EndsWith("_DateTime") || prop.UIHint.EndsWith("_Time") || prop.UIHint.EndsWith("_Date")) {
                                 // we're receiving date/time in the local timezone so we now have to convert it to Utc
                                 dt = dl.ToUniversalTime();
                                 pi.SetValue(parm, dt, null);
