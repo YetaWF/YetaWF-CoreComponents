@@ -13,7 +13,7 @@ namespace YetaWF.Core.ConsoleStartup.Support {
         /// <summary>
         /// Tests whether the application can access the Internet.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns true if Internet connectivity is available, false otherwise.</returns>
         public static bool IsConnectedToInternet() {
             try {
                 Ping myPing = new Ping();
