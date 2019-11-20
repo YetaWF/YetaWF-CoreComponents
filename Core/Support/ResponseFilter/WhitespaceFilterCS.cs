@@ -51,12 +51,13 @@ namespace YetaWF.Core.ResponseFilter {
         /// Inside pre and textarea tags no optimization is performed.
         /// </remarks>
         public static string Compress(YetaWFManager manager, string inputBuffer) {
-            WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter(manager);
-            string output = wsf.ProcessAllInputCheckLazy(inputBuffer).ToString();
+            using (WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter(manager)) {
+                string output = wsf.ProcessAllInputCheckLazy(inputBuffer).ToString();
 #if DEBUG
-            output += string.Format("<!-- WhitespaceFilter optimized from {0} bytes to {1} -->", inputBuffer.Length, output.Length);
+                output += string.Format("<!-- WhitespaceFilter optimized from {0} bytes to {1} -->", inputBuffer.Length, output.Length);
 #endif
-            return output;
+                return output;
+            }
         }
 
         /// <summary>
@@ -183,27 +184,8 @@ namespace YetaWF.Core.ResponseFilter {
             return output;
         }
 
-        /// <summary>
-        /// White space compression.
-        /// </summary>
-        /// <param name="inputBuffer">The input buffer containing HTML.</param>
-        /// <returns>Compressed output.</returns>
-        private string ProcessRemainingInput2(string inputBuffer) {
-            if (inputBuffer == "") return "";
-            inputBuffer = inputBuffer.Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
-            for (int oldLen = inputBuffer.Length; ; ) {
-                inputBuffer = inputBuffer.Replace("        ", " ").Replace("    ", " ").Replace("  ", " ");
-                int newLen = inputBuffer.Length;
-                if (oldLen == newLen)
-                    break;
-                oldLen = newLen;
-            }
-            if (Aggressive)
-                inputBuffer = inputBuffer.Replace("> <", "><");
-            return inputBuffer;
-        }
         private string ProcessRemainingInput(string inputBuffer) {
-            if (inputBuffer == "") return "";
+            if (string.IsNullOrEmpty("")) return "";
             StringBuilder sb = new StringBuilder(inputBuffer);
             sb.Replace('\t', ' ');
             sb.Replace('\r', ' ');
