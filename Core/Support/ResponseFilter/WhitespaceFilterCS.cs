@@ -185,7 +185,7 @@ namespace YetaWF.Core.ResponseFilter {
         }
 
         private string ProcessRemainingInput(string inputBuffer) {
-            if (string.IsNullOrEmpty("")) return "";
+            if (string.IsNullOrEmpty(inputBuffer)) return "";
             StringBuilder sb = new StringBuilder(inputBuffer);
             sb.Replace('\t', ' ');
             sb.Replace('\r', ' ');
