@@ -734,6 +734,11 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public string PageMetaTags { get; set; }
 
+        [Category("Meta"), Caption("Default SiteMap"), Description("Defines whether the site map is saved as the site's default site map /sitemap.xml")]
+        [UIHint("Boolean")]
+        [Data_NewValue]
+        public bool DefaultSiteMap { get; set; }
+
         [Category("Meta"), Caption("SiteMap Default Priority"), Description("Defines the default page priority used for the site map - Each page can override the default value using its SiteMap Priority property")]
         [UIHint("Enum")]
         [Data_NewValue]
