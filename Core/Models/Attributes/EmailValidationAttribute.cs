@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class EmailValidationAttribute : DataTypeAttribute, YIClientValidation {
+    public class EmailValidationAttribute : DataTypeAttribute /*, YIClientValidation - disable as too confusing */ {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
@@ -19,7 +19,7 @@ namespace YetaWF.Core.Models.Attributes {
         }
 
         // aligned with jquery.validate.js
-        private static Regex _regex = new Regex(@"^\s*[a-zA-Z0-9\.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+        private static Regex _regex = new Regex(@"^[a-zA-Z0-9\.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
         public override bool IsValid(object value) {
             if (value == null) return true;
