@@ -572,7 +572,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public class ReferencedModule {
             public Guid ModuleGuid { get; set; }
             public static void AddReferencedModule(SerializableList<ReferencedModule> refmods, Guid refGuid) {
-                if ((from r in refmods where r.ModuleGuid == refGuid select r).Count() == 0)
+                if (! (from r in refmods where r.ModuleGuid == refGuid select r).Any())
                     refmods.Add(new ModuleDefinition.ReferencedModule { ModuleGuid = refGuid });
             }
             public static void AddReferences(SerializableList<ModuleDefinition.ReferencedModule> referencedModules, SerializableList<ModuleDefinition.ReferencedModule> refMods) {
