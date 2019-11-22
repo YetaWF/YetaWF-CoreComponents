@@ -887,7 +887,7 @@ namespace YetaWF {
          * Adds an object (a Typescript class) to a tag. Used for cleanup when a parent div is removed.
          * Typically used by templates.
          * Objects attached to divs are terminated by processClearDiv which calls any handlers that registered a
-         * template class using addClearDivForObjects.
+         * template class using addObjectDataById.
          * @param tagId - The element id (DOM) where the object is attached
          * @param obj - the object to attach
          */

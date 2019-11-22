@@ -44,9 +44,9 @@ Core/Addons/_JS/bassistance.de/jquery-validation/**/*.min.js
 Core/Addons/_JS/bassistance.de/jquery-validation/**/*.min.css
 Core/Addons/_JS/bassistance.de/jquery-validation/**/*.min.scss
 
-Core/Addons/_JS/ckeditor.com/ckeditor/**/*.min.js
-Core/Addons/_JS/ckeditor.com/ckeditor/**/*.min.css
-Core/Addons/_JS/ckeditor.com/ckeditor/**/*.min.scss
+Core/Addons/_JS/ckeditor.com/ckeditor4/**/*.min.js
+Core/Addons/_JS/ckeditor.com/ckeditor4/**/*.min.css
+Core/Addons/_JS/ckeditor.com/ckeditor4/**/*.min.scss
 
 Core/Addons/_JS/getbootstrap.com/bootstrap-less/**/*.min.js
 Core/Addons/_JS/getbootstrap.com/bootstrap-less/**/*.min.css
