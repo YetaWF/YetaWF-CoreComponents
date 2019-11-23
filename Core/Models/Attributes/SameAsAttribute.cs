@@ -37,11 +37,15 @@ namespace YetaWF.Core.Models.Attributes {
             PropertyInfo pi = ObjectSupport.GetProperty(type, RequiredPropertyName);
             return pi.GetValue(model, null);
         }
-        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("SameAs", "The {0} field doesn't match", propData.GetCaption(container));
-            tag.MergeAttribute("data-val-sameas", msg);
-            tag.MergeAttribute("data-val-sameas-" + Forms.ConditionPropertyName, AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName));
-            tag.MergeAttribute("data-val", "true");
+        public class ValidationSameAs : ValidationBase {
+            public string CondProp { get; set; }
+        }
+        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+            return new ValidationSameAs {
+                Method = nameof(SameAsAttribute),
+                Message = __ResStr("sameas", "The {0} field doesn't match", caption),
+                CondProp = AttributeHelper.GetDependentPropertyName(this.RequiredPropertyName),
+            };
         }
     }
 }

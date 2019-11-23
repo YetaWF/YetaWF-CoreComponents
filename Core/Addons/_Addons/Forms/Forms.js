@@ -98,7 +98,7 @@ var YetaWF;
          * Validate all fields in the current form.
          */
         Forms.prototype.validate = function (form) {
-            YetaWF_FormsImpl.validate(form);
+            return YetaWF_FormsImpl.validate(form);
         };
         /**
          * Returns whether all fields in the current form are valid.
@@ -117,11 +117,12 @@ var YetaWF;
             }
             var onSubmitExtraData = extraData ? extraData : "";
             onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
+            var formValid = true;
             if (useValidation)
-                this.validate(form);
+                formValid = this.validate(form);
             $YetaWF.closeOverlays();
             $YetaWF.setLoading(true);
-            if (!useValidation || this.isValid(form)) {
+            if (!useValidation || formValid) {
                 // serialize the form
                 var formData = this.serializeForm(form);
                 // add extra data

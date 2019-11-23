@@ -615,7 +615,11 @@ namespace YetaWF.Core.Models.Attributes {
             }
         }
 
-        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+        public class ValidationRequiredExpr : ValidationBase {
+            public OpEnum Op { get; set; }
+            public string Expr { get; set; }
+        }
+        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
             switch (Op) {
                 default:
                     throw new InternalError($"Invalid Op {Op} in {nameof(AddValidation)}");
@@ -623,52 +627,24 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.RequiredIf:
                 case OpEnum.RequiredIfNot:
                 case OpEnum.RequiredIfSupplied:
-                case OpEnum.RequiredIfNotSupplied: {
-                        string msg = __ResStr("requiredExpr", "The '{0}' field is required", propData.GetCaption(container));
-                        string op = ((int)Op).ToString();
-                        string newExpr = Utility.JsonSerialize(ExprList);
-                        string oldExpr = "";
-                        if (tag.Attributes.TryGetValue("data-val-requiredexpr-json", out oldExpr)) {
-                            oldExpr = oldExpr.Substring(1, oldExpr.Length - 2); // remove leading/trailing []
-                            oldExpr += ",";
-                        }
-#if DEBUG
-                        if (tag.Attributes.ContainsKey("data-val-requiredexpr") && tag.Attributes["data-val-requiredexpr"] != msg)
-                            throw new InternalError($"Multiple Requiredxxx attributes on the {propData.Name} property must use the same error message");
-                        if (tag.Attributes.ContainsKey("data-val-requiredexpr-op") && tag.Attributes["data-val-requiredexpr-op"] != op)
-                            throw new InternalError($"Multiple Requiredxxx attributes on the {propData.Name} property must use the same operator (If, IfNot, etc.)");
-#endif
-                        tag.MergeAttribute("data-val-requiredexpr", msg);
-                        tag.MergeAttribute("data-val-requiredexpr-op", ((int)Op).ToString());
-                        tag.MergeAttribute("data-val-requiredexpr-json", $"[{oldExpr}{newExpr}]", replaceExisting: true);
-                        tag.MergeAttribute("data-val", "true");
-                        break;
-                    }
+                case OpEnum.RequiredIfNotSupplied:
+                    return new ValidationRequiredExpr {
+                        Method = nameof(ExprAttribute),
+                        Message = __ResStr("requiredExpr", "The '{0}' field is required", caption),
+                        Op = Op,
+                        Expr = Utility.JsonSerialize(ExprList),
+                    };
                 case OpEnum.SelectionRequired:
                 case OpEnum.SelectionRequiredIf:
                 case OpEnum.SelectionRequiredIfNot:
                 case OpEnum.SelectionRequiredIfSupplied:
-                case OpEnum.SelectionRequiredIfNotSupplied: {
-                        string msg = __ResStr("requiredSelExpr", "The '{0}' field requires a selection", propData.GetCaption(container));
-                        string op = ((int)Op).ToString();
-                        string newExpr = Utility.JsonSerialize(ExprList);
-                        string oldExpr = "";
-                        if (tag.Attributes.TryGetValue("data-val-requiredexpr-json", out oldExpr)) {
-                            oldExpr = oldExpr.Substring(1, oldExpr.Length - 2); // remove leading/trailing []
-                            oldExpr += ",";
-                        }
-#if DEBUG
-                        if (tag.Attributes.ContainsKey("data-val-requiredexpr") && tag.Attributes["data-val-requiredexpr"] != msg)
-                            throw new InternalError($"Multiple SelectionRequiredxxx attributes on the {propData.Name} property must use the same error message");
-                        if (tag.Attributes.ContainsKey("data-val-requiredexpr-op") && tag.Attributes["data-val-requiredexpr-op"] != op)
-                            throw new InternalError($"Multiple SelectionRequiredxxx attributes on the {propData.Name} property must use the same operator (If, IfNot, etc.)");
-#endif
-                        tag.MergeAttribute("data-val-requiredexpr", msg);
-                        tag.MergeAttribute("data-val-requiredexpr-op", ((int)Op).ToString());
-                        tag.MergeAttribute("data-val-requiredexpr-json", $"[{oldExpr}{newExpr}]", replaceExisting: true);
-                        tag.MergeAttribute("data-val", "true");
-                        break;
-                    }
+                case OpEnum.SelectionRequiredIfNotSupplied:
+                    return new ValidationRequiredExpr {
+                        Method = nameof(ExprAttribute),
+                        Message = __ResStr("requiredSelExpr", "The '{0}' field requires a selection", caption),
+                        Op = Op,
+                        Expr = Utility.JsonSerialize(ExprList),
+                    };
                 case OpEnum.SuppressIf:
                 case OpEnum.SuppressIfNot:
                 case OpEnum.SuppressIfSupplied:
@@ -683,6 +659,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.HideIfNotSupplied:
                     break;
             }
+            return null;
         }
     }
 }

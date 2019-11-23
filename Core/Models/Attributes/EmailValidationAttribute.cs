@@ -40,10 +40,10 @@ namespace YetaWF.Core.Models.Attributes {
             } else
                 throw new InternalError("Invalid type used for EmailValidationAttribute - {0}", value.GetType().FullName);
         }
-        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain' where domain can be any domain like domain.com, domain.net, domain.io, etc.", propData.GetCaption(container));
-            tag.MergeAttribute("data-val-email", msg);
-            tag.MergeAttribute("data-val", "true");
-        }
+        //public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
+        //    string msg = __ResStr("valEmail2", "The email address for the field labeled '{0}' is invalid - it should be in the format 'user@domain' where domain can be any domain like domain.com, domain.net, domain.io, etc.", propData.GetCaption(container));
+        //    tag.MergeAttribute("data-val-email", msg);
+        //    tag.MergeAttribute("data-val", "true");
+        //}
     }
 }

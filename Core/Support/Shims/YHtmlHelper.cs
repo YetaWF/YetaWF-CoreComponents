@@ -3,6 +3,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using YetaWF.Core.Controllers;
+using YetaWF.Core.Addons;
 #if MVC6
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
@@ -86,32 +88,6 @@ namespace YetaWF.Core.Support {
             return YetaWFManager.Manager.AntiForgeryTokenHTML;
         }
 
-        public static string ValidationSummary(this YHtmlHelper htmlHelper) {
-            IEnumerable<ModelError> errors = null;
-            errors = htmlHelper.ModelState.SelectMany(c => c.Value.Errors);
-
-            bool hasErrors = errors != null && errors.Any();
-
-            YTagBuilder tagBuilder = new YTagBuilder("div");
-            tagBuilder.AddCssClass(hasErrors ? "validation-summary-errors" : "validation-summary-valid");
-            tagBuilder.MergeAttribute("data-valmsg-summary", "true");
-
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("<ul>");
-            if (hasErrors) {
-                foreach (var error in errors) {
-                    builder.Append("<li>");
-                    builder.Append(Utility.HtmlEncode(error.ErrorMessage));
-                    builder.AppendLine("</li>");
-                }
-            } else {
-                builder.AppendLine("<li style='display:none'></li>");
-            }
-            builder.Append("</ul>");
-            tagBuilder.InnerHtml = builder.ToString();
-            return tagBuilder.ToString(YTagRenderMode.Normal);
-        }
-
         /// <summary>
         /// Returns the client-side validation message for a component with the specified field name.
         /// </summary>
@@ -138,12 +114,20 @@ namespace YetaWF.Core.Support {
             }
 
             YTagBuilder tagBuilder = new YTagBuilder("span");
-            tagBuilder.InnerHtml = Utility.HtmlEncode(error);
-            bool replaceValidationMessageContents = string.IsNullOrWhiteSpace(error);
-            tagBuilder.MergeAttribute("data-valmsg-for", fieldName);
-            tagBuilder.MergeAttribute("data-valmsg-replace", replaceValidationMessageContents.ToString().ToLowerInvariant());
+            tagBuilder.MergeAttribute("data-v-for", fieldName);
+            tagBuilder.AddCssClass(hasError ? "v-error" : "v-valid");
 
-            tagBuilder.AddCssClass(hasError ? "field-validation-error" : "field-validation-valid");
+            if (hasError) {
+                // we're building the same client side in validation.ts, make sure to keep in sync
+                // <img src="${$YetaWF.htmlAttrEscape(YConfigs.Forms.CssWarningIconUrl)}" name=${name} class="${YConfigs.Forms.CssWarningIcon}" ${YConfigs.Basics.CssTooltip}="${$YetaWF.htmlAttrEscape(val.M)}"/>
+                YTagBuilder tagImg = new YTagBuilder("img");
+                string url = "/Addons/YetaWF/Core/_Skins/Standard/Icons/WarningIcon.png";///$$$$$
+                tagImg.Attributes.Add("src", url);
+                tagImg.Attributes.Add("name", fieldName);
+                tagImg.AddCssClass(Forms.CssWarningIcon);
+                tagImg.Attributes.Add(Basics.CssTooltip, error);
+                tagBuilder.InnerHtml = tagImg.ToString();
+            }
             return tagBuilder.ToString(YTagRenderMode.Normal);
         }
     }

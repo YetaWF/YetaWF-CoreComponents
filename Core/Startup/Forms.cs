@@ -8,6 +8,7 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Addons {
+
     public class Forms : IAddOnSupport {
 
         public const string UniqueIdCounters = "__UniqueIdCounters";

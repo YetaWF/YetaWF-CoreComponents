@@ -1,22 +1,20 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Collections.Generic;
-#else
-#endif
 
 namespace YetaWF.Core.Models {
 
     public interface YIClientValidation {
-        void AddValidation(object container, PropertyData propData, YTagBuilder tag);
+        ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag);
+    }
+    public class ValidationBase {
+        public string Method { get; set; }
+        [JsonIgnore]
+        public string Message { get; set; }
+        public string M { get { return Message; } }// use a short name for serialization
     }
 
     public static class AttributeHelper {

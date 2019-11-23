@@ -57,14 +57,18 @@ namespace YetaWF.Core.Models.Attributes {
                     caption, MinimumLength, MaximumLength);
             return errorMessage;
         }
-        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            if (MaximumLength == 0) return;
-            string msg = GetErrorMessage(propData.GetCaption(container));
-            tag.MergeAttribute("data-val-length", msg);
-            tag.MergeAttribute("data-val-length-max", MaximumLength.ToString());
-            if (MinimumLength > 0)
-                tag.MergeAttribute("data-val-length-min", MinimumLength.ToString());
-            tag.MergeAttribute("data-val", "true");
+        public class ValidationStringLength : ValidationBase {
+            public int Min { get; set; }
+            public int Max { get; set; }
+        }
+        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+            if (MaximumLength == 0) return null;
+            return new ValidationStringLength {
+                Method = nameof(StringLengthAttribute),
+                Message = GetErrorMessage(caption),
+                Min = MinimumLength,
+                Max = MaximumLength,
+            };
         }
     }
 
@@ -78,12 +82,17 @@ namespace YetaWF.Core.Models.Attributes {
         public RangeAttribute(decimal minimum, decimal maximum) : base((double) minimum, (double) maximum) { }
         public RangeAttribute(Type type, string minimum, string maximum) : base(type, minimum, maximum) { }
 
-        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = ErrorMessage ?? __ResStr("range", "The '{0}' value must be between {1} and {2}", propData.GetCaption(container), Minimum, Maximum);
-            tag.MergeAttribute("data-val-range", msg);
-            tag.MergeAttribute("data-val-range-min", base.Minimum.ToString());
-            tag.MergeAttribute("data-val-range-max", base.Maximum.ToString());
-            tag.MergeAttribute("data-val", "true");
+        public class ValidationRange : ValidationBase {
+            public object Min { get; set; }
+            public object Max { get; set; }
+        }
+        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+            return new ValidationRange {
+                Method = nameof(RangeAttribute),
+                Message = __ResStr("range", "The '{0}' value must be between {1} and {2}", caption, Minimum, Maximum),
+                Min = Minimum,
+                Max = Maximum,
+            };
         }
     }
 

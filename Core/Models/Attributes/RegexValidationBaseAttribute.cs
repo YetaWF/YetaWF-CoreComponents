@@ -60,11 +60,15 @@ namespace YetaWF.Core.Models.Attributes {
             } else
                 throw new InternalError("Invalid type used for RegexValidationBaseAttribute - {0}", value.GetType().FullName);
         }
-        public void AddValidation(object container, PropertyData propData, YTagBuilder tag) {
-            string msg = string.Format(ErrorMessageWithFieldFormat, propData.GetCaption(container));
-            tag.MergeAttribute("data-val-regex", msg);
-            tag.MergeAttribute("data-val-regex-pattern", Pattern);
-            tag.MergeAttribute("data-val", "true");
+        public class ValidationRegexValidationBase : ValidationBase {
+            public string Pattern { get; set; }
+        }
+        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+            return new ValidationRegexValidationBase {
+                Method = nameof(RegexValidationBaseAttribute),
+                Message = string.Format(ErrorMessageWithFieldFormat, caption),
+                Pattern = Pattern,
+            };
         }
     }
 }

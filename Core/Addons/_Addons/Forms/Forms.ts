@@ -35,7 +35,7 @@ namespace YetaWF {
         /**
          * Validates all fields in the current form.
          */
-        validate(form: HTMLFormElement): void;
+        validate(form: HTMLFormElement): boolean;
         /**
          * Returns whether all fields in the current form are valid.
          */
@@ -187,8 +187,8 @@ namespace YetaWF {
         /**
          * Validate all fields in the current form.
          */
-        public validate(form: HTMLFormElement): void {
-            YetaWF_FormsImpl.validate(form);
+        public validate(form: HTMLFormElement): boolean {
+            return YetaWF_FormsImpl.validate(form);
         }
         /**
          * Returns whether all fields in the current form are valid.
@@ -212,13 +212,14 @@ namespace YetaWF {
             var onSubmitExtraData = extraData ? extraData : "";
             onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
 
+            let formValid = true;
             if (useValidation)
-                this.validate(form);
+                formValid = this.validate(form);
 
             $YetaWF.closeOverlays();
             $YetaWF.setLoading(true);
 
-            if (!useValidation || this.isValid(form)) {
+            if (!useValidation || formValid) {
 
                 // serialize the form
                 var formData = this.serializeForm(form);
