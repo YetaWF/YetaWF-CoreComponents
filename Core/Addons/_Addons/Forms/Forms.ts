@@ -75,12 +75,6 @@ namespace YetaWF {
         UniqueIdCounters: string;
         RequestVerificationToken: string;
 
-        // Validation (not implementation specific) used by validation attributes
-        ConditionPropertyName: string;
-        ConditionPropertyValue: string;
-        ConditionPropertyValueLow: string;
-        ConditionPropertyValueHigh: string;
-
         // Css used which is global to YetaWF (not implementation specific)
 
         CssFormPartial: string;

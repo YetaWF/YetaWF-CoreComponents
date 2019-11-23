@@ -1263,7 +1263,8 @@ namespace YetaWF {
          */
         public getAttribute(elem: HTMLElement, name: string): string {
             var val = elem.getAttribute(name);
-            if (!val) throw `missing ${name} attribute`;
+            if (!val)
+                throw `missing ${name} attribute`;
             return val;
         }
         /**

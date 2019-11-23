@@ -60,10 +60,6 @@ Core/Addons/_JS/github.com.danielm/uploader/**/*.min.js
 Core/Addons/_JS/github.com.danielm/uploader/**/*.min.css
 Core/Addons/_JS/github.com.danielm/uploader/**/*.min.scss
 
-Core/Addons/_JS/github.com.free-jqgrid/jqgrid/**/*.min.js
-Core/Addons/_JS/github.com.free-jqgrid/jqgrid/**/*.min.css
-Core/Addons/_JS/github.com.free-jqgrid/jqgrid/**/*.min.scss
-
 Core/Addons/_JS/github.com.mar10/jquery-ui-contextmenu/**/*.min.js
 Core/Addons/_JS/github.com.mar10/jquery-ui-contextmenu/**/*.min.css
 Core/Addons/_JS/github.com.mar10/jquery-ui-contextmenu/**/*.min.scss
@@ -78,13 +74,6 @@ Core/Addons/_JS/google.com.swfobject/swfobject/**/*.min.js
 Core/Addons/_JS/jqueryui.com/jqueryui/**/*.min.js
 Core/Addons/_JS/jqueryui.com/jqueryui/**/*.min.css
 Core/Addons/_JS/jqueryui.com/jqueryui/**/*.min.scss
-
-Core/Addons/_JS/jstree.com/jstree/**/*.min.js
-Core/Addons/_JS/jstree.com/jstree/**/*.min.css
-Core/Addons/_JS/jstree.com/jstree/**/*.min.scss
-
-# medialize.github.io/uri.js - provides min files
-# microsoft.com/jquery_unobtrusive_validation - provides min files
 
 Core/Addons/_JS/necolas.github.io/normalize/**/*.min.js
 Core/Addons/_JS/necolas.github.io/normalize/**/*.min.css

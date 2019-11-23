@@ -13,12 +13,6 @@ namespace YetaWF.Core.Addons {
 
         public const string UniqueIdCounters = "__UniqueIdCounters";
 
-        // Http request Form[] variables
-        public const string ConditionPropertyName = "conditionpropertyname";
-        public const string ConditionPropertyValue = "conditionpropertyvalue";
-        public const string ConditionPropertyValueLow = "conditionpropertyvaluelow";
-        public const string ConditionPropertyValueHigh = "conditionpropertyvaluehigh";
-
         // Forms support
         public const string CssFormPartial = "yform-partial";
         public const string CssFormAjax = "yform-ajax";
@@ -27,6 +21,8 @@ namespace YetaWF.Core.Addons {
         public const string CssFormCancel = "yform-cancel"; // used for cancel button
         public const string CssWarningIcon = "yform-warningicon";
         public const string CssDataApplyButton = "data-apply-button";// used as attribute for Apply button (input[type=submit])
+
+        public static string CssWarningIconUrl { get; private set; }
 
         public async Task AddSupportAsync(YetaWFManager manager) {
 
@@ -46,11 +42,6 @@ namespace YetaWF.Core.Addons {
 
             // Validation (not implementation specific) used by validation attributes
 
-            scripts.AddConfigOption("Forms", "ConditionPropertyName", ConditionPropertyName);
-            scripts.AddConfigOption("Forms", "ConditionPropertyValue", ConditionPropertyValue);
-            scripts.AddConfigOption("Forms", "ConditionPropertyValueLow", ConditionPropertyValueLow);
-            scripts.AddConfigOption("Forms", "ConditionPropertyValueHigh", ConditionPropertyValueHigh);
-
             // Css used which is global to YetaWF (not implementation specific)
 
             scripts.AddConfigOption("Forms", "CssFormPartial", CssFormPartial);
@@ -61,8 +52,8 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Forms", "CssDataApplyButton", CssDataApplyButton);
             scripts.AddConfigOption("Forms", "CssWarningIcon", CssWarningIcon);
 
-            string url = await skinImages.FindIcon_PackageAsync("WarningIcon.png", package);
-            scripts.AddConfigOption("Forms", "CssWarningIconUrl", url);
+            CssWarningIconUrl = await skinImages.FindIcon_PackageAsync("WarningIcon.png", package);
+            scripts.AddConfigOption("Forms", "CssWarningIconUrl", CssWarningIconUrl);
 
             // UI settings - global to YetaWF
 

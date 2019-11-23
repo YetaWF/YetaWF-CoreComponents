@@ -1,10 +1,6 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using YetaWF.Core.Controllers;
-using YetaWF.Core.Addons;
 #if MVC6
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
@@ -66,17 +62,21 @@ namespace YetaWF.Core.Support {
 #endif
         }
     }
-
     /// <summary>
     /// Static class implementing HtmlHelper/IHtmlHelper extension methods.
     /// </summary>
     public static class YHtmlHelperExtender {
 
+        /// <summary>
+        /// Creates and returns an antiforgery token (HTML).
+        /// </summary>
+        /// <param name="htmlHelper">An instance of a YHtmlHelper.</param>
+        /// <returns>Returns an antiforgery token (HTML).</returns>
         public static string AntiForgeryToken(this YHtmlHelper htmlHelper) {
             if (YetaWFManager.Manager.AntiForgeryTokenHTML == null) {
 #if MVC6
                 IAntiforgery antiForgery = (IAntiforgery)YetaWFManager.ServiceProvider.GetService(typeof(IAntiforgery));
-                IHtmlContent ihtmlContent  = antiForgery.GetHtml(YetaWFManager.Manager.CurrentContext);
+                IHtmlContent ihtmlContent = antiForgery.GetHtml(YetaWFManager.Manager.CurrentContext);
                 using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
                     ihtmlContent.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
                     YetaWFManager.Manager.AntiForgeryTokenHTML = writer.ToString();
@@ -86,49 +86,6 @@ namespace YetaWF.Core.Support {
 #endif
             }
             return YetaWFManager.Manager.AntiForgeryTokenHTML;
-        }
-
-        /// <summary>
-        /// Returns the client-side validation message for a component with the specified field name.
-        /// </summary>
-        /// <param name="containerFieldPrefix">The prefix used to build the final field name (for nested fields). May be null.</param>
-        /// <param name="fieldName">The HTML field name.</param>
-        /// <returns>Returns the client-side validation message for the component with the specified field name.</returns>
-        public static string ValidationMessage(this YHtmlHelper htmlHelper, string containerFieldPrefix, string fieldName) {
-            if (!string.IsNullOrEmpty(containerFieldPrefix))
-                fieldName = containerFieldPrefix + "." + fieldName;
-            return htmlHelper.BuildValidationMessage(fieldName);
-        }
-
-        public static string BuildValidationMessage(this YHtmlHelper htmlHelper, string fieldName) {
-            var modelState = htmlHelper.ModelState[fieldName];
-            string error = null;
-            bool hasError = false;
-            if (modelState == null) {
-                // no errors
-            } else {
-                IEnumerable<string> errors = (from e in modelState.Errors select e.ErrorMessage);
-                hasError = errors.Any();
-                if (hasError)
-                    error = errors.First();
-            }
-
-            YTagBuilder tagBuilder = new YTagBuilder("span");
-            tagBuilder.MergeAttribute("data-v-for", fieldName);
-            tagBuilder.AddCssClass(hasError ? "v-error" : "v-valid");
-
-            if (hasError) {
-                // we're building the same client side in validation.ts, make sure to keep in sync
-                // <img src="${$YetaWF.htmlAttrEscape(YConfigs.Forms.CssWarningIconUrl)}" name=${name} class="${YConfigs.Forms.CssWarningIcon}" ${YConfigs.Basics.CssTooltip}="${$YetaWF.htmlAttrEscape(val.M)}"/>
-                YTagBuilder tagImg = new YTagBuilder("img");
-                string url = "/Addons/YetaWF/Core/_Skins/Standard/Icons/WarningIcon.png";///$$$$$
-                tagImg.Attributes.Add("src", url);
-                tagImg.Attributes.Add("name", fieldName);
-                tagImg.AddCssClass(Forms.CssWarningIcon);
-                tagImg.Attributes.Add(Basics.CssTooltip, error);
-                tagBuilder.InnerHtml = tagImg.ToString();
-            }
-            return tagBuilder.ToString(YTagRenderMode.Normal);
         }
     }
 }
