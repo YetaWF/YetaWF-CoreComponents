@@ -59,10 +59,19 @@ var YetaWF;
                 this.showErrors(partialForm);
         };
         /**
-         * Validates one elements.
+         * Validate one element.
+         * If the contents are empty the field will be fully validated. If contents are present, the error indicator is reset.
+         * Full validation takes place on blur (or using validateElementFully).
          */
-        Forms.prototype.validateElement = function (ctrl) {
-            YetaWF_FormsImpl.validateElement(ctrl);
+        Forms.prototype.validateElement = function (ctrl, hasValue) {
+            YetaWF_FormsImpl.validateElement(ctrl, hasValue);
+        };
+        /**
+         * Validate one element.
+         * Full validation takes place.
+         */
+        Forms.prototype.validateElementFully = function (ctrl) {
+            YetaWF_FormsImpl.validateElementFully(ctrl);
         };
         /**
          * Re-validate all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
@@ -75,6 +84,12 @@ var YetaWF;
          */
         Forms.prototype.clearValidation = function (div) {
             YetaWF_FormsImpl.clearValidation(div);
+        };
+        /**
+         * Clear any validation errors within the div
+         */
+        Forms.prototype.clearValidation1 = function (elem) {
+            YetaWF_FormsImpl.clearValidation1(elem);
         };
         /**
          * Returns whether the form has errors.

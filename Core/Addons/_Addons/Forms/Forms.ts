@@ -12,9 +12,16 @@ namespace YetaWF {
          */
         initPartialForm(partialForm: HTMLElement): void;
         /**
-         * Validates one element.
+         * Validate one element.
+         * If the contents are empty the field will be fully validated. If contents are present, the error indicator is reset.
+         * Full validation takes place on blur (or using validateElementFully).
          */
-        validateElement(ctrl: HTMLElement): void;
+        validateElement(ctrl: HTMLElement, hasValue?: (value: any) => boolean): void;
+        /**
+         * Validate one element.
+         * Full validation takes place.
+         */
+        validateElementFully(ctrl: HTMLElement): void;
         /**
          * Re-validates all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
          */
@@ -23,6 +30,11 @@ namespace YetaWF {
          * Clear any validation errors within the div
          */
         clearValidation(div: HTMLElement): void;
+        /**
+         * Clear validation error for one element
+         */
+        clearValidation1(elem: HTMLElement): void;
+
         /**
          * Returns whether a div has form errors.
          */
@@ -143,10 +155,19 @@ namespace YetaWF {
                 this.showErrors(partialForm);
         }
         /**
-         * Validates one elements.
+         * Validate one element.
+         * If the contents are empty the field will be fully validated. If contents are present, the error indicator is reset.
+         * Full validation takes place on blur (or using validateElementFully).
          */
-        public validateElement(ctrl: HTMLElement): void {
-            YetaWF_FormsImpl.validateElement(ctrl);
+        public validateElement(ctrl: HTMLElement, hasValue?: (value: any) => boolean): void {
+            YetaWF_FormsImpl.validateElement(ctrl, hasValue);
+        }
+        /**
+         * Validate one element.
+         * Full validation takes place.
+         */
+        public validateElementFully(ctrl: HTMLElement): void {
+            YetaWF_FormsImpl.validateElementFully(ctrl);
         }
         /**
          * Re-validate all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
@@ -160,6 +181,13 @@ namespace YetaWF {
         public clearValidation(div: HTMLElement): void {
             YetaWF_FormsImpl.clearValidation(div);
         }
+        /**
+         * Clear any validation errors within the div
+         */
+        public clearValidation1(elem: HTMLElement): void {
+            YetaWF_FormsImpl.clearValidation1(elem);
+        }
+
         /**
          * Returns whether the form has errors.
          */

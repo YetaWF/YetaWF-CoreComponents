@@ -1347,7 +1347,7 @@ namespace YetaWF {
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
             tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback as (ev:Event)=>boolean));
         }
-        public registerMultipleEventHandlers(tags: (HTMLElement|null)[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
+        public registerMultipleEventHandlers(tags: HTMLElement[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
             for (let tag of tags) {
                 if (tag) {
                     for (let eventName of eventNames) {
@@ -1362,7 +1362,7 @@ namespace YetaWF {
         public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: Event) => void): void {
             control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
         }
-        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl|null)[], eventNames: string[], callback: (ev: Event) => void): void {
+        public registerMultipleCustomEventHandlers(controls: ComponentBaseNoDataImpl[], eventNames: string[], callback: (ev: Event) => void): void {
             for (let control of controls) {
                 if (control) {
                     for (let eventName of eventNames) {
