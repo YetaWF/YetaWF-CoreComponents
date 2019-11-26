@@ -24,3 +24,5 @@ var YetaWF;
         UnifiedModeEnum[UnifiedModeEnum["SkinDynamicContent"] = 4] = "SkinDynamicContent";
     })(UnifiedModeEnum = YetaWF.UnifiedModeEnum || (YetaWF.UnifiedModeEnum = {}));
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Globals.js.map

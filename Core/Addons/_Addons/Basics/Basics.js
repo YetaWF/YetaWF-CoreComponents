@@ -1517,3 +1517,5 @@ if (window.matchMedia) {
 }
 window.onbeforeprint = function (ev) { YetaWF.BasicsServices.onBeforePrint(); };
 window.onafterprint = function (ev) { YetaWF.BasicsServices.onAfterPrint(); };
+
+//# sourceMappingURL=Basics.js.map
