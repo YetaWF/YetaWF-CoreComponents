@@ -530,5 +530,3 @@ var YetaWF;
     }());
     YetaWF.Forms = Forms;
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Forms.js.map
