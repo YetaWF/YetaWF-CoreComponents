@@ -8,7 +8,6 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Components;
-using YetaWF.Core.Log;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -157,7 +156,6 @@ namespace YetaWF.Core.Controllers {
                 }
                 context.HttpContext.Response.Headers.Add("Content-Type", "text/html");
 
-                Logging.AddTraceLog(pageHtml);//$$$$$
 #if MVC6
                 byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
