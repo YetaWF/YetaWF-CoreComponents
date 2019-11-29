@@ -2,6 +2,7 @@
 
 using System;
 using YetaWF.Core.Support;
+using YetaWF.Core.Log;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -29,18 +30,25 @@ namespace YetaWF.Core.Controllers {
         public override void ExecuteResult(ControllerContext context) {
             YetaWFManager.Syncify(async () => { // Sorry, no async for you MVC5
 #endif
-                if (context == null)
-                    throw new ArgumentNullException("context");
-
-                foreach (AddonContentController.AddonDescription addon in DataIn.Addons) {
-                    await Manager.AddOnManager.AddAddOnNamedAsync(addon.AreaName, addon.ShortName, addon.Argument1);
-                }
-
                 PageContentController.PageContentData cr = new PageContentController.PageContentData();
 
-                await Manager.CssManager.RenderAsync(cr, DataIn.KnownCss);
-                await Manager.ScriptManager.RenderAsync(cr, DataIn.KnownScripts);
-                Manager.ScriptManager.RenderEndofPageScripts(cr);
+                try {
+
+                    if (context == null)
+                        throw new ArgumentNullException("context");
+
+                    foreach (AddonContentController.AddonDescription addon in DataIn.Addons) {
+                        await Manager.AddOnManager.AddAddOnNamedAsync(addon.AreaName, addon.ShortName, addon.Argument1);
+                    }
+
+                    await Manager.CssManager.RenderAsync(cr, DataIn.KnownCss);
+                    await Manager.ScriptManager.RenderAsync(cr, DataIn.KnownScripts);
+                    Manager.ScriptManager.RenderEndofPageScripts(cr);
+
+                } catch (Exception exc) {
+                    cr.Status = Logging.AddErrorLog(ErrorHandling.FormatExceptionMessage(exc));
+                }
+
 
                 string json = Utility.JsonSerialize(cr);
                 context.HttpContext.Response.ContentType = "application/json";

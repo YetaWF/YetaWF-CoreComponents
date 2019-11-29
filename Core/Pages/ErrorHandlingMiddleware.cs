@@ -5,6 +5,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
@@ -38,18 +39,8 @@ namespace YetaWF.Core.Pages {
 
         private async Task<bool> HandleExceptionAsync(HttpContext context, Exception exception) {
             // log the error
-            string msg = "(unknown)";
-            if (exception != null) {
-                // show inner exception
-                if (exception.Message != null && !string.IsNullOrWhiteSpace(exception.Message))
-                    msg = exception.Message;
-                while (exception.InnerException != null) {
-                    exception = exception.InnerException;
-                    if (exception.Message != null && !string.IsNullOrWhiteSpace(exception.Message))
-                        msg += " " + exception.Message;
-                }
-                Logging.AddErrorLog(msg);
-            }
+            string msg = Logging.AddErrorLog(ErrorHandling.FormatExceptionMessage(exception));
+
             // flush log on error, but avoid log spamming
             if (LastError == null || DateTime.Now > ((DateTime)LastError).AddSeconds(10)) {
                 Logging.ForceFlush();// make sure this is recorded immediately so we can see it in the log
@@ -61,9 +52,9 @@ namespace YetaWF.Core.Pages {
                     if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
                         return false;// not handled
                     } else { // this was a direct action GET so we need to show an error page
-                        ActionContext actionContext = new ActionContext(context, new Microsoft.AspNetCore.Routing.RouteData() { }, new ActionDescriptor());
-                        RedirectResult redir = new RedirectResult(MessageUrl(msg, 500));
-                        redir.ExecuteResult(actionContext);
+                        context.Response.Clear();
+                        context.Response.StatusCode = StatusCodes.Status307TemporaryRedirect;
+                        context.Response.Headers[HeaderNames.Location] = MessageUrl(msg, StatusCodes.Status500InternalServerError);
                         return true;
                     }
                 }

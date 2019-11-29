@@ -191,9 +191,9 @@ namespace YetaWF.Core.Controllers {
                             newUri.Scheme = "http";
                             newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
-                        Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.StatusCode = 302;
-                        Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
+                            Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
                             Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                             Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
@@ -209,9 +209,9 @@ namespace YetaWF.Core.Controllers {
                             newUri.Scheme = "http";
                             newUri.Port = Manager.CurrentSite.PortNumberEval;
 #if MVC6
-                        Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.StatusCode = 302;
-                        Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
+                            Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
                             Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                             Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
@@ -223,9 +223,9 @@ namespace YetaWF.Core.Controllers {
                             newUri.Scheme = "https";
                             newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
-                        Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.StatusCode = 302;
-                        Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
+                            Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
                             Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                             Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
@@ -246,9 +246,9 @@ namespace YetaWF.Core.Controllers {
                             newUri.Scheme = "https";
                             newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
 #if MVC6
-                        Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                        Manager.CurrentResponse.StatusCode = 302;
-                        Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
+                            Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
+                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
 #else
                             Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
                             Manager.CurrentResponse.AddHeader("Location", newUri.ToString());

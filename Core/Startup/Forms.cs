@@ -34,7 +34,7 @@ namespace YetaWF.Core.Addons {
 
             scripts.AddLocalization("Forms", "AjaxError", this.__ResStr("AjaxError", "An error occurred processing this form:(+nl)(+nl){0} - {1}"));
             scripts.AddLocalization("Forms", "AjaxConnLost", this.__ResStr("AjaxConnLost", "Server Connection Lost"));
-            scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Form Error"));
+            scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Error"));
             scripts.AddLocalization("Forms", "FormErrors", this.__ResStr("FormErrors", ""));
 
             scripts.AddConfigOption("Forms", "UniqueIdCounters", UniqueIdCounters);
