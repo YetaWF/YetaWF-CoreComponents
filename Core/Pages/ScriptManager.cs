@@ -238,30 +238,30 @@ namespace YetaWF.Core.Pages {
                         if (allowCustom)
                             throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                         bundle = false;
-                    } else if (file.StartsWith("/")) {
-                        if (!string.IsNullOrWhiteSpace(version.JsPath))
-                            file = Path.Combine(version.JsPath, file);
-                        string f;
-#if MVC6
-                        if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
-                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                        else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
-                            f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                        else
-#endif
-                            f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
-                        if (YetaWFManager.DiagnosticsMode) {
-                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
-                                throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
-                        }
-                        filePathURL = Utility.PhysicalToUrl(f);
                     } else {
                         if (!string.IsNullOrWhiteSpace(version.JsPath))
                             file = Path.Combine(version.JsPath, file);
-                        filePathURL = $"{productUrl}{file}";
-                        if (YetaWFManager.DiagnosticsMode) {
-                            if (!await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(filePathURL)))
-                                throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                        if (file.StartsWith("/")) {
+                            string f;
+#if MVC6
+                            if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
+                                f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                            else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
+                                f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
+                            else
+#endif
+                                f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                            if (YetaWFManager.DiagnosticsMode) {
+                                if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
+                                    throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
+                            }
+                            filePathURL = Utility.PhysicalToUrl(f);
+                        } else {
+                            filePathURL = $"{productUrl}{file}";
+                            if (YetaWFManager.DiagnosticsMode) {
+                                if (!await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(filePathURL)))
+                                    throw new InternalError("File list has relative url {0} which doesn't exist in {1}/{2}", filePathURL, version.Domain, version.Product);
+                            }
                         }
                     }
                     if (allowCustom) {
