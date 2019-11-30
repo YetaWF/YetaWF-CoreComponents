@@ -182,7 +182,7 @@ namespace YetaWF.Core.Pages {
             foreach (VersionManager.AddOnProduct.UsesInfo uses in version.JsUses) {
                 await Manager.AddOnManager.AddAddOnNamedJavaScriptAsync(uses.PackageName, uses.AddonName);
             }
-            List<string> list = (from i in version.JsFiles select Path.Combine(version.JsPath, i)).ToList(); // make a copy
+            List<string> list = version.JsFiles.ToList();// make a copy in case we remove an empty file
             foreach (var info in list) {
                 //bool page = true; // default is to use in page and popups, but not with ajax
                 //bool popup = true;
@@ -239,6 +239,8 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                         bundle = false;
                     } else if (file.StartsWith("/")) {
+                        if (!string.IsNullOrWhiteSpace(version.JsPath))
+                            file = Path.Combine(version.JsPath, file);
                         string f;
 #if MVC6
                         if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
@@ -247,13 +249,15 @@ namespace YetaWF.Core.Pages {
                             f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                         else
 #endif
-                        f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
+                            f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
                         if (YetaWFManager.DiagnosticsMode) {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))
                                 throw new InternalError("File list has physical file {0} which doesn't exist at {1}", file, f);
                         }
                         filePathURL = Utility.PhysicalToUrl(f);
                     } else {
+                        if (!string.IsNullOrWhiteSpace(version.JsPath))
+                            file = Path.Combine(version.JsPath, file);
                         filePathURL = $"{productUrl}{file}";
                         if (YetaWFManager.DiagnosticsMode) {
                             if (!await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(filePathURL)))

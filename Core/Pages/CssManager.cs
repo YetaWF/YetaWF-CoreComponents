@@ -71,7 +71,7 @@ namespace YetaWF.Core.Pages {
                 await Manager.AddOnManager.AddAddOnNamedCssAsync(uses.PackageName, uses.AddonName);
             }
             string productUrl = version.GetAddOnUrl();
-            List<string> list = (from i in version.CssFiles select Path.Combine(version.CssPath, i)).ToList(); // make a copy
+            List<string> list = version.CssFiles.ToList(); // make a copy in case we remove an empty file
             foreach (var info in list) {
                 bool nominify = false;
                 bool? bundle = null;
@@ -113,6 +113,8 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use allowCustom with {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                         bundle = false;
                     } else if (file.StartsWith("/")) {
+                        if (!string.IsNullOrWhiteSpace(file))
+                            file = Path.Combine(version.CssPath, file);
                         string f;
 #if MVC6
                         if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
@@ -128,6 +130,8 @@ namespace YetaWF.Core.Pages {
                         }
                         filePathURL = Utility.PhysicalToUrl(f);
                     } else {
+                        if (!string.IsNullOrWhiteSpace(file))
+                            file = Path.Combine(version.CssPath, file);
                         file = file.Replace("\\", "/");// convert to Url in case this is file spec
                         filePathURL = $"{productUrl}{file}";
                         string fullPath = Utility.UrlToPhysical(filePathURL);
