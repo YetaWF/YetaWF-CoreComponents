@@ -447,12 +447,15 @@ namespace YetaWF.Core.Models.Attributes {
             return false;
         }
         private bool IsEqual(object val1, object val2) {
-            if (val1 == null || val2 == null) {
-                return val1 == val2;
+            // null == null
+            if (val1 == null && val2 == null)
+                return true;
+            // allow null == ""
+            if (val1 == null) {
+                return val2.ToString().Length == 0;
+            } else if (val2 == null) {
+                return val1.ToString().Length == 0;
             }
-            Type type = val1.GetType();
-            if (type != val2.GetType())
-                return false;
             return val1.ToString() == val2.ToString();
         }
 
