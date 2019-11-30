@@ -393,6 +393,7 @@ namespace YetaWF.Core.Packages {
 #endif
             string templateBase = package.Name.Replace(".", "_");
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
+            await FileSystem.FileSystemProvider.CreateDirectoryAsync(templateFolder);
             List<string> templates = await FileSystem.FileSystemProvider.GetFilesAsync(templateFolder, templateBase + "*.txt");
             templates = (from t in templates select Path.GetFileNameWithoutExtension(t)).ToList();
             templates.Sort(new SiteTemplateNameComparer());
