@@ -51,7 +51,7 @@ namespace YetaWF.Core.Log {
         /// </summary>
         /// <returns>Returns the message text.</returns>
         public static string AddLog(string text) {
-            if (MinLevel >= LevelEnum.Info)
+            if (MinLevel <= LevelEnum.Info)
                 WriteToAllLogFiles(LevelEnum.Info, 0, text);
             return text;
         }
@@ -86,7 +86,7 @@ namespace YetaWF.Core.Log {
         /// <returns>Returns the fully formatted message text.</returns>
         public static string AddTraceLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel >= LevelEnum.Trace)
+            if (MinLevel <= LevelEnum.Trace)
                 WriteToAllLogFiles(LevelEnum.Trace, 0, text);
             return text;
         }
@@ -96,7 +96,7 @@ namespace YetaWF.Core.Log {
         /// </summary>
         /// <returns>Returns the message text.</returns>
         public static string AddWarningLog(string text) {
-            if (MinLevel >= LevelEnum.Warning)
+            if (MinLevel <= LevelEnum.Warning)
                 WriteToAllLogFiles(LevelEnum.Warning, 0, text);
             return text;
         }
@@ -108,7 +108,7 @@ namespace YetaWF.Core.Log {
         /// <returns>Returns the fully formatted message text.</returns>
         public static string AddWarningLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel >= LevelEnum.Warning)
+            if (MinLevel <= LevelEnum.Warning)
                 WriteToAllLogFiles(LevelEnum.Warning, 0, text);
             return text;
         }
@@ -118,7 +118,7 @@ namespace YetaWF.Core.Log {
         /// </summary>
         /// <returns>Returns the message text.</returns>
         public static string AddErrorLog(string text) {
-            if (MinLevel >= LevelEnum.Error)
+            if (MinLevel <= LevelEnum.Error)
                 WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
@@ -130,18 +130,18 @@ namespace YetaWF.Core.Log {
         /// <returns>Returns the fully formatted message text.</returns>
         public static string AddErrorLog(string text, params object[] parms) {
             text = FormatMessage(text, parms);
-            if (MinLevel >= LevelEnum.Error)
+            if (MinLevel <= LevelEnum.Error)
                 WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
         //public static string AddErrorLogAdjustStack(int relStack, string text) {
-        //    if (MinLevel >= LevelEnum.Error)
+        //    if (MinLevel <= LevelEnum.Error)
         //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
         //    return text;
         //}
         //public static string AddErrorLogAdjustStack(int relStack, string text, params object[] parms) {
         //    text = FormatMessage(text, parms);
-        //    if (MinLevel >= LevelEnum.Error)
+        //    if (MinLevel <= LevelEnum.Error)
         //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
         //    return text;
         //}
