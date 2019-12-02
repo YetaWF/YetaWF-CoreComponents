@@ -116,10 +116,22 @@ namespace YetaWF.Core.Models {
         public virtual bool Selected { get; set; }
 
         /// <summary>
-        /// The item's displayed text.
+        /// The item's displayed text. Must be a string, not a complex component.
         /// </summary>
         [JsonIgnore]
         public virtual string Text { get; set; }
+
+        /// <summary>
+        /// Optional. The item's text display ahead of the text. Must render as an <a> tag.
+        /// </summary>
+        [JsonIgnore]
+        public virtual object BeforeText { get; set; }
+
+        /// <summary>
+        /// Optional. The item's text display after the text. Must render as an <a> tag.
+        /// </summary>
+        [JsonIgnore]
+        public virtual object AfterText { get; set; }
 
         /// <summary>
         /// Used as the item's target URL, opened in a new window.
