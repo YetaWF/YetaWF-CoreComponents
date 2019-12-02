@@ -101,7 +101,7 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// Determines whether an item's subsitems are dynamically added/removed.
         /// </summary>
-        public bool DynamicSubEntries { get; set; }
+        public virtual bool DynamicSubEntries { get; set; }
 
         /// <summary>
         /// Determines whether the item should be rendered collapsed (true) or expanded (false).
