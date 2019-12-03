@@ -49,6 +49,7 @@ namespace YetaWF.Core.IO {
         Task<DateTime> GetLastWriteTimeUtcAsync(string filePath);
         Task SetLastWriteTimeUtcAsync(string filePath, DateTime timeUtc);
         Task SetLastWriteTimeLocalAsync(string filePath, DateTime timeLocal);
+        Task<long> GetFileSizeAsync(string filePath);
 
         Task<List<string>> ReadAllLinesAsync(string filePath);
         Task WriteAllLinesAsync(string filePath, List<string> lines);
