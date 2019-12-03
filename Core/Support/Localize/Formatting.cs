@@ -201,6 +201,14 @@ namespace YetaWF.Core.Localize {
             string month = GetMonthName(dt.Month);
             return __ResStr("longDate", "{0}, {1} {2}, {3}", day, month, dt.Day, dt.Year);
         }
+        public static string FormatLongDateTime(DateTime? dateTime) {
+            DateTime dt = (DateTime)dateTime;
+            if (dt == DateTime.MinValue) return "";
+            dt = GetUserDateTime(dt);
+            string day = GetDayName(dt.DayOfWeek);
+            string month = GetMonthName(dt.Month);
+            return __ResStr("longDateTime", "{0}, {1} {2}, {3} at ", day, month, dt.Day, dt.Year) + FormatTime(dateTime);
+        }
         public static string GetDayName(DayOfWeek dow) {
             if (dow == DayOfWeek.Sunday) return __ResStr("Sunday", "Sunday");
             if (dow == DayOfWeek.Monday) return __ResStr("Monday", "Monday");
@@ -292,6 +300,68 @@ namespace YetaWF.Core.Localize {
 
         public static string FormatSeconds(long msecs) {
             return string.Format("{0:F3} s", ((double)msecs)/1000);
+        }
+
+        public static string FormatTimeSpanInWords(TimeSpan ts) {
+            int absDays = Math.Abs(ts.Days);
+
+            int years = absDays / 365;
+            if (years > 0) {
+                if (ts.Days > 0)
+                    return years <= 1 ? __ResStr("inYear", "in a year", years) : __ResStr("inYears", "in {0} years", years);
+                else
+                    return years <= 1 ? __ResStr("agoYear", "a year ago", years) : __ResStr("agoYears", "{0} years ago", years);
+            }
+            int months = absDays / 30;
+            if (months > 0) {
+                if (ts.Days > 0)
+                    return months <= 1 ? __ResStr("inMonth", "in a month", months) : __ResStr("inMonths", "in {0} months", months);
+                else
+                    return months <= 1 ? __ResStr("agoMonth", "a month ago", months) : __ResStr("agoMonths", "{0} months ago", months);
+            }
+            int weeks = absDays / 7;
+            if (weeks > 0) {
+                if (ts.Days > 0)
+                    return weeks <= 1 ? __ResStr("inWeek", "next week", weeks) : __ResStr("inWeeks", "in {0} weeks", weeks);
+                else
+                    return weeks <= 1 ? __ResStr("agoWeek", "last week", weeks) : __ResStr("agoWeeks", "{0} weeks ago", weeks);
+            }
+            if (absDays > 0) {
+                if (ts.Days > 0)
+                    return absDays <= 1 ? __ResStr("inDay", "tomorrow", absDays) : __ResStr("inDays", "in {0} days", absDays);
+                else
+                    return absDays <= 1 ? __ResStr("agoDay", "yesterday", absDays) : __ResStr("agoDays", "{0} days ago", absDays);
+            }
+            int absHours = Math.Abs(ts.Hours);
+            if (absHours > 0) {
+                if (ts.Hours > 0)
+                    return absHours <= 1 ? __ResStr("inHour", "in an hour", absHours) : __ResStr("inHours", "in {0} hours", absHours);
+                else
+                    return absHours <= 1 ? __ResStr("agoHour", "an hour ago", absHours) : __ResStr("agoHours", "{0} hours ago", absHours);
+            }
+            int absMins = Math.Abs(ts.Minutes);
+            if (absMins > 0) {
+                if (ts.Minutes > 0)
+                    return absMins <= 1 ? __ResStr("inMin", "in a minute", absMins) : __ResStr("inMins", "in {0} minutes", absMins);
+                else
+                    return absMins <= 1 ? __ResStr("agoMin", "a minute ago", absMins) : __ResStr("agoMins", "{0} minutes ago", absMins);
+            }
+            int absSecs = Math.Abs(ts.Seconds);
+            if (absSecs > 10) {
+                if (ts.Seconds > 0) {
+                    return __ResStr("inSecs", "in {0} seconds", absSecs);
+                } else {
+                    return __ResStr("agoSecs", "{0} seconds ago", absSecs);
+                }
+            }
+            if (absSecs > 0) {
+                if (ts.Seconds > 0) {
+                    return __ResStr("inFewSecs", "in a few seconds", absSecs);
+                } else {
+                    return __ResStr("agoFewSecs", "a few seconds ago", absSecs);
+                }
+            }
+            return __ResStr("now", "now", absSecs);
         }
     }
 }
