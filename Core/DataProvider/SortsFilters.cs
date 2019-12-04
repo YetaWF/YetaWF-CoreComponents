@@ -165,7 +165,7 @@ namespace YetaWF.Core.DataProvider {
         private bool StringType = false;
 
         /// <summary>
-        /// Gets or sets the filtering logic. Can be set to "||" or "&quot;&quot;". Set to <c>null</c> unless <c>Filters</c> is set.
+        /// Gets or sets the filtering logic. Can be set to "||" or "&amp;&amp;". Set to <c>null</c> unless <c>Filters</c> is set.
         /// </summary>
         public string Logic { get; set; }
 
