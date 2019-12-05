@@ -77,13 +77,14 @@ namespace YetaWF.Core.Pages {
                 if (invoker != null) {
                     Stream body = httpContext.Response.Body;
                     using (httpContext.Response.Body = new MemoryStream()) {
-                        await invoker.InvokeAsync().ContinueWith(task => {
+                        await invoker.InvokeAsync().ContinueWith(async task => {
                             if (task.IsFaulted) {
                                 content = ModuleDefinition.ProcessModuleError(task.Exception, module.ModuleName).ToString();
                             } else if (task.IsCompleted) {
                                 httpContext.Response.Body.Position = 0;
-                                using (var reader = new StreamReader(httpContext.Response.Body))
-                                    content = reader.ReadToEnd();
+                                using (var reader = new StreamReader(httpContext.Response.Body)) {
+                                    content = await reader.ReadToEndAsync();
+                                }
                             }
                         });
                     }

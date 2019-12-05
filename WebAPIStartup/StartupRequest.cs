@@ -49,9 +49,9 @@ namespace YetaWF.Core.WebAPIStartup {
             // Handle any headers that alter the requested url
             string hostUsed, portUsed, schemeUsed;
 
-            hostUsed = httpContext.Request.Headers["X-Forwarded-Host"];
-            portUsed = httpContext.Request.Headers["X-Forwarded-Port"];
-            schemeUsed = httpContext.Request.Headers["X-Forwarded-Proto"];
+            hostUsed = (string)httpContext.Request.Headers["X-Forwarded-Host"] ?? (string)httpContext.Request.Headers["X-Original-Host"];
+            portUsed = (string)httpContext.Request.Headers["X-Forwarded-Port"] ?? (string)httpContext.Request.Headers["X-Original-Port"];
+            schemeUsed = (string)httpContext.Request.Headers["X-Forwarded-Proto"] ?? (string)httpContext.Request.Headers["X-Original-Proto"];
 
             manager.HostUsed = hostUsed ?? uri.Host;
             manager.HostPortUsed = uri.Port;

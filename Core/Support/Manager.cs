@@ -308,9 +308,9 @@ namespace YetaWF.Core.Support {
             // check headers, trumps all
             string domain;
 #if MVC6
-            domain = httpContext.Request.Headers["X-Forwarded-Host"];
+            domain = (string)httpContext.Request.Headers["X-Forwarded-Host"] ?? (string)httpContext.Request.Headers["X-Original-Host"];
 #else
-            domain = httpContext.Request.Headers["X-Forwarded-Host"];
+            domain = httpContext.Request.Headers["X-Forwarded-Host"] ?? httpContext.Request.Headers["X-Original-Host"];
 #endif
             if (!string.IsNullOrWhiteSpace(domain))
                 siteDomain = domain;
