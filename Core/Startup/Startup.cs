@@ -64,7 +64,7 @@ namespace YetaWF.Core.Support {
                 return env == "true";
             }
         }
-        
+
         /// <summary>
         /// Returns a file name composed of the current environment and debug/release build, probing for existing files.
         /// </summary>
@@ -76,10 +76,10 @@ namespace YetaWF.Core.Support {
         /// GetEnvironmentFile(folder, name, ext) return a file path as follows folder/name{.Windows|.Linux|.Docker|}{.Prod|}.ext
         /// depending on the environment. Release builds contain .Prod, debug builds do not carry a modifier.
         /// Running on Windows adds .Windows, running natively on Linux adds .Linux, running in a container adds .Docker.
-        /// 
+        ///
         /// If the file with modifiers doesn't exist, the default folder/name.ext or folder/name.Prod.ext is returned instead (depending on
         /// debug/release build). If folder/name.Prod.ext doesn't exist, folder/name.ext is returned instead.
-        /// 
+        ///
         /// If no file matching the environment can be found, an exception occurs.
         /// </remarks>
         public static string GetEnvironmentFile(string folder, string name, string ext, bool Optional = false) {
