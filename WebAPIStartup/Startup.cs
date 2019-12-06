@@ -63,7 +63,6 @@ namespace YetaWF.Core.WebAPIStartup {
 
             services.AddRouting();
             services.AddHealthChecks();
-
             services.AddResponseCompression();
 
             // Add handling of ResourceAuthorize attribute otherwise we get
@@ -90,8 +89,9 @@ namespace YetaWF.Core.WebAPIStartup {
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif
-
             app.UseResponseCompression();
+
+            app.UseMiddleware<DynamicPreRoutingMiddleware>();
 
             app.UseRouting();
 
