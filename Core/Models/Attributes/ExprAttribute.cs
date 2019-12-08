@@ -343,7 +343,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.RequiredIfSupplied:
                 case OpEnum.RequiredIfNotSupplied:
                     if (IsEmpty(value))
-                        return new ValidationResult(__ResStr("requiredExpr", "The '{0}' field is required", AttributeHelper.GetPropertyCaption(context)));
+                        return new ValidationResult(__ResStr("requiredExpr", "The field '{0}' is required", AttributeHelper.GetPropertyCaption(context)));
                     break;
                 case OpEnum.SelectionRequired:
                 case OpEnum.SelectionRequiredIf:
@@ -351,7 +351,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.SelectionRequiredIfSupplied:
                 case OpEnum.SelectionRequiredIfNotSupplied:
                     if (IsEmptyOrZero(value))
-                        return new ValidationResult(__ResStr("requiredExpr", "The '{0}' field is required", AttributeHelper.GetPropertyCaption(context)));
+                        return new ValidationResult(__ResStr("requiredExpr", "The field '{0}' is required", AttributeHelper.GetPropertyCaption(context)));
                     break;
                 case OpEnum.SuppressIf:
                 case OpEnum.SuppressIfNot:
@@ -633,7 +633,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.RequiredIfNotSupplied:
                     return new ValidationRequiredExpr {
                         Method = nameof(ExprAttribute),
-                        Message = __ResStr("requiredExpr", "The '{0}' field is required", caption),
+                        Message = __ResStr("requiredExpr", "The field '{0}' is required", caption),
                         Op = Op,
                         Expr = Utility.JsonSerialize(ExprList),
                     };
@@ -644,7 +644,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.SelectionRequiredIfNotSupplied:
                     return new ValidationRequiredExpr {
                         Method = nameof(ExprAttribute),
-                        Message = __ResStr("requiredSelExpr", "The '{0}' field requires a selection", caption),
+                        Message = __ResStr("requiredSelExpr", "The field '{0}' requires a selection", caption),
                         Op = Op,
                         Expr = Utility.JsonSerialize(ExprList),
                     };
