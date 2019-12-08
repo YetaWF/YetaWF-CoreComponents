@@ -194,7 +194,7 @@ namespace YetaWF.Core.Identity {
         Task<List<SelectionItem<string>>> GetUserRolesAsync(int userId);
         Task<string> GetUserPostLoginUrlAsync(List<int> userRoles);
 
-        Task<AddUserInfo> AddUserAsync(string name, string email, string password, bool needsNewPassword);
+        Task<AddUserInfo> AddUserAsync(string name, string email, string password, bool needsNewPassword, string comment);
         Task<bool> RemoveUserAsync(int userId);
 
         Task<int> GetUserIdAsync(string userName);
@@ -256,7 +256,7 @@ namespace YetaWF.Core.Identity {
             throw new NotImplementedException();
         }
 
-        public Task<AddUserInfo> AddUserAsync(string name, string email, string password, bool needsNewPassword) {
+        public Task<AddUserInfo> AddUserAsync(string name, string email, string password, bool needsNewPassword, string comment) {
             throw new NotImplementedException();
         }
 
