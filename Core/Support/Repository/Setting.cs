@@ -53,7 +53,7 @@ namespace YetaWF.Core.Support.Repository {
                     return (TYPE)(object)((string)Value == "True");
                 } catch (Exception) { }
             } else if (typeof(TYPE) == typeof(int)) {
-                return (TYPE)(object) Convert.ToInt32((string) Value);
+                return (TYPE)(object) Convert.ToInt32((string) Value.ToString());
             }
             try {
                 return (TYPE) Value;
