@@ -740,7 +740,7 @@ var YetaWF;
                     console.log("Element #" + doe.DivId + " is being removed but still has a data object - forced cleanup");
                     if (YConfigs.Basics.DEBUGBUILD) {
                         // tslint:disable-next-line:no-debugger
-                        debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in an component specific way
+                        debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in a component specific way
                     }
                     this.DataObjectCache.splice(i, 1);
                     continue;

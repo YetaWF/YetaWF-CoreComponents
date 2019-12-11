@@ -127,6 +127,27 @@ namespace YetaWF.Core.Models {
             /// </summary>
             [EnumDescription("Dropdown Menu", "If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed")]
             DropdownMenu = 1,
+            /// <summary>
+            /// Displayed as a dropdown menu, accessible through a small button without text.
+            /// </summary>
+            [EnumDescription("Mini Dropdown Menu", "Displayed as a dropdown menu, accessible through a small button without text")]
+            Mini = 2,
+        }
+
+        /// <summary>
+        /// Defines the appearance of actions in a grid.
+        /// </summary>
+        public enum GridActionsUserEnum {
+            /// <summary>
+            /// Actions in grids are displayed as icons.
+            /// </summary>
+            [EnumDescription("Icons", "Actions in grids are displayed as icons")]
+            Icons = 0,
+            /// <summary>
+            /// If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed.
+            /// </summary>
+            [EnumDescription("Dropdown Menu", "If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed")]
+            DropdownMenu = 1,
         }
     }
 
