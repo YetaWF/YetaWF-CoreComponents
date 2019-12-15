@@ -1504,6 +1504,30 @@ namespace YetaWF.Core.Support {
                 MenuList.ClearCachedMenus();
             }
         }
+
+        /// <summary>
+        /// Saves data for a package. The saved data is only available during the current HTTP request.
+        /// </summary>
+        /// <param name="areaName">The area name for which data is saved.</param>
+        /// <param name="o">The data.</param>
+        public void SetPackageData(string areaName, object o) {
+            if (_packageData == null)
+                _packageData = new Dictionary<string, object>();
+            _packageData[areaName] = o;
+        }
+        /// <summary>
+        /// Retrieves saved data for a package.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the data.</typeparam>
+        /// <param name="areaName">The area name for which data was saved.</param>
+        /// <returns>Returns the data or null, if not available.</returns>
+        public TYPE GetPackageData<TYPE>(string areaName) {
+            if (_packageData == null)
+                return default(TYPE);
+            return (TYPE) _packageData[areaName];
+        }
+        private Dictionary<string, object> _packageData = null;
+
         /// <summary>
         /// Currently logged on user is authenticated but needs to set up two-step authentication.
         /// </summary>

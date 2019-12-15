@@ -97,7 +97,7 @@ namespace YetaWF.Core.Pages {
 
             public async Task<ModuleDefinition> GetModuleAsync() {
                 if (_module == null)
-                    _module = await ModuleDefinition.LoadAsync(ModuleGuid);
+                    _module = await ModuleDefinition.LoadAsync(ModuleGuid, AllowNone: true);
                 return _module;
             }
             public void SetModule(ModuleDefinition mod) {
@@ -290,8 +290,10 @@ namespace YetaWF.Core.Pages {
                 throw new InternalError("Temporary pages cannot be saved");
             foreach (var moduleEntry in ModuleDefinitions) {
                 ModuleDefinition mod = await moduleEntry.GetModuleAsync();
-                mod.Temporary = false;
-                await mod.SaveAsync();
+                if (mod != null) {
+                    mod.Temporary = false;
+                    await mod.SaveAsync();
+                }
             }
             await PageDefinition.SavePageDefinitionAsync(this);
         }
@@ -472,12 +474,18 @@ namespace YetaWF.Core.Pages {
                 if (string.Compare(modEntry.Pane, pane, true) == 0) {
                     empty = false;
                     ModuleDefinition module = null;
+                    Exception modExc = null;
                     try {
                         module = await modEntry.GetModuleAsync();
-                        if (module != null && module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                            sb.Append(await module.RenderModuleAsync(htmlHelper, Args: Args));
+                        if (module != null) {
+                            if (module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
+                                sb.Append(await module.RenderModuleAsync(htmlHelper, Args: Args));
+                        }
                     } catch (Exception exc) {
-                        sb.Append(ModuleDefinition.ProcessModuleError(exc, modEntry.ModuleGuid.ToString()).ToString());
+                        modExc = exc;
+                    }
+                    if (module == null || modExc != null) {
+                        sb.Append(ModuleDefinition.ProcessModuleError(modExc, modEntry.ModuleGuid.ToString(), modExc == null ? this.__ResStr("missingMod", "Designed module not found") : null).ToString());
                         if (Manager.EditMode) {
                             ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                             if (modServices != null) {

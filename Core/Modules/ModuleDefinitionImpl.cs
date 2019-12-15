@@ -655,16 +655,16 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
                     // if a page has no title, use the title of the first module in the Main pane
                     PageDefinition.ModuleList mods = Manager.CurrentPage.ModuleDefinitions.GetModulesForPane(Globals.MainPane);
                     if (mods.Count > 0) {
-                        try { // the module could be damaged
-                            title = (await mods[0].GetModuleAsync()).Title;
-                        } catch (Exception) { }
+                        ModuleDefinition mod = await mods[0].GetModuleAsync();
+                        title = mod.Title;
                     }
                     // if the title is still not available, simply use the very first module (any pane)
                     if (string.IsNullOrWhiteSpace(title)) {
-                        try { // the module could be damaged
-                            if (Manager.CurrentPage.ModuleDefinitions.Count > 1 && this == await Manager.CurrentPage.ModuleDefinitions[0].GetModuleAsync())
+                        if (Manager.CurrentPage.ModuleDefinitions.Count > 1) {
+                            ModuleDefinition mod = await Manager.CurrentPage.ModuleDefinitions[0].GetModuleAsync();
+                            if (this == mod)
                                 title = Title;
-                        } catch (Exception) { }
+                        }
                     }
                     Manager.PageTitle = title;
                 }
@@ -708,15 +708,22 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             return moduleHtml;
         }
 
-        public static HtmlBuilder ProcessModuleError(Exception exc, string name) {
+        public static HtmlBuilder ProcessModuleError(Exception exc, string name, string details = null) {
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("<div class='{0}'>", Globals.CssDivAlert);
 #if DEBUG
             hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", Utility.HtmlEncode(name)));
 #endif
-            // skip first exception (because it's not user friendly)
-            if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;
-            hb.Append(Utility.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
+            if (details != null) {
+                hb.Append($"{Utility.HtmlEncode(details)}");
+                if (exc != null)
+                    hb.Append("<br/>");
+            }
+            if (exc != null) {
+                // skip first exception (because it's not user friendly)
+                if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;
+                hb.Append(Utility.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
+            }
             hb.Append("</div>");
             if (Manager.CurrentResponse.StatusCode == 200)
                 Manager.CurrentResponse.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)

@@ -408,7 +408,7 @@ namespace YetaWF.Core.Controllers {
             if (!string.IsNullOrWhiteSpace(site.NotFoundUrl)) {
                 PageDefinition page = await PageDefinition.LoadFromUrlAsync(site.NotFoundUrl);
                 if (page != null) {
-                    Manager.CurrentPage = page;// Found It!!
+                    Manager.CurrentPage = page;
                     if (Manager.IsHeadRequest) {
 #if MVC6
                         return new NotFoundObjectResult(__path);
@@ -468,7 +468,7 @@ namespace YetaWF.Core.Controllers {
             public bool Success { get; set; }
         }
         private async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(Uri uri) {
-            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !Manager.EditMode && Manager.CurrentSite.AllowAnonymousUsers && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower()) {
+            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !YetaWFController.GetTempEditMode() && Manager.CurrentSite.AllowAnonymousUsers && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower()) {
                 // support static pages for exact domain match only (so other sites, like blue/green don't use static pages)
                 string localUrl = uri.LocalPath;
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
@@ -490,7 +490,7 @@ namespace YetaWF.Core.Controllers {
         }
         private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, string url, string queryString) {
             // request for a designed page
-            if (!Manager.EditMode) { // only redirect if we're not editing
+            if (!YetaWFController.GetTempEditMode()) { // only redirect if we're not editing
                 if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                     if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
                         PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
@@ -526,7 +526,7 @@ namespace YetaWF.Core.Controllers {
             }
             if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(url, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
-                if (!Manager.EditMode) { // only redirect if we're not editing
+                if (!YetaWFController.GetTempEditMode()) { // only redirect if we're not editing
                     if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
                         PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                         if (mobilePage != null) {
@@ -553,6 +553,9 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
                 Manager.CurrentPage = page;// Found It!!
+                if (YetaWFController.GetTempEditMode() && Manager.CurrentPage.IsAuthorized_Edit())
+                    Manager.EditMode = true;
+
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
@@ -654,6 +657,8 @@ namespace YetaWF.Core.Controllers {
                 PageDefinition page = PageDefinition.Create();
                 page.AddModule(Globals.MainPane, module);
                 Manager.CurrentPage = page;
+                if (YetaWFController.GetTempEditMode() && Manager.CurrentPage.IsAuthorized_Edit())
+                    Manager.EditMode = true;
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;

@@ -53,7 +53,7 @@ namespace YetaWF.Core.Support {
 
 #if COMPARE
         // compares web.config to appsettings.json
-        public static TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true) {
+        public static TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true, bool Required = false) {
             TYPE valNew = GetNewValue<TYPE>(areaName, key, dflt, Package);
 
             string totalKey;
@@ -85,7 +85,7 @@ namespace YetaWF.Core.Support {
         }
         private static TYPE GetNewValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true) {
 #else
-        public static TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true) {
+        public static TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true, bool Required = false) {
 #endif
             dynamic val;
             try {
@@ -98,18 +98,23 @@ namespace YetaWF.Core.Support {
                 if (val == null) return dflt;
                 val = val.Value;
             } catch (Exception) {
+                if (Required)
+                    throw new InternalError($"The required {(Package ? $"Application:Package:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                 return dflt;
             }
             if (typeof(TYPE) == typeof(string)) {
-                if (string.IsNullOrWhiteSpace((string)val))
+                if (string.IsNullOrWhiteSpace((string)val)) {
+                    if (Required)
+                        throw new InternalError($"The required {(Package ? $"Application:Package:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                     return dflt;
-                else {
+                } else {
                     Variables varSubst = new Variables(null, Variables);
                     string s = varSubst.ReplaceVariables((string)val);
                     return (TYPE)(object)s;
                 }
-            } else if (typeof(TYPE).IsEnum) return (TYPE)(object)Convert.ToInt32(val);
-            else if (typeof(TYPE) == typeof(bool)) {
+            } else if (typeof(TYPE).IsEnum) {
+                return (TYPE)(object)Convert.ToInt32(val);
+            } else if (typeof(TYPE) == typeof(bool)) {
                 bool boolVal;
                 if (val.GetType() == typeof(string)) {
                     string s = (string)val;

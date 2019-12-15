@@ -263,8 +263,6 @@ namespace YetaWF.Core.Controllers
                 // determine user identity - authentication provider updates Manager with user information
                 await Resource.ResourceAccess.ResolveUserAsync();
 
-                Manager.EditMode = GetTempEditMode();
-
                 // get user's default language
                 Manager.GetUserLanguage();
                 // only now can we enable resource loading
