@@ -48,7 +48,7 @@ namespace YetaWF.Core.DataProvider {
         /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
         /// </summary>
         /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
-        DataProviderTransaction StartTransaction();
+        DataProviderTransaction StartTransaction(DataProviderImpl ownerDP, params DataProviderImpl[] dps);
         /// <summary>
         /// Commits a transaction, saving all updates.
         /// </summary>
@@ -70,7 +70,7 @@ namespace YetaWF.Core.DataProvider {
         /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
         /// </summary>
         /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
-        DataProviderTransaction StartTransaction();
+        DataProviderTransaction StartTransaction(DataProviderImpl ownerDP, params DataProviderImpl[] dps);
         /// <summary>
         /// Commits a transaction, saving all updates.
         /// </summary>
@@ -175,7 +175,7 @@ namespace YetaWF.Core.DataProvider {
         /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
         /// </summary>
         /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
-        DataProviderTransaction StartTransaction();
+        DataProviderTransaction StartTransaction(DataProviderImpl ownerDP, params DataProviderImpl[] dps);
         /// <summary>
         /// Commits a transaction, saving all updates.
         /// </summary>

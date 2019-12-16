@@ -110,11 +110,10 @@ namespace YetaWF.Core.DataProvider {
         }
 
         /// <summary>
-        /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
+        /// Start a transaction with the owning dataprovider and all provided additional dataproviders.
         /// </summary>
-        /// <returns>Returns a YetaWF.Core.DataProvider.DataProviderTransaction object.</returns>
-        public DataProviderTransaction StartTransaction() {
-            return GetIDataProviderTransactions().StartTransaction();
+        public DataProviderTransaction StartTransaction(DataProviderImpl ownerDP, params DataProviderImpl[] dps) {
+            return GetIDataProviderTransactions().StartTransaction(ownerDP, dps);
         }
         /// <summary>
         /// Commits a transaction, saving all updates.
