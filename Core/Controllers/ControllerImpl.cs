@@ -1113,6 +1113,7 @@ namespace YetaWF.Core.Controllers {
 
             // handle NextPage (if any)
             if (ForceRedirect || !string.IsNullOrWhiteSpace(NextPage)) {
+
                 string url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
@@ -1145,11 +1146,16 @@ namespace YetaWF.Core.Controllers {
                     }
                 } else {
                     if (ForceRedirect) {
-                        if (string.IsNullOrWhiteSpace(popupText)) {
-                            sb.Append("$YetaWF.setLoading();window.location.assign({0});", url);
-                        } else {
+                        if (isApply) {
                             sb.Append(
-                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
+                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {2});", popupText, popupTitle, url, PopupOptions);
+                        } else {
+                            if (string.IsNullOrWhiteSpace(popupText)) {
+                                sb.Append("$YetaWF.setLoading();window.location.assign({0});", url);
+                            } else {
+                                sb.Append(
+                                   "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
+                            }
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append(

@@ -19,8 +19,6 @@ using YetaWF.Core.Support;
 using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Localize;
 #if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
 #else
 using System.Web;
 using System.Web.Mvc;
@@ -485,7 +483,7 @@ namespace YetaWF.Core.Pages {
                         modExc = exc;
                     }
                     if (module == null || modExc != null) {
-                        sb.Append(ModuleDefinition.ProcessModuleError(modExc, modEntry.ModuleGuid.ToString(), modExc == null ? this.__ResStr("missingMod", "Designed module not found") : null).ToString());
+                        sb.Append(ModuleDefinition.ProcessModuleError(modExc, modEntry.ModuleGuid.ToString(), modExc == null ? __ResStr("missingMod", "Designed module not found") : null).ToString());
                         if (Manager.EditMode) {
                             ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                             if (modServices != null) {
