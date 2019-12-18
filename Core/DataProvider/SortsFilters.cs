@@ -43,7 +43,7 @@ namespace YetaWF.Core.DataProvider {
                 // create a predicate expression e.g. Field1 = @0 And Field2 > @1
                 string[] select = filters.Select(s => s.ToExpression(flatFilters)).ToArray();
                 // use the Where method of Dynamic Linq to filter the data
-                
+
                 list = list.AsQueryable().Where(string.Join(" && ", select), parms).ToList<OBJTYPE>();
             }
             return list;
