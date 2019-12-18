@@ -99,7 +99,7 @@ namespace YetaWF.Core.Models {
         public List<TreeEntry> SubEntries { get; set; }
 
         /// <summary>
-        /// Determines whether an item's subsitems are dynamically added/removed.
+        /// Determines whether an item's subitems are dynamically added/removed.
         /// </summary>
         public virtual bool DynamicSubEntries { get; set; }
 
