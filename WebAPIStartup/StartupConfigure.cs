@@ -13,6 +13,7 @@ using YetaWF.Core.Controllers;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
+using YetaWF2.LetsEncrypt;
 using YetaWF2.Support;
 
 #if !DEBUG
@@ -65,6 +66,8 @@ namespace YetaWF.Core.WebAPIStartup {
             services.AddHealthChecks();
             services.AddResponseCompression();
 
+            services.AddLetsEncrypt();
+
             // Add handling of ResourceAuthorize attribute otherwise we get
             // 'The AuthorizationPolicy named: 'ResourceAuthorize' was not found.'
             services.AddAuthorization(options => {
@@ -90,6 +93,8 @@ namespace YetaWF.Core.WebAPIStartup {
             app.UseDeveloperExceptionPage();
 #endif
             app.UseResponseCompression();
+
+            app.UseLetsEncrypt();
 
             app.UseMiddleware<DynamicPreRoutingMiddleware>();
 

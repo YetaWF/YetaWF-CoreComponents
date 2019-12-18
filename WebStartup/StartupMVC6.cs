@@ -2,6 +2,7 @@
 
 #if MVC6
 
+using FluffySpoon.AspNet.LetsEncrypt.Certes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -43,7 +44,6 @@ namespace YetaWF.Core.WebStartup {
 
             string hosting = GetHostingFile();
 
-            //Host.CreateDefaultBuilder(args)
             IHost host = new HostBuilder()
                 .UseContentRoot(currPath)
                 .ConfigureHostConfiguration(configHost => {
@@ -54,7 +54,8 @@ namespace YetaWF.Core.WebStartup {
                     configHost.AddCommandLine(args);
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseKestrel();
+                    webBuilder.UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(
+                        httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate));
                     webBuilder.UseIIS();
                     webBuilder.UseIISIntegration();
                     webBuilder.CaptureStartupErrors(true);

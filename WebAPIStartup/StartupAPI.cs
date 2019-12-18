@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using FluffySpoon.AspNet.LetsEncrypt.Certes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +13,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.WebAPIStartup {
 
     /// <summary>
-    /// The class implenting a YetaWF API service .
+    /// The class implementing a YetaWF API service .
     /// </summary>
     public class StartupAPI {
 
@@ -50,10 +51,11 @@ namespace YetaWF.Core.WebAPIStartup {
                     configHost.AddCommandLine(args);
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseUrls(urls);
-                    webBuilder.UseKestrel();
+                    webBuilder.UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(
+                        httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate));
                     webBuilder.UseIIS();
                     webBuilder.UseIISIntegration();
+                    webBuilder.UseUrls(urls);
                     webBuilder.CaptureStartupErrors(true);
                     webBuilder.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
                     webBuilder.UseStartup<Startup>();

@@ -34,6 +34,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views;
+using YetaWF2.LetsEncrypt;
 using YetaWF2.Middleware;
 using YetaWF2.Support;
 
@@ -175,6 +176,8 @@ namespace YetaWF.Core.WebStartup {
             // We need to replace the default Html Generator because it adds id= to every tag despite not explicitly requested, which is dumb and can cause duplicate ids (not
             // permitted  in w3c validation). Why would MVC6 start adding ids to tags when they're not requested. If they're not requested, does the caller really need or use them???
             services.AddSingleton(typeof(IHtmlGenerator), typeof(YetaWFDefaultHtmlGenerator));
+
+            services.AddLetsEncrypt();
 
             // Add framework services.
             services.AddMvc((options) => {
@@ -328,6 +331,8 @@ namespace YetaWF.Core.WebStartup {
                     }
                 });
             }
+
+            app.UseLetsEncrypt();
 
             app.UseRouting();
 
