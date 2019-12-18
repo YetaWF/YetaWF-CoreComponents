@@ -27,6 +27,19 @@ namespace YetaWF.Core.WebAPIStartup {
             YetaWFManager.RootFolder = currPath;
             YetaWFManager.RootFolderWebProject = currPath;
 
+            // If there is no Data folder but we have a DataInit folder, copy contents to Data folder (first time install)
+            string dataFolder = Path.Combine(currPath, Globals.DataFolder);
+            if (!Directory.Exists(dataFolder) || IsEmptyDirectory(dataFolder)) {
+                string initFolder = Path.Combine(currPath, "DataInit");
+                if (Directory.Exists(initFolder)) {
+                    System.Console.WriteLine($"Initializing {dataFolder}");
+                    // If we don't have a Data folder, copy the /DataInit folder to /Data
+                    // This is needed with Docker during first-time installs.
+                    string dataInitFolder = Path.Combine(currPath, "DataInit");
+                    CopyFiles(dataInitFolder, dataFolder);
+                }
+            }
+
             string appSettings = YetaWF.Core.Support.Startup.GetEnvironmentFile(currPath, "AppSettings", "json");
 
             WebConfigHelper.InitAsync(appSettings).Wait();
@@ -75,6 +88,20 @@ namespace YetaWF.Core.WebAPIStartup {
                 .Build();
 
             host.Run();
+        }
+        private static bool IsEmptyDirectory(string folder) {
+            return Directory.GetFiles(folder).Length == 0 && Directory.GetDirectories(folder).Length == 0;
+        }
+        private static void CopyFiles(string srcInitFolder, string targetFolder) {
+            Directory.CreateDirectory(targetFolder);
+            string[] files = Directory.GetFiles(srcInitFolder);
+            foreach (string file in files) {
+                File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
+            }
+            string[] dirs = Directory.GetDirectories(srcInitFolder);
+            foreach (string dir in dirs) {
+                CopyFiles(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+            }
         }
     }
 }
