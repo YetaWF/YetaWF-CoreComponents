@@ -48,7 +48,7 @@ namespace YetaWF.Core.WebStartup {
                 .UseContentRoot(currPath)
                 .ConfigureHostConfiguration(configHost => {
                     configHost.SetBasePath(currPath);
-                    configHost.AddJsonFile(GetAppSettingsFile(), false, reloadOnChange: false); // needed for logging
+                    configHost.AddJsonFile(GetAppSettingsFile(), reloadOnChange: false, optional: true); // needed for logging
                     configHost.AddJsonFile(hosting, optional: true);
                     //configHost.AddEnvironmentVariables(prefix: "");
                     configHost.AddCommandLine(args);
