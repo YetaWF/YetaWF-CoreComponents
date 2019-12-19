@@ -51,10 +51,6 @@ namespace YetaWF.Core.WebAPIStartup {
                 .AddEnvironmentVariables()
                 .Build();
 
-            string urls = WebConfigHelper.GetValue<string>("Default", "URL");
-            if (urls == null)
-                throw new InternalError("No URL defined");
-
             IHost host = new HostBuilder()
                 .UseContentRoot(currPath)
                 .ConfigureHostConfiguration(configHost => {
@@ -68,7 +64,7 @@ namespace YetaWF.Core.WebAPIStartup {
                         httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate));
                     webBuilder.UseIIS();
                     webBuilder.UseIISIntegration();
-                    webBuilder.UseUrls(urls);
+                    webBuilder.UseUrls();
                     webBuilder.CaptureStartupErrors(true);
                     webBuilder.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
                     webBuilder.UseStartup<Startup>();

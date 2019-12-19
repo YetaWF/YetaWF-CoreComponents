@@ -20,11 +20,11 @@ namespace YetaWF2.LetsEncrypt {
         public static void AddLetsEncrypt(this IServiceCollection services) {
 
             // https://github.com/ffMathy/FluffySpoon.AspNet.LetsEncrypt
-            string letsEncryptEmail = WebConfigHelper.GetValue<string>("LetsEncrypt", "Email", Package: false);
-            if (!string.IsNullOrWhiteSpace(letsEncryptEmail)) {
+            bool? staging = WebConfigHelper.GetValue<bool?>("LetsEncrypt", "Staging", null, Package: false);
+            if (staging != null) {
                 services.AddFluffySpoonLetsEncryptRenewalService(new LetsEncryptOptions() {
-                    Email = letsEncryptEmail, // LetsEncrypt will send you an e-mail here when the certificate is about to expire
-                    UseStaging = WebConfigHelper.GetValue<bool>("LetsEncrypt", "Staging", Package: false, Required: true), // false for production
+                    Email = WebConfigHelper.GetValue<string>("LetsEncrypt", "Email", Package: false, Required: true), // LetsEncrypt will send you an e-mail here when the certificate is about to expire
+                    UseStaging = (bool)staging, // false for production
                     Domains = WebConfigHelper.GetValue<string>("LetsEncrypt", "Domains", Package: false, Required: true).Split(new char[] { ',' }),
                     TimeUntilExpiryBeforeRenewal = TimeSpan.FromDays(WebConfigHelper.GetValue<int>("LetsEncrypt", "TimeUntilExpiryBeforeRenewal", 30, Package: false)), // renew automatically 30 days before expiry
                     TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(WebConfigHelper.GetValue<int>("LetsEncrypt", "TimeAfterIssueDateBeforeRenewal", 7, Package: false)), // renew automatically 7 days after the last certificate was issued
@@ -59,8 +59,8 @@ namespace YetaWF2.LetsEncrypt {
 
         }
         public static void UseLetsEncrypt (this IApplicationBuilder app) {
-            string letsEncryptEmail = WebConfigHelper.GetValue<string>("LetsEncrypt", "Email", Package: false);
-            if (!string.IsNullOrWhiteSpace(letsEncryptEmail)) {
+            bool? staging = WebConfigHelper.GetValue<bool?>("LetsEncrypt", "Staging", null, Package: false);
+            if (staging != null) {
                 app.UseFluffySpoonLetsEncryptChallengeApprovalMiddleware();
             }
         }
