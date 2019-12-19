@@ -229,38 +229,38 @@ namespace YetaWF.Core.Support {
                                 return (encode) ? EncodeText(ret) : ret;
                             }
                         }
-                    } else if (loc == "Env") {
-                        if (!string.IsNullOrWhiteSpace(var)) {
-                            string env = Environment.GetEnvironmentVariable(var);
-                            return (encode) ? EncodeText(env) : env;
+                    }
+                } else if (loc == "Env") {
+                    if (!string.IsNullOrWhiteSpace(var)) {
+                        string env = Environment.GetEnvironmentVariable(var);
+                        return (encode) ? EncodeText(env) : env;
+                    }
+                } else if (loc == "Opsys") {
+                    if (!string.IsNullOrWhiteSpace(var)) {
+                        switch (var) {
+                            case "MVC":
+                                ret = Utility.GetAspNetMvcName(Utility.AspNetMvc);
+                                return (encode) ? EncodeText(ret) : ret;
+                            case "Name":
+                                ret = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+                                return (encode) ? EncodeText(ret) : ret;
+                            case "Framework":
+                                ret = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+                                return (encode) ? EncodeText(ret) : ret;
+                            default:
+                                break;
                         }
-                    } else if (loc == "Opsys") {
-                        if (!string.IsNullOrWhiteSpace(var)) {
-                            switch (var) {
-                                case "MVC":
-                                    ret = Utility.GetAspNetMvcName(Utility.AspNetMvc);
+                    }
+                } else if (loc.StartsWith("Unique-")) {
+                    // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
+                    string fullName = loc.Substring("Unique-".Length);
+                    Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
+                    if (modType != null) {
+                        ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModuleAsync(modType).Result;//TODO: This is not good. However rarely used, so we'll wait until we have other asyncs in Variables.
+                        if (dataMod != null) {
+                            if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
+                                if (!string.IsNullOrWhiteSpace(ret))
                                     return (encode) ? EncodeText(ret) : ret;
-                                case "Name":
-                                    ret = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-                                    return (encode) ? EncodeText(ret) : ret;
-                                case "Framework":
-                                    ret = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-                                    return (encode) ? EncodeText(ret) : ret;
-                                default:
-                                    break;
-                            }
-                        }
-                    } else if (loc.StartsWith("Unique-")) {
-                        // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
-                        string fullName = loc.Substring("Unique-".Length);
-                        Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
-                        if (modType != null) {
-                            ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModuleAsync(modType).Result;//TODO: This is not good. However rarely used, so we'll wait until we have other asyncs in Variables.
-                            if (dataMod != null) {
-                                if (EvalObjectVariable(dataMod, var, subvar, out ret)) {
-                                    if (!string.IsNullOrWhiteSpace(ret))
-                                        return (encode) ? EncodeText(ret) : ret;
-                                }
                             }
                         }
                     }
