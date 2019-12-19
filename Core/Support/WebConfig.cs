@@ -114,7 +114,7 @@ namespace YetaWF.Core.Support {
                 }
             } else if (typeof(TYPE).IsEnum) {
                 return (TYPE)(object)Convert.ToInt32(val);
-            } else if (typeof(TYPE) == typeof(bool)) {
+            } else if (typeof(TYPE) == typeof(bool) || typeof(TYPE) == typeof(bool?)) {
                 bool boolVal;
                 if (val.GetType() == typeof(string)) {
                     string s = (string)val;
