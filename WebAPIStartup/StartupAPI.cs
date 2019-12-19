@@ -64,7 +64,6 @@ namespace YetaWF.Core.WebAPIStartup {
                         httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate));
                     webBuilder.UseIIS();
                     webBuilder.UseIISIntegration();
-                    webBuilder.UseUrls();
                     webBuilder.CaptureStartupErrors(true);
                     webBuilder.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
                     webBuilder.UseStartup<Startup>();
