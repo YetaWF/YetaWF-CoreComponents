@@ -48,8 +48,9 @@ namespace YetaWF.Core.WebStartup {
                 .UseContentRoot(currPath)
                 .ConfigureHostConfiguration(configHost => {
                     configHost.SetBasePath(currPath);
-                    configHost.AddJsonFile(GetAppSettingsFile(), reloadOnChange: false, optional: true); // needed for logging
-                    configHost.AddJsonFile(hosting, optional: true);
+                    configHost.AddJsonFile(GetAppSettingsFile(), reloadOnChange: false, optional: false); // needed for logging
+                    if (hosting != null)
+                        configHost.AddJsonFile(hosting);
                     //configHost.AddEnvironmentVariables(prefix: "");
                     configHost.AddCommandLine(args);
                 })
@@ -96,7 +97,7 @@ namespace YetaWF.Core.WebStartup {
         /// <returns>Returns an environment and runtime specific hosting.json file name.</returns>
         public static string GetHostingFile() {
             if (_HostingFile == null)
-                _HostingFile = Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json");
+                _HostingFile = Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json", Optional: true);
             return _HostingFile;
         }
         private static string _HostingFile = null;
