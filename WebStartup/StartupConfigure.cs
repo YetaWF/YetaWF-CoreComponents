@@ -238,7 +238,6 @@ namespace YetaWF.Core.WebStartup {
             }
 
             app.UseResponseCompression();
-            app.UseAuthorization();
 
             app.UseSession();
 
@@ -342,6 +341,7 @@ namespace YetaWF.Core.WebStartup {
                 await next();
             });
 
+            app.UseAuthorization();
             app.UseAuthentication();
 
             app.UseEndpoints(endpoints => {
