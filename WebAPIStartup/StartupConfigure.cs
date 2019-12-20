@@ -102,7 +102,7 @@ namespace YetaWF.Core.WebAPIStartup {
 
             // Everything else
             app.Use(async (context, next) => {
-                await StartupRequest.StartRequestAsync(context);
+                StartupRequest.StartRequest(context);
                 await next();
             });
 

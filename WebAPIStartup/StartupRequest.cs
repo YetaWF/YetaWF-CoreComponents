@@ -8,6 +8,7 @@ using YetaWF.Core.Log;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using YetaWF.Core.Support;
+using System.IO;
 
 namespace YetaWF.Core.WebAPIStartup {
 
@@ -16,11 +17,13 @@ namespace YetaWF.Core.WebAPIStartup {
     /// </summary>
     public static class StartupRequest {
 
+        static SiteDefinition CurrentSite = null;
+
         /// <summary>
         /// Processes an HTTP request (startup, initial processing).
         /// </summary>
         /// <param name="httpContext">The HttpContent instance.</param>
-        public static async Task StartRequestAsync(HttpContext httpContext) {
+        public static void StartRequest(HttpContext httpContext) {
 
             // all code here is synchronous until a Manager is available.
 
@@ -28,20 +31,15 @@ namespace YetaWF.Core.WebAPIStartup {
             Uri uri = new Uri(UriHelper.GetDisplayUrl(httpReq));
             Logging.AddLog(uri.ToString());
 
-            // Requires YetaWF.SitePropertiesService
-            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(null);// always from cache
-            if (site == null)
-                throw new InternalError("Default site not defined (AppSettings.json) or not found");
-
             // We have a valid request for the default domain
             // create a YetaWFManager object to keep track of everything (it serves
             // as a global anchor for everything we need to know while processing this request)
 
-            YetaWFManager manager = YetaWFManager.MakeInstance(httpContext, site.SiteDomain);
+            YetaWFManager manager = YetaWFManager.MakeInstance(httpContext, CurrentSite.SiteDomain);
 
             // Site properties are ONLY valid AFTER this call to YetaWFManager.MakeInstance
 
-            manager.CurrentSite = site;
+            manager.CurrentSite = CurrentSite;
             manager.IsStaticSite = false;
             manager.IsTestSite = false;
             manager.IsLocalHost = uri.IsLoopback;
@@ -96,6 +94,15 @@ namespace YetaWF.Core.WebAPIStartup {
                                 ExternalDataProviders.RegisterExternalDataProviders();
                                 // Call all classes that expose the interface IInitializeApplicationStartup
                                 await YetaWF.Core.Support.Startup.CallStartupClassesAsync();
+
+                                // Get default site
+                                CurrentSite = SiteDefinition.LoadSiteDefinitionAsync != null ? await SiteDefinition.LoadSiteDefinitionAsync(null) : null;// Requires YetaWF.SitePropertiesService if used
+                                if (CurrentSite == null) {
+                                    // read json file in ./Data/Sites
+                                    string filePath = Path.Combine(YetaWFManager.RootFolder, "SiteDefinition.json");
+                                    string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
+                                    CurrentSite = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);
+                                }
 
                                 YetaWF.Core.Support.Startup.Started = true;
                             });
