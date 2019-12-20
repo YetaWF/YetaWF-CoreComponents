@@ -67,7 +67,7 @@ namespace YetaWF.Core.Packages {
         public static async Task UpgradeToNewPackagesAsync() {
 
             if (SiteDefinition.INITIAL_INSTALL) return;
-            if (YetaWFManager.Deployed && !MustUpgrade()) return;
+            if (YetaWFManager.Deployed && !await MustUpgradeAsync()) return;
 
             //File.Delete(Path.Combine(YetaWFManager.RootFolder, Globals.DataFolder, Globals.UpgradeLogFile));
 
@@ -154,8 +154,8 @@ namespace YetaWF.Core.Packages {
         /// <remarks>
         /// During application startup, an upgrade of all installable models can be forced by placing an empty file named UpdateIndicator.txt into the root folder of the website.
         /// </remarks>
-        public static bool MustUpgrade() {
-            return FileSystem.FileSystemProvider.FileExistsAsync(GetUpdateIndicatorFileName()).Result;// uhm yeah, only while upgrading
+        public static async Task<bool> MustUpgradeAsync() {
+            return await FileSystem.FileSystemProvider.FileExistsAsync(GetUpdateIndicatorFileName());
         }
         private static string GetUpdateIndicatorFileName() {
             string rootFolder;
@@ -177,7 +177,7 @@ namespace YetaWF.Core.Packages {
             List<Package> allPackages = Package.GetAvailablePackages();
 
             // update/create all models
-            if (MustUpgrade()) {
+            if (await MustUpgradeAsync()) {
                 Logging.AddLog("Updating all packages");
                 await UpdateAllAsync();
                 Logging.AddLog("Updating models for all packages completed");
