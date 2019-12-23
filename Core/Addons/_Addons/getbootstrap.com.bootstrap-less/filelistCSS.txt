@@ -1,4 +1,4 @@
-﻿//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css,CDN
+﻿//stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css,CDN
 
 /node_modules/bootstrap/dist/css/bootstrap.min.css,noCDN
 
