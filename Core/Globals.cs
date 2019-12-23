@@ -7,8 +7,8 @@ namespace YetaWF.Core {
     public class Globals {
 
 #if MVC6
-        public const string RUNTIME = "netcoreapp3.0"; // runtime
-        public const string RUNTIMEVERSION = "3.0";
+        public const string RUNTIME = "netcoreapp3.1"; // runtime
+        public const string RUNTIMEVERSION = "3.1";
 #endif
 
         public const int MaxIP = 15; // "xxx.xxx.xxx.xxx"
