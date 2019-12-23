@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace YetaWF.Core.Pages {
         Task KeywordsForDynamicUrlsAsync(ISearchWords searchWords);
     }
 
-    public delegate Task AddDynamicUrlAsync(PageDefinition page, string url, DateTime? dateUpdated, 
+    public delegate Task AddDynamicUrlAsync(PageDefinition page, string url, DateTime? dateUpdated,
         PageDefinition.SiteMapPriorityEnum priority, PageDefinition.ChangeFrequencyEnum changeFrequency, object obj);
 
     public interface ISiteMapDynamicUrls

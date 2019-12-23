@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ namespace YetaWF.Core.Support {
                     NamingStrategy = new Newtonsoft.Json.Serialization.DefaultNamingStrategy()
                 },
             };
-        }         
+        }
         public object Data { get { return Value; }  set { Value = value; } }
 #else
 #endif
