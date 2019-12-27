@@ -445,10 +445,26 @@ namespace YetaWF {
                     $YetaWF.runGlobalScript(result.AnalyticsContent);
                 } catch (e) { }
                 $YetaWF.processNewPage(uri.toUrl());
+
+                // locate the hash if there is one
+                let setFocus = true;
+                let hash = window.location.hash;
+                if (hash) {
+                    let target: HTMLElement|null = null;
+                    try {// handle invalid id
+                        target = $YetaWF.getElement1BySelectorCond(hash);
+                    } catch (e) { }
+                    if (target) {
+                        target.scrollIntoView();
+                        setFocus = false;
+                    }
+                }
                 // done, set focus
-                setTimeout(():void => { // defer setting focus (popups, controls may not yet be visible)
-                    $YetaWF.setFocus(tags);
-                }, 1);
+                if (setFocus) {
+                    setTimeout((): void => { // defer setting focus (popups, controls may not yet be visible)
+                        $YetaWF.setFocus(tags);
+                    }, 1);
+                }
                 $YetaWF.setLoading(false);
             });
         }

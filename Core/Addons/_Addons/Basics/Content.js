@@ -390,10 +390,26 @@ var YetaWF;
                 }
                 catch (e) { }
                 $YetaWF.processNewPage(uri.toUrl());
+                // locate the hash if there is one
+                var setFocus = true;
+                var hash = window.location.hash;
+                if (hash) {
+                    var target = null;
+                    try { // handle invalid id
+                        target = $YetaWF.getElement1BySelectorCond(hash);
+                    }
+                    catch (e) { }
+                    if (target) {
+                        target.scrollIntoView();
+                        setFocus = false;
+                    }
+                }
                 // done, set focus
-                setTimeout(function () {
-                    $YetaWF.setFocus(tags);
-                }, 1);
+                if (setFocus) {
+                    setTimeout(function () {
+                        $YetaWF.setFocus(tags);
+                    }, 1);
+                }
                 $YetaWF.setLoading(false);
             });
         };
