@@ -1,4 +1,4 @@
-/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright ï¿½2020 Softel vdm, Inc.. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 #if MVC6
 
@@ -16,7 +16,7 @@ namespace YetaWF2.Support
 {
     public static class YetaWFApplicationPartManager {
 
-        // ASP.NET Core 3.0 no longer returns all referenced assemblies with System.AppDomain.CurrentDomain.GetAssemblies(); 
+        // ASP.NET Core 3.0 no longer returns all referenced assemblies with System.AppDomain.CurrentDomain.GetAssemblies();
         // So now we locate all "missing" assemblies like this.
         private static List<Assembly> FindExtraAssemblies(List<Assembly> assemblies, string baseDirectory) {
 

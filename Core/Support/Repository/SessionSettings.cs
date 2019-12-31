@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Collections.Generic;
@@ -91,7 +91,7 @@ namespace YetaWF.Core.Support.Repository {
             } else {
                 // clear all session settings except those marked permanent (superuser, temp invoice. etc.)
                 List<string> keys = (from string k in Manager.CurrentSession.Keys where !k.StartsWith(Globals.Session_Permanent) select k).ToList();
-                foreach (var key in keys) 
+                foreach (var key in keys)
                     SettingsDictionary.ClearAllTempItems(key);
             }
         }

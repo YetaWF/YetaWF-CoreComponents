@@ -1,4 +1,4 @@
-/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright Â© 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 // string.startsWith
 if (typeof String.prototype.startsWith != 'function') {
@@ -104,7 +104,7 @@ if (!Array.prototype.find) {
             while (k < len) {
                 // a. Let Pk be ! ToString(k).
                 // b. Let kValue be ? Get(O, Pk).
-                // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+                // c. Let testResult be ToBoolean(? Call(predicate, T, ï¿½ kValue, k, O ï¿½)).
                 // d. If testResult is true, return kValue.
                 var kValue = o[k];
                 if (predicate.call(thisArg, kValue, k, o)) {

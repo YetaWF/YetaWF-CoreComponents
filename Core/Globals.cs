@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.IO;
 
@@ -7,8 +7,8 @@ namespace YetaWF.Core {
     public class Globals {
 
 #if MVC6
-        public const string RUNTIME = "netcoreapp3.0"; // runtime
-        public const string RUNTIMEVERSION = "3.0";
+        public const string RUNTIME = "netcoreapp3.1"; // runtime
+        public const string RUNTIMEVERSION = "3.1";
 #endif
 
         public const int MaxIP = 15; // "xxx.xxx.xxx.xxx"
