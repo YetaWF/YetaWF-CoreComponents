@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>5.0.0.0</Version>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Version>5.1.0.0</Version>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <DefineConstants>$(DefineConstants);MVC6;NETCOREAPP</DefineConstants>
     <AssemblyName>YetaWF.Core.WebAPIStartup</AssemblyName>
     <PackageId>WebAPIStartup</PackageId>
@@ -21,13 +21,13 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp3.0\YetaWF.Core.WebAPIStartup.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\YetaWF.Core.WebAPIStartup.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluffySpoon.AspNet.LetsEncrypt" Version="1.139.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>

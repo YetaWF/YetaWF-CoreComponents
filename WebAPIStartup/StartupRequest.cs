@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Threading.Tasks;
@@ -96,12 +96,27 @@ namespace YetaWF.Core.WebAPIStartup {
                                 await YetaWF.Core.Support.Startup.CallStartupClassesAsync();
 
                                 // Get default site
-                                CurrentSite = SiteDefinition.LoadSiteDefinitionAsync != null ? await SiteDefinition.LoadSiteDefinitionAsync(null) : null;// Requires YetaWF.SitePropertiesService if used
+                                CurrentSite = null;
+                                // try load from db
+                                if (CurrentSite == null) {
+                                    if (SiteDefinition.LoadSiteDefinitionAsync != null) {
+                                        // Requires YetaWF.SitePropertiesService if used
+                                        CurrentSite = await SiteDefinition.LoadSiteDefinitionAsync(null);
+                                    }
+                                }
                                 if (CurrentSite == null) {
                                     // read json file in ./Data/Sites
                                     string filePath = Path.Combine(YetaWFManager.RootFolder, "SiteDefinition.json");
-                                    string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
-                                    CurrentSite = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);
+                                    if (File.Exists(filePath)) {
+                                        string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
+                                        CurrentSite = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);
+                                    }
+                                }
+                                if (CurrentSite == null) {
+                                    // fallback to default identity
+                                    CurrentSite = new SiteDefinition {
+                                        Identity = SiteDefinition.SiteIdentitySeed
+                                    };
                                 }
 
                                 YetaWF.Core.Support.Startup.Started = true;

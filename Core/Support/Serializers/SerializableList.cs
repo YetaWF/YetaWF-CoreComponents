@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace YetaWF.Core.Serializers {
         }
 
         [DontSave]
-        public new int Capacity { 
+        public new int Capacity {
             get {
                 return base.Capacity;
             }

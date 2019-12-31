@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Collections.Generic;
@@ -181,7 +181,7 @@ namespace YetaWF.Core.Controllers {
                 int index = viewHtml.IndexOf("<script>", pos);
                 if (index < 0)
                     break;
-                int endIndex = viewHtml.IndexOf("</script>", pos + 8);
+                int endIndex = viewHtml.IndexOf("</script>", index + 8);
                 if (endIndex < 0)
                     throw new InternalError("Missing </script> in view");
                 YetaWFManager.Manager.ScriptManager.AddLast(viewHtml.Substring(index + 8, endIndex - index - 8));

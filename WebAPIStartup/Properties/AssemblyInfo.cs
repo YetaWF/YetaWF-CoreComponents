@@ -1,4 +1,4 @@
-﻿/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,12 +9,12 @@ using YetaWF.PackageAttributes;
 [assembly: AssemblyDescription("YetaWF Startup Web API Support")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Softel vdm, Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2019 - Softel vdm, Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2020 - Softel vdm, Inc.")]
 [assembly: AssemblyProduct("Startup Web API")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("5.0.0.0")]
+[assembly: AssemblyVersion("5.1.0.0")]
 
 [assembly: Package(PackageTypeEnum.CoreAssembly, "YetaWF")]
 [assembly: ServiceLevel(ServiceLevelEnum.Core)]

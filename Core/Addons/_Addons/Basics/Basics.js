@@ -1,5 +1,5 @@
 "use strict";
-/* Copyright © 2019 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 /**
  * Class implementing basic services used throughout YetaWF.
  */

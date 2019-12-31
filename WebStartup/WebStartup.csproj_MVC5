@@ -76,7 +76,7 @@
     <Compile Include="MvcApplication5.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup5.cs" />
-    <Compile Include="Startup6.cs" />
+    <Compile Include="StartupConfigure.cs" />
     <Compile Include="StartupMVC6.cs" />
   </ItemGroup>
   <ItemGroup>
