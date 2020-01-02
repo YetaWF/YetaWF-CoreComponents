@@ -392,7 +392,7 @@ var YetaWF;
                 $YetaWF.processNewPage(uri.toUrl());
                 // locate the hash if there is one
                 var setFocus = true;
-                var hash = window.location.hash;
+                var hash = uri.getHash();
                 if (hash) {
                     var target = null;
                     try { // handle invalid id

@@ -448,7 +448,7 @@ namespace YetaWF {
 
                 // locate the hash if there is one
                 let setFocus = true;
-                let hash = window.location.hash;
+                let hash = uri.getHash();
                 if (hash) {
                     let target: HTMLElement|null = null;
                     try {// handle invalid id
