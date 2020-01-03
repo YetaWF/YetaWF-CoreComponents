@@ -99,7 +99,7 @@ namespace YetaWF.Core.Support {
                 val = val.Value;
             } catch (Exception) {
                 if (Required)
-                    throw new InternalError($"The required {(Package ? $"Application:Package:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
+                    throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                 return dflt;
             }
             if (typeof(TYPE) == typeof(string)) {

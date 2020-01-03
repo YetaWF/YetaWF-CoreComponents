@@ -105,8 +105,9 @@ namespace YetaWF.Core.WebAPIStartup {
                                     }
                                 }
                                 if (CurrentSite == null) {
-                                    // read json file in ./Data/Sites
-                                    string filePath = Path.Combine(YetaWFManager.RootFolder, "SiteDefinition.json");
+                                    // read json file (based on AppSettings or default to SiteDefinition.json)
+                                    string siteFile = WebConfigHelper.GetValue<string>("YetaWF_Core", "SiteDefinition", "SiteDefinition.json");
+                                    string filePath = Path.Combine(YetaWFManager.RootFolder, siteFile);
                                     if (File.Exists(filePath)) {
                                         string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
                                         CurrentSite = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);

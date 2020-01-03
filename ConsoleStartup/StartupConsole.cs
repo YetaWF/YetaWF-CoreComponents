@@ -102,6 +102,9 @@ namespace YetaWF.Core.ConsoleStartup {
 
             Start(baseDirectory);
 
+            if (filePath == null)
+                filePath = WebConfigHelper.GetValue<string>("YetaWF_Core", "SiteDefinition", Required: true);
+
             // Set up specific site to use
             string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
             SiteDefinition site = Utility.JsonDeserialize<SiteDefinition>(siteDefJson);
