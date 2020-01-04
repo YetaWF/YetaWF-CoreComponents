@@ -20,6 +20,7 @@ using System.IO;
 using YetaWF.Core.Views;
 using YetaWF.Core.DataProvider;
 using System.Linq;
+using YetaWF.Core.Localize;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -126,6 +127,21 @@ namespace YetaWF.Core.Controllers
             return _currentModule;
         }
         ModuleDefinition _currentModule = null;
+
+        protected ActionResult Reload_Page(string popupText = null, string popupTitle = null) {
+            ScriptBuilder sb = new ScriptBuilder();
+            if (string.IsNullOrWhiteSpace(popupText)) {
+                // we don't want a message or an alert
+                sb.Append(Basics.AjaxJavascriptReloadPage);
+                return new YJsonResult { Data = sb.ToString() };
+            } else {
+                popupText = Utility.JsonSerialize(popupText);
+                popupTitle = Utility.JsonSerialize(popupTitle ?? this.__ResStr("completeTitle", "Success"));
+                sb.Append(Basics.AjaxJavascriptReturn);
+                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
+                return new YJsonResult { Data = sb.ToString() };
+            }
+        }
 
 #if MVC6
         // Handled identically in ErrorHandlingMiddleware

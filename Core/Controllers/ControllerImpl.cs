@@ -900,7 +900,7 @@ namespace YetaWF.Core.Controllers {
                 switch (Reload) {
                     default:
                     case ReloadEnum.Page:
-                        return Reload_Page(model, PopupText, PopupTitle);
+                        return Reload_Page(PopupText, PopupTitle);
                     case ReloadEnum.Module:
                         return Reload_Module(model, PopupText, PopupTitle);
                     case ReloadEnum.ModuleParts:
@@ -910,20 +910,6 @@ namespace YetaWF.Core.Controllers {
                 if (string.IsNullOrEmpty(PopupText))
                     throw new InternalError("We don't have a message to display - programmer error");
                 return View("ShowMessage", PopupText, UseAreaViewName: false);
-            }
-        }
-        private ActionResult Reload_Page(object model, string popupText, string popupTitle) {
-            ScriptBuilder sb = new ScriptBuilder();
-            if (string.IsNullOrWhiteSpace(popupText)) {
-                // we don't want a message or an alert
-                sb.Append(Basics.AjaxJavascriptReloadPage);
-                return new YJsonResult { Data = sb.ToString() };
-            } else {
-                popupText = Utility.JsonSerialize(popupText);
-                popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
-                sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
-                return new YJsonResult { Data = sb.ToString() };
             }
         }
         private ActionResult Reload_Module(object model, string popupText, string popupTitle) {
