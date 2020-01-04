@@ -17,6 +17,8 @@ namespace YetaWF.Core.Models {
     /// </summary>
     public class GridDefinition {
 
+        protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(GridDefinition), name, defaultValue, parms); }
+
         public enum SortBy {
             NotSpecified = 0, Ascending, Descending
         };
@@ -88,7 +90,7 @@ namespace YetaWF.Core.Models {
             SupportReload = true;
             ShowHeader = true;
             ShowPager = true;
-            NoRecordsText = this.__ResStr("noRecs", "(None)");
+            NoRecordsText = __ResStr("noRecs", "(None)");
             ShowFilter = null;
             UseSkinFormatting = true;
             HighlightOnClick = true;
