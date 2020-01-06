@@ -452,7 +452,7 @@ namespace YetaWF {
                 if (hash) {
                     let target: HTMLElement|null = null;
                     try {// handle invalid id
-                        target = $YetaWF.getElement1BySelectorCond(hash);
+                        target = $YetaWF.getElement1BySelectorCond(`#${hash}`);
                     } catch (e) { }
                     if (target) {
                         target.scrollIntoView();
