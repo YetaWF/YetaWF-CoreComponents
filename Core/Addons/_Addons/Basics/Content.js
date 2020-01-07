@@ -396,7 +396,7 @@ var YetaWF;
                 if (hash) {
                     var target = null;
                     try { // handle invalid id
-                        target = $YetaWF.getElement1BySelectorCond(hash);
+                        target = $YetaWF.getElement1BySelectorCond("#" + hash);
                     }
                     catch (e) { }
                     if (target) {
