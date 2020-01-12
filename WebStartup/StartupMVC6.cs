@@ -63,8 +63,14 @@ namespace YetaWF.Core.WebStartup {
                     configHost.AddCommandLine(args);
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(
-                        httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate));
+                    webBuilder.UseKestrel(kestrelOptions => {
+                        kestrelOptions.ConfigureHttpsDefaults(httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate);
+                        long? maxReq = WebConfigHelper.GetValue<long?>("YetaWF_Core", "MaxRequestBodySize", 30000000);
+                        if (maxReq == 0)
+                            kestrelOptions.Limits.MaxRequestBodySize = null;
+                        else
+                            kestrelOptions.Limits.MaxRequestBodySize = maxReq;
+                    });
                     webBuilder.UseIIS();
                     webBuilder.UseIISIntegration();
                     webBuilder.CaptureStartupErrors(true);
