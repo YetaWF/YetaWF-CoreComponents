@@ -300,6 +300,7 @@ namespace YetaWF {
                             this.callPostSubmitHandler(form);
                             if (successFunc) // executed on successful ajax submit
                                 successFunc(this.hasErrors(form));
+                            $YetaWF.setFocus([form]);
                         })) {
                             // ok
                         } else {

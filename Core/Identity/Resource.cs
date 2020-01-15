@@ -225,6 +225,7 @@ namespace YetaWF.Core.Identity {
         Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task AddTwoStepLoginFailureAsync();
         Task<bool> GetTwoStepLoginFailuresExceededAsync();
+        Task<bool> VerifyTwoStepAuthenticationRecoveryCodeAsync(int userId, string code);
     }
 
     public static class Resource {
@@ -301,6 +302,10 @@ namespace YetaWF.Core.Identity {
         }
 
         public Task<bool> GetTwoStepLoginFailuresExceededAsync() {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> VerifyTwoStepAuthenticationRecoveryCodeAsync(int userId, string code) {
             throw new NotImplementedException();
         }
 

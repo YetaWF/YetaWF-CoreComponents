@@ -194,6 +194,7 @@ var YetaWF;
                             _this.callPostSubmitHandler(form);
                             if (successFunc) // executed on successful ajax submit
                                 successFunc(_this.hasErrors(form));
+                            $YetaWF.setFocus([form]);
                         })) {
                             // ok
                         }

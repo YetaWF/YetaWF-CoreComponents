@@ -1061,7 +1061,7 @@ namespace YetaWF.Core.Controllers {
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
-                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false, string PopupOptions = null) {
+                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -1072,7 +1072,7 @@ namespace YetaWF.Core.Controllers {
             popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
             PopupOptions = PopupOptions ?? "null";
 
-            bool isApply = IsApply || IsReload;
+            bool isApply = IsApply || IsReload || ForceApply;
             if (isApply) {
                 NextPage = null;
                 OnPopupClose = OnPopupCloseEnum.UpdateInPlace;

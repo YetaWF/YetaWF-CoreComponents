@@ -621,6 +621,8 @@ namespace YetaWF.Core.Controllers
 
                     bool inPartialView = Manager.InPartialView;
                     Manager.InPartialView = true;
+                    bool wantFocus = Manager.WantFocus;
+                    Manager.WantFocus = Module.WantFocus;
                     try {
 #if MVC6
                         viewHtml = await htmlHelper.ForViewAsync(base.ViewName, Module, Model);
@@ -633,6 +635,7 @@ namespace YetaWF.Core.Controllers
                         throw;
                     } finally {
                         Manager.InPartialView = inPartialView;
+                        Manager.WantFocus = wantFocus;
                     }
 #if MVC6
                     viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
