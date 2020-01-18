@@ -38,7 +38,8 @@ namespace YetaWF.Core.WebStartup {
                     // If we don't have a DataLocal folder, copy the /DataLocalInit folder to /DataLocal
                     // This is needed with Docker during first-time installs.
                     string dataLocalInitFolder = Path.Combine(currPath, "DataLocalInit");
-                    CopyFiles(dataLocalInitFolder, dataLocalFolder);
+                    if (Directory.Exists(dataLocalInitFolder)) // this is optional
+                        CopyFiles(dataLocalInitFolder, dataLocalFolder);
                 }
                 string maintFolder = Path.Combine(currPath, "wwwroot", "Maintenance");
                 if (!Directory.Exists(maintFolder) || IsEmptyDirectory(maintFolder)) {

@@ -74,6 +74,16 @@ namespace YetaWF.Core.Support.Serializers {
                 Simple2Formatter simpleFmt = new Simple2Formatter();
                 try {
                     object data = simpleFmt.Deserialize(btes);
+                    if (data != null) {
+                        Type dataType = data.GetType();
+                        while (true) {
+                            if (dataType == typeof(TObj))
+                                break;
+                            if (dataType.BaseType == null)
+                                return default(TObj); // type mismatch
+                            dataType = dataType.BaseType;
+                        }
+                    }
                     return (TObj)data;
                 } catch (Exception exc) {
                     throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
