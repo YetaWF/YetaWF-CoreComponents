@@ -11,7 +11,7 @@ namespace YetaWF.Core {
         public const string RUNTIMEVERSION = "3.1";
 #endif
 
-        public const int MaxIP = 15; // "xxx.xxx.xxx.xxx"
+        public const int MaxIP = 40;
         public const int MaxUser = 100;
         public const int MaxPswd = 100;
         public const int MaxUrl = 400;
