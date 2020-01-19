@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 #if MVC6
-using Microsoft.AspNetCore.Mvc;
 using YetaWF.Core.Support;
 #else
 using System.Web.Mvc;
@@ -24,24 +23,26 @@ namespace YetaWF.Core.Scheduler {
         public static Func<Package, Task> InstallAsync { get; set; }
         public static Func<Package, Task> UninstallAsync { get; set; }
         public static Func<string, Task> RunItemAsync { get; set; }
+        public static Func<string, DateTime?, Task> SetItemNextRunAsync { get; set; }
         public static bool Enabled { get; set; }
 
         static SchedulerSupport() {
             InstallAsync = DefaultInstallerAsync;
             UninstallAsync = DefaultUninstallerAsync;
             RunItemAsync = DefaultRunItemAsync;
+            SetItemNextRunAsync = DefaultSetItemNextRunAsync;
             Enabled = false;
         }
-
         private static Task DefaultInstallerAsync(Package obj) {
             throw new NotImplementedException();
         }
-
         private static Task DefaultUninstallerAsync(Package obj) {
             throw new NotImplementedException();
         }
-
         private static Task DefaultRunItemAsync(string name) {
+            throw new NotImplementedException();
+        }
+        private static Task DefaultSetItemNextRunAsync(string name, DateTime? nextRun) {
             throw new NotImplementedException();
         }
     }
