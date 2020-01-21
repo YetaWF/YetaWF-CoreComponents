@@ -24,30 +24,35 @@ namespace YetaWF.Core.WebStartup {
             string currPath = Directory.GetCurrentDirectory();
 
             if (Startup.RunningInContainer) {
-                string dataFolder = Path.Combine(currPath, Globals.DataFolder);
-                if (!Directory.Exists(dataFolder) || IsEmptyDirectory(dataFolder)) {
-                    System.Console.WriteLine($"Initializing {dataFolder}");
-                    // If we don't have a Data folder, copy the /DataInit folder to /Data
-                    // This is needed with Docker during first-time installs.
+                {
+                    // Copy any new files from /DataInit to /Data
+                    // This is needed with Docker during first-time installs if a DataLocalInit folder is present.
                     string dataInitFolder = Path.Combine(currPath, "DataInit");
-                    CopyFiles(dataInitFolder, dataFolder);
+                    if (Directory.Exists(dataInitFolder)) { // this is optional
+                        string dataFolder = Path.Combine(currPath, Globals.DataFolder);
+                        System.Console.WriteLine($"Initializing {dataFolder}");
+                        CopyMissingFiles(dataInitFolder, dataFolder);
+                    }
                 }
-                string dataLocalFolder = Path.Combine(currPath, Globals.DataLocalFolder);
-                if (!Directory.Exists(dataLocalFolder) || IsEmptyDirectory(dataLocalFolder)) {
-                    System.Console.WriteLine($"Initializing {dataLocalFolder}");
-                    // If we don't have a DataLocal folder, copy the /DataLocalInit folder to /DataLocal
-                    // This is needed with Docker during first-time installs.
+                {
+                    // Copy any new files from /DataLocalInit to /DataLocal
+                    // This is needed with Docker during first-time installs if a DataLocalInit folder is present.
                     string dataLocalInitFolder = Path.Combine(currPath, "DataLocalInit");
-                    if (Directory.Exists(dataLocalInitFolder)) // this is optional
-                        CopyFiles(dataLocalInitFolder, dataLocalFolder);
+                    if (Directory.Exists(dataLocalInitFolder)) { // this is optional
+                        string dataLocalFolder = Path.Combine(currPath, Globals.DataLocalFolder);
+                        System.Console.WriteLine($"Initializing {dataLocalFolder}");
+                        CopyMissingFiles(dataLocalInitFolder, dataLocalFolder);
+                    }
                 }
-                string maintFolder = Path.Combine(currPath, "wwwroot", "Maintenance");
-                if (!Directory.Exists(maintFolder) || IsEmptyDirectory(maintFolder)) {
-                    System.Console.WriteLine($"Initializing {maintFolder}");
-                    // If we don't have a Maintenance folder, copy the MaintenanceInit folder to Maintenance
+                {
+                    // Copy any new files from the ./wwwroot/MaintenanceInit folder to ./wwwroot/Maintenance
                     // This is needed with Docker during first-time installs.
                     string maintInitFolder = Path.Combine(currPath, "wwwroot", "MaintenanceInit");
-                    CopyFiles(maintInitFolder, maintFolder);
+                    if (Directory.Exists(maintInitFolder)) { // this is optional
+                        string maintFolder = Path.Combine(currPath, "wwwroot", "Maintenance");
+                        System.Console.WriteLine($"Initializing {maintFolder}");
+                        CopyMissingFiles(maintInitFolder, maintFolder);
+                    }
                 }
             }
 
@@ -117,19 +122,32 @@ namespace YetaWF.Core.WebStartup {
         }
         private static string _HostingFile = null;
 
-        private static void CopyFiles(string srcInitFolder, string targetFolder) {
+        //private static void CopyFiles(string srcInitFolder, string targetFolder) {
+        //    Directory.CreateDirectory(targetFolder);
+        //    string[] files = Directory.GetFiles(srcInitFolder);
+        //    foreach (string file in files) {
+        //        File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
+        //    }
+        //    string[] dirs = Directory.GetDirectories(srcInitFolder);
+        //    foreach (string dir in dirs) {
+        //        CopyFiles(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+        //    }
+        //}
+        //private static bool IsEmptyDirectory(string folder) {
+        //    return Directory.GetFiles(folder).Length == 0 && Directory.GetDirectories(folder).Length == 0;
+        //}
+        private static void CopyMissingFiles(string srcInitFolder, string targetFolder) {
             Directory.CreateDirectory(targetFolder);
             string[] files = Directory.GetFiles(srcInitFolder);
             foreach (string file in files) {
-                File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
+                string targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+                if (!File.Exists(targetFile))
+                    File.Copy(file, targetFile);
             }
             string[] dirs = Directory.GetDirectories(srcInitFolder);
             foreach (string dir in dirs) {
-                CopyFiles(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+                CopyMissingFiles(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
             }
-        }
-        private static bool IsEmptyDirectory(string folder) {
-            return Directory.GetFiles(folder).Length == 0 && Directory.GetDirectories(folder).Length == 0;
         }
     }
 
