@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Dynamic.Core.CustomTypeProviders;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Language;
@@ -13,6 +14,7 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models {
 
+    [DynamicLinqType]
     [TypeConverter(typeof(MultiStringConv))]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not used for serialization")]
     public class MultiString : Dictionary<string, string>, IComparable {
@@ -175,6 +177,7 @@ namespace YetaWF.Core.Models {
             if (!(o is MultiString)) return false;
             return (((MultiString)o).ToString() != this.ToString());
         }
+
         // PROPERTIES
         // PROPERTIES
         // PROPERTIES
@@ -250,27 +253,55 @@ namespace YetaWF.Core.Models {
         // DYNAMICSQL SUPPORT
         // DYNAMICSQL SUPPORT
 
-        public string ToLower() {
-            string s = ToString();
+        public static string DynToLower(MultiString m1) {
+            string s = m1.ToString();
             if (s == null) return "";
             return s.ToLower();
         }
-        public bool Contains(MultiString ms) {
-            string s = ToString();
-            if (s == null) return false;
-            return s.Contains(ms.ToString());
+        public static bool DynContains(MultiString m1, MultiString m2) {
+            string s1 = m1[MultiString.ActiveLanguage];
+            string s2 = m2[MultiString.ActiveLanguage];
+            s1 = s1.ToLower();
+            s2 = s2.ToLower();
+            return s1.Contains(s2);
         }
-        public bool StartsWith(MultiString ms) {
-            string s = ToString();
-            if (s == null) return false;
-            return s.StartsWith(ms.ToString());
+        public static bool DynStartsWith(MultiString m1, MultiString m2) {
+            string s1 = m1[MultiString.ActiveLanguage];
+            string s2 = m2[MultiString.ActiveLanguage];
+            s1 = s1.ToLower();
+            s2 = s2.ToLower();
+            return s1.StartsWith(s2);
         }
-        public bool EndsWith(MultiString ms) {
-            string s = ToString();
-            if (s == null) return false;
-            return s.EndsWith(ms.ToString());
+        public static bool DynEndsWith(MultiString m1, MultiString m2) {
+            string s1 = m1[MultiString.ActiveLanguage];
+            string s2 = m2[MultiString.ActiveLanguage];
+            s1 = s1.ToLower();
+            s2 = s2.ToLower();
+            return s1.EndsWith(s2);
+        }
+        public static bool DynCompare(MultiString m1, string op, MultiString m2) {
+            string s1 = m1[MultiString.ActiveLanguage];
+            string s2 = m2[MultiString.ActiveLanguage];
+            s1 = s1.ToLower();
+            s2 = s2.ToLower();
+            switch (op) {
+                case "==":
+                    return string.Compare(s1, s2) == 0;
+                case "!=":
+                    return string.Compare(s1, s2) != 0;
+                case "<":
+                    return string.Compare(s1, s2) < 0;
+                case "<=":
+                    return string.Compare(s1, s2) <= 0;
+                case ">":
+                    return string.Compare(s1, s2) > 0;
+                case ">=":
+                    return string.Compare(s1, s2) >= 0;
+            }
+            throw new InternalError($"Unexpected operator {op}");
         }
     }
+
     public class MultiStringConv : TypeConverter {
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
             if (destinationType == typeof(string))

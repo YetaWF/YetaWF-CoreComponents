@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace YetaWF.Core.Support {
 
@@ -31,11 +32,24 @@ namespace YetaWF.Core.Support {
             return assembly;
         }
 
+        /// <summary>
+        /// Add an already loaded assembly to the list of loaded assemblies.
+        /// </summary>
+        /// <param name="assembly"></param>
         public static void AddLoaded(Assembly assembly) {
             string name = System.IO.Path.GetFileNameWithoutExtension(assembly.ManifestModule.Name);
             name = name.ToLower();
-            if (!LoadedAssemblies.ContainsKey(name))
+            try {
                 LoadedAssemblies.Add(name.ToLower(), assembly);
+            } catch (System.Exception) { }
+        }
+
+        /// <summary>
+        /// Returns a list of currently loaded assemblies.
+        /// </summary>
+        /// <returns>Returns a list of currently loaded assemblies.</returns>
+        public static List<Assembly> GetLoadedAssemblies() {
+            return LoadedAssemblies.Values.ToList();
         }
     }
 }
