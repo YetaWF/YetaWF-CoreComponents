@@ -247,7 +247,8 @@ namespace YetaWF.Core.SendEmail {
 
                 string src = m.Groups[1].ToString();
                 //src = InlineBaseFolder + src.Substring(InlineBaseSite.Length);
-                src = src.Replace("/", @"\").Replace("|", @":");
+                src = Utility.FileToPhysical(src);
+                src = src.Replace("|", @":");
                 if (src.StartsWith(".\\") && !string.IsNullOrWhiteSpace(htmlFolder)) {
                     src = Path.Combine(htmlFolder, src.Substring(2));
                 }
