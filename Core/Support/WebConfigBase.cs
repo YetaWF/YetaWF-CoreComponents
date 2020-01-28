@@ -19,6 +19,10 @@ namespace YetaWF.Core.Support {
     /// </remarks>
     public class WebConfigBaseHelper {
 
+#if DEBUG
+        public const string DEBUG_PREFIX = "[Debug]";
+#endif
+
         public Task InitAsync(string settingsFile) {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Settings file not found ({0})", settingsFile);
@@ -59,7 +63,15 @@ namespace YetaWF.Core.Support {
                 else
                     val = Settings["Application"][areaName];
                 if (val == null) return dflt;
-                val = val[key];
+#if DEBUG
+                dynamic v = val[$"{DEBUG_PREFIX}{key}"];// try with debug prefix first
+                if (v != null)
+                    val = v;
+                else
+                    val = val[key];
+#else
+                val = val[key]; // in release builds only use explicit key
+#endif
                 if (val == null) return dflt;
                 val = val.Value;
             } catch (Exception) {
