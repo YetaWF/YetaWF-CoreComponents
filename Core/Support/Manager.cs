@@ -191,6 +191,7 @@ namespace YetaWF.Core.Support {
                 manager = new YetaWFManager(null);
                 manager.UserLanguage = MultiString.DefaultLanguage;
                 if (SiteDefinition.LoadSiteDefinitionAsync != null) {
+                    _ManagerThreadInstance = null;
                     manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // sync OK as it's cached - this will not run async as we don't have a Manager
                     manager.HostPortUsed = 80;
                     manager.HostSchemeUsed = "http";
