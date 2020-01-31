@@ -23,7 +23,6 @@ using YetaWF.Core.Controllers;
 using System.Globalization;
 using TimeZoneConverter;
 using Newtonsoft.Json;
-using System.Threading;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -106,7 +105,8 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Used for threads, console applications that don't have an HttpContext instance.
         /// </summary>
-        private static AsyncLocal<YetaWFManager> _ManagerThreadInstance = new AsyncLocal<YetaWFManager>();
+        [ThreadStatic]
+        private static YetaWFManager _ManagerThreadInstance = null;
 
         /// <summary>
         /// Returns the instance of the YetaWFManager class associated with the current HTTP request.
@@ -114,7 +114,7 @@ namespace YetaWF.Core.Support {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public static YetaWFManager Manager {
             get {
-                YetaWFManager manager = _ManagerThreadInstance.Value;
+                YetaWFManager manager = _ManagerThreadInstance;
                 if (manager != null)
                     return manager;
 #if MVC6
@@ -139,7 +139,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>During application startup or during HTTP request startup, the YetaWFManager instance may not yet be available.</remarks>
         public static bool HaveManager {
             get {
-                if (_ManagerThreadInstance.Value != null)
+                if (_ManagerThreadInstance != null)
                     return true;
 #if MVC6
                 if (HttpContextAccessor != null && HttpContextAccessor.HttpContext != null) {
@@ -170,7 +170,7 @@ namespace YetaWF.Core.Support {
 #endif
             YetaWFManager manager = new YetaWFManager(siteHost);
             httpContext.Items[YetaWF_ManagerKey] = manager;
-            _ManagerThreadInstance.Value = null;
+            _ManagerThreadInstance = null;
             manager._HttpContext = httpContext;
             return manager;
         }
@@ -191,6 +191,7 @@ namespace YetaWF.Core.Support {
                 manager = new YetaWFManager(null);
                 manager.UserLanguage = MultiString.DefaultLanguage;
                 if (SiteDefinition.LoadSiteDefinitionAsync != null) {
+                    _ManagerThreadInstance = null;
                     manager.HostUsed = SiteDefinition.GetDefaultSiteDomainAsync().Result; // sync OK as it's cached - this will not run async as we don't have a Manager
                     manager.HostPortUsed = 80;
                     manager.HostSchemeUsed = "http";
@@ -199,7 +200,7 @@ namespace YetaWF.Core.Support {
                 }
             }
 
-            _ManagerThreadInstance.Value = manager;
+            _ManagerThreadInstance = manager;
 
             manager._HttpContext = context;
             if (forceSync)
@@ -238,7 +239,7 @@ namespace YetaWF.Core.Support {
         /// <param name="site">A SiteDefinition object.</param>
         /// <returns>The Manager instance for the current request.</returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
-            _ManagerThreadInstance.Value = null;
+            _ManagerThreadInstance = null;
             return MakeThreadInstance(site, null, true);
         }
         /// <summary>
@@ -250,14 +251,14 @@ namespace YetaWF.Core.Support {
         /// <param name="forceSync">Specify true to force synchronous requests, otherwise async requests are used.</param>
         /// <returns>The Manager instance for the current request.</returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
-            _ManagerThreadInstance.Value = null;
+            _ManagerThreadInstance = null;
             return MakeThreadInstance(site, context, forceSync);
         }
         /// <summary>
         /// Removes the YetaWF instance from the current thread.
         /// </summary>
         public static void RemoveThreadInstance() {
-            _ManagerThreadInstance.Value = null;
+            _ManagerThreadInstance = null;
         }
 
         // DOMAIN
