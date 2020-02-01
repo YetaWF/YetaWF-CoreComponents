@@ -13,6 +13,7 @@ using YetaWF.Core.Controllers;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.Middleware;
 using YetaWF2.LetsEncrypt;
 using YetaWF2.Support;
 

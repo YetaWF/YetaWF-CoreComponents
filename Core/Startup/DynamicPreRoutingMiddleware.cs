@@ -1,11 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#if MVC6
+
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace YetaWF.Core.WebAPIStartup {
+namespace YetaWF.Core.Support.Middleware {
 
     /// <summary>
     /// Used to add middleware that can process requests before the request is handled by regular routing.
@@ -45,3 +47,5 @@ namespace YetaWF.Core.WebAPIStartup {
         }
     }
 }
+
+#endif

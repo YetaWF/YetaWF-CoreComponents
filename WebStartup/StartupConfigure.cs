@@ -33,6 +33,7 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
+using YetaWF.Core.Support.Middleware;
 using YetaWF.Core.Views;
 using YetaWF2.LetsEncrypt;
 using YetaWF2.Middleware;
@@ -332,6 +333,7 @@ namespace YetaWF.Core.WebStartup {
             }
 
             app.UseLetsEncrypt();
+            app.UseMiddleware<DynamicPreRoutingMiddleware>();
 
             app.UseRouting();
 
