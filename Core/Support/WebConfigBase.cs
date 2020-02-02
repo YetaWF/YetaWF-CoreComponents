@@ -63,17 +63,23 @@ namespace YetaWF.Core.Support {
                 else
                     val = Settings["Application"][areaName];
                 if (val == null) return dflt;
+
+                string env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName}_{key}"); // try environment variable first
+                if (env != null) {
+                    val = env;
+                } else {
 #if DEBUG
-                dynamic v = val[$"{DEBUG_PREFIX}{key}"];// try with debug prefix first
-                if (v != null)
-                    val = v;
-                else
-                    val = val[key];
+                    dynamic v = val[$"{DEBUG_PREFIX}{key}"];// try with debug prefix first
+                    if (v != null)
+                        val = v;
+                    else
+                        val = val[key];
 #else
-                val = val[key]; // in release builds only use explicit key
+                    val = val[key]; // in release builds only use explicit key
 #endif
-                if (val == null) return dflt;
-                val = val.Value;
+                    if (val == null) return dflt;
+                    val = val.Value;
+                }
             } catch (Exception) {
                 if (Required)
                     throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
