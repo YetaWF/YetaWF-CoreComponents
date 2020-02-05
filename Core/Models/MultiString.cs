@@ -254,34 +254,33 @@ namespace YetaWF.Core.Models {
         // DYNAMICSQL SUPPORT
 
         public static string DynToLower(MultiString m1) {
-            string s = m1.ToString();
-            if (s == null) return "";
+            string s = m1.ToString() ?? "";
             return s.ToLower();
         }
         public static bool DynContains(MultiString m1, MultiString m2) {
-            string s1 = m1[MultiString.ActiveLanguage];
-            string s2 = m2[MultiString.ActiveLanguage];
+            string s1 = m1[MultiString.ActiveLanguage] ?? "";
+            string s2 = m2[MultiString.ActiveLanguage] ?? "";
             s1 = s1.ToLower();
             s2 = s2.ToLower();
             return s1.Contains(s2);
         }
         public static bool DynStartsWith(MultiString m1, MultiString m2) {
-            string s1 = m1[MultiString.ActiveLanguage];
-            string s2 = m2[MultiString.ActiveLanguage];
+            string s1 = m1[MultiString.ActiveLanguage] ?? "";
+            string s2 = m2[MultiString.ActiveLanguage] ?? "";
             s1 = s1.ToLower();
             s2 = s2.ToLower();
             return s1.StartsWith(s2);
         }
         public static bool DynEndsWith(MultiString m1, MultiString m2) {
-            string s1 = m1[MultiString.ActiveLanguage];
-            string s2 = m2[MultiString.ActiveLanguage];
+            string s1 = m1[MultiString.ActiveLanguage] ?? "";
+            string s2 = m2[MultiString.ActiveLanguage] ?? "";
             s1 = s1.ToLower();
             s2 = s2.ToLower();
             return s1.EndsWith(s2);
         }
         public static bool DynCompare(MultiString m1, string op, MultiString m2) {
-            string s1 = m1[MultiString.ActiveLanguage];
-            string s2 = m2[MultiString.ActiveLanguage];
+            string s1 = m1[MultiString.ActiveLanguage] ?? "";
+            string s2 = m2[MultiString.ActiveLanguage] ?? "";
             s1 = s1.ToLower();
             s2 = s2.ToLower();
             switch (op) {
