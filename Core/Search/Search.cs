@@ -22,6 +22,11 @@ namespace YetaWF.Core.Search {
         /// <returns>true if the Url is eligible, false otherwise.</returns>
         Task<bool> SetUrlAsync(string url, PageDefinition.PageSecurityType pageSecurity, MultiString title, MultiString summary, DateTime dateCreated, DateTime? dateUpdated, bool allowAnonymous, bool allowUser);
         /// <summary>
+        /// Prepares to add new search terms for the specified Url.
+        /// </summary>
+        /// <returns>true if the Url is eligible, false otherwise.</returns>
+        Task<bool> SetUrlAsync(string url, PageDefinition.PageSecurityType pageSecurity, MultiString title, MultiString summary, DateTime dateCreated, DateTime? dateUpdated, bool allowAnonymous, bool allowUser, string customData);
+        /// <summary>
         /// Adds the specified data as search terms for the current Url.
         /// </summary>
         void AddContent(MultiString content);

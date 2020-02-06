@@ -168,7 +168,7 @@ namespace YetaWF.Core.Addons {
         /// Add a module - ignores non-existent modules.
         /// </summary>
         /// <param name="module">The module.</param>
-        /// <remarks>Adds the the associated Javascript/Css for the module's package and all required packages.</remarks>
+        /// <remarks>Adds the associated Javascript/Css for the module's package and all required packages.</remarks>
         public async Task AddModuleAsync(ModuleDefinition module) {
             if (Manager.IsPostRequest) return;
             Package modPackage = Package.GetCurrentPackage(module);

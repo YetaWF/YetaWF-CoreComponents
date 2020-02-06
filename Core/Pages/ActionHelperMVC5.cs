@@ -19,7 +19,7 @@ namespace YetaWF.Core.Views {
 
     public static class YetaWFViews {
 
-        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string actionName, string controllerName, string areaName, object parameters = null) {
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string actionName, string controllerName, string areaName, object parameters = null) {
 
             HttpContext currentContext = HttpContext.Current;
             if (currentContext != null) {
@@ -51,7 +51,8 @@ namespace YetaWF.Core.Views {
             if (controller == null)
                 throw new InternalError($"Controller {controllerName} not found");
 
-            string html = null;
+            ActionInfo info = new ActionInfo();
+
             TextWriter oldOutput = YetaWFManager.Manager.CurrentContext.Response.Output;
             try {
                 using (var sw = new StringWriter()) {
@@ -66,7 +67,7 @@ namespace YetaWF.Core.Views {
                         controller.Execute(requestContext);
                     }
 
-                    html = sw.ToString();
+                    info.HTML = sw.ToString();
                 }
             } catch (Exception) {
                 throw;
@@ -74,7 +75,7 @@ namespace YetaWF.Core.Views {
 
                 YetaWFManager.Manager.CurrentContext.Response.Output = oldOutput;
             }
-            return html;
+            return info;
         }
 
         private static RouteData CreateRouteData(RouteBase route, RouteValueDictionary routeValues, RouteValueDictionary dataTokens, ViewContext parentViewContext) {

@@ -590,15 +590,15 @@ namespace YetaWF.Core.Modules {
 
             await Manager.AddOnManager.AddModuleAsync(this);
 
-            string moduleHtml = null;
+            ActionInfo info;
             try {
 #if MVC6
-                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
+                info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
 #else
-                moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
+                info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
 #endif
                 // module script initialization
-                if (!string.IsNullOrWhiteSpace(moduleHtml)) {
+                if (!info.Failed && !string.IsNullOrWhiteSpace(info.HTML)) {
                     if (await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName)) // add supporting files
                         Manager.ScriptManager.AddLast($@"typeof {AreaName}==='undefined'||!{AreaName}.{ClassName}||new {AreaName}.{ClassName}('{ModuleHtmlId}');");
                 }
@@ -606,7 +606,7 @@ namespace YetaWF.Core.Modules {
             } catch (Exception exc) {
                 // Only mvc5 catches all exceptions here. Some Mvc6 errors are handled in HtmlHelper.Action() because of their async nature.
                 HtmlBuilder hb = ProcessModuleError(exc, ModuleName);
-                moduleHtml = hb.ToString();
+                info = new ActionInfo() { HTML = hb.ToString(), Failed = true };
             }
 
             if (tempEditOverride)
@@ -614,10 +614,7 @@ namespace YetaWF.Core.Modules {
 
             Manager.WantFocus = false;
             Manager.CurrentModule = oldMod;
-            if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
-                return null; // if the module contents are empty, we bail
-
-            if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode /* && Manager.RenderingUniqueModuleAddons*/)
+            if (string.IsNullOrEmpty(info.HTML) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
                 return null; // if the module contents are empty, we bail
 
             bool showTitle = ShowTitle;
@@ -647,7 +644,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
                 }
             }
 
-            string containerHtml = await skinAccess.MakeModuleContainerAsync(this, moduleHtml, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction);
+            string containerHtml = await skinAccess.MakeModuleContainerAsync(this, info.HTML, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction);
 
             if (!Manager.RenderingUniqueModuleAddons) {
                 string title = Manager.PageTitle;
@@ -693,19 +690,19 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             ModuleDefinition oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
 
-            string moduleHtml = null;
+            ActionInfo info;
 #if MVC6
-            moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
+            info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #else
-            moduleHtml = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
+            info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
 #endif
             Manager.CurrentModule = oldMod;
-            if (string.IsNullOrEmpty(moduleHtml) && !Manager.EditMode)
+            if (string.IsNullOrEmpty(info.HTML) && !Manager.EditMode)
                 return null; // if the module contents are empty, we bail
 
             await Manager.AddOnManager.AddModuleAsync(this);
 
-            return moduleHtml;
+            return info.HTML;
         }
 
         public static HtmlBuilder ProcessModuleError(Exception exc, string name, string details = null) {

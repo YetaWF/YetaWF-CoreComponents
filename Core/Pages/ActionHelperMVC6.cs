@@ -18,17 +18,17 @@ namespace YetaWF.Core.Pages {
 
     public static class HtmlHelperActionExtensions {
 
-        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object parameters = null) {
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object parameters = null) {
             var controller = (string)htmlHelper.RouteData.Values["controller"];
             return await ActionAsync(htmlHelper, module, action, controller, parameters);
         }
 
-        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object parameters = null) {
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object parameters = null) {
             var area = (string)htmlHelper.RouteData.Values["area"];
             return await ActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        public static async Task<string> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             if (action == null)
                 throw new ArgumentNullException("action");
             if (controller == null)
@@ -38,7 +38,7 @@ namespace YetaWF.Core.Pages {
             return await RenderActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        private static async Task<string> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        private static async Task<ActionInfo> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
             // fetching required services for invocation
             var httpContext = YetaWFManager.Manager.CurrentContext;
             IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory));
@@ -66,7 +66,8 @@ namespace YetaWF.Core.Pages {
             if (candidates == null || candidates.Count == 0)
                 throw new InternalError("No route candidates found - /{0}/{1}/{2}", area, controller, action);
 
-            string content = null;
+            ActionInfo info = new ActionInfo();
+
             ActionDescriptor actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);
             if (actionDescriptor != null) {
 
@@ -79,11 +80,12 @@ namespace YetaWF.Core.Pages {
                     using (httpContext.Response.Body = new MemoryStream()) {
                         await invoker.InvokeAsync().ContinueWith(async task => {
                             if (task.IsFaulted) {
-                                content = ModuleDefinition.ProcessModuleError(task.Exception, module.ModuleName).ToString();
+                                info.HTML = ModuleDefinition.ProcessModuleError(task.Exception, module.ModuleName).ToString();
+                                info.Failed = true;
                             } else if (task.IsCompleted) {
                                 httpContext.Response.Body.Position = 0;
                                 using (var reader = new StreamReader(httpContext.Response.Body)) {
-                                    content = await reader.ReadToEndAsync();
+                                    info.HTML = await reader.ReadToEndAsync();
                                 }
                             }
                         });
@@ -98,7 +100,7 @@ namespace YetaWF.Core.Pages {
             httpContext.Items.Remove(typeof(IUrlHelper));
             httpContext.Items.Add(typeof(IUrlHelper), oldUrlHelper);
 
-            return content;
+            return info;
         }
     }
 }
