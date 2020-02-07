@@ -122,6 +122,12 @@ namespace YetaWF.Core.Models {
         public virtual string Text { get; set; }
 
         /// <summary>
+        /// The item's additional CSS added to the link generated for the entry.
+        /// </summary>
+        [JsonIgnore]
+        public virtual string ExtraCss { get; set; }
+
+        /// <summary>
         /// Optional. The item's text display ahead of the text. Must render as an <a> tag.
         /// </summary>
         [JsonIgnore]
