@@ -3,8 +3,6 @@
 #if MVC6
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -21,12 +19,18 @@ namespace YetaWF.Core.Identity {
 
     public abstract class AttributeAuthorizationHandler<TRequirement, TAttribute> : AuthorizationHandler<TRequirement> where TRequirement : IAuthorizationRequirement where TAttribute : System.Attribute {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, TRequirement requirement) {
-            var attributes = new List<TAttribute>();
+            List<TAttribute> attributes = new List<TAttribute>();
 
-            var action = (context.Resource as AuthorizationFilterContext)?.ActionDescriptor as ControllerActionDescriptor;
-            if (action != null) {
-                attributes.AddRange(GetAttributes(action.ControllerTypeInfo.UnderlyingSystemType));
-                attributes.AddRange(GetAttributes(action.MethodInfo));
+            Microsoft.AspNetCore.Routing.RouteEndpoint re = context.Resource as Microsoft.AspNetCore.Routing.RouteEndpoint;
+            if (re != null) {
+                Microsoft.AspNetCore.Http.EndpointMetadataCollection meta = re.Metadata as Microsoft.AspNetCore.Http.EndpointMetadataCollection;
+                if (re != null) {
+                    foreach (object m in meta) {
+                        TAttribute a = m as TAttribute;
+                        if (a != null)
+                            attributes.Add(a);
+                    }
+                }
             }
 
             return HandleRequirementAsync(context, requirement, attributes);
