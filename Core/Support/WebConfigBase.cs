@@ -64,7 +64,7 @@ namespace YetaWF.Core.Support {
                     val = Settings["Application"][areaName];
                 if (val == null) return dflt;
 
-                string env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName}_{key}"); // try environment variable first
+                string env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName.ToUpper()}_{key.ToUpper()}"); // try environment variable first
                 if (env != null) {
                     val = env;
                 } else {
