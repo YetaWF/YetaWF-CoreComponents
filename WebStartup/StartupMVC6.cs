@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using YetaWF.Core.Support;
 using YetaWF2.Logger;
@@ -19,7 +20,8 @@ namespace YetaWF.Core.WebStartup {
         /// The main application entry point.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
-        public static void Main(string[] args) {
+        /// <param name="preRun">An optional method to execute before starting the application.</param>
+        public static void Main(string[] args, Action preRun = null) {
 
             string currPath = Directory.GetCurrentDirectory();
 
@@ -96,6 +98,9 @@ namespace YetaWF.Core.WebStartup {
 #endif
                 })
                 .Build();
+
+            if (preRun != null)
+                preRun();
 
             host.Run();
         }

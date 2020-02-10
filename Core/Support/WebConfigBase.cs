@@ -112,6 +112,7 @@ namespace YetaWF.Core.Support {
                 return (TYPE)(object)(boolVal);
             } else if (typeof(TYPE) == typeof(int)) return (TYPE)(object)Convert.ToInt32(val);
             else if (typeof(TYPE) == typeof(long)) return (TYPE)(object)Convert.ToInt64(val);
+            else if (typeof(TYPE) == typeof(long?)) return val != null ? (TYPE)(object)Convert.ToInt64(val) : default(TYPE);
             else if (typeof(TYPE) == typeof(TimeSpan)) return (TYPE)(object)new TimeSpan(Convert.ToInt64(val));
             else if (typeof(TYPE) == typeof(Guid)) return (TYPE)(object)new Guid(val);
             return (TYPE)(object)val;
