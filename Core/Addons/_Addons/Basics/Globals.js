@@ -23,6 +23,12 @@ var YetaWF;
         UnifiedModeEnum[UnifiedModeEnum["DynamicContent"] = 3] = "DynamicContent";
         UnifiedModeEnum[UnifiedModeEnum["SkinDynamicContent"] = 4] = "SkinDynamicContent";
     })(UnifiedModeEnum = YetaWF.UnifiedModeEnum || (YetaWF.UnifiedModeEnum = {}));
+    var MessageTypeEnum;
+    (function (MessageTypeEnum) {
+        MessageTypeEnum[MessageTypeEnum["Popups"] = 0] = "Popups";
+        MessageTypeEnum[MessageTypeEnum["ToastRight"] = 10] = "ToastRight";
+        MessageTypeEnum[MessageTypeEnum["ToastLeft"] = 11] = "ToastLeft";
+    })(MessageTypeEnum = YetaWF.MessageTypeEnum || (YetaWF.MessageTypeEnum = {}));
 })(YetaWF || (YetaWF = {}));
 
 //# sourceMappingURL=Globals.js.map

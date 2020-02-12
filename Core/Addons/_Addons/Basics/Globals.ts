@@ -39,6 +39,11 @@ namespace YetaWF {
         DynamicContent = 3,
         SkinDynamicContent = 4,
     }
+    export enum MessageTypeEnum {
+        Popups = 0,
+        ToastRight = 10,
+        ToastLeft = 11,
+    }
 
     export interface IVolatileBasics {
 
@@ -142,6 +147,7 @@ namespace YetaWF {
         TemplateExtraData: string;
 
         AjaxJavascriptErrorReturn: string;
+        MessageType: number;
         DefaultPleaseWaitWidth: number;
         DefaultPleaseWaitHeight: number;
         DefaultAlertWaitWidth: number;

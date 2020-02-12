@@ -86,7 +86,8 @@ namespace YetaWF.Core.Addons {
             scripts.AddLocalization("Basics", "YesButtonText", this.__ResStr("YesButtonText", "Yes"));
             scripts.AddLocalization("Basics", "NoButtonText", this.__ResStr("NoButtonText", "No"));
 
-            // Popup Text
+            // Notifications
+            scripts.AddConfigOption("Basics", "MessageType", manager.CurrentSite.MessageType);
             scripts.AddLocalization("Basics", "PleaseWaitText", this.__ResStr("PleaseWaitText", ""));
             scripts.AddLocalization("Basics", "PleaseWaitTitle", this.__ResStr("PleaseWaitTitle", "Please Wait"));
             scripts.AddLocalization("Basics", "DefaultAlertYesNoTitle", this.__ResStr("DefaultAlertYesNoTitle", "Confirmation Required"));

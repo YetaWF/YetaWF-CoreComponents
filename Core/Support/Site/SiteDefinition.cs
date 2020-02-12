@@ -57,6 +57,14 @@ namespace YetaWF.Core.Site {
         [EnumDescription("Bottom of Page", "All Css files are included at the bottom of the page (right in front of the </BODY> tag)")]
         Bottom = 1,
     }
+    public enum MessageTypeEnum {
+        [EnumDescription("Popup", "Messages are shown in popups that are explicitly dismissed by the user")]
+        Popups = 0,
+        [EnumDescription("Toast (Bottom Right)", "Notifications are shown in the lower right of the page and are automatically dismissed after a certain timespan or can be explicitly dismissed by the user")]
+        ToastRight = 10,
+        [EnumDescription("Toast (Bottom Left)", "Notifications are shown in the lower left of the page and are automatically dismissed after a certain timespan or can be explicitly dismissed by the user")]
+        ToastLeft = 11,
+    }
     public enum IFrameUseEnum {
         [EnumDescription("No", "Pages cannot be used in an IFrame (X-Frame-Options: deny)")]
         No = 0,
@@ -640,6 +648,12 @@ namespace YetaWF.Core.Site {
         [Category("Skin"), Caption("Default Popup Skin"), Description("The default skin used in a popup window - individual pages can override the default skin")]
         [UIHint("PopupSkin"), AdditionalMetadata("NoDefault", true), Required, Trim]
         public SkinDefinition SelectedPopupSkin { get; set; }
+
+        [Category("Skin"), Caption("Message Style"), Description("Defines the display style of notification messages (informational and error messages)")]
+        [UIHint("Enum")]
+        [Data_NewValue]
+        [RequiresPageReload]
+        public MessageTypeEnum MessageType { get; set; }
 
         [Category("Skin"), Caption("Immediate Form Errors"), Description("Defines whether errors on forms are immediately marked using warning indicators when first displayed - otherwise indicators are shown as fields are edited and after a form is first submitted")]
         [UIHint("Boolean")]
