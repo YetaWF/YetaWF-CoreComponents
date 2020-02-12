@@ -30,6 +30,10 @@ namespace YetaWF {
 
     export interface MessageOptions {
         encoded: boolean;
+        /* time in milliseconds to auto-close the message (toast only)*/
+        autoClose?: number;
+        /* Defines whether the user can dismiss the message (toast only) */
+        canClose?: boolean;
     }
     export interface CharSize {
         width: number;
@@ -698,13 +702,13 @@ namespace YetaWF {
                     return false;
                 }
             } else if (xhr.status >= 400 && xhr.status <= 499) {
-                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, "Not Authorized", YLocs.Forms.AjaxErrorTitle));
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, "Not Authorized"), YLocs.Forms.AjaxErrorTitle);
                 return false;
             } else if (xhr.status === 0) {
-                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxConnLost, YLocs.Forms.AjaxErrorTitle));
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
                 return false;
             } else {
-                $YetaWF.alert(YLocs.Forms.AjaxError.format(xhr.status, result, YLocs.Forms.AjaxErrorTitle));
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, result), YLocs.Forms.AjaxErrorTitle);
                 return false;
             }
         }

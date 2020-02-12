@@ -222,9 +222,12 @@ namespace YetaWF {
                         if (request.status === 200) {
                             var result: ContentResult = JSON.parse(request.responseText);
                             this.processReceivedContent(result, uri, divs, setState, popupCB, inplace);
+                        } else if (request.status === 0) {
+                            $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                            return false;
                         } else {
                             $YetaWF.setLoading(false);
-                            $YetaWF.alert(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
+                            $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
                             // tslint:disable-next-line:no-debugger
                             debugger;
                         }
@@ -299,7 +302,7 @@ namespace YetaWF {
 
             if (result.Status != null && result.Status.length > 0) {
                 $YetaWF.setLoading(false);
-                $YetaWF.alert(result.Status, YLocs.Forms.AjaxErrorTitle);
+                $YetaWF.error(result.Status, YLocs.Forms.AjaxErrorTitle);
                 return;
             }
             if (result.Redirect != null && result.Redirect.length > 0) {

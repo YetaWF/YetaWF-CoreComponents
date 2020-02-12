@@ -1215,11 +1215,11 @@ namespace YetaWF.Core.Controllers {
                             throw new InternalError("No next page");
                         case OnCloseEnum.Nothing:
                             if (!string.IsNullOrWhiteSpace(popupText))
-                                sb.Append("$YetaWF.alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                             break;
                         case OnCloseEnum.UpdateInPlace:
                             if (!string.IsNullOrWhiteSpace(popupText)) {
-                                sb.Append("$YetaWF.alert({0}, {1}, {2});", popupText, popupTitle, PopupOptions);
+                                sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                             }
                             isApply = true;
                             break;
