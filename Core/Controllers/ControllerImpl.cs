@@ -1134,7 +1134,7 @@ namespace YetaWF.Core.Controllers {
                     if (ForceRedirect) {
                         if (isApply) {
                             sb.Append(
-                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {2});", popupText, popupTitle, url, PopupOptions);
+                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {2});", popupText, popupTitle, PopupOptions);
                         } else {
                             if (string.IsNullOrWhiteSpace(popupText)) {
                                 sb.Append("$YetaWF.setLoading();window.location.assign({0});", url);
