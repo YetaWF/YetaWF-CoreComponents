@@ -18,7 +18,7 @@ namespace YetaWF.Core.Support {
 
     public static partial class StartupRequest {
 
-        public static async Task StartRequestAsync(HttpContext httpContext, bool? isStaticHost) {
+        public static async Task StartRequestAsync(HttpContext httpContext, bool? isStaticHost, bool initOnly = false) {
 
             // all code here is synchronous until a Manager is available. All async requests are satisfied from cache so there is no impact.
 
@@ -80,6 +80,8 @@ namespace YetaWF.Core.Support {
                     site = await SiteDefinition.LoadSiteDefinitionAsync(host);
                     if (site == null) {
                         if (forcedHost) { // non-existent site requested
+                            if (initOnly)
+                                throw new InternalError("Couldn't obtain a SiteDefinition object - forced host not found");
 #if MVC6
                             Logging.AddErrorLog("404 Not Found");
                             httpContext.Response.StatusCode = 404;
@@ -139,6 +141,8 @@ namespace YetaWF.Core.Support {
             manager.CurrentRequestUrl = uriBuilder.ToString();
 
             if (forcedHost && newSwitch) {
+                if (initOnly)
+                    throw new InternalError($"{nameof(forcedHost)} or {nameof(newSwitch)} not supported in {nameof(initOnly)} mode");
                 if (!manager.HasSuperUserRole) { // if superuser, don't log off (we could be creating a new site)
                     // A somewhat naive way to log a user off, but it's working well and also handles 3rd party logins correctly.
                     // Since this is only used during site development, it's not critical
@@ -161,6 +165,8 @@ namespace YetaWF.Core.Support {
             }
             // Make sure we're using the "official" URL, otherwise redirect 301
             if (!staticHost && !forcedHost && !testHost && !loopBack && site.EnforceSiteUrl) {
+                if (initOnly)
+                    throw new InternalError($"{nameof(site.EnforceSiteUrl)} not supported in {nameof(initOnly)} mode");
                 if (uri.IsAbsoluteUri) {
                     if (string.Compare(manager.HostUsed, site.SiteDomain, true) != 0) {
                         UriBuilder newUrl = new UriBuilder(uri) {
@@ -188,10 +194,11 @@ namespace YetaWF.Core.Support {
             }
             // IE rejects our querystrings that have encoded "?" (%3D) even though that's completely valid
             // so we have to turn of XSS protection (which is not necessary in YetaWF anyway)
-            httpContext.Response.Headers.Add("X-Xss-Protection", "0");
+            if (!initOnly)
+                httpContext.Response.Headers.Add("X-Xss-Protection", "0");
 
 #if MVC6
-            if (manager.IsStaticSite)
+            if (!initOnly && manager.IsStaticSite)
                 RemoveCookiesForStatics(httpContext);
 #else
             // MVC5 removes cookies in MvcApplication_EndRequest
