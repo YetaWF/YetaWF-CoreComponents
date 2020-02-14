@@ -21,6 +21,7 @@ using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
@@ -295,37 +296,13 @@ namespace YetaWF.Core.WebStartup {
                         YetaWFManager.SetStaticCacheInfo(context.Context);
                     }
                 });
-                //app.UseStaticFiles(new StaticFileOptions {
-                //    FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolderWebProject, @"VaultPrivate")),
-                //    RequestPath = new PathString("/" + Globals.VaultPrivateFolder),
-                //    OnPrepareResponse = (context) => {
-                //        YetaWFManager.SetStaticCacheInfo(context.Context);
-                //    }
-                //});
-                //app.UseStaticFiles(new StaticFileOptions {
-                //    FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, @"Vault")),
-                //    RequestPath = new PathString("/" + Globals.VaultFolder),
-                //    OnPrepareResponse = (context) => {
-                //        YetaWFManager.SetStaticCacheInfo(context.Context);
-                //    }
-                //});
 
-                // everything else is based on mimetype
-                FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider();
+                // everything else
                 MimeSection staticMimeSect = new MimeSection();
                 await staticMimeSect.InitAsync(Path.Combine(Globals.DataFolder, MimeSection.MimeSettingsFile));
-                List<MimeSection.MimeEntry> mimeTypes = staticMimeSect.GetMimeTypes();
-                if (mimeTypes != null) {
-                    foreach (MimeSection.MimeEntry entry in mimeTypes) {
-                        string[] extensions = entry.Extensions.Split(new char[] { ';' });
-                        foreach (string extension in extensions) {
-                            if (!provider.Mappings.ContainsKey(extension.Trim()))
-                                provider.Mappings.Add(extension.Trim(), entry.Type);
-                        }
-                    }
-                }
+
                 app.UseStaticFiles(new StaticFileOptions {
-                    ContentTypeProvider = provider,
+                    ContentTypeProvider = new FileExtensionContentTypeProvider(),
                     OnPrepareResponse = (context) => {
                         YetaWFManager.SetStaticCacheInfo(context.Context);
                     }
