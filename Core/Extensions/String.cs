@@ -112,6 +112,14 @@ namespace YetaWF.Core.Extensions {
             else
                 return text;
         }
+        public static string RemoveTrailingSlash(this string text) {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+            if (text.EndsWith("/"))
+                return text.Substring(0, text.Length - 1);
+            else
+                return text;
+        }
         public static string AddUrlCacheBuster(this string text, string cacheBuster) {
             if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
             if (text == null) return "";
