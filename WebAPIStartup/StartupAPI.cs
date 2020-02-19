@@ -61,7 +61,6 @@ namespace YetaWF.Core.WebAPIStartup {
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseKestrel(kestrelOptions => {
-                        kestrelOptions.ConfigureHttpsDefaults(httpsOptions => httpsOptions.ServerCertificateSelector = (c, s) => LetsEncryptRenewalService.Certificate);
                         long? maxReq = WebConfigHelper.GetValue<long?>("YetaWF_Core", "MaxRequestBodySize", 30000000);
                         if (maxReq == 0)
                             kestrelOptions.Limits.MaxRequestBodySize = null;

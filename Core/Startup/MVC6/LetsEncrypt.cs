@@ -22,7 +22,7 @@ namespace YetaWF2.LetsEncrypt {
             // https://github.com/ffMathy/FluffySpoon.AspNet.LetsEncrypt
             string domains = WebConfigHelper.GetValue<string>("LetsEncrypt", "Domains", null, Package: false);
             if (!string.IsNullOrWhiteSpace(domains)) {
-                services.AddFluffySpoonLetsEncryptRenewalService(new LetsEncryptOptions() {
+                services.AddFluffySpoonLetsEncrypt(new LetsEncryptOptions() {
                     Email = WebConfigHelper.GetValue<string>("LetsEncrypt", "Email", Package: false, Required: true), // LetsEncrypt will send you an e-mail here when the certificate is about to expire
                     UseStaging = WebConfigHelper.GetValue<bool>("LetsEncrypt", "Staging", Package: false, Required: true), // false for production
                     Domains = WebConfigHelper.GetValue<string>("LetsEncrypt", "Domains", Package: false, Required: true).Split(new char[] { ',' }),
@@ -61,7 +61,7 @@ namespace YetaWF2.LetsEncrypt {
         public static void UseLetsEncrypt (this IApplicationBuilder app) {
             string domains = WebConfigHelper.GetValue<string>("LetsEncrypt", "Domains", null, Package: false);
             if (!string.IsNullOrWhiteSpace(domains)) {
-                app.UseFluffySpoonLetsEncryptChallengeApprovalMiddleware();
+                app.UseFluffySpoonLetsEncrypt();
             }
         }
     }
