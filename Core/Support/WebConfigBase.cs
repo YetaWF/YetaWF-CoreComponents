@@ -58,16 +58,20 @@ namespace YetaWF.Core.Support {
         public TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true, bool Required = false) {
             dynamic val;
             try {
+                // try environment variable first
+                string env;
                 if (Package)
-                    val = Settings["Application"]["P"][areaName];
+                    env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName.ToUpper()}_{key.ToUpper()}");
                 else
-                    val = Settings["Application"][areaName];
-                if (val == null) return dflt;
-
-                string env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName.ToUpper()}_{key.ToUpper()}"); // try environment variable first
+                    env = Environment.GetEnvironmentVariable($"YETAWF_{areaName.ToUpper()}_{key.ToUpper()}");
                 if (env != null) {
                     val = env;
                 } else {
+                    if (Package)
+                        val = Settings["Application"]["P"][areaName];
+                    else
+                        val = Settings["Application"][areaName];
+                    if (val == null) return dflt;
 #if DEBUG
                     dynamic v = val[$"{DEBUG_PREFIX}{key}"];// try with debug prefix first
                     if (v != null)
