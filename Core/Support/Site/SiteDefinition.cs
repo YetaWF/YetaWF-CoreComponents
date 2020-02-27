@@ -229,6 +229,19 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public PageSecurityType PageSecurity { get; set; }
 
+        public PageSecurityType EvaluatedPageSecurity { 
+            get {
+                if (_PageSecurityHaveOverride == null) {
+                    PageSecurityType pageSec = WebConfigHelper.GetValue<PageSecurityType>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, nameof(PageSecurity));
+                    _PageSecurityOverride = pageSec;
+                    _PageSecurityHaveOverride = (pageSec != PageSecurityType.AsProvided); // only allow override if != AsProvided
+                }
+                return (bool)_PageSecurityHaveOverride ? _PageSecurityOverride : PageSecurity;
+            } 
+        }
+        private static PageSecurityType _PageSecurityOverride;
+        private static bool? _PageSecurityHaveOverride = null;
+
         [Category("Site"), Caption("Enforce Port"), Description("Defines whether links generated for the site will use the defined site port(s). When running locally (usually on a development system) using 'localhost' or when using the test domain URL, this property is ignored")]
         [UIHint("Boolean")]
         [Data_NewValue]

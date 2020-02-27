@@ -96,7 +96,18 @@ namespace YetaWF.Core.Support {
                     return (TYPE)(object)s;
                 }
             } else if (typeof(TYPE).IsEnum) {
-                return (TYPE)(object)Convert.ToInt32(val);
+                int intEnum;
+                if (int.TryParse(val.ToString(), out intEnum))
+                    return (TYPE)(object)intEnum;
+                else {
+                    object newVal = null;
+                    try {
+                        newVal = Enum.Parse(typeof(TYPE), val.ToString());
+                    } catch (Exception) {
+                        newVal = Enum.ToObject(typeof(TYPE), val);
+                    }
+                    return (TYPE)(object)newVal;
+                }
             } else if (typeof(TYPE) == typeof(bool)) {
                 bool boolVal;
                 if (val.GetType() == typeof(string)) {

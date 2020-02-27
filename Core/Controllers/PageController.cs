@@ -180,7 +180,7 @@ namespace YetaWF.Core.Controllers {
 
             // http/https
             if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
-                switch (Manager.CurrentSite.PageSecurity) {
+                switch (Manager.CurrentSite.EvaluatedPageSecurity) {
                     default:
                     case PageSecurityType.AsProvided:
                         // it's all good
@@ -562,7 +562,7 @@ namespace YetaWF.Core.Controllers {
                 }
                 bool usePageSettings = false;
                 if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
-                    switch (Manager.CurrentSite.PageSecurity) {
+                    switch (Manager.CurrentSite.EvaluatedPageSecurity) {
                         case PageSecurityType.AsProvided:
                             usePageSettings = true;
                             break;

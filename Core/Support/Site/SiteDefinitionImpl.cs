@@ -78,7 +78,7 @@ namespace YetaWF.Core.Site {
         public PageDefinition.PageSecurityType DetermineSchema(PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any) {
             PageDefinition.PageSecurityType securityType = PagePageSecurity;// assume the page decides the security type
             if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
-                switch (PageSecurity) {
+                switch (EvaluatedPageSecurity) {
                     case PageSecurityType.AsProvided:
                         if (securityType != PageDefinition.PageSecurityType.httpsOnly)
                             securityType = PageDefinition.PageSecurityType.Any;
@@ -225,7 +225,7 @@ namespace YetaWF.Core.Site {
             if (YetaWFManager.IsHTTPSite)
                 secure = false;
             if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
-                switch (PageSecurity) {
+                switch (EvaluatedPageSecurity) {
                     case PageSecurityType.AsProvided:
                     case PageSecurityType.UsePageModuleSettings:
                         break;
