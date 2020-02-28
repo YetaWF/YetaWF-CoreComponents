@@ -177,8 +177,6 @@ namespace YetaWF.Core.WebStartup {
             // permitted  in w3c validation). Why would MVC6 start adding ids to tags when they're not requested. If they're not requested, does the caller really need or use them???
             services.AddSingleton(typeof(IHtmlGenerator), typeof(YetaWFDefaultHtmlGenerator));
 
-            services.AddLetsEncrypt();
-
             // Add framework services.
             services.AddMvc((options) => {
                 // we have to remove the SaveTempDataAttribute filter, otherwise our ActionHelper.Action extension
@@ -206,6 +204,8 @@ namespace YetaWF.Core.WebStartup {
                 });
 
             YetaWF.Core.SignalR.ConfigureServices(services);
+
+            services.AddLetsEncrypt();
         }
 
         /// <summary>
@@ -226,6 +226,7 @@ namespace YetaWF.Core.WebStartup {
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif
+            app.UseLetsEncrypt();
 
             try {
                 RewriteOptions rewriteOptions = new RewriteOptions();
@@ -307,7 +308,6 @@ namespace YetaWF.Core.WebStartup {
                 });
             }
 
-            app.UseLetsEncrypt();
             app.UseMiddleware<DynamicPreRoutingMiddleware>();
 
             app.UseRouting();
