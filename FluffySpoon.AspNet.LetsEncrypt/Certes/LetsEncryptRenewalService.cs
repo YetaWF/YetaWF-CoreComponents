@@ -62,6 +62,8 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 
 		public async Task RunOnceAsync()
 		{
+			_logger.LogWarning($"{nameof(RunOnceAsync)}: Entering");
+
 			if (_semaphoreSlim.CurrentCount == 0)
 				return;
 
@@ -69,6 +71,7 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 
 			try
 			{
+				_logger.LogWarning($"RenewCertificateIfNeeded: Calling");
 				var result = await _certificateProvider.RenewCertificateIfNeeded(Certificate);
 				Certificate = result.Certificate;
 				
@@ -93,16 +96,15 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 
 		private async Task RunOnceWithErrorHandlingAsync()
 		{
-			try
-			{
+			try {
 				await RunOnceAsync();
 				_timer?.Change(TimeSpan.FromHours(1), TimeSpan.FromHours(1));
-			}
-			catch (Exception e) when (_options.RenewalFailMode != RenewalFailMode.Unhandled)
-			{
+			} catch (Exception e) when (_options.RenewalFailMode != RenewalFailMode.Unhandled) {
 				_logger.LogWarning(e, $"Exception occured renewing certificates: '{e.Message}.'");
-				if (_options.RenewalFailMode == RenewalFailMode.LogAndRetry)
+				if (_options.RenewalFailMode == RenewalFailMode.LogAndRetry) {
+					_logger.LogWarning($"Timer Change");
 					_timer?.Change(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+				}
 			}
 		}
 
