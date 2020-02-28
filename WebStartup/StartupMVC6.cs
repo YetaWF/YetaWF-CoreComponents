@@ -2,7 +2,6 @@
 
 #if MVC6
 
-using FluffySpoon.AspNet.LetsEncrypt.Certes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
