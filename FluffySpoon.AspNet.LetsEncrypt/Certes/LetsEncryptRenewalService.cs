@@ -48,7 +48,8 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 			foreach (var lifecycleHook in _lifecycleHooks)
 				await lifecycleHook.OnStartAsync();
 
-			_timer = new Timer(async state => await RunOnceWithErrorHandlingAsync(), null, Timeout.InfiniteTimeSpan, TimeSpan.FromHours(1));
+			TimeSpan ts = _options.StartUpMode == StartUpMode.Immediate ? TimeSpan.Zero : Timeout.InfiniteTimeSpan;
+			_timer = new Timer(async state => await RunOnceWithErrorHandlingAsync(), null, ts, TimeSpan.FromHours(1));
 		}
 
 		public async Task StopAsync(CancellationToken cancellationToken)
@@ -108,9 +109,17 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 			}
 		}
 
-		internal void RunNow() {
-			_logger.LogWarning($"Entering RunNow");
-			_timer?.Change(TimeSpan.Zero, TimeSpan.FromHours(1));
+		internal void RunNowManual(int delayMS = 0) {
+			_logger.LogWarning($"Entering RunNowManual");
+			if (_options.StartUpMode != StartUpMode.Manual)
+				throw new InvalidOperationException($"{nameof(RunNowManual)} can only be called when the {nameof(LetsEncryptOptions)}.{nameof(LetsEncryptOptions.StartUpMode)} property is set to {nameof(StartUpMode.Manual)}.");
+			_timer?.Change(TimeSpan.FromMilliseconds(delayMS), TimeSpan.FromHours(1));
+			
+		}
+		internal void RunNowDelayed(int delayMS = 0) {
+			_logger.LogWarning($"Entering RunNowDelayed");
+			if (_options.StartUpMode == StartUpMode.Delayed)
+				_timer?.Change(TimeSpan.FromMilliseconds(delayMS), TimeSpan.FromHours(1));
 		}
 
 		public void Dispose()
