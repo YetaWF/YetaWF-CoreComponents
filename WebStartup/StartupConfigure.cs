@@ -336,8 +336,6 @@ namespace YetaWF.Core.WebStartup {
 
 
             StartYetaWF();
-
-            app.RunLetsEncrypt();
         }
 
         private static object _lockObject = new object();

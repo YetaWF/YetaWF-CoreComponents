@@ -39,7 +39,6 @@ namespace YetaWF2.LetsEncrypt {
                         State = WebConfigHelper.GetValue<string>(AREANAME, "State", Package: false, Required: true),
                     },
                     RenewalFailMode = RenewalFailMode.LogAndContinue,
-                    StartUpMode = StartUpMode.Manual, // so we can use RunLetsEncrypt
                 });
                 string certFolder = WebConfigHelper.GetValue<string>(AREANAME, "Certs", Globals.DataFolder, Package: false);
                 string certPath = Path.Combine(YetaWFManager.RootFolderWebProject, certFolder);
@@ -66,12 +65,6 @@ namespace YetaWF2.LetsEncrypt {
             string domains = WebConfigHelper.GetValue<string>(AREANAME, "Domains", null, Package: false);
             if (!string.IsNullOrWhiteSpace(domains)) {
                 app.UseFluffySpoonLetsEncrypt();
-            }
-        }
-        public static void RunLetsEncrypt(this IApplicationBuilder app) {
-            string domains = WebConfigHelper.GetValue<string>(AREANAME, "Domains", null, Package: false);
-            if (!string.IsNullOrWhiteSpace(domains)) {
-                app.RunFluffySpoonLetsEncrypt(1);
             }
         }
     }
