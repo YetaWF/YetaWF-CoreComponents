@@ -48,7 +48,7 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 			foreach (var lifecycleHook in _lifecycleHooks)
 				await lifecycleHook.OnStartAsync();
 
-			_timer = new Timer(async state => await RunOnceWithErrorHandlingAsync(), null, TimeSpan.Zero, TimeSpan.FromHours(1));
+			_timer = new Timer(async state => await RunOnceWithErrorHandlingAsync(), null, Timeout.InfiniteTimeSpan, TimeSpan.FromHours(1));
 		}
 
 		public async Task StopAsync(CancellationToken cancellationToken)
@@ -106,6 +106,10 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 					_timer?.Change(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
 				}
 			}
+		}
+
+		internal void RunNow() {
+			_timer?.Change(TimeSpan.Zero, TimeSpan.FromHours(1));
 		}
 
 		public void Dispose()

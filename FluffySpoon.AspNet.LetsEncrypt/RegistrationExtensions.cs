@@ -135,14 +135,20 @@ namespace FluffySpoon.AspNet.LetsEncrypt
 			services.AddSingleton<ILetsEncryptClientFactory, LetsEncryptClientFactory>();
 			services.AddSingleton<ICertificateValidator, CertificateValidator>();
 			services.AddSingleton<ICertificateProvider, CertificateProvider>();
-			services.AddTransient<ILetsEncryptRenewalService, LetsEncryptRenewalService>();
-			services.AddTransient<IHostedService, LetsEncryptRenewalService>();
+
+			//services.AddHostedService<LetsEncryptRenewalService>(); 
+			// Not using AddHostedService so we can retrieve is as a service instead, but it's still a hosted service.
+			services.AddSingleton<LetsEncryptRenewalService>();
+			services.AddSingleton<IHostedService>(p => p.GetService<LetsEncryptRenewalService>());
 		}
 
 		public static void UseFluffySpoonLetsEncrypt(
 			this IApplicationBuilder app)
 		{
 			app.UseMiddleware<LetsEncryptChallengeApprovalMiddleware>();
+
+			LetsEncryptRenewalService letsEncryptRenewalService = app.ApplicationServices.GetRequiredService<LetsEncryptRenewalService>();
+			letsEncryptRenewalService.RunNow();
 		}
 	}
 }
