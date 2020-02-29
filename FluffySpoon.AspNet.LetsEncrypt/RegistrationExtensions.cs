@@ -147,6 +147,13 @@ namespace FluffySpoon.AspNet.LetsEncrypt
 		{
 			app.UseMiddleware<LetsEncryptChallengeApprovalMiddleware>();
 
+			//LetsEncryptRenewalService letsEncryptRenewalService = app.ApplicationServices.GetRequiredService<LetsEncryptRenewalService>();
+			//letsEncryptRenewalService.RunNow();
+		}
+
+		public static void RunFluffySpoonLetsEncrypt(
+			this IApplicationBuilder app) {
+
 			LetsEncryptRenewalService letsEncryptRenewalService = app.ApplicationServices.GetRequiredService<LetsEncryptRenewalService>();
 			letsEncryptRenewalService.RunNow();
 		}

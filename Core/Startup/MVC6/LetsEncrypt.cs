@@ -67,6 +67,12 @@ namespace YetaWF2.LetsEncrypt {
                 app.UseFluffySpoonLetsEncrypt();
             }
         }
+        public static void RunLetsEncrypt(this IApplicationBuilder app) {
+            string domains = WebConfigHelper.GetValue<string>(AREANAME, "Domains", null, Package: false);
+            if (!string.IsNullOrWhiteSpace(domains)) {
+                app.RunFluffySpoonLetsEncrypt();
+            }
+        }
     }
 }
 
