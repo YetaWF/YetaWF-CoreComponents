@@ -39,7 +39,7 @@ namespace YetaWF2.LetsEncrypt {
                         State = WebConfigHelper.GetValue<string>(AREANAME, "State", Package: false, Required: true),
                     },
                     RenewalFailMode = RenewalFailMode.LogAndContinue,
-                    StartUpMode = StartUpMode.Delayed,
+                    StartUpMode = StartUpMode.Manual, // so we can use RunLetsEncrypt
                 });
                 string certFolder = WebConfigHelper.GetValue<string>(AREANAME, "Certs", Globals.DataFolder, Package: false);
                 string certPath = Path.Combine(YetaWFManager.RootFolderWebProject, certFolder);

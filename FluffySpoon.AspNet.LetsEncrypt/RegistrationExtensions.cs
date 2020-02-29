@@ -151,6 +151,11 @@ namespace FluffySpoon.AspNet.LetsEncrypt
 			letsEncryptRenewalService.RunNowDelayed();
 		}
 
+		/// <summary>
+		/// A call to RunFluffySpoonLetsEncrypt will initiate renewing/requesting a LetsEncrypt cert.
+		/// </summary>
+		/// <remarks>This can only be used if the LetsEncryptOptions.StartUpMode property is set to StartUpMode.Manual.
+		/// This should be called as the last item in the Configure method of the Startup class.</remarks>
 		public static void RunFluffySpoonLetsEncrypt(
 			this IApplicationBuilder app, int delayMS = 0) {
 

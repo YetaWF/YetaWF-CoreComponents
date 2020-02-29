@@ -63,8 +63,6 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 
 		public async Task RunOnceAsync()
 		{
-			_logger.LogWarning($"{nameof(RunOnceAsync)}: Entering");
-
 			if (_semaphoreSlim.CurrentCount == 0)
 				return;
 
@@ -72,7 +70,6 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 
 			try
 			{
-				_logger.LogWarning($"RenewCertificateIfNeeded: Calling");
 				var result = await _certificateProvider.RenewCertificateIfNeeded(Certificate);
 				Certificate = result.Certificate;
 				
@@ -103,21 +100,18 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 			} catch (Exception e) when (_options.RenewalFailMode != RenewalFailMode.Unhandled) {
 				_logger.LogWarning(e, $"Exception occured renewing certificates: '{e.Message}.'");
 				if (_options.RenewalFailMode == RenewalFailMode.LogAndRetry) {
-					_logger.LogWarning($"Timer Change");
 					_timer?.Change(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
 				}
 			}
 		}
 
 		internal void RunNowManual(int delayMS = 0) {
-			_logger.LogWarning($"Entering RunNowManual");
 			if (_options.StartUpMode != StartUpMode.Manual)
 				throw new InvalidOperationException($"{nameof(RunNowManual)} can only be called when the {nameof(LetsEncryptOptions)}.{nameof(LetsEncryptOptions.StartUpMode)} property is set to {nameof(StartUpMode.Manual)}.");
 			_timer?.Change(TimeSpan.FromMilliseconds(delayMS), TimeSpan.FromHours(1));
-			
 		}
+
 		internal void RunNowDelayed(int delayMS = 0) {
-			_logger.LogWarning($"Entering RunNowDelayed");
 			if (_options.StartUpMode == StartUpMode.Delayed)
 				_timer?.Change(TimeSpan.FromMilliseconds(delayMS), TimeSpan.FromHours(1));
 		}
