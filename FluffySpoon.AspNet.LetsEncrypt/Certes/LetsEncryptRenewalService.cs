@@ -109,6 +109,7 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Certes
 		}
 
 		internal void RunNow() {
+			_logger.LogWarning($"Entering RunNow");
 			_timer?.Change(TimeSpan.Zero, TimeSpan.FromHours(1));
 		}
 
