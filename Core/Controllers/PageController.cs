@@ -419,7 +419,7 @@ namespace YetaWF.Core.Controllers {
                     AddXFrameOptions();
 #if MVC6
                     Logging.AddErrorLog("404 Not Found");
-                    Manager.CurrentResponse.StatusCode = 404;
+                    Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
 #else
                     Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
 #endif
