@@ -2,10 +2,14 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Text;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
+#if MVC6
+using Microsoft.Data.SqlClient;
+#else
+using System.Data.SqlClient;
+#endif
 
 namespace YetaWF.Core.Log {
 

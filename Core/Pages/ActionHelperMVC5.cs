@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using System.Web.Routing;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Views {
