@@ -226,8 +226,6 @@ namespace YetaWF.Core.WebStartup {
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif
-            app.UseLetsEncrypt();
-
             try {
                 RewriteOptions rewriteOptions = new RewriteOptions();
                 if (File.Exists("Web.config"))
@@ -320,6 +318,8 @@ namespace YetaWF.Core.WebStartup {
 
             app.UseAuthorization();
             app.UseAuthentication();
+
+            app.UseLetsEncrypt();
 
             app.UseEndpoints(endpoints => {
 

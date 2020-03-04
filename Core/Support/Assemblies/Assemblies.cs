@@ -17,13 +17,20 @@ namespace YetaWF.Core.Support {
         /// Loads an assembly.
         /// </summary>
         /// <param name="asmName">The name of the assembly.</param>
+        /// <param name="throwError">Defines whether an error is thrown if the assembly is not found.</param>
         /// <returns>An instance of the requested assembly.</returns>
         /// <remarks>Assemblies are cached for performance.</remarks>
-        public static Assembly Load(string asmName) {
+        public static Assembly Load(string asmName, bool throwError = true) {
             Assembly assembly;
             if (LoadedAssemblies.TryGetValue(asmName.ToLower(), out assembly))
                 return assembly;
-            assembly = System.Reflection.Assembly.Load(asmName);
+            try {
+                assembly = System.Reflection.Assembly.Load(asmName);
+            } catch (System.Exception) {
+                if (throwError)
+                    throw;
+                return null;
+            }
             if (asmName != null) {
                 try {
                     LoadedAssemblies.Add(asmName.ToLower(), assembly);

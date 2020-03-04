@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
 
-namespace YetaWF2.LetsEncrypt {
+namespace YetaWF.Core.LetsEncrypt {
 
 	public class LetsEncryptLifecycleHook : ICertificateRenewalLifecycleHook {
 
