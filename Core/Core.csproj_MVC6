@@ -51,8 +51,4 @@
     <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FluffySpoon.AspNet.LetsEncrypt\FluffySpoon.AspNet.LetsEncrypt.csproj" />
-  </ItemGroup>
-
 </Project>
