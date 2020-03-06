@@ -314,20 +314,5 @@ namespace YetaWF.Core.Addons {
         public bool HasModuleReference(Guid guid) {
             return (from m in _AddedInvokedCssModules where guid == m.ModuleGuid select m).FirstOrDefault() != null;
         }
-
-        /// <summary>
-        /// Read a file
-        /// </summary>
-        // $$$used?
-        public async Task<string> GetFileAsync(string path, object replacements = null) {
-            string file = "";
-            try {
-                file = await FileSystem.FileSystemProvider.ReadAllTextAsync(Utility.UrlToPhysical(path));
-            } catch (System.Exception) { }
-            QueryHelper query = QueryHelper.FromAnonymousObject(replacements);
-            foreach (QueryHelper.Entry entry in query.Entries)
-                file = file.Replace("$" + entry.Key + "$", entry.Value.ToString());
-            return file;
-        }
     }
 }
