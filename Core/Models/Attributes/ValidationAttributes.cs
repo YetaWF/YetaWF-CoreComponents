@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 
@@ -36,8 +38,14 @@ namespace YetaWF.Core.Models.Attributes {
                         return false;
                 }
                 return true;
-            } else
+            } else {
+                if (value != null) {
+                    TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
+                    string val = conv.ConvertToString(value);
+                    return base.IsValid(val);
+                }
                 return base.IsValid(value);
+            }
         }
         protected override ValidationResult IsValid(object value, ValidationContext validationContext) {
             if (MaximumLength == 0) return ValidationResult.Success;

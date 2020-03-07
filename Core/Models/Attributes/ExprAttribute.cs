@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using YetaWF.Core.Localize;
@@ -416,7 +417,9 @@ namespace YetaWF.Core.Models.Attributes {
                 return coll.Count == 0;
             } else if (value == null)
                 return true;
-            string v = value.ToString();
+
+            TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
+            string v = conv.ConvertToString(value);
             if (string.IsNullOrWhiteSpace(v))
                 return true;
             return false;
@@ -439,7 +442,9 @@ namespace YetaWF.Core.Models.Attributes {
                 return coll.Count == 0;
             } else if (value == null)
                 return true;
-            string v = value.ToString();
+
+            TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
+            string v = conv.ConvertToString(value);
             if (string.IsNullOrWhiteSpace(v))
                 return true;
             if (v == "0")
@@ -452,11 +457,21 @@ namespace YetaWF.Core.Models.Attributes {
                 return true;
             // allow null == ""
             if (val1 == null) {
-                return val2.ToString().Length == 0;
+                TypeConverter conv = TypeDescriptor.GetConverter(val2.GetType());
+                string v = conv.ConvertToString(val2);
+                return v.Length == 0;
             } else if (val2 == null) {
-                return val1.ToString().Length == 0;
+                TypeConverter conv = TypeDescriptor.GetConverter(val1.GetType());
+                string v = conv.ConvertToString(val1);
+                return v.Length == 0;
             }
-            return val1.ToString() == val2.ToString();
+            {
+                TypeConverter conv = TypeDescriptor.GetConverter(val1.GetType());
+                string v1 = conv.ConvertToString(val1);
+                conv = TypeDescriptor.GetConverter(val2.GetType());
+                string v2 = conv.ConvertToString(val2);
+                return v1 == v2;
+            }
         }
 
         public ExprAttribute(OpEnum op) {
@@ -568,7 +583,8 @@ namespace YetaWF.Core.Models.Attributes {
             public object Value {
                 get {
                     if (_Value == null) return null;
-                    string v = _Value.ToString();
+                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    string v = conv.ConvertToString(_Value);
                     if (v.StartsWith(ValueOf))
                         throw new InternalError("Value used when the attribute describes another property");
                     return _Value;
@@ -581,7 +597,8 @@ namespace YetaWF.Core.Models.Attributes {
             public bool IsRightProperty {
                 get {
                     if (_Value == null) return false;
-                    string v = _Value.ToString();
+                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    string v = conv.ConvertToString(_Value);
                     if (v.StartsWith(ValueOf))
                         return true;
                     return false;
@@ -592,7 +609,8 @@ namespace YetaWF.Core.Models.Attributes {
                 get {
                     if (_Value == null)
                         throw new InternalError("Property used when the attribute describes a value");
-                    string v = _Value.ToString();
+                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    string v = conv.ConvertToString(_Value);
                     if (!v.StartsWith(ValueOf))
                         throw new InternalError("Property used when the attribute describes a value");
                     return v.Substring(ValueOf.Length);
@@ -613,7 +631,8 @@ namespace YetaWF.Core.Models.Attributes {
                         return (bool)_Value ? "true" : "false";
                     if (valType.IsEnum)
                         return ((int)_Value).ToString();
-                    return _Value.ToString();
+                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    return conv.ConvertToString(_Value);
                 }
             }
         }
