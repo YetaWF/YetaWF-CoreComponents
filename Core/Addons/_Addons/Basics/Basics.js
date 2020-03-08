@@ -1517,5 +1517,15 @@ if (window.matchMedia) {
 }
 window.onbeforeprint = function (ev) { YetaWF.BasicsServices.onBeforePrint(); };
 window.onafterprint = function (ev) { YetaWF.BasicsServices.onAfterPrint(); };
-
-//# sourceMappingURL=Basics.js.map
+if (YConfigs.Basics.DEBUGBUILD) {
+    var inDebug_1 = false;
+    // not really a debugging tool - Any failures result in a popup so at least it's visible without explicitly looking at the console log
+    window.onerror = function (ev, url, lineNo, columnNo, error) {
+        var msg = ev.toString() + " (" + url + ":" + lineNo + ") " + (error === null || error === void 0 ? void 0 : error.stack);
+        if (!inDebug_1) {
+            inDebug_1 = true;
+            $YetaWF.error(msg);
+            inDebug_1 = false;
+        }
+    };
+}

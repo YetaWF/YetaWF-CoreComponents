@@ -1,3 +1,4 @@
+
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 /* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, some defs are global rather than in their own namespace.
@@ -1666,3 +1667,17 @@ if (window.matchMedia) {
 
 window.onbeforeprint = (ev: Event): void => { YetaWF.BasicsServices.onBeforePrint(); };
 window.onafterprint = (ev: Event): void => { YetaWF.BasicsServices.onAfterPrint(); };
+
+if (YConfigs.Basics.DEBUGBUILD) {
+    let inDebug = false;
+    // not really a debugging tool - Any failures result in a popup so at least it's visible without explicitly looking at the console log
+    window.onerror = (ev: Event | string, url?: string, lineNo?: number, columnNo?: number, error?: Error): void => {
+        let msg = `${ev.toString()} (${url}:${lineNo}) ${error?.stack}`;
+        if (!inDebug) {
+            inDebug = true;
+            $YetaWF.error(msg);
+            inDebug = false;
+        }
+    }
+}
+

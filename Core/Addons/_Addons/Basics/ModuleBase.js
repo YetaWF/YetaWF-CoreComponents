@@ -173,5 +173,3 @@ var YetaWF;
         }
     });
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=ModuleBase.js.map
