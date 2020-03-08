@@ -30,3 +30,5 @@ var YetaWF;
         MessageTypeEnum[MessageTypeEnum["ToastLeft"] = 11] = "ToastLeft";
     })(MessageTypeEnum = YetaWF.MessageTypeEnum || (YetaWF.MessageTypeEnum = {}));
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Globals.js.map

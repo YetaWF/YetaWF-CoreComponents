@@ -1678,6 +1678,6 @@ if (YConfigs.Basics.DEBUGBUILD) {
             $YetaWF.error(msg);
             inDebug = false;
         }
-    }
+    };
 }
 
