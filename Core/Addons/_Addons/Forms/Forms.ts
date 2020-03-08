@@ -59,7 +59,7 @@ namespace YetaWF {
         /**
          * If there is a validation error in the specified tab control, the tab is activated.
          */
-        setErrorInTab(tabctrl: HTMLElement): void;
+        setErrorInNestedControls(tag: HTMLElement): void;
     }
 
     export interface NameValuePair {
@@ -315,10 +315,7 @@ namespace YetaWF {
                 $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
-                var elems = $YetaWF.getElementsBySelector("div.yt_propertylist.t_tabbed", [form]);
-                elems.forEach((tabctrl: HTMLElement, index: number) => {
-                    YetaWF_FormsImpl.setErrorInTab(tabctrl);
-                });
+                YetaWF_FormsImpl.setErrorInNestedControls(form);
                 var hasErrors = this.hasErrors(form);
                 if (hasErrors)
                     this.showErrors(form);

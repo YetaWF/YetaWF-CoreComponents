@@ -210,10 +210,7 @@ var YetaWF;
                 $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
-                var elems = $YetaWF.getElementsBySelector("div.yt_propertylist.t_tabbed", [form]);
-                elems.forEach(function (tabctrl, index) {
-                    YetaWF_FormsImpl.setErrorInTab(tabctrl);
-                });
+                YetaWF_FormsImpl.setErrorInNestedControls(form);
                 var hasErrors = this.hasErrors(form);
                 if (hasErrors)
                     this.showErrors(form);
