@@ -394,7 +394,8 @@ namespace YetaWF.Core.Models {
                         // these are added as if they were attributes (based on name/value)
                         AdditionalMetadataAttribute am = (AdditionalMetadataAttribute) a;
                         name = am.Name;
-                        AdditionalAttributes.Add(name, am);
+                        if (!AdditionalAttributes.ContainsKey(name))// don't add (inherited?) attribute
+                            AdditionalAttributes.Add(name, am);
                     } else {
                         List<Attribute> attrList;
                         if (CustomAttributes.TryGetValue(name, out attrList))

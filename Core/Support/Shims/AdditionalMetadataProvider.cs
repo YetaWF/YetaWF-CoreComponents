@@ -22,7 +22,7 @@ namespace YetaWF.Core.Support {
             if (context.PropertyAttributes != null) {
                 foreach (object propAttr in context.PropertyAttributes) {
                     AdditionalMetadataAttribute addMetaAttr = propAttr as AdditionalMetadataAttribute;
-                    if (addMetaAttr != null) {
+                    if (addMetaAttr != null && !context.DisplayMetadata.AdditionalValues.ContainsKey(addMetaAttr.Name)) {
                         context.DisplayMetadata.AdditionalValues.Add(addMetaAttr.Name, addMetaAttr.Value);
                     }
                     IAdditionalAttribute iAddtl = propAttr as IAdditionalAttribute;
