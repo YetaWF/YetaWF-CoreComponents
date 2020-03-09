@@ -1521,7 +1521,8 @@ if (YConfigs.Basics.DEBUGBUILD) {
     var inDebug_1 = false;
     // not really a debugging tool - Any failures result in a popup so at least it's visible without explicitly looking at the console log
     window.onerror = function (ev, url, lineNo, columnNo, error) {
-        var msg = ev.toString() + " (" + url + ":" + lineNo + ") " + (error === null || error === void 0 ? void 0 : error.stack);
+        var _a;
+        var msg = ev.toString() + " (" + url + ":" + lineNo + ") " + ((_a = error) === null || _a === void 0 ? void 0 : _a.stack);
         if (!inDebug_1) {
             inDebug_1 = true;
             $YetaWF.error(msg);
