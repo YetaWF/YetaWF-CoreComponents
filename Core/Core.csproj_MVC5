@@ -219,6 +219,7 @@
     <Compile Include="Models\Attributes\RecaptchaV2Attribute.cs" />
     <Compile Include="Models\Attributes\ConditionalAntiForgeryTokenAttribute.cs" />
     <Compile Include="Models\Attributes\TimeSpanValidationAttributes.cs" />
+    <Compile Include="Models\TabsDefinition.cs" />
     <Compile Include="Models\TreeDefinition.cs" />
     <Compile Include="PackageSupport\Junction.cs" />
     <Compile Include="Pages\ActionHelper.cs" />
