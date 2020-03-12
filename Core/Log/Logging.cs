@@ -51,6 +51,16 @@ namespace YetaWF.Core.Log {
         }
 
         /// <summary>
+        /// Records a message to the YetaWF log.
+        /// </summary>
+        /// <returns>Returns the message text.</returns>
+        public static string AddLog(LevelEnum logLevel, string text) {
+            if (MinLevel <= logLevel)
+                WriteToAllLogFiles(logLevel, 0, text);
+            return text;
+        }
+
+        /// <summary>
         /// Records an informational message to the YetaWF log.
         /// </summary>
         /// <returns>Returns the message text.</returns>
