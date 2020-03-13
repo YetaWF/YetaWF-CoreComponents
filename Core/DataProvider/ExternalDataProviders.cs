@@ -77,8 +77,11 @@ namespace YetaWF.Core.DataProvider {
         /// Creates an external assembly-based data provider.
         /// </summary>
         /// <returns>A data provider object of a type suitable for the data provider.</returns>
-        protected dynamic MakeExternalDataProvider(Dictionary<string, object> options) {
-            if (ExternalIOMode == NoIOMode) return null;
+        protected dynamic MakeExternalDataProvider(Dictionary<string, object> options, string LimitIOMode = null) {
+            if (ExternalIOMode == NoIOMode)
+                return null;
+            if (LimitIOMode != null && ExternalIOMode != LimitIOMode.ToLower())
+                return null;
             Type type = GetType();
             ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
             if (ext == null)

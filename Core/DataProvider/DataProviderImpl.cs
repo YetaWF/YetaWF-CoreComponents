@@ -57,9 +57,9 @@ namespace YetaWF.Core.DataProvider {
             _dataProvider = dp;
         }
 
-        protected dynamic MakeDataProvider(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null) {
+        protected dynamic MakeDataProvider(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null, string LimitIOMode = null) {
             BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms);
-            return MakeExternalDataProvider(Options);
+            return MakeExternalDataProvider(Options, LimitIOMode);
         }
         protected dynamic CreateDataProviderIOMode(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null,
                 Func<string, Dictionary<string, object>, dynamic> Callback = null) {
@@ -133,12 +133,12 @@ namespace YetaWF.Core.DataProvider {
         // IINSTALLABLEMODEL ASYNC
 
         public Task<bool> IsInstalledAsync() {
-            if (GetDataProvider() == null) return Task.FromResult(true);
+            if (GetDataProvider() == null) return Task.FromResult(false);
             return GetDataProvider().IsInstalledAsync();
         }
         public Task<bool> InstallModelAsync(List<string> errorList) {
             if (YetaWF.Core.Support.Startup.MultiInstance) throw new InternalError("Installing new models is not possible when distributed caching is enabled");
-            if (GetDataProvider() == null) return Task.FromResult(true);
+            if (GetDataProvider() == null) return Task.FromResult(false);
             return GetDataProvider().InstallModelAsync(errorList);
         }
         public Task AddSiteDataAsync() {
