@@ -138,7 +138,7 @@ namespace YetaWF.Core.DataProvider {
         }
         public Task<bool> InstallModelAsync(List<string> errorList) {
             if (YetaWF.Core.Support.Startup.MultiInstance) throw new InternalError("Installing new models is not possible when distributed caching is enabled");
-            if (GetDataProvider() == null) return Task.FromResult(false);
+            if (GetDataProvider() == null) return Task.FromResult(true);
             return GetDataProvider().InstallModelAsync(errorList);
         }
         public Task AddSiteDataAsync() {
