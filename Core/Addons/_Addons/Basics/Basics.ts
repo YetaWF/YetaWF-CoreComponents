@@ -35,6 +35,8 @@ namespace YetaWF {
         autoClose?: number;
         /* Defines whether the user can dismiss the message (toast only) */
         canClose?: boolean;
+        /* toast name - If the named toast already exists, it is not added again (toast only) */
+        name?: string;
     }
     export interface CharSize {
         width: number;
