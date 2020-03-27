@@ -24,6 +24,11 @@ namespace YetaWF.Core.Extensions {
                 text = text.Substring(0, text.Length - trim.Length);
             return text;
         }
+        public static string ReplaceStart(this string text, string startText, string newText) {
+            if (text.StartsWith(startText))
+                return text.ReplaceFirst(startText, newText);
+            return text;
+        }
         public static string Mid(ref string s, int index, char c) {
             char[] chars = s.ToCharArray();
             chars[index] = c;
