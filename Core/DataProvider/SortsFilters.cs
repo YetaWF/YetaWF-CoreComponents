@@ -309,7 +309,7 @@ namespace YetaWF.Core.DataProvider {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string))
-                        return string.Format("(@{0} == null || @{0}.ToLower().EndsWith(@{1}.ToLower()))", Field, index);
+                        return string.Format("(@{0} == null || !@{0}.ToLower().EndsWith(@{1}.ToLower()))", Field, index);
                     else if (Value.GetType() == typeof(MultiString))
                         return string.Format("(@{0} == null || !MultiString.DynEndsWith(@{0}, @{1}))", Field, index);
                     else
@@ -318,7 +318,7 @@ namespace YetaWF.Core.DataProvider {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string))
-                        return string.Format("(@{0} == null || @{0}.ToLower().Contains(@{1}.ToLower()))", Field, index);
+                        return string.Format("(@{0} == null || !@{0}.ToLower().Contains(@{1}.ToLower()))", Field, index);
                     else if (Value.GetType() == typeof(MultiString))
                         return string.Format("(@{0} == null || !MultiString.DynContains(@{0}, @{1}))", Field, index);
                     else
