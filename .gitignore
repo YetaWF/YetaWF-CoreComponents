@@ -6,7 +6,6 @@
 *.plg
 *.scss.css
 *.xml
-*.csproj
 packages.config
 app.config
 
