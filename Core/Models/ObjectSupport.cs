@@ -446,6 +446,16 @@ namespace YetaWF.Core.Models {
             return ExprValidationAttributes;
         }
     }
+
+    public class PropertyDataComparer : IEqualityComparer<PropertyData> {
+        public bool Equals(PropertyData x, PropertyData y) {
+            return x.Name == y.Name;
+        }
+        public int GetHashCode(PropertyData obj) {
+            return obj.Name.GetHashCode();
+        }
+    }
+
     /// <summary>
     /// Defines one entry value in an enumerated type.
     /// </summary>

@@ -16,7 +16,7 @@ namespace YetaWF.Core.Serializers {
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods",
             Justification = "The deserialization (e.g., TextFormatter, SimpleFormatter) uses generic Add() instead of typed as it simplifies deserialization")]
-        public void Add(object o) // for TextFormatter
+        public void Add(object o) // for Serializers, DataProviders
         {
              Type val;
              try {
