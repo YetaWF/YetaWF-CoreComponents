@@ -35,6 +35,12 @@ namespace YetaWF2.LetsEncrypt {
             inst.UseLetsEncrypt(app);
         }
 
+        public static bool IsEnabled {
+            get {
+                return LoadAssembly() != null;
+            }
+        }
+        
         private static Assembly LoadAssembly() {
             string asmName = WebConfigHelper.GetValue("LetsEncrypt", "Assembly", ASSEMBLY, Package: false);
             Assembly fluffyAssembly = Assemblies.Load(asmName, throwError: false);
