@@ -101,7 +101,7 @@ namespace YetaWF.Core.Packages {
         public class UpgradeLogging : ILogging {
 
             private string LogFile { get; set; }
-
+ 
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -146,6 +146,10 @@ namespace YetaWF.Core.Packages {
             public void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text) {
                 FileSystem.FileSystemProvider.AppendAllTextAsync(LogFile, $"{DateTime.Now} {text}\r\n").Wait();// uhm yeah, only while upgrading
             }
+            /// <summary>
+            /// Defines whether the logging data provider is already logging an event.
+            /// </summary>
+            bool ILogging.IsProcessing { get; set; }
         }
         /// <summary>
         /// Returns whether an upgrade is forced (even on deployed systems).

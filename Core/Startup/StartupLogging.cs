@@ -12,7 +12,9 @@ namespace YetaWF.Core.Support {
         private string LogFile { get; set; }
 
         public StartupLogging() { }
+
         public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Trace; }
+
         public Task InitAsync() {
             string rootFolder;
 #if MVC6
@@ -33,5 +35,9 @@ namespace YetaWF.Core.Support {
         public void WriteToLogFile(string category, Logging.LevelEnum level, int relStack, string text) {
             File.AppendAllText(LogFile, $"{DateTime.Now} {text}\r\n");
         }
+        /// <summary>
+        /// Defines whether the logging data provider is already logging an event.
+        /// </summary>
+        bool ILogging.IsProcessing { get; set; }
     }
 }

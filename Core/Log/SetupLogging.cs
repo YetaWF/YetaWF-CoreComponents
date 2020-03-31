@@ -43,6 +43,10 @@ namespace YetaWF.Core.Log {
         /// </summary>
         /// <returns>Returns whether the logging data provider is installed and available.</returns>
         Task<bool> IsInstalledAsync();
+        /// <summary>
+        /// Defines whether the logging data provider is already logging an event.
+        /// </summary>
+        bool IsProcessing { get; set; }
     }
 
     public static partial class Logging {
@@ -173,8 +177,18 @@ namespace YetaWF.Core.Log {
         /// <param name="message">The log message.</param>
         public static void WriteToAllLogFiles(string category, LevelEnum level, int relStack, string message) {
             foreach (ILogging log in GetLoggers()) {
-                if (log.GetLevel() <= level)
-                    log.WriteToLogFile(category, level, relStack, message);
+                if (log.GetLevel() <= level) {
+                    if (!log.IsProcessing) {
+                        try {
+                            log.IsProcessing = true;
+                            log.WriteToLogFile(category, level, relStack, message);
+                        } catch (Exception) {
+                            throw;
+                        } finally {
+                            log.IsProcessing = false;
+                        }
+                    }
+                }
             }
         }
         /// <summary>
