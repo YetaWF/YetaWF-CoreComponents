@@ -18,13 +18,15 @@ namespace YetaWF2.LetsEncrypt {
         private const string ASSEMBLY = "YetaWF.Core.LetsEncrypt";
         private const string TYPE = "YetaWF.Core.LetsEncrypt.LetsEncrypt";
 
+        public static bool Enabled { get; private set; } = false;
+
         public static void AddLetsEncrypt(this IServiceCollection services) {
             Assembly fluffyAssembly = LoadAssembly();
             if (fluffyAssembly == null)
                 return;            
             Type tp = fluffyAssembly.GetType(TYPE);
             dynamic inst = Activator.CreateInstance(tp);
-            inst.AddLetsEncrypt(services);
+            Enabled = inst.AddLetsEncrypt(services);
         }
         public static void UseLetsEncrypt(this IApplicationBuilder app) {
             Assembly fluffyAssembly = LoadAssembly();
@@ -35,12 +37,6 @@ namespace YetaWF2.LetsEncrypt {
             inst.UseLetsEncrypt(app);
         }
 
-        public static bool IsEnabled {
-            get {
-                return LoadAssembly() != null;
-            }
-        }
-        
         private static Assembly LoadAssembly() {
             string asmName = WebConfigHelper.GetValue("LetsEncrypt", "Assembly", ASSEMBLY, Package: false);
             Assembly fluffyAssembly = Assemblies.Load(asmName, throwError: false);

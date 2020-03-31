@@ -18,7 +18,7 @@ namespace YetaWF.Core.LetsEncrypt {
 
         private const string AREANAME = "LetsEncrypt";
 
-        public void AddLetsEncrypt(IServiceCollection services) {
+        public bool AddLetsEncrypt(IServiceCollection services) {
 
             // https://github.com/ffMathy/FluffySpoon.AspNet.LetsEncrypt
             string domains = WebConfigHelper.GetValue<string>(AREANAME, "Domains", null, Package: false);
@@ -57,8 +57,9 @@ namespace YetaWF.Core.LetsEncrypt {
                 services.AddFluffySpoonLetsEncryptMemoryChallengePersistence();
 
                 services.AddFluffySpoonLetsEncryptRenewalLifecycleHook<LetsEncryptLifecycleHook>();
+                return true;
             }
-
+            return false;
         }
         public void UseLetsEncrypt(IApplicationBuilder app) {
             string domains = WebConfigHelper.GetValue<string>(AREANAME, "Domains", null, Package: false);
