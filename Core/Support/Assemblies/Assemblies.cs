@@ -11,7 +11,7 @@ namespace YetaWF.Core.Support {
     /// </summary>
     public static class Assemblies {
 
-        private static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
+        private static readonly Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
 
         /// <summary>
         /// Loads an assembly.
