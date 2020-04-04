@@ -413,7 +413,7 @@ namespace YetaWF.Core.Addons {
             // visit all known assemblies and see if there is a matching entry in the Addons folder
             List<Package> packages = Package.GetAvailablePackages();
             foreach (Package package in packages) {
-                if (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage) {
+                if (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage || package.IsDataProviderPackage) {
                     string addonsPath = Path.Combine(AddOnsFolder, package.LanguageDomain);
                     string addonsProductPath = Path.Combine(addonsPath, package.Product);
                     if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsPath))
