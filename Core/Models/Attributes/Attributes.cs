@@ -70,10 +70,33 @@ namespace YetaWF.Core.Models.Attributes {
         }
     }
 
+    /// <summary>
+    /// Used with modules to define a module's unique identifier.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class ModuleGuidAttribute : Attribute {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="guid">The module's unique identitier.</param>
         public ModuleGuidAttribute(string guid) { Value = new Guid(guid); }
+        /// <summary>
+        /// Returns the module's unique identitier.
+        /// </summary>
         public Guid Value { get; private set; }
+    }
+
+    /// <summary>
+    /// Used with modules to indicate that the module's unique identifier (ModuleGuid) is a "published" identifier.
+    /// These identifiers are guaranteed to remain the same and can be used by external assemblies/modules to create modules dynamically.
+    /// </summary>
+    /// <remarks>This attribute is used for documentation generation purposes only.</remarks>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class PublishedModuleGuidAttribute : Attribute {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public PublishedModuleGuidAttribute() { }
     }
 
     public enum UniqueModuleStyle {
