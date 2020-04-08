@@ -18,7 +18,7 @@ using YetaWF.PackageAttributes;
 
 [assembly: Package(PackageTypeEnum.CoreAssembly, "YetaWF")]
 [assembly: PackageInfo("https://YetaWF.com/UpdateServer",
-    "https://yetawf.com/Documentation/YetaWF/GeoLocation",
-    "https://YetaWF.com/Documentation/YetaWF/Support",
-    "https://yetawf.com/Documentation/YetaWF/GeoLocation#Release%20Notice",
-    "https://yetawf.com/Documentation/YetaWF/GeoLocation#License")]
+    "https://yetawf.com/Documentation/YetaWFGeoLocation",
+    "https://YetaWF.com/Documentation/YetaWFGeoLocation#Support",
+    "https://yetawf.com/Documentation/YetaWFGeoLocation#Release%20Notice",
+    "https://yetawf.com/Documentation/YetaWFGeoLocation#License")]

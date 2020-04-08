@@ -18,7 +18,7 @@ using YetaWF.PackageAttributes;
 
 [assembly: Package(PackageTypeEnum.CoreAssembly, "YetaWF")]
 [assembly: PackageInfo("https://YetaWF.com/UpdateServer",
-    "https://yetawf.com/Documentation/YetaWF/Core",
-    "https://YetaWF.com/Documentation/YetaWF/Support",
-    "https://yetawf.com/Documentation/YetaWF/Core#Release%20Notice",
-    "https://yetawf.com/Documentation/YetaWF/Core#License")]
+    "https://yetawf.com/Documentation/YetaWFCssHttpHandler",
+    "https://YetaWF.com/Documentation/YetaWFCssHttpHandler#Support",
+    "https://yetawf.com/Documentation/YetaWFCssHttpHandler#Release%20Notice",
+    "https://yetawf.com/Documentation/YetaWFCssHttpHandler#License")]

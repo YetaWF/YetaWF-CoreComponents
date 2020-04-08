@@ -20,8 +20,8 @@ using YetaWF.PackageAttributes;
 [assembly: ServiceLevel(ServiceLevelEnum.Core)]
 
 [assembly: PackageInfo("https://YetaWF.com/UpdateServer",
-    "https://yetawf.com/Documentation/YetaWF/Startup",
-    "https://YetaWF.com/Documentation/YetaWF/Support",
-    "https://yetawf.com/Documentation/YetaWF/Startup#Release%20Notice",
-    "https://yetawf.com/Documentation/YetaWF/Startup#License")]
+    "https://yetawf.com/Documentation/YetaWFWebStartup",
+    "https://YetaWF.com/Documentation/YetaWFWebStartup#Support",
+    "https://yetawf.com/Documentation/YetaWFWebStartup#Release%20Notice",
+    "https://yetawf.com/Documentation/YetaWFWebStartup#License")]
 
