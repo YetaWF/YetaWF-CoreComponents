@@ -19,7 +19,7 @@ namespace YetaWF.Core.Components {
 
     /// <summary>
     /// This interface is implemented by pages.
-    /// The framework calls the RenderPageAsync method to render the page.
+    /// The framework calls the RenderPageHeaderAsync and RenderPageBodyAsync methods to render the page.
     /// </summary>
     public interface IYetaWFPage {
         /// <summary>
