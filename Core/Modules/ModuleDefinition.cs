@@ -160,6 +160,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Category("About"), Caption("Summary"), Description("The module description", Order = -100)]
         [UIHint("MultiString80"), StringLength(MaxDescription), ReadOnly]
+        [Data_DontSave]
         public MultiString Description { get; set; }
 
         [Category("Variables"), Caption("Module Guid"), Description("Displays a unique identifier for this instance of a module. This is typically used for development purposes only and can be used to uniquely identify this module. This id never changes, even if the module is later renamed", Order = -100)]
