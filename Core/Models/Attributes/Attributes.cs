@@ -61,13 +61,41 @@ namespace YetaWF.Core.Models.Attributes {
         public UIHintAttribute(string uiHint, string presentationLayer) : base(TranslateHint(uiHint), presentationLayer) { }
         public UIHintAttribute(string uiHint, string presentationLayer, params object[] controlParameters) : base(TranslateHint(uiHint), presentationLayer, controlParameters) { }
 
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-        protected static bool HaveManager { get { return YetaWFManager.HaveManager; } }
-
         public static string TranslateHint(string uiHint) {
-            //if (!HaveManager) return uiHint;
             return uiHint;
         }
+    }
+
+    /// <summary>
+    /// Used to document AdditionalAttributes available for use with a component.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class,AllowMultiple = true, Inherited = true)]
+    public class UsesAdditionalAttribute : Attribute {
+        public UsesAdditionalAttribute(string name, string typeString, string defaultValue, string description) : base() {
+            Name = name;
+            Type = typeString;
+            Default = defaultValue;
+            Description = description;
+        }
+        public string Name { get; private set; }
+        public string Type { get; private set; }
+        public string Default { get; private set; }
+        public string Description { get; private set; }
+    }
+
+    /// <summary>
+    /// Used to document sibling properties available for use with a component.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class UsesSiblingAttribute : Attribute {
+        public UsesSiblingAttribute(string name, string typeString, string description) : base() {
+            Name = name;
+            Type = typeString;
+            Description = description;
+        }
+        public string Name { get; private set; }
+        public string Type { get; private set; }
+        public string Description { get; private set; }
     }
 
     /// <summary>
