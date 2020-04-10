@@ -22,10 +22,10 @@ using YetaWF.PackageAttributes;
 [assembly: ServiceLevel(ServiceLevelEnum.Core)]
 
 [assembly: PackageInfo("https://YetaWF.com/UpdateServer",
-    "https://yetawf.com/Documentation/YetaWF/Core",
-    "https://YetaWF.com/Documentation/YetaWF/Support",
-    "https://yetawf.com/Documentation/YetaWF/Core#Release%20Notice",
-    "https://yetawf.com/Documentation/YetaWF/Core#License")]
+    "https://yetawf.com/Documentation/YetaWFCore",
+    "https://YetaWF.com/Documentation/YetaWFCore#Support",
+    "https://yetawf.com/Documentation/YetaWFCore#Release%20Notice",
+    "https://yetawf.com/Documentation/YetaWFCore#License")]
 
 [assembly: Resource(CoreInfo.Resource_BuiltinCommands, "Built-in commands", Superuser = true)]
 [assembly: Resource(CoreInfo.Resource_UploadImages, "Uploading images", User = true, Editor = true, Administrator = true, Superuser = true)]
