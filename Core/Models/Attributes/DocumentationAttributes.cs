@@ -31,7 +31,7 @@ namespace YetaWF.Core.Models.Attributes {
 
 
     /// <summary>
-    /// Used to document AdditionalAttributes available for use with a component.
+    /// Used to document AdditionalMetadata attributes available for use with a component.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class,AllowMultiple = true, Inherited = true)]
     public class UsesAdditionalAttribute : Attribute {
