@@ -61,4 +61,12 @@ namespace YetaWF.Core.Models.Attributes {
         public string Type { get; private set; }
         public string Description { get; private set; }
     }
+
+    /// <summary>
+    /// Indicates that this component is only for use by a package and is not intended for use by an application.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class PrivateComponentAttribute : Attribute {
+        public PrivateComponentAttribute() : base() { }
+    }    
 }
