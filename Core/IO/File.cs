@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.IO {
@@ -140,9 +141,11 @@ namespace YetaWF.Core.IO {
                 data = info.Data;
             }
             if (data != null) {
-                try {
-                    return (TObj)data;
-                } catch (Exception) { }
+                if (data.GetType() == typeof(TObj) || typeof(TObj) == typeof(ModuleDefinition)) { // type must match exactly or be for generic module
+                    try {
+                        return (TObj)data;
+                    } catch (Exception) { }
+                }
             }
             return default(TObj);
         }
