@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
@@ -64,6 +65,7 @@ namespace YetaWF.Core.SendEmail {
         [UIHint("ModuleAction"), ReadOnly]
         [Expr(OpEnum.ProcessIf, nameof(Server), OpCond.NotEq, null, nameof(Port), OpCond.NotEq, null, nameof(Authentication), OpCond.Eq, AuthEnum.Anonymous)]
         [Expr(OpEnum.ProcessIf, nameof(Server), OpCond.NotEq, null, nameof(Port), OpCond.NotEq, null, nameof(Authentication), OpCond.Eq, AuthEnum.Signon, nameof(UserName), OpCond.NotEq, null, nameof(Password), OpCond.NotEq, null)]
+        [JsonIgnore] // so it's not saved when json serializing site properties
         public ModuleAction SendTestEmail {
             get {
                 YetaWFManager manager = YetaWFManager.Manager;
