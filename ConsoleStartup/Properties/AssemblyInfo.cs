@@ -14,14 +14,14 @@ using YetaWF.PackageAttributes;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("5.1.0.0")]
+[assembly: AssemblyVersion("5.2.0.0")]
 
 [assembly: Package(PackageTypeEnum.CoreAssembly, "YetaWF")]
 [assembly: ServiceLevel(ServiceLevelEnum.Core)]
 
 [assembly: PackageInfo("https://YetaWF.com/UpdateServer",
-    "https://yetawf.com/Documentation/YetaWF/Startup",
-    "https://YetaWF.com/Documentation/YetaWF/Support",
-    "https://yetawf.com/Documentation/YetaWF/Startup#Release%20Notice",
-    "https://yetawf.com/Documentation/YetaWF/Startup#License")]
+    "https://yetawf.com/Documentation/YetaWFConsoleStartup",
+    "https://yetawf.com/Documentation/YetaWFConsoleStartup#Support",
+    "https://yetawf.com/Documentation/YetaWFConsoleStartup#Release%20Notice",
+    "https://yetawf.com/Documentation/YetaWFConsoleStartup#License")]
 
