@@ -11,7 +11,7 @@ using YetaWF.Core.Support;
 namespace YetaWF2.LetsEncrypt {
 
     /// <summary>
-    /// Support adding LetsEncrypt support based on whether the assembly YetaWF.Core.LetsEncrypt is available.
+    /// Adds LetsEncrypt support based on whether the assembly YetaWF.Core.LetsEncrypt is available.
     /// </summary>
     public static class LetsEncrypt {
 

@@ -88,7 +88,12 @@ namespace YetaWF.Core.Models {
             if (CustomAttributes == null) {
                 CustomAttributes = new Dictionary<string, object>();
                 foreach (Attribute a in ClassType.GetCustomAttributes()) {
-                    CustomAttributes.Add(a.GetType().Name, a);
+                    string name = a.GetType().Name;
+                    if (name == nameof(UsesAdditionalAttribute) || name == nameof(UsesSiblingAttribute) || name == nameof(PrivateComponentAttribute) || name == nameof(ModuleCategoryAttribute)) {
+                        // ignore documentation only attributes
+                    } else {
+                        CustomAttributes.Add(name, a);
+                    }
                 }
             }
             return CustomAttributes;
@@ -201,7 +206,7 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// Retrieves the property description.
         /// </summary>
-        /// <param name="parentObject">The parent model containing this property.</param>
+        /// <param name="container">The parent model containing this property.</param>
         /// <returns>The description.</returns>
         /// <remarks>If the ResourceRedirectAttribute is used, GetDescription returns the redirected description, otherwise the localized description derived from the DescriptionAttribute is returned.</remarks>
         public string GetDescription(object container) {
@@ -219,7 +224,7 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// Retrieves the property help link.
         /// </summary>
-        /// <param name="parentObject">The parent model containing this property.</param>
+        /// <param name="container">The parent model containing this property.</param>
         /// <returns>The help link.</returns>
         /// <remarks>If the ResourceRedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
         public string GetHelpLink(object container) {
