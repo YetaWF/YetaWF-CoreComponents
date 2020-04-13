@@ -120,7 +120,6 @@ var YetaWF;
                         return false;
                     }
                     $YetaWF.setLoading();
-                    window.location.assign(url);
                 }
                 else {
                     // if a confirmation is wanted, show it

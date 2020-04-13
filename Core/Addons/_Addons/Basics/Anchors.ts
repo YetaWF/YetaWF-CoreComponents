@@ -136,7 +136,6 @@ namespace YetaWF {
                         return false;
                     }
                     $YetaWF.setLoading();
-                    window.location.assign(url);
                 } else {
                     // if a confirmation is wanted, show it
                     // this means that it's posted by definition
