@@ -122,9 +122,14 @@ var YetaWF;
             return YetaWF_FormsImpl.isValid(form);
         };
         Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc) {
-            var _this = this;
-            if (!form.getAttribute("method"))
+            var method = form.getAttribute("method");
+            if (!method)
                 return; // no method, don't submit
+            var saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null; // form says we need to save the return address on submit
+            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, successFunc, failFunc);
+        };
+        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, successFunc, failFunc, rawJSONFunc) {
+            var _this = this;
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
                 var div = divs_1[_i];
@@ -145,7 +150,7 @@ var YetaWF;
                     formData = onSubmitExtraData + "&" + formData;
                 // add the origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
-                if (form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null) { // form says we need to save the return address on submit
+                if (saveReturn) {
                     var currUri = $YetaWF.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
@@ -172,12 +177,16 @@ var YetaWF;
                 if ($YetaWF.isInPopup())
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
                 var request = new XMLHttpRequest();
-                request.open(form.method, form.action, true);
+                request.open(method, action, true);
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                 request.onreadystatechange = function (ev) {
                     var req = request;
                     if (req.readyState === 4 /*DONE*/) {
                         $YetaWF.setLoading(false);
+                        if (rawJSONFunc && req.responseText && req.responseText[0] == '{') {
+                            rawJSONFunc(req.responseText);
+                            return;
+                        }
                         if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, function (result) {
                             _this.preSubmitHandler1 = [];
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);

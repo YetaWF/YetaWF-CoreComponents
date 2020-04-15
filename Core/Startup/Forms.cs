@@ -33,6 +33,7 @@ namespace YetaWF.Core.Addons {
             // Global form related items (not implementation specific)
 
             scripts.AddLocalization("Forms", "AjaxError", this.__ResStr("AjaxError", "An error occurred processing this form:(+nl)(+nl){0} - {1}"));
+            scripts.AddLocalization("Forms", "AjaxNotAuth", this.__ResStr("AjaxNotAuth", "Not Authorized"));
             scripts.AddLocalization("Forms", "AjaxConnLost", this.__ResStr("AjaxConnLost", "Server Connection Lost"));
             scripts.AddLocalization("Forms", "AjaxErrorTitle", this.__ResStr("AjaxErrorTitle", "Error"));
             scripts.AddLocalization("Forms", "FormErrors", this.__ResStr("FormErrors", ""));

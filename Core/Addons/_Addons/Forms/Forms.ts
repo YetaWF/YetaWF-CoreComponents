@@ -106,6 +106,7 @@ namespace YetaWF {
     export interface ILocsForms {
         AjaxError: string;
         AjaxErrorTitle: string;
+        AjaxNotAuth: string;
         AjaxConnLost: string;
         FormErrors: string;
     }
@@ -223,9 +224,16 @@ namespace YetaWF {
 
         public DATACLASS: string = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
 
-        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, successFunc?: (hasErrors: boolean) => void, failFunc?: () => void) : void  {
+        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, successFunc?: (hasErrors: boolean) => void, failFunc?: () => void): void {
+            let method = form.getAttribute("method");
+            if (!method) return; // no method, don't submit
+            let saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null;// form says we need to save the return address on submit
+            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, successFunc, failFunc);
 
-            if (!form.getAttribute("method")) return; // no method, don't submit
+        }
+
+        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string,
+                successFunc?: (hasErrors: boolean) => void, failFunc?: () => void, rawJSONFunc?: (json:string) => void): void  {
 
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (let div of divs)
@@ -250,7 +258,7 @@ namespace YetaWF {
                     formData = onSubmitExtraData + "&" + formData;
                 // add the origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
-                if (form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null) {// form says we need to save the return address on submit
+                if (saveReturn) {
                     var currUri = $YetaWF.parseUrl(window.location.href);
                     currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
                     currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
@@ -278,12 +286,16 @@ namespace YetaWF {
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
 
                 var request: XMLHttpRequest = new XMLHttpRequest();
-                request.open(form.method, form.action, true);
+                request.open(method, action, true);
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                 request.onreadystatechange = (ev: Event) : any => {
                     var req = request;
                     if (req.readyState === 4 /*DONE*/) {
                         $YetaWF.setLoading(false);
+                        if (rawJSONFunc && req.responseText && req.responseText[0] == '{') {
+                            rawJSONFunc(req.responseText);
+                            return;
+                        }
                         if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, (result: string) => {
                             this.preSubmitHandler1 = [];
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);

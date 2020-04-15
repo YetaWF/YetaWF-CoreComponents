@@ -286,7 +286,7 @@ namespace YetaWF {
          * a more condensed appearance.
          */
         public setCondense(tag: HTMLElement, width: number): void {
-            if (width < YVolatile.Skin.MinWidthForPopups) {
+            if (width < YVolatile.Skin.MinWidthForCondense) {
                 this.elementAddClass(tag, "yCondense");
                 this.elementRemoveClass(tag, "yNoCondense");
             } else {
@@ -704,7 +704,7 @@ namespace YetaWF {
                     return false;
                 }
             } else if (xhr.status >= 400 && xhr.status <= 499) {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, "Not Authorized"), YLocs.Forms.AjaxErrorTitle);
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
                 return false;
             } else if (xhr.status === 0) {
                 $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);

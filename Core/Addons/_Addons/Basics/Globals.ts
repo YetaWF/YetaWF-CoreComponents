@@ -98,6 +98,7 @@ namespace YetaWF {
         PopupMaximize: boolean;
         PopupCss: string;
         MinWidthForPopups: number;
+        MinWidthForCondense: number;
 
         // Bootstrap info
         Bootstrap: boolean;

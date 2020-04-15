@@ -42,6 +42,7 @@ namespace YetaWF.Core.Skins {
         public bool UsingBootstrapButtons { get; set; }
         public string PartialFormCss { get; set; }
         public int MinWidthForPopups { get; set; }
+        public int MinWidthForCondense { get; set; }
         public PageSkinList PageSkins { get; set; }
         public PageSkinList PopupSkins { get; set; }
         public ModuleSkinList ModuleSkins { get; set; }

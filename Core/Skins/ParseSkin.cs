@@ -49,6 +49,7 @@ namespace YetaWF.Core.Skins {
             info.UsingBootstrapButtons = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrapButtons", false);
             info.PartialFormCss = GetOptionalString(fileName, lines, totalLines, ref lineCount, "PartialFormCss", "");
             info.MinWidthForPopups = GetInt(fileName, lines, totalLines, ref lineCount, "MinWidthForPopups", 970);
+            info.MinWidthForCondense = GetInt(fileName, lines, totalLines, ref lineCount, "MinWidthForCondense", info.MinWidthForPopups);
 
             // ::Pages::
             if (lineCount >= totalLines) throw new InternalError("::Pages:: section missing - line {0}", lineCount);

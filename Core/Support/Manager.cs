@@ -1390,6 +1390,7 @@ namespace YetaWF.Core.Support {
                 }
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
+            ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", SkinInfo.MinWidthForCondense);
 
             if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
                 CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
