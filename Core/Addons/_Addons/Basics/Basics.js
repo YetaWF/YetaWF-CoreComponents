@@ -975,6 +975,15 @@ var YetaWF;
             }, tableBody);
         };
         /**
+         * Insert content before the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        BasicsServices.prototype.insertMixedHTML = function (elem, content, tableBody) {
+            this.calcMixedHTMLRunScripts(content, undefined, function (elems) {
+                while (elems.length > 0)
+                    elem.insertAdjacentElement("beforebegin", elems[0]);
+            }, tableBody);
+        };
+        /**
          * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
          */
         BasicsServices.prototype.setMixedOuterHTML = function (elem, content, tableBody) {

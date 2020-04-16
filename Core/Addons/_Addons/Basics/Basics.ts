@@ -1105,6 +1105,15 @@ namespace YetaWF {
                     elem.insertAdjacentElement("beforeend", elems[0]);
             }, tableBody);
         }
+        /**
+         * Insert content before the specified element. The content is html and optional <script> tags. The scripts are executed after the content is added.
+         */
+        public insertMixedHTML(elem: HTMLElement, content: string, tableBody?: boolean): void {
+            this.calcMixedHTMLRunScripts(content, undefined, (elems: HTMLCollection): void => {
+                while (elems.length > 0)
+                    elem.insertAdjacentElement("beforebegin", elems[0]);
+            }, tableBody);
+        }
 
         /**
          * Set the specified element's outerHMTL to the content. The content is html and optional <script> tags. The scripts are executed after the content is added.
