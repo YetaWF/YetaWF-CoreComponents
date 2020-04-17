@@ -183,7 +183,7 @@ var YetaWF;
                     var req = request;
                     if (req.readyState === 4 /*DONE*/) {
                         $YetaWF.setLoading(false);
-                        if (rawJSONFunc && req.responseText && req.responseText[0] == '{') {
+                        if (rawJSONFunc && req.responseText && req.responseText[0] === "{") {
                             rawJSONFunc(req.responseText);
                             return;
                         }
