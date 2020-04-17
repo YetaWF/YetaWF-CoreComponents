@@ -52,6 +52,7 @@ var YetaWF;
             // PAGECHANGE
             // PAGECHANGE
             this.PageChangeHandlers = [];
+            this._pageChanged = false;
             $YetaWF = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
@@ -1503,6 +1504,17 @@ var YetaWF;
             event.initEvent("print_after", true, true);
             window.document.dispatchEvent(event);
         };
+        Object.defineProperty(BasicsServices.prototype, "pageChanged", {
+            // Page modification support (used with onbeforeunload)
+            get: function () {
+                return this._pageChanged;
+            },
+            set: function (value) {
+                this._pageChanged = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         BasicsServices.printing = false;
         return BasicsServices;
     }());
@@ -1538,5 +1550,11 @@ if (YConfigs.Basics.DEBUGBUILD) {
         }
     };
 }
+window.onbeforeunload = function (ev) {
+    if ($YetaWF.pageChanged) {
+        ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+        ev.returnValue = 'Are you sure you want to leave this page? There are unsaved changes.'; // Chrome requires returnValue to be set
+    }
+};
 
 //# sourceMappingURL=Basics.js.map

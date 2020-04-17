@@ -1654,6 +1654,15 @@ namespace YetaWF {
             event.initEvent("print_after", true, true);
             window.document.dispatchEvent(event);
         }
+
+        // Page modification support (used with onbeforeunload)
+        public get pageChanged(): boolean {
+            return this._pageChanged;
+        }
+        public set pageChanged(value: boolean) {
+            this._pageChanged = value;
+        }
+        private _pageChanged: boolean = false;
     }
 }
 
@@ -1691,3 +1700,9 @@ if (YConfigs.Basics.DEBUGBUILD) {
     };
 }
 
+window.onbeforeunload = (ev: BeforeUnloadEvent): any => {
+    if ($YetaWF.pageChanged) {
+        ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+        ev.returnValue = 'Are you sure you want to leave this page? There are unsaved changes.'; // Chrome requires returnValue to be set
+    }
+};
