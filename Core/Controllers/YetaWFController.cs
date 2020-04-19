@@ -1,40 +1,33 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Text;
-using System.Threading.Tasks;
-using YetaWF.Core.Identity;
-using YetaWF.Core.Log;
-using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Support;
-using YetaWF.Core.Support.UrlHistory;
-using YetaWF.Core.Modules;
-using YetaWF.Core.Models;
-using YetaWF.Core.ResponseFilter;
-using YetaWF.Core.Addons;
-using YetaWF.Core.Components;
-using System.IO;
-using YetaWF.Core.Views;
-using YetaWF.Core.DataProvider;
-using System.Linq;
-using YetaWF.Core.Localize;
-#if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-#else
-using System.IO.Compression;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Mvc.Filters;
-#endif
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
+using YetaWF.Core.DataProvider;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Log;
+using YetaWF.Core.Models;
+using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Modules;
+using YetaWF.Core.ResponseFilter;
+using YetaWF.Core.Support;
+using YetaWF.Core.Support.UrlHistory;
+using YetaWF.Core.Views;
 
-namespace YetaWF.Core.Controllers
-{
+
+namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// Base class for all controllers used by YetaWF (including "plain old" MVC controllers).
@@ -143,90 +136,35 @@ namespace YetaWF.Core.Controllers
             }
         }
 
-#if MVC6
-        // Handled identically in ErrorHandlingMiddleware
-#else
-        /// <summary>
-        /// Handles exceptions and returns suitable error info.
-        /// </summary>
-        /// <param name="filterContext">The exception context.</param>
-        protected override void OnException(ExceptionContext filterContext) {
-
-            // log the error
-            Exception exc = filterContext.Exception;
-            string msg = "(unknown)";
-            if (exc != null) {
-                msg = ErrorHandling.FormatExceptionMessage(exc);
-                Logging.AddErrorLog(msg);
-            }
-            if (!YetaWFManager.HaveManager || !Manager.IsPostRequest || !AllowJavascriptResult) {
-                if (Manager.CurrentModule != null) { // we're rendering a module, let module handle its own error
-                    throw filterContext.Exception;
-                } else { // this was a direct action GET so we need to show an error page
-                    Server.ClearError(); // this clears the current 500 error (if customErrors is on in web config we would get a 500 - Internal Server Error at this point
-                    filterContext.HttpContext.Response.Clear(); // this prob doesn't do much
-                    filterContext.HttpContext.Response.StatusCode = 200;
-                    filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
-                    filterContext.ExceptionHandled = true;
-                    RedirectResult redir = Redirect(MessageUrl(msg, 500));
-                    redir.ExecuteResult(filterContext);
-                    return;
-                }
-            }
-
-            // for post/ajax requests, respond in a way we can display the error
-            Server.ClearError(); // this clears the current 500 error (if customErrors is on in web config we would get a 500 - Internal Server Error at this point
-            filterContext.HttpContext.Response.Clear(); // this prob doesn't do much
-            filterContext.HttpContext.Response.StatusCode = 200;
-            filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
-            filterContext.ExceptionHandled = true;
-            YJsonResult cr = new YJsonResult { Data = Basics.AjaxJavascriptErrorReturn + $"$YetaWF.error({Utility.JsonSerialize(msg)});" };
-            cr.ExecuteResult(filterContext);
-        }
-        /// <summary>
-        /// Redirects to a page that displays a message - THIS ONLY WORKS FOR A GET REQUEST.
-        /// </summary>
-        /// <param name="message">Error message to display.</param>
-        /// <param name="statusCode">The HTTP status code.</param>
-        /// <returns>The URL to redirect to.</returns>
-        private string MessageUrl(string message, int statusCode) {
-            // we're in a GET request without module, so all we can do is redirect and show the message in the ShowMessage module
-            // the ShowMessage module is in the Basics package and we reference it by permanent Guid
-            string url = YetaWFManager.Manager.CurrentSite.MakeUrl(ModuleDefinition.GetModulePermanentUrl(new Guid("{b486cdfc-3726-4549-889e-1f833eb49865}")));
-            QueryHelper query = QueryHelper.FromUrl(url, out url);
-            query["Message"] = message;
-            query["Code"] = statusCode.ToString();
-            return query.ToUrl(url);
-        }
-#endif
-
-#if MVC6
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
+
             Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
             await SetupActionContextAsync(filterContext);
+
+            if (Manager.IsPostRequest) {
+                // find the unique Id prefix info
+                string uniqueIdCounters = null;
+                if (HttpContext.Request.HasFormContentType)
+                    uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
+                if (string.IsNullOrEmpty(uniqueIdCounters))
+                    uniqueIdCounters = HttpContext.Request.Query[Forms.UniqueIdCounters];
+                if (!string.IsNullOrEmpty(uniqueIdCounters))
+                    Manager.UniqueIdCounters = Utility.JsonDeserialize<YetaWFManager.UniqueIdInfo>(uniqueIdCounters);
+            }
+
             await base.OnActionExecutionAsync(filterContext, next);
         }
-#else
-        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
-            Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
-            YetaWFManager.Syncify(async () => { // Sorry MVC5 no async for you
-                await SetupActionContextAsync(filterContext);
-            });
-            base.OnActionExecuting(filterContext);
-        }
-#endif
+
         internal async Task SetupActionContextAsync(ActionExecutingContext filterContext) {
+
             await SetupEnvironmentInfoAsync();
             await GetModuleAsync();
+
             // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
             if (YetaWFManager.IsDemo) {
-#if MVC6
                 Type ctrlType = filterContext.Controller.GetType();
                 string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
                 MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-#else
-                MethodInfo mi = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.GetMethod(filterContext.ActionDescriptor.ActionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-#endif
                 ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
                 if (exclDemoAttr != null)
                     throw new Error("This action is not available in Demo mode.");
@@ -239,35 +177,17 @@ namespace YetaWF.Core.Controllers
         /// <returns></returns>
         protected ActionResult NotAuthorized() {
             Logging.AddErrorLog("Not Authorized");
-#if MVC6
             return new UnauthorizedResult();
-#else
-            return new HttpUnauthorizedResult();
-#endif
         }
         /// <summary>
         /// Current request is marked 404 (Not Found).
         /// </summary>
         /// <remarks>The page and all modules are still rendered and processed.</remarks>
         protected void MarkNotFound() {
-#if MVC6
             Logging.AddErrorLog("404 Not Found");
-#else
-            Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
-#endif
             Manager.CurrentResponse.StatusCode = 404;
         }
 
-#if MVC6
-        // This is handled in ResourceAuthorizeHandler
-#else
-        protected override void OnAuthentication(AuthenticationContext filterContext) {
-            YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
-                await YetaWFController.SetupEnvironmentInfoAsync();
-            });
-            base.OnAuthentication(filterContext);
-        }
-#endif
         public static async Task SetupEnvironmentInfoAsync() {
 
             if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled
@@ -440,7 +360,6 @@ namespace YetaWF.Core.Controllers
             };
             return Task.FromResult(PartialView("TreePartialDataView", treePartial, ContentType: "application/json", PureContent: true, AreaViewName: false, Gzip: true));
         }
-
 
         // PARTIAL VIEW
         // PARTIAL VIEW

@@ -1,9 +1,19 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -11,22 +21,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-using System.Threading.Tasks;
-using YetaWF.Core.Log;
-using System.Linq;
-using YetaWF.Core.Components;
-using System.IO;
-#if MVC6
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Controllers {
 
@@ -184,85 +178,18 @@ namespace YetaWF.Core.Controllers {
         // CONTROLLER
         // CONTROLLER
 
-        /// <summary>
-        /// Called before the action result that is returned by an action method is executed.
-        /// </summary>
-        /// <param name="filterContext">Information about the current request and action result.</param>
-#if MVC6
-#else
-        protected override void OnResultExecuting(ResultExecutingContext filterContext) {
-            // THIS SUPPRESSES CACHING
-            // RESEARCH: Use OutputCache for actions that can be cached - first thought: that's how you're really going to mess up your site, need automatic solution
-            // http://www.dotnet-tricks.com/Tutorial/mvc/4R5c050113-Understanding-Caching-in-Asp.Net-MVC-with-example.html
-            filterContext.HttpContext.Response.Cache.SetExpires(DateTime.UtcNow.AddDays(-1));
-            filterContext.HttpContext.Response.Cache.SetValidUntilExpires(false);
-            filterContext.HttpContext.Response.Cache.SetRevalidation(HttpCacheRevalidation.AllCaches);
-            filterContext.HttpContext.Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            filterContext.HttpContext.Response.Cache.SetNoStore();
 
-            base.OnResultExecuting(filterContext);
-        }
-#endif
-        /// <summary>
-        /// Called when an unknown action is requested.
-        /// </summary>
-        /// <param name="actionName">The name of the unknown action.</param>
-        /// <remarks>This results in a 404 Not Found HTTP error.</remarks>
-#if MVC6
-        // There doesn't appear to be any equivalent functionality in MVC6
-        // We'll just say the page doesn't exist - this is only useful in development, otherwise who cares which action doesn't exist
-#else
-        protected override void HandleUnknownAction(string actionName) {
-            //base.HandleUnknownAction(actionName);
-            string error = __ResStr("errUnknownAction", "Unknown action {0} attempted in Controller {1}.", actionName, GetType().FullName);
-            Logging.AddErrorLog(error);
-            throw new HttpException(404, error);
-        }
-#endif
         /// <summary>
         /// Called when an action is about to be executed.
         /// </summary>
         /// <param name="filterContext">Information about the current request and action.</param>
-#if MVC6
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
-            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
-#else
-        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
-            Logging.AddTraceLog("Action Request - {0}", filterContext.ActionDescriptor.ControllerDescriptor.ControllerType.FullName);
-            YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
-#endif
 
-            await SetupActionContextAsync(filterContext);
-            if (Manager.IsPostRequest) {
-                // find the unique Id prefix info
-                string uniqueIdCounters = null;
-#if MVC6
-                if (HttpContext.Request.HasFormContentType) {
-                    uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
-                }
-#else
-                uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
-#endif
-                if (string.IsNullOrEmpty(uniqueIdCounters)) {
-#if MVC6
-                    uniqueIdCounters = HttpContext.Request.Query[Forms.UniqueIdCounters];
-#else
-                    uniqueIdCounters = HttpContext.Request.QueryString[Forms.UniqueIdCounters];
-#endif
-                }
-                if (!string.IsNullOrEmpty(uniqueIdCounters)) {
-                    Manager.UniqueIdCounters = Utility.JsonDeserialize<YetaWFManager.UniqueIdInfo>(uniqueIdCounters);
-                }
-            }
-            Type ctrlType;
-            string actionName;
-#if MVC6
-            ctrlType = filterContext.Controller.GetType();
-            actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
-#else
-            ctrlType = filterContext.ActionDescriptor.ControllerDescriptor.ControllerType;
-            actionName = filterContext.ActionDescriptor.ActionName;
-#endif
+            await base.OnActionExecutionAsync(filterContext, next);
+
+            Type ctrlType = filterContext.Controller.GetType();
+            string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
+
             MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
             // check if the action is authorized by checking the module's authorization
             string level = null;
@@ -273,11 +200,7 @@ namespace YetaWF.Core.Controllers {
             ModuleDefinition mod = CurrentModule;
             if (!mod.IsAuthorized(level)) {
                 if (Manager.IsPostRequest) {
-#if MVC6
                     filterContext.Result = new UnauthorizedResult();
-#else
-                    filterContext.Result = new HttpUnauthorizedResult();
-#endif
                 } else {
                     // We get here if an action is attempted that the user is not authorized for
                     // we could attempt to capture and redirect to user login, whatevz
@@ -288,20 +211,12 @@ namespace YetaWF.Core.Controllers {
 
             // action is about to start - if this is a postback or ajax request, we'll clean up parameters
             if (Manager.IsPostRequest) {
-#if MVC6
                 IDictionary<string,object> parms = filterContext.ActionArguments;
-#else
-                IDictionary<string, object> parms = filterContext.ActionParameters;
-#endif
                 if (parms != null) {
                     // remove leading/trailing spaces based on TrimAttribute for properties
                     // and update ModelState for RequiredIfxxx attributes
-#if MVC6
                     Controller controller = (Controller)filterContext.Controller;
                     ViewDataDictionary viewData = controller.ViewData;
-#else
-                    ViewDataDictionary viewData = filterContext.Controller.ViewData;
-#endif
                     ModelStateDictionary modelState = viewData.ModelState;
                     foreach (var parm in parms) {
                         FixArgumentParmTrim(parm.Value);
@@ -315,10 +230,7 @@ namespace YetaWF.Core.Controllers {
                         ReplaceJSONParms(parms);
 
                     // if we have a template action, search parameters for templates with actions and execute it
-#if MVC6
                     if (HttpContext.Request.HasFormContentType) {
-#else
-#endif
                         string templateName = HttpContext.Request.Form[Basics.TemplateName];
                         if (!string.IsNullOrWhiteSpace(templateName)) {
                             string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
@@ -330,10 +242,7 @@ namespace YetaWF.Core.Controllers {
                                 }
                             }
                         }
-#if MVC6
                     }
-#else
-#endif
                 }
 
                 // origin list (we already do this in global.asax.cs for GET, maybe move it there)
@@ -349,15 +258,6 @@ namespace YetaWF.Core.Controllers {
 
                 ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
             }
-#if MVC6
-            await base.OnActionExecutionAsync(filterContext, next);
-#else
-            base.OnActionExecuting(filterContext);
-#endif
-#if MVC6
-#else
-            }); // End of Syncify
-#endif
         }
 
         internal static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
