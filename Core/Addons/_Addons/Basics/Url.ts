@@ -118,6 +118,9 @@ namespace YetaWF {
             }
             return qs;
         }
+        public replaceLastPath(lastPath: string): void {
+            this.Path[this.Path.length - 1] = lastPath;
+        }
         public toUrl(): string {
             if (this.Schema.length === 0 && this.UserInfo.length === 0 && this.Domain.length === 0)
                 return `${this.getPath()}${this.getQuery(true)}${this.getHash(true)}`;
