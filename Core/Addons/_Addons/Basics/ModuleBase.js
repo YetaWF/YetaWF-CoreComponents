@@ -94,27 +94,25 @@ var YetaWF;
         /**
          * Given an element within a module, find the containing module object.
          * @param elem The element within the module.
-         * @param selector The module-specific selector used to find the containing module object.
          * Returns null if not found.
          */
-        ModuleBaseDataImpl.getModuleObjectFromTagCond = function (elem, selector) {
+        ModuleBaseDataImpl.getModuleObjectFromTagCond = function (elem) {
             var mod = ModuleBase.getModuleFromTagCond(elem);
             if (!mod)
                 return null;
             var obj = $YetaWF.getObjectData(mod);
             if (obj.Module !== mod)
-                throw "object data doesn't match module type - " + selector + " - " + mod.outerHTML;
+                throw "object data doesn't match module type - " + mod.outerHTML;
             return obj;
         };
         /**
          * Given an element within a module, find the containing module object.
          * @param elem The element within the module.
-         * @param selector The module-specific selector used to find the containing module object.
          */
-        ModuleBaseDataImpl.getModuleObjectFromTag = function (elem, selector) {
-            var obj = ModuleBaseDataImpl.getModuleObjectFromTagCond(elem, selector);
+        ModuleBaseDataImpl.getModuleObjectFromTag = function (elem) {
+            var obj = ModuleBaseDataImpl.getModuleObjectFromTagCond(elem);
             if (obj == null)
-                throw "Object matching " + selector + " not found";
+                throw "Object not found - " + elem.outerHTML;
             return obj;
         };
         ModuleBaseDataImpl.getModuleObjects = function (selector, tags) {
@@ -173,5 +171,3 @@ var YetaWF;
         }
     });
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=ModuleBase.js.map

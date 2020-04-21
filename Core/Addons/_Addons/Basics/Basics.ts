@@ -1670,6 +1670,7 @@ namespace YetaWF {
                 document.body.dispatchEvent(event);
             }
         }
+        // tslint:disable-next-line:variable-name
         private _pageChanged: boolean = false;
     }
 }
@@ -1711,6 +1712,6 @@ if (YConfigs.Basics.DEBUGBUILD) {
 window.onbeforeunload = (ev: BeforeUnloadEvent): any => {
     if ($YetaWF.pageChanged) {
         ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-        ev.returnValue = 'Are you sure you want to leave this page? There are unsaved changes.'; // Chrome requires returnValue to be set
+        ev.returnValue = "Are you sure you want to leave this page? There are unsaved changes."; // Chrome requires returnValue to be set
     }
 };

@@ -52,6 +52,7 @@ var YetaWF;
             // PAGECHANGE
             // PAGECHANGE
             this.PageChangeHandlers = [];
+            // tslint:disable-next-line:variable-name
             this._pageChanged = false;
             $YetaWF = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
@@ -1562,8 +1563,6 @@ if (YConfigs.Basics.DEBUGBUILD) {
 window.onbeforeunload = function (ev) {
     if ($YetaWF.pageChanged) {
         ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-        ev.returnValue = 'Are you sure you want to leave this page? There are unsaved changes.'; // Chrome requires returnValue to be set
+        ev.returnValue = "Are you sure you want to leave this page? There are unsaved changes."; // Chrome requires returnValue to be set
     }
 };
-
-//# sourceMappingURL=Basics.js.map

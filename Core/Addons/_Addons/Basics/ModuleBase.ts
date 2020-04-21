@@ -96,27 +96,25 @@ namespace YetaWF {
         /**
          * Given an element within a module, find the containing module object.
          * @param elem The element within the module.
-         * @param selector The module-specific selector used to find the containing module object.
          * Returns null if not found.
          */
-        public static getModuleObjectFromTagCond<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement, selector: string): CLSS | null {
+        public static getModuleObjectFromTagCond<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement): CLSS | null {
             let mod = ModuleBase.getModuleFromTagCond(elem);
             if (!mod)
                 return null;
             var obj = $YetaWF.getObjectData(mod) as CLSS;
             if (obj.Module !== mod)
-                throw `object data doesn't match module type - ${selector} - ${mod.outerHTML}`;
+                throw `object data doesn't match module type - ${mod.outerHTML}`;
             return obj;
         }
         /**
          * Given an element within a module, find the containing module object.
          * @param elem The element within the module.
-         * @param selector The module-specific selector used to find the containing module object.
          */
-        public static getModuleObjectFromTag<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement, selector: string): CLSS {
-            var obj = ModuleBaseDataImpl.getModuleObjectFromTagCond<CLSS>(elem, selector);
+        public static getModuleObjectFromTag<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement): CLSS {
+            var obj = ModuleBaseDataImpl.getModuleObjectFromTagCond<CLSS>(elem);
             if (obj == null)
-                throw `Object matching ${selector} not found`;
+                throw `Object not found - ${elem.outerHTML}`;
             return obj;
         }
 
