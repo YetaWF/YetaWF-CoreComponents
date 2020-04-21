@@ -188,6 +188,8 @@ namespace YetaWF {
         // Implemented by YetaWF
         // Implemented by YetaWF
 
+        public static readonly PAGECHANGEDEVENT: string = "page_change";
+
         // Content handling (Unified Page Sets)
 
         public ContentHandling: YetaWF.Content;
@@ -1372,7 +1374,7 @@ namespace YetaWF {
             }
         }
         public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
-            document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback));
+            document.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
         }
         public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: Event) => void): void {
             control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
@@ -1660,7 +1662,13 @@ namespace YetaWF {
             return this._pageChanged;
         }
         public set pageChanged(value: boolean) {
-            this._pageChanged = value;
+            if (this._pageChanged !== value) {
+                this._pageChanged = value;
+
+                var event = document.createEvent("Event");
+                event.initEvent(BasicsServices.PAGECHANGEDEVENT, true, true);
+                document.body.dispatchEvent(event);
+            }
         }
         private _pageChanged: boolean = false;
     }

@@ -1264,7 +1264,7 @@ var YetaWF;
         };
         BasicsServices.prototype.registerCustomEventHandlerDocument = function (eventName, selector, callback) {
             var _this = this;
-            document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
+            document.addEventListener(eventName, function (ev) { return _this.handleEvent(document.body, ev, selector, callback); });
         };
         BasicsServices.prototype.registerCustomEventHandler = function (control, eventName, callback) {
             control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
@@ -1510,11 +1510,20 @@ var YetaWF;
                 return this._pageChanged;
             },
             set: function (value) {
-                this._pageChanged = value;
+                if (this._pageChanged !== value) {
+                    this._pageChanged = value;
+                    var event = document.createEvent("Event");
+                    event.initEvent(BasicsServices.PAGECHANGEDEVENT, true, true);
+                    document.body.dispatchEvent(event);
+                }
             },
             enumerable: true,
             configurable: true
         });
+        // Implemented by YetaWF
+        // Implemented by YetaWF
+        // Implemented by YetaWF
+        BasicsServices.PAGECHANGEDEVENT = "page_change";
         BasicsServices.printing = false;
         return BasicsServices;
     }());

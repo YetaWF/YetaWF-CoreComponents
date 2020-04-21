@@ -958,10 +958,12 @@ namespace YetaWF.Core.Controllers {
         /// <param name="ExtraJavaScript">Optional additional Javascript code that is returned as part of the ActionResult.</param>
         /// <param name="ForceRedirect">Force a real redirect bypassing Unified Page Set handling.</param>
         /// <param name="PopupOptions">TODO: This is not a good option, passes JavaScript/JSON to the client side for the popup window.</param>
+        /// <param name="PageChanged">The new page changed status.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
-                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false) {
+                string NextPage = null, string ExtraJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false,
+                bool? PageChanged = null) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -1116,11 +1118,15 @@ namespace YetaWF.Core.Controllers {
                         case OnCloseEnum.Nothing:
                             if (!string.IsNullOrWhiteSpace(popupText))
                                 sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
+                            if (PageChanged != null)
+                                sb.Append($@"$YetaWF.pageChanged = {((bool)PageChanged ? "true" : "false")} ;");
                             break;
                         case OnCloseEnum.UpdateInPlace:
                             if (!string.IsNullOrWhiteSpace(popupText)) {
                                 sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                             }
+                            if (PageChanged != null)
+                                sb.Append($@"$YetaWF.pageChanged = {((bool)PageChanged ? "true" : "false")} ;");
                             isApply = true;
                             break;
                         case OnCloseEnum.Return:

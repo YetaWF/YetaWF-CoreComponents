@@ -289,6 +289,7 @@ namespace YetaWF {
                     } else
                         throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
                     $YetaWF.setLoading(false);
+                    $YetaWF.pageChanged = false;
                     return true;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
@@ -469,6 +470,7 @@ namespace YetaWF {
                     }, 1);
                 }
                 $YetaWF.setLoading(false);
+                $YetaWF.pageChanged = false;
             });
         }
 

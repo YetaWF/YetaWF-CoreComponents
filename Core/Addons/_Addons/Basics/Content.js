@@ -224,6 +224,7 @@ var YetaWF;
                     else
                         throw "Invalid UnifiedMode " + YVolatile.Basics.UnifiedMode;
                     $YetaWF.setLoading(false);
+                    $YetaWF.pageChanged = false;
                     return true;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
@@ -415,6 +416,7 @@ var YetaWF;
                     }, 1);
                 }
                 $YetaWF.setLoading(false);
+                $YetaWF.pageChanged = false;
             });
         };
         Content.prototype.loadAddons = function (addons, run) {
