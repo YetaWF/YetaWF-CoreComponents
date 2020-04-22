@@ -225,18 +225,18 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="buttons">The collection of form buttons to render.</param>
         /// <returns>Returns the rendered form buttons as HTML.</returns>
-        public async Task<string> FormButtonsAsync(List<FormButton> buttons) {
-            return await FormButtonsAsync(buttons.ToArray());
+        public async Task<string> FormButtonsAsync(List<FormButton> buttons, string CssClass = "t_detailsbuttons") {
+            return await FormButtonsAsync(buttons.ToArray(), CssClass);
         }
         /// <summary>
         /// Renders form buttons.
         /// </summary>
         /// <param name="buttons">The array of form buttons to render.</param>
         /// <returns>Returns the rendered form buttons as HTML.</returns>
-        public async Task<string> FormButtonsAsync(FormButton[] buttons) {
+        public async Task<string> FormButtonsAsync(FormButton[] buttons, string CssClass = "t_detailsbuttons") {
             HtmlBuilder hb = new HtmlBuilder();
             if (ModuleBase.ShowFormButtons || Manager.EditMode) {
-                hb.Append("<div class='t_detailsbuttons {0}'>", Globals.CssModuleNoPrint);
+                hb.Append("<div class='{0} {1}'>", CssClass, Globals.CssModuleNoPrint);
                 foreach (FormButton button in buttons) {
                     hb.Append((await button.RenderAsync()));
                 }

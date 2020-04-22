@@ -39,7 +39,7 @@ var YetaWF;
             url += new Date().getUTCMilliseconds();
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y"; // we're now going into a popup
             if (!forceIframe) {
-                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
+                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup) !== YetaWF.SetContentResult.NotContent) {
                     // contents set in dynamic popup
                     return true;
                 }
@@ -95,3 +95,5 @@ var YetaWF;
     // tslint:disable-next-line:no-unused-expression
     $YetaWF.Popups; // need to evaluate for side effect to initialize popups
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Popups.js.map

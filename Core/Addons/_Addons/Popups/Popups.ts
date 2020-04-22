@@ -93,7 +93,7 @@ namespace YetaWF {
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y";// we're now going into a popup
 
             if (!forceIframe) {
-                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)) {
+                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup) !== SetContentResult.NotContent) {
                     // contents set in dynamic popup
                     return true;
                 }

@@ -3,6 +3,12 @@
 // Anchor handling, navigation
 var YetaWF;
 (function (YetaWF) {
+    var SetContentResult;
+    (function (SetContentResult) {
+        SetContentResult[SetContentResult["NotContent"] = 0] = "NotContent";
+        SetContentResult[SetContentResult["ContentReplaced"] = 1] = "ContentReplaced";
+        SetContentResult[SetContentResult["Abort"] = 2] = "Abort";
+    })(SetContentResult = YetaWF.SetContentResult || (YetaWF.SetContentResult = {}));
     var Content = /** @class */ (function () {
         function Content() {
         }
@@ -64,28 +70,31 @@ var YetaWF;
          * @param uri The new page.
          */
         Content.prototype.setNewUri = function (uri) {
-            if (!$YetaWF.ContentHandling.setContent(uri, true))
+            if ($YetaWF.ContentHandling.setContent(uri, true) === SetContentResult.NotContent)
                 window.location.assign(uri.toUrl());
         };
         /**
          * Changes the current page to the specified Uri (may not be part of a unified page set).
-         * Returns false if the uri couldn't be processed (i.e., it's not part of a unified page set).
-         * Returns true if the page is now shown and is part of the unified page set.
+         * Returns SetContentResult.NotContent if the uri couldn't be processed (i.e., it's not part of a unified page set).
+         * Returns SetContentResult.ContentReplaced if the page is now shown and is part of the unified page set.
+         * Returns SetContentResult.Abort if the page cannot be shown because the user doesn't want to navigate away from the page.
          * @param uriRequested The new page.
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
         Content.prototype.setContent = function (uriRequested, setState, popupCB, inplace) {
             var _this = this;
+            if (!this.allowNavigateAway())
+                return SetContentResult.Abort;
             if (YVolatile.Basics.EditModeActive)
-                return false; // edit mode
+                return SetContentResult.NotContent; // edit mode
             if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.None)
-                return false; // not unified mode
+                return SetContentResult.NotContent; // not unified mode
             if (popupCB) {
                 if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.SkinDynamicContent)
-                    return false; // popups can only be used with some unified modes
+                    return SetContentResult.NotContent; // popups can only be used with some unified modes
                 if (!YVolatile.Basics.UnifiedPopups)
-                    return false; // popups not wanted for this UPS
+                    return SetContentResult.NotContent; // popups not wanted for this UPS
             }
             // check if we're clicking a link which is part of this unified page
             var uri;
@@ -159,7 +168,7 @@ var YetaWF;
                         }
                         else if (request.status === 0) {
                             $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
-                            return false;
+                            return SetContentResult.NotContent;
                         }
                         else {
                             $YetaWF.setLoading(false);
@@ -170,7 +179,7 @@ var YetaWF;
                     }
                 };
                 request.send(JSON.stringify(data));
-                return true;
+                return SetContentResult.ContentReplaced;
             }
             else {
                 // check if we have anything with that path as a unified pane and activate the panes
@@ -225,11 +234,14 @@ var YetaWF;
                         throw "Invalid UnifiedMode " + YVolatile.Basics.UnifiedMode;
                     $YetaWF.setLoading(false);
                     $YetaWF.pageChanged = false;
-                    return true;
+                    return SetContentResult.ContentReplaced;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
-                return false;
+                return SetContentResult.NotContent;
             }
+        };
+        Content.prototype.allowNavigateAway = function () {
+            return !$YetaWF.pageChanged || confirm("Changes to this page have not yet been saved. Are you sure you want to navigate away from this page without saving?");
         };
         Content.prototype.processReceivedContent = function (result, uri, divs, setState, popupCB, inplace) {
             $YetaWF.closeOverlays();
@@ -517,3 +529,5 @@ var YetaWF;
     }());
     YetaWF.Content = Content;
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Content.js.map

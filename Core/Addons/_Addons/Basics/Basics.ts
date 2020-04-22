@@ -455,7 +455,7 @@ namespace YetaWF {
             uri.addSearch("!rand", ((new Date()).getTime()).toString());// cache buster
 
             if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.None) {
-                if (this.ContentHandling.setContent(uri, true))
+                if (this.ContentHandling.setContent(uri, true) !== SetContentResult.NotContent)
                     return;
             }
             if (keepPosition) {
@@ -1603,7 +1603,7 @@ namespace YetaWF {
                     return true;
                 }
                 var uri = this.parseUrl(window.location.href);
-                return !this.ContentHandling.setContent(uri, false);
+                return this.ContentHandling.setContent(uri, false) !== SetContentResult.NotContent;
             });
 
             // <a> links that only have a hash are intercepted so we don't go through content handling

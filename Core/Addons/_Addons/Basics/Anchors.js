@@ -185,7 +185,7 @@ var YetaWF;
                         uriBase.addSearch("!ContentUrl", contentUrl);
                         inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
                     }
-                    return !$YetaWF.ContentHandling.setContent(uri, true, undefined, inplace);
+                    return $YetaWF.ContentHandling.setContent(uri, true, undefined, inplace) === YetaWF.SetContentResult.NotContent;
                 }
                 return true;
             });
@@ -234,3 +234,5 @@ var YetaWF;
         return CookieWait;
     }());
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Anchors.js.map

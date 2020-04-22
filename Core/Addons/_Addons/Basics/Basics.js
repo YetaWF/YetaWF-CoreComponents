@@ -340,7 +340,7 @@ var YetaWF;
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
             if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.None) {
-                if (this.ContentHandling.setContent(uri, true))
+                if (this.ContentHandling.setContent(uri, true) !== YetaWF.SetContentResult.NotContent)
                     return;
             }
             if (keepPosition) {
@@ -1457,7 +1457,7 @@ var YetaWF;
                     return true;
                 }
                 var uri = _this.parseUrl(window.location.href);
-                return !_this.ContentHandling.setContent(uri, false);
+                return _this.ContentHandling.setContent(uri, false) !== YetaWF.SetContentResult.NotContent;
             });
             // <a> links that only have a hash are intercepted so we don't go through content handling
             this.registerEventHandlerBody("click", "a[href^='#']", function (ev) {
@@ -1566,3 +1566,5 @@ window.onbeforeunload = function (ev) {
         ev.returnValue = "Are you sure you want to leave this page? There are unsaved changes."; // Chrome requires returnValue to be set
     }
 };
+
+//# sourceMappingURL=Basics.js.map

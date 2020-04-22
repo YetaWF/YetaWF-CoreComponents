@@ -70,6 +70,12 @@ namespace YetaWF {
         Argument1: string|null;
     }
 
+    export enum SetContentResult {
+        NotContent = 0,
+        ContentReplaced = 1,
+        Abort = 2,
+    }
+
     export class Content {
 
         // loads all scripts - we need to preserve the order of initialization hence the recursion
@@ -131,27 +137,31 @@ namespace YetaWF {
          * @param uri The new page.
          */
         public setNewUri(uri: YetaWF.Url): void {
-            if (!$YetaWF.ContentHandling.setContent(uri, true))
+            if ($YetaWF.ContentHandling.setContent(uri, true) === SetContentResult.NotContent)
                 window.location.assign(uri.toUrl());
         }
 
         /**
          * Changes the current page to the specified Uri (may not be part of a unified page set).
-         * Returns false if the uri couldn't be processed (i.e., it's not part of a unified page set).
-         * Returns true if the page is now shown and is part of the unified page set.
+         * Returns SetContentResult.NotContent if the uri couldn't be processed (i.e., it's not part of a unified page set).
+         * Returns SetContentResult.ContentReplaced if the page is now shown and is part of the unified page set.
+         * Returns SetContentResult.Abort if the page cannot be shown because the user doesn't want to navigate away from the page.
          * @param uriRequested The new page.
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
-        public setContent(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents): boolean {
+        public setContent(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents): SetContentResult {
 
-            if (YVolatile.Basics.EditModeActive) return false; // edit mode
-            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return false; // not unified mode
+            if (!this.allowNavigateAway())
+                return SetContentResult.Abort;
+
+            if (YVolatile.Basics.EditModeActive) return SetContentResult.NotContent; // edit mode
+            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return SetContentResult.NotContent; // not unified mode
             if (popupCB) {
                 if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.SkinDynamicContent)
-                    return false; // popups can only be used with some unified modes
+                    return SetContentResult.NotContent; // popups can only be used with some unified modes
                 if (!YVolatile.Basics.UnifiedPopups)
-                    return false; // popups not wanted for this UPS
+                    return SetContentResult.NotContent; // popups not wanted for this UPS
             }
 
             // check if we're clicking a link which is part of this unified page
@@ -224,7 +234,7 @@ namespace YetaWF {
                             this.processReceivedContent(result, uri, divs, setState, popupCB, inplace);
                         } else if (request.status === 0) {
                             $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
-                            return false;
+                            return SetContentResult.NotContent;
                         } else {
                             $YetaWF.setLoading(false);
                             $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
@@ -234,7 +244,7 @@ namespace YetaWF {
                     }
                 };
                 request.send(JSON.stringify(data));
-                return true;
+                return SetContentResult.ContentReplaced;
             } else {
                 // check if we have anything with that path as a unified pane and activate the panes
                 var divs = $YetaWF.getElementsBySelector(`.yUnified[data-url="${path}"]`);
@@ -290,11 +300,15 @@ namespace YetaWF {
                         throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
                     $YetaWF.setLoading(false);
                     $YetaWF.pageChanged = false;
-                    return true;
+                    return SetContentResult.ContentReplaced;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
-                return false;
+                return SetContentResult.NotContent;
             }
+        }
+
+        private allowNavigateAway(): boolean {
+            return !$YetaWF.pageChanged || confirm("Changes to this page have not yet been saved. Are you sure you want to navigate away from this page without saving?");
         }
 
         private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents ) : void {
