@@ -18,6 +18,8 @@ namespace YetaWF.Core.Models {
         public Type RecordType { get; set; }
 
         public bool ShowHeader { get; set; }
+        public MultiString Header { get; set; }
+        public MultiString HeaderTooltip { get; set; }
 
         public bool DragDrop { get; set; }
         public string NoRecordsText { get; set; }// text shown when there are no records
@@ -39,6 +41,9 @@ namespace YetaWF.Core.Models {
             JSONData = false;
 
             Id = YetaWFManager.Manager.UniqueId("tree");
+
+            Header = new MultiString();
+            HeaderTooltip = new MultiString();
         }
     }
 
