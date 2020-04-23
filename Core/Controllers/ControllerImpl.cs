@@ -1380,36 +1380,20 @@ namespace YetaWF.Core.Controllers {
         /// <param name="modelName">The model name (always "Module").</param>
         /// <returns>The bound object of the specified type.</returns>
         protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName) {
-            object obj;
-#if MVC6
-            obj = Activator.CreateInstance(objType);
+
+            object obj = Activator.CreateInstance(objType);
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
-            bool result = await TryUpdateModelAsync(obj, objType, modelName);
+            bool result = await TryUpdateModelAsync(obj, objType, modelName??"");
             if (!result)
                 throw new InternalError("Model with type {0} cannot be updated", objType.FullName);
-#else
-            Type parameterType = objType;
-            IModelBinder binder = Binders.GetBinder(parameterType);
-            IValueProvider valueProvider = ValueProvider;
-            const Predicate<string> propertyFilter = null;
 
-            ModelBindingContext bindingContext = new ModelBindingContext {
-                FallbackToEmptyPrefix = true,
-                ModelMetadata = ModelMetadataProviders.Current.GetMetadataForType(null, parameterType),
-                ModelName = modelName,
-                ModelState = ViewData.ModelState,
-                PropertyFilter = propertyFilter,
-                ValueProvider = valueProvider
-            };
-            obj = binder.BindModel(ControllerContext, bindingContext);
-#endif
             if (obj != null) {
                 FixArgumentParmTrim(obj);
                 FixArgumentParmCase(obj);
                 await FixDataAsync(obj);
 
-                CorrectModelState(obj, ViewData.ModelState, modelName + ".");
+                CorrectModelState(obj, ViewData.ModelState, (modelName != null) ? $"{modelName}." : "");
 
                 // translate any xxx.JSON properties to native objects (There is no use case for this)
                 //if (ViewData.ModelState.IsValid)
