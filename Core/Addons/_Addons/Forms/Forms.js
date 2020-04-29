@@ -121,6 +121,12 @@ var YetaWF;
         Forms.prototype.isValid = function (form) {
             return YetaWF_FormsImpl.isValid(form);
         };
+        /**
+         * Resequences array indexes in forms fields.
+         */
+        Forms.prototype.resequenceFields = function (rows, prefix) {
+            return YetaWF_FormsImpl.resequenceFields(rows, prefix);
+        };
         Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc) {
             var method = form.getAttribute("method");
             if (!method)

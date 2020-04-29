@@ -60,6 +60,15 @@ namespace YetaWF {
          * If there is a validation error in the specified tab control, the tab is activated.
          */
         setErrorInNestedControls(tag: HTMLElement): void;
+        /**
+         * Resequences array indexes in forms fields.
+         * This is very much a work in progress and doesn't handle all controls.
+         * All fields prefix[index].name are resequenced based on their position within the tags array.
+         * This is typically used after adding/reordering entries.
+         * @param rows Array of tags containing input fields to resequence.
+         * @param prefix The name prefix used in input fields.
+         */
+        resequenceFields(rows: HTMLElement[], prefix: string): void;
     }
 
     export interface NameValuePair {
@@ -218,6 +227,12 @@ namespace YetaWF {
          */
         public isValid(form: HTMLFormElement): boolean {
             return YetaWF_FormsImpl.isValid(form);
+        }
+        /**
+         * Resequences array indexes in forms fields.
+         */
+        public resequenceFields(rows: HTMLElement[], prefix: string): void {
+            return YetaWF_FormsImpl.resequenceFields(rows, prefix);
         }
 
         // Submit
