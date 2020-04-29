@@ -78,7 +78,6 @@ namespace YetaWF.Core.Support {
         /// </remarks>
         public static string UrlToPhysical(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
-#if MVC6
             string path;
             if (url.StartsWith(Globals.NodeModulesUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
@@ -90,12 +89,6 @@ namespace YetaWF.Core.Support {
                 path = $"{YetaWFManager.RootFolder}{UrlToPhysicalRaw(url)}";
             }
             return path;
-#else
-            if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase))
-                url = url.ReplaceFirst(Globals.VaultPrivateUrl, Globals.VaultUrl);
-            url = url.Replace("%20", " ");
-            return HostingEnvironment.MapPath(url.RemoveStartingAt('?'));
-#endif
         }
         private static string UrlToPhysicalRaw(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
