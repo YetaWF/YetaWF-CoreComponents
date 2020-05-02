@@ -16,6 +16,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -185,7 +186,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="filterContext">Information about the current request and action.</param>
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
 
-            await base.OnActionExecutionAsync(filterContext, next);
+            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
+            await SetupActionContextAsync(filterContext);
 
             Type ctrlType = filterContext.Controller.GetType();
             string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
@@ -258,6 +260,8 @@ namespace YetaWF.Core.Controllers {
 
                 ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
             }
+
+            await base.OnActionExecutionAsync(filterContext, next);
         }
 
         internal static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
