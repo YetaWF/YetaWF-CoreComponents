@@ -316,8 +316,8 @@ namespace YetaWF.Core.WebStartup {
                 await next();
             });
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseLetsEncrypt();
 
