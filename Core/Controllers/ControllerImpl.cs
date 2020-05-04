@@ -193,6 +193,8 @@ namespace YetaWF.Core.Controllers {
             string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
 
             MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            if (mi == null)
+                throw new InternalError($"Action {actionName} not found on {filterContext.Controller.GetType().FullName}");
             // check if the action is authorized by checking the module's authorization
             string level = null;
             PermissionAttribute permAttr = (PermissionAttribute)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
