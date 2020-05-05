@@ -94,7 +94,8 @@ namespace YetaWF {
 
             if (!forceIframe) {
                 if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup) !== SetContentResult.NotContent) {
-                    // contents set in dynamic popup
+                    // contents set in dynamic popup or not allowed
+                    $YetaWF.setLoading(false);
                     return true;
                 }
             }

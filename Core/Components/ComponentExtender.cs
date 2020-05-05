@@ -88,12 +88,7 @@ namespace YetaWF.Core.Components {
         /// <param name="UIHint">A component name. May be null to extract the component name from the container's property.</param>
         /// <returns>Returns true if a valid component can be found.</returns>
         /// <remarks>This is used by the framework for debugging/testing purposes only.</remarks>
-#if MVC6
-        public static bool IsSupported(object container, string propertyName, string UIHint = null)
-#else
-        public static bool IsSupported(object container, string propertyName, string UIHint = null)
-#endif
-        {
+        public static bool IsSupported(object container, string propertyName, string UIHint = null) {
             PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), propertyName);
             if (UIHint == null) {
                 UIHintAttribute uiAttr = propData.TryGetAttribute<UIHintAttribute>();
@@ -101,6 +96,17 @@ namespace YetaWF.Core.Components {
                     throw new InternalError($"No UIHintAttribute found for property {propertyName}");
                 UIHint = uiAttr.UIHint;
             }
+            return IsSupported(container, UIHint);
+        }
+
+        /// <summary>
+        /// Tests whether a valid component can be found for a container.
+        /// </summary>
+        /// <param name="container">The container model.</param>
+        /// <param name="UIHint">A component name. May be null to extract the component name from the container's property.</param>
+        /// <returns>Returns true if a valid component can be found.</returns>
+        /// <remarks>This is used by the framework for debugging/testing purposes only.</remarks>
+        public static bool IsSupported(object container, string UIHint = null) {
             Type compType;
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(UIHint, out compType) &&
                     !YetaWFComponentBaseStartup.GetComponentsEdit().TryGetValue(UIHint, out compType))

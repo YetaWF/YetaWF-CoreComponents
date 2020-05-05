@@ -1711,7 +1711,8 @@ if (YConfigs.Basics.DEBUGBUILD) {
 
 window.onbeforeunload = (ev: BeforeUnloadEvent): any => {
     if ($YetaWF.pageChanged) {
-        ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
         ev.returnValue = "Are you sure you want to leave this page? There are unsaved changes."; // Chrome requires returnValue to be set
+        $YetaWF.setLoading(false);// turn off loading indicator in case it's set
+        ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
     }
 };

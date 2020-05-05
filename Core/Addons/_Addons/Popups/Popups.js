@@ -40,7 +40,8 @@ var YetaWF;
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y"; // we're now going into a popup
             if (!forceIframe) {
                 if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup) !== YetaWF.SetContentResult.NotContent) {
-                    // contents set in dynamic popup
+                    // contents set in dynamic popup or not allowed
+                    $YetaWF.setLoading(false);
                     return true;
                 }
             }
