@@ -875,18 +875,20 @@ namespace YetaWF.Core.Models {
             Type tpFrom = fromObject.GetType();
             Type tpTo = toObject.GetType();
             foreach (var toPropData in GetPropertyData(tpTo)) {
-                PropertyData fromPropData = ObjectSupport.TryGetPropertyData(tpFrom, toPropData.Name);
-                if (fromPropData != null && toPropData.PropInfo.CanWrite) {
-                    if (!ForceReadOnlyFromCopy && fromPropData.ReadOnly)// we don't copy read/only properties from the fromObject because it means we didn't make changes (and could potentially incorrectly override the target)
-                        continue;
-                    if (ReadOnly) { // only copy properties that are marked read/only in toObject because they need to be refreshed
-                        if (!toPropData.ReadOnly)
+                if (toPropData.PropInfo.CanWrite) {
+                    PropertyData fromPropData = ObjectSupport.TryGetPropertyData(tpFrom, toPropData.Name);
+                    if (fromPropData != null) {
+                        if (!ForceReadOnlyFromCopy && fromPropData.ReadOnly)// we don't copy read/only properties from the fromObject because it means we didn't make changes (and could potentially incorrectly override the target)
                             continue;
+                        if (ReadOnly) { // only copy properties that are marked read/only in toObject because they need to be refreshed
+                            if (!toPropData.ReadOnly)
+                                continue;
+                        }
+                        try {
+                            object o = fromPropData.PropInfo.GetValue(fromObject, null);
+                            toPropData.PropInfo.SetValue(toObject, o, null);
+                        } catch (Exception) { }
                     }
-                    try {
-                        object o = fromPropData.PropInfo.GetValue(fromObject, null);
-                        toPropData.PropInfo.SetValue(toObject, o, null);
-                    } catch (Exception) { }
                 }
             }
         }
@@ -1069,6 +1071,11 @@ namespace YetaWF.Core.Models {
                 }
             }
             return changes;
+        }
+        public static bool SameValue(Type modelType, string propName, object oOld, object oNew) {
+            PropertyData propData = GetPropertyData(modelType, propName);
+            List<ChangedProperty> changes;
+            return SameValue(propData, oOld, oNew, out changes);
         }
 
         private static bool SameValue(PropertyData propData, object oOld, object oNew, out List<ChangedProperty> changes) {

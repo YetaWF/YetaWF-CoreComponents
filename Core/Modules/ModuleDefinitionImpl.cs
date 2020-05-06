@@ -708,9 +708,9 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         public static HtmlBuilder ProcessModuleError(Exception exc, string name, string details = null) {
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("<div class='{0}'>", Globals.CssDivAlert);
-#if DEBUG
-            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", Utility.HtmlEncode(name)));
-#endif
+//#if DEBUG
+//            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", Utility.HtmlEncode(name)));
+//#endif
             if (details != null) {
                 hb.Append($"{Utility.HtmlEncode(details)}");
                 if (exc != null)
