@@ -202,6 +202,9 @@ namespace YetaWF.Core.Identity {
         Task<string> GetUserEmailAsync(int userId);
         Task<UserStatusEnum> GetUserStatusAsync(int userId);
         Task SetUserStatusAsync(int userId, UserStatusEnum status);
+        Task<string> GetUserVerificationCodeAsync(int userId);
+        Task<DateTime?> GetUserLastLoginDateAsync(int userId);
+        Task<string> GetUserPasswordAsync(int userId);
 
         int GetSuperuserId();
         List<RoleInfo> GetDefaultRoleList(bool Exclude2FA = false);
@@ -230,9 +233,7 @@ namespace YetaWF.Core.Identity {
 
     public static class Resource {
 
-        public static IResource ResourceAccess { get { return _ResourceAccess; } set { _ResourceAccess = value; } }
-
-        private static IResource _ResourceAccess = new DefaultResourceAccess();
+        public static IResource ResourceAccess { get; set; } = new DefaultResourceAccess();
     }
 
     public class DefaultResourceAccess : IResource {
@@ -382,6 +383,18 @@ namespace YetaWF.Core.Identity {
         }
 
         public Task SetUserStatusAsync(int userId, UserStatusEnum status) {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetUserVerificationCodeAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task<DateTime?> GetUserLastLoginDateAsync(int userId) {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetUserPasswordAsync(int userId) {
             throw new NotImplementedException();
         }
 
