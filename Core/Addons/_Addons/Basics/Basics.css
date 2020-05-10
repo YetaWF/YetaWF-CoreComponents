@@ -1,100 +1,91 @@
+@charset "UTF-8";
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
-
 ol, ul {
-    margin-top:0; /*If normalize.css is loaded after bootstrap, this is needed */
-}
-p {
-    margin: 0 0 10px; /*If normalize.css is loaded after bootstrap, this is needed */
-}
-h1 {
-    margin-top:0; /*If normalize.css is loaded after bootstrap, this is needed */
-}
+  margin-top: 0;
+  /*If normalize.css is loaded after bootstrap, this is needed */ }
 
-div.y_cleardiv {/* EVERY SKIN NEEDS THIS */
-    clear:both;
-}
+p {
+  margin: 0 0 10px;
+  /*If normalize.css is loaded after bootstrap, this is needed */ }
+
+h1 {
+  margin-top: 0;
+  /*If normalize.css is loaded after bootstrap, this is needed */ }
+
+div.y_cleardiv {
+  /* EVERY SKIN NEEDS THIS */
+  clear: both; }
 
 .yPane {
-    position: relative;
-}
+  position: relative; }
 
 /* Module */
 .yModule {
-    position: relative;
-}
+  position: relative; }
 
 /* Header/Footer */
 .y_header {
-    padding-bottom: .8ch;
-}
+  padding-bottom: .8ch; }
+
 .y_footer {
-    padding-top: .8ch;
-    padding-bottom: .8ch;
-}
+  padding-top: .8ch;
+  padding-bottom: .8ch; }
 
 /* Warnings */
 .yDivAlert {
-    background-color: red;
-    color: white;
-    padding: 1em;
-    border: 1px solid gray;
-    border-radius:5px;
-    margin: 1em 0 1em 0;
-}
+  background-color: red;
+  color: white;
+  padding: 1em;
+  border: 1px solid gray;
+  border-radius: 5px;
+  margin: 1em 0 1em 0; }
+
 .yDivSmallAlert {
-    background-color: red;
-    color: white;
-}
+  background-color: red;
+  color: white; }
 
 .yDivWarning {
-    background-color: orange;
-    color: white;
-    padding:1em;
-    border: 1px solid gray;
-    border-radius:5px;
-    margin: 1em 0 1em 0;
-}
+  background-color: orange;
+  color: white;
+  padding: 1em;
+  border: 1px solid gray;
+  border-radius: 5px;
+  margin: 1em 0 1em 0; }
 
 .yDivSmallWarning {
-    background-color: orange;
-    color: white;
-}
+  background-color: orange;
+  color: white; }
+
 .yDivAdmin {
-    background-color: gray;
-    color: black;
-    padding: 1em;
-    border: 1px solid gray;
-    border-radius:5px;
-    margin: 1em 0 1em 0;
-}
+  background-color: gray;
+  color: black;
+  padding: 1em;
+  border: 1px solid gray;
+  border-radius: 5px;
+  margin: 1em 0 1em 0; }
+
 .yDivSmallAdmin {
-    background-color: gray;
-    color: black;
-}
+  background-color: gray;
+  color: black; }
+
+.yHidden {
+  display: none; }
 
 /* Module Actions */
 /* make sure module links don't float left/right */
 .yModuleLinksContainer {
-    clear:both;
-}
+  clear: both; }
 
 /* templates are inline unless they're large, like grids, propertylists etc. */
 /* Not all templates follow this rule (yet) */
-
 .y_inline {
-    display:inline;
-}
+  display: inline; }
 
 /* Print */
-
 @media print {
-    .yNoPrint {
-        display: none;
-    }
-}
+  .yNoPrint {
+    display: none; } }
 
 @media screen {
-    .yDisplayMode .yPrintOnly {
-        display: none;
-    }
-}
+  .yDisplayMode .yPrintOnly {
+    display: none; } }
