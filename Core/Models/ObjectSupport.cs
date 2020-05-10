@@ -870,6 +870,7 @@ namespace YetaWF.Core.Models {
         /// <param name="ReadOnly"></param>
         /// <param name="ForceReadOnlyFromCopy"></param>
         public static void CopyData(object fromObject, object toObject, bool ReadOnly = false, bool ForceReadOnlyFromCopy = false) {
+            if (fromObject == null) return;
             // copy all properties from fromObject to toObject
             // toObject probably has fewer properties
             Type tpFrom = fromObject.GetType();

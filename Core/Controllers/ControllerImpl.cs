@@ -1384,35 +1384,34 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="objType">The module type (the derived type).</param>
         /// <param name="modelName">The model name (always "Module").</param>
-        /// <returns>The bound object of the specified type.</returns>
+        /// <returns>The bound object of the specified type, or null if there are validation errors.</returns>
         protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName) {
 
             object obj = Activator.CreateInstance(objType);
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
+
             bool result = await TryUpdateModelAsync(obj, objType, modelName??"");
             if (!result)
-                throw new InternalError("Model with type {0} cannot be updated", objType.FullName);
+                return null;
 
-            if (obj != null) {
-                FixArgumentParmTrim(obj);
-                FixArgumentParmCase(obj);
-                await FixDataAsync(obj);
+            FixArgumentParmTrim(obj);
+            FixArgumentParmCase(obj);
+            await FixDataAsync(obj);
 
-                CorrectModelState(obj, ViewData.ModelState, (modelName != null) ? $"{modelName}." : "");
+            CorrectModelState(obj, ViewData.ModelState, (modelName != null) ? $"{modelName}." : "");
 
-                // translate any xxx.JSON properties to native objects (There is no use case for this)
-                //if (ViewData.ModelState.IsValid)
-                //    ReplaceJSONParms(filterContext.ActionParameters);
+            // translate any xxx.JSON properties to native objects (There is no use case for this)
+            //if (ViewData.ModelState.IsValid)
+            //    ReplaceJSONParms(filterContext.ActionParameters);
 
-                // Search parameters for templates with actions and execute the action
-                string templateName = HttpContext.Request.Form[Basics.TemplateName];
-                if (!string.IsNullOrWhiteSpace(templateName)) {
-                    string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
-                    string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
-                    if (SearchTemplateArgument(templateName, ViewData.ModelState.IsValid, actionValStr, actionExtraStr, obj))
-                        ViewData.ModelState.Clear();
-                }
+            // Search parameters for templates with actions and execute the action
+            string templateName = HttpContext.Request.Form[Basics.TemplateName];
+            if (!string.IsNullOrWhiteSpace(templateName)) {
+                string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                if (SearchTemplateArgument(templateName, ViewData.ModelState.IsValid, actionValStr, actionExtraStr, obj))
+                    ViewData.ModelState.Clear();
             }
             return obj;
         }

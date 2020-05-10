@@ -12,7 +12,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         public AnchorValidationAttribute() : base(@"^\s*[_a-zA-Z][_a-zA-Z0-9-]*\s*$",
                 __ResStr("valAnchor", "The anchor id is invalid - use only the letters a-z, A-Z, _, - and 0-9 for ids"),
-                __ResStr("valAnchor2", "The anchor id is invalid ('{0}' property) - use only the letters a-z, A-Z, _, - and 0-9 for ids"),
+                __ResStr("valAnchor2", "The anchor id is invalid ('{0}' field) - use only the letters a-z, A-Z, _, - and 0-9 for ids"),
                 __ResStr("valAnchor3", "The anchor id '{0}' is invalid - use only the letters a-z, A-Z, _, - and 0-9 for ids")
             ) { }
     }
