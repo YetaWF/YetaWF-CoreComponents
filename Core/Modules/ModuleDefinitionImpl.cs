@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,29 +9,16 @@ using System.Reflection;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Search;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Search;
-using YetaWF.Core.DataProvider.Attributes;
-using YetaWF.Core.Views;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using YetaWF.Core.Controllers;
-#else
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
-using System.Web.Routing;
-#endif
 
 namespace YetaWF.Core.Modules {
 
