@@ -1,10 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
@@ -86,5 +82,3 @@ namespace YetaWF.Core.Pages {
         }
     }
 }
-#else
-#endif

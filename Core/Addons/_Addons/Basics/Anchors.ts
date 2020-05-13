@@ -18,7 +18,7 @@ namespace YetaWF {
 
                 // find the real anchor, ev.target was clicked but it may not be the anchor itself
                 if (!ev.target) return true;
-                var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a,area") as HTMLAnchorElement;
+                let anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a,area") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 let url = anchor.href;
@@ -26,18 +26,18 @@ namespace YetaWF {
                 // send tracking info
                 if ($YetaWF.elementHasClass(anchor, "yTrack")) {
                     // find the unique skinvisitor module so we have antiforgery tokens and other context info
-                    var f = $YetaWF.getElement1BySelectorCond(".YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form");
+                    let f = $YetaWF.getElement1BySelectorCond(".YetaWF_Visitors_SkinVisitor.YetaWF_Visitors.yModule form");
                     if (f) {
 
-                        var urlTrack = f.getAttribute("data-track");
+                        let urlTrack = f.getAttribute("data-track");
                         if (!urlTrack) throw "data-track not defined";/*DEBUG*/
 
-                        var uri = $YetaWF.parseUrl(urlTrack);
-                        var data = { "url": url };
+                        let uri = $YetaWF.parseUrl(urlTrack);
+                        let data = { "url": url };
                         uri.addSearchSimpleObject(data);
                         uri.addFormInfo(f);
 
-                        var request: XMLHttpRequest = new XMLHttpRequest();
+                        let request: XMLHttpRequest = new XMLHttpRequest();
                         request.open("POST", urlTrack, true);
                         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                         request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
@@ -46,12 +46,12 @@ namespace YetaWF {
                     }
                 }
 
-                var uri = $YetaWF.parseUrl(url);
+                let uri = $YetaWF.parseUrl(url);
                 if (uri.getPath().length === 0 || (!uri.getSchema().startsWith("http:") && !uri.getSchema().startsWith("https:"))) return true;
 
                 // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
                 if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
-                    var currUri = $YetaWF.parseUrl(window.location.href);
+                    let currUri = $YetaWF.parseUrl(window.location.href);
                     if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
                         uri.addSearch(YConfigs.Basics.Link_EditMode, "y");
                 }
@@ -63,40 +63,42 @@ namespace YetaWF {
                 // add our module context info (if requested)
                 if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext) != null) {
                     if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                        var guid = $YetaWF.getModuleGuidFromTag(anchor);
+                        let guid = $YetaWF.getModuleGuidFromTag(anchor);
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
                     }
                 }
 
                 // pass along the charsize
                 {
-                    var charSize = $YetaWF.getCharSizeFromTag(anchor);
+                    let charSize = $YetaWF.getCharSizeFromTag(anchor);
                     uri.removeSearch(YConfigs.Basics.Link_CharInfo);
                     uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + "," + charSize.height);
                 }
 
                 // fix the url to include where we came from
-                var target = anchor.getAttribute("target");
-                if ((!target || target === "" || target === "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
-                    // add where we currently are so we can save it in case we need to return to this page
-                    var currUri = $YetaWF.parseUrl(window.location.href);
-                    currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
-                    currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
-                    // now update url (where we're going with originlist)
-                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                    var originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
+                let target = anchor.getAttribute("target");
+                if (!target || target === "" || target === "_self") {
 
-                    if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
-                        var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
-                        originList.push(newOrigin);
-                        if (originList.length > 5)// only keep the last 5 urls
-                            originList = originList.slice(originList.length - 5);
+                    let originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
+
+                    if (anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
+                        // add where we currently are so we can save it in case we need to return to this page
+                        let currUri = $YetaWF.parseUrl(window.location.href);
+                        currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
+                        currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
+                        // now update url (where we're going with originlist)
+                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
+
+                        if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
+                            let newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
+                            originList.push(newOrigin);
+                            if (originList.length > 5)// only keep the last 5 urls
+                                originList = originList.slice(originList.length - 5);
+                        }
                     }
                     uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
-                if (!target || target === "" || target === "_self")
-                    target = "_self";
 
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
 
@@ -111,8 +113,8 @@ namespace YetaWF {
                         return false;
                 }
 
-                var cookieToReturn: number | null = null;
-                var post: boolean = false;
+                let cookieToReturn: number | null = null;
+                let post: boolean = false;
 
                 if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr) != null) {
                     cookieToReturn = (new Date()).getTime();
@@ -126,7 +128,7 @@ namespace YetaWF {
 
                 if (cookieToReturn) {
                     // this is a file download
-                    var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
+                    let confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm != null) {
                         $YetaWF.alertYesNo(confirm, undefined, () => {
                             window.location.assign(url);
@@ -139,18 +141,18 @@ namespace YetaWF {
                 } else {
                     // if a confirmation is wanted, show it
                     // this means that it's posted by definition
-                    var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
+                    let confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
                         $YetaWF.alertYesNo(confirm, undefined, () => {
                             this.postLink(url, anchor, cookieToReturn);
-                            var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
+                            let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
                             return false;
                         });
                         return false;
                     } else if (post) {
-                        var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
+                        let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                         if (s)
                             $YetaWF.pleaseWait(s);
                         this.postLink(url, anchor, cookieToReturn);
@@ -160,7 +162,7 @@ namespace YetaWF {
 
                 if (target === "_self") {
                     // add overlay if desired
-                    var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
+                    let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                     if (s)
                         $YetaWF.pleaseWait(s);
                 }
@@ -213,11 +215,11 @@ namespace YetaWF {
             $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
 
-            var request: XMLHttpRequest = new XMLHttpRequest();
+            let request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.onreadystatechange = (ev: Event) : any => {
-                var req = request;
+                let req = request;
                 if (req.readyState === 4 /*DONE*/) {
                     $YetaWF.setLoading(false);
                     $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, elem);

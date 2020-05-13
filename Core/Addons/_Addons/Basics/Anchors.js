@@ -28,15 +28,15 @@ var YetaWF;
                         var urlTrack = f.getAttribute("data-track");
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
-                        var uri = $YetaWF.parseUrl(urlTrack);
+                        var uri_1 = $YetaWF.parseUrl(urlTrack);
                         var data = { "url": url };
-                        uri.addSearchSimpleObject(data);
-                        uri.addFormInfo(f);
+                        uri_1.addSearchSimpleObject(data);
+                        uri_1.addFormInfo(f);
                         var request = new XMLHttpRequest();
                         request.open("POST", urlTrack, true);
                         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                         request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                        request.send(uri.toFormData());
+                        request.send(uri_1.toFormData());
                         // no response handling
                     }
                 }
@@ -68,25 +68,25 @@ var YetaWF;
                 }
                 // fix the url to include where we came from
                 var target = anchor.getAttribute("target");
-                if ((!target || target === "" || target === "_self") && anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
-                    // add where we currently are so we can save it in case we need to return to this page
-                    var currUri = $YetaWF.parseUrl(window.location.href);
-                    currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
-                    currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
-                    // now update url (where we're going with originlist)
-                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                if (!target || target === "" || target === "_self") {
                     var originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
-                        var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
-                        originList.push(newOrigin);
-                        if (originList.length > 5) // only keep the last 5 urls
-                            originList = originList.slice(originList.length - 5);
+                    if (anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
+                        // add where we currently are so we can save it in case we need to return to this page
+                        var currUri = $YetaWF.parseUrl(window.location.href);
+                        currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
+                        currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
+                        // now update url (where we're going with originlist)
+                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                        if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
+                            var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
+                            originList.push(newOrigin);
+                            if (originList.length > 5) // only keep the last 5 urls
+                                originList = originList.slice(originList.length - 5);
+                        }
                     }
                     uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
-                if (!target || target === "" || target === "_self")
-                    target = "_self";
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
@@ -110,9 +110,9 @@ var YetaWF;
                 url = anchor.href = uri.toUrl(); // update original href in case we let default handling take place
                 if (cookieToReturn) {
                     // this is a file download
-                    var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
-                    if (confirm != null) {
-                        $YetaWF.alertYesNo(confirm, undefined, function () {
+                    var confirm_1 = anchor.getAttribute(YConfigs.Basics.CssConfirm);
+                    if (confirm_1 != null) {
+                        $YetaWF.alertYesNo(confirm_1, undefined, function () {
                             window.location.assign(url);
                             $YetaWF.setLoading();
                             _this.waitForCookie(cookieToReturn);
@@ -124,9 +124,9 @@ var YetaWF;
                 else {
                     // if a confirmation is wanted, show it
                     // this means that it's posted by definition
-                    var confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
-                    if (confirm) {
-                        $YetaWF.alertYesNo(confirm, undefined, function () {
+                    var confirm_2 = anchor.getAttribute(YConfigs.Basics.CssConfirm);
+                    if (confirm_2) {
+                        $YetaWF.alertYesNo(confirm_2, undefined, function () {
                             _this.postLink(url, anchor, cookieToReturn);
                             var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
