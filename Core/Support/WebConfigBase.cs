@@ -71,7 +71,11 @@ namespace YetaWF.Core.Support {
                         val = Settings["Application"]["P"][areaName];
                     else
                         val = Settings["Application"][areaName];
-                    if (val == null) return dflt;
+                    if (val == null) {
+                        if (Required)
+                            throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
+                        return dflt;
+                    }
 #if DEBUG
                     dynamic v = val[$"{DEBUG_PREFIX}{key}"];// try with debug prefix first
                     if (v != null)
@@ -81,9 +85,13 @@ namespace YetaWF.Core.Support {
 #else
                     val = val[key]; // in release builds only use explicit key
 #endif
-                    if (val == null) return dflt;
-                    val = val.ToObject<TYPE>();
                 }
+                if (val == null) {
+                    if (Required)
+                        throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
+                    return dflt;
+                }
+                val = val.ToObject<TYPE>();
             } catch (Exception) {
                 if (Required)
                     throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
@@ -99,38 +107,8 @@ namespace YetaWF.Core.Support {
                     string s = varSubst.ReplaceVariables((string)val);
                     return (TYPE)(object)s;
                 }
-            } else if (typeof(TYPE).IsEnum) {
-                int intEnum;
-                if (int.TryParse(val.ToString(), out intEnum))
-                    return (TYPE)(object)intEnum;
-                else {
-                    object newVal = null;
-                    try {
-                        newVal = Enum.Parse(typeof(TYPE), val.ToString());
-                    } catch (Exception) {
-                        newVal = Enum.ToObject(typeof(TYPE), val);
-                    }
-                    return (TYPE)(object)newVal;
-                }
-            } else if (typeof(TYPE) == typeof(bool)) {
-                bool boolVal;
-                if (val.GetType() == typeof(string)) {
-                    string s = (string)val;
-                    if (string.Compare(s, "True", true) == 0 || s == "1")
-                        boolVal = true;
-                    else if (string.Compare(s, "False", true) == 0 || s == "0")
-                        boolVal = false;
-                    else
-                        throw new InternalError("Invalid bool value for {0}:{1}", areaName, key);
-                } else
-                    boolVal = Convert.ToBoolean(val);
-                return (TYPE)(object)(boolVal);
-            } else if (typeof(TYPE) == typeof(int)) return (TYPE)(object)Convert.ToInt32(val);
-            else if (typeof(TYPE) == typeof(long)) return (TYPE)(object)Convert.ToInt64(val);
-            else if (typeof(TYPE) == typeof(long?)) return val != null ? (TYPE)(object)Convert.ToInt64(val) : default(TYPE);
-            else if (typeof(TYPE) == typeof(TimeSpan)) return (TYPE)(object)new TimeSpan(Convert.ToInt64(val));
-            else if (typeof(TYPE) == typeof(Guid)) return (TYPE)(object)new Guid(val);
-            return (TYPE)(object)val;
+            }
+            return (TYPE)val;
         }
 
         public void SetValue<TYPE>(string areaName, string key, TYPE value, bool Package = true) {
@@ -155,7 +133,6 @@ namespace YetaWF.Core.Support {
                     jArea[key] = null;
             }
         }
-#if MVC6
         public async Task SaveAsync() {
             string s = Utility.JsonSerialize(Settings, Indented: true);
             if (YetaWFManager.IsSync())
@@ -163,12 +140,5 @@ namespace YetaWF.Core.Support {
             else
                 await File.WriteAllTextAsync(SettingsFile, s);
         }
-#else
-        public Task SaveAsync() {
-            string s = Utility.JsonSerialize(Settings, Indented: true);
-            File.WriteAllText(SettingsFile, s);
-            return Task.CompletedTask;
-        }
-#endif
     }
 }

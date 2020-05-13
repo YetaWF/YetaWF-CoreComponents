@@ -75,8 +75,6 @@ var YetaWF;
                         var currUri = $YetaWF.parseUrl(window.location.href);
                         currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
                         currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
-                        // now update url (where we're going with originlist)
-                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
                             var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
                             originList.push(newOrigin);
@@ -84,7 +82,10 @@ var YetaWF;
                                 originList = originList.slice(originList.length - 5);
                         }
                     }
-                    uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                    // now update url (where we're going with originlist)
+                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                    if (originList.length > 0)
+                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
