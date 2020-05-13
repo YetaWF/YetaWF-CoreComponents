@@ -1,7 +1,5 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -19,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
@@ -33,6 +32,7 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Middleware;
+using YetaWF.Core.Support.Services;
 using YetaWF.Core.Views;
 using YetaWF2.LetsEncrypt;
 using YetaWF2.Middleware;
@@ -73,6 +73,14 @@ namespace YetaWF.Core.WebStartup {
         public void ConfigureServices(IServiceCollection services) {
 
             Services = services;
+
+            // Some assemblies need to be preloaded if they're used before YetaWFApplicationPartManager is called.
+            // usually any types used by AddDynamicServices or AddDynamicAuthentication.
+            List<string> asms = WebConfigHelper.GetValue<List<string>>("YetaWF_Core", "PreloadedAssemblies");
+            if (asms != null) {
+                foreach (string asm in asms)
+                    Assemblies.Load(asm);
+            }
 
 #if !DEBUG
             // in release builds we allow sync I/O - Simply can't be sure that all sync I/O has been corrected in development
@@ -203,6 +211,8 @@ namespace YetaWF.Core.WebStartup {
                     options.ViewEngines.Clear();
                 });
 
+            services.AddDynamicServices();
+
             YetaWF.Core.SignalR.ConfigureServices(services);
 
             services.AddLetsEncrypt();
@@ -238,11 +248,10 @@ namespace YetaWF.Core.WebStartup {
 
             app.UseResponseCompression();
 
-            app.UseSession();
-
             // Error handler for ajax/post exceptions - returns special text with errors for display client side
             // This must appear after more generic error handlers (like UseDeveloperExceptionPage)
             app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+
             // Ignore extensions that are known not to be valid files
             app.UseMiddleware<IgnoreRouteMiddleware>();
 
@@ -305,6 +314,8 @@ namespace YetaWF.Core.WebStartup {
                     }
                 });
             }
+
+            app.UseSession();
 
             app.UseMiddleware<DynamicPreRoutingMiddleware>();
 
@@ -385,5 +396,3 @@ namespace YetaWF.Core.WebStartup {
         }
     }
 }
-
-#endif

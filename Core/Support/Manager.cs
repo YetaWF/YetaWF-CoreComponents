@@ -293,12 +293,13 @@ namespace YetaWF.Core.Support {
                     overridden = newSwitch = true;
                     SetRequestedDomain(httpContext, siteDomain);
                 }
-                if (!overridden && httpContext.Session != null) {
-#if MVC6
-                    siteDomain = (string)httpContext.Session.GetString(Globals.Link_ForceSite);
-#else
-                    siteDomain = (string)httpContext.Session[Globals.Link_ForceSite];
-#endif
+                ISession session = null;
+                try {
+                    session = httpContext.Session;
+                } catch (Exception) { }
+
+                if (!overridden && session != null) {
+                    siteDomain = httpContext.Session.GetString(Globals.Link_ForceSite);
                     if (!string.IsNullOrWhiteSpace(siteDomain))
                         overridden = true;
                 }
@@ -308,11 +309,7 @@ namespace YetaWF.Core.Support {
 
             // check headers, trumps all
             string domain;
-#if MVC6
             domain = (string)httpContext.Request.Headers["X-Forwarded-Host"] ?? (string)httpContext.Request.Headers["X-Original-Host"];
-#else
-            domain = httpContext.Request.Headers["X-Forwarded-Host"] ?? httpContext.Request.Headers["X-Original-Host"];
-#endif
             if (!string.IsNullOrWhiteSpace(domain))
                 siteDomain = domain;
 

@@ -9,11 +9,13 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Middleware;
+using YetaWF.Core.Support.Services;
 using YetaWF2.LetsEncrypt;
 using YetaWF2.Support;
 
@@ -39,6 +41,14 @@ namespace YetaWF.Core.WebAPIStartup {
         /// </summary>
         /// <param name="services">An instance of an IServiceCollection interface.</param>
         public void ConfigureServices(IServiceCollection services) {
+
+            // Some assemblies need to be preloaded if they're used before YetaWFApplicationPartManager is called.
+            // usually any types used by AddDynamicServices or AddDynamicAuthentication.
+            List<string> asms = WebConfigHelper.GetValue<List<string>>("YetaWF_Core", "PreloadedAssemblies");
+            if (asms != null) {
+                foreach (string asm in asms)
+                    Assemblies.Load(asm);
+            }
 
             services.AddMvc((options) => {
                 // AreaConvention to simplify Area discovery (using IControllerModelConvention)
@@ -66,6 +76,8 @@ namespace YetaWF.Core.WebAPIStartup {
             services.AddRouting();
             services.AddHealthChecks();
             services.AddResponseCompression();
+
+            services.AddDynamicServices();
 
             services.AddLetsEncrypt();
 

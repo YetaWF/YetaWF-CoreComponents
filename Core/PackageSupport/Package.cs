@@ -15,6 +15,7 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 using YetaWF.PackageAttributes;
 using System.Threading.Tasks;
+using YetaWF2.Support;
 #if MVC6
 #else
 using System.Web.Compilation;
@@ -200,29 +201,28 @@ namespace YetaWF.Core.Packages {
         /// <returns>Returns a collection of packages.</returns>
         public static List<Package> GetAvailablePackages() {
             if (_availablePackages == null) {
-                ICollection assemblies = null;
-#if MVC6
-                assemblies = AppDomain.CurrentDomain.GetAssemblies();
-#else
-                if (!YetaWFManager.HaveManager || YetaWFManager.Manager.HostUsed != YetaWFManager.BATCHMODE) {
-                    // this will only work in ASP.NET apps
-                    assemblies = BuildManager.GetReferencedAssemblies();
-                } else {
-                    // Get all currently loaded assemblies - make sure this is outside asp.net app
-                    assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                }
-#endif
+                ICollection assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 if (assemblies == null)
                     throw new InternalError("Unable to obtain referenced assemblies");
 
-                _availablePackages = new List<Package>();
+                List<Package> availablePackages = new List<Package>();
                 foreach (Assembly assembly in assemblies) {
                     Package package = new Package(assembly);
                     if (package.IsValid) {
-                        if ((from p in _availablePackages where p.Name == package.Name select p).FirstOrDefault() == null)
-                            _availablePackages.Add(package);
+                        if ((from p in availablePackages where p.Name == package.Name select p).FirstOrDefault() == null)
+                            availablePackages.Add(package);
                     }
                 }
+                foreach (Assembly assembly in Assemblies.GetLoadedAssemblies()) {
+                    Package package = new Package(assembly);
+                    if (package.IsValid) {
+                        if ((from p in availablePackages where p.Name == package.Name select p).FirstOrDefault() == null)
+                            availablePackages.Add(package);
+                    }
+                }
+                if (!YetaWFApplicationPartManager.Initialized) // don't cache if part manager hasn't initialized
+                    return availablePackages;
+                _availablePackages = availablePackages;
             }
             return _availablePackages.ToList();// copy
         }

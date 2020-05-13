@@ -23,25 +23,14 @@ namespace YetaWF.Core.Support {
             // all code here is synchronous until a Manager is available. All async requests are satisfied from cache so there is no impact.
 
             HttpRequest httpReq = httpContext.Request;
-#if MVC6
             Uri uri = new Uri(UriHelper.GetDisplayUrl(httpReq));
-#else
-            Uri uri = httpReq.Url;
 
-            // Url rewrite can cause "Cannot use a leading .. to exit above the top directory."
-            //http://stackoverflow.com/questions/3826299/asp-net-mvc-urlhelper-generateurl-exception-cannot-use-a-leading-to-exit-ab
-            httpReq.ServerVariables.Remove("IIS_WasUrlRewritten");
-#endif
             // Determine which Site folder to use based on URL provided
             bool forcedHost = false, newSwitch = false;
             bool staticHost = false;
             bool testHost = false;
             bool loopBack = uri.IsLoopback;
-#if MVC6
             string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? (string)httpReq.Query[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
-#else
-            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? httpReq.QueryString[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
-#endif
             string host2 = null;
 
             SiteDefinition site = null;
@@ -82,13 +71,8 @@ namespace YetaWF.Core.Support {
                         if (forcedHost) { // non-existent site requested
                             if (initOnly)
                                 throw new InternalError("Couldn't obtain a SiteDefinition object - forced host not found");
-#if MVC6
                             Logging.AddErrorLog("404 Not Found");
-                            httpContext.Response.StatusCode = 404;
-#else
-                            httpContext.Response.Status = Logging.AddErrorLog("404 Not Found");
-                            httpContext.ApplicationInstance.CompleteRequest();
-#endif
+                            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
                             return;
                         }
                         site = await SiteDefinition.LoadSiteDefinitionAsync(null);
@@ -151,15 +135,9 @@ namespace YetaWF.Core.Support {
                         throw new InternalError("MvcApplication LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
                     Uri newUri = new Uri("http://" + host);// new site to display
                     logoffUrl += Utility.UrlEncodeArgs(newUri.ToString());
-#if MVC6
                     Logging.AddLog("302 Found - {0}", logoffUrl).Truncate(100);
-                    httpContext.Response.StatusCode = 302;
+                    httpContext.Response.StatusCode = StatusCodes.Status302Found;
                     httpContext.Response.Headers.Add("Location", manager.CurrentSite.MakeUrl(logoffUrl));
-#else
-                    httpContext.Response.Status = Logging.AddLog("302 Found - {0}", logoffUrl).Truncate(100);
-                    httpContext.Response.AddHeader("Location", manager.CurrentSite.MakeUrl(logoffUrl));
-                    httpContext.ApplicationInstance.CompleteRequest();
-#endif
                     return;
                 }
             }
@@ -179,15 +157,9 @@ namespace YetaWF.Core.Support {
                                 newUrl.Port = site.PortNumberEval;
                             }
                         }
-#if MVC6
                         Logging.AddLog("301 Moved Permanently - {0}", newUrl.ToString()).Truncate(100);
-                        httpContext.Response.StatusCode = 301;
+                        httpContext.Response.StatusCode = StatusCodes.Status301MovedPermanently;
                         httpContext.Response.Headers.Add("Location", newUrl.ToString());
-#else
-                        httpContext.Response.Status = Logging.AddLog("301 Moved Permanently - {0}", newUrl.ToString()).Truncate(100);
-                        httpContext.Response.AddHeader("Location", newUrl.ToString());
-                        httpContext.ApplicationInstance.CompleteRequest();
-#endif
                         return;
                     }
                 }
@@ -197,15 +169,10 @@ namespace YetaWF.Core.Support {
             if (!initOnly)
                 httpContext.Response.Headers.Add("X-Xss-Protection", "0");
 
-#if MVC6
             if (!initOnly && manager.IsStaticSite)
                 RemoveCookiesForStatics(httpContext);
-#else
-            // MVC5 removes cookies in MvcApplication_EndRequest
-#endif
         }
 
-#if MVC6
         private static void RemoveCookiesForStatics(HttpContext context) {
             // Clear all cookies for static requests
             List<string> cookiesToClear = new List<string>();
@@ -216,8 +183,6 @@ namespace YetaWF.Core.Support {
             // this cookie is added by filehndlr.image
             //context.Response.Cookies.Delete("ASP.NET_SessionId");
         }
-#else
-#endif
     }
 }
 

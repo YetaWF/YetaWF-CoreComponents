@@ -82,7 +82,7 @@ namespace YetaWF.Core.Support {
                     val = val[key]; // in release builds only use explicit key
 #endif
                     if (val == null) return dflt;
-                    val = val.Value;
+                    val = val.ToObject<TYPE>();
                 }
             } catch (Exception) {
                 if (Required)

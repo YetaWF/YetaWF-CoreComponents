@@ -16,6 +16,8 @@ namespace YetaWF2.Support
 {
     public static class YetaWFApplicationPartManager {
 
+        public static bool Initialized { get; private set; } = false;
+
         // ASP.NET Core 3.0 no longer returns all referenced assemblies with System.AppDomain.CurrentDomain.GetAssemblies();
         // So now we locate all "missing" assemblies like this.
         private static List<Assembly> FindExtraAssemblies(List<Assembly> assemblies, string baseDirectory) {
@@ -64,6 +66,7 @@ namespace YetaWF2.Support
         /// </summary>
         /// <param name="partManager">The ApplicationPartManager instance (singleton).</param>
         public static void AddAssemblies(ApplicationPartManager partManager) {
+
             List<Assembly> assemblies = (from Microsoft.AspNetCore.Mvc.ApplicationParts.AssemblyPart p in partManager.ApplicationParts select p.Assembly).ToList();
             List<Assembly> extraAsms = FindExtraAssemblies(assemblies, AppDomain.CurrentDomain.BaseDirectory);
 
@@ -75,6 +78,8 @@ namespace YetaWF2.Support
                     partManager.ApplicationParts.Add(applicationPart);
                 }
             }
+
+            YetaWFApplicationPartManager.Initialized = true;
         }
     }
 }
