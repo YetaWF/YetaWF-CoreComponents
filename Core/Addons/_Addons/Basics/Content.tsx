@@ -452,7 +452,9 @@ namespace YetaWF {
                         window.scroll(0, 0);
                         if (inplace) {
                             let pane = $YetaWF.getElementById(inplace.TargetTag);
-                            pane.scroll(0, 0);
+                            try {// ignore errors on crappy browsers
+                                pane.scroll(0, 0);
+                            } catch (e) { }
                         }
                     }
                     // in case there is a popup open, close it now (typically when returning to the page from a popup)
