@@ -58,13 +58,6 @@ namespace YetaWF.Core.Controllers {
         }
 #endif
         /// <summary>
-        /// Defines whether the action can return a JavaScript result to be executed client-side.
-        /// </summary>
-        /// <remarks>Most actions can accept a JavaScript result which is executed client-side.
-        /// For some "plain old" MVC controllers, a JavaScript result is not acceptable, so these need to override and return false.</remarks>
-        public virtual bool AllowJavascriptResult { get; set; }
-
-        /// <summary>
         ///  Update an area's view name with the complete area specifier.
         /// </summary>
         public static string MakeFullViewName(string viewName, string area) {
