@@ -132,6 +132,10 @@ namespace YetaWF {
 
     export class BasicsServices /* implements IBasicsImpl */ { // doesn't need to implement IBasicImpl, used for type checking only
 
+        public static readonly PAGECHANGEDEVENT: string = "page_change";
+        public static readonly EVENTBEFOREPRINT: string = "print_before";
+        public static readonly EVENTAFTERPRINT: string = "print_after";
+
         // Implemented by renderer
         // Implemented by renderer
         // Implemented by renderer
@@ -187,8 +191,6 @@ namespace YetaWF {
         // Implemented by YetaWF
         // Implemented by YetaWF
         // Implemented by YetaWF
-
-        public static readonly PAGECHANGEDEVENT: string = "page_change";
 
         // Content handling (Unified Page Sets)
 
@@ -1319,6 +1321,16 @@ namespace YetaWF {
         }
 
         // Events
+        /**
+         * Send a custom event on behalf of an element.
+         * @param elem The element sending the event.
+         * @param name The name of the event.
+         */
+        public sendCustomEvent(elem: HTMLElement | Document, name: string) {
+            let event = document.createEvent("Event");
+            event.initEvent(name, true, true);
+            elem.dispatchEvent(event);
+        }
 
         public registerDocumentReady(callback: () => void): void {
             if ((document as any).attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -1646,15 +1658,11 @@ namespace YetaWF {
 
         public static onBeforePrint(): void {
             BasicsServices.printing = true;
-            var event = document.createEvent("Event");
-            event.initEvent("print_before", true, true);
-            window.document.dispatchEvent(event);
+            $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTBEFOREPRINT);
         }
         public static onAfterPrint(): void {
             BasicsServices.printing = false;
-            var event = document.createEvent("Event");
-            event.initEvent("print_after", true, true);
-            window.document.dispatchEvent(event);
+            $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTAFTERPRINT);
         }
 
         // Page modification support (used with onbeforeunload)
@@ -1664,10 +1672,7 @@ namespace YetaWF {
         public set pageChanged(value: boolean) {
             if (this._pageChanged !== value) {
                 this._pageChanged = value;
-
-                var event = document.createEvent("Event");
-                event.initEvent(BasicsServices.PAGECHANGEDEVENT, true, true);
-                document.body.dispatchEvent(event);
+                this.sendCustomEvent(document.body, BasicsServices.PAGECHANGEDEVENT);
             }
         }
         // tslint:disable-next-line:variable-name

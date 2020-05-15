@@ -199,7 +199,10 @@ namespace YetaWF {
                         uriBase.addSearch("!ContentUrl", contentUrl);
                         inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
                     }
-                    return $YetaWF.ContentHandling.setContent(uri, true, undefined, inplace) === SetContentResult.NotContent;
+                    if ($YetaWF.elementHasClass(anchor, "yIgnorePageChange"))
+                        return $YetaWF.ContentHandling.setContentForce(uri, true, undefined, inplace) === SetContentResult.NotContent;
+                    else
+                        return $YetaWF.ContentHandling.setContent(uri, true, undefined, inplace) === SetContentResult.NotContent;
                 }
                 return true;
             });

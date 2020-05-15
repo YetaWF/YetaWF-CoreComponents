@@ -29,7 +29,7 @@ var YetaWF;
         /**
          * opens a popup given a url
          */
-        Popups.prototype.openPopup = function (url, forceIframe) {
+        Popups.prototype.openPopup = function (url, forceIframe, forceContent) {
             $YetaWF.setLoading(true);
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
             if (url.indexOf("?") < 0)
@@ -39,7 +39,12 @@ var YetaWF;
             url += new Date().getUTCMilliseconds();
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y"; // we're now going into a popup
             if (!forceIframe) {
-                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup) !== YetaWF.SetContentResult.NotContent) {
+                var result = void 0;
+                if (forceContent)
+                    result = $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
+                else
+                    result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
+                if (result !== YetaWF.SetContentResult.NotContent) {
                     // contents set in dynamic popup or not allowed
                     $YetaWF.setLoading(false);
                     return true;
@@ -74,7 +79,10 @@ var YetaWF;
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-            return this.openPopup(url, false);
+            if ($YetaWF.elementHasClass(elem, "yIgnorePageChange"))
+                return this.openPopup(url, false, true);
+            else
+                return this.openPopup(url, false, true);
         };
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.

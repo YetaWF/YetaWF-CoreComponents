@@ -75,6 +75,24 @@ var YetaWF;
         };
         /**
          * Changes the current page to the specified Uri (may not be part of a unified page set).
+         * The result depends on the current page changed status.
+         * Returns SetContentResult.NotContent if the uri couldn't be processed (i.e., it's not part of a unified page set).
+         * Returns SetContentResult.ContentReplaced if the page is now shown and is part of the unified page set.
+         * @param uriRequested The new page.
+         * @param setState Defines whether the browser's history should be updated.
+         * @param popupCB A callback to process popup content. May be null.
+         * @param inplace Inplace content replacement options. May be null.
+         */
+        Content.prototype.setContent = function (uriRequested, setState, popupCB, inplace) {
+            if (!this.allowNavigateAway()) {
+                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVCANCEL);
+                return SetContentResult.Abort;
+            }
+            return this.setContentForce(uriRequested, setState, popupCB, inplace);
+        };
+        /**
+         * Changes the current page to the specified Uri (may not be part of a unified page set).
+         * Does not prevent changing a page, regardless of the page changed status
          * Returns SetContentResult.NotContent if the uri couldn't be processed (i.e., it's not part of a unified page set).
          * Returns SetContentResult.ContentReplaced if the page is now shown and is part of the unified page set.
          * Returns SetContentResult.Abort if the page cannot be shown because the user doesn't want to navigate away from the page.
@@ -82,10 +100,8 @@ var YetaWF;
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
-        Content.prototype.setContent = function (uriRequested, setState, popupCB, inplace) {
+        Content.prototype.setContentForce = function (uriRequested, setState, popupCB, inplace) {
             var _this = this;
-            if (!this.allowNavigateAway())
-                return SetContentResult.Abort;
             if (YVolatile.Basics.EditModeActive)
                 return SetContentResult.NotContent; // edit mode
             if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.None)
@@ -263,7 +279,7 @@ var YetaWF;
                 return;
             }
             if (result.RedirectContent != null && result.RedirectContent.length > 0) {
-                this.setContent($YetaWF.parseUrl(result.RedirectContent), setState, popupCB);
+                this.setContentForce($YetaWF.parseUrl(result.RedirectContent), setState, popupCB);
                 return;
             }
             // run all global scripts (YConfigs, etc.)
@@ -528,6 +544,7 @@ var YetaWF;
         };
         Content.prototype.init = function () {
         };
+        Content.EVENTNAVCANCEL = "content_navcancel";
         return Content;
     }());
     YetaWF.Content = Content;

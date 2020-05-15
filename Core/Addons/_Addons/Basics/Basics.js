@@ -1193,6 +1193,16 @@ var YetaWF;
                 this.elementDisable(elem);
         };
         // Events
+        /**
+         * Send a custom event on behalf of an element.
+         * @param elem The element sending the event.
+         * @param name The name of the event.
+         */
+        BasicsServices.prototype.sendCustomEvent = function (elem, name) {
+            var event = document.createEvent("Event");
+            event.initEvent(name, true, true);
+            elem.dispatchEvent(event);
+        };
         BasicsServices.prototype.registerDocumentReady = function (callback) {
             if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
                 callback();
@@ -1495,15 +1505,11 @@ var YetaWF;
         };
         BasicsServices.onBeforePrint = function () {
             BasicsServices.printing = true;
-            var event = document.createEvent("Event");
-            event.initEvent("print_before", true, true);
-            window.document.dispatchEvent(event);
+            $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTBEFOREPRINT);
         };
         BasicsServices.onAfterPrint = function () {
             BasicsServices.printing = false;
-            var event = document.createEvent("Event");
-            event.initEvent("print_after", true, true);
-            window.document.dispatchEvent(event);
+            $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTAFTERPRINT);
         };
         Object.defineProperty(BasicsServices.prototype, "pageChanged", {
             // Page modification support (used with onbeforeunload)
@@ -1513,18 +1519,15 @@ var YetaWF;
             set: function (value) {
                 if (this._pageChanged !== value) {
                     this._pageChanged = value;
-                    var event = document.createEvent("Event");
-                    event.initEvent(BasicsServices.PAGECHANGEDEVENT, true, true);
-                    document.body.dispatchEvent(event);
+                    this.sendCustomEvent(document.body, BasicsServices.PAGECHANGEDEVENT);
                 }
             },
             enumerable: true,
             configurable: true
         });
-        // Implemented by YetaWF
-        // Implemented by YetaWF
-        // Implemented by YetaWF
         BasicsServices.PAGECHANGEDEVENT = "page_change";
+        BasicsServices.EVENTBEFOREPRINT = "print_before";
+        BasicsServices.EVENTAFTERPRINT = "print_after";
         BasicsServices.printing = false;
         return BasicsServices;
     }());

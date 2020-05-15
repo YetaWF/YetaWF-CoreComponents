@@ -80,7 +80,7 @@ namespace YetaWF {
         /**
          * opens a popup given a url
          */
-        public openPopup(url: string, forceIframe: boolean): boolean {
+        public openPopup(url: string, forceIframe: boolean, forceContent?: boolean): boolean {
 
             $YetaWF.setLoading(true);
 
@@ -93,7 +93,12 @@ namespace YetaWF {
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y";// we're now going into a popup
 
             if (!forceIframe) {
-                if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup) !== SetContentResult.NotContent) {
+                let result: SetContentResult;
+                if (forceContent)
+                    result = $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)
+                else
+                    result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)
+                if (result !== SetContentResult.NotContent) {
                     // contents set in dynamic popup or not allowed
                     $YetaWF.setLoading(false);
                     return true;
@@ -108,7 +113,7 @@ namespace YetaWF {
          */
         public handlePopupLink(elem: HTMLAnchorElement): boolean {
 
-            var url = elem.href;
+            let url = elem.href;
 
             // check if this is a popup link
             if (!$YetaWF.elementHasClass(elem, YConfigs.Basics.CssPopupLink))
@@ -130,8 +135,10 @@ namespace YetaWF {
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-
-            return this.openPopup(url, false);
+            if ($YetaWF.elementHasClass(elem, "yIgnorePageChange"))
+                return this.openPopup(url, false, true);
+            else
+                return this.openPopup(url, false, true);
         }
 
         /**
