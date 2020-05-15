@@ -95,9 +95,9 @@ namespace YetaWF {
             if (!forceIframe) {
                 let result: SetContentResult;
                 if (forceContent)
-                    result = $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)
+                    result = $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
                 else
-                    result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup)
+                    result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
                 if (result !== SetContentResult.NotContent) {
                     // contents set in dynamic popup or not allowed
                     $YetaWF.setLoading(false);

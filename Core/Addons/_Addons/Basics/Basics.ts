@@ -1326,7 +1326,7 @@ namespace YetaWF {
          * @param elem The element sending the event.
          * @param name The name of the event.
          */
-        public sendCustomEvent(elem: HTMLElement | Document, name: string) {
+        public sendCustomEvent(elem: HTMLElement | Document, name: string): void {
             let event = document.createEvent("Event");
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
