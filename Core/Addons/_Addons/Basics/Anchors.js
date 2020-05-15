@@ -186,7 +186,7 @@ var YetaWF;
                         uriBase.addSearch("!ContentUrl", contentUrl);
                         inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
                     }
-                    if ($YetaWF.elementHasClass(anchor, "yIgnorePageChange"))
+                    if ($YetaWF.elementHasClass(anchor, "yIgnorePageChanged"))
                         return $YetaWF.ContentHandling.setContentForce(uri, true, undefined, inplace) === YetaWF.SetContentResult.NotContent;
                     else
                         return $YetaWF.ContentHandling.setContent(uri, true, undefined, inplace) === YetaWF.SetContentResult.NotContent;
