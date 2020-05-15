@@ -211,6 +211,7 @@ namespace YetaWF.Core.Identity {
         List<User> GetDefaultUserList();
         int GetSuperuserRoleId();
         int GetUserRoleId();
+        int GetUserDemoRoleId();
         int GetUser2FARoleId();
         int GetAnonymousRoleId();
         int GetAdministratorRoleId();
@@ -307,6 +308,10 @@ namespace YetaWF.Core.Identity {
         }
 
         public Task<bool> VerifyTwoStepAuthenticationRecoveryCodeAsync(int userId, string code) {
+            throw new NotImplementedException();
+        }
+
+        public int GetUserDemoRoleId() {
             throw new NotImplementedException();
         }
 

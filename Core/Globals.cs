@@ -96,6 +96,7 @@ namespace YetaWF.Core {
         // Roles
         public const string Role_User = "User"; // every logged on user that does not need to set up two-step authentication has this role
         public const string Role_User2FA = "User (two-step authentication setup required)"; // every logged on user that needs to set up two-step authentication has this role
+        public const string Role_UserDemo = "Demo";// a user with limited (demo) functionality
         public const string Role_Anonymous = "Anonymous"; // every user that is not logged on has this role
         public const string Role_Superuser = "Superuser"; // controls ALL sites
         public const string Role_Administrator = "Administrator"; // controls ONE site

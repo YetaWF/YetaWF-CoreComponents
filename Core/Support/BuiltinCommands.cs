@@ -48,7 +48,7 @@ namespace YetaWF.Core.Support {
             // find the built-in command
             if (!Commands.TryGetValue(url.ToLower(), out entry)) return null;
             // verify authorization
-            if (checkAuthorization && (!await Resource.ResourceAccess.IsResourceAuthorizedAsync(entry.Resource) || YetaWFManager.IsDemo)) {
+            if (checkAuthorization && (!await Resource.ResourceAccess.IsResourceAuthorizedAsync(entry.Resource) || (YetaWFManager.IsDemo || Manager.IsDemoUser))) {
                 Logging.AddErrorLog("403 Not Authorized - not authorized for built-in command");
                 return null;// pretend it doesn't exist
             }

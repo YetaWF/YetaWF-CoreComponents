@@ -23,6 +23,7 @@ using YetaWF.Core.Controllers;
 using System.Globalization;
 using TimeZoneConverter;
 using Newtonsoft.Json;
+using YetaWF.Core.Identity;
 #if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -600,6 +601,15 @@ namespace YetaWF.Core.Support {
             }
         }
         private static bool? isDemo = null;
+
+        public bool IsDemoUser {
+            get {
+                if (isDemoUser == null)
+                    isDemoUser = Manager.UserRoles != null && Manager.UserRoles.Contains(Resource.ResourceAccess.GetUserDemoRoleId());
+                return (bool)isDemoUser;
+            }
+        }
+        private bool? isDemoUser = null;
 
         // HTTPCONTEXT
         // HTTPCONTEXT

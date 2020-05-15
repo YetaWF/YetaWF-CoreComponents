@@ -153,8 +153,8 @@ namespace YetaWF.Core.Controllers {
             await SetupEnvironmentInfoAsync();
             await GetModuleAsync();
 
-            // if this is a demo and the action is marked with the ExcludeDemoMode Attribute, reject
-            if (YetaWFManager.IsDemo) {
+            if (YetaWFManager.IsDemo || Manager.IsDemoUser) {
+                // if this is a demo user and the action is marked with the ExcludeDemoMode Attribute, reject
                 Type ctrlType = filterContext.Controller.GetType();
                 string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
                 MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
