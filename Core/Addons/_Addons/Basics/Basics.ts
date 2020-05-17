@@ -247,6 +247,9 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
+            // if the page as a focusonme css class, ignore element focus requests
+            if ($YetaWF.elementHasClass(document.body, "focusonme"))
+                return;
             var f: HTMLElement | null = null;
             var items = this.getElementsBySelector(".focusonme", tags);
             items = this.limitToVisibleOnly(items); //:visible

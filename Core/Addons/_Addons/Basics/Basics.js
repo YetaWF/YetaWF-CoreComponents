@@ -66,7 +66,7 @@ var YetaWF;
             get: function () {
                 return YetaWF_BasicsImpl.isLoading;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -118,7 +118,7 @@ var YetaWF;
                 }
                 return this.forms;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         BasicsServices.prototype.FormsAvailable = function () {
@@ -132,7 +132,7 @@ var YetaWF;
                 }
                 return this.popups;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         BasicsServices.prototype.PopupsAvailable = function () {
@@ -154,6 +154,9 @@ var YetaWF;
                 tags = [];
                 tags.push(document.body);
             }
+            // if the page as a focusonme css class, ignore element focus requests
+            if ($YetaWF.elementHasClass(document.body, "focusonme"))
+                return;
             var f = null;
             var items = this.getElementsBySelector(".focusonme", tags);
             items = this.limitToVisibleOnly(items); //:visible
@@ -1496,7 +1499,7 @@ var YetaWF;
             get: function () {
                 return BasicsServices.printing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         BasicsServices.prototype.DoPrint = function () {
@@ -1522,7 +1525,7 @@ var YetaWF;
                     this.sendCustomEvent(document.body, BasicsServices.PAGECHANGEDEVENT);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         BasicsServices.PAGECHANGEDEVENT = "page_change";
