@@ -25,13 +25,13 @@ namespace YetaWF2.Middleware {
                 string path = context.Request.Path.Value.ToLower();
                 foreach (string extension in Extensions) {
                     if (path.EndsWith(extension)) {
-                        context.Response.StatusCode = 404;
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
                         return;
                     }
                 }
                 foreach (string folder in Folders) {
                     if (path.Contains(folder)) {
-                        context.Response.StatusCode = 404;
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
                         return;
                     }
                 }

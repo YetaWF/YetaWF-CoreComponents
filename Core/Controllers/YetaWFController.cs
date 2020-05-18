@@ -178,7 +178,7 @@ namespace YetaWF.Core.Controllers {
         /// <remarks>The page and all modules are still rendered and processed.</remarks>
         protected void MarkNotFound() {
             Logging.AddErrorLog("404 Not Found");
-            Manager.CurrentResponse.StatusCode = 404;
+            Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
         }
 
         public static async Task SetupEnvironmentInfoAsync() {
