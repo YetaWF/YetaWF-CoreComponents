@@ -154,11 +154,11 @@ var YetaWF;
                 tags = [];
                 tags.push(document.body);
             }
-            // if the page as a focusonme css class, ignore element focus requests
-            if ($YetaWF.elementHasClass(document.body, "focusonme"))
+            // if the page as a yFocusOnMe css class, ignore element focus requests
+            if ($YetaWF.elementHasClass(document.body, "yFocusOnMe"))
                 return;
             var f = null;
-            var items = this.getElementsBySelector(".focusonme", tags);
+            var items = this.getElementsBySelector(".yFocusOnMe", tags);
             items = this.limitToVisibleOnly(items); //:visible
             for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
                 var item = items_1[_i];

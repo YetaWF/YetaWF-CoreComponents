@@ -247,11 +247,11 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
-            // if the page as a focusonme css class, ignore element focus requests
-            if ($YetaWF.elementHasClass(document.body, "focusonme"))
+            // if the page as a yFocusOnMe css class, ignore element focus requests
+            if ($YetaWF.elementHasClass(document.body, "yFocusOnMe"))
                 return;
             var f: HTMLElement | null = null;
-            var items = this.getElementsBySelector(".focusonme", tags);
+            var items = this.getElementsBySelector(".yFocusOnMe", tags);
             items = this.limitToVisibleOnly(items); //:visible
             for (let item of items) {
                 if (item.tagName === "DIV") { // if we found a div, find the edit element instead
