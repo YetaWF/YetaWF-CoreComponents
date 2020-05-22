@@ -244,7 +244,6 @@ namespace YetaWF {
             if (!method) return; // no method, don't submit
             let saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null;// form says we need to save the return address on submit
             this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, successFunc, failFunc);
-
         }
 
         public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string,
@@ -325,11 +324,10 @@ namespace YetaWF {
                                     partForm.className = cls;
                             }
                             this.callPostSubmitHandler(form);
-                            if (successFunc) // executed on successful ajax submit
-                                successFunc(this.hasErrors(form));
                             $YetaWF.setFocus([form]);
                         })) {
-                            // ok
+                            if (successFunc)
+                                successFunc(this.hasErrors(form));
                         } else {
                             if (failFunc)
                                 failFunc();

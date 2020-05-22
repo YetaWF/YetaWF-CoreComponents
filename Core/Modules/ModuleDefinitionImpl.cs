@@ -200,7 +200,7 @@ namespace YetaWF.Core.Modules {
         //[Description("The MVC action invoking this module")]
         //[Caption("Action")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations"), Category("Variables")]
-        public string Action {
+        public virtual string Action {
             get {
                 if (string.IsNullOrEmpty(_Action)) {
                     string action = ClassName;
