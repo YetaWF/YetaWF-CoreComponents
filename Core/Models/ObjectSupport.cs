@@ -977,7 +977,7 @@ namespace YetaWF.Core.Models {
                         try {
                             object oOld = propData.PropInfo.GetValue(oldObj, null);
                             object oNew = propData.PropInfo.GetValue(newObj, null);
-                            if (!SameValue(propData, oOld, oNew, out subChanges)) {
+                            if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges)) {
                                 if (YetaWF.Core.Support.Startup.MultiInstance) {
                                     return ModelDisposition.SiteRestart;
                                 } else {
@@ -993,7 +993,7 @@ namespace YetaWF.Core.Models {
                             try {
                                 object oOld = propData.PropInfo.GetValue(oldObj, null);
                                 object oNew = propData.PropInfo.GetValue(newObj, null);
-                                if (!SameValue(propData, oOld, oNew, out subChanges))
+                                if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges))
                                     reload = true;
                             } catch (Exception) { }
                         }
@@ -1012,7 +1012,7 @@ namespace YetaWF.Core.Models {
         }
 
         /// <summary>
-        /// Get list of changed properties with their disposition
+        /// Get list of changed properties with their disposition.
         /// </summary>
         public static List<ChangedProperty> ModelChanges(object oldObj, object newObj) {
 
@@ -1020,7 +1020,7 @@ namespace YetaWF.Core.Models {
             List<ChangedProperty> subChanges;
 
             Type modelType = oldObj.GetType();
-            if (modelType != newObj.GetType()) throw new InternalError($"{nameof(EvaluateModelChanges)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
+            if (modelType != newObj.GetType()) throw new InternalError($"{nameof(ModelChanges)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
 
             // check model for class attributes RequiresPageReload and RequiresRestart
             {
@@ -1049,7 +1049,7 @@ namespace YetaWF.Core.Models {
                     RequiresRestartAttribute restartAttr = propData.TryGetAttribute<RequiresRestartAttribute>();
                     RequiresPageReloadAttribute pageReloadAttr = propData.TryGetAttribute<RequiresPageReloadAttribute>();
                     if (restartAttr != null) {
-                        if (!SameValue(propData, oOld, oNew, out subChanges)) {
+                        if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges)) {
                             if (YetaWF.Core.Support.Startup.MultiInstance) {
                                 foreach (ChangedProperty s in subChanges) s.Disposition = ModelDisposition.SiteRestart;
                                 changes.AddRange(subChanges);
@@ -1061,11 +1061,11 @@ namespace YetaWF.Core.Models {
                             }
                         }
                     } else if (pageReloadAttr != null) {
-                        if (!SameValue(propData, oOld, oNew, out subChanges)) {
+                        if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges)) {
                             foreach (ChangedProperty s in subChanges) s.Disposition = ModelDisposition.PageReload;
                             changes.AddRange(subChanges);
                         }
-                    } else if (!SameValue(propData, oOld, oNew, out subChanges)) {
+                    } else if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges)) {
                         foreach (ChangedProperty s in subChanges) s.Disposition = ModelDisposition.None;
                         changes.AddRange(subChanges);
                     }
@@ -1073,36 +1073,31 @@ namespace YetaWF.Core.Models {
             }
             return changes;
         }
-        public static bool SameValue(Type modelType, string propName, object oOld, object oNew) {
-            PropertyData propData = GetPropertyData(modelType, propName);
-            List<ChangedProperty> changes;
-            return SameValue(propData, oOld, oNew, out changes);
-        }
 
-        private static bool SameValue(PropertyData propData, object oOld, object oNew, out List<ChangedProperty> changes) {
+        private static bool SameValue(string propName, Type propType, object oOld, object oNew, Func<object, object, List<ChangedProperty>> compareFunc, out List<ChangedProperty> changes) {
             changes = new List<ChangedProperty>();
             if (oOld == null) {
                 if (oNew == null) return true;
                 changes.Add(new ChangedProperty {
-                    Name = propData.Name,
+                    Name = propName,
                     Value = Utility.JsonSerialize(oNew),
                 });
                 return false;
             } else if (oNew == null) {
                 changes.Add(new ChangedProperty {
-                    Name = propData.Name,
+                    Name = propName,
                     Value = "null",
                 });
                 return false;
             }
-            if (propData.PropInfo.PropertyType == typeof(string)) {
+            if (propType == typeof(string)) {
                 if (oOld.Equals(oNew)) return true;
                 changes.Add(new ChangedProperty {
-                    Name = propData.Name,
+                    Name = propName,
                     Value = Utility.JsonSerialize((string)oNew),
                 });
                 return false;
-            } else if (propData.PropInfo.PropertyType == typeof(MultiString)) {
+            } else if (propType == typeof(MultiString)) {
                 MultiString oldMs = (MultiString)oOld;
                 MultiString newMs = (MultiString)oNew;
                 foreach (var newKey in newMs.Keys) {
@@ -1111,13 +1106,13 @@ namespace YetaWF.Core.Models {
                         string newS = newMs[newKey];
                         if (newS != oldS) {
                             changes.Add(new ChangedProperty {
-                                Name = $"{propData.Name}[{newKey}]",
+                                Name = $"{propName}[{newKey}]",
                                 Value = Utility.JsonSerialize(newS),
                             });
                         }
                     } else {
                         changes.Add(new ChangedProperty {
-                            Name = $"-{propData.Name}[{newKey}]",
+                            Name = $"-{propName}[{newKey}]",
                             Value = "null",
                         });
                     }
@@ -1125,16 +1120,16 @@ namespace YetaWF.Core.Models {
                 foreach (var oldKey in oldMs.Keys) {
                     if (!newMs.Keys.Contains(oldKey)) {
                         changes.Add(new ChangedProperty {
-                            Name = $"-{propData.Name}[{oldKey}]",
+                            Name = $"-{propName}[{oldKey}]",
                             Value = "null",
                         });
                     }
                 }
                 return changes.Count == 0;
-            } else if (propData.PropInfo.PropertyType == typeof(byte[])) {
+            } else if (propType == typeof(byte[])) {
                 if (ByteArraysEqual((byte[])oOld, (byte[])oNew)) return true;
                 changes.Add(new ChangedProperty {
-                    Name = propData.Name,
+                    Name = propName,
                     Value = "(data)",
                 });
                 return false;
@@ -1161,7 +1156,7 @@ namespace YetaWF.Core.Models {
                             for (int oldIx = 0; oldIx < oldList.Count; ++oldIx) {
                                 if (!oldSame[oldIx]) {
                                     object oldEntry = oldList[oldIx];
-                                    List<ChangedProperty> subChanges = ModelChanges(oldEntry, newEntry);
+                                    List<ChangedProperty> subChanges = compareFunc(oldEntry, newEntry);
                                     if (subChanges.Count == 0) {
                                         newSame[newIx] = oldSame[oldIx] = true;
                                         break;
@@ -1173,7 +1168,7 @@ namespace YetaWF.Core.Models {
                     for (int newIx = 0; newIx < newList.Count; ++newIx) {
                         if (!newSame[newIx]) {
                             changes.Add(new ChangedProperty {
-                                Name = $"+{propData.Name}[{newIx}]",
+                                Name = $"+{propName}[{newIx}]",
                                 Value = Utility.JsonSerialize(newList[newIx]),
                             });
                         }
@@ -1181,17 +1176,17 @@ namespace YetaWF.Core.Models {
                     for (int oldIx = 0; oldIx < oldList.Count; ++oldIx) {
                         if (!oldSame[oldIx]) {
                             changes.Add(new ChangedProperty {
-                                Name = $"+{propData.Name}[{oldIx}]",
+                                Name = $"+{propName}[{oldIx}]",
                                 Value = "null",
                             });
                         }
                     }
                     return changes.Count == 0;
-                } else if (propData.PropInfo.PropertyType.IsClass) {
-                    List<ChangedProperty> list = ModelChanges(oOld, oNew);
+                } else if (propType.IsClass) {
+                    List<ChangedProperty> list = compareFunc(oOld, oNew);
                     foreach (ChangedProperty l in list) {
                         changes.Add(new ChangedProperty {
-                            Name = $"{propData.Name}.{l.Name}",
+                            Name = $"{propName}.{l.Name}",
                             Value = l.Value,
                         });
                     }
@@ -1199,12 +1194,50 @@ namespace YetaWF.Core.Models {
                 } else {
                     if (oOld.Equals(oNew)) return true;
                     changes.Add(new ChangedProperty {
-                        Name = propData.Name,
+                        Name = propName,
                         Value = Utility.JsonSerialize(oNew),
                     });
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Get list of changed properties.
+        /// </summary>
+        public static List<ChangedProperty> ObjectCompare(object oldObj, object newObj) {
+
+            List<ChangedProperty> changes = new List<ChangedProperty>();
+            List<ChangedProperty> subChanges;
+
+            Type modelType = oldObj.GetType();
+            if (modelType != newObj.GetType()) throw new InternalError($"{nameof(ObjectCompare)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
+
+            if (!SameValue(modelType.FullName, modelType, oldObj, newObj, ObjectChanges, out subChanges)) {
+                foreach (ChangedProperty s in subChanges) s.Disposition = ModelDisposition.None;
+                changes.AddRange(subChanges);
+            }
+
+            return changes;
+        }
+
+        private static List<ChangedProperty> ObjectChanges(object oldObj, object newObj) {
+
+            List<ChangedProperty> changes = new List<ChangedProperty>();
+
+            Type modelType = oldObj.GetType();
+            if (modelType != newObj.GetType()) throw new InternalError($"{nameof(ObjectChanges)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
+
+            foreach (var propData in GetPropertyData(modelType)) {
+                if (propData.PropInfo.CanRead && propData.PropInfo.CanWrite && !propData.HasAttribute(nameof(Data_DontSave))) {
+                    object oOld = propData.PropInfo.GetValue(oldObj, null);
+                    object oNew = propData.PropInfo.GetValue(newObj, null);
+                    List<ChangedProperty> subChanges;
+                    if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ObjectChanges, out subChanges))
+                        changes.AddRange(subChanges);
+                }
+            }
+            return changes;
         }
 
         //https://stackoverflow.com/questions/43289/comparing-two-byte-arrays-in-net/8808245#8808245
