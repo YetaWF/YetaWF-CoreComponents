@@ -1,9 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Threading.Tasks;
@@ -32,12 +29,10 @@ namespace YetaWF.Core.Controllers {
             // for post/ajax requests, respond in a way we can display the error
             //context.ExceptionHandled = true;
             var response = context.HttpContext.Response;
-            response.StatusCode = 200;
+            response.StatusCode = StatusCodes.Status200OK;
             response.ContentType = "application/json";
             string content = Utility.JsonSerialize(string.Format(Basics.AjaxJavascriptErrorReturn + "$YetaWF.error({0});", Utility.JsonSerialize(msg)));
             return context.HttpContext.Response.WriteAsync(content);
         }
     }
 }
-#else
-#endif

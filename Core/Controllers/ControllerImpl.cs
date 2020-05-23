@@ -369,20 +369,11 @@ namespace YetaWF.Core.Controllers {
                         Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
                         MethodInfo meth;
                         if (meths.TryGetValue(prop.UIHint, out meth)) {
-#if MVC6
                             ModelStateEntry modelStateEntry;
-#else
-                            ModelState modelStateEntry;
-#endif
                             bool preprocess = false;
                             if (ModelState.TryGetValue(prop.UIHint, out modelStateEntry)) {
-#if MVC6
                                 if (modelStateEntry.ValidationState == ModelValidationState.Valid)
                                     preprocess = true;
-#else
-                                if (modelStateEntry.Errors.Count == 0)
-                                    preprocess = true;
-#endif
                             } else {
                                 preprocess = true;
                             }
@@ -564,7 +555,6 @@ namespace YetaWF.Core.Controllers {
 
         // Replace JSON parms
         private void ReplaceJSONParms(IDictionary<string, object> actionParms) {
-#if MVC6
             if (HttpContext.Request.HasFormContentType) {
                 foreach (var entry in HttpContext.Request.Form.Keys) {
                     if (entry != null && entry.EndsWith("-JSON")) {
@@ -574,15 +564,6 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
             }
-#else
-            foreach (var entry in HttpContext.Request.Form.AllKeys) {
-                if (entry != null && entry.EndsWith("-JSON")) {
-                    string data = HttpContext.Request.Form[entry];
-                    string parmName = entry.Substring(0, entry.Length - 5);
-                    AddJSONParmData(actionParms, parmName, data);
-                }
-            }
-#endif
         }
 
         private void AddJSONParmData(IDictionary<string, object> actionParms, string parmName, string jsonData) {
@@ -621,41 +602,6 @@ namespace YetaWF.Core.Controllers {
         /// <returns>An action result.</returns>
         [Obsolete("This form of the View() method is not supported by YetaWF")]
         protected new YetaWFViewResult View() { throw new NotSupportedException(); }
-#if MVC6
-#else
-        /// <summary>
-        /// Returns a view action result. Not supported in YetaWF.
-        /// </summary>
-        /// <param name="view">IView interface.</param>
-        /// <returns>An action result.</returns>
-        [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new YetaWFViewResult View(IView view) { throw new NotSupportedException(); }
-        /// <summary>
-        /// Returns a view action result. Not supported in YetaWF.
-        /// </summary>
-        /// <param name="view">IView interface.</param>
-        /// <param name="model">The data model.</param>
-        /// <returns>An action result.</returns>
-        [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new YetaWFViewResult View(IView view, object model) { throw new NotSupportedException(); }
-        /// <summary>
-        /// Returns a view action result. Not supported in YetaWF.
-        /// </summary>
-        /// <param name="viewName">The name of the view.</param>
-        /// <param name="masterName">The master page name.</param>
-        /// <returns>An action result.</returns>
-        [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new YetaWFViewResult View(string viewName, string masterName) { throw new NotSupportedException(); }
-        /// <summary>
-        /// Returns a view action result. Not supported in YetaWF.
-        /// </summary>
-        /// <param name="viewName">The name of the view.</param>
-        /// <param name="masterName">The master page name.</param>
-        /// <param name="model">The data model.</param>
-        /// <returns>An action result.</returns>
-        [Obsolete("This form of the View() method is not supported by YetaWF")]
-        protected new virtual YetaWFViewResult View(string viewName, string masterName, object model) { throw new NotSupportedException(); }
-#endif
         /// <summary>
         /// Renders the default view (defined using ModuleDefinition.DefaultView) using the provided model.
         /// </summary>
@@ -688,11 +634,7 @@ namespace YetaWF.Core.Controllers {
                 else
                     viewName = YetaWFController.MakeFullViewName(viewName, Area);
                 if (string.IsNullOrWhiteSpace(viewName)) {
-#if MVC6
                     viewName = (string)RouteData.Values["action"];
-#else
-                    viewName = ControllerContext.RouteData.GetRequiredString("action");
-#endif
                     viewName = YetaWFController.MakeFullViewName(viewName, Area);
                 }
             }
@@ -726,7 +668,7 @@ namespace YetaWF.Core.Controllers {
                 Model = model;
                 RequestingController = requestingController;
             }
-#if MVC6
+
             public override async Task ExecuteResultAsync(ActionContext context) {
 
                 using (var sw = new StringWriter()) {
@@ -743,31 +685,6 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
             }
-#else
-            /// <summary>
-            /// Enables processing of the result of an action method by a custom type that inherits from the ActionResult class.
-            /// </summary>
-            /// <param name="context">The context in which the result is executed. The context information includes the controller, HTTP content, request context, and route data.</param>
-            public override void ExecuteResult(ControllerContext context) {
-
-                TextWriter sw = context.HttpContext.Response.Output;
-                YHtmlHelper htmlHelper = new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
-
-                try {
-                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you here :-(
-                        string data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
-#if DEBUG
-                        if (sw.ToString().Length > 0)
-                            throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a string - output rendered: \"{sw.ToString()}\"");
-#endif
-                        if (!string.IsNullOrWhiteSpace(data))
-                            sw.Write(data.ToString());
-                    });
-                } catch (Exception) {
-                    throw;
-                } finally { }
-            }
-#endif
         }
 
         // PAGE/FORM SAVE
@@ -864,17 +781,9 @@ namespace YetaWF.Core.Controllers {
             message = message ?? __ResStr("notAuth", "Not Authorized");
 
             if (Manager.IsPostRequest) {
-#if MVC6
                 return new UnauthorizedResult();
-#else
-                return new HttpUnauthorizedResult();
-#endif
             } else {
-#if MVC6
-#else
-                Manager.CurrentResponse.Status = "403 Not Authorized";
-#endif
-                Manager.CurrentResponse.StatusCode = 403;
+                Manager.CurrentResponse.StatusCode = StatusCodes.Status403Forbidden;
                 return View("ShowMessage", message, UseAreaViewName: false);
             }
         }
@@ -1198,21 +1107,8 @@ namespace YetaWF.Core.Controllers {
         /// The Redirect method can be used for GET and also within content rendering (UPS).
         /// </remarks>
         protected ActionResult RedirectToUrl(string url) {
-#if MVC6
-            Manager.CurrentResponse.StatusCode = 307; // Temporary redirect
+            Manager.CurrentResponse.StatusCode = StatusCodes.Status307TemporaryRedirect;
             Manager.CurrentResponse.Headers.Add("Location", url);
-#else
-            Manager.CurrentResponse.Status = "307 - Redirect";
-            Manager.CurrentResponse.AddHeader("Location", url);
-#endif
-            if (Manager.RenderContentOnly) {
-                // nothing
-            } else {
-#if MVC6
-#else
-                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-            }
             return new EmptyResult();
         }
 
@@ -1273,11 +1169,7 @@ namespace YetaWF.Core.Controllers {
                     // send code to activate the new popup
                     // the assumption is we're in a postback and we have to find out whether to use http or https for the popup
                     // if we're on a page with https: the popup must also be https: otherwise the browser will have a fit
-#if MVC6
                     if (Manager.CurrentRequest.IsHttps) {
-#else
-                    if (Manager.CurrentRequest.IsSecureConnection) {
-#endif
                         if (url.StartsWith("//") || url.IsHttps()) {
                             // good
                         } else if (url.IsHttp()) {

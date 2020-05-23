@@ -1,23 +1,16 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
-using YetaWF.Core.Support;
-using System.Threading.Tasks;
-using System.IO.Compression;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Controllers {
 
@@ -49,11 +42,8 @@ namespace YetaWF.Core.Controllers {
         /// Processes the result of an action method.
         /// </summary>
         /// <param name="context">The controller context.</param>
-#if MVC6
         public override async Task ExecuteResultAsync(ActionContext context) {
-#else
-        public override void ExecuteResult(ControllerContext context) {
-#endif
+
             Type objType = typeof(TYPE);
             List<PropertyInfo> propInfos = ObjectSupport.GetProperties(objType);
 
@@ -92,24 +82,11 @@ namespace YetaWF.Core.Controllers {
             string contentType = "application/octet-stream";
             Response.ContentType = contentType;
 
-#if MVC6
             Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(FileName) ? "" : "filename=" + FileName));
             Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" });
 
             byte[] btes = Encoding.ASCII.GetBytes(sb.ToString());
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
-#else
-            Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(FileName) ? "" : "filename=" + FileName));
-            HttpCookie cookie = new HttpCookie(Basics.CookieDone, CookieToReturn.ToString());
-            Response.Cookies.Remove(Basics.CookieDone);
-            Response.SetCookie(cookie);
-
-            Response.AppendHeader("Content-encoding", "gzip");
-            Response.Filter = new GZipStream(Response.Filter, CompressionMode.Compress);
-            Response.Output.Write(sb.ToString());
-
-            Response.End();
-#endif
         }
     }
 }

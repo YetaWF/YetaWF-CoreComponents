@@ -4,12 +4,8 @@ using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Support.Zip;
 using YetaWF.Core.Support;
-#if MVC6
 using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
+using Microsoft.AspNetCore.Http;
 
 namespace YetaWF.Core.Controllers {
 
@@ -38,37 +34,18 @@ namespace YetaWF.Core.Controllers {
         /// Processes the result of an action method.
         /// </summary>
         /// <param name="context">The controller context.</param>
-#if MVC6
         public override async Task ExecuteResultAsync(ActionContext context) {
-#else
-        public override void ExecuteResult(ControllerContext context) {
-            YetaWFManager.Syncify(async () => { // sorry, MVC5, no async for you
-#endif
-                var Response = context.HttpContext.Response;
 
-                Response.ContentType = "application/zip";
-#if MVC6
-                Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
-                Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" } );
+            HttpResponse Response = context.HttpContext.Response;
 
-                Utility.AllowSyncIO(context.HttpContext);
-                using (Zip) {
-                    await Zip.SaveAsync(Response.Body);
-                }
-#else
-                Response.AddHeader("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
+            Response.ContentType = "application/zip";
+            Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
+            Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" });
 
-                HttpCookie cookie = new HttpCookie(Basics.CookieDone, CookieToReturn.ToString());
-                Response.Cookies.Remove(Basics.CookieDone);
-                Response.SetCookie(cookie);
-
-                using (Zip) {
-                    await Zip.SaveAsync(Response.OutputStream);
-                    Response.End();
-                    await Zip.CleanupFoldersAsync();
-                }
-            });
-#endif
+            Utility.AllowSyncIO(context.HttpContext);
+            using (Zip) {
+                await Zip.SaveAsync(Response.Body);
+            }
         }
     }
 }

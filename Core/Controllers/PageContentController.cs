@@ -1,24 +1,19 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Mvc;
 using System;
-using YetaWF.Core.Extensions;
-using YetaWF.Core.Log;
-using YetaWF.Core.Pages;
-using YetaWF.Core.Site;
-using YetaWF.Core.Support;
-using YetaWF.Core.Support.UrlHistory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using YetaWF.Core.Skins;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
-using YetaWF.Core.Modules;
+using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
+using YetaWF.Core.Site;
+using YetaWF.Core.Skins;
+using YetaWF.Core.Support;
+using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Controllers {
 
@@ -34,10 +29,6 @@ namespace YetaWF.Core.Controllers {
 
         internal class PageContentResult : YJsonResult {
             public PageContentResult() {
-#if MVC6
-#else
-                JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-#endif
                 Result = new PageContentData();
                 Data = Result;
             }
@@ -192,7 +183,7 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public string UnifiedSkinFileName { get; set; }
             /// <summary>
-            /// THe collection of pages requested.
+            /// The collection of pages requested.
             /// </summary>
             public List<string> Panes { get; set; }
             /// <summary>
@@ -215,11 +206,7 @@ namespace YetaWF.Core.Controllers {
 
             dataIn.Path = Utility.UrlDecodePath(dataIn.Path);
             if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
-#if MVC6
                 return new NotFoundObjectResult(dataIn.Path);
-#else
-                throw new HttpException(404, string.Format("Url {0} not found", dataIn.Path));
-#endif
             }
 
             Uri uri = new Uri(Manager.CurrentRequestUrl);
@@ -246,11 +233,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Check if site language requested using !yLang= arg
-#if MVC6
             string lang = Manager.CurrentRequest.Query[Globals.Link_Language];
-#else
-            string lang = Manager.CurrentRequest[Globals.Link_Language];
-#endif
             if (dataIn.CacheVersion != YetaWFManager.CacheBuster || !string.IsNullOrWhiteSpace(lang)) {
                 // If the cache version doesn't match, client is using an "old" site which was restarted, so we need to redirect to reload the entire page
                 // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page

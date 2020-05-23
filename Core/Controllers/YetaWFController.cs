@@ -26,37 +26,21 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 using YetaWF.Core.Views;
 
-
 namespace YetaWF.Core.Controllers {
 
     /// <summary>
     /// Base class for all controllers used by YetaWF (including "plain old" MVC controllers).
     /// </summary>
     [AreaConvention]
-    public class YetaWFController :
-#if MVC6
-                                    Microsoft.AspNetCore.Mvc.Controller
-#else
-                                    Controller
-#endif
-    {
+    public class YetaWFController : Microsoft.AspNetCore.Mvc.Controller {
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFController), name, defaultValue, parms); }
+
         /// <summary>
         /// The YetaWFManager instance for the current HTTP request.
         /// </summary>
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-#if MVC6
-#else
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        protected YetaWFController() {
-            // Don't perform html char validation (it's annoying) - This is the equivalent of adding [ValidateInput(false)] on every controller.
-            // This also means we don't need AllowHtml attributes
-            ValidateRequest = false;
-            AllowJavascriptResult = true;
-        }
-#endif
+
         /// <summary>
         ///  Update an area's view name with the complete area specifier.
         /// </summary>
@@ -122,7 +106,7 @@ namespace YetaWF.Core.Controllers {
                 return new YJsonResult { Data = sb.ToString() };
             } else {
                 popupText = Utility.JsonSerialize(popupText);
-                popupTitle = Utility.JsonSerialize(popupTitle ?? this.__ResStr("completeTitle", "Success"));
+                popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
                 sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
@@ -418,10 +402,6 @@ namespace YetaWF.Core.Controllers {
             return new PartialViewResult {
                 ViewName = viewName,
                 ViewData = ViewData,
-#if MVC6
-#else
-                ViewEngineCollection = ViewEngineCollection,
-#endif
                 Module = CurrentModule,
                 Script = Script,
                 ContentType = ContentType,
@@ -433,11 +413,7 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// An action result to render a partial view.
         /// </summary>
-#if MVC6
         public class PartialViewResult : Microsoft.AspNetCore.Mvc.PartialViewResult {
-#else
-        public class PartialViewResult : System.Web.Mvc.PartialViewResult {
-#endif
             /// <summary>
             /// The YetaWFManager instance for the current HTTP request.
             /// </summary>
@@ -448,11 +424,8 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// Constructor.
             /// </summary>
-#if MVC6
             public PartialViewResult() { }
-#else
-            public PartialViewResult() { }
-#endif
+
             /// <summary>
             /// The current module being rendered by this partial view.
             /// </summary>
@@ -461,13 +434,7 @@ namespace YetaWF.Core.Controllers {
             /// The JavaScript to be executed client-side after the partial view has been rendered.
             /// </summary>
             public ScriptBuilder Script { get; set; }
-#if MVC6
-#else
-            /// <summary>
-            /// The content type. If not specified, the default is "text/html".
-            /// </summary>
-            public string ContentType { get; set; }
-#endif
+
             public bool PureContent { get; set; }
             public bool AreaViewName { get; set; }
             public bool Gzip { get; set; }
@@ -478,11 +445,7 @@ namespace YetaWF.Core.Controllers {
             /// Renders the view.
             /// </summary>
             /// <param name="context">The action context.</param>
-#if MVC6
             public override async Task ExecuteResultAsync(ActionContext context) {
-#else
-            public override void ExecuteResult(ControllerContext context) {
-#endif
                 Manager.Verify_PostRequest();
                 Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
 
@@ -497,21 +460,14 @@ namespace YetaWF.Core.Controllers {
                         ViewName = YetaWFController.MakeFullViewName(ViewName, Module.AreaName);
                     }
                     if (string.IsNullOrWhiteSpace(ViewName)) {
-#if MVC6
                         ViewName = (string)context.RouteData.Values["action"];
-#else
-                        ViewName = context.RouteData.GetRequiredString("action");
-#endif
                         ViewName = YetaWFController.MakeFullViewName(ViewName, Module.AreaName);
                     }
                 }
                 if (string.IsNullOrWhiteSpace(ViewName))
                     throw new InternalError("Invalid action");
-#if MVC6
+
                 HttpResponse response = context.HttpContext.Response;
-#else
-                HttpResponseBase response = context.HttpContext.Response;
-#endif
                 if (!string.IsNullOrEmpty(ContentType))
                     response.ContentType = ContentType;
 
@@ -522,12 +478,7 @@ namespace YetaWF.Core.Controllers {
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
 
-                    YHtmlHelper htmlHelper =
-#if MVC6
-                        new YHtmlHelper(context, context.ModelState);
-#else
-                        new YHtmlHelper(context.RequestContext, context.Controller.ViewData.ModelState);
-#endif
+                    YHtmlHelper htmlHelper = new YHtmlHelper(context, context.ModelState);
 
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);//$$ needed?
 
@@ -536,26 +487,15 @@ namespace YetaWF.Core.Controllers {
                     bool wantFocus = Manager.WantFocus;
                     Manager.WantFocus = Module.WantFocus;
                     try {
-#if MVC6
                         viewHtml = await htmlHelper.ForViewAsync(base.ViewName, Module, Model);
-#else
-                        viewHtml = YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you here :-(
-                            return await htmlHelper.ForViewAsync(base.ViewName, Module, Model);
-                        });
-#endif
                     } catch (Exception) {
                         throw;
                     } finally {
                         Manager.InPartialView = inPartialView;
                         Manager.WantFocus = wantFocus;
                     }
-#if MVC6
+
                     viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
-#else
-                    YetaWFManager.Syncify(async () => { // sorry MVC5, just no async for you :-(
-                        viewHtml = await PostRenderAsync(htmlHelper, context, viewHtml);
-                    });
-#endif
                 }
 #if DEBUG
                 if (sb.Length > 0)
@@ -564,43 +504,18 @@ namespace YetaWF.Core.Controllers {
 
                 Manager.CurrentModule = oldMod;
 
-                if (Gzip) {
-                    // if gzip was explicitly requested, return zipped (this is rarely used as most responses are compressed based on iis settings/middleware)
-                    // we use this to explicitly return certain json responses compressed (not all, as small responses don't warrant compression).
-#if MVC6
-                    // gzip encoding is performed by middleware
-#else
-                    context.HttpContext.Response.AppendHeader("Content-encoding", "gzip");
-                    context.HttpContext.Response.Filter = new GZipStream(context.HttpContext.Response.Filter, CompressionMode.Compress);
-#endif
-                }
-#if MVC6
                 byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
-#else
-                response.Output.Write(viewHtml);
-#endif
             }
 
-#if MVC6
-            private async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, ActionContext context, string viewHtml)
-#else
-            private async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, ControllerContext context, string viewHtml)
-#endif
-            {
-#if MVC6
+            private async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, ActionContext context, string viewHtml) {
+
                 HttpResponse response = context.HttpContext.Response;
-#else
-                HttpResponseBase response = context.HttpContext.Response;
-#endif
+
                 // if the controller specified a content type, only return the exact response
                 // if the controller didn't specify a content type and the content type is text/html, add all the other goodies
-#if MVC6
-                if (!PureContent && string.IsNullOrEmpty(ContentType) && (response.ContentType == null || response.ContentType == DefaultContentType))
-#else
-                if (!PureContent && string.IsNullOrEmpty(ContentType) && response.ContentType == DefaultContentType)
-#endif
-                {
+                if (!PureContent && string.IsNullOrEmpty(ContentType) && (response.ContentType == null || response.ContentType == DefaultContentType)) {
+
                     if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
 
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);

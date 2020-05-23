@@ -21,12 +21,9 @@ namespace YetaWF.Core.Localize {
 
     public static class ResourceAccess {
 
-        // RETRIEVAL
-        // RETRIEVAL
-        // RETRIEVAL
+        public static string GetResourceString(Type type, string name, string defaultValue, params object[] args) {
 
-        public static string GetResourceString(Type type, string name, string defaultValue, params object[] args)
-        {
+            string text;
             if (LocalizationSupport.UseLocalizationResources) {
                 string fullName = type.FullName;
                 //if (...) {
@@ -34,38 +31,42 @@ namespace YetaWF.Core.Localize {
                 //    type = type.BaseType;
                 //}
                 fullName = type.FullName.Split(new char[] { '`' }).First(); // chop off any generics <>
-                string text;
                 LocalizationData locData = Localization.Load(Package.GetPackageFromAssembly(type.Assembly), fullName, Localization.Location.Merge);
                 if (locData != null) {
                     text = locData.FindString(name);
-                    if (text != null) {
-                        if (args != null && args.Count() > 0)
-                            text = string.Format(text, args);
-                    } else {
+                    if (text == null) {
                         if (type.BaseType != null && type.BaseType.FullName == "YetaWF.Core.Modules.ModuleDefinition") {
                             // shared views use the module base class
                             return GetResourceString(type.BaseType, name, defaultValue, args);
                         }
-                        text = "*miss*" + name;
                         if (LocalizationSupport.AbortOnFailure)
                             throw new InternalError("Missing resource {0} for class {1}", name, type.FullName);
+#if DEBUG
+                        text = $"{defaultValue}(*missing* {name})";
+#else
+                        text = defaultValue;
+#endif
                     }
-                    return text;
                 } else {
+                    text = defaultValue;
                     if (YetaWFManager.HaveManager && YetaWFManager.Manager.LocalizationSupportEnabled) {
                         SiteDefinition site = YetaWFManager.Manager.CurrentSite;
                         if (site != null && site.Localization) {
-                            text = "*clsmiss*" + name;
                             if (LocalizationSupport.AbortOnFailure)
                                 throw new InternalError("Missing resource class file {0}", type.FullName);
-                            return text;
+#if DEBUG
+                            text = $"{defaultValue}(*class missing* {name})";
+#endif
                         }
                     }
                 }
-            }
+            } else
+                text = defaultValue;
+
             if (args != null && args.Count() > 0)
-                defaultValue = string.Format(defaultValue, args);
-            return defaultValue;
+                return string.Format(text, args);
+            else
+                return text;
         }
     }
 }

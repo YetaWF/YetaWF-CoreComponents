@@ -1,15 +1,9 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using YetaWF.Core.Support;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using YetaWF.Core.Models.Attributes;
-#if MVC6
-using YetaWF.Core.Pages;
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Controllers {
 
@@ -64,13 +58,8 @@ namespace YetaWF.Core.Controllers {
         [AllowGet]
         public ActionResult ShowAddons([FromBody] DataIn dataIn) {
 
-            if (!YetaWFManager.HaveManager || dataIn.Addons == null || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
-#if MVC6
+            if (!YetaWFManager.HaveManager || dataIn.Addons == null || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest"))
                 return new NotFoundObjectResult(null);
-#else
-                throw new HttpException(404, "Not found");
-#endif
-            }
 
             // Process the requested addons
             PageContentController.PageContentResult cr = new PageContentController.PageContentResult();
