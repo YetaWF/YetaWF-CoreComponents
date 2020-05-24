@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-
 using System;
 
 namespace YetaWF.Core.Support {
@@ -22,5 +20,3 @@ namespace YetaWF.Core.Support {
     }
 }
 
-#else
-#endif

@@ -194,6 +194,8 @@ namespace YetaWF.Core.WebStartup {
                 options.Filters.Remove(new Microsoft.AspNetCore.Mvc.ViewFeatures.SaveTempDataAttribute());
                 // We need to roll our own support for AdditionalMetadataAttribute, IMetadataAware
                 options.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
+                // Asp.net core translates fields with whitespace to null fields, so undo this dumb behavior we never had before with a custom metadata provider
+                options.ModelMetadataDetailsProviders.Add(new WhitespaceMetadataProvider());
 
                 // Error handling for controllers, not used, we handle action errors instead so this is not needed
                 // options.Filters.Add(new ControllerExceptionFilterAttribute()); // controller exception filter, not used

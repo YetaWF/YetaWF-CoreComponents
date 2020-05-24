@@ -6,12 +6,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Collections.Specialized;
-#if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
-#else
-#endif
 
 namespace YetaWF.Core.Support {
 
@@ -86,7 +83,6 @@ namespace YetaWF.Core.Support {
         public static QueryHelper FromDictionary(IDictionary<string,string> query) {
             return new QueryHelper(query);
         }
-#if MVC6
         public static QueryHelper FromQueryCollection(IQueryCollection query) {
             QueryHelper qh = new QueryHelper();
             foreach (string k in query.Keys) {
@@ -94,23 +90,14 @@ namespace YetaWF.Core.Support {
             }
             return qh;
         }
-#else
-#endif
         public static QueryHelper FromQueryString(string queryString) {
             QueryHelper qh = new QueryHelper();
-#if MVC6
             Dictionary<string,StringValues> queryDictionary = QueryHelpers.ParseQuery(queryString);
             foreach (KeyValuePair<string, StringValues> e in queryDictionary) {
                 foreach (string sv in e.Value) {
                     qh.Entries.Add(new Entry { Key = e.Key, Value = sv, });
                 }
             }
-#else
-            NameValueCollection coll = System.Web.HttpUtility.ParseQueryString(queryString);
-            foreach (string k in coll.AllKeys) {
-                qh.Entries.Add(new Entry { Key = k, Value = coll[k], });
-            }
-#endif
             return qh;
         }
         public static QueryHelper FromAnonymousObject(object args) {
@@ -177,14 +164,12 @@ namespace YetaWF.Core.Support {
                 url = "#" + Anchor;
             return url;
         }
-#if MVC6
         internal static QueryString MakeQueryString(string newQS)
         {
             if (string.IsNullOrWhiteSpace(newQS)) return new QueryString();
             if (newQS.StartsWith("?")) return new QueryString(newQS);
             return new QueryString("?" + newQS);
         }
-#endif
         //
         /// <summary>
         /// Add some random query string to the url to defeat client-side caching for a page.
@@ -216,7 +201,6 @@ namespace YetaWF.Core.Support {
                 d.Add(key, Collection[key]);
             return d;
         }
-#if MVC6
         public FormHelper() {
             Collection = null;
         }
@@ -229,15 +213,5 @@ namespace YetaWF.Core.Support {
         public static FormHelper FromFormCollection(IFormCollection collection) {
             return new FormHelper(collection);
         }
-#else
-        public FormHelper(NameValueCollection collection) {
-            Collection = collection;
-        }
-        private NameValueCollection Collection { get; set; }
-
-        public static FormHelper FromNameValueCollection(NameValueCollection collection) {
-            return new FormHelper(collection);
-        }
-#endif
     }
 }

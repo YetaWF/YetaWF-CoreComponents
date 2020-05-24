@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
-
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
@@ -34,6 +32,3 @@ namespace YetaWF.Core.Support {
         }
     }
 }
-
-#else
-#endif
