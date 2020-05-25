@@ -185,6 +185,14 @@ namespace YetaWF.Core.WebStartup {
             // permitted  in w3c validation). Why would MVC6 start adding ids to tags when they're not requested. If they're not requested, does the caller really need or use them???
             services.AddSingleton(typeof(IHtmlGenerator), typeof(YetaWFDefaultHtmlGenerator));
 
+            // Replace the default simple type model binder provider with our own.
+            // The built in simple type model binder converts spaces to null. Or if ConvertEmptyStringToNull is set to true an empty string remains an empty string, instead of null.
+            // This restores "" -> null and "   " -> "   " which is not an option with the built in binder. This behavior was used on ASP.NET 4 and I want to keep it.
+            // I'm not about that retesting life.
+            services.AddControllers(options => {
+                options.ModelBinderProviders.Insert(0, new YetaWFSimpleTypeModelBinderProvider());
+            });
+
             // Add framework services.
             services.AddMvc((options) => {
                 // we have to remove the SaveTempDataAttribute filter, otherwise our ActionHelper.Action extension
@@ -194,8 +202,6 @@ namespace YetaWF.Core.WebStartup {
                 options.Filters.Remove(new Microsoft.AspNetCore.Mvc.ViewFeatures.SaveTempDataAttribute());
                 // We need to roll our own support for AdditionalMetadataAttribute, IMetadataAware
                 options.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
-                // Asp.net core translates fields with whitespace to null fields, so undo this dumb behavior we never had before with a custom metadata provider
-                options.ModelMetadataDetailsProviders.Add(new WhitespaceMetadataProvider());
 
                 // Error handling for controllers, not used, we handle action errors instead so this is not needed
                 // options.Filters.Add(new ControllerExceptionFilterAttribute()); // controller exception filter, not used
