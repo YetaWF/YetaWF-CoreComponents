@@ -67,6 +67,14 @@ namespace YetaWF.Core.Localize {
             dt = GetUserDateTime(dt);
             return __ResStr("strMonth_Day", "{0} {1}", Formatting.GetMonthName(dt.Month), dt.Day);
         }
+        /// <summary>
+        /// Format a date - Example "November 1, 2020"
+        /// </summary>
+        public static string Date_Month_Day_Year(DateTime dt) {
+            dt = GetUserDateTime(dt);
+            string month = GetMonthName(dt.Month);
+            return __ResStr("strMonth_Day_Year", "{0} {1}, {2}", month, dt.Day, dt.Year);
+        }
 
         public static DateTime GetUserDateTime(DateTime dateTime, DateFormatEnum? dateFormat = null) {
             if (dateTime.Kind != DateTimeKind.Utc && dateTime.Kind != DateTimeKind.Unspecified) throw new InternalError($"DateTime has incorrect Kind {dateTime.Kind}");
