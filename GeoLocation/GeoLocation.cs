@@ -205,10 +205,10 @@ namespace YetaWF.Core.GeoLocation {
                 Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", ErrorHandling.FormatExceptionMessage(exc), ipAddress);
                 return null;
             }
-            if (geoData.geoplugin_status != 200) {
-                Logging.AddErrorLog("geoplugin_status {0} for ip address {1}", geoData.geoplugin_status, ipAddress);
-                return null;
-            }
+            //if (geoData.geoplugin_status != 200) {
+            //    Logging.AddErrorLog("geoplugin_status {0} for ip address {1}", geoData.geoplugin_status, ipAddress);
+            //    return null;
+            //}
             return geoData;
         }
     }
