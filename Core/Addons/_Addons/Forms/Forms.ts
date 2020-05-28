@@ -299,9 +299,13 @@ namespace YetaWF {
                 if ($YetaWF.isInPopup())
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
 
+                if (method.toLowerCase() === "get")
+                    action = `${action}?${formData}`;
+
                 var request: XMLHttpRequest = new XMLHttpRequest();
                 request.open(method, action, true);
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                if (method.toLowerCase() === "post")
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                 request.onreadystatechange = (ev: Event) : any => {
                     var req = request;
                     if (req.readyState === 4 /*DONE*/) {

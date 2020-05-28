@@ -105,6 +105,9 @@ namespace YetaWF {
                     this.QSEntries.splice(i, 1);
             }
         }
+        public removeAllSearch(): void {
+            this.QSEntries = [];
+        }
         public getQuery(withQuestion?: boolean): string {
             var qs: string = "";
             for (let entry of this.QSEntries) {

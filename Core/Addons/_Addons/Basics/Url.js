@@ -104,6 +104,9 @@ var YetaWF;
                     this.QSEntries.splice(i, 1);
             }
         };
+        Url.prototype.removeAllSearch = function () {
+            this.QSEntries = [];
+        };
         Url.prototype.getQuery = function (withQuestion) {
             var qs = "";
             for (var _i = 0, _a = this.QSEntries; _i < _a.length; _i++) {
