@@ -237,18 +237,17 @@ namespace YetaWF.Core.DataProvider {
         }
         public void NormalizeFilterProperty(Type type) {
             if (this.Field != null && StringType) { // only normalize string types, explicitly set values don't need to be changed in type
-                string[] parts = Field.Split(new char[] { '.' });
+                string[] parts = Field.Split(new char[] { '.', '_' });
                 Type objType = type;
                 PropertyData prop = null;
                 foreach (string part in parts) {
                     prop = ObjectSupport.GetPropertyData(objType, part);
-                    if (prop == null) throw new InternalError("Property {0} not found in type {1}", part, objType.Name);
                     objType = prop.PropInfo.PropertyType;
                 }
                 if (prop == null) throw new InternalError("Can't evaluate field {0} in type {1}", Field, objType.Name);
                 if (objType != typeof(string)) {
                     if (objType.IsEnum) {
-                        try { Value = Convert.ToInt32(Value); Value = Enum.ToObject(objType, Value); } catch (Exception) { }
+                        try { Value = Enum.ToObject(objType, Value); } catch (Exception) { }
                     } else if (objType == typeof(DateTime) || objType == typeof(DateTime?)) {
                         try { Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(Value)); } catch (Exception) { Value = DateTime.MinValue; }
                     } else if (objType == typeof(int) || objType == typeof(int?)) {
