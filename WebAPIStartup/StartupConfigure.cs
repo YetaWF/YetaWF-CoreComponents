@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -73,6 +74,12 @@ namespace YetaWF.Core.WebAPIStartup {
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.Configure<ForwardedHeadersOptions>(options => {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             services.AddRouting();
             services.AddHealthChecks();
             services.AddResponseCompression();
@@ -102,6 +109,7 @@ namespace YetaWF.Core.WebAPIStartup {
             IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));
             YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
 
+            app.UseForwardedHeaders();
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif

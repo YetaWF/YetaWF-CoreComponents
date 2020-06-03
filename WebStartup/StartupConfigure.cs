@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Rewrite;
@@ -219,6 +221,12 @@ namespace YetaWF.Core.WebStartup {
                     options.ViewEngines.Clear();
                 });
 
+            services.Configure<ForwardedHeadersOptions>(options => {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             services.AddDynamicServices();
 
             YetaWF.Core.SignalR.ConfigureServices(services);
@@ -241,6 +249,7 @@ namespace YetaWF.Core.WebStartup {
             IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));
             YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
 
+            app.UseForwardedHeaders();
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif

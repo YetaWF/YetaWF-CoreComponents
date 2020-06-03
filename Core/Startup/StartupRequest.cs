@@ -104,19 +104,9 @@ namespace YetaWF.Core.Support {
             manager.IsTestSite = testHost;
             manager.IsLocalHost = loopBack;
 
-            // Handle any headers that alter the requested url
-            string hostUsed, portUsed, schemeUsed;
-
-            hostUsed = (string)httpContext.Request.Headers["X-Forwarded-Host"] ?? (string)httpContext.Request.Headers["X-Original-Host"];
-            portUsed = (string)httpContext.Request.Headers["X-Forwarded-Port"] ?? (string)httpContext.Request.Headers["X-Original-Port"];
-            schemeUsed = (string)httpContext.Request.Headers["X-Forwarded-Proto"] ?? (string)httpContext.Request.Headers["X-Original-Proto"];
-
-            manager.HostUsed = hostUsed ?? uri.Host;
+            manager.HostUsed = uri.Host;
             manager.HostPortUsed = uri.Port;
-            if (!string.IsNullOrWhiteSpace(portUsed)) {
-                try { manager.HostPortUsed = Convert.ToInt32(portUsed); } catch (Exception) { }
-            }
-            manager.HostSchemeUsed = schemeUsed ?? uri.Scheme;
+            manager.HostSchemeUsed = uri.Scheme;
 
             UriBuilder uriBuilder = new UriBuilder(uri);
             uriBuilder.Scheme = manager.HostSchemeUsed;

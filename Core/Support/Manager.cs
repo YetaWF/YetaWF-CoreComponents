@@ -308,12 +308,6 @@ namespace YetaWF.Core.Support {
             if (!overridden)
                 siteDomain = uri.Host;
 
-            // check headers, trumps all
-            string domain;
-            domain = (string)httpContext.Request.Headers["X-Forwarded-Host"] ?? (string)httpContext.Request.Headers["X-Original-Host"];
-            if (!string.IsNullOrWhiteSpace(domain))
-                siteDomain = domain;
-
             // beautify the host name a bit
             if (siteDomain.Length > 1)
                 siteDomain = char.ToUpper(siteDomain[0]) + siteDomain.Substring(1).ToLower();
@@ -928,32 +922,16 @@ namespace YetaWF.Core.Support {
         public string UserHostAddress {
             get {
                 if (!HaveCurrentRequest) return "";
-                string ip = CurrentRequest.Headers["X-Forwarded-For"];
-                // extract just IP address in case there is a port #
-                if (!string.IsNullOrWhiteSpace(ip)) {
-                    string[] s = ip.Split(new char[] { ':', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    ip = s[0].Truncate(Globals.MaxIP);
-                }
-                if (!string.IsNullOrWhiteSpace(ip)) return ip;
-#if MVC6
                 IHttpConnectionFeature connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
                 if (connectionFeature != null)
                     return connectionFeature.RemoteIpAddress.ToString();
                 return "";
-#else
-                return CurrentRequest.UserHostAddress ?? "";
-#endif
             }
         }
         public QueryHelper RequestQueryString {
             get {
-                if (_requestQueryString == null) {
-#if MVC6
+                if (_requestQueryString == null)
                     _requestQueryString = QueryHelper.FromQueryCollection(CurrentRequest.Query);
-#else
-                    _requestQueryString = QueryHelper.FromNameValueCollection(CurrentRequest.QueryString);
-#endif
-                }
                 return _requestQueryString;
             }
         }
@@ -962,14 +940,10 @@ namespace YetaWF.Core.Support {
         public FormHelper RequestForm {
             get {
                 if (_requestForm == null) {
-#if MVC6
                     if (!CurrentRequest.HasFormContentType)
                         _requestForm = new FormHelper();
                     else
                         _requestForm = FormHelper.FromFormCollection(CurrentRequest.Form);
-#else
-                    _requestForm = FormHelper.FromNameValueCollection(CurrentRequest.Form);
-#endif
                 }
                 return _requestForm;
             }
@@ -1096,11 +1070,7 @@ namespace YetaWF.Core.Support {
         public string CurrentRequestUrl {
             get {
                 if (_currentRequestUrl == null) {
-#if MVC6
                     _currentRequestUrl = UriHelper.GetDisplayUrl(Manager.CurrentRequest);
-#else
-                    _currentRequestUrl = Manager.CurrentRequest.Url.ToString();
-#endif
                 }
                 return _currentRequestUrl;
             }
