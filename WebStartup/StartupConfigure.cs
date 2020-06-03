@@ -329,6 +329,8 @@ namespace YetaWF.Core.WebStartup {
 
             app.UseRouting();
 
+            //app.UseCors();
+
             // Everything else
             app.Use(async (context, next) => {
                 await StartupRequest.StartRequestAsync(context, false);
