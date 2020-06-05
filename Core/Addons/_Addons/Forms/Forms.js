@@ -136,6 +136,7 @@ var YetaWF;
         };
         Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, successFunc, failFunc, rawJSONFunc) {
             var _this = this;
+            $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
                 var div = divs_1[_i];
