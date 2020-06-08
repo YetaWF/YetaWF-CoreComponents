@@ -426,6 +426,7 @@ var YetaWF;
                 }
                 catch (e) { }
                 $YetaWF.processNewPage(uri.toUrl());
+                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
                 // locate the hash if there is one
                 var setFocus = true;
                 var hash = uri.getHash();
@@ -545,6 +546,7 @@ var YetaWF;
         Content.prototype.init = function () {
         };
         Content.EVENTNAVCANCEL = "content_navcancel";
+        Content.EVENTNAVPAGELOADED = "content_navpageloaded";
         return Content;
     }());
     YetaWF.Content = Content;

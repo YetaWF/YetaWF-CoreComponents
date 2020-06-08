@@ -741,9 +741,7 @@ namespace YetaWF {
             }
             for (let i: number = 2; i < arguments.length; i++) {
                 const child: any = arguments[i];
-                element.appendChild(
-                    child.nodeType == null ?
-                        document.createTextNode(child.toString()) : child);
+                element.appendChild(!child.nodeType ? document.createTextNode(child.toString()) : child);
             }
             return element;
         }
@@ -1645,6 +1643,8 @@ namespace YetaWF {
                 this.processAllReady();
                 this.processAllReadyOnce();
             });
+
+            $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
         }
 
         /* Print support */

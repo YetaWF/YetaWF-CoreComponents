@@ -79,6 +79,7 @@ namespace YetaWF {
     export class Content {
 
         public static readonly EVENTNAVCANCEL: string = "content_navcancel";
+        public static readonly EVENTNAVPAGELOADED: string = "content_navpageloaded";
 
         // loads all scripts - we need to preserve the order of initialization hence the recursion
         private loadScripts(scripts: UrlEntry[], payload: Payload[], run: () => void): void {
@@ -483,6 +484,7 @@ namespace YetaWF {
                     $YetaWF.runGlobalScript(result.AnalyticsContent);
                 } catch (e) { }
                 $YetaWF.processNewPage(uri.toUrl());
+                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
 
                 // locate the hash if there is one
                 let setFocus = true;

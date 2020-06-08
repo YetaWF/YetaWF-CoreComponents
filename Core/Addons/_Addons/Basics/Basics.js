@@ -628,8 +628,7 @@ var YetaWF;
             }
             for (var i = 2; i < arguments.length; i++) {
                 var child = arguments[i];
-                element.appendChild(child.nodeType == null ?
-                    document.createTextNode(child.toString()) : child);
+                element.appendChild(!child.nodeType ? document.createTextNode(child.toString()) : child);
             }
             return element;
         };
@@ -1493,6 +1492,7 @@ var YetaWF;
                 _this.processAllReady();
                 _this.processAllReadyOnce();
             });
+            $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED);
         };
         Object.defineProperty(BasicsServices.prototype, "isPrinting", {
             /* Print support */
