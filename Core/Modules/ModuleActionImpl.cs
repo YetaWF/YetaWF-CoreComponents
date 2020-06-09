@@ -137,7 +137,7 @@ namespace YetaWF.Core.Modules {
             if (Resource.ResourceAccess.IsBackDoorWideOpen()) return true;
             if (AuthorizationIgnore)
                 return true;
-            if (LimitToRole != 0 && !Manager.HasSuperUserRole) {
+            if (LimitToRole != 0) {
                 // action is limited to one role
                 if (Manager.HaveUser) {
                     // we have a user - check if it's limited to something other than users
