@@ -208,7 +208,7 @@ namespace YetaWF {
                     UnifiedMode: YVolatile.Basics.UnifiedMode,
                     UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
                     UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
-                    IsMobile: YVolatile.Skin.MinWidthForPopups > window.outerWidth,
+                    IsMobile: $YetaWF.isMobile(),
                     UnifiedSkinCollection: null,
                     UnifiedSkinFileName: null,
                     Panes: [],

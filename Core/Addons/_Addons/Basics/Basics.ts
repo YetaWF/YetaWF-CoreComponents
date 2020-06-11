@@ -1037,7 +1037,7 @@ namespace YetaWF {
          * Returns whether the specified element is visible.
          */
         public isVisible(elem: HTMLElement): boolean {
-            return (elem.clientWidth > 0 && elem.clientHeight > 0);
+            return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
         }
 
         /**
@@ -1582,6 +1582,12 @@ namespace YetaWF {
                 expandedDiv.style.display = "none";
                 return true;
             });
+        }
+
+        // Rudimentary mobile detection
+
+        public isMobile(): boolean {
+            return (YVolatile.Skin.MinWidthForPopups > 0 && YVolatile.Skin.MinWidthForPopups > window.outerWidth) || (YVolatile.Skin.MinWidthForPopups === 0 && window.outerWidth <= 970);
         }
 
         constructor() {

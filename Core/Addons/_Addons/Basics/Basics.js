@@ -909,7 +909,7 @@ var YetaWF;
          * Returns whether the specified element is visible.
          */
         BasicsServices.prototype.isVisible = function (elem) {
-            return (elem.clientWidth > 0 && elem.clientHeight > 0);
+            return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
         };
         /**
          * Returns whether the specified element is a parent of the specified child element.
@@ -1449,6 +1449,10 @@ var YetaWF;
                 expandedDiv.style.display = "none";
                 return true;
             });
+        };
+        // Rudimentary mobile detection
+        BasicsServices.prototype.isMobile = function () {
+            return (YVolatile.Skin.MinWidthForPopups > 0 && YVolatile.Skin.MinWidthForPopups > window.outerWidth) || (YVolatile.Skin.MinWidthForPopups === 0 && window.outerWidth <= 970);
         };
         BasicsServices.prototype.init = function () {
             var _this = this;

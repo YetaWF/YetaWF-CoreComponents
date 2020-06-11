@@ -9,6 +9,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
+using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 
 // RESEARCH: evaluate @import and replace inline to avoid multiple http requests
@@ -58,6 +59,27 @@ namespace YetaWF.Core.Pages {
             if (string.IsNullOrWhiteSpace(css1)) return css2;
             if (string.IsNullOrWhiteSpace(css2)) return css1;
             return $"{css1.Trim()} {css2.Trim()}";
+        }
+        /// <summary>
+        /// Add CSS class to a string containing CSS class(es).
+        /// </summary>
+        /// <param name="css">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>
+        /// <param name="add">A string containing a CSS class.</param>
+        public static string AddCss(string css, string add) {
+            if (string.IsNullOrWhiteSpace(css)) return add;
+            if (!ContainsCss(css, add))
+                return CombineCss(css, add);
+            return css;
+        }
+        /// <summary>
+        /// Tests whether a string with blank separated CSS classes contains a CSS class.
+        /// </summary>
+        /// <param name="css">The string containing blank separated CSS classes.</param>
+        /// <param name="search">The CSS class to search for.</param>
+        /// <returns>true if the CSS class is found, false otherwise.</returns>
+        public static bool ContainsCss(string css, string search) {
+            string[] parts = css.Split(new char[] { ' ' });
+            return (from p in parts where p == search select p).FirstOrDefault() != null;
         }
 
         public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
