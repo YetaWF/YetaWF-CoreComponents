@@ -1014,7 +1014,6 @@ namespace YetaWF.Core.Controllers {
                                 sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.closePopup(true); }}, {2});", popupText, popupTitle, PopupOptions);
                                 break;
                             case OnPopupCloseEnum.UpdateInPlace:
-                                sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                                 isApply = true;
                                 break;
                             case OnPopupCloseEnum.ReloadModule:
@@ -1037,11 +1036,6 @@ namespace YetaWF.Core.Controllers {
                                 sb.Append($@"$YetaWF.pageChanged = {((bool)PageChanged ? "true" : "false")} ;");
                             break;
                         case OnCloseEnum.UpdateInPlace:
-                            if (!string.IsNullOrWhiteSpace(popupText)) {
-                                sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
-                            }
-                            if (PageChanged != null)
-                                sb.Append($@"$YetaWF.pageChanged = {((bool)PageChanged ? "true" : "false")} ;");
                             isApply = true;
                             break;
                         case OnCloseEnum.Return:
@@ -1086,6 +1080,8 @@ namespace YetaWF.Core.Controllers {
                         else
                             sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }}, {2});", popupText, popupTitle, PopupOptions);
                     } else {
+                        if (!string.IsNullOrWhiteSpace(popupText))
+                            sb.Append("$YetaWF.alert({0}, {1}, null, {2});", popupText, popupTitle, PopupOptions);
                         return PartialView(model, sb);
                     }
                 }
