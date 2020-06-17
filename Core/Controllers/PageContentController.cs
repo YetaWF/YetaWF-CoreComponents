@@ -215,6 +215,9 @@ namespace YetaWF.Core.Controllers {
 
             Manager.UniqueIdCounters = dataIn.UniqueIdCounters;
 
+            // set up all info, like who is logged on, popup, origin list, etc.
+            await YetaWFController.SetupEnvironmentInfoAsync();
+
             // process logging type callbacks
             await PageLogging.HandleCallbacksAsync(dataIn.Path, false);
 
@@ -313,9 +316,6 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
             }
-
-            // set up all info, like who is logged on, popup, origin list, etc.
-            await YetaWFController.SetupEnvironmentInfoAsync();
 
             Logging.AddLog("Page Content");
 
