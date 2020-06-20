@@ -896,8 +896,8 @@ namespace YetaWF.Core.Controllers {
                 OnClose = OnCloseEnum.UpdateInPlace;
             } else {
                 if (Manager.IsInPopup) {
-                    if (OnPopupClose == OnPopupCloseEnum.ReloadParentPage || OnPopupClose == OnPopupCloseEnum.GotoNewPage) {
-                        if (OnPopupClose == OnPopupCloseEnum.ReloadParentPage && string.IsNullOrWhiteSpace(NextPage))
+                    if (OnPopupClose == OnPopupCloseEnum.GotoNewPage) {
+                        if (string.IsNullOrWhiteSpace(NextPage))
                             NextPage = Manager.ReturnToUrl;
                         if (string.IsNullOrWhiteSpace(NextPage))
                             NextPage = Manager.CurrentSite.HomePageUrl;
