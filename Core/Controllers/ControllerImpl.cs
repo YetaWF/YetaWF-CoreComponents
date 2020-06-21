@@ -980,7 +980,8 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
     if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
         {PostSaveJavaScript}
     }} else
-        window.location.assign({url});");
+        window.location.assign({url});
+}});");
                     }
                 }
             } else {
