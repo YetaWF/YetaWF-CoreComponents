@@ -1714,10 +1714,14 @@ if (YConfigs.Basics.DEBUGBUILD) {
     let inDebug = false;
     // not really a debugging tool - Any failures result in a popup so at least it's visible without explicitly looking at the console log
     window.onerror = (ev: Event | string, url?: string, lineNo?: number, columnNo?: number, error?: Error): void => {
-        let msg = `${ev.toString()} (${url}:${lineNo}) ${error?.stack}`;
         if (!inDebug) {
             inDebug = true;
-            $YetaWF.error(msg);
+
+            let evMsg = ev.toString();
+            // avoid recursive error with video controls. a bit hacky but this is just a debugging tool.
+            if (evMsg.startsWith("ResizeObserver")) return;
+
+            $YetaWF.error(`${evMsg} (${url}:${lineNo}) ${error?.stack}`);
             inDebug = false;
         }
     };
