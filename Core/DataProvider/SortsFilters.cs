@@ -248,19 +248,19 @@ namespace YetaWF.Core.DataProvider {
                 if (objType != typeof(string)) {
                     if (objType.IsEnum) {
                         try { Value = Enum.ToObject(objType, Value); } catch (Exception) { }
-                    } else if (objType == typeof(DateTime) || objType == typeof(DateTime?)) {
+                    } else if (objType == typeof(DateTime) || (objType == typeof(DateTime?) && Value != null)) {
                         try { Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(Value)); } catch (Exception) { Value = DateTime.MinValue; }
-                    } else if (objType == typeof(int) || objType == typeof(int?)) {
+                    } else if (objType == typeof(int) || (objType == typeof(int?) && Value != null)) {
                         try { Value = Convert.ToInt32(Value); } catch (Exception) { Value = 0; }
-                    } else if (objType == typeof(long) || objType == typeof(long?)) {
+                    } else if (objType == typeof(long) || (objType == typeof(long?) && Value != null)) {
                         try { Value = Convert.ToInt64(Value); } catch (Exception) { Value = 0; }
-                    } else if (objType == typeof(bool) || objType == typeof(bool?)) {
+                    } else if (objType == typeof(bool) || (objType == typeof(bool?) && Value != null)) {
                         try { Value = Convert.ToBoolean(Value); } catch (Exception) { Value = true; }
                     } else if (objType == typeof(MultiString)) {
                         try { Value = new MultiString((string)Value); } catch (Exception) { Value = new MultiString(); }
-                    } else if (objType == typeof(decimal) || objType == typeof(decimal?)) {
+                    } else if (objType == typeof(decimal) || (objType == typeof(decimal?) && Value != null)) {
                         try { Value = Convert.ToDecimal(Value); } catch (Exception) { Value = 0; }
-                    } else if (objType == typeof(Guid) || objType == typeof(Guid?)) {
+                    } else if (objType == typeof(Guid) || (objType == typeof(Guid?) && Value != null)) {
                         Value = new GuidPartial { PartialString = ValueAsString?.ToLower() };
                     } else {
                         // default to string and hope for the best
