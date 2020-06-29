@@ -289,6 +289,7 @@ namespace YetaWF.Core.SendEmail {
                         throw;
                 } finally {
                     SmtpClient.Dispose();
+                    MailMessage.Dispose();
                 }
             }
         }
