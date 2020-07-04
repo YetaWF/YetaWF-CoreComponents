@@ -132,7 +132,6 @@ var YetaWF;
                             var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
-                            return false;
                         });
                         return false;
                     }

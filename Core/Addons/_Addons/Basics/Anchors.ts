@@ -14,7 +14,7 @@ namespace YetaWF {
         public init() : void {
 
             // For an <a> link clicked, add the page we're coming from (not for popup links though)
-            $YetaWF.registerEventHandlerBody("click", "a.yaction-link,area.yaction-link", (ev: Event) => {
+            $YetaWF.registerEventHandlerBody("click", "a.yaction-link,area.yaction-link", (ev: Event): boolean => {
 
                 // find the real anchor, ev.target was clicked but it may not be the anchor itself
                 if (!ev.target) return true;
@@ -131,7 +131,7 @@ namespace YetaWF {
                     // this is a file download
                     let confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm != null) {
-                        $YetaWF.alertYesNo(confirm, undefined, () => {
+                        $YetaWF.alertYesNo(confirm, undefined, (): void => {
                             window.location.assign(url);
                             $YetaWF.setLoading();
                             this.waitForCookie(cookieToReturn);
@@ -144,12 +144,11 @@ namespace YetaWF {
                     // this means that it's posted by definition
                     let confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
-                        $YetaWF.alertYesNo(confirm, undefined, () => {
+                        $YetaWF.alertYesNo(confirm, undefined, (): void => {
                             this.postLink(url, anchor, cookieToReturn);
                             let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
-                            return false;
                         });
                         return false;
                     } else if (post) {
@@ -241,7 +240,7 @@ namespace YetaWF {
 
         constructor(cookieToReturn: number) {
             this.cookiePattern = new RegExp((YConfigs.Basics.CookieDone + "=" + cookieToReturn), "i");
-            this.cookieTimer = setInterval(() => { this.checkCookies(); }, 500);
+            this.cookieTimer = setInterval((): void => { this.checkCookies(); }, 500);
         }
         private checkCookies(): boolean {
             if (document.cookie.search(this.cookiePattern) >= 0) {

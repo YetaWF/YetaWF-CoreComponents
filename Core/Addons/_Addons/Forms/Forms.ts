@@ -316,7 +316,7 @@ namespace YetaWF {
                             rawJSONFunc(req.responseText);
                             return;
                         }
-                        if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, (result: string) => {
+                        if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, (result: string): void => {
                             this.preSubmitHandler1 = [];
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
@@ -566,7 +566,7 @@ namespace YetaWF {
         public applyOnChange(elem: HTMLElement) : void {
             clearInterval(this.submitFormTimer);
             this.submitForm = this.getForm(elem);
-            this.submitFormTimer = setInterval(() => this.applyFormOnChange(), 1000);// wait 1 second and automatically submit the form
+            this.submitFormTimer = setInterval((): void => this.applyFormOnChange(), 1000);// wait 1 second and automatically submit the form
             $YetaWF.setLoading(true);
         }
         public applyOnReturnKey(elem: HTMLElement) : void {
@@ -576,7 +576,7 @@ namespace YetaWF {
         public reloadOnChange(elem: HTMLElement): void {
             clearInterval(this.submitFormTimer);
             this.submitForm = this.getForm(elem);
-            this.submitFormTimer = setInterval(() => this.reloadFormOnChange(), 1000);// wait 1 second and automatically submit the form
+            this.submitFormTimer = setInterval((): void => this.reloadFormOnChange(), 1000);// wait 1 second and automatically submit the form
             $YetaWF.setLoading(true);
         }
         public reloadOnReturnKey(elem: HTMLElement): void {
@@ -612,11 +612,11 @@ namespace YetaWF {
         public initSubmitOnChange(): void {
 
             // submit
-            $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", (ev: Event) => {
+            $YetaWF.registerEventHandlerBody("change", ".ysubmitonchange select,.ysubmitonchange input[type=\"checkbox\"]", (ev: Event): boolean => {
                 this.submitOnChange(ev.target as HTMLElement);
                 return false;
             });
-            $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", (ev: KeyboardEvent) => {
+            $YetaWF.registerEventHandlerBody("keyup", ".ysubmitonchange select", (ev: KeyboardEvent): boolean => {
                 if (ev.keyCode === 13) {
                     this.submitOnChange(ev.target as HTMLElement);
                     return false;
@@ -626,11 +626,11 @@ namespace YetaWF {
 
             // apply
 
-            $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", (ev: Event) => {
+            $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", (ev: Event): boolean => {
                 this.applyOnChange(ev.target as HTMLElement);
                 return false;
             });
-            $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", (ev: KeyboardEvent) => {
+            $YetaWF.registerEventHandlerBody("keyup", ".yapplyonchange select", (ev: KeyboardEvent): boolean => {
                 if (ev.keyCode === 13) {
                     this.applyOnChange(ev.target as HTMLElement);
                     return false;
@@ -640,11 +640,11 @@ namespace YetaWF {
 
             // reload
 
-            $YetaWF.registerEventHandlerBody("change", ".yreloadonchange select,.yreloadonchange input[type=\"checkbox\"]", (ev: Event) => {
+            $YetaWF.registerEventHandlerBody("change", ".yreloadonchange select,.yreloadonchange input[type=\"checkbox\"]", (ev: Event): boolean => {
                 this.reloadOnChange(ev.target as HTMLElement);
                 return false;
             });
-            $YetaWF.registerEventHandlerBody("keyup", ".yreloadonchange select", (ev: KeyboardEvent) => {
+            $YetaWF.registerEventHandlerBody("keyup", ".yreloadonchange select", (ev: KeyboardEvent): boolean => {
                 if (ev.keyCode === 13) {
                     this.reloadOnChange(ev.target as HTMLElement);
                     return false;

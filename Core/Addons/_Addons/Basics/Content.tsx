@@ -98,7 +98,7 @@ namespace YetaWF {
             var urlEntry = scripts[ix];
             var name = urlEntry.Name;
 
-            var found = payload.filter((elem: Payload) => { return elem.Name === name; });
+            var found = payload.filter((elem: Payload): boolean => { return elem.Name === name; });
             if (found.length > 0) {
                 $YetaWF.runGlobalScript(found[0].Text);
                 YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
@@ -358,7 +358,7 @@ namespace YetaWF {
             $YetaWF.runGlobalScript(result.Scripts);
             // add all new css files
             for (let urlEntry of result.CssFiles) {
-                var found = result.CssFilesPayload.filter((elem: Payload) => { return elem.Name === urlEntry.Name; });
+                var found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
                     var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
@@ -379,7 +379,7 @@ namespace YetaWF {
             YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles || []);
 
             // add all new script files
-            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, () => {
+            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, (): void => {
                 YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
                 YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
                 var tags: HTMLElement[] = []; // collect all panes
@@ -447,13 +447,13 @@ namespace YetaWF {
                 // end of page scripts
                 $YetaWF.runGlobalScript(result.EndOfPageScripts);
                 // turn off all previously active modules that are no longer active
-                YVolatile.Basics.UnifiedAddonModsPrevious.forEach((guid: string) => {
+                YVolatile.Basics.UnifiedAddonModsPrevious.forEach((guid: string): void => {
                     if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
                         $YetaWF.processContentChange(guid, false);
                 });
                 // turn on all newly active modules (if they were previously loaded)
                 // new referenced modules that were just loaded now are already active and don't need to be called
-                YVolatile.Basics.UnifiedAddonMods.forEach((guid: string) => {
+                YVolatile.Basics.UnifiedAddonMods.forEach((guid: string): void => {
                     if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && $YetaWF.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
                         $YetaWF.processContentChange(guid, true);
                     if ($YetaWF.UnifiedAddonModsLoaded.indexOf(guid) < 0)
@@ -580,7 +580,7 @@ namespace YetaWF {
             $YetaWF.runGlobalScript(result.Scripts);
             // add all new css files
             for (let urlEntry of result.CssFiles) {
-                var found = result.CssFilesPayload.filter((elem: Payload) => { return elem.Name === urlEntry.Name; });
+                var found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
                     var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     document.body.appendChild(elem);
@@ -593,7 +593,7 @@ namespace YetaWF {
             YVolatile.Basics.UnifiedCssBundleFiles.concat(result.CssBundleFiles || []);
 
             // add all new script files
-            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, () => {
+            this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, (): void => {
                 YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
                 YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
                 // end of page scripts

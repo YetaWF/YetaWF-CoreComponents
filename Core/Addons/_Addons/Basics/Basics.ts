@@ -365,7 +365,7 @@ namespace YetaWF {
             // FOCUS
             // FOCUS
 
-            this.registerDocumentReady(() => { // only needed during full page load
+            this.registerDocumentReady((): void => { // only needed during full page load
                 if (!scrolled && location.hash.length <= 1)
                     this.setFocus();
             });
@@ -396,7 +396,7 @@ namespace YetaWF {
                 // make all panes the same height
                 // this should happen late in case the content is changed dynamically (use with caution)
                 // if it does, the pane will still expand because we're only setting the minimum height
-                this.registerDocumentReady(() => { // TODO: This only works for full page loads
+                this.registerDocumentReady((): void => { // TODO: This only works for full page loads
                     var panes = this.getElementsBySelector(`#${id} > div`);// get all immediate child divs (i.e., the panes)
                     panes = this.limitToVisibleOnly(panes); //:visible
                     // exclude panes that have .y_cleardiv
@@ -1354,12 +1354,12 @@ namespace YetaWF {
             if (!document.body) {
                 $YetaWF.addWhenReadyOnce((tag: HTMLElement): void => {
                     for (let eventName of eventNames) {
-                        document.body.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+                        document.body.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev, selector, callback));
                     }
                 });
             } else {
                 for (let eventName of eventNames) {
-                    document.body.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+                    document.body.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev, selector, callback));
                 }
             }
         }
@@ -1368,35 +1368,35 @@ namespace YetaWF {
         }
         public registerMultipleEventHandlersDocument(eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
             for (let eventName of eventNames) {
-                document.addEventListener(eventName, (ev: Event) => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
+                document.addEventListener(eventName, (ev: Event): void => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
             }
         }
         public registerEventHandlerWindow<K extends keyof WindowEventMap>(eventName: K, selector: string | null, callback: (ev: WindowEventMap[K]) => boolean): void {
-            window.addEventListener(eventName, (ev: WindowEventMap[K]) => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
+            window.addEventListener(eventName, (ev: WindowEventMap[K]): void => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
         }
         public registerEventHandler<K extends keyof HTMLElementEventMap>(tag: HTMLElement, eventName: K, selector: string | null, callback: (ev: HTMLElementEventMap[K]) => boolean): void {
-            tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]) => this.handleEvent(tag, ev, selector, callback as (ev:Event)=>boolean));
+            tag.addEventListener(eventName, (ev: HTMLElementEventMap[K]): void => this.handleEvent(tag, ev, selector, callback as (ev:Event)=>boolean));
         }
         public registerMultipleEventHandlers(tags: (HTMLElement|null)[], eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
             for (let tag of tags) {
                 if (tag) {
                     for (let eventName of eventNames) {
-                        tag.addEventListener(eventName, (ev: Event) => this.handleEvent(tag, ev, selector, callback));
+                        tag.addEventListener(eventName, (ev: Event): void => this.handleEvent(tag, ev, selector, callback));
                     }
                 }
             }
         }
         public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
-            document.addEventListener(eventName, (ev: Event) => this.handleEvent(document.body, ev, selector, callback));
+            document.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev, selector, callback));
         }
         public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: Event) => void): void {
-            control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
+            control.Control.addEventListener(eventName, (ev: Event): void => callback(ev));
         }
         public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl|null)[], eventNames: string[], callback: (ev: Event) => void): void {
             for (let control of controls) {
                 if (control) {
                     for (let eventName of eventNames) {
-                        control.Control.addEventListener(eventName, (ev: Event) => callback(ev));
+                        control.Control.addEventListener(eventName, (ev: Event): void => callback(ev));
                     }
                 }
             }
@@ -1570,14 +1570,14 @@ namespace YetaWF {
             var expLink = this.getElement1BySelector("a[data-name='Expand']", [div]);
             var collLink = this.getElement1BySelector("a[data-name='Collapse']", [div]);
 
-            this.registerEventHandler(expLink, "click", null, (ev: Event) => {
+            this.registerEventHandler(expLink, "click", null, (ev: Event): boolean => {
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
                 this.processActivateDivs([expandedDiv]);
                 return true;
             });
-            this.registerEventHandler(collLink, "click", null, (ev: Event) => {
+            this.registerEventHandler(collLink, "click", null, (ev: Event): boolean => {
                 collapsedDiv.style.display = "";
                 expandedDiv.style.display = "none";
                 return true;
@@ -1605,18 +1605,18 @@ namespace YetaWF {
 
             // screen size yCondense/yNoCondense support
 
-            this.registerEventHandlerWindow("resize", null, (ev: UIEvent) => {
+            this.registerEventHandlerWindow("resize", null, (ev: UIEvent): boolean => {
                 this.setCondense(document.body, window.innerWidth);
                 return true;
             });
 
-            this.registerDocumentReady(() => {
+            this.registerDocumentReady((): void => {
                 this.setCondense(document.body, window.innerWidth);
             });
 
             // Navigation
 
-            this.registerEventHandlerWindow("popstate", null, (ev: PopStateEvent) => {
+            this.registerEventHandlerWindow("popstate", null, (ev: PopStateEvent): boolean => {
                 if (this.suppressPopState > 0) {
                     --this.suppressPopState;
                     return true;
@@ -1626,7 +1626,7 @@ namespace YetaWF {
             });
 
             // <a> links that only have a hash are intercepted so we don't go through content handling
-            this.registerEventHandlerBody("click", "a[href^='#']", (ev: MouseEvent) => {
+            this.registerEventHandlerBody("click", "a[href^='#']", (ev: MouseEvent): boolean => {
 
                 // find the real anchor, ev.target was clicked, but it may not be the anchor itself
                 if (!ev.target) return true;
@@ -1645,7 +1645,7 @@ namespace YetaWF {
 
             // WhenReady
 
-            this.registerDocumentReady(() => {
+            this.registerDocumentReady((): void => {
                 this.processAllReady();
                 this.processAllReadyOnce();
             });
