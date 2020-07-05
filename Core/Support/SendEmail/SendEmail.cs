@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text.RegularExpressions;
@@ -63,6 +64,8 @@ namespace YetaWF.Core.SendEmail {
         public const string EmailsFolder = "Emails";
         public const string EmailHtmlExtension = ".html";
         public const string EmailTxtExtension = ".txt";
+
+        internal static HttpClient Client = new HttpClient();
 
         public SendEmail() { }
 
@@ -185,38 +188,32 @@ namespace YetaWF.Core.SendEmail {
                     linesHtml = varSubst.ReplaceVariables(linesHtml);
                     linesHtml = varSubst.ReplaceVariables(linesHtml);// twice, in case we have variables containing variables
 
-                    MakeInlineItemsInfo info = new MakeInlineItemsInfo {
+                    MakeInlineFileItemsInfo fileInfo = new MakeInlineFileItemsInfo {
                         LinesHtml = linesHtml,
                         Files = new List<string>(),
                     };
-                    info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"url\(\s*file:///([^\)]*)\)"), info);
-                    info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"=\""\s*file:///([^""]*)\"""), info);
-                    info = await MakeInlineItemsAsync(htmlFolder, new Regex(@"=\'\s*file:///([^']*)\'"), info);
+
+                    int inlineIndex = 0;
+
+                    List<LinkedResource> linkedResources = new List<LinkedResource>();
+                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder, new Regex(@"url\(\s*file:///([^\)]*)\)"), fileInfo);
+                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder, new Regex(@"=\""\s*file:///([^""]*)\"""), fileInfo);
+                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder, new Regex(@"=\'\s*file:///([^']*)\'"), fileInfo);
+
+                    //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"url\(\s*(http(s|)://[^\)]*)\)"), fileInfo);
+                    //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"=\""\s*(http(s|)://[^""]*)\"""), fileInfo);
+                    //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"=\'\s*(http(s|)://[^']*)\'"), fileInfo);
+                    //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"=\'\s*(//[^']*)\'"), fileInfo);
+                    //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"=\""\s*(//[^""]*)\"""), fileInfo);
+                    inlineIndex = await MakeInlineUrlItemsAsync(linkedResources, inlineIndex, new Regex(@"url\(\s*(/FileHndlr\.image\?[^\)]*)\)"), fileInfo);
+                    inlineIndex = await MakeInlineUrlItemsAsync(linkedResources, inlineIndex, new Regex(@"=\'\s*(/FileHndlr\.image\?[^']*)\'"), fileInfo);
+                    inlineIndex = await MakeInlineUrlItemsAsync(linkedResources, inlineIndex, new Regex(@"=\""\s*(/FileHndlr\.image\?[^""]*)\"""), fileInfo);
 
                     ContentType mimeType = new ContentType("text/html");
-                    AlternateView alternate = AlternateView.CreateAlternateViewFromString(info.LinesHtml, mimeType);
+                    AlternateView alternate = AlternateView.CreateAlternateViewFromString(fileInfo.LinesHtml, mimeType);
+                    foreach (LinkedResource lr in linkedResources)
+                        alternate.LinkedResources.Add(lr);
                     message.AlternateViews.Add(alternate);
-
-                    // add inline images as attachments
-                    int i = 0;
-                    foreach (var file in info.Files) {
-                        LinkedResource lr;
-                        if (file.ToLower().EndsWith(".jpeg") || file.ToLower().EndsWith(".jpg"))
-                            lr = new LinkedResource(file, "image/jpeg");
-                        else if (file.ToLower().EndsWith(".png"))
-                            lr = new LinkedResource(file, "image/png");
-                        else if (file.ToLower().EndsWith(".gif"))
-                            lr = new LinkedResource(file, "image/gif");
-                        else {
-                            continue;
-                        }
-                        lr.ContentId = "C" + (1000 + i).ToString();
-                        lr.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
-                        try {
-                            alternate.LinkedResources.Add(lr);
-                        } catch { }
-                        ++i;
-                    }
                 }
                 SmtpClient = new SmtpClient(server, port) {
                     EnableSsl = ssl
@@ -233,11 +230,11 @@ namespace YetaWF.Core.SendEmail {
         }
 
         // find   ="file:///....." in text and replace with ="cid:C{1}"
-        public class MakeInlineItemsInfo {
+        private class MakeInlineFileItemsInfo {
             public List<string> Files { get; set; }
             public string LinesHtml { get; set; }
         }
-        private static async Task<MakeInlineItemsInfo> MakeInlineItemsAsync(string htmlFolder, Regex regex, MakeInlineItemsInfo info) {
+        private static async Task<int> MakeInlineUrlItemsAsync(List<LinkedResource> linkedResources, int inlineIndex, Regex regex, MakeInlineFileItemsInfo info) {
             Match m;
             int pos = 0;
             for (;;) {
@@ -247,20 +244,85 @@ namespace YetaWF.Core.SendEmail {
 
                 string src = m.Groups[1].ToString();
                 //src = InlineBaseFolder + src.Substring(InlineBaseSite.Length);
+                string fullUrl = src;
+                if (src.StartsWith("/")) {
+                    fullUrl = Utility.HtmlDecode(fullUrl);
+                    fullUrl = YetaWFManager.Manager.CurrentSite.MakeFullUrl(fullUrl);
+                }
+
+                string contentType;// a bit hacky
+                if (src.ToLower().Contains(".jpeg") || src.ToLower().Contains(".jpg"))
+                    contentType = "image/jpeg";
+                else if (src.ToLower().Contains(".png"))
+                    contentType = "image/png";
+                else if (src.ToLower().Contains(".gif"))
+                    contentType = "image/gif";
+                else
+                    continue;
+
+                LinkedResource lr;
+                try {
+                    Stream stream = await Client.GetStreamAsync(fullUrl);
+                    lr = new LinkedResource(stream, contentType);
+                } catch (Exception) {
+                    lr = null;
+                }
+
+                if (lr != null) {
+                    lr.ContentId = "C" + (1000 + inlineIndex).ToString();
+                    lr.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+                    linkedResources.Add(lr);
+
+                    string newStr = string.Format(@"=""cid:C{0}""", 1000 + inlineIndex);
+                    info.LinesHtml = info.LinesHtml.Substring(0, m.Index) + newStr + info.LinesHtml.Substring(m.Index + m.Length);
+                    pos = m.Index + newStr.Length;
+
+                    ++inlineIndex;
+                } else
+                    pos = m.Index + m.Length;
+            }
+            return inlineIndex;
+        }
+
+        private static async Task<int> MakeInlineFileItemsAsync(List<LinkedResource> linkedResources, int inlineIndex, string htmlFolder, Regex regex, MakeInlineFileItemsInfo info) {
+            Match m;
+            int pos = 0;
+            for (; ; ) {
+                m = regex.Match(info.LinesHtml, pos);
+                if (!m.Success)
+                    break;
+                string src = m.Groups[1].ToString();
                 src = Utility.FileToPhysical(src);
                 src = src.Replace("|", @":");
-                if (src.StartsWith(".\\") && !string.IsNullOrWhiteSpace(htmlFolder)) {
+                if ((src.StartsWith(".\\") || src.StartsWith("./")) && !string.IsNullOrWhiteSpace(htmlFolder))
                     src = Path.Combine(htmlFolder, src.Substring(2));
-                }
+
+                string contentType;
+                if (src.ToLower().EndsWith(".jpeg") || src.ToLower().EndsWith(".jpg"))
+                    contentType = "image/jpeg";
+                else if (src.ToLower().EndsWith(".png"))
+                    contentType = "image/png";
+                else if (src.ToLower().EndsWith(".gif"))
+                    contentType = "image/gif";
+                else
+                    continue;
+
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(src)) {
+                    LinkedResource lr = new LinkedResource(src, contentType);
+                    lr.ContentId = "C" + (1000 + inlineIndex).ToString();
+                    lr.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+                    linkedResources.Add(lr);
+
                     string newStr = string.Format(@"=""cid:C{0}""", 1000 + info.Files.Count);
                     info.LinesHtml = info.LinesHtml.Substring(0, m.Index) + newStr + info.LinesHtml.Substring(m.Index + m.Length);
                     info.Files.Add(src);
                     pos = m.Index + newStr.Length;
+
+                    ++inlineIndex;
                 } else
                     pos = m.Index + m.Length;
             }
-            return info;
+            return inlineIndex;
         }
 
         public void AddBcc(string ccEmail) {

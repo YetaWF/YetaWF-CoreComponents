@@ -65,6 +65,8 @@ namespace YetaWF.Core.HttpHandler {
         // A bit of a simplification - we're just looking for image/webp, don't care about quality and don't look for image/*
         private bool UseWEBP(string acceptHeader) {
             List<MediaTypeHeaderValue> mediaTypes = acceptHeader?.Split(',').Select(MediaTypeHeaderValue.Parse).ToList();
+            if (mediaTypes == null)
+                return false;
             return (from m in mediaTypes where m.MediaType == "image/webp" select m).FirstOrDefault() != null;
         }
 
