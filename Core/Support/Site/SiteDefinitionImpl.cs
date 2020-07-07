@@ -151,14 +151,34 @@ namespace YetaWF.Core.Site {
                 uri = new UriBuilder(SecurityType == PageDefinition.PageSecurityType.httpsOnly ? "https" : "http", RealDomain);
             } else {
                 SiteDefinition currentSite = Manager.CurrentSite;
-                string host = Manager.HostUsed;
+                string host;
+                string scheme;
+                int portUsed;
+                if (YetaWFManager.IsBatchMode) {
+                    host = currentSite.SiteDomain;
+                    switch (SecurityType) {
+                        default:
+                        case PageDefinition.PageSecurityType.Any:
+                        case PageDefinition.PageSecurityType.httpsOnly:
+                            scheme = "https";
+                            portUsed = currentSite.PortNumberSSLEval;
+                            break;
+                        case PageDefinition.PageSecurityType.httpOnly:
+                            scheme = "http";
+                            portUsed = currentSite.PortNumberEval;
+                            break;
+                    }
+                } else {
+                    host = Manager.HostUsed;
+                    scheme = Manager.HostSchemeUsed;
+                    portUsed = Manager.HostPortUsed;
+                }
                 int port = -1;
-                string scheme = Manager.HostSchemeUsed;
                 if (SecurityType == PageDefinition.PageSecurityType.httpsOnly) {
                     scheme = "https";
                     if (Manager.IsLocalHost) {
-                        if (Manager.HostPortUsed != 443)
-                            port = Manager.HostPortUsed;
+                        if (portUsed != 443)
+                            port = portUsed;
                     } else {
                         if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                             if (currentSite.EnforceSiteUrl)
@@ -168,13 +188,13 @@ namespace YetaWF.Core.Site {
                                     port = currentSite.PortNumberSSLEval;
                             }
                         } else
-                            port = Manager.HostPortUsed;
+                            port = portUsed;
                     }
                 } else if (SecurityType == PageDefinition.PageSecurityType.httpOnly) {
                     scheme = "http";
                     if (Manager.IsLocalHost) {
-                        if (Manager.HostPortUsed != 80)
-                            port = Manager.HostPortUsed;
+                        if (portUsed != 80)
+                            port = portUsed;
                     } else {
                         if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
                             if (currentSite.EnforceSiteUrl)
@@ -184,7 +204,7 @@ namespace YetaWF.Core.Site {
                                     port = currentSite.PortNumberSSLEval;
                             }
                         } else
-                            port = Manager.HostPortUsed;
+                            port = portUsed;
                     }
                 } else {
                     if (!Manager.IsTestSite && !Manager.IsLocalHost && !YetaWFManager.IsHTTPSite) {
@@ -192,15 +212,15 @@ namespace YetaWF.Core.Site {
                             host = currentSite.SiteDomain;
                         if (currentSite.EnforceSitePort) {
                             if (scheme == "https") {
-                                if (currentSite.PortNumberEval != 443)
-                                    port = currentSite.PortNumberEval;
+                                if (currentSite.PortNumberSSLEval != 443)
+                                    port = currentSite.PortNumberSSLEval;
                             } else {
                                 if (currentSite.PortNumberEval != 80)
                                     port = currentSite.PortNumberEval;
                             }
                         }
                     } else
-                        port = Manager.HostPortUsed;
+                        port = portUsed;
                 }
                 if (port != -1)
                     uri = new UriBuilder(scheme, host, port);

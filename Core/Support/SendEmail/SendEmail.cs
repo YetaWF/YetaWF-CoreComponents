@@ -262,10 +262,14 @@ namespace YetaWF.Core.SendEmail {
 
                 LinkedResource lr;
                 try {
-                    Stream stream = await Client.GetStreamAsync(fullUrl);
+                    Stream stream;
+                    if (YetaWFManager.IsSync())
+                        stream = Client.GetStreamAsync(fullUrl).Result;
+                    else
+                        stream = await Client.GetStreamAsync(fullUrl);
                     lr = new LinkedResource(stream, contentType);
-                } catch (Exception) {
-                    lr = null;
+                } catch (Exception exc) {
+                    throw new Error($"Can't retrieve {fullUrl} - {ErrorHandling.FormatExceptionMessage(exc)}");
                 }
 
                 if (lr != null) {
