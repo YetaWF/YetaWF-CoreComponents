@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -23,7 +24,7 @@ namespace YetaWF.Core.SendEmail {
     /// </summary>
     /// <remarks>There can only be on SendEmail provider.</remarks>
     public interface ISendEmail {
-        Task<object> PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null);
+        Task<object> PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object Parameters = null, NameValueCollection Headers = null);
         Task<string> GetEmailFileAsync(Package package, string filename);
         void AddBcc(object sendEmailData, string ccEmail);
         Task SendAsync(object sendEmailData, bool fThrowError = true);
@@ -86,14 +87,14 @@ namespace YetaWF.Core.SendEmail {
             return email;
         }
 
-        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fromEmail = null, object parameters = null) {
+        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fromEmail = null, object Parameters = null, NameValueCollection Headers = null) {
             NoSendEmailProviderAllowed();
             Manager.CurrentSite.SMTP.Validate();
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
             emailHTML = "<!DOCTYPE html><html><head>" +
                 "<title>" + subject + "</title>" +
                 "</head><body style='margin:0'>" + emailHTML + "</body></html>";
-            await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, parameters);
+            await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, Parameters, Headers);
         }
         public async Task<string> GetEmailFileAsync(Package package, string filename) {
             if (SendEmailProvider != null) {
@@ -113,16 +114,16 @@ namespace YetaWF.Core.SendEmail {
                 throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);
             }
         }
-        public async Task PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object parameters = null) {
+        public async Task PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object Parameters = null, NameValueCollection Headers = null) {
             if (SendEmailProvider != null) {
-                SendEmailData = await SendEmailProvider.PrepareEmailMessageAsync(toEmail, subject, emailFile, fromEmail, parameters);
+                SendEmailData = await SendEmailProvider.PrepareEmailMessageAsync(toEmail, subject, emailFile, fromEmail, Parameters, Headers);
             } else {
                 Manager.CurrentSite.SMTP.Validate();
                 SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
-                await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, parameters);
+                await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, Parameters, Headers);
             }
         }
-        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object parameters = null) {
+        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object Parameters = null, NameValueCollection Headers = null) {
             NoSendEmailProviderAllowed();
             string file = emailFile;
             if (!file.EndsWith(EmailTxtExtension, StringComparison.CurrentCultureIgnoreCase))
@@ -150,9 +151,9 @@ namespace YetaWF.Core.SendEmail {
                 linesHtml = null;
                 htmlFolder = null;
             }
-            await PrepareEmailMessageAsync(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, parameters);
+            await PrepareEmailMessageAsync(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, Parameters, Headers);
         }
-        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object parameters = null) {
+        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object Parameters = null, NameValueCollection Headers = null) {
             NoSendEmailProviderAllowed();
             try {
                 if (string.IsNullOrEmpty(server))
@@ -175,7 +176,7 @@ namespace YetaWF.Core.SendEmail {
 
                 SendingEmailAddress = fromEmail;
 
-                Variables varSubst = new Variables(Manager, parameters);
+                Variables varSubst = new Variables(Manager, Parameters);
                 linesText = varSubst.ReplaceVariables(linesText);
                 linesText = varSubst.ReplaceVariables(linesText);// twice, in case we have variables containing variables
 
@@ -186,6 +187,10 @@ namespace YetaWF.Core.SendEmail {
                 message.Subject = varSubst.ReplaceVariables(subject);
                 message.From = new MailAddress(fromEmail);
                 message.Body = linesText;
+
+                // Add headers if available
+                if (Headers != null)
+                    message.Headers.Add(Headers);
 
                 // add html if available
                 if (!string.IsNullOrEmpty(linesHtml)) {
