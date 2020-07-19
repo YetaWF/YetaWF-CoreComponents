@@ -88,5 +88,6 @@ namespace YetaWF.Core.IO {
         Task WriteAsync(byte[] btes, int offset, int length);
         Task FlushAsync();
         Task CloseAsync();
+        Task CopyToAsync(MemoryStream memStream);
     }
 }
