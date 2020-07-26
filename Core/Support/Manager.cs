@@ -1503,7 +1503,9 @@ namespace YetaWF.Core.Support {
         public TYPE GetPackageData<TYPE>(string areaName) {
             if (_packageData == null)
                 return default(TYPE);
-            return (TYPE) _packageData[areaName];
+            if (_packageData.TryGetValue(areaName, out object data))
+                return (TYPE)data;
+            return default(TYPE);
         }
         private Dictionary<string, object> _packageData = null;
 

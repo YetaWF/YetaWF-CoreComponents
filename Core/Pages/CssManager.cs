@@ -47,7 +47,7 @@ namespace YetaWF.Core.Pages {
             }
         }
         /// <summary>
-        /// Combines to strings containing CSS class(es).
+        /// Combines two strings containing CSS class(es).
         /// </summary>
         /// <param name="css1">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>
         /// <param name="css2">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>
