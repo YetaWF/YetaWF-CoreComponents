@@ -15,6 +15,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Components;
+using Newtonsoft.Json;
 #if MVC6
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -170,6 +171,7 @@ namespace YetaWF.Core.Site {
         [Copy]
         public int Identity { get; set; }
 
+        [JsonIgnore]
         public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "URLs", "References", "Encryption", "Skin", "Addons", "Meta", "Variables" }; } }
 
         [Data_PrimaryKey]
@@ -229,7 +231,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public PageSecurityType PageSecurity { get; set; }
 
-        public PageSecurityType EvaluatedPageSecurity { 
+        public PageSecurityType EvaluatedPageSecurity {
             get {
                 if (_PageSecurityHaveOverride == null) {
                     PageSecurityType pageSec = WebConfigHelper.GetValue<PageSecurityType>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, nameof(PageSecurity));
@@ -237,7 +239,7 @@ namespace YetaWF.Core.Site {
                     _PageSecurityHaveOverride = (pageSec != PageSecurityType.AsProvided); // only allow override if != AsProvided
                 }
                 return (bool)_PageSecurityHaveOverride ? _PageSecurityOverride : PageSecurity;
-            } 
+            }
         }
         private static PageSecurityType _PageSecurityOverride;
         private static bool? _PageSecurityHaveOverride = null;
@@ -428,7 +430,7 @@ namespace YetaWF.Core.Site {
         [UIHint("String"), ReadOnly]
         public string CopyrightEvaluated {
             get {
-                return Copyright.Replace("<<Year>>", Formatting.FormatDateTimeYear(DateTime.UtcNow));
+                return Copyright.Replace("<<Year>>", Localize.Formatting.FormatDateTimeYear(DateTime.UtcNow));
             }
         }
 
