@@ -261,6 +261,19 @@ var YetaWF;
             this.registerDocumentReady(function () {
                 if (!scrolled && location.hash.length <= 1)
                     _this.setFocus();
+                else {
+                    var hash = location.hash;
+                    if (hash && hash.length > 1) {
+                        var target = null;
+                        try { // handle invalid id
+                            target = $YetaWF.getElement1BySelectorCond(hash);
+                        }
+                        catch (e) { }
+                        if (target) {
+                            target.scrollIntoView();
+                        }
+                    }
+                }
             });
             // content navigation
             this.UnifiedAddonModsLoaded = YVolatile.Basics.UnifiedAddonModsPrevious; // save loaded addons

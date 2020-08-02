@@ -51,6 +51,9 @@ namespace YetaWF {
             if (this.Hash.length === 0) return "";
             return (withHash ? "#" : "") + encodeURIComponent(this.Hash);
         }
+        public setHash(hash: string | null): void {
+            this.Hash = hash ?? "";
+        }
         public hasSearch(key: string): boolean {
             key = key.toLowerCase();
             for (let entry of this.QSEntries) {

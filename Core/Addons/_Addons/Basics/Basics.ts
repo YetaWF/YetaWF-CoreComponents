@@ -368,6 +368,18 @@ namespace YetaWF {
             this.registerDocumentReady((): void => { // only needed during full page load
                 if (!scrolled && location.hash.length <= 1)
                     this.setFocus();
+                else {
+                    let hash = location.hash;
+                    if (hash && hash.length > 1) {
+                        let target: HTMLElement | null = null;
+                        try {// handle invalid id
+                            target = $YetaWF.getElement1BySelectorCond(hash);
+                        } catch (e) { }
+                        if (target) {
+                            target.scrollIntoView();
+                        }
+                    }
+                }
             });
 
             // content navigation

@@ -47,6 +47,9 @@ var YetaWF;
                 return "";
             return (withHash ? "#" : "") + encodeURIComponent(this.Hash);
         };
+        Url.prototype.setHash = function (hash) {
+            this.Hash = hash !== null && hash !== void 0 ? hash : "";
+        };
         Url.prototype.hasSearch = function (key) {
             key = key.toLowerCase();
             for (var _i = 0, _a = this.QSEntries; _i < _a.length; _i++) {
