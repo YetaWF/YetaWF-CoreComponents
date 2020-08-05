@@ -158,6 +158,7 @@ namespace YetaWF.Core.Site {
             jQueryUISkin = null;
             KendoUISkin = null;
             TabStyle = TabStyleEnum.JQuery;
+            MessageType = MessageTypeEnum.ToastLeft;
 
             UseCDN = false;
             CDNUrl = null;
