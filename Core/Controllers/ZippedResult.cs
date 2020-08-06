@@ -39,7 +39,7 @@ namespace YetaWF.Core.Controllers {
             HttpResponse Response = context.HttpContext.Response;
 
             Response.ContentType = "application/zip";
-            Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : "filename=" + Zip.FileName));
+            Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(Zip.FileName) ? "" : $@"filename=""{Zip.FileName}"""));
             Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" });
 
             Utility.AllowSyncIO(context.HttpContext);
