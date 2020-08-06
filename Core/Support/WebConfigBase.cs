@@ -23,7 +23,7 @@ namespace YetaWF.Core.Support {
         public const string DEBUG_PREFIX = "[Debug]";
 #endif
 
-        public Task InitAsync(string settingsFile) {
+        public async Task InitAsync(string settingsFile) {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Settings file not found ({0})", settingsFile);
             SettingsFile = settingsFile;
@@ -37,9 +37,19 @@ namespace YetaWF.Core.Support {
                 Variables.Add("DEPLOYSUFFIX", env.ToUpper());
             }
 
+            // Process Includes
+            JObject vars = Settings["Includes"];
+            if (vars != null) {
+                foreach (JToken var in vars.Children()) {
+                    JProperty p = (JProperty)var;
+                    string file = (string)p.Value;
+                    await ProcessIncludeAsync(settingsFile, file, Variables);
+                }
+            }
+
             Variables varSubst = new Variables(null, Variables);
 
-            JObject vars = Settings["Variables"];
+            vars = Settings["Variables"];
             if (vars != null) {
                 foreach (JToken var in vars.Children()) {
                     JProperty p = (JProperty)var;
@@ -47,7 +57,16 @@ namespace YetaWF.Core.Support {
                     Variables.Add(p.Name, s);
                 }
             }
-            return Task.CompletedTask;
+        }
+
+        private async Task ProcessIncludeAsync(string settingsFile, string file, Dictionary<string, object> variables) {
+            string folder = Path.GetDirectoryName(settingsFile);
+            string includeFile = Path.Combine(folder, file);
+            WebConfigBaseHelper configInclude = new WebConfigBaseHelper();
+            await configInclude.InitAsync(includeFile);
+            foreach (KeyValuePair<string, object> var in configInclude.Variables) {
+                Variables[var.Key] = var.Value;
+            }
         }
 
         private string SettingsFile;
