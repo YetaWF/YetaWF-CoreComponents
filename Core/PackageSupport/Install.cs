@@ -73,10 +73,8 @@ namespace YetaWF.Core.Packages {
             using ((IDisposable)instMod) {
                 IInstallableModel model = (IInstallableModel)instMod;
                 List<string> list = new List<string>();
-                if (await model.IsInstalledAsync()) {
-                    if (!await model.InstallModelAsync(list))
-                        success = false;
-                }
+                if (!await model.InstallModelAsync(list))
+                    success = false;
                 errorList.AddRange(list);
                 return success;
             }
