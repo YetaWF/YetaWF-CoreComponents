@@ -78,7 +78,7 @@ namespace YetaWF.Core.Support {
             dynamic val;
             try {
                 // try environment variable first
-                string env;
+                dynamic env;
                 if (Package)
                     env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName.ToUpper()}_{key.ToUpper()}");
                 else
@@ -104,8 +104,8 @@ namespace YetaWF.Core.Support {
 #else
                     val = val[key]; // in release builds only use explicit key
 #endif
-                    val = val.ToObject<TYPE>();
                 }
+                val = val.ToObject<TYPE>();
                 if (val == null) {
                     if (Required)
                         throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
@@ -124,6 +124,10 @@ namespace YetaWF.Core.Support {
                 } else {
                     Variables varSubst = new Variables(null, Variables);
                     string s = varSubst.ReplaceVariables((string)val);
+                    if (string.IsNullOrWhiteSpace(s)) {
+                        if (Required)
+                            throw new InternalError($"The required {(Package ? $"Application:Package:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
+                    }
                     return (TYPE)(object)s;
                 }
             }
