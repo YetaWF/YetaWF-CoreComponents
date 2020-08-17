@@ -104,13 +104,13 @@ namespace YetaWF.Core.Support {
 #else
                     val = val[key]; // in release builds only use explicit key
 #endif
+                    val = val.ToObject<TYPE>();
                 }
                 if (val == null) {
                     if (Required)
                         throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                     return dflt;
                 }
-                val = val.ToObject<TYPE>();
             } catch (Exception) {
                 if (Required)
                     throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
