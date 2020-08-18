@@ -84,7 +84,7 @@ namespace YetaWF.Core.Support {
                 else
                     env = Environment.GetEnvironmentVariable($"YETAWF_{areaName.ToUpper()}_{key.ToUpper()}");
                 if (env != null) {
-                    val = env;
+                    val = Convert.ChangeType(env, typeof(TYPE));
                 } else {
                     if (Package)
                         val = Settings["Application"]["P"][areaName];
@@ -104,8 +104,8 @@ namespace YetaWF.Core.Support {
 #else
                     val = val[key]; // in release builds only use explicit key
 #endif
+                    val = val.ToObject<TYPE>();
                 }
-                val = val.ToObject<TYPE>();
                 if (val == null) {
                     if (Required)
                         throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
