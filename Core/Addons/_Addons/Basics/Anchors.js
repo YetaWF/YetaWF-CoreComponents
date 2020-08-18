@@ -19,6 +19,8 @@ var YetaWF;
                 var anchor = $YetaWF.elementClosestCond(ev.target, "a,area");
                 if (!anchor)
                     return true;
+                if ($YetaWF.getAttributeCond(anchor, "data-nohref"))
+                    return false;
                 var url = anchor.href;
                 // send tracking info
                 if ($YetaWF.elementHasClass(anchor, "yTrack")) {
@@ -237,5 +239,3 @@ var YetaWF;
         return CookieWait;
     }());
 })(YetaWF || (YetaWF = {}));
-
-//# sourceMappingURL=Anchors.js.map

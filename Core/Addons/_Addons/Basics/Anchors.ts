@@ -20,6 +20,7 @@ namespace YetaWF {
                 if (!ev.target) return true;
                 let anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a,area") as HTMLAnchorElement;
                 if (!anchor) return true;
+                if ($YetaWF.getAttributeCond(anchor, "data-nohref")) return false;
 
                 let url = anchor.href;
 
