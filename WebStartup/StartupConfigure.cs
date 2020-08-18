@@ -249,7 +249,7 @@ namespace YetaWF.Core.WebStartup {
             IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));
             YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
 
-            app.UseForwardedHeaders();
+//$$$            app.UseForwardedHeaders();
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif
