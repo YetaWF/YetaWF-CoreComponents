@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -65,7 +64,7 @@ namespace YetaWF.Core.WebStartup {
             YetaWFManager.RootFolderWebProject = env.ContentRootPath;
 
             WebConfigHelper.InitAsync(GetAppSettingsFile()).Wait();
-            LanguageSection.InitAsync(Path.Combine(YetaWFManager.RootFolderWebProject, Globals.DataFolder, Startup.LANGUAGESETTINGS)).Wait();
+            LanguageSection.InitAsync(Path.Combine(YetaWFManager.RootFolderWebProject, Globals.DataFolder, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
         }
 
         /// <summary>
@@ -249,7 +248,7 @@ namespace YetaWF.Core.WebStartup {
             IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));
             YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
 
-//$$$            app.UseForwardedHeaders();
+            app.UseYetaWFForwardedHeaders();
 #if DEBUG
             app.UseDeveloperExceptionPage();
 #endif

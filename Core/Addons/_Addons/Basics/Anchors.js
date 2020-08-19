@@ -239,3 +239,5 @@ var YetaWF;
         return CookieWait;
     }());
 })(YetaWF || (YetaWF = {}));
+
+//# sourceMappingURL=Anchors.js.map

@@ -104,7 +104,8 @@ namespace YetaWF.Core.Support {
 #else
                     val = val[key]; // in release builds only use explicit key
 #endif
-                    val = val.ToObject<TYPE>();
+                    if (val != null)
+                        val = val.ToObject<TYPE>();
                 }
                 if (val == null) {
                     if (Required)

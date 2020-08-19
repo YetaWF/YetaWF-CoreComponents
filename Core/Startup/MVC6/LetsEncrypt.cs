@@ -1,4 +1,4 @@
-/* Copyright �2020 Softel vdm, Inc.. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 #if MVC6
 
@@ -23,7 +23,7 @@ namespace YetaWF2.LetsEncrypt {
         public static void AddLetsEncrypt(this IServiceCollection services) {
             Assembly fluffyAssembly = LoadAssembly();
             if (fluffyAssembly == null)
-                return;            
+                return;
             Type tp = fluffyAssembly.GetType(TYPE);
             dynamic inst = Activator.CreateInstance(tp);
             Enabled = inst.AddLetsEncrypt(services);

@@ -1,9 +1,8 @@
-/* Copyright �2020 Softel vdm, Inc.. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 #if MVC6
 
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +11,7 @@ using System.Reflection;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
-namespace YetaWF2.Support
-{
+namespace YetaWF2.Support {
     public static class YetaWFApplicationPartManager {
 
         public static bool Initialized { get; private set; } = false;
