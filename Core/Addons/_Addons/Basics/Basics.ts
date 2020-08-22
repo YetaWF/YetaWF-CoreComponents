@@ -1662,7 +1662,9 @@ namespace YetaWF {
                 this.processAllReadyOnce();
             });
 
-            $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
+            setTimeout((): void => {
+                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
+            }, 1);
         }
 
         /* Print support */

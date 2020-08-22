@@ -1509,7 +1509,9 @@ var YetaWF;
                 _this.processAllReady();
                 _this.processAllReadyOnce();
             });
-            $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED);
+            setTimeout(function () {
+                $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED);
+            }, 1);
         };
         Object.defineProperty(BasicsServices.prototype, "isPrinting", {
             /* Print support */
