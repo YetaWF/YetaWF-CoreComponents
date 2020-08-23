@@ -392,6 +392,7 @@ namespace YetaWF.Core.Controllers {
                     // change all dates to utc - internally YetaWF ALWAYS uses utc
                     // incoming dates are sent from client in utc, but arrive in local time ("thanks" to ASP.NET translating them)
                     // so we translate them back to utc. There is probably a better way somewhere in ASP.NET, but haven't figured it out yet.
+                    // will be fixed in .net 5.0 so this hack is no longer needed. https://github.com/dotnet/aspnetcore/issues/11584
                     if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
                         DateTime? dt = prop.GetPropertyValue<DateTime?>(parm);
 
