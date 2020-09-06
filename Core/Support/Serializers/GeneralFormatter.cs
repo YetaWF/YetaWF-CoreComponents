@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using YetaWF.Core.Extensions;
@@ -213,19 +214,36 @@ namespace YetaWF.Core.Support.Serializers {
         }
         static List<char> EndChars = new List<char> { ',', ']' };
 
-        internal static string UpdateTypeForDeserialization(string typeName) {
-#if MVC6
-#else
-            // Denormalize type information if we're on MVC5
-            typeName = typeName.Replace(", System.Private.CoreLib", ", mscorlib"); // (MVC5) used for system.string, replace with MVC5 equivalent (standard is MVC6)
-#endif
+        internal static void UpdateTypeForDeserialization(ref string typeName, ref string assembly) {
             // Types that were changed in 4.0
             if (typeName == "YetaWF.Core.Menus.MenuList")
                 typeName = "YetaWF.Core.Components.MenuList";
             else if (typeName == "YetaWF.Core.Views.Shared.RecaptchaV2Config")
                 typeName = "YetaWF.Core.Components.RecaptchaV2Config";
+            else {
+                string tp = typeName;
+                string asm = assembly;
+                TypeConversion conv = (from t in TypeConversions where tp == t.OldType && asm == t.OldAssembly select t).FirstOrDefault();
+                if (conv != null) {
+                    typeName = conv.NewType;
+                    assembly = conv.NewAssembly;
+                }
+            }
+        }
 
-            return typeName;
+        public static void RegisterTypeConversion(string oldType, string oldAssembly, string newType, string newAssembly) {
+            TypeConversions.Add(new TypeConversion {
+                OldType = oldType, OldAssembly = oldAssembly,
+                NewType = newType, NewAssembly = newAssembly,
+            });
+        }
+        private static List<TypeConversion> TypeConversions = new List<TypeConversion>();
+
+        public class TypeConversion {
+            public string OldType { get; set; }
+            public string OldAssembly { get; set; }
+            public string NewType { get; set; }
+            public string NewAssembly { get; set; }
         }
     }
 }

@@ -243,7 +243,7 @@ namespace YetaWF.Core.Serializers {
 
             string strAsm = xmlIn.Attr("Assembly");
             string strType = xmlIn.Attr("Type");
-            strType = GeneralFormatter.UpdateTypeForDeserialization(strType);
+            GeneralFormatter.UpdateTypeForDeserialization(ref strType, ref strAsm);
 
             Type t = null;
             try {

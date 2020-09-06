@@ -334,8 +334,8 @@ namespace YetaWF.Core.Serializers {
                 throw new InternalError("Invalid Object encountered - {0}", input);
 
             string strType = s[1];
-            strType = GeneralFormatter.UpdateTypeForDeserialization(strType);
             string strAsm = s[2];
+            GeneralFormatter.UpdateTypeForDeserialization(ref strType, ref strAsm);
             string strAsmFull = s[3];
 
             Type t;
