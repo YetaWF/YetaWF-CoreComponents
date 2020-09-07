@@ -871,15 +871,17 @@ namespace YetaWF.Core.Controllers {
         /// <param name="OnPopupClose">The action to take when a popup is closed. This is only used if a popup is closed (as opposed to a page or when the Apply button was processed).</param>
         /// <param name="OnApply">The action to take when the Apply button was processed.</param>
         /// <param name="NextPage">The URL where the page is redirected (OnClose or OnPopupClose must request a matching action, otherwise this is ignored).</param>
+        /// <param name="PreserveOriginList">Preserves the URL origin list. Only supported when <paramref name="NextPage"/> is used.</param>
         /// <param name="PreSaveJavaScript">Optional additional Javascript code that is returned as part of the ActionResult and runs before the form is saved.</param>
         /// <param name="PostSaveJavaScript">Optional additional Javascript code that is returned as part of the ActionResult and runs after the form is saved.</param>
         /// <param name="ForceRedirect">Force a real redirect bypassing Unified Page Set handling.</param>
         /// <param name="PopupOptions">TODO: This is not a good option, passes JavaScript/JSON to the client side for the popup window.</param>
         /// <param name="PageChanged">The new page changed status.</param>
+        /// <param name="ForceApply">Force handling as Apply.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
-                string NextPage = null, string PreSaveJavaScript = null, string PostSaveJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false,
+                string NextPage = null, bool PreserveOriginList = false, string PreSaveJavaScript = null, string PostSaveJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false,
                 bool? PageChanged = null) {
 
             ScriptBuilder sb = new ScriptBuilder();
@@ -890,6 +892,16 @@ namespace YetaWF.Core.Controllers {
             popupText = string.IsNullOrWhiteSpace(popupText) ? null : Utility.JsonSerialize(popupText);
             popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
             PopupOptions = PopupOptions ?? "null";
+
+            if (PreserveOriginList && !string.IsNullOrWhiteSpace(NextPage)) {
+                string url = NextPage;
+                if (Manager.OriginList != null) {
+                    string urlOnly;
+                    QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
+                    qh.Add(Globals.Link_OriginList, Utility.JsonSerialize(Manager.OriginList), Replace: true);
+                    NextPage = qh.ToUrl(urlOnly);
+                }
+            }
 
             bool isApply = IsApply || IsReload || ForceApply;
             if (isApply) {
