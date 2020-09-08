@@ -270,6 +270,7 @@ namespace YetaWF {
                 if (divs.length > 0) {
 
                     $YetaWF.closeOverlays();
+                    $YetaWF.pageChanged = false;
 
                     // Update the browser address bar with the new path
                     if (setState) //$$$inplace
@@ -318,7 +319,6 @@ namespace YetaWF {
                     } else
                         throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
                     $YetaWF.setLoading(false);
-                    $YetaWF.pageChanged = false;
                     return SetContentResult.ContentReplaced;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
@@ -333,6 +333,7 @@ namespace YetaWF {
         private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents ) : void {
 
             $YetaWF.closeOverlays();
+            $YetaWF.pageChanged = false;
 
             if (result.Status != null && result.Status.length > 0) {
                 $YetaWF.setLoading(false);
@@ -506,7 +507,6 @@ namespace YetaWF {
                     }, 1);
                 }
                 $YetaWF.setLoading(false);
-                $YetaWF.pageChanged = false;
             });
         }
 

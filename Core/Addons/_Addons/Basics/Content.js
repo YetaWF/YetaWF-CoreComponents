@@ -202,6 +202,7 @@ var YetaWF;
                 var divs = $YetaWF.getElementsBySelector(".yUnified[data-url=\"" + path + "\"]");
                 if (divs.length > 0) {
                     $YetaWF.closeOverlays();
+                    $YetaWF.pageChanged = false;
                     // Update the browser address bar with the new path
                     if (setState) //$$$inplace
                         $YetaWF.setUrl(uri.toUrl());
@@ -249,7 +250,6 @@ var YetaWF;
                     else
                         throw "Invalid UnifiedMode " + YVolatile.Basics.UnifiedMode;
                     $YetaWF.setLoading(false);
-                    $YetaWF.pageChanged = false;
                     return SetContentResult.ContentReplaced;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
@@ -261,6 +261,7 @@ var YetaWF;
         };
         Content.prototype.processReceivedContent = function (result, uri, divs, setState, popupCB, inplace) {
             $YetaWF.closeOverlays();
+            $YetaWF.pageChanged = false;
             if (result.Status != null && result.Status.length > 0) {
                 $YetaWF.setLoading(false);
                 $YetaWF.error(result.Status, YLocs.Forms.AjaxErrorTitle);
@@ -448,7 +449,6 @@ var YetaWF;
                     }, 1);
                 }
                 $YetaWF.setLoading(false);
-                $YetaWF.pageChanged = false;
             });
         };
         Content.prototype.loadAddons = function (addons, run) {
