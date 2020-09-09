@@ -1,4 +1,4 @@
-﻿//stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js,CDN
+﻿//stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js,CDN
 //cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js,CDN
 
 /node_modules/bootstrap/dist/js/bootstrap.bundle.min.js,noCDN
