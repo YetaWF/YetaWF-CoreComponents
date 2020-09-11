@@ -66,6 +66,9 @@ namespace YetaWF.Core.DataProvider {
                 }
                 return _customTypes;
             }
+            public Dictionary<Type, List<MethodInfo>> GetExtensionMethods() {
+                return new Dictionary<Type, List<MethodInfo>>();
+            }
             public Type ResolveType(string typeName) {
                 return ResolveType(Assemblies.GetLoadedAssemblies(), typeName);
             }
