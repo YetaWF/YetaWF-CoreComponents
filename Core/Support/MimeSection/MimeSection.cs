@@ -77,12 +77,12 @@ namespace YetaWF.Core.Support {
             contentType = contentType.Trim().ToLower();
             foreach (MimeEntry entry in CachedEntries) {
                 if (entry.Type == contentType) {
-                    if (entry.Dynamic == null)
-                        return false;
-                    try {
-                        return (bool)entry.Dynamic[resourceName];
-                    } catch (Exception) {
-                        return false;
+                    if (entry.Dynamic != null) {// built-in entries don't have dynamic section
+                        try {
+                            return (bool)entry.Dynamic[resourceName];
+                        } catch (Exception) {
+                            return false;
+                        }
                     }
                 }
             }
