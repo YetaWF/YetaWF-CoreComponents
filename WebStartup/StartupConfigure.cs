@@ -319,12 +319,25 @@ namespace YetaWF.Core.WebStartup {
                     }
                 });
 
-                // everything else
+                // Everything else in wwwroot is based on mimetype. Only mime types with Download=true can be downloaded.
+                FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider(new Dictionary<string,string>());
+
                 MimeSection staticMimeSect = new MimeSection();
                 await staticMimeSect.InitAsync(Path.Combine(Globals.DataFolder, MimeSection.MimeSettingsFile));
-
+                List<MimeSection.MimeEntry> mimeTypes = staticMimeSect.GetMimeTypes();
+                if (mimeTypes != null) {
+                    foreach (MimeSection.MimeEntry entry in mimeTypes) {
+                        if (entry.Download) {
+                            string[] extensions = entry.Extensions.Split(new char[] { ';' });
+                            foreach (string extension in extensions) {
+                                if (!provider.Mappings.ContainsKey(extension.Trim()))
+                                    provider.Mappings.Add(extension.Trim(), entry.Type);
+                            }
+                        }
+                    }
+                }
                 app.UseStaticFiles(new StaticFileOptions {
-                    ContentTypeProvider = new FileExtensionContentTypeProvider(),
+                    ContentTypeProvider = provider,
                     OnPrepareResponse = (context) => {
                         YetaWFManager.SetStaticCacheInfo(context.Context);
                     }

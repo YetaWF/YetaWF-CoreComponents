@@ -7,30 +7,18 @@ using System.Threading.Tasks;
 
 namespace YetaWF.Core.Support {
 
-    public class MimeSection
-#if MVC6
-#else
-        : IInitializeApplicationStartup
-#endif
-        {
+    public class MimeSection {
 
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-        // IInitializeApplicationStartup
-#if MVC6
-#else
-        /// <summary>
-        /// Called when any node of a (single- or multi-instance) site is starting up.
-        /// </summary>
-        public async Task InitializeApplicationStartupAsync() {
+        public class MimeEntry {
+            public string Type { get; set; }
+            public string Extensions { get; set; }
+            public bool Download { get; set; }
+            public dynamic Dynamic { get; set; } // original entry (so we can access package-specific settings)
 
-            if (YetaWFManager.Manager.HostUsed == YetaWFManager.BATCHMODE)
-                return;
-
-            string rootFolder = YetaWFManager.RootFolder;
-            await InitAsync(Path.Combine(rootFolder, Globals.DataFolder, MimeSettingsFile));
+            public MimeEntry() {
+                Download = true;
+            }
         }
-#endif
 
         // MIME Types
 
@@ -38,52 +26,61 @@ namespace YetaWF.Core.Support {
         public const string ImageUse = "ImageUse";
         public const string FlashUse = "FlashUse";
         public const string PackageUse = "PackageUse";
-#if MVC6
-        public
-#else
-        private
-#endif
-            Task InitAsync(string settingsFile) {
+
+        public Task InitAsync(string settingsFile) {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            Settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            dynamic settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+
+            dynamic mimeSection = settings["MimeSection"];
+            List<MimeEntry> list = new List<MimeEntry>();
+
+            // add required extensions
+            list.Add(new MimeEntry { Extensions = ".js", Type = "application/javascript" });
+            list.Add(new MimeEntry { Extensions = ".css", Type = "text/css" });
+            list.Add(new MimeEntry { Extensions = ".gif", Type = "image/gif" });
+            list.Add(new MimeEntry { Extensions = ".png", Type = "image/png" });
+            list.Add(new MimeEntry { Extensions = ".jpe;.jpeg;.jpg", Type = "image/jpeg" });
+            list.Add(new MimeEntry { Extensions = ".webp;.webp-gen", Type = "image/webp" });
+            list.Add(new MimeEntry { Extensions = ".htm;.html", Type = "text/html" });
+
+            // add specified extensions
+            foreach (var t in mimeSection["MimeTypes"]) {
+                string e = t.Extensions ?? "";
+                list.Add(new MimeEntry { Extensions = e.ToLower(), Type = t.Type ?? "", Dynamic = t });
+            }
+
+            CachedEntries = list;
             return Task.CompletedTask;
         }
 
         private static string SettingsFile;
-        private static dynamic Settings;
-
-        public class MimeEntry {
-            public string Extensions { get; set; }
-            public string Type { get; set; }
-        }
+        public static List<MimeEntry> CachedEntries;
 
         public List<MimeEntry> GetMimeTypes() {
-            dynamic mimeSection = Settings["MimeSection"];
-            List<MimeEntry> list = new List<MimeEntry>();
-            foreach (var t in mimeSection["MimeTypes"]) {
-                list.Add(new MimeEntry { Extensions = t.Extensions, Type = t.Type });
-            }
-            return list;
+            return CachedEntries;
         }
         public string GetContentTypeFromExtension(string extension) {
-            dynamic mimeSection = Settings["MimeSection"];
-            foreach (var t in mimeSection["MimeTypes"]) {
-                string e = ((string)t["Extensions"]).Trim().ToLower();
-                if (e.Contains(extension + ";") || e.EndsWith(extension))
-                    return t.Type;
+            if (CachedEntries == null)
+                return null;
+            extension = extension.ToLower();
+            foreach (MimeEntry entry in CachedEntries) {
+                if (entry.Extensions.Contains(extension + ";") || entry.Extensions.EndsWith(extension))
+                    return entry.Type;
             }
             return null;
         }
         public bool CanUse(string contentType, string resourceName) {
-            dynamic mimeSection = Settings["MimeSection"];
+            if (CachedEntries == null)
+                return false;
             contentType = contentType.Trim().ToLower();
-            foreach (var entry in mimeSection["MimeTypes"]) {
-                string type = ((string)entry["Type"]).Trim().ToLower();
-                if (type == contentType) {
+            foreach (MimeEntry entry in CachedEntries) {
+                if (entry.Type == contentType) {
+                    if (entry.Dynamic == null)
+                        return false;
                     try {
-                        return (bool)entry[resourceName];
+                        return (bool)entry.Dynamic[resourceName];
                     } catch (Exception) {
                         return false;
                     }
