@@ -6,6 +6,7 @@ namespace YetaWF {
 
     interface ContentData {
         CacheVersion: string;
+        CacheFailUrl: string | null;
         Path: string;
         QueryString: string;
         UnifiedSetGuid: string;
@@ -202,6 +203,7 @@ namespace YetaWF {
                 // build data context (like scripts, css files we have)
                 var data: ContentData = {
                     CacheVersion: YVolatile.Basics.CacheVersion,
+                    CacheFailUrl: inplace ? inplace.PageUrl : null,
                     Path: path,
                     QueryString: uri.getQuery(),
                     UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,

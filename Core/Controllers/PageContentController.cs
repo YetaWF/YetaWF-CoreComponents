@@ -147,6 +147,10 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public string CacheVersion { get; set; }
             /// <summary>
+            /// If the site was restarted (based on CacheVersion) redirect to this page. May be null.
+            /// </summary>
+            public string CacheFailUrl { get; set; }
+            /// <summary>
             /// The path of the requested page.
             /// </summary>
             public string Path { get; set; }
@@ -242,7 +246,10 @@ namespace YetaWF.Core.Controllers {
                 // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page
                 // we need the entire page, content is not sufficient
                 PageContentResult cr = new PageContentResult();
-                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                if (dataIn.CacheFailUrl != null)
+                    cr.Result.Redirect = dataIn.CacheFailUrl;
+                else
+                    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                 return cr;
             }
 

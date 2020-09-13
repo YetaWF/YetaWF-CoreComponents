@@ -1,24 +1,19 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YetaWF.Core.Extensions;
+using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
+using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
-using YetaWF.Core.Identity;
-using System.Threading.Tasks;
-using YetaWF.Core.Models.Attributes;
-#if MVC6
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Controllers {
 
@@ -44,13 +39,8 @@ namespace YetaWF.Core.Controllers {
         public async Task<ActionResult> Show(string __path) {
             // We come here for ANY page request (GET, HEAD only)
 
-            if (!YetaWFManager.HaveManager) {
-#if MVC6
+            if (!YetaWFManager.HaveManager)
                 return new NotFoundObjectResult(__path);
-#else
-                throw new HttpException(404, string.Format("Url {0} not found", __path));
-#endif
-            }
 
             SiteDefinition site = Manager.CurrentSite;
             Uri uri = new Uri(Manager.CurrentRequestUrl);
@@ -64,7 +54,6 @@ namespace YetaWF.Core.Controllers {
 
             // Mobile detection
             bool isMobile;
-#if MVC6
             // The reason we need to do this is because we may or may not want to go into a popup
             // The only time we go into a popup without knowing whether we're on a mobile device is
             // through a client-side action request (popup.js). The CLIENT should determine whether we're in a mobile
@@ -73,11 +62,6 @@ namespace YetaWF.Core.Controllers {
             // analyze headers (user-agent).
             isMobile = IsMobileBrowser(Manager.CurrentRequest);
             //Manager.ActiveDevice = IsMobileBrowser(Manager.CurrentRequest) ? YetaWFManager.DeviceSelected.Mobile : YetaWFManager.DeviceSelected.Desktop;
-#else
-            // Check if mobile browser and redirect to mobile browser url/subdomain if needed
-            HttpBrowserCapabilities caps = Manager.CurrentRequest.Browser;
-            isMobile = caps.IsMobileDevice;
-#endif
             if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Undecided) {
                 if (isMobile) {
                     Manager.ActiveDevice = YetaWFManager.DeviceSelected.Mobile;
@@ -86,14 +70,8 @@ namespace YetaWF.Core.Controllers {
                             if (!Manager.IsLocalHost && string.Compare(uri.AbsoluteUri, site.MobileSiteUrl, true) != 0) {
                                 UriBuilder newUrl = new UriBuilder(site.MobileSiteUrl);
                                 string logMsg = Logging.AddLog("301 Moved Permanently - {0}", newUrl.ToString()).Truncate(100);
-#if MVC6
-                                Manager.CurrentResponse.StatusCode = 301;
+                                Manager.CurrentResponse.StatusCode = StatusCodes.Status301MovedPermanently;
                                 Manager.CurrentResponse.Headers.Add("Location", site.LockedUrl);
-#else
-                                Manager.CurrentResponse.Status = logMsg;
-                                Manager.CurrentResponse.AddHeader("Location", newUrl.ToString());
-                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                                 return new EmptyResult();
                             }
                         }
@@ -104,31 +82,13 @@ namespace YetaWF.Core.Controllers {
                 Manager.ActiveDevice = isMobile ? YetaWFManager.DeviceSelected.Mobile : YetaWFManager.DeviceSelected.Desktop;
             }
 
-#if MVC6
-            // we'll just ignore this - if desired, use some client-side method in the skin to address browser incompatibilities
-#else
-            // Check for browser capabilities
-            if (caps != null && !caps.Crawler && !string.IsNullOrWhiteSpace(site.UnsupportedBrowserUrl) && !BrowserCaps.SupportedBrowser(caps) && string.Compare(uri.AbsolutePath, site.UnsupportedBrowserUrl, true) != 0) {
-                Logging.AddLog("Unsupported browser {0}, version {1}.", caps.Browser, caps.Version);
-                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", site.UnsupportedBrowserUrl).Truncate(100);
-                Manager.CurrentResponse.AddHeader("Location", site.UnsupportedBrowserUrl);
-                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-                return new EmptyResult();
-            }
-#endif
-
             if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
                     Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
                     string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
                 Logging.AddLog("302 Found - {0}", site.LockedUrl);
-#if MVC6
-                Manager.CurrentResponse.StatusCode = 302;
+
+                Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                 Manager.CurrentResponse.Headers.Add("Location", site.LockedUrl);
-#else
-                Manager.CurrentResponse.Status = string.Format("302 Found - {0}", site.LockedUrl).Truncate(100);
-                Manager.CurrentResponse.AddHeader("Location", site.LockedUrl);
-                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                 return new EmptyResult();
             }
 
@@ -142,25 +102,15 @@ namespace YetaWF.Core.Controllers {
                 else
                     newUrl = Manager.CurrentSite.MakeUrl(initPageUrl + initPageQs);
                 if (string.Compare(uri.LocalPath, initPageUrl, true) != 0) {
-#if MVC6
                     Logging.AddLog("302 Found - {0}", newUrl).Truncate(100);
-                    Manager.CurrentResponse.StatusCode = 302;
+                    Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                     Manager.CurrentResponse.Headers.Add("Location", newUrl);
-#else
-                    Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUrl).Truncate(100);
-                    Manager.CurrentResponse.AddHeader("Location", newUrl);
-                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                     return new EmptyResult();
                 }
             }
 
             // Check if site language requested using !yLang= arg
-#if MVC6
             string lang = Manager.CurrentRequest.Query[Globals.Link_Language];
-#else
-            string lang = Manager.CurrentRequest[Globals.Link_Language];
-#endif
             if (!string.IsNullOrWhiteSpace(lang))
                 await Manager.SetUserLanguageAsync(lang);
 
@@ -168,15 +118,9 @@ namespace YetaWF.Core.Controllers {
             if (uri.AbsolutePath == "/") {
                 if (Manager.CurrentSite.HomePageUrl != "/") {
                     string newUrl = Manager.CurrentSite.MakeUrl(Manager.CurrentSite.HomePageUrl);
-#if MVC6
                     Logging.AddLog("302 Found - {0}", newUrl).Truncate(100);
-                    Manager.CurrentResponse.StatusCode = 302;
+                    Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                     Manager.CurrentResponse.Headers.Add("Location", newUrl);
-#else
-                    Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUrl).Truncate(100);
-                    Manager.CurrentResponse.AddHeader("Location", newUrl);
-                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                     return new EmptyResult();
                 }
             }
@@ -193,16 +137,9 @@ namespace YetaWF.Core.Controllers {
                             UriBuilder newUri = new UriBuilder(uri);
                             newUri.Scheme = "http";
                             newUri.Port = Manager.CurrentSite.PortNumberEval;
-#if MVC6
                             Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                             Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-
                             return new EmptyResult();
                         }
                         break;
@@ -211,29 +148,17 @@ namespace YetaWF.Core.Controllers {
                             UriBuilder newUri = new UriBuilder(uri);
                             newUri.Scheme = "http";
                             newUri.Port = Manager.CurrentSite.PortNumberEval;
-#if MVC6
                             Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                             Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                             return new EmptyResult();
                         } else if (Manager.HaveUser && uri.Scheme != "https") {
                             UriBuilder newUri = new UriBuilder(uri);
                             newUri.Scheme = "https";
                             newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
-#if MVC6
                             Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                             Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                             return new EmptyResult();
                         }
                         break;
@@ -248,15 +173,9 @@ namespace YetaWF.Core.Controllers {
                             UriBuilder newUri = new UriBuilder(uri);
                             newUri.Scheme = "https";
                             newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
-#if MVC6
                             Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.StatusCode = 302;
+                            Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                             Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                            Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                            Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                            Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                             return new EmptyResult();
                         }
                         break;
@@ -297,14 +216,9 @@ namespace YetaWF.Core.Controllers {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
                         Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
-#if MVC6
                         HttpContext.Request.Path = newUrl;
                         HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
-#else
-                        Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
-                        return new EmptyResult();
-#endif
                     }
                     ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
                     if (module == null)
@@ -314,14 +228,9 @@ namespace YetaWF.Core.Controllers {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
                         Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
-#if MVC6
                         HttpContext.Request.Path = newUrl;
                         HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
-#else
-                        Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
-                        return new EmptyResult();
-#endif
                     }
                     pageFound = await PageDefinition.LoadFromUrlAsync(url);
                 } else {
@@ -331,14 +240,9 @@ namespace YetaWF.Core.Controllers {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (pageInfo.NewUrl != url) {
                             Logging.AddTraceLog("Server.TransferRequest - {0}", pageInfo.NewUrl);
-#if MVC6
                             HttpContext.Request.Path = pageInfo.NewUrl;
                             HttpContext.Request.QueryString = QueryHelper.MakeQueryString(pageInfo.NewQS);
                             uri = new Uri(Manager.CurrentRequestUrl);
-#else
-                            Server.TransferRequest(QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS));
-                            return new EmptyResult();
-#endif
                         }
                         pageFound = page;
                     } else {
@@ -347,14 +251,9 @@ namespace YetaWF.Core.Controllers {
                         PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 4, uri.Query, out newUrl, out newQs);
                         if (newUrl != url) {
                             Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
-#if MVC6
                             HttpContext.Request.Path = newUrl;
                             HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                             uri = new Uri(Manager.CurrentRequestUrl);
-#else
-                            Server.TransferRequest(QueryHelper.ToUrl(newUrl, newQs));
-                            return new EmptyResult();
-#endif
                         }
                     }
                 }
@@ -410,28 +309,15 @@ namespace YetaWF.Core.Controllers {
                 PageDefinition page = await PageDefinition.LoadFromUrlAsync(site.NotFoundUrl);
                 if (page != null) {
                     Manager.CurrentPage = page;
-                    if (Manager.IsHeadRequest) {
-#if MVC6
+                    if (Manager.IsHeadRequest)
                         return new NotFoundObjectResult(__path);
-#else
-                        throw new HttpException(404, "404 Not Found");
-#endif
-                    }
                     AddXFrameOptions();
-#if MVC6
                     Logging.AddErrorLog("404 Not Found");
                     Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
-#else
-                    Manager.CurrentResponse.Status = Logging.AddErrorLog("404 Not Found");
-#endif
                     return new PageViewResult();
                 }
             }
-#if MVC6
             return NotFound(__path);
-#else
-            throw new HttpException(404, string.Format("Url {0} not found", __path));
-#endif
         }
 
         private void AddXFrameOptions() {
@@ -450,11 +336,7 @@ namespace YetaWF.Core.Controllers {
                 if (option != null) {
                     if (YetaWFController.GoingToPopup())
                         option = "sameorigin";// we need at least this to go into a popup
-#if MVC6
                     Manager.CurrentResponse.Headers.Add("X-Frame-Options", option);
-#else
-                   Manager.CurrentResponse.AddHeader("X-Frame-Options", option);
-#endif
                 }
             }
         }
@@ -498,29 +380,17 @@ namespace YetaWF.Core.Controllers {
                         if (redirectPage != null) {
                             if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                                 string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
-#if MVC6
                                 Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                                 Manager.CurrentResponse.Headers.Add("Location", redirUrl);
-#else
-                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                                Manager.CurrentResponse.AddHeader("Location", redirUrl);
-                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                                 return ProcessingStatus.Complete;
                             } else
                                 throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
                         }
                     } else {
-#if MVC6
                         Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                        Manager.CurrentResponse.StatusCode = 302;
+                        Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                         Manager.CurrentResponse.Headers.Add("Location", page.RedirectToPageUrl);
-#else
-                        Manager.CurrentResponse.Status = Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
-                        Manager.CurrentResponse.AddHeader("Location", page.RedirectToPageUrl);
-                        Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                         return ProcessingStatus.Complete;
                     }
                 }
@@ -535,15 +405,9 @@ namespace YetaWF.Core.Controllers {
                                 string redirUrl = page.MobilePageUrl;
                                 if (redirUrl.StartsWith("/"))
                                     redirUrl = Manager.CurrentSite.MakeUrl(redirUrl + queryString);
-#if MVC6
                                 Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
-                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                                 Manager.CurrentResponse.Headers.Add("Location", redirUrl);
-#else
-                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
-                                Manager.CurrentResponse.AddHeader("Location", redirUrl);
-                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                                 return ProcessingStatus.Complete;
                             }
 #if DEBUG
@@ -594,15 +458,9 @@ namespace YetaWF.Core.Controllers {
                                 UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
                                 newUri.Scheme = "https";
                                 newUri.Port = Manager.CurrentSite.PortNumberSSLEval;
-#if MVC6
                                 Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                                 Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                                 return ProcessingStatus.Complete;
                             }
                             break;
@@ -611,15 +469,9 @@ namespace YetaWF.Core.Controllers {
                                 UriBuilder newUri = new UriBuilder(Manager.CurrentRequestUrl);
                                 newUri.Scheme = "http";
                                 newUri.Port = Manager.CurrentSite.PortNumberEval;
-#if MVC6
                                 Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                Manager.CurrentResponse.StatusCode = 302;
+                                Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                                 Manager.CurrentResponse.Headers.Add("Location", newUri.ToString());
-#else
-                                Manager.CurrentResponse.Status = Logging.AddLog("302 Found - {0}", newUri.ToString()).Truncate(100);
-                                Manager.CurrentResponse.AddHeader("Location", newUri.ToString());
-                                Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
                                 return ProcessingStatus.Complete;
                             }
                             break;
@@ -641,14 +493,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.CurrentResponse.Redirect(retUrl);
                     return ProcessingStatus.Complete;
                 } else {
-#if MVC6
-                    Logging.AddErrorLog("403 Not Authorized");
-                    Manager.CurrentResponse.StatusCode = 403;
-#else
-                    Manager.CurrentResponse.Status = Logging.AddErrorLog("403 Not Authorized");
-                    Manager.CurrentContext.ApplicationInstance.CompleteRequest();
-#endif
-                    return ProcessingStatus.Complete;
+                    return ProcessingStatus.No;// end up as 404 not found
                 }
             }
         }
