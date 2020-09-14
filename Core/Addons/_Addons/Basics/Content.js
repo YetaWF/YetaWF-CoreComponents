@@ -83,12 +83,12 @@ var YetaWF;
          * @param popupCB A callback to process popup content. May be null.
          * @param inplace Inplace content replacement options. May be null.
          */
-        Content.prototype.setContent = function (uriRequested, setState, popupCB, inplace) {
+        Content.prototype.setContent = function (uriRequested, setState, popupCB, inplace, contentCB) {
             if (!this.allowNavigateAway()) {
                 $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVCANCEL);
                 return SetContentResult.Abort;
             }
-            return this.setContentForce(uriRequested, setState, popupCB, inplace);
+            return this.setContentForce(uriRequested, setState, popupCB, inplace, contentCB);
         };
         /**
          * Changes the current page to the specified Uri (may not be part of a unified page set).
@@ -100,7 +100,7 @@ var YetaWF;
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
-        Content.prototype.setContentForce = function (uriRequested, setState, popupCB, inplace) {
+        Content.prototype.setContentForce = function (uriRequested, setState, popupCB, inplace, contentCB) {
             var _this = this;
             if (YVolatile.Basics.EditModeActive)
                 return SetContentResult.NotContent; // edit mode
@@ -181,7 +181,7 @@ var YetaWF;
                         $YetaWF.setLoading(false);
                         if (request.status === 200) {
                             var result = JSON.parse(request.responseText);
-                            _this.processReceivedContent(result, uri, divs, setState, popupCB, inplace);
+                            _this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
                         }
                         else if (request.status === 0) {
                             $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
@@ -251,6 +251,8 @@ var YetaWF;
                     else
                         throw "Invalid UnifiedMode " + YVolatile.Basics.UnifiedMode;
                     $YetaWF.setLoading(false);
+                    if (contentCB)
+                        contentCB(null);
                     return SetContentResult.ContentReplaced;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
@@ -260,7 +262,7 @@ var YetaWF;
         Content.prototype.allowNavigateAway = function () {
             return !$YetaWF.pageChanged || confirm("Changes to this page have not yet been saved. Are you sure you want to navigate away from this page without saving?");
         };
-        Content.prototype.processReceivedContent = function (result, uri, divs, setState, popupCB, inplace) {
+        Content.prototype.processReceivedContent = function (result, uri, divs, setState, popupCB, inplace, contentCB) {
             $YetaWF.closeOverlays();
             $YetaWF.pageChanged = false;
             if (result.Status != null && result.Status.length > 0) {
@@ -451,6 +453,8 @@ var YetaWF;
                 }
                 $YetaWF.setLoading(false);
             });
+            if (contentCB)
+                contentCB(result);
         };
         Content.prototype.loadAddons = function (addons, run) {
             var _this = this;

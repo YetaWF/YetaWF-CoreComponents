@@ -155,12 +155,12 @@ namespace YetaWF {
          * @param popupCB A callback to process popup content. May be null.
          * @param inplace Inplace content replacement options. May be null.
          */
-        public setContent(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents): SetContentResult {
+        public setContent(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents, contentCB?: (result: ContentResult|null) => void): SetContentResult {
             if (!this.allowNavigateAway()) {
                 $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVCANCEL);
                 return SetContentResult.Abort;
             }
-            return this.setContentForce(uriRequested, setState, popupCB, inplace);
+            return this.setContentForce(uriRequested, setState, popupCB, inplace, contentCB);
         }
 
         /**
@@ -173,7 +173,7 @@ namespace YetaWF {
          * @param setState Defines whether the browser's history should be updated.
          * @param popupCB A callback to process popup content. May be null.
          */
-        public setContentForce(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents): SetContentResult {
+        public setContentForce(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents, contentCB?: (result: ContentResult|null) => void): SetContentResult {
 
             if (YVolatile.Basics.EditModeActive) return SetContentResult.NotContent; // edit mode
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return SetContentResult.NotContent; // not unified mode
@@ -252,7 +252,7 @@ namespace YetaWF {
                         $YetaWF.setLoading(false);
                         if (request.status === 200) {
                             var result: ContentResult = JSON.parse(request.responseText);
-                            this.processReceivedContent(result, uri, divs, setState, popupCB, inplace);
+                            this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
                         } else if (request.status === 0) {
                             $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
                             return SetContentResult.NotContent;
@@ -321,6 +321,7 @@ namespace YetaWF {
                     } else
                         throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
                     $YetaWF.setLoading(false);
+                    if (contentCB) contentCB(null);
                     return SetContentResult.ContentReplaced;
                 }
                 //$YetaWF.setLoading(false); // don't hide, let new page take over
@@ -332,7 +333,7 @@ namespace YetaWF {
             return !$YetaWF.pageChanged || confirm("Changes to this page have not yet been saved. Are you sure you want to navigate away from this page without saving?");
         }
 
-        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents ) : void {
+        private processReceivedContent(result: ContentResult, uri: YetaWF.Url, divs: HTMLElement[], setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents, contentCB?: (result: ContentResult|null) => void) : void {
 
             $YetaWF.closeOverlays();
             $YetaWF.pageChanged = false;
@@ -510,6 +511,8 @@ namespace YetaWF {
                 }
                 $YetaWF.setLoading(false);
             });
+            if (contentCB)
+                contentCB(result);
         }
 
         public loadAddons(addons: AddonDescription[], run: () => void): void {

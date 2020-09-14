@@ -878,7 +878,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PopupOptions">TODO: This is not a good option, passes JavaScript/JSON to the client side for the popup window.</param>
         /// <param name="PageChanged">The new page changed status.</param>
         /// <param name="ForceApply">Force handling as Apply.</param>
-        /// <param name="ExtraData">Additional data added to URL as _extraData argument.</param>
+        /// <param name="ExtraData">Additional data added to URL as _extraData argument. Length should be minimal, otherwise URL and Referer header may grow too large.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
@@ -952,8 +952,8 @@ namespace YetaWF.Core.Controllers {
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append($@"
 $YetaWF.setLoading();
-if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
-    {PostSaveJavaScript}
+if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
+
 }} else
     window.parent.location.assign({url});");
 
@@ -961,8 +961,8 @@ if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), tr
                         sb.Append($@"
 $YetaWF.alert({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
-    if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
-        {PostSaveJavaScript}
+    if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
+
     }} else
         window.parent.location.assign({url});
 }});");
@@ -984,16 +984,16 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); win
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append($@"
 $YetaWF.setLoading();
-if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
-    {PostSaveJavaScript}
+if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
+
 }} else
     window.location.assign({url});");
                     } else {
                         sb.Append($@"
 $YetaWF.alert({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
-    if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
-        {PostSaveJavaScript}
+    if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
+
     }} else
         window.location.assign({url});
 }});");
@@ -1073,15 +1073,15 @@ $YetaWF.closePopup(false);");
                                 string url = Utility.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
                                     sb.Append($@"
-if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
-    {PostSaveJavaScript}
+if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
+
 }} else
     window.location.assign({url});");
                                 } else {
                                     sb.Append($@"
 $YetaWF.alert({popupText}, {popupTitle}, function() {{
-    if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true)) {{
-        {PostSaveJavaScript}
+    if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
+
     }} else
         window.location.assign({PopupOptions});
 }});");
@@ -1165,13 +1165,12 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
         /// <param name="ExtraJavascript">Optional Javascript code executed when redirecting to another URL within a Unified Page Set.</param>
         /// <param name="SetCurrentControlPanelMode">Sets the current control panel mode (visibility).</param>
         /// <param name="ForceRedirect">true to force a page load (even in a Unified Page Set), false otherwise to use the default page or page content loading.</param>
-        /// <param name="ExtraData">Additional data added to URL as _extraData argument.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string ExtraJavascript = null, string ExtraData = null) {
+        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string ExtraJavascript = null) {
 
             if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
             if (!string.IsNullOrWhiteSpace(ExtraJavascript) && !Manager.IsPostRequest) throw new InternalError("ExtraJavascript is only supported with POST requests");
@@ -1179,7 +1178,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
 
-            url = AddUrlPayload(url, SetCurrentEditMode, SetCurrentControlPanelMode, ExtraData);
+            url = AddUrlPayload(url, SetCurrentEditMode, SetCurrentControlPanelMode, null);
             if (ForceRedirect)
                 url = QueryHelper.AddRando(url);
 
