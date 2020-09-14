@@ -44,6 +44,7 @@ namespace YetaWF.Core.Support {
             list.Add(new MimeEntry { Extensions = ".jpe;.jpeg;.jpg", Type = "image/jpeg" });
             list.Add(new MimeEntry { Extensions = ".webp;.webp-gen", Type = "image/webp" });
             list.Add(new MimeEntry { Extensions = ".htm;.html", Type = "text/html" });
+            list.Add(new MimeEntry { Extensions = ".map", Type = "text/plain" });
 
             // add specified extensions
             foreach (var t in mimeSection["MimeTypes"]) {
