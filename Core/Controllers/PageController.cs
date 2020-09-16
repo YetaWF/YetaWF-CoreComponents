@@ -201,7 +201,7 @@ namespace YetaWF.Core.Controllers {
             // Process the page
             CanProcessAsStaticPageInfo info = await CanProcessAsStaticPageAsync(uri);
             if (info.Success) {
-                AddXFrameOptions();
+                AddStandardHeaders();
                 return Content(info.Contents, "text/html");
             }
 
@@ -282,7 +282,7 @@ namespace YetaWF.Core.Controllers {
                     case ProcessingStatus.Page:
                         if (Manager.IsHeadRequest)
                             return new EmptyResult();
-                        AddXFrameOptions();
+                        AddStandardHeaders();
                         return new PageViewResult();
                     case ProcessingStatus.No:
                         break;
@@ -295,7 +295,7 @@ namespace YetaWF.Core.Controllers {
                     case ProcessingStatus.Page:
                         if (Manager.IsHeadRequest)
                             return new EmptyResult();
-                        AddXFrameOptions();
+                        AddStandardHeaders();
                         return new PageViewResult();
                     case ProcessingStatus.No:
                         break;
@@ -311,7 +311,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.CurrentPage = page;
                     if (Manager.IsHeadRequest)
                         return new NotFoundObjectResult(__path);
-                    AddXFrameOptions();
+                    AddStandardHeaders();
                     Logging.AddErrorLog("404 Not Found");
                     Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
                     return new PageViewResult();
@@ -320,23 +320,38 @@ namespace YetaWF.Core.Controllers {
             return NotFound(__path);
         }
 
-        private void AddXFrameOptions() {
+        private void AddStandardHeaders() {
+
+            // X-Frame-Options
+
             string option = null;
             if (Manager.CurrentPage != null) {
                 if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.Default) {
                     if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.No)
-                        option = "deny";
+                        option = "DENY";
                     else if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.ThisSite)
-                        option = "sameorigin";
+                        option = "SAMEORIGIN";
                 } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.No) {
-                    option = "deny";
+                    option = "DENY";
                 } else if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.ThisSite) {
-                    option = "sameorigin";
+                    option = "SAMEORIGIN";
                 }
                 if (option != null) {
                     if (YetaWFController.GoingToPopup())
-                        option = "sameorigin";// we need at least this to go into a popup
+                        option = "SAMEORIGIN";// we need at least this to go into a popup
                     Manager.CurrentResponse.Headers.Add("X-Frame-Options", option);
+                }
+            }
+
+            // X-Content-Type-Options
+
+            if (Manager.CurrentSite.ContentTypeOptions == ContentTypeEnum.NoSniff)
+                Manager.CurrentResponse.Headers.Add("X-Content-Type-Options", "nosniff");
+
+            // Strict-Transport-Security (HSTS)
+            if (YetaWFManager.Deployed) {
+                if (Manager.CurrentSite.StrictTransportSecurity == StrictTransportSecurityEnum.All) {
+                    Manager.CurrentResponse.Headers.Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
                 }
             }
         }

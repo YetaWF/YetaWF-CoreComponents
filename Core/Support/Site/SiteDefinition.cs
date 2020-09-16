@@ -67,12 +67,24 @@ namespace YetaWF.Core.Site {
         ToastLeft = 11,
     }
     public enum IFrameUseEnum {
-        [EnumDescription("No", "Pages cannot be used in an IFrame (X-Frame-Options: deny)")]
+        [EnumDescription("No", "Pages cannot be used in an IFrame (X-Frame-Options: DENY)")]
         No = 0,
-        [EnumDescription("This Site", "The page can only be used by this site in an IFrame (X-Frame-Options: sameorigin)")]
+        [EnumDescription("This Site", "The page can only be used by this site in an IFrame (X-Frame-Options: SAMEORIGIN)")]
         ThisSite = 1,
         [EnumDescription("Yes", "The page can be used by any site in an IFrame - No X-Frame-Options header is set by YetaWF, allowing external applications to control the setting")]
         Yes = 2,
+    }
+    public enum ContentTypeEnum {
+        [EnumDescription("Not Specified", "A X-Content-Type-Options header is not generated")]
+        No = 0,
+        [EnumDescription("nosniff", "A X-Content-Type-Options: nosniff header is generated defining that the MIME types advertised in the Content-Type headers should not be changed and be followed by the browser")]
+        NoSniff = 1,
+    }
+    public enum StrictTransportSecurityEnum {
+        [EnumDescription("Not Specified", "A Strict-Transport-Security header is not generated")]
+        No = 0,
+        [EnumDescription("All", "A Strict-Transport-Security header is generated define with 2 year expiration, including all subdomains, and with support for preload lists")]
+        All = 1,
     }
 
     [Trim]
@@ -516,6 +528,16 @@ namespace YetaWF.Core.Site {
         [UIHint("Enum")]
         [Data_NewValue]
         public IFrameUseEnum IFrameUse { get; set; }
+
+        [Category("Pages"), Caption("Content Type Options"), Description("Defines whether the MIME types advertised in the Content-Type headers should not be changed and be followed by the browser (by setting the X-Content-Type-Options HTTP header)")]
+        [UIHint("Enum")]
+        [Data_NewValue]
+        public ContentTypeEnum ContentTypeOptions { get; set; }
+
+        [Category("Pages"), Caption("Strict Transport Security"), Description("Defines whether a HTTP Strict-Transport-Security response header (HSTS) is generated to let browsers know that the site should only be accessed using HTTPS, instead of using HTTP - This setting only takes effect for a deployed site")]
+        [UIHint("Enum")]
+        [Data_NewValue]
+        public StrictTransportSecurityEnum StrictTransportSecurity { get; set; }
 
         [Category("Pages"), Caption("Copyright"), Description("Defines an optional copyright notice displayed on each page, if supported by the skin used. Individual pages can override this notice - use <<Year>> for current year")]
         [UIHint("Text80"), StringLength(MaxCopyright)]
