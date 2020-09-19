@@ -5,11 +5,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 using System.Collections.Generic;
-#if MVC6
-#else
-using System.Web.Mvc;
-using System.Web.Routing;
-#endif
+using YetaWF.Core.DataProvider;
 
 namespace YetaWF.Core.Components {
 
@@ -78,6 +74,48 @@ namespace YetaWF.Core.Components {
         /// <param name="showDefault">Set to true to add a "(select)" entry at the top of the list, false otherwise.</param>
         /// <returns>Returns a collection of string values suitable for rendering in a DropDownList component.</returns>
         Task<List<SelectionItem<string>>> GetSelectionListStringAsync(bool showDefault);
+    }
+
+    /// <summary>
+    /// Describes a complex filter.
+    /// </summary>
+    public class ComplexFilter {
+        /// <summary>
+        /// The popup URL used to edit the filter.
+        /// </summary>
+        public string Url { get; set; }
+        /// <summary>
+        /// The component name handling this filter.
+        /// </summary>
+        public string UIHint { get; set; }
+    }
+    /// <summary>
+    /// The base class for all JSON data used by filters.
+    /// </summary>
+    public class ComplexFilterJSONBase {
+        /// <summary>
+        /// The component name handling this filter.
+        /// </summary>
+        public string UIHint { get; set; }
+    }
+
+    /// <summary>
+    /// This interface is implemented by components that offer a complex grid filter.
+    /// </summary>
+    public interface IComplexFilter {
+        /// <summary>
+        /// Returns information about the available filter.
+        /// </summary>
+        /// <param name="uiHint">The component name handling this filter.</param>
+        /// <returns>Returns a ComplexFilter instance with information about the available filter.</returns>
+        Task<ComplexFilter> GetComplexFilterAsync(string uiHint);
+        /// <summary>
+        /// Returns DataProviderFilterInfo given the filter's JSON data.
+        /// </summary>
+        /// <param name="jsonData">The JSON data representing the current filter setting.</param>
+        /// <param name="name">Defines the property name.</param>
+        /// <returns>Returns DataProviderFilterInfo given the filter's JSON data.</returns>
+        DataProviderFilterInfo GetDataProviderFilterInfo(string jsonData, string name);
     }
 
     /// <summary>

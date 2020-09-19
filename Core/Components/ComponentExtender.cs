@@ -10,6 +10,7 @@ using System.Reflection;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Localize;
 using System.Linq;
+using YetaWF.Core.DataProvider;
 #if MVC6
 #else
 using System.Web;
@@ -78,6 +79,41 @@ namespace YetaWF.Core.Components {
             if (iSelList == null)
                 return null;
             return await iSelList.GetSelectionListStringAsync(false);
+        }
+
+        /// <summary>
+        /// Returns information for a complex filter.
+        /// </summary>
+        /// <param name="uiHint">The component name found in a UIHintAttribute.</param>
+        /// <param name="jsonData">The JSON data specific to this filter implementation. May be null when no filter has been set.</param>
+        /// <returns>Returns information for a complex filter.</returns>
+        public static async Task<ComplexFilter> GetComplexFilterFromUIHintAsync(string uiHint) {
+            Type compType;
+            if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
+                return null;
+            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
+            IComplexFilter iFilter = component as IComplexFilter;
+            if (iFilter == null)
+                return null;
+            return await iFilter.GetComplexFilterAsync(uiHint);
+        }
+
+        /// <summary>
+        /// Returns DataProviderFilterInfo for a complex filter.
+        /// </summary>
+        /// <param name="uiHint">The component name found in a UIHintAttribute.</param>
+        /// <param name="jsonData">The JSON data specific to this filter implementation.</param>
+        /// <param name="propName">Defines the property name.</param>
+        /// <returns>Returns DataProviderFilterInfo for a complex filter.</returns>
+        public static DataProviderFilterInfo GetDataProviderFilterInfoFromUIHint(string uiHint, string propName, string jsonData) {
+            Type compType;
+            if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out compType))
+                return null;
+            YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType);
+            IComplexFilter iFilter = component as IComplexFilter;
+            if (iFilter == null)
+                return null;
+            return iFilter.GetDataProviderFilterInfo(jsonData, propName);
         }
 
         /// <summary>

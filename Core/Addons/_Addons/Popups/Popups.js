@@ -79,10 +79,7 @@ var YetaWF;
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-            if ($YetaWF.elementHasClass(elem, "yIgnorePageChanged"))
-                return this.openPopup(url, false, true);
-            else
-                return this.openPopup(url, false, true);
+            return this.openPopup(url, false, true);
         };
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.

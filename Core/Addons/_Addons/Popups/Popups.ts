@@ -135,10 +135,7 @@ namespace YetaWF {
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-            if ($YetaWF.elementHasClass(elem, "yIgnorePageChanged"))
-                return this.openPopup(url, false, true);
-            else
-                return this.openPopup(url, false, true);
+            return this.openPopup(url, false, true);
         }
 
         /**

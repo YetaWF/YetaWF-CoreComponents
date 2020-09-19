@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
 using System.Reflection;
+using YetaWF.Core.Components;
 using YetaWF.Core.Models;
 using YetaWF.Core.Support;
 
@@ -238,7 +239,7 @@ namespace YetaWF.Core.DataProvider {
                     f.Collect(filters);
             }
         }
-        public void NormalizeFilterProperty(Type type) {
+        protected void NormalizeFilterProperty(Type type) {
             if (this.Field != null && StringType) { // only normalize string types, explicitly set values don't need to be changed in type
                 string[] parts = Field.Split(new char[] { '.', '_' });
                 Type objType = type;
@@ -248,25 +249,32 @@ namespace YetaWF.Core.DataProvider {
                     objType = prop.PropInfo.PropertyType;
                 }
                 if (prop == null) throw new InternalError("Can't evaluate field {0} in type {1}", Field, objType.Name);
-                if (objType != typeof(string)) {
-                    if (objType.IsEnum) {
-                        try { Value = Enum.ToObject(objType, Value); } catch (Exception) { }
-                    } else if (objType == typeof(DateTime) || (objType == typeof(DateTime?) && Value != null)) {
-                        try { Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(Value)); } catch (Exception) { Value = DateTime.MinValue; }
-                    } else if (objType == typeof(int) || (objType == typeof(int?) && Value != null)) {
-                        try { Value = Convert.ToInt32(Value); } catch (Exception) { Value = 0; }
-                    } else if (objType == typeof(long) || (objType == typeof(long?) && Value != null)) {
-                        try { Value = Convert.ToInt64(Value); } catch (Exception) { Value = 0; }
-                    } else if (objType == typeof(bool) || (objType == typeof(bool?) && Value != null)) {
-                        try { Value = Convert.ToBoolean(Value); } catch (Exception) { Value = true; }
-                    } else if (objType == typeof(MultiString)) {
-                        try { Value = new MultiString((string)Value); } catch (Exception) { Value = new MultiString(); }
-                    } else if (objType == typeof(decimal) || (objType == typeof(decimal?) && Value != null)) {
-                        try { Value = Convert.ToDecimal(Value); } catch (Exception) { Value = 0; }
-                    } else if (objType == typeof(Guid) || (objType == typeof(Guid?) && Value != null)) {
-                        Value = new GuidPartial { PartialString = ValueAsString?.ToLower() };
-                    } else {
-                        // default to string and hope for the best
+                if (this.Operator == "Complex") {
+                    ComplexFilterJSONBase filterBase = Utility.JsonDeserialize<ComplexFilterJSONBase>(ValueAsString);
+                    DataProviderFilterInfo newFilter = YetaWFComponentExtender.GetDataProviderFilterInfoFromUIHint(filterBase.UIHint, Field, ValueAsString);
+                    ObjectSupport.CopyData(newFilter, this); // use new filter values
+                    NormalizeFilters(type, new List<DataProviderFilterInfo> { this });
+                } else {
+                    if (objType != typeof(string)) {
+                        if (objType.IsEnum) {
+                            try { Value = Enum.ToObject(objType, Value); } catch (Exception) { }
+                        } else if (objType == typeof(DateTime) || (objType == typeof(DateTime?) && Value != null)) {
+                            try { Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(Value)); } catch (Exception) { Value = DateTime.MinValue; }
+                        } else if (objType == typeof(int) || (objType == typeof(int?) && Value != null)) {
+                            try { Value = Convert.ToInt32(Value); } catch (Exception) { Value = 0; }
+                        } else if (objType == typeof(long) || (objType == typeof(long?) && Value != null)) {
+                            try { Value = Convert.ToInt64(Value); } catch (Exception) { Value = 0; }
+                        } else if (objType == typeof(bool) || (objType == typeof(bool?) && Value != null)) {
+                            try { Value = Convert.ToBoolean(Value); } catch (Exception) { Value = true; }
+                        } else if (objType == typeof(MultiString)) {
+                            try { Value = new MultiString((string)Value); } catch (Exception) { Value = new MultiString(); }
+                        } else if (objType == typeof(decimal) || (objType == typeof(decimal?) && Value != null)) {
+                            try { Value = Convert.ToDecimal(Value); } catch (Exception) { Value = 0; }
+                        } else if (objType == typeof(Guid) || (objType == typeof(Guid?) && Value != null)) {
+                            Value = new GuidPartial { PartialString = ValueAsString?.ToLower() };
+                        } else {
+                            // default to string and hope for the best
+                        }
                     }
                 }
             }
