@@ -83,7 +83,7 @@ namespace YetaWF.Core.Site {
     public enum StrictTransportSecurityEnum {
         [EnumDescription("Not Specified", "A Strict-Transport-Security header is not generated")]
         No = 0,
-        [EnumDescription("All", "A Strict-Transport-Security header is generated define with 2 year expiration, including all subdomains, and with support for preload lists")]
+        [EnumDescription("All", "A Strict-Transport-Security header is generated defining a 2 year expiration, including all subdomains, and with support for preload lists")]
         All = 1,
     }
 
