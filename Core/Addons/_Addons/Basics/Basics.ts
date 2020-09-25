@@ -135,6 +135,7 @@ namespace YetaWF {
         public static readonly PAGECHANGEDEVENT: string = "page_change";
         public static readonly EVENTBEFOREPRINT: string = "print_before";
         public static readonly EVENTAFTERPRINT: string = "print_after";
+        public static readonly EVENTCONTAINERSCROLL: string = "container_scroll";
 
         // Implemented by renderer
         // Implemented by renderer
@@ -1541,6 +1542,16 @@ namespace YetaWF {
             }
             // remove once only entries
             this.NewPageHandlers = this.NewPageHandlers.filter((el: NewPageEntry) : boolean => !el.onceOnly);
+        }
+
+        // CONTAINER SCROLLING
+        // CONTAINER SCROLLING
+        // CONTAINER SCROLLING
+
+        public sendContainerScrollEvent(): void {
+            var event = document.createEvent("Event");
+            event.initEvent(BasicsServices.EVENTCONTAINERSCROLL, true, true);
+            document.body.dispatchEvent(event);
         }
 
         // PAGECHANGE

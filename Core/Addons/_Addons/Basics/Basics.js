@@ -1419,6 +1419,14 @@ var YetaWF;
             // remove once only entries
             this.NewPageHandlers = this.NewPageHandlers.filter(function (el) { return !el.onceOnly; });
         };
+        // CONTAINER SCROLLING
+        // CONTAINER SCROLLING
+        // CONTAINER SCROLLING
+        BasicsServices.prototype.sendContainerScrollEvent = function () {
+            var event = document.createEvent("Event");
+            event.initEvent(BasicsServices.EVENTCONTAINERSCROLL, true, true);
+            document.body.dispatchEvent(event);
+        };
         /**
          * Register a callback to be called when the current page is going away (about to be replaced by a new page).
          */
@@ -1550,6 +1558,7 @@ var YetaWF;
         BasicsServices.PAGECHANGEDEVENT = "page_change";
         BasicsServices.EVENTBEFOREPRINT = "print_before";
         BasicsServices.EVENTAFTERPRINT = "print_after";
+        BasicsServices.EVENTCONTAINERSCROLL = "container_scroll";
         BasicsServices.printing = false;
         return BasicsServices;
     }());
