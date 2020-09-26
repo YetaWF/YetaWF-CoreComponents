@@ -136,6 +136,7 @@ namespace YetaWF {
         public static readonly EVENTBEFOREPRINT: string = "print_before";
         public static readonly EVENTAFTERPRINT: string = "print_after";
         public static readonly EVENTCONTAINERSCROLL: string = "container_scroll";
+        public static readonly EVENTCONTAINERRESIZE: string = "container_resize";
 
         // Implemented by renderer
         // Implemented by renderer
@@ -1549,8 +1550,18 @@ namespace YetaWF {
         // CONTAINER SCROLLING
 
         public sendContainerScrollEvent(): void {
-            var event = document.createEvent("Event");
+            let event = document.createEvent("Event");
             event.initEvent(BasicsServices.EVENTCONTAINERSCROLL, true, true);
+            document.body.dispatchEvent(event);
+        }
+
+        // CONTAINER RESIZING
+        // CONTAINER RESIZING
+        // CONTAINER RESIZING
+
+        public sendContainerResizeEvent(): void {
+            var event = document.createEvent("Event");
+            event.initEvent(BasicsServices.EVENTCONTAINERRESIZE, true, true);
             document.body.dispatchEvent(event);
         }
 
@@ -1628,7 +1639,7 @@ namespace YetaWF {
 
             // screen size yCondense/yNoCondense support
 
-            this.registerEventHandlerWindow("resize", null, (ev: UIEvent): boolean => {
+            $YetaWF.registerCustomEventHandlerDocument(YetaWF.BasicsServices.EVENTCONTAINERRESIZE, null, (ev: Event): boolean => {
                 this.setCondense(document.body, window.innerWidth);
                 return true;
             });
@@ -1648,6 +1659,8 @@ namespace YetaWF {
                 return this.ContentHandling.setContent(uri, false) !== SetContentResult.NotContent;
             });
 
+            // <A> links
+
             // <a> links that only have a hash are intercepted so we don't go through content handling
             this.registerEventHandlerBody("click", "a[href^='#']", (ev: MouseEvent): boolean => {
 
@@ -1664,7 +1677,24 @@ namespace YetaWF {
                 return true;
             });
 
-            // <A> links
+            // Scrolling
+
+            window.addEventListener("scroll", (ev: Event): void => {
+                $YetaWF.sendContainerScrollEvent();
+            });
+
+            // Debounce resizing
+
+            let resizeTimeout;
+            window.addEventListener("resize", (ev: UIEvent): void => {
+                if (resizeTimeout) {
+                    clearTimeout(resizeTimeout);
+                }
+                resizeTimeout = setTimeout((): void => {
+                    $YetaWF.sendContainerResizeEvent();
+                    resizeTimeout = null;
+                }, 100);
+            });
 
             // WhenReady
 
@@ -1759,3 +1789,4 @@ window.onbeforeunload = (ev: BeforeUnloadEvent): any => {
         ev.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
     }
 };
+

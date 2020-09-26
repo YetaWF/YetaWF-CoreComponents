@@ -1427,6 +1427,14 @@ var YetaWF;
             event.initEvent(BasicsServices.EVENTCONTAINERSCROLL, true, true);
             document.body.dispatchEvent(event);
         };
+        // CONTAINER RESIZING
+        // CONTAINER RESIZING
+        // CONTAINER RESIZING
+        BasicsServices.prototype.sendContainerResizeEvent = function () {
+            var event = document.createEvent("Event");
+            event.initEvent(BasicsServices.EVENTCONTAINERRESIZE, true, true);
+            document.body.dispatchEvent(event);
+        };
         /**
          * Register a callback to be called when the current page is going away (about to be replaced by a new page).
          */
@@ -1480,7 +1488,7 @@ var YetaWF;
             this.AnchorHandling.init();
             this.ContentHandling.init();
             // screen size yCondense/yNoCondense support
-            this.registerEventHandlerWindow("resize", null, function (ev) {
+            $YetaWF.registerCustomEventHandlerDocument(YetaWF.BasicsServices.EVENTCONTAINERRESIZE, null, function (ev) {
                 _this.setCondense(document.body, window.innerWidth);
                 return true;
             });
@@ -1496,6 +1504,7 @@ var YetaWF;
                 var uri = _this.parseUrl(window.location.href);
                 return _this.ContentHandling.setContent(uri, false) !== YetaWF.SetContentResult.NotContent;
             });
+            // <A> links
             // <a> links that only have a hash are intercepted so we don't go through content handling
             this.registerEventHandlerBody("click", "a[href^='#']", function (ev) {
                 // find the real anchor, ev.target was clicked, but it may not be the anchor itself
@@ -1511,7 +1520,21 @@ var YetaWF;
                 }, 200);
                 return true;
             });
-            // <A> links
+            // Scrolling
+            window.addEventListener("scroll", function (ev) {
+                $YetaWF.sendContainerScrollEvent();
+            });
+            // Debounce resizing
+            var resizeTimeout;
+            window.addEventListener("resize", function (ev) {
+                if (resizeTimeout) {
+                    clearTimeout(resizeTimeout);
+                }
+                resizeTimeout = setTimeout(function () {
+                    $YetaWF.sendContainerResizeEvent();
+                    resizeTimeout = null;
+                }, 100);
+            });
             // WhenReady
             this.registerDocumentReady(function () {
                 _this.processAllReady();
@@ -1559,6 +1582,7 @@ var YetaWF;
         BasicsServices.EVENTBEFOREPRINT = "print_before";
         BasicsServices.EVENTAFTERPRINT = "print_after";
         BasicsServices.EVENTCONTAINERSCROLL = "container_scroll";
+        BasicsServices.EVENTCONTAINERRESIZE = "container_resize";
         BasicsServices.printing = false;
         return BasicsServices;
     }());
