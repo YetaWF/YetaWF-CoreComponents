@@ -24,7 +24,6 @@ namespace YetaWF.Core.Support {
 
         public const string MimeSettingsFile = "MimeSettings.json";
         public const string ImageUse = "ImageUse";
-        public const string FlashUse = "FlashUse";
         public const string PackageUse = "PackageUse";
 
         public Task InitAsync(string settingsFile) {
