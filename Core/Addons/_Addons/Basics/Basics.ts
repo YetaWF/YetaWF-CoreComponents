@@ -1550,9 +1550,7 @@ namespace YetaWF {
         // CONTAINER SCROLLING
 
         public sendContainerScrollEvent(): void {
-            let event = document.createEvent("Event");
-            event.initEvent(BasicsServices.EVENTCONTAINERSCROLL, true, true);
-            document.body.dispatchEvent(event);
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL);
         }
 
         // CONTAINER RESIZING
@@ -1560,9 +1558,7 @@ namespace YetaWF {
         // CONTAINER RESIZING
 
         public sendContainerResizeEvent(): void {
-            var event = document.createEvent("Event");
-            event.initEvent(BasicsServices.EVENTCONTAINERRESIZE, true, true);
-            document.body.dispatchEvent(event);
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE);
         }
 
         // PAGECHANGE

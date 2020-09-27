@@ -1423,17 +1423,13 @@ var YetaWF;
         // CONTAINER SCROLLING
         // CONTAINER SCROLLING
         BasicsServices.prototype.sendContainerScrollEvent = function () {
-            var event = document.createEvent("Event");
-            event.initEvent(BasicsServices.EVENTCONTAINERSCROLL, true, true);
-            document.body.dispatchEvent(event);
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL);
         };
         // CONTAINER RESIZING
         // CONTAINER RESIZING
         // CONTAINER RESIZING
         BasicsServices.prototype.sendContainerResizeEvent = function () {
-            var event = document.createEvent("Event");
-            event.initEvent(BasicsServices.EVENTCONTAINERRESIZE, true, true);
-            document.body.dispatchEvent(event);
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE);
         };
         /**
          * Register a callback to be called when the current page is going away (about to be replaced by a new page).
