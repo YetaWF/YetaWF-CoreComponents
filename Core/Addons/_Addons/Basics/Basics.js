@@ -149,6 +149,9 @@ var YetaWF;
          * Set focus to a suitable field within the specified elements.
          */
         BasicsServices.prototype.setFocus = function (tags) {
+            // if we have a dialog popup, don't set the focus
+            if (YetaWF_BasicsImpl.messagePopupActive())
+                return;
             //TODO: this should also consider input fields with validation errors (although that seems to magically work right now)
             if (!tags) {
                 tags = [];

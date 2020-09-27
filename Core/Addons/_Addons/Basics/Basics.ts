@@ -121,6 +121,10 @@ namespace YetaWF {
          * Also used to update visual styles to reflect the status.
          */
         elementEnableToggle(elem: HTMLElement, enable: boolean): void;
+        /**
+         * Returns whether a message popup dialog is currently active.
+         */
+        messagePopupActive(): boolean;
     }
 
     export interface IWhenReady {
@@ -244,6 +248,10 @@ namespace YetaWF {
          * Set focus to a suitable field within the specified elements.
          */
         public setFocus(tags?: HTMLElement[]): void {
+            // if we have a dialog popup, don't set the focus
+            if (YetaWF_BasicsImpl.messagePopupActive())
+                return;
+
             //TODO: this should also consider input fields with validation errors (although that seems to magically work right now)
             if (!tags) {
                 tags = [];
