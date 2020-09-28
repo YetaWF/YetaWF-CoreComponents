@@ -21,7 +21,7 @@ using YetaWF.Core.Support;
 //    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
 //   Built-in CDN support (off by default until you have a CDN provider)
-//   Optional CDN support for all major JavaScript addons (jQuery, jQueryUI, KendoUI, CKEditor, etc.)
+//   Optional CDN support for all major JavaScript addons (jQuery, KendoUI, CKEditor, etc.)
 // Add an Expires or a Cache-Control Header
 //   YetaWF uses Expires and a Cache-Control Header
 // Gzip Components

@@ -1628,6 +1628,35 @@ namespace YetaWF {
             return (YVolatile.Skin.MinWidthForPopups > 0 && YVolatile.Skin.MinWidthForPopups > window.outerWidth) || (YVolatile.Skin.MinWidthForPopups === 0 && window.outerWidth <= 970);
         }
 
+        // Positioning
+
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their left edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         */
+        public positionLeftAlignedBelow(main: HTMLElement, sub: HTMLElement): void {
+
+            // position to fit
+            let mainRect = main.getBoundingClientRect();
+            let subRect = sub.getBoundingClientRect();
+            let bottomAvailable = window.innerHeight - mainRect.bottom;
+            let topAvailable = mainRect.top;
+
+            // Top/bottom position and height calculation
+            let top = 0, bottom = 0;
+            if (bottomAvailable < subRect.height && topAvailable > bottomAvailable) {
+                bottom = window.innerHeight - mainRect.top;
+                sub.style.bottom = `${bottom - window.pageYOffset}px`;
+            } else {
+                top = mainRect.bottom;
+                sub.style.top = `${top + window.pageYOffset}px`;
+            }
+            // set left
+            sub.style.left = `${mainRect.left + window.pageXOffset}px`;
+        }
+
         constructor() {
 
             $YetaWF = this;// set global so we can initialize anchor/content

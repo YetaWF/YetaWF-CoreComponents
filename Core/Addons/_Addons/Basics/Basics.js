@@ -1482,6 +1482,32 @@ var YetaWF;
         BasicsServices.prototype.isMobile = function () {
             return (YVolatile.Skin.MinWidthForPopups > 0 && YVolatile.Skin.MinWidthForPopups > window.outerWidth) || (YVolatile.Skin.MinWidthForPopups === 0 && window.outerWidth <= 970);
         };
+        // Positioning
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their left edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         */
+        BasicsServices.prototype.positionLeftAlignedBelow = function (main, sub) {
+            // position to fit
+            var mainRect = main.getBoundingClientRect();
+            var subRect = sub.getBoundingClientRect();
+            var bottomAvailable = window.innerHeight - mainRect.bottom;
+            var topAvailable = mainRect.top;
+            // Top/bottom position and height calculation
+            var top = 0, bottom = 0;
+            if (bottomAvailable < subRect.height && topAvailable > bottomAvailable) {
+                bottom = window.innerHeight - mainRect.top;
+                sub.style.bottom = bottom - window.pageYOffset + "px";
+            }
+            else {
+                top = mainRect.bottom;
+                sub.style.top = top + window.pageYOffset + "px";
+            }
+            // set left
+            sub.style.left = mainRect.left + window.pageXOffset + "px";
+        };
         BasicsServices.prototype.init = function () {
             var _this = this;
             this.AnchorHandling.init();
