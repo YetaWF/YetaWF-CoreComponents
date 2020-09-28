@@ -2,4 +2,3 @@
 //cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js,CDN
 
 /node_modules/bootstrap/dist/js/bootstrap.bundle.min.js,noCDN
-fixup.js,bundle
