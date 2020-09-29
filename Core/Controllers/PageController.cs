@@ -33,14 +33,16 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// The Show action handles all page requests within YetaWF.
         /// </summary>
-        /// <param name="__path">The local Url requested.</param>
         /// <returns></returns>
         [AllowHttp("GET", "HEAD")]  // HEAD is only supported here (so dumb linkcheckers can see the pages)
-        public async Task<ActionResult> Show(string __path) {
+        public async Task<ActionResult> Show() {
             // We come here for ANY page request (GET, HEAD only)
 
             if (!YetaWFManager.HaveManager)
-                return new NotFoundObjectResult(__path);
+                throw new InternalError("No manager available");
+
+            HttpRequest request = Manager.CurrentContext.Request;
+            Manager.CurrentUrl = QueryHelper.ToUrl(request.Path, request.QueryString.Value);
 
             SiteDefinition site = Manager.CurrentSite;
             Uri uri = new Uri(Manager.CurrentRequestUrl);
@@ -310,14 +312,14 @@ namespace YetaWF.Core.Controllers {
                 if (page != null) {
                     Manager.CurrentPage = page;
                     if (Manager.IsHeadRequest)
-                        return new NotFoundObjectResult(__path);
+                        return new NotFoundObjectResult(Manager.CurrentUrl);
                     AddStandardHeaders();
                     Logging.AddErrorLog("404 Not Found");
                     Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
                     return new PageViewResult();
                 }
             }
-            return NotFound(__path);
+            return NotFound(Manager.CurrentUrl);
         }
 
         private void AddStandardHeaders() {

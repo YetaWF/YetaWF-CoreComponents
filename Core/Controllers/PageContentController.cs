@@ -209,9 +209,10 @@ namespace YetaWF.Core.Controllers {
         public async Task<ActionResult> Show([FromBody] DataIn dataIn) {
 
             dataIn.Path = Utility.UrlDecodePath(dataIn.Path);
-            if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest")) {
+            if (!YetaWFManager.HaveManager || string.IsNullOrWhiteSpace(dataIn.Path) || (Manager.CurrentRequest.Headers == null || Manager.CurrentRequest.Headers["X-Requested-With"] != "XMLHttpRequest"))
                 return new NotFoundObjectResult(dataIn.Path);
-            }
+
+            Manager.CurrentUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
 
             Uri uri = new Uri(Manager.CurrentRequestUrl);
             SiteDefinition site = Manager.CurrentSite;

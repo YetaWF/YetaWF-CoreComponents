@@ -1067,6 +1067,9 @@ namespace YetaWF.Core.Support {
             }
         }
 
+        /// <summary>
+        /// Describes the current URL requested. CurrentRequestUrl may not match the full page URL in UPS requests.
+        /// </summary>
         public string CurrentRequestUrl {
             get {
                 if (_currentRequestUrl == null) {
@@ -1079,6 +1082,11 @@ namespace YetaWF.Core.Support {
             }
         }
         private string _currentRequestUrl = null;
+
+        /// <summary>
+        /// Describes the current URL (path and query string only) requested, as shown by browser, which matches the page URL. CurrentRequestUrl may not match the full page URL in UPS requests.
+        /// </summary>
+        public string CurrentUrl { get; set; }
 
         public void RestartSite(string url = null) {
 #if MVC6
