@@ -318,6 +318,10 @@ namespace YetaWF.Core.WebStartup {
                         YetaWFManager.SetStaticCacheInfo(context.Context);
                     }
                 });
+                app.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, @".well-known")),
+                    RequestPath = new PathString("/.well-known")
+                });
 
                 // Everything else in wwwroot is based on mimetype. Only mime types with Download=true can be downloaded.
                 FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider(new Dictionary<string,string>());

@@ -35,7 +35,7 @@ namespace YetaWF.Core.Support {
             dynamic mimeSection = settings["MimeSection"];
             List<MimeEntry> list = new List<MimeEntry>();
 
-            // add required extensions
+            // add required extensions (see FileExtensionContentTypeProvider.cs for complete list supported by .net core, but limited here)
             list.Add(new MimeEntry { Extensions = ".js", Type = "application/javascript" });
             list.Add(new MimeEntry { Extensions = ".css", Type = "text/css" });
             list.Add(new MimeEntry { Extensions = ".gif", Type = "image/gif" });
@@ -45,6 +45,9 @@ namespace YetaWF.Core.Support {
             list.Add(new MimeEntry { Extensions = ".svg;.svgz", Type = "image/svg+xml" });
             list.Add(new MimeEntry { Extensions = ".htm;.html", Type = "text/html" });
             list.Add(new MimeEntry { Extensions = ".map", Type = "text/plain" });
+            list.Add(new MimeEntry { Extensions = ".xml", Type = "text/xml" }); // sitemap
+            list.Add(new MimeEntry { Extensions = ".txt", Type = "text/plain" }); // robots
+            list.Add(new MimeEntry { Extensions = ".ico", Type = "image/x-icon" }); // favicon
 
             // add specified extensions
             foreach (var t in mimeSection["MimeTypes"]) {
