@@ -1217,7 +1217,7 @@ var YetaWF;
          * @param name The name of the event.
          */
         BasicsServices.prototype.sendCustomEvent = function (elem, name, details) {
-            var event = new CustomEvent("CustomEvent", { 'detail': details !== null && details !== void 0 ? details : {} });
+            var event = new CustomEvent("CustomEvent", { "detail": details !== null && details !== void 0 ? details : {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
         };

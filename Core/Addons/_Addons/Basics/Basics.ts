@@ -1358,7 +1358,7 @@ namespace YetaWF {
          */
 
         public sendCustomEvent(elem: HTMLElement | Document, name: string, details?: any): void {
-            let event = new CustomEvent("CustomEvent", { 'detail': details ?? {} });
+            let event = new CustomEvent("CustomEvent", { "detail": details ?? {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
         }
@@ -1567,7 +1567,7 @@ namespace YetaWF {
 
         public sendContainerScrollEvent(container?: HTMLElement): void {
             if (!container) container = document.body;
-            let details: DetailsEventContainerScroll = { container: container }
+            let details: DetailsEventContainerScroll = { container: container };
             this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL, details);
         }
 
@@ -1577,7 +1577,7 @@ namespace YetaWF {
 
         public sendContainerResizeEvent(container?: HTMLElement): void {
             if (!container) container = document.body;
-            let details: DetailsEventContainerScroll = { container: container }
+            let details: DetailsEventContainerScroll = { container: container };
             this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE, details);
         }
 
