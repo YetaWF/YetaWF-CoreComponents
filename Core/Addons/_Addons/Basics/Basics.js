@@ -1216,8 +1216,8 @@ var YetaWF;
          * @param elem The element sending the event.
          * @param name The name of the event.
          */
-        BasicsServices.prototype.sendCustomEvent = function (elem, name) {
-            var event = document.createEvent("Event");
+        BasicsServices.prototype.sendCustomEvent = function (elem, name, details) {
+            var event = new CustomEvent("CustomEvent", { 'detail': details !== null && details !== void 0 ? details : {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
         };
@@ -1425,14 +1425,20 @@ var YetaWF;
         // CONTAINER SCROLLING
         // CONTAINER SCROLLING
         // CONTAINER SCROLLING
-        BasicsServices.prototype.sendContainerScrollEvent = function () {
-            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL);
+        BasicsServices.prototype.sendContainerScrollEvent = function (container) {
+            if (!container)
+                container = document.body;
+            var details = { container: container };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL, details);
         };
         // CONTAINER RESIZING
         // CONTAINER RESIZING
         // CONTAINER RESIZING
-        BasicsServices.prototype.sendContainerResizeEvent = function () {
-            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE);
+        BasicsServices.prototype.sendContainerResizeEvent = function (container) {
+            if (!container)
+                container = document.body;
+            var details = { container: container };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE, details);
         };
         /**
          * Register a callback to be called when the current page is going away (about to be replaced by a new page).

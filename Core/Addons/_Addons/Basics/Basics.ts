@@ -69,6 +69,13 @@ namespace YetaWF {
         Data: any;
     }
 
+    export interface DetailsEventContainerResize {
+        container: HTMLElement;
+    }
+    export interface DetailsEventContainerScroll {
+        container: HTMLElement;
+    }
+
     /**
      * Implemented by rendered (such as ComponentsHTML)
      */
@@ -1349,8 +1356,9 @@ namespace YetaWF {
          * @param elem The element sending the event.
          * @param name The name of the event.
          */
-        public sendCustomEvent(elem: HTMLElement | Document, name: string): void {
-            let event = document.createEvent("Event");
+
+        public sendCustomEvent(elem: HTMLElement | Document, name: string, details?: any): void {
+            let event = new CustomEvent("CustomEvent", { 'detail': details ?? {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
         }
@@ -1408,22 +1416,22 @@ namespace YetaWF {
                 }
             }
         }
-        public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: Event) => boolean): void {
-            document.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev, selector, callback));
+        public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: CustomEvent) => boolean): void {
+            document.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev as CustomEvent, selector, callback));
         }
-        public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: Event) => void): void {
-            control.Control.addEventListener(eventName, (ev: Event): void => callback(ev));
+        public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: CustomEvent) => void): void {
+            control.Control.addEventListener(eventName, (ev: Event): void => callback(ev as CustomEvent));
         }
-        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl|null)[], eventNames: string[], callback: (ev: Event) => void): void {
+        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl | null)[], eventNames: string[], callback: (ev: CustomEvent) => void): void {
             for (let control of controls) {
                 if (control) {
                     for (let eventName of eventNames) {
-                        control.Control.addEventListener(eventName, (ev: Event): void => callback(ev));
+                        control.Control.addEventListener(eventName, (ev: Event): void => callback(ev as CustomEvent));
                     }
                 }
             }
         }
-        private handleEvent(listening: HTMLElement | null, ev: Event, selector: string | null, callback: (ev: Event) => boolean): void {
+        private handleEvent<EVENTTYPE extends Event|CustomEvent>(listening: HTMLElement | null, ev: EVENTTYPE, selector: string | null, callback: (ev: EVENTTYPE) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
             var elem: HTMLElement | null = ev.target as HTMLElement | null;
@@ -1557,16 +1565,20 @@ namespace YetaWF {
         // CONTAINER SCROLLING
         // CONTAINER SCROLLING
 
-        public sendContainerScrollEvent(): void {
-            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL);
+        public sendContainerScrollEvent(container?: HTMLElement): void {
+            if (!container) container = document.body;
+            let details: DetailsEventContainerScroll = { container: container }
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERSCROLL, details);
         }
 
         // CONTAINER RESIZING
         // CONTAINER RESIZING
         // CONTAINER RESIZING
 
-        public sendContainerResizeEvent(): void {
-            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE);
+        public sendContainerResizeEvent(container?: HTMLElement): void {
+            if (!container) container = document.body;
+            let details: DetailsEventContainerScroll = { container: container }
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE, details);
         }
 
         // PAGECHANGE
@@ -1672,7 +1684,7 @@ namespace YetaWF {
 
             // screen size yCondense/yNoCondense support
 
-            $YetaWF.registerCustomEventHandlerDocument(YetaWF.BasicsServices.EVENTCONTAINERRESIZE, null, (ev: Event): boolean => {
+            $YetaWF.registerCustomEventHandlerDocument(YetaWF.BasicsServices.EVENTCONTAINERRESIZE, null, (ev: CustomEvent<YetaWF.DetailsEventContainerResize>): boolean => {
                 this.setCondense(document.body, window.innerWidth);
                 return true;
             });
