@@ -879,12 +879,14 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PageChanged">The new page changed status.</param>
         /// <param name="ForceApply">Force handling as Apply.</param>
         /// <param name="ExtraData">Additional data added to URL as _extraData argument. Length should be minimal, otherwise URL and Referer header may grow too large.</param>
+        /// <param name="ForcePopup">The message is shown as a popup even if toasts are enabled.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
                 string NextPage = null, bool PreserveOriginList = false, string ExtraData = null,
                 string PreSaveJavaScript = null, string PostSaveJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false,
-                bool? PageChanged = null) {
+                bool? PageChanged = null,
+                bool ForcePopup = false) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -946,8 +948,9 @@ namespace YetaWF.Core.Controllers {
                         if (string.IsNullOrWhiteSpace(popupText)) {
                             sb.Append("$YetaWF.setLoading();window.parent.location.assign({0});", url);
                         } else {
-                            sb.Append(
-                               "$YetaWF.alert({0}, {1}, function() {{ $YetaWF.setLoading(); window.parent.location.assign({2}); }}, {3});", popupText, popupTitle, url, PopupOptions);
+                            sb.Append($@"
+{(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
+$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.parent.location.assign({url}); }}, {PopupOptions});");
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append($@"
@@ -959,6 +962,7 @@ if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), tr
 
                     } else {
                         sb.Append($@"
+{(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
 $YetaWF.alert({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
     if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
@@ -971,13 +975,15 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                     if (ForceRedirect) {
                         if (isApply) {
                             sb.Append($@"
-$YetaWF.alert({ popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {PopupOptions});");
+{(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
+$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {PopupOptions});");
                         } else {
                             if (string.IsNullOrWhiteSpace(popupText)) {
                                 sb.Append($@"
 $YetaWF.setLoading();window.location.assign({url});");
                             } else {
                                 sb.Append($@"
+{(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
 $YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.assign({url}); }}, {PopupOptions});");
                             }
                         }
@@ -990,6 +996,7 @@ if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null
     window.location.assign({url});");
                     } else {
                         sb.Append($@"
+{(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
 $YetaWF.alert({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
     if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
@@ -1031,12 +1038,15 @@ $YetaWF.closePopup(false);");
                             case OnPopupCloseEnum.GotoNewPage:
                                 throw new InternalError("No next page");
                             case OnPopupCloseEnum.Nothing:
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
                                 break;
                             case OnPopupCloseEnum.ReloadNothing:
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.closePopup(false);{PostSaveJavaScript} }}, {PopupOptions});");
                                 break;
                             case OnPopupCloseEnum.ReloadParentPage:
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.closePopup(true);{PostSaveJavaScript} }}, {PopupOptions});");
                                 break;
                             case OnPopupCloseEnum.UpdateInPlace:
@@ -1044,6 +1054,7 @@ $YetaWF.closePopup(false);");
                                 break;
                             case OnPopupCloseEnum.ReloadModule:
                                 // reload page, which reloads all modules (that are registered)
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ window.parent.$YetaWF.refreshPage(); $YetaWF.closePopup(false); }}, {PopupOptions});");
                                 break;
                             default:
@@ -1055,8 +1066,10 @@ $YetaWF.closePopup(false);");
                         case OnCloseEnum.GotoNewPage:
                             throw new InternalError("No next page");
                         case OnCloseEnum.Nothing:
-                            if (!string.IsNullOrWhiteSpace(popupText))
+                            if (!string.IsNullOrWhiteSpace(popupText)) {
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
+                            }
                             if (PageChanged != null)
                                 sb.Append($@"$YetaWF.pageChanged = {((bool)PageChanged ? "true" : "false")} ;");
                             break;
@@ -1067,8 +1080,10 @@ $YetaWF.closePopup(false);");
                             if (Manager.OriginList == null || Manager.OriginList.Count == 0) {
                                 if (string.IsNullOrWhiteSpace(popupText))
                                     sb.Append($@"window.close();{PostSaveJavaScript}");
-                                else
+                                else {
+                                    if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
                                     sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ window.close();{PostSaveJavaScript} }}, {PopupOptions});");
+                                }
                             } else {
                                 string url = Utility.JsonSerialize(Manager.ReturnToUrl);
                                 if (string.IsNullOrWhiteSpace(popupText)) {
@@ -1079,6 +1094,7 @@ if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null
     window.location.assign({url});");
                                 } else {
                                     sb.Append($@"
+{(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
 $YetaWF.alert({popupText}, {popupTitle}, function() {{
     if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
 
@@ -1091,14 +1107,18 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                         case OnCloseEnum.CloseWindow:
                             if (string.IsNullOrWhiteSpace(popupText))
                                 sb.Append($@"window.close();{PostSaveJavaScript}");
-                            else
+                            else {
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ window.close();{PostSaveJavaScript} }}, {PopupOptions});");
+                            }
                             break;
                         case OnCloseEnum.ReloadPage:
                             if (string.IsNullOrWhiteSpace(popupText))
                                 sb.Append($@"$YetaWF.reloadPage(true);");
-                            else
+                            else {
+                                if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
                                 sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.reloadPage(true);{PostSaveJavaScript} }}, {PopupOptions});");
+                            }
                             break;
                         default:
                             throw new InternalError("Invalid OnClose value {0}", OnClose);
@@ -1108,12 +1128,15 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                     if (OnApply == OnApplyEnum.ReloadPage) {
                         if (string.IsNullOrWhiteSpace(popupText))
                             sb.Append($@"$YetaWF.reloadPage(true);{PostSaveJavaScript}");
-                        else
+                        else {
+                            if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
                             sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.reloadPage(true);{PostSaveJavaScript} }}, {PopupOptions});");
+                        }
                     } else {
-                        if (!string.IsNullOrWhiteSpace(popupText))
+                        if (!string.IsNullOrWhiteSpace(popupText)) {
+                            if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
                             sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
-                        else
+                        } else
                             sb.Append(PostSaveJavaScript);
                         return PartialView(model, sb);
                     }

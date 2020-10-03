@@ -83,6 +83,9 @@ namespace YetaWF {
         UnifiedAddonModsPrevious: string[];
         UnifiedAddonMods: string[];
 
+        // Popups
+        ForcePopup: boolean;
+
         KnownScriptsDynamic: string[];
     }
     export interface UniqueIdInfo {

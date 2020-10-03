@@ -351,8 +351,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
-            return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
+        protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+            return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip, ForcePopup: ForcePopup);
         }
 
         /// <summary>
@@ -365,8 +365,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
-            return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
+        protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+            return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip, ForcePopup: ForcePopup);
         }
 
         /// <summary>
@@ -379,8 +379,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
-            return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip);
+        protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+            return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip, ForcePopup: ForcePopup);
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false) {
+        protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
 
             if (model != null)
                 ViewData.Model = model;
@@ -408,6 +408,7 @@ namespace YetaWF.Core.Controllers {
                 PureContent = PureContent,
                 AreaViewName = AreaViewName,
                 Gzip = Gzip,
+                ForcePopup = ForcePopup,
             };
         }
         /// <summary>
@@ -438,6 +439,7 @@ namespace YetaWF.Core.Controllers {
             public bool PureContent { get; set; }
             public bool AreaViewName { get; set; }
             public bool Gzip { get; set; }
+            public bool ForcePopup { get; set; }
 
             private static readonly Regex reEndDiv = new Regex(@"</div>\s*$"); // very last div
 
@@ -523,7 +525,10 @@ namespace YetaWF.Core.Controllers {
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Module.ReferencedModules);
 
-                    viewHtml = viewHtml + (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
+                    if (ForcePopup)
+                        viewHtml += "<script>YVolatile.Basics.ForcePopup=true;</script>";
+
+                    viewHtml += (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
                     viewHtml = await PostProcessView.ProcessAsync(htmlHelper, Module, viewHtml);
 
                     if (Script != null)
