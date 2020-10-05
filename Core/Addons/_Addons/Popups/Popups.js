@@ -47,7 +47,6 @@ var YetaWF;
                     result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
                 if (result !== YetaWF.SetContentResult.NotContent) {
                     // contents set in dynamic popup or not allowed
-                    $YetaWF.setLoading(false);
                     return true;
                 }
             }
