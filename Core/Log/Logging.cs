@@ -5,11 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
-#if MVC6
 using Microsoft.Data.SqlClient;
-#else
-using System.Data.SqlClient;
-#endif
 
 namespace YetaWF.Core.Log {
 
@@ -48,6 +44,12 @@ namespace YetaWF.Core.Log {
             /// </summary>
             [EnumDescription("Error", "Error")]
             Error = 99,
+
+            /// <summary>
+            /// Defines an event that is always logged (not necessarily an error).
+            /// </summary>
+            [EnumDescription("Always", "Always logged")]
+            Always = 200,
         }
 
         /// <summary>
@@ -136,6 +138,7 @@ namespace YetaWF.Core.Log {
                 WriteToAllLogFiles(LevelEnum.Error, 0, text);
             return text;
         }
+
         /// <summary>
         /// Records an error message to the YetaWF log with formatted parameters.
         /// </summary>
@@ -159,6 +162,15 @@ namespace YetaWF.Core.Log {
         //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
         //    return text;
         //}
+
+        /// <summary>
+        /// Records an error message to the YetaWF log.
+        /// </summary>
+        /// <returns>Returns the message text.</returns>
+        public static string AddAlwaysLog(string text) {
+            WriteToAllLogFiles(LevelEnum.Always, 0, text);
+            return text;
+        }
 
         private static string FormatMessage(string text, params object[] parms) {
 
