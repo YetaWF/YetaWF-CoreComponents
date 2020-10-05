@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
@@ -593,7 +594,8 @@ namespace YetaWF.Core.Addons {
                     typeName = version.Domain + ".Modules." + version.Product + ".Addons";
                 if (version.Type == AddOnType.Template) {
                     string templateName = Path.GetFileName(folder);
-                    typeName += ".Templates." + templateName;
+                    templateName = templateName.TrimEnd("Edit");
+                    typeName += $".Templates.{templateName}";
                 } else if (version.Type == AddOnType.Package) {
                     typeName += ".Info";
                 } else if (version.Type == AddOnType.AddonNamed) {
