@@ -473,7 +473,7 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
                 Manager.CurrentPage = page;// Found It!!
-                if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
+                if (YetaWFController.GoingToPopup()) {
                     // this is a popup request
                     Manager.IsInPopup = true;
                 }
@@ -507,7 +507,7 @@ namespace YetaWF.Core.Controllers {
                 PageDefinition page = PageDefinition.Create();
                 page.AddModule(Globals.MainPane, module);
                 Manager.CurrentPage = page;
-                if (!dataIn.IsMobile && YetaWFController.GoingToPopup()) {
+                if (YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
                     page.SelectedPopupSkin = module.SelectedPopupSkin;

@@ -31,6 +31,7 @@ var YetaWF;
          */
         Popups.prototype.openPopup = function (url, forceIframe, forceContent) {
             $YetaWF.setLoading(true);
+            $YetaWF.closeOverlays();
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
             if (url.indexOf("?") < 0)
                 url += "?";
