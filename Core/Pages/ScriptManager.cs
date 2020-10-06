@@ -159,8 +159,8 @@ namespace YetaWF.Core.Pages {
         // ADDON
 
         internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
-            string productUrl = version.GetAddOnUrl();
             await AddFromSupportTypesAsync(version);
+            string productUrl = version.GetAddOnUrl();
             await AddFromFileListAsync(version, productUrl, args);
         }
 

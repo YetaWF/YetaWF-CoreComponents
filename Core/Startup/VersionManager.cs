@@ -594,7 +594,6 @@ namespace YetaWF.Core.Addons {
                     typeName = version.Domain + ".Modules." + version.Product + ".Addons";
                 if (version.Type == AddOnType.Template) {
                     string templateName = Path.GetFileName(folder);
-                    templateName = templateName.TrimEnd("Edit");
                     typeName += $".Templates.{templateName}";
                 } else if (version.Type == AddOnType.Package) {
                     typeName += ".Info";
