@@ -124,8 +124,7 @@ namespace YetaWF.Core.Controllers {
 
             PageProcessing pageProc = new PageProcessing(Manager);
             pageHtml = await pageProc.PostProcessHtmlAsync(pageHtml);
-            if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
-                pageHtml = WhiteSpaceResponseFilter.Compress(Manager, pageHtml);
+            pageHtml = WhiteSpaceResponseFilter.Compress(pageHtml);
 
             if (staticPage) {
                 await Manager.StaticPageManager.AddPageAsync(requestedPage.Url, requestedPage.StaticPage == PageDefinition.StaticPageEnum.YesMemory, pageHtml, Manager.LastUpdated);

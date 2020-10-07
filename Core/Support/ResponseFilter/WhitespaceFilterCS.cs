@@ -16,7 +16,7 @@ namespace YetaWF.Core.ResponseFilter {
     /// </remarks>
     public class WhiteSpaceResponseFilter : MemoryStream {
 
-        private YetaWFManager Manager { get; set; }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
         /// Defines whether aggressive optimization is used.
@@ -26,8 +26,7 @@ namespace YetaWF.Core.ResponseFilter {
         /// </remarks>
         private bool Aggressive { get; set; }
 
-        private WhiteSpaceResponseFilter(YetaWFManager manager) {
-            Manager = manager;
+        private WhiteSpaceResponseFilter() {
             Aggressive = true;
         }
 
@@ -38,7 +37,6 @@ namespace YetaWF.Core.ResponseFilter {
         /// <summary>
         /// Compresses the HTML input buffer which is normally the complete page.
         /// </summary>
-        /// <param name="manager">The Manager instance.</param>
         /// <param name="inputBuffer">The input buffer containing HTML to be optimized.</param>
         /// <returns>Returns the compressed output.</returns>
         /// <remarks>Removes excessive whitespace, optimizes JavaScript while preserving textarea and pre tag contents.
@@ -50,8 +48,13 @@ namespace YetaWF.Core.ResponseFilter {
         /// Inside areas marked &lt;!--LazyWSF--&gt; and &lt;!--LazyWSFEnd--&gt; (Text Modules (display only)), whitespace between tags is preserved.
         /// Inside pre and textarea tags no optimization is performed.
         /// </remarks>
-        public static string Compress(YetaWFManager manager, string inputBuffer) {
-            using (WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter(manager)) {
+        public static string Compress(string inputBuffer) {
+            // only compress when deployed
+            if (!YetaWFManager.Deployed || !Manager.CurrentSite.StaticPages) return inputBuffer;
+            // if no compression is requested, still compress static pages (overriding no compression)
+            if (!Manager.CurrentSite.Compression && !Manager.RenderStaticPage)
+                return inputBuffer;
+            using (WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter()) {
                 string output = wsf.ProcessAllInputCheckLazy(inputBuffer).ToString();
 #if DEBUG
                 output += string.Format("<!-- WhitespaceFilter optimized from {0} bytes to {1} -->", inputBuffer.Length, output.Length);

@@ -129,7 +129,7 @@ namespace YetaWF.Core.Site {
             CurrencyDecimals = CurrencyISO4217.Currency.DefaultMinorUnit;
 
             AllowCacheUse = true;
-            Compression = true;
+            Compression = false;
             CompressCSSFiles = true;
             BundleCSSFiles = true;
             CompressJSFiles = true;
@@ -481,7 +481,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool AllowCacheUse { get; set; }
 
-        [Category("Pages"), Caption("Compression"), Description("Defines whether whitespace compression is used for all pages")]
+        [Category("Pages"), Caption("Compression"), Description("Defines whether whitespace compression is used for all non-static pages - Static pages are always compressed - This setting only applies to deployed sites")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool Compression { get; set; }

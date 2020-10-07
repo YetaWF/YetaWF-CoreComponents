@@ -591,8 +591,7 @@ namespace YetaWF.Core.Pages {
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
-                    if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
-                        paneHtml = WhiteSpaceResponseFilter.Compress(Manager, paneHtml);
+                    paneHtml = WhiteSpaceResponseFilter.Compress(paneHtml);
                     model.Content.Add(new Controllers.PageContentController.PaneContent {
                         Pane = pane,
                         HTML = paneHtml,

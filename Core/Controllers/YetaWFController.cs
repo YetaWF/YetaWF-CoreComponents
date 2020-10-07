@@ -545,8 +545,7 @@ namespace YetaWF.Core.Controllers {
 
                     // DEBUG: viewHtml is the complete response to the Ajax request
 
-                    if (!Manager.CurrentSite.DEBUGMODE && Manager.CurrentSite.Compression)
-                        viewHtml = WhiteSpaceResponseFilter.Compress(Manager, viewHtml);
+                    viewHtml = WhiteSpaceResponseFilter.Compress(viewHtml);
                 }
                 return viewHtml;
             }
