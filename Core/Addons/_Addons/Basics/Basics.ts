@@ -1198,8 +1198,11 @@ namespace YetaWF {
                     js.defer = false;
                     js.src = script.src;
                     document.body.appendChild(js);
-                } else
+                } else if (!script.type || script.type === "application/javascript") {
                     this.runGlobalScript(script.innerHTML);
+                } else {
+                    //throw `Unknown script type ${script.type}`;
+                }
             }
         }
 

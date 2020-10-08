@@ -18,6 +18,7 @@ namespace YetaWF.Core.Support {
         public enum EncodingTypeEnum {
             HTML = 0,
             XML = 1,
+            JSON = 2,
         }
 
         public Variables(YetaWFManager manager, object parms = null) {
@@ -392,6 +393,8 @@ namespace YetaWF.Core.Support {
                     return Utility.HtmlEncode(text);
                 case EncodingTypeEnum.XML:
                     return Utility.HtmlEncode(text);
+                case EncodingTypeEnum.JSON:
+                    return Utility.JserEncode(text);
             }
             return text;
         }
