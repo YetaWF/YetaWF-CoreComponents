@@ -462,6 +462,13 @@ namespace YetaWF {
             } catch (err) { }
         }
 
+        public loadUrl(url: string): void {
+            let uri = $YetaWF.parseUrl(url);
+            let result = $YetaWF.ContentHandling.setContent(uri, true);
+            if (result !== YetaWF.SetContentResult.ContentReplaced)
+                window.location.assign(url);
+        }
+
         // Reload, refresh
 
         /**

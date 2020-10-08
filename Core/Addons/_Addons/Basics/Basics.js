@@ -336,6 +336,12 @@ var YetaWF;
             }
             catch (err) { }
         };
+        BasicsServices.prototype.loadUrl = function (url) {
+            var uri = $YetaWF.parseUrl(url);
+            var result = $YetaWF.ContentHandling.setContent(uri, true);
+            if (result !== YetaWF.SetContentResult.ContentReplaced)
+                window.location.assign(url);
+        };
         // Reload, refresh
         /**
          * Reloads the current page - in its entirety (full page load)
