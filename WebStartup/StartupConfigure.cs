@@ -268,6 +268,10 @@ namespace YetaWF.Core.WebStartup {
             // This must appear after more generic error handlers (like UseDeveloperExceptionPage)
             app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
+            // request blocking middleware
+            app.UseMiddleware<BlockRequestMiddleware>();
+            await BlockRequestMiddleware.LoadBlockSettingsAsync();
+
             // Ignore extensions that are known not to be valid files
             app.UseMiddleware<IgnoreRouteMiddleware>();
 
