@@ -58,7 +58,7 @@ namespace YetaWF2.Middleware {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         return Task.CompletedTask;
                     }
-                    if (IsSuccessfulUserAgent(path)) {
+                    if (IsSuccessfulUserAgent(userAgent)) {
                         context.Response.StatusCode = StatusCodes.Status200OK;
                         return Task.CompletedTask;
                     }
