@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core;
+using YetaWF.Core.IO;
 using YetaWF.Core.Support;
 
 namespace YetaWF2.Middleware {
@@ -29,6 +30,12 @@ namespace YetaWF2.Middleware {
         private readonly RequestDelegate next;
         private static BlockSettingsDefinition BlockSettings = null;
         private static BlockSettingsDefinition BlockSettingsNone = new BlockSettingsDefinition { };
+
+        public static string SettingsFile {
+            get {
+                return Path.Combine(Globals.DataFolder, SETTINGSFILE);
+            }
+        }
 
         public BlockRequestMiddleware(RequestDelegate next) {
             this.next = next;
@@ -91,11 +98,36 @@ namespace YetaWF2.Middleware {
         public static Task LoadBlockSettingsAsync() {
             if (BlockSettings == null) {
                 BlockSettings = BlockSettingsNone;
-                string settingsFile = Path.Combine(Globals.DataFolder, SETTINGSFILE);
-                if (File.Exists(settingsFile)) // usually used during startup, no filesystem dataprovider available
-                    BlockSettings = Utility.JsonDeserialize<BlockSettingsDefinition>(File.ReadAllText(settingsFile));
+                if (File.Exists(SettingsFile)) { // usually used during startup, no filesystem dataprovider available
+                    try {// guard against invalid file contents
+                        BlockSettings = Utility.JsonDeserialize<BlockSettingsDefinition>(File.ReadAllText(SettingsFile));
+                    } catch (Exception) { }
+                }
             }
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Returns the currently active settings.
+        /// </summary>
+        /// <returns>Returns the currently active settings. Null is returned if no settings are active.</returns>
+        public static BlockSettingsDefinition GetCurrentSettings() {
+            return BlockSettings != BlockSettingsNone ? BlockSettings : null;
+        }
+        /// <summary>
+        /// Save new settings.
+        /// </summary>
+        /// <param name="settings">The new settings to activate. May be null to turn off.</param>
+        /// <remarks>The settings are permanently saved and persist beyond a site restart.</remarks>
+        public static async Task SaveNewSettings(BlockSettingsDefinition settings) {
+            if (settings == null) {
+                BlockSettings = BlockSettingsNone;
+                await FileSystem.FileSystemProvider.DeleteFileAsync(SettingsFile);
+            } else {
+                string json = Utility.JsonSerialize(settings, Indented: true);
+                await FileSystem.FileSystemProvider.WriteAllTextAsync(SettingsFile, json);
+                BlockSettings = settings;
+            }
         }
     }
 
