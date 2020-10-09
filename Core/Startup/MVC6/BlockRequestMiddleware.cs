@@ -68,7 +68,7 @@ namespace YetaWF2.Middleware {
             return false;
         }
         private bool IsNotAuthorizedUserAgent(string userAgent) {
-            if ((from u in BlockSettings.NotAuthorized.UserAgainContains where userAgent.Contains(u, StringComparison.OrdinalIgnoreCase) select u).Any())
+            if ((from u in BlockSettings.NotAuthorized.UserAgentContains where userAgent.Contains(u, StringComparison.OrdinalIgnoreCase) select u).Any())
                 return true;
             return false;
         }
@@ -80,7 +80,7 @@ namespace YetaWF2.Middleware {
             return false;
         }
         private bool IsSuccessfulUserAgent(string userAgent) {
-            if ((from u in BlockSettings.Successful.UserAgainContains where userAgent.Contains(u, StringComparison.OrdinalIgnoreCase) select u).Any())
+            if ((from u in BlockSettings.Successful.UserAgentContains where userAgent.Contains(u, StringComparison.OrdinalIgnoreCase) select u).Any())
                 return true;
             return false;
         }
@@ -129,12 +129,12 @@ namespace YetaWF2.Middleware {
         /// <summary>
         /// List of strings to check within the user agent.
         /// </summary>
-        public List<string> UserAgainContains { get; set; }
+        public List<string> UserAgentContains { get; set; }
 
         public AuthorizationDefinition() {
             UrlPathContains = new List<string>();
             UrlPathEndsWith = new List<string>();
-            UserAgainContains = new List<string>();
+            UserAgentContains = new List<string>();
         }
     }
 }
