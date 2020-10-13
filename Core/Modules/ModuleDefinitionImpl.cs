@@ -558,7 +558,6 @@ namespace YetaWF.Core.Modules {
             SkinAccess skinAccess = new SkinAccess();
             int charWidth, charHeight;
             skinAccess.GetModuleCharacterSizes(this, out charWidth, out charHeight);
-            Manager.NewCharSize(charWidth, charHeight);
 
             // execute actionalert
             ModuleDefinition oldMod = Manager.CurrentModule;
@@ -656,8 +655,6 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             }
 
             Manager.LastUpdated = this.DateUpdated;
-
-            Manager.PopCharSize();
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(ReferencedModules);
 

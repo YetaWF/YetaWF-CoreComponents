@@ -168,7 +168,6 @@ namespace YetaWF.Core.Controllers {
         public static async Task SetupEnvironmentInfoAsync() {
 
             if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled
-                GetCharSize();
                 Manager.IsInPopup = InPopup();
                 Manager.OriginList = GetOriginList();
                 Manager.PageControlShown = PageControlShown();
@@ -180,23 +179,6 @@ namespace YetaWF.Core.Controllers {
                 Manager.GetUserLanguage();
                 // only now can we enable resource loading
                 Manager.LocalizationSupportEnabled = true;
-            }
-        }
-        internal static void GetCharSize() {
-            string wh = null;
-            try {
-                wh = Manager.RequestForm[Globals.Link_CharInfo];
-                if (wh == null)
-                    wh = Manager.RequestQueryString[Globals.Link_CharInfo];
-            } catch (Exception) { }
-            int width = 0, height = 0;
-            if (!string.IsNullOrWhiteSpace(wh)) {
-                string[] parts = wh.Split(new char[] { ',' });
-                width = Convert.ToInt32(parts[0]);
-                height = Convert.ToInt32(parts[1]);
-            }
-            if (width > 0 && height > 0) {
-                Manager.NewCharSize(width, height);
             }
         }
         internal static bool GoingToPopup() {

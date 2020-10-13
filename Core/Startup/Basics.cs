@@ -156,7 +156,6 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", nameof(Globals.Link_ToEditMode), Globals.Link_ToEditMode); // force this mode
             scripts.AddConfigOption("Basics", nameof(Globals.Link_ToPopup), Globals.Link_ToPopup); // we're going into a popup
             scripts.AddConfigOption("Basics", nameof(Globals.Link_PageControl), Globals.Link_PageControl); // show page control module
-            scripts.AddConfigOption("Basics", nameof(Globals.Link_CharInfo), Globals.Link_CharInfo); // character info (char width, char height) for module issuing req.
             scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsApply), Globals.Link_SubmitIsApply); // a submit button was clicked and should be handled as Apply
             scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsReload), Globals.Link_SubmitIsReload); // a submit button was clicked and should be handled as a form reload
             scripts.AddConfigOption("Basics", nameof(Globals.Link_EditMode), Globals.Link_EditMode); // site edit mode

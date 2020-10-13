@@ -62,12 +62,6 @@ var YetaWF;
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
                     }
                 }
-                // pass along the charsize
-                {
-                    var charSize = $YetaWF.getCharSizeFromTag(anchor);
-                    uri.removeSearch(YConfigs.Basics.Link_CharInfo);
-                    uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + "," + charSize.height);
-                }
                 // fix the url to include where we came from
                 var target = anchor.getAttribute("target");
                 if (!target || target === "" || target === "_self") {

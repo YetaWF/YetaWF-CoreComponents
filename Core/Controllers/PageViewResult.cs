@@ -90,7 +90,6 @@ namespace YetaWF.Core.Controllers {
 
             // set new character dimensions and popup info
             PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
-            Manager.NewCharSize(pageSkin.CharWidthAvg, pageSkin.CharHeight);
             Manager.ScriptManager.AddVolatileOption("Basics", "CharWidthAvg", pageSkin.CharWidthAvg);
             Manager.ScriptManager.AddVolatileOption("Basics", "CharHeight", pageSkin.CharHeight);
             if (Manager.IsInPopup) {
@@ -112,7 +111,6 @@ namespace YetaWF.Core.Controllers {
             pageHtml = ProcessInlineScripts(pageHtml);
 
             await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
-            Manager.PopCharSize();
 
             if (Manager.UniqueIdCounters.IsTracked)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);

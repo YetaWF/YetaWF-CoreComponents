@@ -129,7 +129,6 @@ namespace YetaWF {
         RequestVerificationToken: string;
         UniqueIdCounters: UniqueIdInfo;
         ModuleGuid: string;
-        CharInfo: string;
         QS: string;
     }
 
@@ -285,11 +284,6 @@ namespace YetaWF {
                         originList = originList.slice(originList.length - 5);
                 }
                 formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
-                // include the character dimension info
-                {
-                    var charSize = $YetaWF.getCharSizeFromTag(form);
-                    formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
-                }
                 // add uniqueidcounters
                 {
                     formData = formData + "&" + YConfigs.Forms.UniqueIdCounters + "=" + encodeURIComponent(JSON.stringify(YVolatile.Basics.UniqueIdCounters));
@@ -531,21 +525,18 @@ namespace YetaWF {
             if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
             var guid = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
             if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
-            var charSize = $YetaWF.getCharSizeFromTag(form);
 
             var qs: string = "";
             if (addAmpersand !== false)
                 qs += "&";
             qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdCounters + "=" + JSON.stringify(YVolatile.Basics.UniqueIdCounters) +
-                "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
-                "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
+                "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid);
 
             var info: FormInfo = {
                 RequestVerificationToken: req,
                 UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                 ModuleGuid: guid,
-                CharInfo: charSize.width.toString() + "," + charSize.height.toString(),
                 QS: qs
             };
             return info;

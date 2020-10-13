@@ -69,13 +69,6 @@ namespace YetaWF {
                     }
                 }
 
-                // pass along the charsize
-                {
-                    let charSize = $YetaWF.getCharSizeFromTag(anchor);
-                    uri.removeSearch(YConfigs.Basics.Link_CharInfo);
-                    uri.addSearch(YConfigs.Basics.Link_CharInfo, charSize.width + "," + charSize.height);
-                }
-
                 // fix the url to include where we came from
                 let target = anchor.getAttribute("target");
                 if (!target || target === "" || target === "_self") {

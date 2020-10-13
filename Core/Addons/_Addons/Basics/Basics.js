@@ -489,32 +489,6 @@ var YetaWF;
                 throw "Can't find module guid"; /*DEBUG*/
             return guid;
         };
-        // Get character size
-        // CHARSIZE (from module or page/YVolatile)
-        /**
-         * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
-         */
-        BasicsServices.prototype.getCharSizeFromTag = function (tag) {
-            var width, height;
-            var mod = null;
-            if (tag)
-                mod = this.getModuleFromTagCond(tag);
-            if (mod) {
-                var w = mod.getAttribute("data-charwidthavg");
-                if (!w)
-                    throw "missing data-charwidthavg attribute"; /*DEBUG*/
-                width = Number(w);
-                var h = mod.getAttribute("data-charheight");
-                if (!h)
-                    throw "missing data-charheight attribute"; /*DEBUG*/
-                height = Number(h);
-            }
-            else {
-                width = YVolatile.Basics.CharWidthAvg;
-                height = YVolatile.Basics.CharHeight;
-            }
-            return { width: width, height: height };
-        };
         // Utility functions
         BasicsServices.prototype.htmlEscape = function (s, preserveCR) {
             var pre = preserveCR ? "&#13;" : "\n";

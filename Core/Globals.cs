@@ -57,7 +57,7 @@ namespace YetaWF.Core {
         public const string StartupLogFile = "StartupLogFile.txt"; // log file created during YetaWF startup
         public const string PackageMap = "PackageMap.txt";// currently installed packages
 
-        public const string DontDeployMarker = "dontdeploy.txt"; // if seen in a folder, its files will not be deployed by CopySite
+        public const string DontDeployMarker = "dontdeploy.txt"; // if seen in a folder, its files will not be deployed by DeploySite
 
         public const string DefaultCurrencyFormat = "$ #,0.00";
         public const string DefaultCountry = "United States";
@@ -71,7 +71,6 @@ namespace YetaWF.Core {
         public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
         public const string Link_PageControl = "!Pagectl"; // show page control module
         public const string Link_NoPageControl = "!Nopagectl"; // no page control module
-        public const string Link_CharInfo = "!ci"; // character info (char width, char height) for module issuing req.
         public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
         public const string Link_SubmitIsReload = "!Reload"; // a submit button was clicked and should be handled as a form reload
         public const string Link_EditMode = "!Edit"; // site edit mode

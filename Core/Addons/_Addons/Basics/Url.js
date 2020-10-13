@@ -97,7 +97,6 @@ var YetaWF;
             var formInfo = $YetaWF.Forms.getFormInfo(tag);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
             this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
-            this.addSearch(YConfigs.Basics.Link_CharInfo, formInfo.CharInfo);
         };
         Url.prototype.removeSearch = function (key) {
             key = key.toLowerCase();

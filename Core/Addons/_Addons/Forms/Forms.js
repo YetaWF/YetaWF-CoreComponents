@@ -168,11 +168,6 @@ var YetaWF;
                         originList = originList.slice(originList.length - 5);
                 }
                 formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
-                // include the character dimension info
-                {
-                    var charSize = $YetaWF.getCharSizeFromTag(form);
-                    formData = formData + "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
-                }
                 // add uniqueidcounters
                 {
                     formData = formData + "&" + YConfigs.Forms.UniqueIdCounters + "=" + encodeURIComponent(JSON.stringify(YVolatile.Basics.UniqueIdCounters));
@@ -397,19 +392,16 @@ var YetaWF;
             var guid = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
             if (!guid || guid.length === 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
-            var charSize = $YetaWF.getCharSizeFromTag(form);
             var qs = "";
             if (addAmpersand !== false)
                 qs += "&";
             qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
                 "&" + YConfigs.Forms.UniqueIdCounters + "=" + JSON.stringify(YVolatile.Basics.UniqueIdCounters) +
-                "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid) +
-                "&" + YConfigs.Basics.Link_CharInfo + "=" + charSize.width.toString() + "," + charSize.height.toString();
+                "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid);
             var info = {
                 RequestVerificationToken: req,
                 UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                 ModuleGuid: guid,
-                CharInfo: charSize.width.toString() + "," + charSize.height.toString(),
                 QS: qs
             };
             return info;

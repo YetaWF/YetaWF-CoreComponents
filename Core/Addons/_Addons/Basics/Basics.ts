@@ -621,31 +621,6 @@ namespace YetaWF {
             return guid;
         }
 
-        // Get character size
-
-        // CHARSIZE (from module or page/YVolatile)
-        /**
-         * Get the current character size used by the module defined using the specified tag (any tag within the module) or the default size.
-         */
-        public getCharSizeFromTag(tag: HTMLElement | null): CharSize {
-            var width: number, height: number;
-            var mod: HTMLElement | null = null;
-            if (tag)
-                mod = this.getModuleFromTagCond(tag);
-            if (mod) {
-                var w = mod.getAttribute("data-charwidthavg");
-                if (!w) throw "missing data-charwidthavg attribute";/*DEBUG*/
-                width = Number(w);
-                var h = mod.getAttribute("data-charheight");
-                if (!h) throw "missing data-charheight attribute";/*DEBUG*/
-                height = Number(h);
-            } else {
-                width = YVolatile.Basics.CharWidthAvg;
-                height = YVolatile.Basics.CharHeight;
-            }
-            return { width: width, height: height };
-        }
-
         // Utility functions
 
         public htmlEscape(s: string | undefined, preserveCR?: boolean): string {

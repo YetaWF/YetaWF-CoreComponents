@@ -1265,54 +1265,8 @@ namespace YetaWF.Core.Support {
         // While rendering a module, this is set to reflect whether the module wants the input focus
         public bool WantFocus { get; set; }
 
-        // While rendering a page or module, we set some average char width/height values - These are
-        // defined by the active skin and are APPROXIMATE only and can be used to size "things". It's typically used
-        // to convert em's or ch's to pixels
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public int CharHeight {
-            get {
-                if (_charSize.Height == 0)
-                    throw new InternalError("We don't have a char height");
-                return _charSize.Height;
-            }
-            private set { _charSize.Height = value; }
-        }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public int CharWidthAvg {
-            get {
-                if (_charSize.Width == 0)
-                    throw new InternalError("We don't have an average char width");
-                return _charSize.Width;
-            }
-            private set { _charSize.Width = value; }
-        }
-        public bool HaveCharSize { get { return !_charSize.IsEmpty; } }
-
-        private Size _charSize = new Size();
-
-        private List<Size> CharSizeStack {
-            get {
-                if (_charSizeStack == null)
-                    _charSizeStack = new List<Size>();
-                return _charSizeStack;
-            }
-        }
-        private List<Size> _charSizeStack = null;
-
-        public void PopCharSize() {
-            if (CharSizeStack.Count > 0)
-                CharSizeStack.RemoveAt(CharSizeStack.Count - 1);
-        }
-        private void PushCharSize() {
-            CharSizeStack.Add(_charSize);
-        }
-        public void NewCharSize(int width, int height) {
-            PushCharSize();
-            CharWidthAvg = width;
-            CharHeight = height;
-        }
         /// <summary>
-        /// Contains the last date/time updated while rendering a page.
+        /// Contains the page's last date/time updated while rendering a page.
         /// </summary>
         public DateTime LastUpdated { get { return _lastUpdated; } set { if (value > LastUpdated) _lastUpdated = value; } }
         private DateTime _lastUpdated;

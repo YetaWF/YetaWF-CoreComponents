@@ -135,8 +135,6 @@ namespace YetaWF.Core.Skins {
                 div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleNoPrint));
             div.Attributes.Add("id", mod.ModuleHtmlId);
             div.Attributes.Add("data-moduleguid", mod.ModuleGuid.ToString());
-            div.Attributes.Add("data-charwidthavg", Manager.CharWidthAvg.ToString());
-            div.Attributes.Add("data-charheight", Manager.CharHeight.ToString());
 
             HtmlBuilder inner = new HtmlBuilder();
 
