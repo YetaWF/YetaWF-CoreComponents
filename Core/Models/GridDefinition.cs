@@ -95,6 +95,7 @@ namespace YetaWF.Core.Models {
             UseSkinFormatting = true;
             HighlightOnClick = true;
             InitialFilters = new ColumnDictionary();
+            SizeStyle = GridDefinition.SizeStyleEnum.SizeToFit;
 
             Id = YetaWFManager.Manager.UniqueId("grid");
             PageSizes = new List<int>() { 10, 20, 50 };
