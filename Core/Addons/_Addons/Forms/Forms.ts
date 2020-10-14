@@ -387,9 +387,6 @@ namespace YetaWF {
                 if (originList.length > 0) {
                     var origin = originList.pop() as OriginListEntry;
                     var uri = $YetaWF.parseUrl(origin.Url);
-                    uri.removeSearch(YConfigs.Basics.Link_ToEditMode);
-                    if (origin.EditMode !== YVolatile.Basics.EditModeActive)
-                        uri.addSearch(YConfigs.Basics.Link_ToEditMode, !YVolatile.Basics.EditModeActive ? "0" : "1");
                     uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     if (originList.length > 0)
                         uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));

@@ -122,7 +122,6 @@ namespace YetaWF {
 
         Link_OriginList: string;    // chain of urls
         Link_InPopup: string;       // we're in a popup
-        Link_ToEditMode: string;    // force this mode
         Link_ToPopup: string;       // we're going into a popup
         Link_PageControl: string;   // show page control module
         Link_SubmitIsApply: string; // a submit button was clicked and should be handled as Apply
