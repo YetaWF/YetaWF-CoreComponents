@@ -53,9 +53,6 @@ namespace YetaWF {
     interface PanelSwitchedEntry {
         callback(panel: HTMLElement): void;
     }
-    interface ActivateDivEntry {
-        callback(tags: HTMLElement): void;
-    }
     interface PageChangeEntry {
         callback(): void;
         onceOnly: boolean;
@@ -70,6 +67,9 @@ namespace YetaWF {
     }
     export interface DetailsEventContainerScroll {
         container: HTMLElement;
+    }
+    export interface DetailsActivateDiv {
+        tags: HTMLElement[];
     }
 
     /**
@@ -144,6 +144,7 @@ namespace YetaWF {
         public static readonly EVENTAFTERPRINT: string = "print_after";
         public static readonly EVENTCONTAINERSCROLL: string = "container_scroll";
         public static readonly EVENTCONTAINERRESIZE: string = "container_resize";
+        public static readonly EVENTACTIVATEDIV: string = "activate_div";
 
         // Implemented by renderer
         // Implemented by renderer
@@ -1502,22 +1503,9 @@ namespace YetaWF {
         // ACTIVATEDIV
         // ACTIVATEDIV
 
-        private ActivateDivHandlers: ActivateDivEntry[] = [];
-
-        /**
-         * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
-         */
-        public registerActivateDiv(callback: (tag: HTMLElement) => void): void {
-            this.ActivateDivHandlers.push({ callback: callback });
-        }
-        /**
-         * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
-         */
-        public processActivateDivs(tags: HTMLElement[]): void {
-            for (const entry of this.ActivateDivHandlers) {
-                for (const tag of tags)
-                    entry.callback(tag);
-            }
+        public sendActivateDivEvent(tags: HTMLElement[]): void {
+            let details: DetailsActivateDiv = { tags: tags };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTACTIVATEDIV, details);
         }
 
         // CONTAINER SCROLLING
@@ -1583,7 +1571,7 @@ namespace YetaWF {
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
-                this.processActivateDivs([expandedDiv]);
+                this.sendActivateDivEvent([expandedDiv]);
                 return true;
             });
             this.registerEventHandler(collLink, "click", null, (ev: Event): boolean => {

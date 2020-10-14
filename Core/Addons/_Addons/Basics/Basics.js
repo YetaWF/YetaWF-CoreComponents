@@ -40,10 +40,6 @@ var YetaWF;
             // PANELSWITCHED
             // PANELSWITCHED
             this.PanelSwitchedHandlers = [];
-            // ACTIVATEDIV
-            // ACTIVATEDIV
-            // ACTIVATEDIV
-            this.ActivateDivHandlers = [];
             // PAGECHANGE
             // PAGECHANGE
             // PAGECHANGE
@@ -1367,23 +1363,12 @@ var YetaWF;
                 entry.callback(panel);
             }
         };
-        /**
-         * Register a callback to be called when a <div> (or any tag) page has become active (i.e., visible).
-         */
-        BasicsServices.prototype.registerActivateDiv = function (callback) {
-            this.ActivateDivHandlers.push({ callback: callback });
-        };
-        /**
-         * Called to call all registered callbacks when a <div> (or any tag) page has become active (i.e., visible).
-         */
-        BasicsServices.prototype.processActivateDivs = function (tags) {
-            for (var _i = 0, _a = this.ActivateDivHandlers; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                for (var _b = 0, tags_4 = tags; _b < tags_4.length; _b++) {
-                    var tag = tags_4[_b];
-                    entry.callback(tag);
-                }
-            }
+        // ACTIVATEDIV
+        // ACTIVATEDIV
+        // ACTIVATEDIV
+        BasicsServices.prototype.sendActivateDivEvent = function (tags) {
+            var details = { tags: tags };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTACTIVATEDIV, details);
         };
         // CONTAINER SCROLLING
         // CONTAINER SCROLLING
@@ -1438,7 +1423,7 @@ var YetaWF;
                 collapsedDiv.style.display = "none";
                 expandedDiv.style.display = "";
                 // init any controls that just became visible
-                _this.processActivateDivs([expandedDiv]);
+                _this.sendActivateDivEvent([expandedDiv]);
                 return true;
             });
             this.registerEventHandler(collLink, "click", null, function (ev) {
@@ -1577,6 +1562,7 @@ var YetaWF;
         BasicsServices.EVENTAFTERPRINT = "print_after";
         BasicsServices.EVENTCONTAINERSCROLL = "container_scroll";
         BasicsServices.EVENTCONTAINERRESIZE = "container_resize";
+        BasicsServices.EVENTACTIVATEDIV = "activate_div";
         BasicsServices.printing = false;
         return BasicsServices;
     }());

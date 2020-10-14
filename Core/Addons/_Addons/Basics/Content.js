@@ -220,7 +220,7 @@ var YetaWF;
                             d.style.display = "block";
                         }
                         // send event that a new sections became active/visible
-                        $YetaWF.processActivateDivs(divs);
+                        $YetaWF.sendActivateDivEvent(divs);
                         // scroll
                         var scrolled = $YetaWF.setScrollPosition();
                         if (!scrolled)
