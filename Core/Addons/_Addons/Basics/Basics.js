@@ -44,10 +44,6 @@ var YetaWF;
             // ACTIVATEDIV
             // ACTIVATEDIV
             this.ActivateDivHandlers = [];
-            // NEWPAGE
-            // NEWPAGE
-            // NEWPAGE
-            this.NewPageHandlers = [];
             // PAGECHANGE
             // PAGECHANGE
             // PAGECHANGE
@@ -1388,23 +1384,6 @@ var YetaWF;
                     entry.callback(tag);
                 }
             }
-        };
-        /**
-         * Register a callback to be called when a new page has become active.
-         */
-        BasicsServices.prototype.registerNewPage = function (onceOnly, callback) {
-            this.NewPageHandlers.push({ callback: callback, onceOnly: onceOnly });
-        };
-        /**
-         * Called to call all registered callbacks when a new page has become active.
-         */
-        BasicsServices.prototype.processNewPage = function (url) {
-            for (var _i = 0, _a = this.NewPageHandlers; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                entry.callback(url);
-            }
-            // remove once only entries
-            this.NewPageHandlers = this.NewPageHandlers.filter(function (el) { return !el.onceOnly; });
         };
         // CONTAINER SCROLLING
         // CONTAINER SCROLLING

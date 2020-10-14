@@ -56,10 +56,6 @@ namespace YetaWF {
     interface ActivateDivEntry {
         callback(tags: HTMLElement): void;
     }
-    interface NewPageEntry {
-        callback(url: string): void;
-        onceOnly: boolean;
-    }
     interface PageChangeEntry {
         callback(): void;
         onceOnly: boolean;
@@ -892,6 +888,7 @@ namespace YetaWF {
                 ++i;
             }
         }
+
         public validateObjectCache(): void {
             if (YConfigs.Basics.DEBUGBUILD) {
                 //DEBUG ONLY
@@ -1521,29 +1518,6 @@ namespace YetaWF {
                 for (const tag of tags)
                     entry.callback(tag);
             }
-        }
-
-        // NEWPAGE
-        // NEWPAGE
-        // NEWPAGE
-
-        private NewPageHandlers: NewPageEntry[] = [];
-
-        /**
-         * Register a callback to be called when a new page has become active.
-         */
-        public registerNewPage(onceOnly: boolean, callback: (url: string) => void): void {
-            this.NewPageHandlers.push({ callback: callback, onceOnly: onceOnly });
-        }
-        /**
-         * Called to call all registered callbacks when a new page has become active.
-         */
-        public processNewPage(url: string): void {
-            for (var entry of this.NewPageHandlers) {
-                entry.callback(url);
-            }
-            // remove once only entries
-            this.NewPageHandlers = this.NewPageHandlers.filter((el: NewPageEntry) : boolean => !el.onceOnly);
         }
 
         // CONTAINER SCROLLING

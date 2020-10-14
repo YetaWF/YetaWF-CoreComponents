@@ -429,7 +429,6 @@ var YetaWF;
                     $YetaWF.runGlobalScript(result.AnalyticsContent);
                 }
                 catch (e) { }
-                $YetaWF.processNewPage(uri.toUrl());
                 $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
                 // locate the hash if there is one
                 var setFocus = true;
