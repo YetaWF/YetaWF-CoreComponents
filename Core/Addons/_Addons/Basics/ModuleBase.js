@@ -153,7 +153,7 @@ var YetaWF;
     }(ModuleBaseNoDataImpl));
     YetaWF.ModuleBaseDataImpl = ModuleBaseDataImpl;
     // A <div> is being emptied. Destroy all modules the <div> may contain.
-    $YetaWF.registerClearDiv(function (tag) {
+    $YetaWF.registerClearDiv(false, function (tag) {
         for (var _i = 0, _a = ModuleBaseDataImpl.RegisteredModules; _i < _a.length; _i++) {
             var moduleDef = _a[_i];
             if (moduleDef.HasData) {
@@ -169,6 +169,7 @@ var YetaWF;
                 }
             }
         }
+        return true;
     });
 })(YetaWF || (YetaWF = {}));
 

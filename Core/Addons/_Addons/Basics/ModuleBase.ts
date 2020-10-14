@@ -156,7 +156,7 @@ namespace YetaWF {
     }
 
     // A <div> is being emptied. Destroy all modules the <div> may contain.
-    $YetaWF.registerClearDiv((tag: HTMLElement): void => {
+    $YetaWF.registerClearDiv(false, (tag: HTMLElement): boolean => {
         for (let moduleDef of ModuleBaseDataImpl.RegisteredModules) {
             if (moduleDef.HasData) {
                 var list = $YetaWF.getElementsBySelector(moduleDef.Selector, [tag]);
@@ -170,6 +170,7 @@ namespace YetaWF {
                 }
             }
         }
+        return true;
     });
 }
 

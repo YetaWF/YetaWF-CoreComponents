@@ -393,13 +393,13 @@ var YetaWF;
                 // turn off all previously active modules that are no longer active
                 YVolatile.Basics.UnifiedAddonModsPrevious.forEach(function (guid) {
                     if (YVolatile.Basics.UnifiedAddonMods.indexOf(guid) < 0)
-                        $YetaWF.processContentChange(guid, false);
+                        $YetaWF.sendAddonChangedEvent(guid, false);
                 });
                 // turn on all newly active modules (if they were previously loaded)
                 // new referenced modules that were just loaded now are already active and don't need to be called
                 YVolatile.Basics.UnifiedAddonMods.forEach(function (guid) {
                     if (YVolatile.Basics.UnifiedAddonModsPrevious.indexOf(guid) < 0 && $YetaWF.UnifiedAddonModsLoaded.indexOf(guid) >= 0)
-                        $YetaWF.processContentChange(guid, true);
+                        $YetaWF.sendAddonChangedEvent(guid, true);
                     if ($YetaWF.UnifiedAddonModsLoaded.indexOf(guid) < 0)
                         $YetaWF.UnifiedAddonModsLoaded.push(guid);
                 });

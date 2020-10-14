@@ -219,7 +219,7 @@ namespace YetaWF {
     }
 
     // A <div> is being emptied. Destroy all controls the <div> may contain.
-    $YetaWF.registerClearDiv((tag: HTMLElement): void => {
+    $YetaWF.registerClearDiv(false, (tag: HTMLElement): boolean => {
         for (let templateDef of ComponentBaseDataImpl.RegisteredTemplates) {
             if (templateDef.HasData) {
                 var list = $YetaWF.getElementsBySelector(templateDef.Selector, [tag]);
@@ -235,6 +235,7 @@ namespace YetaWF {
                 }
             }
         }
+        return true;
     });
 }
 

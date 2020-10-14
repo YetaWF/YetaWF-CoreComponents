@@ -37,26 +37,24 @@ namespace YetaWF {
         /* toast name - If the named toast already exists, it is not added again (toast only) */
         name?: string;
     }
-    export interface CharSize {
-        width: number;
-        height: number;
-    }
 
     interface ReloadInfo {
         module: HTMLElement;
         tagId: string;
         callback(module: HTMLElement): void;
     }
-    interface ContentChangeEntry {
-        callback(addonGuid: string, on: boolean): void;
-    }
-    interface PanelSwitchedEntry {
-        callback(panel: HTMLElement): void;
-    }
     interface PageChangeEntry {
         callback(): void;
         onceOnly: boolean;
     }
+    interface ClearDivEntry {
+        autoRemove: boolean;
+        callback?(elem: HTMLElement): boolean;
+    }
+    interface WhenReadyEntry {
+        callback(tag: HTMLElement): void;
+    }
+
     interface DataObjectEntry {
         DivId: string;
         Data: any;
@@ -70,6 +68,13 @@ namespace YetaWF {
     }
     export interface DetailsActivateDiv {
         tags: HTMLElement[];
+    }
+    export interface DetailsPanelSwitched {
+        panel: HTMLElement;
+    }
+    export interface DetailsAddonChanged {
+        addonGuid: string;
+        on: boolean;
     }
 
     /**
@@ -130,13 +135,6 @@ namespace YetaWF {
         messagePopupActive(): boolean;
     }
 
-    export interface IWhenReady {
-        callback(tag: HTMLElement): void;
-    }
-    export interface IClearDiv {
-        callback?(elem: HTMLElement): void;
-    }
-
     export class BasicsServices /* implements IBasicsImpl */ { // doesn't need to implement IBasicImpl, used for type checking only
 
         public static readonly PAGECHANGEDEVENT: string = "page_change";
@@ -145,6 +143,8 @@ namespace YetaWF {
         public static readonly EVENTCONTAINERSCROLL: string = "container_scroll";
         public static readonly EVENTCONTAINERRESIZE: string = "container_resize";
         public static readonly EVENTACTIVATEDIV: string = "activate_div";
+        public static readonly EVENTPANELSWITCHED: string = "panel_switched";
+        public static readonly EVENTADDONCHANGED: string = "addon_changed";
 
         // Implemented by renderer
         // Implemented by renderer
@@ -769,7 +769,7 @@ namespace YetaWF {
         // Usage:
         // $YetaWF.addWhenReady((tag) => {});
 
-        private whenReady: IWhenReady[] = [];
+        private whenReady: WhenReadyEntry[] = [];
 
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
@@ -787,15 +787,8 @@ namespace YetaWF {
          * @param elem The element for which all callbacks should be called to initialize children.
          */
         public processAllReady(tags?: HTMLElement[]): void {
-            if (!tags) {
-                tags = [];
-                tags.push(document.body);
-            }
-            if (tags.length === 0) {
-                // it may happen that new content becomes available without any tags to update.
-                // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
-                tags.push(document.createElement("DIV")); // dummy element
-            }
+            if (!tags)
+                tags = [document.body ];
             for (const entry of this.whenReady) {
                 try { // catch errors to insure all callbacks are called
                     for (const tag of tags)
@@ -810,7 +803,7 @@ namespace YetaWF {
 
         // Usage:
         // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
-        private whenReadyOnce: IWhenReady[] = [];
+        private whenReadyOnce: WhenReadyEntry[] = [];
 
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
@@ -829,6 +822,7 @@ namespace YetaWF {
          * @param elem The element for which all callbacks should be called to initialize children.
          */
         public processAllReadyOnce(tags?: HTMLElement[]): void {
+            let dummyEntry: HTMLDivElement|null = null;
             if (!tags) {
                 tags = [];
                 tags.push(document.body);
@@ -836,7 +830,9 @@ namespace YetaWF {
             if (tags.length === 0) {
                 // it may happen that new content becomes available without any tags to update.
                 // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
-                tags.push(document.createElement("DIV")); // dummy element
+
+                dummyEntry = document.createElement("div");
+                tags.push(dummyEntry); // dummy element
             }
             for (const entry of this.whenReadyOnce) {
                 try { // catch errors to insure all callbacks are called
@@ -847,18 +843,23 @@ namespace YetaWF {
                 }
             }
             this.whenReadyOnce = [];
+
+            if (dummyEntry)
+                dummyEntry.remove();
         }
 
         // ClearDiv
 
-        private clearDiv: IClearDiv[] = [];
+        private ClearDivHandlers: ClearDivEntry[] = [];
 
         /**
          * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
          * callback so elements can be destroyed when a div is emptied (used by UPS).
+         * @param autoRemove Set to true to remove the entry when the callback is called and returns true.
+         * @param callback The callback to be called when a div is cleared. The callback returns true if the callback performed cleanup processing, false otherwise.
          */
-        public registerClearDiv(callback: (section: HTMLElement) => void): void {
-            this.clearDiv.push({ callback: callback });
+        public registerClearDiv(autoRemove: boolean, callback: (section: HTMLElement) => boolean): void {
+            this.ClearDivHandlers.push({ callback: callback, autoRemove: autoRemove });
         }
 
         /**
@@ -866,14 +867,21 @@ namespace YetaWF {
          * @param elem The element being cleared.
          */
         public processClearDiv(tag: HTMLElement): void {
-            for (const entry of this.clearDiv) {
+
+            let newList: ClearDivEntry[] = [];
+            for (const entry of this.ClearDivHandlers) {
                 try { // catch errors to insure all callbacks are called
-                    if (entry.callback != null)
-                        entry.callback(tag);
+                    if (entry.callback != null) {
+                        if (entry.callback(tag) && !entry.autoRemove)
+                            newList.push(entry);
+                    }
                 } catch (err) {
                     console.error(err.message || err);
                 }
             }
+            // save new list without removed entries
+            this.ClearDivHandlers = newList;
+
             // also release any attached objects
             for (var i = 0; i < this.DataObjectCache.length; ) {
                 var doe = this.DataObjectCache[i];
@@ -1463,40 +1471,22 @@ namespace YetaWF {
             });
         }
 
-        // CONTENTCHANGE
-        // CONTENTCHANGE
-        // CONTENTCHANGE
+        // ADDONCHANGE
+        // ADDONCHANGE
+        // ADDONCHANGE
 
-        private ContentChangeHandlers: ContentChangeEntry[] = [];
-
-        public registerContentChange(callback: (addonGuid: string, on: boolean) => void): void {
-            this.ContentChangeHandlers.push({ callback: callback });
-        }
-        public processContentChange(addonGuid: string, on: boolean): void {
-            for (var entry of this.ContentChangeHandlers) {
-                entry.callback(addonGuid, on);
-            }
+        public sendAddonChangedEvent(addonGuid: string, on: boolean): void {
+            let details: DetailsAddonChanged = { addonGuid: addonGuid.toLowerCase(), on: on };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTADDONCHANGED, details);
         }
 
         // PANELSWITCHED
         // PANELSWITCHED
         // PANELSWITCHED
 
-        private PanelSwitchedHandlers: PanelSwitchedEntry[] = [];
-
-        /**
-         * Register a callback to be called when a panel in a tab control has become active (i.e., visible).
-         */
-        public registerPanelSwitched(callback: (panel: HTMLElement) => void): void {
-            this.PanelSwitchedHandlers.push({ callback: callback });
-        }
-        /**
-         * Called to call all registered callbacks when a panel in a tab control has become active (i.e., visible).
-         */
-        public processPanelSwitched(panel: HTMLElement): void {
-            for (const entry of this.PanelSwitchedHandlers) {
-                entry.callback(panel);
-            }
+        public sendPanelSwitchedEvent(panel: HTMLElement): void {
+            let details: DetailsPanelSwitched = { panel: panel };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTPANELSWITCHED, details);
         }
 
         // ACTIVATEDIV

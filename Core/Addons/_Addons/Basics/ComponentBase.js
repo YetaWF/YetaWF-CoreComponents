@@ -216,7 +216,7 @@ var YetaWF;
     }(ComponentBaseNoDataImpl));
     YetaWF.ComponentBaseDataImpl = ComponentBaseDataImpl;
     // A <div> is being emptied. Destroy all controls the <div> may contain.
-    $YetaWF.registerClearDiv(function (tag) {
+    $YetaWF.registerClearDiv(false, function (tag) {
         for (var _i = 0, _a = ComponentBaseDataImpl.RegisteredTemplates; _i < _a.length; _i++) {
             var templateDef = _a[_i];
             if (templateDef.HasData) {
@@ -234,6 +234,7 @@ var YetaWF;
                 }
             }
         }
+        return true;
     });
 })(YetaWF || (YetaWF = {}));
 

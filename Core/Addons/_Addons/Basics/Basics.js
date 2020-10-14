@@ -30,16 +30,8 @@ var YetaWF;
             // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
             this.whenReadyOnce = [];
             // ClearDiv
-            this.clearDiv = [];
+            this.ClearDivHandlers = [];
             this.DataObjectCache = [];
-            // CONTENTCHANGE
-            // CONTENTCHANGE
-            // CONTENTCHANGE
-            this.ContentChangeHandlers = [];
-            // PANELSWITCHED
-            // PANELSWITCHED
-            // PANELSWITCHED
-            this.PanelSwitchedHandlers = [];
             // PAGECHANGE
             // PAGECHANGE
             // PAGECHANGE
@@ -642,15 +634,8 @@ var YetaWF;
          * @param elem The element for which all callbacks should be called to initialize children.
          */
         BasicsServices.prototype.processAllReady = function (tags) {
-            if (!tags) {
-                tags = [];
-                tags.push(document.body);
-            }
-            if (tags.length === 0) {
-                // it may happen that new content becomes available without any tags to update.
-                // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
-                tags.push(document.createElement("DIV")); // dummy element
-            }
+            if (!tags)
+                tags = [document.body];
             for (var _i = 0, _a = this.whenReady; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 try { // catch errors to insure all callbacks are called
@@ -680,6 +665,7 @@ var YetaWF;
          * @param elem The element for which all callbacks should be called to initialize children.
          */
         BasicsServices.prototype.processAllReadyOnce = function (tags) {
+            var dummyEntry = null;
             if (!tags) {
                 tags = [];
                 tags.push(document.body);
@@ -687,7 +673,8 @@ var YetaWF;
             if (tags.length === 0) {
                 // it may happen that new content becomes available without any tags to update.
                 // in that case create a dummy tag so all handlers are called. Some handlers don't use the tag and just need to be notified that "something" changed.
-                tags.push(document.createElement("DIV")); // dummy element
+                dummyEntry = document.createElement("div");
+                tags.push(dummyEntry); // dummy element
             }
             for (var _i = 0, _a = this.whenReadyOnce; _i < _a.length; _i++) {
                 var entry = _a[_i];
@@ -702,29 +689,38 @@ var YetaWF;
                 }
             }
             this.whenReadyOnce = [];
+            if (dummyEntry)
+                dummyEntry.remove();
         };
         /**
          * Registers a callback that is called when a <div> is cleared. This is used so templates can register a cleanup
          * callback so elements can be destroyed when a div is emptied (used by UPS).
+         * @param autoRemove Set to true to remove the entry when the callback is called and returns true.
+         * @param callback The callback to be called when a div is cleared. The callback returns true if the callback performed cleanup processing, false otherwise.
          */
-        BasicsServices.prototype.registerClearDiv = function (callback) {
-            this.clearDiv.push({ callback: callback });
+        BasicsServices.prototype.registerClearDiv = function (autoRemove, callback) {
+            this.ClearDivHandlers.push({ callback: callback, autoRemove: autoRemove });
         };
         /**
          * Process all callbacks for the specified element being cleared.
          * @param elem The element being cleared.
          */
         BasicsServices.prototype.processClearDiv = function (tag) {
-            for (var _i = 0, _a = this.clearDiv; _i < _a.length; _i++) {
+            var newList = [];
+            for (var _i = 0, _a = this.ClearDivHandlers; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 try { // catch errors to insure all callbacks are called
-                    if (entry.callback != null)
-                        entry.callback(tag);
+                    if (entry.callback != null) {
+                        if (entry.callback(tag) && !entry.autoRemove)
+                            newList.push(entry);
+                    }
                 }
                 catch (err) {
                     console.error(err.message || err);
                 }
             }
+            // save new list without removed entries
+            this.ClearDivHandlers = newList;
             // also release any attached objects
             for (var i = 0; i < this.DataObjectCache.length;) {
                 var doe = this.DataObjectCache[i];
@@ -1339,29 +1335,19 @@ var YetaWF;
                 return true;
             });
         };
-        BasicsServices.prototype.registerContentChange = function (callback) {
-            this.ContentChangeHandlers.push({ callback: callback });
+        // ADDONCHANGE
+        // ADDONCHANGE
+        // ADDONCHANGE
+        BasicsServices.prototype.sendAddonChangedEvent = function (addonGuid, on) {
+            var details = { addonGuid: addonGuid.toLowerCase(), on: on };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTADDONCHANGED, details);
         };
-        BasicsServices.prototype.processContentChange = function (addonGuid, on) {
-            for (var _i = 0, _a = this.ContentChangeHandlers; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                entry.callback(addonGuid, on);
-            }
-        };
-        /**
-         * Register a callback to be called when a panel in a tab control has become active (i.e., visible).
-         */
-        BasicsServices.prototype.registerPanelSwitched = function (callback) {
-            this.PanelSwitchedHandlers.push({ callback: callback });
-        };
-        /**
-         * Called to call all registered callbacks when a panel in a tab control has become active (i.e., visible).
-         */
-        BasicsServices.prototype.processPanelSwitched = function (panel) {
-            for (var _i = 0, _a = this.PanelSwitchedHandlers; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                entry.callback(panel);
-            }
+        // PANELSWITCHED
+        // PANELSWITCHED
+        // PANELSWITCHED
+        BasicsServices.prototype.sendPanelSwitchedEvent = function (panel) {
+            var details = { panel: panel };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTPANELSWITCHED, details);
         };
         // ACTIVATEDIV
         // ACTIVATEDIV
@@ -1563,6 +1549,8 @@ var YetaWF;
         BasicsServices.EVENTCONTAINERSCROLL = "container_scroll";
         BasicsServices.EVENTCONTAINERRESIZE = "container_resize";
         BasicsServices.EVENTACTIVATEDIV = "activate_div";
+        BasicsServices.EVENTPANELSWITCHED = "panel_switched";
+        BasicsServices.EVENTADDONCHANGED = "addon_changed";
         BasicsServices.printing = false;
         return BasicsServices;
     }());
