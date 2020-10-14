@@ -67,7 +67,6 @@ namespace YetaWF.Core {
         public const string ModuleUrl = "/!Mod/";
         public const string Link_OriginList = "!OriginList"; // chain of urls
         public const string Link_InPopup = "!InPopup"; // we're in a popup
-        public const string Link_ToEditMode = "!ToEditMode"; // force this mode
         public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
         public const string Link_PageControl = "!Pagectl"; // show page control module
         public const string Link_NoPageControl = "!Nopagectl"; // no page control module
