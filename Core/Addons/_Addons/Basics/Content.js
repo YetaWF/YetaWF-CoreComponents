@@ -190,7 +190,7 @@ var YetaWF;
                         else {
                             $YetaWF.setLoading(false);
                             $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
-                            // tslint:disable-next-line:no-debugger
+                            // eslint-disable-next-line no-debugger
                             debugger;
                         }
                     }
@@ -503,7 +503,7 @@ var YetaWF;
                         }
                         else {
                             reject(new Error(YLocs.Forms.AjaxError.format(request.status, request.statusText)));
-                            // tslint:disable-next-line:no-debugger
+                            // eslint-disable-next-line no-debugger
                             debugger;
                         }
                     }

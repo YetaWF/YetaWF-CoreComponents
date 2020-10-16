@@ -192,7 +192,6 @@ var YetaWF;
         Anchors.prototype.waitForCookie = function (cookieToReturn) {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
-                // tslint:disable-next-line:no-unused-expression
                 new CookieWait(cookieToReturn);
             }
         };

@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+/* eslint-disable no-underscore-dangle */
+
 /* TODO : While transitioning to TypeScript and to maintain compatibility with all plain JavaScript, some defs are global rather than in their own namespace.
    Once the transition is complete, we need to revisit this */
 
@@ -11,6 +13,7 @@
 declare var YetaWF_BasicsImpl: YetaWF.IBasicsImpl;
 
 /* Polyfills */
+// eslint-disable-next-line id-blacklist
 interface String {
     isValidInt(s: number, e: number): boolean;
     format(...args: any[]): string;
@@ -606,7 +609,7 @@ namespace YetaWF {
          */
         public getModuleFromTag(tag: HTMLElement): HTMLElement {
             var mod = this.getModuleFromTagCond(tag);
-            // tslint:disable-next-line:no-debugger
+            // eslint-disable-next-line no-debugger
             if (mod == null) { debugger; throw "Can't find containing module"; }/*DEBUG*/
             return mod;
         }
@@ -639,8 +642,7 @@ namespace YetaWF {
         public htmlAttrEscape(s: string): string {
             this.escElement.textContent = s;
             s = this.escElement.innerHTML;
-            return s.replace(/'/g, "&apos;")
-                    .replace(/"/g, "&quot;");
+            return s.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
         }
         private escElement : HTMLDivElement = document.createElement("div");
 
@@ -655,12 +657,13 @@ namespace YetaWF {
         // Ajax result handling
 
         public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement,
-                onSuccessNoData?: () => void,
-                onRawDataResult?: (result: string) => void,
-                onJSONResult?: (result: any) => void): boolean {
+            onSuccessNoData?: () => void,
+            onRawDataResult?: (result: string) => void,
+            onJSONResult?: (result: any) => void): boolean {
+
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             try {
-                // tslint:disable-next-line:no-eval
+                // eslint-disable-next-line no-eval
                 result = <string>eval(result);
             } catch (e) { }
             result = result || "(??)";
@@ -673,7 +676,7 @@ namespace YetaWF {
                             onSuccessNoData();
                         }
                     } else {
-                        // tslint:disable-next-line:no-eval
+                        // eslint-disable-next-line no-eval
                         eval(script);
                     }
                     return true;
@@ -686,25 +689,25 @@ namespace YetaWF {
                     return false;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script);
                     return false;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script);// if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script);// if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
                     //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script);
                     if (tagInModule)
                         this.refreshModuleByAnyTag(tagInModule);
@@ -888,7 +891,7 @@ namespace YetaWF {
                 if (this.getElement1BySelectorCond(`#${doe.DivId}`, [tag])) {
                     console.log(`Element #${doe.DivId} is being removed but still has a data object - forced cleanup`);
                     if (YConfigs.Basics.DEBUGBUILD) {
-                        // tslint:disable-next-line:no-debugger
+                        // eslint-disable-next-line no-debugger
                         debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in a component specific way
                     }
                     this.DataObjectCache.splice(i, 1);
@@ -904,7 +907,7 @@ namespace YetaWF {
                 for (let doe of this.DataObjectCache) {
                     if (!this.getElement1BySelectorCond(`#${doe.DivId}`)) {
                         console.log(`Element #${doe.DivId} no longer exists but still has a data object`);
-                        // tslint:disable-next-line:no-debugger
+                        // eslint-disable-next-line no-debugger
                         debugger; // if we hit this, there is an object that has no associated dom element
                     }
                 }
@@ -1213,7 +1216,7 @@ namespace YetaWF {
             cssPrefix = cssPrefix.trim();
             if (!elem) return list;
             if (elem.classList) {
-                // tslint:disable-next-line:prefer-for-of
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let i = 0; i < elem.classList.length; ++i) {
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
@@ -1721,7 +1724,6 @@ namespace YetaWF {
                 this.sendCustomEvent(document.body, BasicsServices.PAGECHANGEDEVENT);
             }
         }
-        // tslint:disable-next-line:variable-name
         private _pageChanged: boolean = false;
     }
 }
@@ -1736,6 +1738,7 @@ var $YetaWF = new YetaWF.BasicsServices();
 if (window.matchMedia) {
     let mediaQueryList = window.matchMedia("print");
     mediaQueryList.addListener(function (this: MediaQueryList, ev: MediaQueryListEvent): void {
+        // eslint-disable-next-line no-invalid-this
         if (this.matches) {
             YetaWF.BasicsServices.onBeforePrint();
         } else {

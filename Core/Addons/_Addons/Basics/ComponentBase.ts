@@ -75,13 +75,13 @@ namespace YetaWF {
             }
             let template = ComponentBase.elementClosestTemplateCond(elem);
             if (!template)
-                throw `No template found in getTemplateFromControlNameCond`;
+                throw "No template found in getTemplateFromControlNameCond";
             return template;
         }
         public static getTemplateFromControlName(name: string, containers: HTMLElement[]): HTMLElement {
             let template = ComponentBase.getTemplateFromControlNameCond(name, containers);
             if (!template)
-                throw `No template found in getTemplateFromControlName`;
+                throw "No template found in getTemplateFromControlName";
             return template;
         }
         public static getTemplateFromTagCond(elem: HTMLElement): HTMLElement | null {
@@ -91,7 +91,7 @@ namespace YetaWF {
         public static getTemplateFromTag(elem: HTMLElement): HTMLElement {
             let template = ComponentBase.getTemplateFromTagCond(elem);
             if (!template)
-                throw `No template found in getTemplateFromControlName`;
+                throw "No template found in getTemplateFromControlName";
             return template;
         }
         protected static elementClosestTemplateCond(elem: HTMLElement): HTMLElement | null {

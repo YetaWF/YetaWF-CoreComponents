@@ -154,6 +154,6 @@ namespace YetaWF {
 
         public init(): void { }
     }
-    // tslint:disable-next-line:no-unused-expression
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     $YetaWF.Popups; // need to evaluate for side effect to initialize popups
 }

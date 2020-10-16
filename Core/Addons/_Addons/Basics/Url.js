@@ -78,7 +78,7 @@ var YetaWF;
         };
         Url.prototype.setSearchObject = function (o) {
             this.QSEntries = [];
-            // tslint:disable-next-line:forin
+            // eslint-disable-next-line guard-for-in
             for (var prop in o) {
                 this.QSEntries.push({ key: prop, keyLower: prop.toLowerCase(), value: o[prop] });
             }
@@ -179,6 +179,7 @@ var YetaWF;
             if (parts.length > 1) {
                 domain = parts[0];
                 parts = parts.slice(1);
+                // eslint-disable-next-line guard-for-in
                 for (var i in parts)
                     parts[i] = decodeURIComponent(parts[i]);
                 this.Path = parts;

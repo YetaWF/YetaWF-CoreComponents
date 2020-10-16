@@ -204,7 +204,6 @@ namespace YetaWF {
         private waitForCookie(cookieToReturn: number | null) : void {
             if (cookieToReturn) {
                 // check for cookie to see whether download started
-                // tslint:disable-next-line:no-unused-expression
                 new CookieWait(cookieToReturn);
             }
         }

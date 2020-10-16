@@ -36,7 +36,6 @@ var YetaWF;
             // PAGECHANGE
             // PAGECHANGE
             this.PageChangeHandlers = [];
-            // tslint:disable-next-line:variable-name
             this._pageChanged = false;
             $YetaWF = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
@@ -459,7 +458,7 @@ var YetaWF;
          */
         BasicsServices.prototype.getModuleFromTag = function (tag) {
             var mod = this.getModuleFromTagCond(tag);
-            // tslint:disable-next-line:no-debugger
+            // eslint-disable-next-line no-debugger
             if (mod == null) {
                 debugger;
                 throw "Can't find containing module";
@@ -493,8 +492,7 @@ var YetaWF;
         BasicsServices.prototype.htmlAttrEscape = function (s) {
             this.escElement.textContent = s;
             s = this.escElement.innerHTML;
-            return s.replace(/'/g, "&apos;")
-                .replace(/"/g, "&quot;");
+            return s.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
         };
         /**
          * string compare that considers null == ""
@@ -508,7 +506,7 @@ var YetaWF;
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onRawDataResult, onJSONResult) {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             try {
-                // tslint:disable-next-line:no-eval
+                // eslint-disable-next-line no-eval
                 result = eval(result);
             }
             catch (e) { }
@@ -523,7 +521,7 @@ var YetaWF;
                         }
                     }
                     else {
-                        // tslint:disable-next-line:no-eval
+                        // eslint-disable-next-line no-eval
                         eval(script);
                     }
                     return true;
@@ -538,20 +536,20 @@ var YetaWF;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script);
                     return false;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
@@ -559,7 +557,7 @@ var YetaWF;
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
                     //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
-                    // tslint:disable-next-line:no-eval
+                    // eslint-disable-next-line no-eval
                     eval(script);
                     if (tagInModule)
                         this.refreshModuleByAnyTag(tagInModule);
@@ -727,7 +725,7 @@ var YetaWF;
                 if (this.getElement1BySelectorCond("#" + doe.DivId, [tag])) {
                     console.log("Element #" + doe.DivId + " is being removed but still has a data object - forced cleanup");
                     if (YConfigs.Basics.DEBUGBUILD) {
-                        // tslint:disable-next-line:no-debugger
+                        // eslint-disable-next-line no-debugger
                         debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in a component specific way
                     }
                     this.DataObjectCache.splice(i, 1);
@@ -743,7 +741,7 @@ var YetaWF;
                     var doe = _a[_i];
                     if (!this.getElement1BySelectorCond("#" + doe.DivId)) {
                         console.log("Element #" + doe.DivId + " no longer exists but still has a data object");
-                        // tslint:disable-next-line:no-debugger
+                        // eslint-disable-next-line no-debugger
                         debugger; // if we hit this, there is an object that has no associated dom element
                     }
                 }
@@ -1048,7 +1046,7 @@ var YetaWF;
             if (!elem)
                 return list;
             if (elem.classList) {
-                // tslint:disable-next-line:prefer-for-of
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (var i = 0; i < elem.classList.length; ++i) {
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
@@ -1564,6 +1562,7 @@ var $YetaWF = new YetaWF.BasicsServices();
 if (window.matchMedia) {
     var mediaQueryList = window.matchMedia("print");
     mediaQueryList.addListener(function (ev) {
+        // eslint-disable-next-line no-invalid-this
         if (this.matches) {
             YetaWF.BasicsServices.onBeforePrint();
         }

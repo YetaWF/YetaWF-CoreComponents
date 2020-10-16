@@ -246,7 +246,7 @@ namespace YetaWF {
         }
 
         public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string,
-                successFunc?: (hasErrors: boolean) => void, failFunc?: () => void, rawJSONFunc?: (json:string) => void): void  {
+            successFunc?: (hasErrors: boolean) => void, failFunc?: () => void, rawJSONFunc?: (json:string) => void): void  {
 
             $YetaWF.pageChanged = false;// suppress navigate error
 
