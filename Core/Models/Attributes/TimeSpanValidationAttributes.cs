@@ -28,12 +28,8 @@ namespace YetaWF.Core.Models.Attributes {
         protected override ValidationResult IsValid(object value, ValidationContext context) {
             if (value == null) return ValidationResult.Success;
             TimeSpan dt = (TimeSpan)value;
-            if (Min != null) {
-                if (dt < Min) return new ValidationResult(__ResStr("badTimeSpan", "The valid range is {0} through {1}", Formatting.FormatTimeSpan(Min), Formatting.FormatTimeSpan(Max)));
-            }
-            if (Max != null) {
-                if (dt > Max) return new ValidationResult(__ResStr("badTimeSpan", "The valid range is {0} through {1}", Formatting.FormatTimeSpan(Min), Formatting.FormatTimeSpan(Max)));
-            }
+            if (dt < Min) return new ValidationResult(__ResStr("badTimeSpan", "The valid range is {0} through {1}", Formatting.FormatTimeSpan(Min), Formatting.FormatTimeSpan(Max)));
+            if (dt > Max) return new ValidationResult(__ResStr("badTimeSpan", "The valid range is {0} through {1}", Formatting.FormatTimeSpan(Min), Formatting.FormatTimeSpan(Max)));
             return ValidationResult.Success;
         }
     }

@@ -29,7 +29,7 @@ namespace YetaWF.Core.Pages {
             } catch (Exception ex) {
                 bool result = await HandleExceptionAsync(context, ex);
                 if (!result)
-                    throw ex;
+                    throw;
             }
         }
 

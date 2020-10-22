@@ -38,7 +38,7 @@ namespace YetaWF.Core.Packages {
             status = await RemoveEmptyFoldersUpAsync(AddonsFolder, errorList);
 
             // Assembly
-            Uri file = new Uri(package.PackageAssembly.CodeBase);
+            Uri file = new Uri(package.PackageAssembly.Location);
             string asmFile = file.LocalPath;
 
             // Extra assemblies

@@ -16,8 +16,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace YetaWF2.Middleware {
-    public class YetaWFForwardedHeadersMiddleware {
+namespace YetaWF2.Middleware
+{
+    public class YetaWFForwardedHeadersMiddleware
+    {
         private static readonly bool[] HostCharValidity = new bool[127];
         private static readonly bool[] SchemeCharValidity = new bool[123];
 
@@ -29,7 +31,8 @@ namespace YetaWF2.Middleware {
 
         private static List<PathString> ExcludedList { get; set; } = new List<PathString>();
 
-        static YetaWFForwardedHeadersMiddleware() {
+        static YetaWFForwardedHeadersMiddleware()
+        {
             // RFC 3986 scheme = ALPHA * (ALPHA / DIGIT / "+" / "-" / ".")
             SchemeCharValidity['+'] = true;
             SchemeCharValidity['-'] = true;
@@ -47,28 +50,35 @@ namespace YetaWF2.Middleware {
             HostCharValidity['.'] = true;
             HostCharValidity['_'] = true;
             HostCharValidity['~'] = true;
-            for (var ch = '0'; ch <= '9'; ch++) {
+            for (var ch = '0'; ch <= '9'; ch++)
+            {
                 SchemeCharValidity[ch] = true;
                 HostCharValidity[ch] = true;
             }
-            for (var ch = 'A'; ch <= 'Z'; ch++) {
+            for (var ch = 'A'; ch <= 'Z'; ch++)
+            {
                 SchemeCharValidity[ch] = true;
                 HostCharValidity[ch] = true;
             }
-            for (var ch = 'a'; ch <= 'z'; ch++) {
+            for (var ch = 'a'; ch <= 'z'; ch++)
+            {
                 SchemeCharValidity[ch] = true;
                 HostCharValidity[ch] = true;
             }
         }
 
-        public YetaWFForwardedHeadersMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, IOptions<ForwardedHeadersOptions> options) {
-            if (next == null) {
+        public YetaWFForwardedHeadersMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, IOptions<ForwardedHeadersOptions> options)
+        {
+            if (next == null)
+            {
                 throw new ArgumentNullException(nameof(next));
             }
-            if (loggerFactory == null) {
+            if (loggerFactory == null)
+            {
                 throw new ArgumentNullException(nameof(loggerFactory));
             }
-            if (options == null) {
+            if (options == null)
+            {
                 throw new ArgumentNullException(nameof(options));
             }
 
@@ -91,34 +101,42 @@ namespace YetaWF2.Middleware {
         /// Exclude any URL that starts with <paramref name="segment"/> from forwarded headers handling.
         /// </summary>
         /// <param name="segment">URL prefix.</param>
-        public static void Exclude(PathString segment) {
+        public static void Exclude(PathString segment)
+        {
             ExcludedList.Add(segment);
         }
 
-        private static void EnsureOptionNotNullorWhitespace(string value, string propertyName) {
-            if (string.IsNullOrWhiteSpace(value)) {
+        private static void EnsureOptionNotNullorWhitespace(string value, string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
                 throw new ArgumentException($"options.{propertyName} is required", "options");
             }
         }
 
-        private void PreProcessHosts() {
-            if (_options.AllowedHosts == null || _options.AllowedHosts.Count == 0) {
+        private void PreProcessHosts()
+        {
+            if (_options.AllowedHosts == null || _options.AllowedHosts.Count == 0)
+            {
                 _allowAllHosts = true;
                 return;
             }
 
             var allowedHosts = new List<StringSegment>();
-            foreach (var entry in _options.AllowedHosts) {
+            foreach (var entry in _options.AllowedHosts)
+            {
                 // Punycode. Http.Sys requires you to register Unicode hosts, but the headers contain punycode.
                 var host = new HostString(entry).ToUriComponent();
 
-                if (IsTopLevelWildcard(host)) {
+                if (IsTopLevelWildcard(host))
+                {
                     // Disable filtering
                     _allowAllHosts = true;
                     return;
                 }
 
-                if (!allowedHosts.Contains(host, StringSegmentComparer.OrdinalIgnoreCase)) {
+                if (!allowedHosts.Contains(host, StringSegmentComparer.OrdinalIgnoreCase))
+                {
                     allowedHosts.Add(host);
                 }
             }
@@ -126,14 +144,17 @@ namespace YetaWF2.Middleware {
             _allowedHosts = allowedHosts;
         }
 
-        private bool IsTopLevelWildcard(string host) {
+        private bool IsTopLevelWildcard(string host)
+        {
             return (string.Equals("*", host, StringComparison.Ordinal) // HttpSys wildcard
                            || string.Equals("[::]", host, StringComparison.Ordinal) // Kestrel wildcard, IPv6 Any
                            || string.Equals("0.0.0.0", host, StringComparison.Ordinal)); // IPv4 Any
         }
 
-        public Task Invoke(HttpContext context) {
-            foreach (PathString pathSegment in ExcludedList) {
+        public Task Invoke(HttpContext context)
+        {
+            foreach (PathString pathSegment in ExcludedList)
+            {
                 if (context.Request.Path != null && context.Request.Path.StartsWithSegments(pathSegment))
                     return _next(context);
             }
@@ -141,7 +162,8 @@ namespace YetaWF2.Middleware {
             return _next(context);
         }
 
-        public void ApplyForwarders(HttpContext context) {
+        public void ApplyForwarders(HttpContext context)
+        {
             // Gather expected headers.
             string[] forwardedFor = null, forwardedProto = null, forwardedHost = null;
             bool checkFor = false, checkProto = false, checkHost = false;
@@ -149,28 +171,33 @@ namespace YetaWF2.Middleware {
 
             var request = context.Request;
             var requestHeaders = context.Request.Headers;
-            if ((_options.ForwardedHeaders & ForwardedHeaders.XForwardedFor) == ForwardedHeaders.XForwardedFor) {
+            if (_options.ForwardedHeaders.HasFlag(ForwardedHeaders.XForwardedFor))
+            {
                 checkFor = true;
                 forwardedFor = requestHeaders.GetCommaSeparatedValues(_options.ForwardedForHeaderName);
                 entryCount = Math.Max(forwardedFor.Length, entryCount);
             }
 
-            if ((_options.ForwardedHeaders & ForwardedHeaders.XForwardedProto) == ForwardedHeaders.XForwardedProto) {
+            if (_options.ForwardedHeaders.HasFlag(ForwardedHeaders.XForwardedProto))
+            {
                 checkProto = true;
                 forwardedProto = requestHeaders.GetCommaSeparatedValues(_options.ForwardedProtoHeaderName);
-                if (_options.RequireHeaderSymmetry && checkFor && forwardedFor.Length != forwardedProto.Length) {
+                if (_options.RequireHeaderSymmetry && checkFor && forwardedFor.Length != forwardedProto.Length)
+                {
                     _logger.LogWarning(1, "Parameter count mismatch between X-Forwarded-For and X-Forwarded-Proto.");
                     return;
                 }
                 entryCount = Math.Max(forwardedProto.Length, entryCount);
             }
 
-            if ((_options.ForwardedHeaders & ForwardedHeaders.XForwardedHost) == ForwardedHeaders.XForwardedHost) {
+            if (_options.ForwardedHeaders.HasFlag(ForwardedHeaders.XForwardedHost))
+            {
                 checkHost = true;
                 forwardedHost = requestHeaders.GetCommaSeparatedValues(_options.ForwardedHostHeaderName);
                 if (_options.RequireHeaderSymmetry
                     && ((checkFor && forwardedFor.Length != forwardedHost.Length)
-                        || (checkProto && forwardedProto.Length != forwardedHost.Length))) {
+                        || (checkProto && forwardedProto.Length != forwardedHost.Length)))
+                {
                     _logger.LogWarning(1, "Parameter count mismatch between X-Forwarded-Host and X-Forwarded-For or X-Forwarded-Proto.");
                     return;
                 }
@@ -178,22 +205,27 @@ namespace YetaWF2.Middleware {
             }
 
             // Apply ForwardLimit, if any
-            if (_options.ForwardLimit.HasValue && entryCount > _options.ForwardLimit) {
+            if (_options.ForwardLimit.HasValue && entryCount > _options.ForwardLimit)
+            {
                 entryCount = _options.ForwardLimit.Value;
             }
 
             // Group the data together.
             var sets = new SetOfForwarders[entryCount];
-            for (int i = 0; i < sets.Length; i++) {
+            for (int i = 0; i < sets.Length; i++)
+            {
                 // They get processed in reverse order, right to left.
                 var set = new SetOfForwarders();
-                if (checkFor && i < forwardedFor.Length) {
+                if (checkFor && i < forwardedFor.Length)
+                {
                     set.IpAndPortText = forwardedFor[forwardedFor.Length - i - 1];
                 }
-                if (checkProto && i < forwardedProto.Length) {
+                if (checkProto && i < forwardedProto.Length)
+                {
                     set.Scheme = forwardedProto[forwardedProto.Length - i - 1];
                 }
-                if (checkHost && i < forwardedHost.Length) {
+                if (checkHost && i < forwardedHost.Length)
+                {
                     set.Host = forwardedHost[forwardedHost.Length - i - 1];
                 }
                 sets[i] = set;
@@ -201,7 +233,8 @@ namespace YetaWF2.Middleware {
 
             // Gather initial values
             var connection = context.Connection;
-            var currentValues = new SetOfForwarders() {
+            var currentValues = new SetOfForwarders()
+            {
                 RemoteIpAndPort = connection.RemoteIpAddress != null ? new IPEndPoint(connection.RemoteIpAddress, connection.RemotePort) : null,
                 // Host and Scheme initial values are never inspected, no need to set them here.
             };
@@ -210,63 +243,85 @@ namespace YetaWF2.Middleware {
             bool applyChanges = false;
             int entriesConsumed = 0;
 
-            for (; entriesConsumed < sets.Length; entriesConsumed++) {
+            for (; entriesConsumed < sets.Length; entriesConsumed++)
+            {
                 var set = sets[entriesConsumed];
-                if (checkFor) {
+                if (checkFor)
+                {
                     // For the first instance, allow remoteIp to be null for servers that don't support it natively.
-                    if (currentValues.RemoteIpAndPort != null && checkKnownIps && !CheckKnownAddress(currentValues.RemoteIpAndPort.Address)) {
+                    if (currentValues.RemoteIpAndPort != null && checkKnownIps && !CheckKnownAddress(currentValues.RemoteIpAndPort.Address))
+                    {
                         // Stop at the first unknown remote IP, but still apply changes processed so far.
                         _logger.LogDebug(1, "Unknown proxy: {RemoteIpAndPort}", currentValues.RemoteIpAndPort);
                         break;
                     }
 
-                    if (IPEndPoint.TryParse(set.IpAndPortText, out var parsedEndPoint)) {
+                    if (IPEndPoint.TryParse(set.IpAndPortText, out var parsedEndPoint))
+                    {
                         applyChanges = true;
                         set.RemoteIpAndPort = parsedEndPoint;
                         currentValues.IpAndPortText = set.IpAndPortText;
                         currentValues.RemoteIpAndPort = set.RemoteIpAndPort;
-                    } else if (!string.IsNullOrEmpty(set.IpAndPortText)) {
+                    }
+                    else if (!string.IsNullOrEmpty(set.IpAndPortText))
+                    {
                         // Stop at the first unparsable IP, but still apply changes processed so far.
                         _logger.LogDebug(1, "Unparsable IP: {IpAndPortText}", set.IpAndPortText);
                         break;
-                    } else if (_options.RequireHeaderSymmetry) {
+                    }
+                    else if (_options.RequireHeaderSymmetry)
+                    {
                         _logger.LogWarning(2, "Missing forwarded IPAddress.");
                         return;
                     }
                 }
 
-                if (checkProto) {
-                    if (!string.IsNullOrEmpty(set.Scheme) && TryValidateScheme(set.Scheme)) {
+                if (checkProto)
+                {
+                    if (!string.IsNullOrEmpty(set.Scheme) && TryValidateScheme(set.Scheme))
+                    {
                         applyChanges = true;
                         currentValues.Scheme = set.Scheme;
-                    } else if (_options.RequireHeaderSymmetry) {
+                    }
+                    else if (_options.RequireHeaderSymmetry)
+                    {
                         _logger.LogWarning(3, $"Forwarded scheme is not present, this is required by {nameof(_options.RequireHeaderSymmetry)}");
                         return;
                     }
                 }
 
-                if (checkHost) {
+                if (checkHost)
+                {
                     if (!string.IsNullOrEmpty(set.Host) && TryValidateHost(set.Host)
-                        && (_allowAllHosts || HostString.MatchesAny(set.Host, _allowedHosts))) {
+                        && (_allowAllHosts || HostString.MatchesAny(set.Host, _allowedHosts)))
+                    {
                         applyChanges = true;
                         currentValues.Host = set.Host;
-                    } else if (_options.RequireHeaderSymmetry) {
+                    }
+                    else if (_options.RequireHeaderSymmetry)
+                    {
                         _logger.LogWarning(4, $"Incorrect number of x-forwarded-host header values, see {nameof(_options.RequireHeaderSymmetry)}.");
                         return;
                     }
                 }
             }
 
-            if (applyChanges) {
-                if (checkFor && currentValues.RemoteIpAndPort != null) {
-                    if (connection.RemoteIpAddress != null) {
+            if (applyChanges)
+            {
+                if (checkFor && currentValues.RemoteIpAndPort != null)
+                {
+                    if (connection.RemoteIpAddress != null)
+                    {
                         // Save the original
                         requestHeaders[_options.OriginalForHeaderName] = new IPEndPoint(connection.RemoteIpAddress, connection.RemotePort).ToString();
                     }
-                    if (forwardedFor.Length > entriesConsumed) {
+                    if (forwardedFor.Length > entriesConsumed)
+                    {
                         // Truncate the consumed header values
                         requestHeaders[_options.ForwardedForHeaderName] = forwardedFor.Take(forwardedFor.Length - entriesConsumed).ToArray();
-                    } else {
+                    }
+                    else
+                    {
                         // All values were consumed
                         requestHeaders.Remove(_options.ForwardedForHeaderName);
                     }
@@ -274,26 +329,34 @@ namespace YetaWF2.Middleware {
                     connection.RemotePort = currentValues.RemoteIpAndPort.Port;
                 }
 
-                if (checkProto && currentValues.Scheme != null) {
+                if (checkProto && currentValues.Scheme != null)
+                {
                     // Save the original
                     requestHeaders[_options.OriginalProtoHeaderName] = request.Scheme;
-                    if (forwardedProto.Length > entriesConsumed) {
+                    if (forwardedProto.Length > entriesConsumed)
+                    {
                         // Truncate the consumed header values
                         requestHeaders[_options.ForwardedProtoHeaderName] = forwardedProto.Take(forwardedProto.Length - entriesConsumed).ToArray();
-                    } else {
+                    }
+                    else
+                    {
                         // All values were consumed
                         requestHeaders.Remove(_options.ForwardedProtoHeaderName);
                     }
                     request.Scheme = currentValues.Scheme;
                 }
 
-                if (checkHost && currentValues.Host != null) {
+                if (checkHost && currentValues.Host != null)
+                {
                     // Save the original
                     requestHeaders[_options.OriginalHostHeaderName] = request.Host.ToString();
-                    if (forwardedHost.Length > entriesConsumed) {
+                    if (forwardedHost.Length > entriesConsumed)
+                    {
                         // Truncate the consumed header values
                         requestHeaders[_options.ForwardedHostHeaderName] = forwardedHost.Take(forwardedHost.Length - entriesConsumed).ToArray();
-                    } else {
+                    }
+                    else
+                    {
                         // All values were consumed
                         requestHeaders.Remove(_options.ForwardedHostHeaderName);
                     }
@@ -302,25 +365,32 @@ namespace YetaWF2.Middleware {
             }
         }
 
-        private bool CheckKnownAddress(IPAddress address) {
-            if (address.IsIPv4MappedToIPv6) {
+        private bool CheckKnownAddress(IPAddress address)
+        {
+            if (address.IsIPv4MappedToIPv6)
+            {
                 var ipv4Address = address.MapToIPv4();
-                if (CheckKnownAddress(ipv4Address)) {
+                if (CheckKnownAddress(ipv4Address))
+                {
                     return true;
                 }
             }
-            if (_options.KnownProxies.Contains(address)) {
+            if (_options.KnownProxies.Contains(address))
+            {
                 return true;
             }
-            foreach (var network in _options.KnownNetworks) {
-                if (network.Contains(address)) {
+            foreach (var network in _options.KnownNetworks)
+            {
+                if (network.Contains(address))
+                {
                     return true;
                 }
             }
             return false;
         }
 
-        private struct SetOfForwarders {
+        private struct SetOfForwarders
+        {
             public string IpAndPortText;
             public IPEndPoint RemoteIpAndPort;
             public string Host;
@@ -329,9 +399,12 @@ namespace YetaWF2.Middleware {
 
         // Empty was checked for by the caller
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryValidateScheme(string scheme) {
-            for (var i = 0; i < scheme.Length; i++) {
-                if (!IsValidSchemeChar(scheme[i])) {
+        private bool TryValidateScheme(string scheme)
+        {
+            for (var i = 0; i < scheme.Length; i++)
+            {
+                if (!IsValidSchemeChar(scheme[i]))
+                {
                     return false;
                 }
             }
@@ -339,25 +412,31 @@ namespace YetaWF2.Middleware {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsValidSchemeChar(char ch) {
+        private static bool IsValidSchemeChar(char ch)
+        {
             return ch < SchemeCharValidity.Length && SchemeCharValidity[ch];
         }
 
         // Empty was checked for by the caller
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryValidateHost(string host) {
-            if (host[0] == '[') {
+        private bool TryValidateHost(string host)
+        {
+            if (host[0] == '[')
+            {
                 return TryValidateIPv6Host(host);
             }
 
-            if (host[0] == ':') {
+            if (host[0] == ':')
+            {
                 // Only a port
                 return false;
             }
 
             var i = 0;
-            for (; i < host.Length; i++) {
-                if (!IsValidHostChar(host[i])) {
+            for (; i < host.Length; i++)
+            {
+                if (!IsValidHostChar(host[i]))
+                {
                     break;
                 }
             }
@@ -365,24 +444,30 @@ namespace YetaWF2.Middleware {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsValidHostChar(char ch) {
+        private static bool IsValidHostChar(char ch)
+        {
             return ch < HostCharValidity.Length && HostCharValidity[ch];
         }
 
         // The lead '[' was already checked
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryValidateIPv6Host(string hostText) {
-            for (var i = 1; i < hostText.Length; i++) {
+        private bool TryValidateIPv6Host(string hostText)
+        {
+            for (var i = 1; i < hostText.Length; i++)
+            {
                 var ch = hostText[i];
-                if (ch == ']') {
+                if (ch == ']')
+                {
                     // [::1] is the shortest valid IPv6 host
-                    if (i < 4) {
+                    if (i < 4)
+                    {
                         return false;
                     }
                     return TryValidateHostPort(hostText, i + 1);
                 }
 
-                if (!IsHex(ch) && ch != ':' && ch != '.') {
+                if (!IsHex(ch) && ch != ':' && ch != '.')
+                {
                     return false;
                 }
             }
@@ -392,19 +477,24 @@ namespace YetaWF2.Middleware {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryValidateHostPort(string hostText, int offset) {
-            if (offset == hostText.Length) {
+        private bool TryValidateHostPort(string hostText, int offset)
+        {
+            if (offset == hostText.Length)
+            {
                 // No port
                 return true;
             }
 
-            if (hostText[offset] != ':' || hostText.Length == offset + 1) {
+            if (hostText[offset] != ':' || hostText.Length == offset + 1)
+            {
                 // Must have at least one number after the colon if present.
                 return false;
             }
 
-            for (var i = offset + 1; i < hostText.Length; i++) {
-                if (!IsNumeric(hostText[i])) {
+            for (var i = offset + 1; i < hostText.Length; i++)
+            {
+                if (!IsNumeric(hostText[i]))
+                {
                     return false;
                 }
             }
@@ -413,12 +503,14 @@ namespace YetaWF2.Middleware {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsNumeric(char ch) {
+        private bool IsNumeric(char ch)
+        {
             return '0' <= ch && ch <= '9';
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsHex(char ch) {
+        private bool IsHex(char ch)
+        {
             return IsNumeric(ch)
                 || ('a' <= ch && ch <= 'f')
                 || ('A' <= ch && ch <= 'F');
