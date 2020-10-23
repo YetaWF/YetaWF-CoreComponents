@@ -186,12 +186,12 @@ namespace YetaWF.Core.WebStartup {
             // permitted  in w3c validation). Why would MVC6 start adding ids to tags when they're not requested. If they're not requested, does the caller really need or use them???
             services.AddSingleton(typeof(IHtmlGenerator), typeof(YetaWFDefaultHtmlGenerator));
 
-            // Replace the default simple type model binder provider with our own.
-            // The built in simple type model binder converts spaces to null. Or if ConvertEmptyStringToNull is set to true an empty string remains an empty string, instead of null.
-            // This restores "" -> null and "   " -> "   " which is not an option with the built in binder. This behavior was used on ASP.NET 4 and I want to keep it.
-            // I'm not about that retesting life.
             services.AddControllers(options => {
-                options.ModelBinderProviders.Insert(0, new YetaWFSimpleTypeModelBinderProvider());
+                // Add a string model binder provider.
+                // The built in simple type model binder converts spaces to null. Or if ConvertEmptyStringToNull is set to true an empty string remains an empty string, instead of null.
+                // This restores "" -> null and "   " -> "   " which is not an option with the built in binder. This behavior was used on ASP.NET 4 and I want to keep it.
+                // I'm not about that retesting life.
+                options.ModelBinderProviders.Insert(0, new YetaWFStringModelBinderProvider());
             });
 
             // Add framework services.

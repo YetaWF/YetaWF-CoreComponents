@@ -388,38 +388,19 @@ namespace YetaWF.Core.Controllers {
                         }
                     }
 
-                    // Date/Time translation to UTC (independent of any templates)
-                    // change all dates to utc - internally YetaWF ALWAYS uses utc
-                    // incoming dates are sent from client in utc, but arrive in local time ("thanks" to ASP.NET translating them)
-                    // so we translate them back to utc. There is probably a better way somewhere in ASP.NET, but haven't figured it out yet.
-                    // will be fixed in .net 5.0 so this hack is no longer needed. https://github.com/dotnet/aspnetcore/issues/11584
-                    if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?)) {
-                        DateTime? dt = prop.GetPropertyValue<DateTime?>(parm);
-
-                        if (dt != null && ((DateTime)dt).Kind == DateTimeKind.Local) {
-                            DateTime dl = (DateTime)dt;
-                            if (prop.UIHint == "DateTime" || prop.UIHint == "Time" || prop.UIHint == "Date" ||
-                                prop.UIHint.EndsWith("_DateTime") || prop.UIHint.EndsWith("_Time") || prop.UIHint.EndsWith("_Date")) {
-                                // we're receiving date/time in the local timezone so we now have to convert it to Utc
-                                dt = dl.ToUniversalTime();
-                                pi.SetValue(parm, dt, null);
-                            }
-                        }
-                    } else {
-                        ParameterInfo[] indexParms = pi.GetIndexParameters();
-                        int indexParmsLen = indexParms.Length;
-                        if (indexParmsLen == 0) {
-                            try {
-                                await FixDataAsync(prop.GetPropertyValue<object>(parm));  // try to handle nested types
-                            } catch (Exception) { }
-                        } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
-                            // enumerable types
-                            IEnumerable<object> ienum = parm as IEnumerable<object>;
-                            if (ienum != null) {
-                                IEnumerator<object> ienumerator = ienum.GetEnumerator();
-                                for (int i = 0; ienumerator.MoveNext(); i++) {
-                                    await FixDataAsync(ienumerator.Current);
-                                }
+                    ParameterInfo[] indexParms = pi.GetIndexParameters();
+                    int indexParmsLen = indexParms.Length;
+                    if (indexParmsLen == 0) {
+                        try {
+                            await FixDataAsync(prop.GetPropertyValue<object>(parm));  // try to handle nested types
+                        } catch (Exception) { }
+                    } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
+                        // enumerable types
+                        IEnumerable<object> ienum = parm as IEnumerable<object>;
+                        if (ienum != null) {
+                            IEnumerator<object> ienumerator = ienum.GetEnumerator();
+                            for (int i = 0; ienumerator.MoveNext(); i++) {
+                                await FixDataAsync(ienumerator.Current);
                             }
                         }
                     }

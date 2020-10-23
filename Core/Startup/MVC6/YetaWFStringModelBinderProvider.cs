@@ -10,16 +10,23 @@ using System.Threading.Tasks;
 
 namespace YetaWF2.Support {
 
-    public class YetaWFSimpleTypeModelBinderProvider : IModelBinderProvider {
+    // This was copied from .net core 3.1/5.0 .\src\Mvc\Mvc.Core\src\ModelBinding\Binders\SimpleTypeModelBinder.cs and 
+    // adapted for string types only.
+
+    public class YetaWFStringModelBinderProvider : IModelBinderProvider {
 
         /// <inheritdoc />
         public IModelBinder GetBinder(ModelBinderProviderContext context) {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-
+            
             if (!context.Metadata.IsComplexType) {
-                var loggerFactory = context.Services.GetRequiredService<ILoggerFactory>();
-                return new YetaWFSimpleTypeModelBinder(context.Metadata.ModelType, loggerFactory);
+                Type modelType = context.Metadata.UnderlyingOrModelType;
+                if (modelType == typeof(string))
+                {
+                    var loggerFactory = context.Services.GetRequiredService<ILoggerFactory>();
+                    return new YetaWFSimpleTypeModelBinder(context.Metadata.ModelType, loggerFactory);
+                }
             }
             return null;
         }
@@ -84,14 +91,8 @@ namespace YetaWF2.Support {
                     } else {
                         model = value;
                     }
-                } else if (string.IsNullOrWhiteSpace(value)) {
-                    // Other than the StringConverter, converters Trim() the value then throw if the result is empty.
-                    model = null;
-                } else {
-                    model = _typeConverter.ConvertFrom(
-                        context: null,
-                        culture: valueProviderResult.Culture,
-                        value: value);
+                } else { 
+                    throw new NotSupportedException();
                 }
 
                 CheckModel(bindingContext, valueProviderResult, model);
