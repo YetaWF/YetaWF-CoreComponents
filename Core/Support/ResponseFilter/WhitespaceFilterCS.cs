@@ -52,7 +52,7 @@ namespace YetaWF.Core.ResponseFilter {
             // only compress when deployed
             if (!YetaWFManager.Deployed || !Manager.CurrentSite.StaticPages) return inputBuffer;
             // if no compression is requested, still compress static pages (overriding no compression)
-            if (!Manager.CurrentSite.Compression || !Manager.RenderStaticPage)
+            if (!Manager.CurrentSite.Compression && !Manager.RenderStaticPage)
                 return inputBuffer;
             using (WhiteSpaceResponseFilter wsf = new WhiteSpaceResponseFilter()) {
                 string output = wsf.ProcessAllInputCheckLazy(inputBuffer).ToString();
