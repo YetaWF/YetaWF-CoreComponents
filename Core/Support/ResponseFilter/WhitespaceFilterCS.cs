@@ -50,7 +50,7 @@ namespace YetaWF.Core.ResponseFilter {
         /// </remarks>
         public static string Compress(string inputBuffer) {
             // only compress when deployed
-            if (!YetaWFManager.Deployed || !Manager.CurrentSite.StaticPages) return inputBuffer;
+            if (!YetaWFManager.Deployed) return inputBuffer;
             // if no compression is requested, still compress static pages (overriding no compression)
             if (!Manager.CurrentSite.Compression && !Manager.RenderStaticPage)
                 return inputBuffer;
