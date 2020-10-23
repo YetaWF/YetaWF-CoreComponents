@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models;
@@ -63,16 +62,11 @@ namespace YetaWF.Core.Serializers {
         }
     }
 
-    public class SimpleFormatter : IFormatter {
-
-        SerializationBinder binder;
-        StreamingContext context;
-        ISurrogateSelector surrogateSelector;
+    public class SimpleFormatter : IYetaWFFormatter {
 
         private string _unread;
 
         public SimpleFormatter() {
-            context = new StreamingContext(StreamingContextStates.All);
             _unread = null;
         }
 
@@ -87,19 +81,6 @@ namespace YetaWF.Core.Serializers {
         }
         private void Unread(string s) {
             _unread = s;
-        }
-
-        public SerializationBinder Binder {
-            get { return binder; }
-            set { binder = value; }
-        }
-        public ISurrogateSelector SurrogateSelector {
-            get { return surrogateSelector; }
-            set { surrogateSelector = value; }
-        }
-        public StreamingContext Context {
-            get { return context; }
-            set { context = value; }
         }
 
         public void Serialize(System.IO.Stream serializationStream, object graph) {

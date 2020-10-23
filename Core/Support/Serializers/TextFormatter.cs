@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 using YetaWF.Core.DataProvider.Attributes;
@@ -31,27 +30,9 @@ namespace YetaWF.Core.Serializers {
                 throw new InternalError("Premature end of input at line {0}.", xmlRd.LineNumber);
         }
     }
-    public class TextFormatter : IFormatter {
+    public class TextFormatter : IYetaWFFormatter {
 
-        SerializationBinder binder;
-        StreamingContext context;
-        ISurrogateSelector surrogateSelector;
-
-        public TextFormatter() {
-            context = new StreamingContext(StreamingContextStates.All);
-        }
-        public SerializationBinder Binder {
-            get { return binder; }
-            set { binder = value; }
-        }
-        public ISurrogateSelector SurrogateSelector {
-            get { return surrogateSelector; }
-            set { surrogateSelector = value; }
-        }
-        public StreamingContext Context {
-            get { return context; }
-            set { context = value; }
-        }
+        public TextFormatter() { }
 
         public void Serialize(System.IO.Stream serializationStream, object graph) {
 
