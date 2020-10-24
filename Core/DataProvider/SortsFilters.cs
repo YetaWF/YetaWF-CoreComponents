@@ -257,7 +257,15 @@ namespace YetaWF.Core.DataProvider {
                 } else {
                     if (objType != typeof(string)) {
                         if (objType.IsEnum) {
-                            try { Value = Enum.ToObject(objType, Value); } catch (Exception) { }
+                            object final = null;
+                            bool ok = false;
+                            if (!ok) // handle by name
+                                try { final = Enum.ToObject(objType, Value); ok = true; } catch (Exception) { }
+                            if (!ok) // handle by value
+                                try { final = Convert.ToInt32(Value); ok = true; } catch (Exception) { }
+                            if (!ok)
+                                throw new InternalError($"Unable to convert value {Value} to {type.FullName}");
+                            Value = final;
                         } else if (objType == typeof(DateTime) || (objType == typeof(DateTime?) && Value != null)) {
                             try { Value = Localize.Formatting.GetUtcDateTime(Convert.ToDateTime(Value)); } catch (Exception) { Value = DateTime.MinValue; }
                         } else if (objType == typeof(int) || (objType == typeof(int?) && Value != null)) {
