@@ -366,7 +366,7 @@ var YetaWF;
                     throw "No module found"; /*DEBUG*/
                 tag = this.reloadingModuleTagInModule;
             }
-            var mod = this.getModuleFromTag(tag);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
             var form = this.getElement1BySelector("form", [mod]);
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
@@ -376,7 +376,7 @@ var YetaWF;
             this.processReloadInfo(mod.id);
         };
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
-            var mod = this.getModuleFromTag(elem);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(elem);
             this.processReloadInfo(mod.id);
         };
         BasicsServices.prototype.processReloadInfo = function (moduleId) {
@@ -429,7 +429,7 @@ var YetaWF;
          * The element defined by tag may no longer exist when a module is refreshed in which case the callback is not called (and removed).
          */
         BasicsServices.prototype.registerModuleRefresh = function (tag, callback) {
-            var module = $YetaWF.getModuleFromTag(tag); // get the containing module
+            var module = YetaWF.ModuleBase.getModuleDivFromTag(tag); // get the containing module
             if (!tag.id || tag.id.length === 0)
                 throw "No id defined for " + tag.outerHTML;
             // reuse existing entry if this id is already registered
@@ -444,29 +444,8 @@ var YetaWF;
             this.reloadInfo.push({ module: module, tagId: tag.id, callback: callback });
         };
         // Module locator
-        /**
-         * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
-         */
-        BasicsServices.prototype.getModuleFromTagCond = function (tag) {
-            var mod = this.elementClosestCond(tag, ".yModule");
-            if (!mod)
-                return null;
-            return mod;
-        };
-        /**
-         * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
-         */
-        BasicsServices.prototype.getModuleFromTag = function (tag) {
-            var mod = this.getModuleFromTagCond(tag);
-            // eslint-disable-next-line no-debugger
-            if (mod == null) {
-                debugger;
-                throw "Can't find containing module";
-            } /*DEBUG*/
-            return mod;
-        };
         BasicsServices.prototype.getModuleGuidFromTag = function (tag) {
-            var mod = this.getModuleFromTag(tag);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
             var guid = mod.getAttribute("data-moduleguid");
             if (!guid)
                 throw "Can't find module guid"; /*DEBUG*/

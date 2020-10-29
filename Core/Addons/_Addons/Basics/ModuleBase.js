@@ -30,21 +30,21 @@ var YetaWF;
             });
         };
         // locating modules
-        ModuleBase.getModuleFromTagCond = function (elem) {
-            var module = ModuleBase.elementClosestModuleCond(elem);
+        ModuleBase.getModuleDivFromTagCond = function (elem) {
+            var module = ModuleBase.elementClosestModuleDivCond(elem);
             return module;
         };
-        ModuleBase.getModuleFromTag = function (elem) {
-            var module = ModuleBase.getModuleFromTagCond(elem);
+        ModuleBase.getModuleDivFromTag = function (elem) {
+            var module = ModuleBase.getModuleDivFromTagCond(elem);
             if (!module)
-                throw "No module found in getModuleFromTag for " + elem.outerHTML;
+                throw "No module found in getModuleDivFromTag for " + elem.outerHTML;
             return module;
         };
-        ModuleBase.elementClosestModuleCond = function (elem) {
+        ModuleBase.elementClosestModuleDivCond = function (elem) {
             var module = $YetaWF.elementClosestCond(elem, ".yModule");
             return module;
         };
-        ModuleBase.getModules = function (selector, tags) {
+        ModuleBase.getModuleDivs = function (selector, tags) {
             if (!tags)
                 tags = [document.body];
             return $YetaWF.getElementsBySelector(selector, tags);
@@ -96,8 +96,8 @@ var YetaWF;
          * @param elem The element within the module.
          * Returns null if not found.
          */
-        ModuleBaseDataImpl.getModuleObjectFromTagCond = function (elem) {
-            var mod = ModuleBase.getModuleFromTagCond(elem);
+        ModuleBaseDataImpl.getModuleFromTagCond = function (elem) {
+            var mod = ModuleBase.getModuleDivFromTagCond(elem);
             if (!mod)
                 return null;
             var obj = $YetaWF.getObjectData(mod);
@@ -109,21 +109,43 @@ var YetaWF;
          * Given an element within a module, find the containing module object.
          * @param elem The element within the module.
          */
-        ModuleBaseDataImpl.getModuleObjectFromTag = function (elem) {
-            var obj = ModuleBaseDataImpl.getModuleObjectFromTagCond(elem);
+        ModuleBaseDataImpl.getModuleFromTag = function (elem) {
+            var obj = ModuleBaseDataImpl.getModuleFromTagCond(elem);
             if (obj == null)
                 throw "Object not found - " + elem.outerHTML;
             return obj;
         };
-        ModuleBaseDataImpl.getModuleObjects = function (selector, tags) {
+        ModuleBaseDataImpl.getModules = function (selector, tags) {
             var objs = [];
-            var mods = ModuleBase.getModules(selector, tags);
+            var mods = ModuleBase.getModuleDivs(selector, tags);
             for (var _i = 0, mods_1 = mods; _i < mods_1.length; _i++) {
                 var mod = mods_1[_i];
                 var obj = $YetaWF.getObjectData(mod);
                 objs.push(obj);
             }
             return objs;
+        };
+        /**
+         * Finds an module within tags using the provided module selector and returns the module object.
+         * @param moduleSelector The module-specific selector.
+         * @param tags The elements to search for the specified selector.
+         * Returns null if not found.
+         */
+        ModuleBaseDataImpl.getModuleFromSelectorCond = function (moduleSelector, tags) {
+            var mod = $YetaWF.getElement1BySelectorCond(moduleSelector, tags);
+            if (mod == null)
+                return null;
+            var obj = $YetaWF.getObjectData(mod);
+            return obj;
+        };
+        /**
+         * Finds an module within tags using the provided module selector and returns the module object.
+         * @param moduleSelector The module-specific selector.
+         * @param tags The elements to search for the specified selector.
+         */
+        ModuleBaseDataImpl.getModuleFromSelector = function (moduleSelector, tags) {
+            var mod = $YetaWF.getElement1BySelector(moduleSelector, tags);
+            return $YetaWF.getObjectData(mod);
         };
         /**
          * Given an id of a module, returns the module object.

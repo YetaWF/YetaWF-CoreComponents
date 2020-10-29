@@ -545,6 +545,25 @@ namespace YetaWF.Core.Modules {
         // RENDERING
         // RENDERING
 
+        /// <summary>
+        /// Render module in view mode, overriding edit mode.
+        /// </summary>
+        /// <param name="htmlHelper">An instance of the HtmlHelper class.</param>
+        /// <param name="Args">Optional parameters passed to the action rendering the module.</param>
+        /// <returns></returns>
+        public async Task<string> RenderModuleViewAsync(YHtmlHelper htmlHelper, object Args = null) {
+
+            bool oldEditMode = Manager.EditMode;
+            try {
+                Manager.EditMode = false;
+                return await RenderModuleAsync(htmlHelper);
+            } catch (Exception) {
+                throw;
+            } finally {
+                Manager.EditMode = oldEditMode;
+            }
+        }
+
         public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper, object Args = null) {
 
             if (!Visible && !Manager.EditMode) return null;

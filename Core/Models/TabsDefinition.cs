@@ -14,6 +14,7 @@ namespace YetaWF.Core.Models {
 
         // set up by application
         public List<TabEntry> Tabs { get; set; }
+        public bool ContextMenu { get; set; }
 
         // other settings
         public string Id { get; set; } // html id of the tab control
@@ -21,6 +22,7 @@ namespace YetaWF.Core.Models {
 
         public TabsDefinition() {
             Tabs = new List<TabEntry>();
+            ContextMenu = false;
             ActiveTabIndex = 0;
             Id = YetaWFManager.Manager.UniqueId("tab");
         }
