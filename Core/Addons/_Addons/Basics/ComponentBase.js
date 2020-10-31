@@ -206,6 +206,18 @@ var YetaWF;
             var tag = $YetaWF.getElementById(id);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         };
+        ComponentBaseDataImpl.getControls = function (controlSelector, tags) {
+            var objs = [];
+            var ctrls = $YetaWF.getElementsBySelector(controlSelector, tags);
+            for (var _i = 0, ctrls_1 = ctrls; _i < ctrls_1.length; _i++) {
+                var ctrl = ctrls_1[_i];
+                var obj = $YetaWF.getObjectData(ctrl);
+                if (obj.Control !== ctrl)
+                    throw "object data doesn't match control type - " + controlSelector + " - " + ctrl.outerHTML;
+                objs.push(obj);
+            }
+            return objs;
+        };
         ComponentBaseDataImpl.prototype.destroy = function () {
             $YetaWF.removeObjectDataById(this.Control.id);
         };

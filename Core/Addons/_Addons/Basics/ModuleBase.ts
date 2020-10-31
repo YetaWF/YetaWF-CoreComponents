@@ -118,16 +118,6 @@ namespace YetaWF {
             return obj;
         }
 
-        public static getModules<CLSS extends ModuleBaseDataImpl>(selector: string, tags?: HTMLElement[]): CLSS[] {
-            let objs: CLSS[] = [];
-            let mods = ModuleBase.getModuleDivs(selector, tags);
-            for (let mod of mods) {
-                let obj = $YetaWF.getObjectData(mod) as CLSS;
-                objs.push(obj);
-            }
-            return objs;
-        }
-
         /**
          * Finds an module within tags using the provided module selector and returns the module object.
          * @param moduleSelector The module-specific selector.
@@ -171,6 +161,16 @@ namespace YetaWF {
             let mod = $YetaWF.getElementById(id);
             let obj = $YetaWF.getObjectData(mod) as CLSS;
             return obj;
+        }
+
+        public static getModules<CLSS extends ModuleBaseDataImpl>(selector: string, tags?: HTMLElement[]): CLSS[] {
+            let objs: CLSS[] = [];
+            let mods = ModuleBase.getModuleDivs(selector, tags);
+            for (let mod of mods) {
+                let obj = $YetaWF.getObjectData(mod) as CLSS;
+                objs.push(obj);
+            }
+            return objs;
         }
 
         public destroy(): void {

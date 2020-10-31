@@ -115,16 +115,6 @@ var YetaWF;
                 throw "Object not found - " + elem.outerHTML;
             return obj;
         };
-        ModuleBaseDataImpl.getModules = function (selector, tags) {
-            var objs = [];
-            var mods = ModuleBase.getModuleDivs(selector, tags);
-            for (var _i = 0, mods_1 = mods; _i < mods_1.length; _i++) {
-                var mod = mods_1[_i];
-                var obj = $YetaWF.getObjectData(mod);
-                objs.push(obj);
-            }
-            return objs;
-        };
         /**
          * Finds an module within tags using the provided module selector and returns the module object.
          * @param moduleSelector The module-specific selector.
@@ -167,6 +157,16 @@ var YetaWF;
             var mod = $YetaWF.getElementById(id);
             var obj = $YetaWF.getObjectData(mod);
             return obj;
+        };
+        ModuleBaseDataImpl.getModules = function (selector, tags) {
+            var objs = [];
+            var mods = ModuleBase.getModuleDivs(selector, tags);
+            for (var _i = 0, mods_1 = mods; _i < mods_1.length; _i++) {
+                var mod = mods_1[_i];
+                var obj = $YetaWF.getObjectData(mod);
+                objs.push(obj);
+            }
+            return objs;
         };
         ModuleBaseDataImpl.prototype.destroy = function () {
             $YetaWF.removeObjectDataById(this.Module.id);

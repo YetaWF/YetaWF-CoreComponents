@@ -1244,18 +1244,23 @@ var YetaWF;
             var _this = this;
             document.addEventListener(eventName, function (ev) { return _this.handleEvent(document.body, ev, selector, callback); });
         };
-        BasicsServices.prototype.registerCustomEventHandler = function (control, eventName, callback) {
-            control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
+        BasicsServices.prototype.registerCustomEventHandler = function (control, eventName, selector, callback) {
+            var _this = this;
+            control.Control.addEventListener(eventName, function (ev) { return _this.handleEvent(control.Control, ev, selector, callback); });
         };
-        BasicsServices.prototype.registerMultipleCustomEventHandlers = function (controls, eventNames, callback) {
-            for (var _i = 0, controls_1 = controls; _i < controls_1.length; _i++) {
-                var control = controls_1[_i];
+        BasicsServices.prototype.registerMultipleCustomEventHandlers = function (controls, eventNames, selector, callback) {
+            var _this = this;
+            var _loop_2 = function (control) {
                 if (control) {
-                    for (var _a = 0, eventNames_5 = eventNames; _a < eventNames_5.length; _a++) {
-                        var eventName = eventNames_5[_a];
-                        control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
+                    for (var _i = 0, eventNames_5 = eventNames; _i < eventNames_5.length; _i++) {
+                        var eventName = eventNames_5[_i];
+                        control.Control.addEventListener(eventName, function (ev) { return _this.handleEvent(control.Control, ev, selector, callback); });
                     }
                 }
+            };
+            for (var _i = 0, controls_1 = controls; _i < controls_1.length; _i++) {
+                var control = controls_1[_i];
+                _loop_2(control);
             }
         };
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {

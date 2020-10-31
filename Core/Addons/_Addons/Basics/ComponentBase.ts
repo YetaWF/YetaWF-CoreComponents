@@ -209,6 +209,18 @@ namespace YetaWF {
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         }
 
+        public static getControls<CLSS extends ComponentBaseDataImpl>(controlSelector: string, tags?: HTMLElement[]): CLSS[] {
+            let objs: CLSS[] = [];
+            let ctrls = $YetaWF.getElementsBySelector(controlSelector, tags);
+            for (let ctrl of ctrls) {
+                let obj = $YetaWF.getObjectData(ctrl) as CLSS;
+                if (obj.Control !== ctrl)
+                    throw `object data doesn't match control type - ${controlSelector} - ${ctrl.outerHTML}`;
+                objs.push(obj);
+            }
+            return objs;
+        }
+
         public destroy(): void {
             $YetaWF.removeObjectDataById(this.Control.id);
         }
