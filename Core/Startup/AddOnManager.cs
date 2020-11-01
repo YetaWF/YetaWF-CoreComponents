@@ -175,6 +175,11 @@ namespace YetaWF.Core.Addons {
                 if (parts.Length != 3) throw new InternalError($"Template name invalid - {uiHintTemplate}");
                 await AddTemplateAsync($"{parts[0]}_{parts[1]}", parts[2], componentType);
             }
+
+            if (componentType == YetaWFComponentBase.ComponentType.Display)
+                await YetaWFComponentExtender.MarkUsedDisplayAsync(uiHintTemplate);
+            else
+                await YetaWFComponentExtender.MarkUsedEditAsync(uiHintTemplate);
         }
 
         /// <summary>
