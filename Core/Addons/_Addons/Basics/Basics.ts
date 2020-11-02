@@ -1584,11 +1584,17 @@ namespace YetaWF {
             let top = 0, bottom = 0;
             if (bottomAvailable < subRect.height && topAvailable > bottomAvailable) {
                 bottom = window.innerHeight - mainRect.top;
-                sub.style.bottom = `${bottom - window.pageYOffset}px`;
+                top = mainRect.top - subRect.height;
+                if (top < 0) top = 0;
             } else {
                 top = mainRect.bottom;
-                sub.style.top = `${top + window.pageYOffset}px`;
+                bottom = top + subRect.height;
+                bottom = window.innerHeight - bottom;
+                if (bottom < 0)
+                    bottom = 0;
             }
+            sub.style.bottom = `${bottom - window.pageYOffset}px`;
+            sub.style.top = `${top + window.pageYOffset}px`;
             // set left
             sub.style.left = `${mainRect.left + window.pageXOffset}px`;
         }
