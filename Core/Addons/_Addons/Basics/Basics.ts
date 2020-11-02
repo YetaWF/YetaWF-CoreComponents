@@ -1410,6 +1410,8 @@ namespace YetaWF {
         private handleEvent<EVENTTYPE extends Event|CustomEvent>(listening: HTMLElement | null, ev: EVENTTYPE, selector: string | null, callback: (ev: EVENTTYPE) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            if (ev.cancelBubble || ev.defaultPrevented)
+                return;
             var elem: HTMLElement | null = ev.target as HTMLElement | null;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener

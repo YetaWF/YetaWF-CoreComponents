@@ -1266,6 +1266,8 @@ var YetaWF;
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            if (ev.cancelBubble || ev.defaultPrevented)
+                return;
             var elem = ev.target;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector)
