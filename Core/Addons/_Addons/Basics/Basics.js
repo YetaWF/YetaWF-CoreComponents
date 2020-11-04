@@ -1414,6 +1414,11 @@ var YetaWF;
          * @param sub The element to be position below/above the main element.
          */
         BasicsServices.prototype.positionLeftAlignedBelow = function (main, sub) {
+            // position within view to calculate size
+            sub.style.top = "0px";
+            sub.style.left = "0px";
+            sub.style.right = "";
+            sub.style.bottom = "";
             // position to fit
             var mainRect = main.getBoundingClientRect();
             var subRect = sub.getBoundingClientRect();
@@ -1424,20 +1429,22 @@ var YetaWF;
             if (bottomAvailable < subRect.height && topAvailable > bottomAvailable) {
                 bottom = window.innerHeight - mainRect.top;
                 top = mainRect.top - subRect.height;
-                if (top < 0)
-                    top = 0;
+                if (top <= 0)
+                    sub.style.top = "0px";
+                sub.style.bottom = bottom - window.pageYOffset + "px";
             }
             else {
                 top = mainRect.bottom;
                 bottom = top + subRect.height;
                 bottom = window.innerHeight - bottom;
                 if (bottom < 0)
-                    bottom = 0;
+                    sub.style.bottom = "0px";
+                sub.style.top = top + window.pageYOffset + "px";
             }
-            sub.style.bottom = bottom - window.pageYOffset + "px";
-            sub.style.top = top + window.pageYOffset + "px";
             // set left
             sub.style.left = mainRect.left + window.pageXOffset + "px";
+            if (mainRect.left + subRect.right > window.innerWidth)
+                sub.style.right = "0px";
         };
         BasicsServices.prototype.init = function () {
             var _this = this;
