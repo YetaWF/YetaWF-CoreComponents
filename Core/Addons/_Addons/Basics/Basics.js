@@ -1431,6 +1431,8 @@ var YetaWF;
                 top = mainRect.top - subRect.height;
                 if (top <= 0)
                     sub.style.top = "0px";
+                else
+                    sub.style.top = "";
                 sub.style.bottom = bottom - window.pageYOffset + "px";
             }
             else {
