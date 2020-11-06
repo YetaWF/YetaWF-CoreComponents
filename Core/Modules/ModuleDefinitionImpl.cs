@@ -992,10 +992,8 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         [DontSave][Data_DontSave]
         public List<PageDefinition> Pages { get; set; }
 
-        public async Task<List<PageDefinition>> __GetPagesAsync() {
-            if (Pages == null)
-                Pages = await PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
-            return Pages;
+        public Task<List<PageDefinition>> __GetPagesAsync() {
+            return PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
         }
 
 

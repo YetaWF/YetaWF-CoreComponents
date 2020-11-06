@@ -1338,9 +1338,8 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
 
-            bool result = await TryUpdateModelAsync(obj, objType, modelName??"");
-            if (!result)
-                return null;
+            // update model with available data (even if there are validation errors)
+            await TryUpdateModelAsync(obj, objType, modelName??"");
 
             FixArgumentParmTrim(obj);
             FixArgumentParmCase(obj);
