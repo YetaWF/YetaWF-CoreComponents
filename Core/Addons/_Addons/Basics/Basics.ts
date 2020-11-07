@@ -1333,10 +1333,11 @@ namespace YetaWF {
          * @param name The name of the event.
          */
 
-        public sendCustomEvent(elem: HTMLElement | Document, name: string, details?: any): void {
+        public sendCustomEvent(elem: HTMLElement | Document, name: string, details?: any): boolean {
             let event = new CustomEvent("CustomEvent", { "detail": details ?? {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
+            return !event.cancelBubble && !event.defaultPrevented;
         }
 
         public registerDocumentReady(callback: () => void): void {

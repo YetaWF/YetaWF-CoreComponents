@@ -1169,6 +1169,7 @@ var YetaWF;
             var event = new CustomEvent("CustomEvent", { "detail": details !== null && details !== void 0 ? details : {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
+            return !event.cancelBubble && !event.defaultPrevented;
         };
         BasicsServices.prototype.registerDocumentReady = function (callback) {
             if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
