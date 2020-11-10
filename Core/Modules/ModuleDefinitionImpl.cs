@@ -545,6 +545,25 @@ namespace YetaWF.Core.Modules {
         // RENDERING
         // RENDERING
 
+        /// <summary>
+        /// Render module in view mode, overriding edit mode.
+        /// </summary>
+        /// <param name="htmlHelper">An instance of the HtmlHelper class.</param>
+        /// <param name="Args">Optional parameters passed to the action rendering the module.</param>
+        /// <returns></returns>
+        public async Task<string> RenderModuleViewAsync(YHtmlHelper htmlHelper, object Args = null) {
+
+            bool oldEditMode = Manager.EditMode;
+            try {
+                Manager.EditMode = false;
+                return await RenderModuleAsync(htmlHelper, Args);
+            } catch (Exception) {
+                throw;
+            } finally {
+                Manager.EditMode = oldEditMode;
+            }
+        }
+
         public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper, object Args = null) {
 
             if (!Visible && !Manager.EditMode) return null;
@@ -973,10 +992,8 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         [DontSave][Data_DontSave]
         public List<PageDefinition> Pages { get; set; }
 
-        public async Task<List<PageDefinition>> __GetPagesAsync() {
-            if (Pages == null)
-                Pages = await PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
-            return Pages;
+        public Task<List<PageDefinition>> __GetPagesAsync() {
+            return PageDefinition.GetPagesFromModuleAsync(ModuleGuid);
         }
 
 

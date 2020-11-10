@@ -29,22 +29,22 @@ namespace YetaWF {
 
         // locating modules
 
-        public static getModuleFromTagCond(elem: HTMLElement): HTMLDivElement | null {
-            let module = ModuleBase.elementClosestModuleCond(elem);
+        public static getModuleDivFromTagCond(elem: HTMLElement): HTMLDivElement | null {
+            let module = ModuleBase.elementClosestModuleDivCond(elem);
             return module;
         }
-        public static getModuleFromTag(elem: HTMLElement): HTMLDivElement {
-            let module = ModuleBase.getModuleFromTagCond(elem);
+        public static getModuleDivFromTag(elem: HTMLElement): HTMLDivElement {
+            let module = ModuleBase.getModuleDivFromTagCond(elem);
             if (!module)
-                throw `No module found in getModuleFromTag for ${elem.outerHTML}`;
+                throw `No module found in getModuleDivFromTag for ${elem.outerHTML}`;
             return module;
         }
-        protected static elementClosestModuleCond(elem: HTMLElement): HTMLDivElement | null {
+        protected static elementClosestModuleDivCond(elem: HTMLElement): HTMLDivElement | null {
             let module = $YetaWF.elementClosestCond(elem, ".yModule");
             return module as HTMLDivElement | null;
         }
 
-        public static getModules(selector: string, tags?: HTMLElement[]): HTMLDivElement[] {
+        public static getModuleDivs(selector: string, tags?: HTMLElement[]): HTMLDivElement[] {
             if (!tags)
                 tags = [document.body];
             return $YetaWF.getElementsBySelector(selector, tags) as HTMLDivElement[];
@@ -98,11 +98,11 @@ namespace YetaWF {
          * @param elem The element within the module.
          * Returns null if not found.
          */
-        public static getModuleObjectFromTagCond<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement): CLSS | null {
-            let mod = ModuleBase.getModuleFromTagCond(elem);
+        public static getModuleFromTagCond<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement): CLSS | null {
+            let mod = ModuleBase.getModuleDivFromTagCond(elem);
             if (!mod)
                 return null;
-            var obj = $YetaWF.getObjectData(mod) as CLSS;
+            let obj = $YetaWF.getObjectData(mod) as CLSS;
             if (obj.Module !== mod)
                 throw `object data doesn't match module type - ${mod.outerHTML}`;
             return obj;
@@ -111,21 +111,34 @@ namespace YetaWF {
          * Given an element within a module, find the containing module object.
          * @param elem The element within the module.
          */
-        public static getModuleObjectFromTag<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement): CLSS {
-            var obj = ModuleBaseDataImpl.getModuleObjectFromTagCond<CLSS>(elem);
+        public static getModuleFromTag<CLSS extends ModuleBaseDataImpl>(elem: HTMLElement): CLSS {
+            let obj = ModuleBaseDataImpl.getModuleFromTagCond<CLSS>(elem);
             if (obj == null)
                 throw `Object not found - ${elem.outerHTML}`;
             return obj;
         }
 
-        public static getModuleObjects<CLSS extends ModuleBaseDataImpl>(selector: string, tags?: HTMLElement[]): CLSS[] {
-            let objs: CLSS[] = [];
-            let mods = ModuleBase.getModules(selector, tags);
-            for (let mod of mods) {
-                let obj = $YetaWF.getObjectData(mod) as CLSS;
-                objs.push(obj);
-            }
-            return objs;
+        /**
+         * Finds an module within tags using the provided module selector and returns the module object.
+         * @param moduleSelector The module-specific selector.
+         * @param tags The elements to search for the specified selector.
+         * Returns null if not found.
+         */
+        public static getModuleFromSelectorCond<CLSS extends ModuleBaseDataImpl>(moduleSelector: string, tags: HTMLElement[]): CLSS | null {
+            let mod = $YetaWF.getElement1BySelectorCond(moduleSelector, tags);
+            if (mod == null)
+                return null;
+            let obj = $YetaWF.getObjectData(mod) as CLSS;
+            return obj;
+        }
+        /**
+         * Finds an module within tags using the provided module selector and returns the module object.
+         * @param moduleSelector The module-specific selector.
+         * @param tags The elements to search for the specified selector.
+         */
+        public static getModuleFromSelector<CLSS extends ModuleBaseDataImpl>(moduleSelector: string, tags: HTMLElement[]): CLSS {
+            let mod = $YetaWF.getElement1BySelector(moduleSelector, tags);
+            return $YetaWF.getObjectData(mod) as CLSS;
         }
 
         /**
@@ -145,9 +158,19 @@ namespace YetaWF {
          * @param id The id of the module.
          */
         public static getModuleById<CLSS extends ModuleBaseDataImpl>(id: string): CLSS {
-            var mod = $YetaWF.getElementById(id);
-            var obj = $YetaWF.getObjectData(mod) as CLSS;
+            let mod = $YetaWF.getElementById(id);
+            let obj = $YetaWF.getObjectData(mod) as CLSS;
             return obj;
+        }
+
+        public static getModules<CLSS extends ModuleBaseDataImpl>(selector: string, tags?: HTMLElement[]): CLSS[] {
+            let objs: CLSS[] = [];
+            let mods = ModuleBase.getModuleDivs(selector, tags);
+            for (let mod of mods) {
+                let obj = $YetaWF.getObjectData(mod) as CLSS;
+                objs.push(obj);
+            }
+            return objs;
         }
 
         public destroy(): void {
@@ -159,9 +182,9 @@ namespace YetaWF {
     $YetaWF.registerClearDiv(false, (tag: HTMLElement): boolean => {
         for (let moduleDef of ModuleBaseDataImpl.RegisteredModules) {
             if (moduleDef.HasData) {
-                var list = $YetaWF.getElementsBySelector(moduleDef.Selector, [tag]);
+                let list = $YetaWF.getElementsBySelector(moduleDef.Selector, [tag]);
                 for (let module of list) {
-                    var obj = $YetaWF.getObjectData(module) as ModuleBaseDataImpl;
+                    let obj = $YetaWF.getObjectData(module) as ModuleBaseDataImpl;
                     if (obj.Module !== module)
                         throw `object data doesn't match module type - ${moduleDef.Selector} - ${module.outerHTML}`;
                     if (moduleDef.DestroyModule)
@@ -173,8 +196,3 @@ namespace YetaWF {
         return true;
     });
 }
-
-
-
-
-

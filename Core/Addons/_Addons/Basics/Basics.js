@@ -366,7 +366,7 @@ var YetaWF;
                     throw "No module found"; /*DEBUG*/
                 tag = this.reloadingModuleTagInModule;
             }
-            var mod = this.getModuleFromTag(tag);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
             var form = this.getElement1BySelector("form", [mod]);
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
         };
@@ -376,7 +376,7 @@ var YetaWF;
             this.processReloadInfo(mod.id);
         };
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
-            var mod = this.getModuleFromTag(elem);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(elem);
             this.processReloadInfo(mod.id);
         };
         BasicsServices.prototype.processReloadInfo = function (moduleId) {
@@ -429,7 +429,7 @@ var YetaWF;
          * The element defined by tag may no longer exist when a module is refreshed in which case the callback is not called (and removed).
          */
         BasicsServices.prototype.registerModuleRefresh = function (tag, callback) {
-            var module = $YetaWF.getModuleFromTag(tag); // get the containing module
+            var module = YetaWF.ModuleBase.getModuleDivFromTag(tag); // get the containing module
             if (!tag.id || tag.id.length === 0)
                 throw "No id defined for " + tag.outerHTML;
             // reuse existing entry if this id is already registered
@@ -444,29 +444,8 @@ var YetaWF;
             this.reloadInfo.push({ module: module, tagId: tag.id, callback: callback });
         };
         // Module locator
-        /**
-         * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
-         */
-        BasicsServices.prototype.getModuleFromTagCond = function (tag) {
-            var mod = this.elementClosestCond(tag, ".yModule");
-            if (!mod)
-                return null;
-            return mod;
-        };
-        /**
-         * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
-         */
-        BasicsServices.prototype.getModuleFromTag = function (tag) {
-            var mod = this.getModuleFromTagCond(tag);
-            // eslint-disable-next-line no-debugger
-            if (mod == null) {
-                debugger;
-                throw "Can't find containing module";
-            } /*DEBUG*/
-            return mod;
-        };
         BasicsServices.prototype.getModuleGuidFromTag = function (tag) {
-            var mod = this.getModuleFromTag(tag);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
             var guid = mod.getAttribute("data-moduleguid");
             if (!guid)
                 throw "Can't find module guid"; /*DEBUG*/
@@ -1180,6 +1159,13 @@ var YetaWF;
             else
                 this.elementDisable(elem);
         };
+        /**
+         * Given an element, returns the owner (typically a module) that owns the element.
+         * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
+         */
+        BasicsServices.prototype.getOwnerFromTag = function (tag) {
+            return YetaWF_BasicsImpl.getOwnerFromTag(tag);
+        };
         // Events
         /**
          * Send a custom event on behalf of an element.
@@ -1190,6 +1176,7 @@ var YetaWF;
             var event = new CustomEvent("CustomEvent", { "detail": details !== null && details !== void 0 ? details : {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
+            return !event.cancelBubble && !event.defaultPrevented;
         };
         BasicsServices.prototype.registerDocumentReady = function (callback) {
             if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -1265,23 +1252,30 @@ var YetaWF;
             var _this = this;
             document.addEventListener(eventName, function (ev) { return _this.handleEvent(document.body, ev, selector, callback); });
         };
-        BasicsServices.prototype.registerCustomEventHandler = function (control, eventName, callback) {
-            control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
+        BasicsServices.prototype.registerCustomEventHandler = function (control, eventName, selector, callback) {
+            var _this = this;
+            control.Control.addEventListener(eventName, function (ev) { return _this.handleEvent(control.Control, ev, selector, callback); });
         };
-        BasicsServices.prototype.registerMultipleCustomEventHandlers = function (controls, eventNames, callback) {
-            for (var _i = 0, controls_1 = controls; _i < controls_1.length; _i++) {
-                var control = controls_1[_i];
+        BasicsServices.prototype.registerMultipleCustomEventHandlers = function (controls, eventNames, selector, callback) {
+            var _this = this;
+            var _loop_2 = function (control) {
                 if (control) {
-                    for (var _a = 0, eventNames_5 = eventNames; _a < eventNames_5.length; _a++) {
-                        var eventName = eventNames_5[_a];
-                        control.Control.addEventListener(eventName, function (ev) { return callback(ev); });
+                    for (var _i = 0, eventNames_5 = eventNames; _i < eventNames_5.length; _i++) {
+                        var eventName = eventNames_5[_i];
+                        control.Control.addEventListener(eventName, function (ev) { return _this.handleEvent(control.Control, ev, selector, callback); });
                     }
                 }
+            };
+            for (var _i = 0, controls_1 = controls; _i < controls_1.length; _i++) {
+                var control = controls_1[_i];
+                _loop_2(control);
             }
         };
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            if (ev.cancelBubble || ev.defaultPrevented)
+                return;
             var elem = ev.target;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector)
@@ -1428,6 +1422,11 @@ var YetaWF;
          * @param sub The element to be position below/above the main element.
          */
         BasicsServices.prototype.positionLeftAlignedBelow = function (main, sub) {
+            // position within view to calculate size
+            sub.style.top = "0px";
+            sub.style.left = "0px";
+            sub.style.right = "";
+            sub.style.bottom = "";
             // position to fit
             var mainRect = main.getBoundingClientRect();
             var subRect = sub.getBoundingClientRect();
@@ -1437,14 +1436,25 @@ var YetaWF;
             var top = 0, bottom = 0;
             if (bottomAvailable < subRect.height && topAvailable > bottomAvailable) {
                 bottom = window.innerHeight - mainRect.top;
+                top = mainRect.top - subRect.height;
+                if (top <= 0)
+                    sub.style.top = "0px";
+                else
+                    sub.style.top = "";
                 sub.style.bottom = bottom - window.pageYOffset + "px";
             }
             else {
                 top = mainRect.bottom;
+                bottom = top + subRect.height;
+                bottom = window.innerHeight - bottom;
+                if (bottom < 0)
+                    sub.style.bottom = "0px";
                 sub.style.top = top + window.pageYOffset + "px";
             }
             // set left
             sub.style.left = mainRect.left + window.pageXOffset + "px";
+            if (mainRect.left + subRect.right > window.innerWidth)
+                sub.style.right = "0px";
         };
         BasicsServices.prototype.init = function () {
             var _this = this;

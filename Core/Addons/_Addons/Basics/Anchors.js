@@ -123,8 +123,9 @@ var YetaWF;
                     // this means that it's posted by definition
                     var confirm_2 = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm_2) {
+                        var anchorOwner_1 = $YetaWF.getOwnerFromTag(anchor);
                         $YetaWF.alertYesNo(confirm_2, undefined, function () {
-                            _this.postLink(url, anchor, cookieToReturn);
+                            _this.postLink(url, anchorOwner_1, cookieToReturn);
                             var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
@@ -135,7 +136,8 @@ var YetaWF;
                         var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                         if (s)
                             $YetaWF.pleaseWait(s);
-                        _this.postLink(url, anchor, cookieToReturn);
+                        var anchorOwner = $YetaWF.getOwnerFromTag(anchor);
+                        _this.postLink(url, anchorOwner, cookieToReturn);
                         return false;
                     }
                 }
@@ -195,7 +197,7 @@ var YetaWF;
                 new CookieWait(cookieToReturn);
             }
         };
-        Anchors.prototype.postLink = function (url, elem, cookieToReturn) {
+        Anchors.prototype.postLink = function (url, anchorOwner, cookieToReturn) {
             $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
             var request = new XMLHttpRequest();
@@ -205,7 +207,7 @@ var YetaWF;
                 var req = request;
                 if (req.readyState === 4 /*DONE*/) {
                     $YetaWF.setLoading(false);
-                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, elem);
+                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, anchorOwner || undefined);
                 }
             };
             request.send("");

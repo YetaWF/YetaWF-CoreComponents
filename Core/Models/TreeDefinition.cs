@@ -22,6 +22,7 @@ namespace YetaWF.Core.Models {
         public MultiString HeaderTooltip { get; set; }
 
         public bool DragDrop { get; set; }
+        public bool ContextMenu { get; set; } // Supports context menu
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
 
@@ -36,6 +37,7 @@ namespace YetaWF.Core.Models {
         public TreeDefinition() {
             ShowHeader = true;
             DragDrop = false;
+            ContextMenu = false;
             NoRecordsText = this.__ResStr("noRecs", "(None)");
             UseSkinFormatting = true;
             JSONData = false;

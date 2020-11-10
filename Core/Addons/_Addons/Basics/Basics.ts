@@ -136,6 +136,11 @@ namespace YetaWF {
          * Returns whether a message popup dialog is currently active.
          */
         messagePopupActive(): boolean;
+        /**
+         * Given an element, returns the owner (typically a module) that owns the element.
+         * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
+         */
+        getOwnerFromTag(ag: HTMLElement): HTMLElement | null;
     }
 
     export class BasicsServices /* implements IBasicsImpl */ { // doesn't need to implement IBasicImpl, used for type checking only
@@ -514,7 +519,7 @@ namespace YetaWF {
                 if (!this.reloadingModuleTagInModule) throw "No module found";/*DEBUG*/
                 tag = this.reloadingModuleTagInModule;
             }
-            var mod = this.getModuleFromTag(tag);
+            var mod = ModuleBase.getModuleDivFromTag(tag);
             var form = this.getElement1BySelector("form", [mod]) as HTMLFormElement;
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
@@ -526,7 +531,7 @@ namespace YetaWF {
             this.processReloadInfo(mod.id);
         }
         public refreshModuleByAnyTag(elem: HTMLElement): void {
-            var mod = this.getModuleFromTag(elem);
+            var mod = ModuleBase.getModuleDivFromTag(elem);
             this.processReloadInfo(mod.id);
         }
         private processReloadInfo(moduleId: string): void {
@@ -580,7 +585,7 @@ namespace YetaWF {
          * The element defined by tag may no longer exist when a module is refreshed in which case the callback is not called (and removed).
          */
         public registerModuleRefresh(tag: HTMLElement, callback: (module: HTMLElement) => void): void {
-            var module = $YetaWF.getModuleFromTag(tag); // get the containing module
+            var module = ModuleBase.getModuleDivFromTag(tag); // get the containing module
             if (!tag.id || tag.id.length === 0)
                 throw `No id defined for ${tag.outerHTML}`;
             // reuse existing entry if this id is already registered
@@ -596,26 +601,8 @@ namespace YetaWF {
 
         // Module locator
 
-        /**
-         * Get a module defined by the specified tag (any tag within the module). Returns null if none found.
-         */
-        public getModuleFromTagCond(tag: HTMLElement): HTMLElement | null {
-            var mod = this.elementClosestCond(tag, ".yModule");
-            if (!mod) return null;
-            return mod;
-        }
-        /**
-         * Get a module defined by the specified tag (any tag within the module). Throws exception if none found.
-         */
-        public getModuleFromTag(tag: HTMLElement): HTMLElement {
-            var mod = this.getModuleFromTagCond(tag);
-            // eslint-disable-next-line no-debugger
-            if (mod == null) { debugger; throw "Can't find containing module"; }/*DEBUG*/
-            return mod;
-        }
-
         public getModuleGuidFromTag(tag: HTMLElement): string {
-            var mod = this.getModuleFromTag(tag);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
             var guid = mod.getAttribute("data-moduleguid");
             if (!guid) throw "Can't find module guid";/*DEBUG*/
             return guid;
@@ -1343,6 +1330,13 @@ namespace YetaWF {
             else
                 this.elementDisable(elem);
         }
+        /**
+         * Given an element, returns the owner (typically a module) that owns the element.
+         * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
+         */
+        public getOwnerFromTag(tag: HTMLElement): HTMLElement | null {
+            return YetaWF_BasicsImpl.getOwnerFromTag(tag);
+        }
 
         // Events
         /**
@@ -1351,10 +1345,11 @@ namespace YetaWF {
          * @param name The name of the event.
          */
 
-        public sendCustomEvent(elem: HTMLElement | Document, name: string, details?: any): void {
+        public sendCustomEvent(elem: HTMLElement | Document, name: string, details?: any): boolean {
             let event = new CustomEvent("CustomEvent", { "detail": details ?? {} });
             event.initEvent(name, true, true);
             elem.dispatchEvent(event);
+            return !event.cancelBubble && !event.defaultPrevented;
         }
 
         public registerDocumentReady(callback: () => void): void {
@@ -1413,14 +1408,14 @@ namespace YetaWF {
         public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: CustomEvent) => boolean): void {
             document.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev as CustomEvent, selector, callback));
         }
-        public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, callback: (ev: CustomEvent) => void): void {
-            control.Control.addEventListener(eventName, (ev: Event): void => callback(ev as CustomEvent));
+        public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, selector: string | null, callback: (ev: CustomEvent) => boolean): void {
+            control.Control.addEventListener(eventName, (ev: Event): void => this.handleEvent(control.Control, ev as CustomEvent, selector, callback));
         }
-        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl | null)[], eventNames: string[], callback: (ev: CustomEvent) => void): void {
+        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl | null)[], eventNames: string[], selector: string | null, callback: (ev: CustomEvent) => boolean): void {
             for (let control of controls) {
                 if (control) {
                     for (let eventName of eventNames) {
-                        control.Control.addEventListener(eventName, (ev: Event): void => callback(ev as CustomEvent));
+                        control.Control.addEventListener(eventName, (ev: Event): void => this.handleEvent(control!.Control, ev as CustomEvent, selector, callback));
                     }
                 }
             }
@@ -1428,6 +1423,8 @@ namespace YetaWF {
         private handleEvent<EVENTTYPE extends Event|CustomEvent>(listening: HTMLElement | null, ev: EVENTTYPE, selector: string | null, callback: (ev: EVENTTYPE) => boolean): void {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            if (ev.cancelBubble || ev.defaultPrevented)
+                return;
             var elem: HTMLElement | null = ev.target as HTMLElement | null;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
@@ -1590,6 +1587,12 @@ namespace YetaWF {
          */
         public positionLeftAlignedBelow(main: HTMLElement, sub: HTMLElement): void {
 
+            // position within view to calculate size
+            sub.style.top = "0px";
+            sub.style.left = "0px";
+            sub.style.right = "";
+            sub.style.bottom = "";
+
             // position to fit
             let mainRect = main.getBoundingClientRect();
             let subRect = sub.getBoundingClientRect();
@@ -1600,13 +1603,24 @@ namespace YetaWF {
             let top = 0, bottom = 0;
             if (bottomAvailable < subRect.height && topAvailable > bottomAvailable) {
                 bottom = window.innerHeight - mainRect.top;
+                top = mainRect.top - subRect.height;
+                if (top <= 0)
+                    sub.style.top = "0px";
+                else
+                    sub.style.top = "";
                 sub.style.bottom = `${bottom - window.pageYOffset}px`;
             } else {
                 top = mainRect.bottom;
+                bottom = top + subRect.height;
+                bottom = window.innerHeight - bottom;
+                if (bottom < 0)
+                    sub.style.bottom = "0px";
                 sub.style.top = `${top + window.pageYOffset}px`;
             }
             // set left
             sub.style.left = `${mainRect.left + window.pageXOffset}px`;
+            if (mainRect.left + subRect.right > window.innerWidth)
+                sub.style.right = "0px";
         }
 
         constructor() {
