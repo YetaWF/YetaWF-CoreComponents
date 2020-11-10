@@ -556,7 +556,7 @@ namespace YetaWF.Core.Modules {
             bool oldEditMode = Manager.EditMode;
             try {
                 Manager.EditMode = false;
-                return await RenderModuleAsync(htmlHelper);
+                return await RenderModuleAsync(htmlHelper, Args);
             } catch (Exception) {
                 throw;
             } finally {

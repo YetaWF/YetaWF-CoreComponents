@@ -138,8 +138,9 @@ namespace YetaWF {
                     // this means that it's posted by definition
                     let confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
+                        let anchorOwner = $YetaWF.getOwnerFromTag(anchor);
                         $YetaWF.alertYesNo(confirm, undefined, (): void => {
-                            this.postLink(url, anchor, cookieToReturn);
+                            this.postLink(url, anchorOwner, cookieToReturn);
                             let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
@@ -149,7 +150,8 @@ namespace YetaWF {
                         let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                         if (s)
                             $YetaWF.pleaseWait(s);
-                        this.postLink(url, anchor, cookieToReturn);
+                        let anchorOwner = $YetaWF.getOwnerFromTag(anchor);
+                        this.postLink(url, anchorOwner, cookieToReturn);
                         return false;
                     }
                 }
@@ -207,7 +209,7 @@ namespace YetaWF {
                 new CookieWait(cookieToReturn);
             }
         }
-        private postLink(url: string, elem: HTMLAnchorElement, cookieToReturn: number | null) : void {
+        private postLink(url: string, anchorOwner: HTMLElement | null, cookieToReturn: number | null) : void {
             $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
 
@@ -218,7 +220,7 @@ namespace YetaWF {
                 let req = request;
                 if (req.readyState === 4 /*DONE*/) {
                     $YetaWF.setLoading(false);
-                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, elem);
+                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, anchorOwner || undefined);
                 }
 
             };

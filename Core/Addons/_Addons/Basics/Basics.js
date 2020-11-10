@@ -1159,6 +1159,13 @@ var YetaWF;
             else
                 this.elementDisable(elem);
         };
+        /**
+         * Given an element, returns the owner (typically a module) that owns the element.
+         * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
+         */
+        BasicsServices.prototype.getOwnerFromTag = function (tag) {
+            return YetaWF_BasicsImpl.getOwnerFromTag(tag);
+        };
         // Events
         /**
          * Send a custom event on behalf of an element.

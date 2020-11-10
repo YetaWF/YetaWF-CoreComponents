@@ -136,6 +136,11 @@ namespace YetaWF {
          * Returns whether a message popup dialog is currently active.
          */
         messagePopupActive(): boolean;
+        /**
+         * Given an element, returns the owner (typically a module) that owns the element.
+         * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
+         */
+        getOwnerFromTag(ag: HTMLElement): HTMLElement | null;
     }
 
     export class BasicsServices /* implements IBasicsImpl */ { // doesn't need to implement IBasicImpl, used for type checking only
@@ -1324,6 +1329,13 @@ namespace YetaWF {
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
+        }
+        /**
+         * Given an element, returns the owner (typically a module) that owns the element.
+         * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
+         */
+        public getOwnerFromTag(tag: HTMLElement): HTMLElement | null {
+            return YetaWF_BasicsImpl.getOwnerFromTag(tag);
         }
 
         // Events
