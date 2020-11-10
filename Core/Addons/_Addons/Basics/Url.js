@@ -93,6 +93,20 @@ var YetaWF;
                 }
             }
         };
+        Url.prototype.addSearchFromSegments = function (segments) {
+            if (segments.startsWith("/")) {
+                var parts = segments.split("/");
+                if (parts.length > 1) {
+                    parts = parts.slice(1);
+                    if (parts.length % 2 === 0) {
+                        var len = parts.length;
+                        for (var i = 0; i < len; i += 2) {
+                            this.addSearch(decodeURIComponent(parts[i]), decodeURIComponent(parts[i + 1]));
+                        }
+                    }
+                }
+            }
+        };
         Url.prototype.addFormInfo = function (tag) {
             var formInfo = $YetaWF.Forms.getFormInfo(tag);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);

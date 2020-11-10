@@ -41,7 +41,7 @@ namespace YetaWF {
                 return encodeURIComponent(this.Domain);
         }
         public getPath(): string {
-            var path = "";
+            let path = "";
             for (let part of this.Path) {
                 path += "/" + encodeURIComponent(part);
             }
@@ -71,7 +71,7 @@ namespace YetaWF {
             return "";
         }
         public getSearchObject(): object {
-            var o: any = {};
+            let o: any = {};
             for (let entry of this.QSEntries) {
                 o[entry.key] = entry.value;
             }
@@ -94,15 +94,30 @@ namespace YetaWF {
                 }
             }
         }
+        public addSearchFromSegments(segments: string): void {
+            if (segments.startsWith("/")) {
+                let parts = segments.split("/");
+                if (parts.length > 1) {
+                    parts = parts.slice(1);
+                    if (parts.length % 2 === 0) {
+                        let len = parts.length;
+                        for (let i = 0 ; i < len ; i += 2) {
+                            this.addSearch(decodeURIComponent(parts[i]), decodeURIComponent(parts[i+1]));
+                        }
+                    }
+                }
+            }
+        }
+
         public addFormInfo(tag: HTMLElement): void {
-            var formInfo = $YetaWF.Forms.getFormInfo(tag);
+            let formInfo = $YetaWF.Forms.getFormInfo(tag);
             this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
             this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
         }
         public removeSearch(key: string): void {
             key = key.toLowerCase();
             for (var i = this.QSEntries.length - 1; i >= 0; --i) {
-                var entry = this.QSEntries[i];
+                let entry = this.QSEntries[i];
                 if (entry.keyLower === key)
                     this.QSEntries.splice(i, 1);
             }
@@ -111,7 +126,7 @@ namespace YetaWF {
             this.QSEntries = [];
         }
         public getQuery(withQuestion?: boolean): string {
-            var qs: string = "";
+            let qs: string = "";
             for (let entry of this.QSEntries) {
                 if (qs !== "")
                     qs += "&";
@@ -146,7 +161,7 @@ namespace YetaWF {
             this.QSEntries = [];
 
             // remove hash
-            var parts = url.split("#");
+            let parts = url.split("#");
             if (parts.length === 0) return;
             url = parts[0];
             if (parts.length > 1)
@@ -155,7 +170,7 @@ namespace YetaWF {
             // remove qs
             parts = url.split("?");
             url = parts[0];
-            var qs = "";
+            let qs = "";
             if (parts.length > 1)
                 qs = parts.slice(1).join("?");
 
@@ -178,7 +193,7 @@ namespace YetaWF {
             } else
                 url = parts[0];
 
-            var domain = "";
+            let domain = "";
             parts = url.split("/");
             if (parts.length > 1) {
                 domain = parts[0];
@@ -199,12 +214,12 @@ namespace YetaWF {
 
             // split up query string
             if (qs.length > 0) {
-                var qsArr = qs.split("&");
+                let qsArr = qs.split("&");
                 for (let qsEntry of qsArr) {
-                    var entryParts = qsEntry.split("=");
+                    let entryParts = qsEntry.split("=");
                     if (entryParts.length > 2)
                         throw `Url has malformed query string entry ${qsEntry}`;
-                    var key = decodeURIComponent(entryParts[0]);
+                    let key = decodeURIComponent(entryParts[0]);
                     this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: entryParts.length > 1 ? decodeURIComponent(entryParts[1]) : "" });
                 }
             }
