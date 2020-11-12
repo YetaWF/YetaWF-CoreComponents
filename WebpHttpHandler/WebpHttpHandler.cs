@@ -77,7 +77,7 @@ namespace YetaWF.Core.HttpHandler {
         // IHttpHandler (Async)
 #if MVC6
         /// <summary>
-        /// Called by the IIS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
+        /// Called by the middleware (.NET) to process
         /// a request for a CSS file.
         /// </summary>
         /// <param name="context">The HTTP context of the request.</param>
@@ -92,7 +92,7 @@ namespace YetaWF.Core.HttpHandler {
         }
 
         /// <summary>
-        /// Called by the IIS pipeline (ASP.NET) or middleware (ASP.NET Core) to process
+        /// Called by the middleware (.NET) to process
         /// a request for a PNG, JPG file.
         /// </summary>
         /// <param name="context">The HTTP context of the request.</param>

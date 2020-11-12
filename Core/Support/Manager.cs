@@ -52,7 +52,7 @@ namespace YetaWF.Core.Support {
     /// Sometimes things are really just global. And really, who cares.
     ///
     /// Because of the abstraction provided by YetaWF with the YetaWFManager, it is possible to write simple console applications
-    /// that use all the services of YetaWF, including data providers. These are not ASP.NET Core based, they are "plain old" console applications.
+    /// that use all the services of YetaWF, including data providers. These are not .NET based, they are "plain old" console applications.
     /// </remarks>
     public class YetaWFManager {
 
@@ -321,7 +321,7 @@ namespace YetaWF.Core.Support {
         // FOLDERS
 
         /// <summary>
-        /// The location of the website's root folder (physical, wwwroot on ASP.NET Core MVC).
+        /// The location of the website's root folder (physical, wwwroot on .NET - MVC).
         /// </summary>
         public static string RootFolder { get; set; }
 
@@ -354,8 +354,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// The sites data folder is located at .\Website\Sites\DataFolder.
         ///
-        /// This folder is not publicly accessible on ASP.NET Core MVC.
-        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
         public static string RootSitesFolder {
             get {
@@ -385,8 +384,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// The Data folder is located at .\Website\Data\DataFolder.
         ///
-        /// This folder is not publicly accessible on ASP.NET Core MVC.
-        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
         public static string DataFolder {
             get {
@@ -406,8 +404,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// The License folder is located at .\Website\Data\Licenses.
         ///
-        /// This folder is not publicly accessible on ASP.NET Core MVC.
-        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
         public static string LicenseFolder {
             get {
@@ -427,8 +424,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// The Vault private folder is located at .\Website\VaultPrivate.
         ///
-        /// This folder is not publicly accessible on ASP.NET Core MVC.
-        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
         public static string VaultPrivateFolder {
             get {
@@ -446,9 +442,9 @@ namespace YetaWF.Core.Support {
         /// The location of the Vault folder (not site specific).
         /// </summary>
         /// <remarks>
-        /// The Vault folder is located at .\Website\wwwroot\Vault on ASP.NET Core and .\Website\Vault on ASP.NET.
+        /// The Vault folder is located at .\Website\wwwroot\Vault on .NET.
         ///
-        /// This folder is publicly accessible on ASP.NET Core MVC and ASP.NET.
+        /// This folder is publicly accessible on .NET - MVC.
         /// </remarks>
         public static string VaultFolder {
             get {
@@ -462,8 +458,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// An individual site's file data folder is located at .\Website\Sites\DataFolder\{..siteidentity..}.
         ///
-        /// This folder is not publicly accessible on ASP.NET Core MVC.
-        /// It is publicly accessible on ASP.NET and must be protected using Web.config files.
+        /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
         public string SiteFolder {
             get {
@@ -474,7 +469,7 @@ namespace YetaWF.Core.Support {
         /// Returns the site's custom addons folder.
         /// </summary>
         /// <remarks>
-        /// An individual site's file data folder is located at .\Website\wwwroot\AddonsCustom\{..domainname..} on ASP.NET Core and .\Website\AddonsCustom\{..domainname..} on ASP.NET.
+        /// An individual site's file data folder is located at .\Website\wwwroot\AddonsCustom\{..domainname..} on .NET.
         ///
         /// This folder is publicly accessible. It contains JavaScript and CSS files which are served as static files.
         /// </remarks>
@@ -1679,7 +1674,7 @@ namespace YetaWF.Core.Support {
         /// Returns whether requests must be made synchronously (i.e., no async).
         /// </summary>
         /// <remarks>
-        /// At certain times, particularly during ASP.NET rendering, requests cannot be made asynchronously.
+        /// At certain times, particularly during rendering, requests cannot be made asynchronously.
         /// The IsSync method can be used to determine whether requests must be made synchronously.
         /// </remarks>
         /// <returns>Returns whether all requests must be made synchronously (i.e., no async).</returns>

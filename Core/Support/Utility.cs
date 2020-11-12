@@ -31,7 +31,7 @@ namespace YetaWF.Core.Support {
             /// </summary>
             MVC5 = 0,
             /// <summary>
-            /// ASP.NET Core with MVC 6
+            /// .NET with MVC (6)
             /// </summary>
             MVC6 = 6,
         }

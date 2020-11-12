@@ -867,7 +867,7 @@ namespace YetaWF.Core.Packages {
         public dynamic CachedLicenseData { get; set; }
 
         /// <summary>
-        /// The Asp.Net Mvc version for which this package was built
+        /// The .Net MVC version for which this package was built
         /// </summary>
         public Utility.AspNetMvcVersion AspNetMvc {
             get {
