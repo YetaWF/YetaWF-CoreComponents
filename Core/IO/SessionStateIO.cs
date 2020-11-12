@@ -7,7 +7,7 @@ namespace YetaWF.Core.IO {
 
     /// <summary>
     /// Implements SessionState I/O for an object of type TObj.
-    /// Used to save/load object to/from ASP.NET (Core) session state.
+    /// Used to save/load object to/from .NET (Core) session state.
     /// </summary>
     /// <remarks>This can be used by applications to store session information. This is intended for large data objects.
     ///
