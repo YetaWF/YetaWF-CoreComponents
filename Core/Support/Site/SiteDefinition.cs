@@ -1,11 +1,12 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Language;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -14,13 +15,6 @@ using YetaWF.Core.SendEmail;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Components;
-using Newtonsoft.Json;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Site {
 
@@ -176,6 +170,9 @@ namespace YetaWF.Core.Site {
             CDNUrl = null;
             CDNUrlSecure = null;
             StaticDomain = null;
+
+            ContentTypeOptions = ContentTypeEnum.NoSniff;
+            StrictTransportSecurity = StrictTransportSecurityEnum.All;
         }
 
         [Data_Identity]
