@@ -85,7 +85,6 @@ namespace YetaWF.Core.Components {
         /// Returns information for a complex filter.
         /// </summary>
         /// <param name="uiHint">The component name found in a UIHintAttribute.</param>
-        /// <param name="jsonData">The JSON data specific to this filter implementation. May be null when no filter has been set.</param>
         /// <returns>Returns information for a complex filter.</returns>
         public static async Task<ComplexFilter> GetComplexFilterFromUIHintAsync(string uiHint) {
             Type compType;

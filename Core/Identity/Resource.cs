@@ -108,18 +108,6 @@ namespace YetaWF.Core.Identity {
         /// </summary>
         public string Name { get; private set; }
 
-        /// <summary>
-        /// Handles authorization checking based for protected named resources.
-        /// </summary>
-        /// <param name="httpContext">The HTTP context.</param>
-        /// <returns>Returns whether access to the protected named resource is permitted.</returns>
-#if MVC6
-        // This is using AttributeAuthorizationHandler
-#else
-        protected override bool AuthorizeCore(HttpContextBase httpContext) {
-            return YetaWFManager.Syncify<bool>(() => Resource.ResourceAccess.IsResourceAuthorizedAsync(Name)); // Must sync, no async attributes in mvc5
-        }
-#endif
     }
 
     public enum UserStatusEnum {

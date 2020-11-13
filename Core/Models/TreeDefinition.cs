@@ -135,13 +135,13 @@ namespace YetaWF.Core.Models {
         public virtual string ExtraCss { get; set; }
 
         /// <summary>
-        /// Optional. The item's text display ahead of the text. Must render as an <a> tag.
+        /// Optional. The item's text display ahead of the text. Must render as an &lt;a&gt; tag.
         /// </summary>
         [JsonIgnore]
         public virtual object BeforeText { get; set; }
 
         /// <summary>
-        /// Optional. The item's text display after the text. Must render as an <a> tag.
+        /// Optional. The item's text display after the text. Must render as an &lt;a&gt; tag.
         /// </summary>
         [JsonIgnore]
         public virtual object AfterText { get; set; }
