@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\net5.0\YetaWF.Core.WebpHttpHandler.xml</DocumentationFile>
+    <DocumentationFile>YetaWF.Core.WebpHttpHandler.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

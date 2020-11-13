@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\net5.0\YetaWF.Core.ConsoleStartup.xml</DocumentationFile>
+    <DocumentationFile>YetaWF.Core.ConsoleStartup.xml</DocumentationFile>
     <OutputPath></OutputPath>
   </PropertyGroup>
 
