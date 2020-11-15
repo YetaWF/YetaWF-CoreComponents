@@ -432,7 +432,7 @@ namespace YetaWF.Core.Pages {
         // RENDERING
         // RENDERING
 
-        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string pane, string? cssClass = null, bool Conditional = true, PageDefinition? UnifiedMainPage = null, bool PaneDiv = true, object? Args = null) {
+        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string? pane, string? cssClass = null, bool Conditional = true, PageDefinition? UnifiedMainPage = null, bool PaneDiv = true, object? Args = null) {
 
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
 

@@ -872,11 +872,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public Utility.AspNetMvcVersion AspNetMvc {
             get {
-#if MVC6
                 return Utility.AspNetMvcVersion.MVC6;
-#else
-                return Utility.AspNetMvcVersion.MVC5;
-#endif
             }
         }
     }

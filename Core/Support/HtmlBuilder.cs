@@ -11,11 +11,11 @@ namespace YetaWF.Core.Support {
 
         private readonly StringBuilder _hb = new StringBuilder(4000);
 
-        public void Append(string s) {
+        public void Append(string? s) {
             if (s == null) return;
             _hb.Append(s);
         }
-        public void Append(string s, params object?[] parms) {
+        public void Append(string? s, params object?[] parms) {
             if (s == null) return;
             _hb.AppendFormat(s, parms);
         }

@@ -108,19 +108,14 @@ namespace YetaWF.Core.Packages {
             if (!file.IsFile)
                 throw new InternalError("{0} is not a valid filename and cannot be exported", fileName);
             fileName = file.LocalPath;
-            string relFileName = fileName;
             if (string.IsNullOrWhiteSpace(ExternalRoot)) {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
+                string rootFolder = YetaWFManager.RootFolderWebProject;
                 ExternalRoot = rootFolder;
             }
             if (!fileName.StartsWith(ExternalRoot, StringComparison.OrdinalIgnoreCase))
                 throw new InternalError("'{0}' is not within the folder '{1}' and cannot be exported.", fileName, ExternalRoot);
 
+            string relFileName;
             if (YetaWFManager.HaveManager && fileName.StartsWith(YetaWFManager.Manager.SiteFolder, StringComparison.OrdinalIgnoreCase)) {
                 SiteSpecific = true;
                 relFileName = fileName.Substring(YetaWFManager.Manager.SiteFolder.Length);

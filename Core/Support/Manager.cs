@@ -67,7 +67,6 @@ namespace YetaWF.Core.Support {
 
         private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
 
-#if MVC6
         public class DummyServiceProvider : IServiceProvider {
             public object? GetService(Type serviceType) { return null; }
         }
@@ -80,10 +79,7 @@ namespace YetaWF.Core.Support {
             public void Remove(object key) { }
             public bool TryGetValue(object key, out object value) { value = null!; return false; }
         }
-#else
-#endif
 
-#if MVC6
         public static void Init(IHttpContextAccessor? httpContextAccessor = null, IMemoryCache? memoryCache = null, IServiceProvider? svp = null) {
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
             MemoryCache = memoryCache ?? new DummyMemoryCache();
@@ -92,8 +88,6 @@ namespace YetaWF.Core.Support {
         public static IHttpContextAccessor HttpContextAccessor = null!;
         public static IMemoryCache MemoryCache = null!;
         public static IServiceProvider ServiceProvider = null!;
-#else
-#endif
 
         private YetaWFManager(string? host) {
             SiteDomain = host ?? "(default)" ; // save the host name that owns this Manager
@@ -252,14 +246,10 @@ namespace YetaWF.Core.Support {
         // DOMAIN
 
         private static void SetRequestedDomain(HttpContext httpContext, string siteDomain) {
-#if MVC6
             if (siteDomain == null)
                 httpContext.Session.Remove(Globals.Link_ForceSite);
             else
                 httpContext.Session.SetString(Globals.Link_ForceSite, siteDomain);
-#else
-            httpContext.Session[Globals.Link_ForceSite] = siteDomain;
-#endif
         }
 
         /// <summary>
@@ -314,7 +304,7 @@ namespace YetaWF.Core.Support {
         /// The location of the Website project (Website.csproj) root folder (physical).
         /// </summary>
         /// <remarks>
-        /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.
+        /// The root folder of the web project.
         /// </remarks>
         public static string RootFolderWebProject { get; set; } = null!;
         /// <summary>

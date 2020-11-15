@@ -244,13 +244,11 @@ namespace YetaWF.Core.Pages {
                             file = Path.Combine(version.JsPath, file);
                         if (file.StartsWith("/")) {
                             string f;
-#if MVC6
                             if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
                                 f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                             else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
                                 f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                             else
-#endif
                                 f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
                             if (YetaWFManager.DiagnosticsMode) {
                                 if (!await FileSystem.FileSystemProvider.FileExistsAsync(f))

@@ -118,24 +118,17 @@ namespace YetaWF.Core.ConsoleStartup {
             YetaWFManager.Mode = YetaWFManager.BATCHMODE;
 
             // Enable all required protocols
-#if MVC6
             ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-#else
-            ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
 
             YetaWFManager.RootFolder = baseDirectory;
-#if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
-#endif
+
             WebConfigHelper.InitAsync(YetaWF.Core.Support.Startup.GetEnvironmentFile(baseDirectory, "AppSettings", "json")!).Wait();
             LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize
             YetaWFManager.MakeInitialThreadInstance(null);
-#if MVC6
             YetaWFManager.Init();
-#endif
             YetaWFManager.Syncify((Func<System.Threading.Tasks.Task>)(async () => {
 
                 // Set up areas (load all dlls/packages explicitly)

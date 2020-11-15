@@ -82,10 +82,10 @@ namespace YetaWF.Core.Serializers {
             typeName = serializedType.FullName!;
         }
         public Type BindToType(string assemblyName, string typeName) {
-#if MVC6
-#else
-            typeName = typeName.Replace("System.Private.CoreLib", "mscorlib");
-#endif
+//#if MVC6
+//#else
+//            typeName = typeName.Replace("System.Private.CoreLib", "mscorlib");
+//#endif
             string resolvedTypeName = string.Format($"{typeName}, {assemblyName}");
             return Type.GetType(resolvedTypeName, true)!;
         }

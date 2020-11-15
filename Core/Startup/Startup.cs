@@ -178,12 +178,7 @@ namespace YetaWF.Core.Support {
             bool firstNode = false;
 
             // lock on the first node indicator file until we're completely initialized so no other instance can run (we're updating shared resources)
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string file = Path.Combine(rootFolder, Globals.DataFolder, FirstNodeIndicator);
             using (ILockObject lockObject = await YetaWF.Core.IO.FileSystem.FileSystemProvider.LockResourceAsync(file)) {
                 if (!YetaWF.Core.Support.Startup.MultiInstance || await YetaWF.Core.IO.FileSystem.FileSystemProvider.FileExistsAsync(file))

@@ -192,7 +192,7 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="package">The package.</param>
         /// <param name="packagesFound">Returns a list of all added packages, including dependent packages.</param>
-        /// <remarks>Adds the the associated Javascript/Css for the module's package and all required packages.</remarks>
+        /// <remarks>Adds the associated Javascript/Css for the module's package and all required packages.</remarks>
         /// <returns></returns>
         public async Task AddPackageAsync(Package package, List<Package> packagesFound) {
             // Add the package

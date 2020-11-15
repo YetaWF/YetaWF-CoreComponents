@@ -74,7 +74,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="showDefault">Set to true to add a "(select)" entry at the top of the list, false otherwise.</param>
         /// <returns>Returns a collection of string values suitable for rendering in a DropDownList component.</returns>
-        Task<List<SelectionItem<string>>> GetSelectionListStringAsync(bool showDefault);
+        Task<List<SelectionItem<string?>>> GetSelectionListStringAsync(bool showDefault);
     }
 
     /// <summary>

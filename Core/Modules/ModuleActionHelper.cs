@@ -6,7 +6,7 @@ namespace YetaWF.Core.Modules {
 
     public static class ModuleActionHelper {
 
-        public static void New(this List<ModuleAction> actions, ModuleAction action) {
+        public static void New(this List<ModuleAction> actions, ModuleAction? action) {
             if (action == null) return;
             actions.Add(action);
         }

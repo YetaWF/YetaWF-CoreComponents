@@ -22,7 +22,7 @@ namespace YetaWF.Core.Controllers {
         public AllowHttpBase() { }
 
         internal abstract List<string> Methods { get; }
-#if MVC6
+
         public override bool IsValidForRequest(RouteContext routeContext, ActionDescriptor action) {
             HttpRequest request = routeContext.HttpContext.Request;
             string overRide = request.Headers["X-HTTP-Method-Override"];
@@ -32,23 +32,6 @@ namespace YetaWF.Core.Controllers {
             }
             return false;
         }
-#else
-        /// <summary>
-        /// Determines whether the action method selection is valid for the specified controller context.
-        /// </summary>
-        /// <param name="controllerContext">The controller context.</param>
-        /// <param name="methodInfo">Information about the action method.</param>
-        /// <returns>Returns true if the action method selection is valid for the specified controller context, false otherwise.</returns>
-        public override bool IsValidForRequest(ControllerContext controllerContext, MethodInfo methodInfo) {
-            HttpRequestBase request = controllerContext.HttpContext.Request;
-            string overRide = request.Headers["X-HTTP-Method-Override"];
-            foreach (string verb in Methods) {
-                if (overRide == verb || request.HttpMethod == verb)
-                    return true;
-            }
-            return false;
-        }
-#endif
     }
     /// <summary>
     /// Defines that the method or class allows access using the specified HTTP verbs.

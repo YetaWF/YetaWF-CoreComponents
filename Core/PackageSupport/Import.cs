@@ -145,7 +145,6 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                     // copy bin files to required location
-#if MVC6
                     // find out if this is a source system or bin system (determined by location of YetaWF.Core.dll)
                     if (await FileSystem.FileSystemProvider.FileExistsAsync(Path.Combine(YetaWFManager.RootFolderWebProject, AreaRegistration.CurrentPackage.PackageAssembly.GetName().Name + ".dll"))) {
                         // Published (w/o source by definition)
@@ -172,10 +171,6 @@ namespace YetaWF.Core.Packages {
                                 throw new Error("Package import ({0}) failed because the target location {1} doesn't exist. Packages", serPackage.PackageName, binPath);
                         }
                     }
-#else
-                    string sourceBin = Path.Combine(tempBin, "bin");
-                    await CopyVersionedFilesAsync(sourceBin, Path.Combine(YetaWFManager.RootFolder, "Bin"));
-#endif
                     try {// try to delete all dirs up to and including tempbin if empty (ignore any errors)
                         await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain, serPackage.PackageProduct));
                         await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(YetaWFManager.RootFolderWebProject, "tempbin", serPackage.PackageDomain));

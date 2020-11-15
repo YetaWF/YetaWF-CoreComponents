@@ -94,12 +94,7 @@ namespace YetaWF.Core.Packages {
                                 if (YetaWFManager.HaveManager && file.SiteSpecific) {
                                     await ExtractAsync(YetaWFManager.Manager.SiteFolder, e.Name, entryStream);
                                 } else {
-                                    string rootFolder;
-#if MVC6
-                                    rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                                    rootFolder = YetaWFManager.RootFolder;
-#endif
+                                    string rootFolder = YetaWFManager.RootFolderWebProject;
                                     await ExtractAsync(rootFolder, e.Name, entryStream);
                                 }
                             }
