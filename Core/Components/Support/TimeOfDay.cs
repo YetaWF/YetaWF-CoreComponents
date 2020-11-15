@@ -27,33 +27,23 @@ namespace YetaWF.Core.Components {
         public int Minutes { get { return TOD.Minutes; } }
         public int Seconds { get { return TOD.Seconds; } }
 
-        public static bool operator >(TimeOfDay thisTime, TimeOfDay thatTime) {
-            return thisTime.TOD > thatTime.TOD;
+        public static bool operator >(TimeOfDay? thisTime, TimeOfDay? thatTime) {
+            return thisTime?.TOD > thatTime?.TOD;
         }
-        public static bool operator >=(TimeOfDay thisTime, TimeOfDay thatTime) {
-            return thisTime.TOD >= thatTime.TOD;
+        public static bool operator >=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
+            return thisTime?.TOD >= thatTime?.TOD;
         }
-        public static bool operator <(TimeOfDay thisTime, TimeOfDay thatTime) {
-            return thisTime.TOD < thatTime.TOD;
+        public static bool operator <(TimeOfDay? thisTime, TimeOfDay? thatTime) {
+            return thisTime?.TOD < thatTime?.TOD;
         }
-        public static bool operator <=(TimeOfDay thisTime, TimeOfDay thatTime) {
-            return thisTime.TOD <= thatTime.TOD;
+        public static bool operator <=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
+            return thisTime?.TOD <= thatTime?.TOD;
         }
         public static bool operator ==(TimeOfDay? thisTime, TimeOfDay? thatTime) {
-            if (thisTime == null) {
-                if (thatTime == null) return true;
-                return false;
-            }
-            if (thatTime == null) return false;
-            return thisTime.TOD == thatTime.TOD;
+            return thisTime?.TOD == thatTime?.TOD;
         }
         public static bool operator !=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
-            if (thisTime == null) {
-                if (thatTime == null) return false;
-                return true;
-            }
-            if (thatTime == null) return true;
-            return thisTime.TOD == thatTime.TOD;
+            return thisTime?.TOD != thatTime?.TOD;
         }
         public override bool Equals(object? obj) {
             return base.Equals(obj);

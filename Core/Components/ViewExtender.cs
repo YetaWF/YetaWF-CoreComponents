@@ -56,7 +56,7 @@ namespace YetaWF.Core.Components {
 
             // Find RenderViewAsync/RenderPartialViewAsync
             bool partial = viewName.EndsWith(PartialSuffix);
-            string methodName = partial ? nameof(IYetaWFView2<object, object>.RenderPartialViewAsync) : nameof(IYetaWFView2<object, object>.RenderViewAsync);
+            string methodName = partial ? nameof(IYetaWFView2<object, object?>.RenderPartialViewAsync) : nameof(IYetaWFView2<object, object?>.RenderViewAsync);
             MethodInfo? miAsync = viewType.GetMethod(methodName, new Type[] { moduleType, modelType });
             if (miAsync == null)
                 throw new InternalError($"View {viewName} ({viewType.FullName}) doesn't have a {methodName} method accepting a module type {moduleType.FullName} and model type {modelType.FullName}");

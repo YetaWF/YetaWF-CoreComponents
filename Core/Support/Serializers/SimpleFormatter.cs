@@ -40,9 +40,9 @@ namespace YetaWF.Core.Serializers {
                     stream.Write(Encoding.UTF8.GetBytes(s), 0, Encoding.UTF8.GetByteCount(s));
             }
         }
-        public static void Write(this Stream stream, string text) { stream.Write(text, null); }
+        public static void Write(this Stream stream, string? text) { stream.Write(text, null); }
 
-        public static string Readxx(this Stream stream) {
+        public static string? Readxx(this Stream stream) {
             int len = 0;
             byte[] buffer = BitConverter.GetBytes(len);
             if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
@@ -50,9 +50,9 @@ namespace YetaWF.Core.Serializers {
             len = BitConverter.ToInt32(buffer, 0);
 
             if (len == -1) {
-                return string.Empty;
+                return null;
             } else if (len == 0) {
-                return string.Empty;
+                return "";
             } else {
                 buffer = new byte[len];
                 if (stream.Read(buffer, 0, len) != len)
@@ -70,7 +70,7 @@ namespace YetaWF.Core.Serializers {
             _unread = null;
         }
 
-        private string Read(Stream stream) {
+        private string? Read(Stream stream) {
             if (string.IsNullOrEmpty(_unread))
                 return stream.Readxx();
             else {
@@ -79,7 +79,7 @@ namespace YetaWF.Core.Serializers {
                 return s;
             }
         }
-        private void Unread(string s) {
+        private void Unread(string? s) {
             _unread = s;
         }
 
@@ -165,7 +165,7 @@ namespace YetaWF.Core.Serializers {
 
             if (o == null) {
                 stream.Write("V");
-                stream.Write(null);
+                stream.Write((string)null!);
                 return;
             }
             Type tp = o.GetType();
@@ -220,8 +220,7 @@ namespace YetaWF.Core.Serializers {
 
         public object? Deserialize(Stream serializationStream) {
 
-            object? obj = null;
-            obj = DeserializeOneObject(serializationStream);
+            object? obj = DeserializeOneObject(serializationStream);
 
             //if (serializationStream.Position < serializationStream.Length)
             //    throw new InternalError("Unexpected data beyond end of input.");
@@ -231,7 +230,10 @@ namespace YetaWF.Core.Serializers {
 
         public object? DeserializeOneObject(Stream stream) {
             object? obj = null;
-            string input = Read(stream);
+            string? input = Read(stream);
+
+            if (input == null)
+                throw new InternalError("String expected");
             string[] s = input.Split(new char[] { ':' }, 4);
             if (s.Length != 4 || s[0] != "Object")
                 throw new InternalError("Invalid Object encountered - {0}.", input);
@@ -284,7 +286,7 @@ namespace YetaWF.Core.Serializers {
         }
 
         private void DeserializeProperties(Stream stream, object obj) {
-            string input = Read(stream);
+            string? input = Read(stream);
             if (input == "E")
                 return;
 
@@ -294,6 +296,8 @@ namespace YetaWF.Core.Serializers {
                 if (input == "E")
                     return;
                 else {
+                    if (input == null)
+                        throw new InternalError("String expected");
                     string[] s = input.Split(new char[] { ':' }, 2);
                     if (s.Length != 2 || s[0] != "N")
                         throw new InternalError("Invalid property encountered - {0}.", input);
@@ -306,7 +310,7 @@ namespace YetaWF.Core.Serializers {
         }
 
         private object? DeserializeOneProperty(Stream stream, string? propName, object obj, Type tpObj, bool set = true) {
-            string input = Read(stream);
+            string? input = Read(stream);
 
             object? objVal = null;
             PropertyInfo? pi = null;
@@ -322,7 +326,7 @@ namespace YetaWF.Core.Serializers {
 
             if (input == "V") {
                 // simple value
-                string strVal = Read(stream);
+                string? strVal = Read(stream);
 
                 if (set && pi != null) {
                     bool fail = false;
@@ -394,7 +398,7 @@ namespace YetaWF.Core.Serializers {
         }
 
         private void DeserializeDictionary(Stream stream, object obj) {
-            string input = Read(stream);
+            string? input = Read(stream);
 
             Type tpObj = obj.GetType();
             MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
@@ -418,7 +422,7 @@ namespace YetaWF.Core.Serializers {
             }
         }
         private void DeserializeList(Stream stream, object obj) {
-            string input = Read(stream);
+            string? input = Read(stream);
 
             Type tpObj = obj.GetType();
             MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });

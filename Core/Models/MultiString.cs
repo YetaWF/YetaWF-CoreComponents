@@ -85,21 +85,6 @@ namespace YetaWF.Core.Models {
         public MultiString() { this[MultiString.DefaultLanguage] = string.Empty; }
         public MultiString(string? s) { this[MultiString.DefaultLanguage] = s ?? string.Empty; }
 
-        //public MultiString(SerializationInfo info, StreamingContext context)
-        //{
-        //    if (info == null) throw new ArgumentNullException("info");
-        //    try {
-        //        foreach (var v in info)
-        //            Add(v.Name, (string)v.Value);
-        //    } catch (Exception) { }
-        //}
-        //public new void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    if (info == null) throw new ArgumentNullException("info");
-        //    foreach (var d in this)
-        //        info.AddValue(d.Key, d.Value);
-        //}
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods",
             Justification = "The deserialization (e.g., TextFormatter, SimpleFormatter) uses generic Add() instead of typed as it simplifies deserialization")]
         public void Add(object key, object value) // for TextFormatter
@@ -140,44 +125,6 @@ namespace YetaWF.Core.Models {
             MultiString? o = obj as MultiString;
             if (o == null) throw new ArgumentException();
             return string.Compare(this.ToString(), o.ToString());
-        }
-        public static bool operator ==(MultiString? value1, MultiString? value2) {
-            if (value1 == null && value2 == null) return true;
-            if (value1 == null || value2 == null) return false;
-            return value1.CompareTo(value2) == 0;
-        }
-        public static bool operator !=(MultiString? value1, MultiString? value2) {
-            if (value1 == null && value2 == null) return false;
-            if (value1 == null || value2 == null) return true;
-            return !(value1 == value2);
-        }
-        public static bool operator <(MultiString? value1, MultiString? value2) {
-            if (value1 == null && value2 == null) return false;
-            if (value1 == null) return true;
-            if (value2 == null) return false;
-            return value1.CompareTo(value2) < 0;
-        }
-        public static bool operator >(MultiString? value1, MultiString? value2) {
-            if (value1 == null && value2 == null) return false;
-            if (value1 == null) return false;
-            if (value2 == null) return true;
-            return value1.CompareTo(value2) > 0;
-        }
-        public static bool operator <=(MultiString? value1, MultiString? value2) {
-            if (value1 == null && value2 == null) return true;
-            if (value1 == null) return true;
-            if (value2 == null) return false;
-            return value1.CompareTo(value2) <= 0;
-        }
-        public static bool operator >=(MultiString? value1, MultiString? value2) {
-            if (value1 == null && value2 == null) return true;
-            if (value2 == null) return true;
-            if (value1 == null) return false;
-            return value1.CompareTo(value2) >= 0;
-        }
-        public override bool Equals(object? o) {
-            if (!(o is MultiString)) return false;
-            return (((MultiString)o).ToString() != this.ToString());
         }
 
         // PROPERTIES
