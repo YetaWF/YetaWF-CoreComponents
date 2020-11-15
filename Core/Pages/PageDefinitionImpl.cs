@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,7 +23,7 @@ namespace YetaWF.Core.Pages {
 
     public partial class PageDefinition : IInitializeApplicationStartup {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); }
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -36,7 +34,7 @@ namespace YetaWF.Core.Pages {
             ImageSupport.AddHandler(ImageType, GetBytesAsync: RetrieveImageAsync);
             return Task.CompletedTask;
         }
-        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string? name, string? location) {
             if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
             if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
             PageDefinition page = await PageDefinition.LoadAsync(new Guid(name));

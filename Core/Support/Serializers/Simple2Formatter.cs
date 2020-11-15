@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -107,7 +105,7 @@ namespace YetaWF.Core.Serializers {
             setBytes(Bytes, Offset, len);
             Offset += len;
         }
-        private string ReadString() {
+        private string? ReadString() {
             if (_unread != null) {
                 string s = _unread;
                 _unread = null;
@@ -117,11 +115,11 @@ namespace YetaWF.Core.Serializers {
             int len;
             if (lsb == unchecked((byte)((-1 << 2) + 0x3))) {
                 Offset += 1;
-                return string.Empty;
+                return null;
             } else if ((lsb & 0x3) == 0x3) {
                 if (lsb != 0x03) throw new InternalError("Unexpected");
                 Offset += 1;
-                return string.Empty;
+                return "";
             } else if ((lsb & 0x3) == 0x2) {
                 Offset += 1;
                 len = lsb >> 2;
@@ -138,7 +136,7 @@ namespace YetaWF.Core.Serializers {
         }
         private string? _unread = null;
 
-        private void UnreadString(string input) {
+        private void UnreadString(string? input) {
 #if DEBUG
             if (_unread != null) throw new InternalError("Unread token {0} while unreading another token {1}", _unread, input);
 #endif
@@ -328,9 +326,11 @@ namespace YetaWF.Core.Serializers {
             CacheLevel++;
 
             object? obj = null;
-            string input = ReadString();
+            string? input = ReadString();
 
             // Get Object type
+            if (input == null)
+                throw new InternalError($"Type expected");
             string[] s = input.Split(new char[] { ':' }, 4);
             if (s.Length != 4 || s[0] != "Object")
                 throw new InternalError("Invalid Object encountered - {0}", input);
@@ -394,7 +394,7 @@ namespace YetaWF.Core.Serializers {
         private List<PropertyInfo>[] LastPropInfos = new List<PropertyInfo>[MaxLevel];
 
         private void DeserializeProperties(object obj, Type tpObj) {
-            string input = ReadString();
+            string? input = ReadString();
             if (input == "E")
                 return;
 
@@ -404,6 +404,8 @@ namespace YetaWF.Core.Serializers {
                 if (input == "E")
                     return;
                 else {
+                    if (input == null)
+                        throw new InternalError($"Property expected");
                     string[] s = input.Split(new char[] { ':' }, 2);
                     if (s.Length != 2 || s[0] != "N")
                         throw new InternalError("Invalid property encountered - {0}", input);
@@ -425,7 +427,7 @@ namespace YetaWF.Core.Serializers {
         }
         private object? DeserializeOneProperty(string propName, object obj, Type tpObj, List<PropertyInfo> propInfos) {
 
-            string input = ReadString();
+            string? input = ReadString();
             UnreadString(input); // pushback
 
             object? objVal = null;
@@ -478,7 +480,7 @@ namespace YetaWF.Core.Serializers {
 
         private object? GetDeserializedProperty(Type pType) {
 
-            string input = ReadString();
+            string? input = ReadString();
 
             object? objVal = null;
 
@@ -535,7 +537,7 @@ namespace YetaWF.Core.Serializers {
                         }
                     }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
                 } else {
-                    string strVal = ReadString();
+                    string? strVal = ReadString();
                     objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
                 }
             } else {
@@ -546,7 +548,7 @@ namespace YetaWF.Core.Serializers {
         }
 
         private void DeserializeDictionary(object obj, Type tpObj) {
-            string input = ReadString();
+            string? input = ReadString();
 
             MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
             if (mi == null)
@@ -579,7 +581,7 @@ namespace YetaWF.Core.Serializers {
             }
         }
         private void DeserializeList(object obj, Type tpObj) {
-            string input = ReadString();
+            string? input = ReadString();
 
             MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
             if (mi == null)

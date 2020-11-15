@@ -103,7 +103,7 @@ namespace YetaWF.Core.ConsoleStartup {
             Start(baseDirectory);
 
             if (filePath == null)
-                filePath = WebConfigHelper.GetValue<string>("YetaWF_Core", "SiteDefinition", Required: true);
+                filePath = WebConfigHelper.GetValue<string>("YetaWF_Core", "SiteDefinition", Required: true) !;
 
             // Set up specific site to use
             string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization
@@ -128,7 +128,7 @@ namespace YetaWF.Core.ConsoleStartup {
 #if MVC6
             YetaWFManager.RootFolderWebProject = baseDirectory;
 #endif
-            WebConfigHelper.InitAsync(YetaWF.Core.Support.Startup.GetEnvironmentFile(baseDirectory, "AppSettings", "json")).Wait();
+            WebConfigHelper.InitAsync(YetaWF.Core.Support.Startup.GetEnvironmentFile(baseDirectory, "AppSettings", "json")!).Wait();
             LanguageSection.InitAsync(Path.Combine(baseDirectory, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();
 
             // Initialize

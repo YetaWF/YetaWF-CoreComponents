@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System.Threading.Tasks;
 using YetaWF.Core.Image;
 using YetaWF.Core.Modules;

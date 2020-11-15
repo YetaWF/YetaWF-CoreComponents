@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
@@ -12,7 +10,7 @@ namespace YetaWF.Core.Localize {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Formatting), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Formatting), name, defaultValue, parms); }
 
         public enum DateFormatEnum {
             [EnumDescription("Month/Day/Year")]

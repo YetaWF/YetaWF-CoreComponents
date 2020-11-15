@@ -7,17 +7,11 @@ using YetaWF.Core.Log;
 using YetaWF.Core.Support;
 using YetaWF.Core.IO;
 using System.Threading.Tasks;
-#if MVC6
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
-#else
-using System.Web;
-using System.Web.SessionState;
-#endif
 
 namespace YetaWF.Core.HttpHandler {
 
-#if MVC6
     /// <summary>
     /// Class implementing middleware for the CSS HTTP handler.
     /// </summary>
@@ -48,19 +42,11 @@ namespace YetaWF.Core.HttpHandler {
     /// <summary>
     /// Implements the CSS HTTP Handler.
     /// </summary>
-    public class CssHttpHandler
-#else
-    /// <summary>
-    /// Implements the CSS HTTP Handler.
-    /// </summary>
-    public class CssHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
-#endif
-    {
+    public class CssHttpHandler {
         // IHttpHandler (Async)
         // IHttpHandler (Async)
         // IHttpHandler (Async)
 
-#if MVC6
         /// <summary>
         /// Called by the middleware (.NET) to process
         /// a request for a CSS file.
@@ -68,26 +54,10 @@ namespace YetaWF.Core.HttpHandler {
         /// <param name="context">The HTTP context of the request.</param>
         public async Task ProcessRequest(HttpContext context) {
             await StartupRequest.StartRequestAsync(context, true);
-#else
-        /// <summary>
-        /// Returns true indicating that the task handler class instance can be reused for another asynchronous task.
-        /// </summary>
-        public override bool IsReusable {
-            get { return true; }
-        }
-
-        /// <summary>
-        /// Called by the middleware (.NET) to process
-        /// a request for a CSS file.
-        /// </summary>
-        /// <param name="context">The HTTP context of the request.</param>
-        public override async Task ProcessRequestAsync(HttpContext context) {
-#endif
             YetaWFManager manager = YetaWFManager.Manager;
 
             string fullUrl = context.Request.Path;
             string file;
-#if MVC6
             if (fullUrl.StartsWith(Globals.VaultPrivateUrl)) {
                 // Private Vault files are a special case as they're not within the website.
                 // We need to make sure to only allow .css, .less, .scss files otherwise this would expose other files.
@@ -97,8 +67,6 @@ namespace YetaWF.Core.HttpHandler {
                     return;
                 }
             }
-#else
-#endif
             file = Utility.UrlToPhysical(fullUrl);
 
             DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(file);
@@ -108,22 +76,14 @@ namespace YetaWF.Core.HttpHandler {
             if (ifNoneMatch.TruncateStart("W/") == GetETag()) {
                 context.Response.ContentType = "text/css";
                 context.Response.StatusCode = 304;
-#if MVC6
-#else
-                context.Response.StatusDescription = "OK";
-#endif
                 context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
                 YetaWFManager.SetStaticCacheInfo(context);
                 context.Response.Headers.Add("ETag", GetETag());
-#if MVC6
-#else
-                context.ApplicationInstance.CompleteRequest();
-#endif
                 return;
             }
 
             // Send entire file
-            byte[] bytes = null;
+            byte[]? bytes = null;
             string cacheKey = "CssHttpHandler_" + file + "_";
 
             if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
@@ -141,11 +101,6 @@ namespace YetaWF.Core.HttpHandler {
                 } catch (Exception) {
                     context.Response.StatusCode = 404;
                     Logging.AddErrorLog("Not Found");
-#if MVC6
-#else
-                    context.Response.StatusDescription = "Not Found";
-                    context.ApplicationInstance.CompleteRequest();
-#endif
                     if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
                         using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
                             await localCacheDP.AddAsync<byte[]>(cacheKey, null);
@@ -162,19 +117,10 @@ namespace YetaWF.Core.HttpHandler {
             }
             context.Response.ContentType = "text/css";
             context.Response.StatusCode = 200;
-#if MVC6
-#else
-            context.Response.StatusDescription = "OK";
-#endif
             context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
             YetaWFManager.SetStaticCacheInfo(context);
             context.Response.Headers.Add("ETag", GetETag());
-#if MVC6
             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-#else
-            await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
-            context.ApplicationInstance.CompleteRequest();
-#endif
         }
         private static string GetETag() {
             return string.Format(@"""{0}""", YetaWFManager.CacheBuster);

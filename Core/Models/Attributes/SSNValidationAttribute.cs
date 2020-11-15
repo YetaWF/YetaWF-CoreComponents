@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using YetaWF.Core.Localize;
 
@@ -12,7 +10,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         public const int MaxSSN = 9;
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public SSNValidationAttribute() : base(@"^\s*([0-9]{9})\s*$",
                 __ResStr("valSSN", "The social security number is invalid"),

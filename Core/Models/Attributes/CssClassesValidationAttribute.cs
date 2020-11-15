@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using YetaWF.Core.Localize;
 
@@ -10,7 +8,7 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CssClassesValidationAttribute : RegexValidationBaseAttribute {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public CssClassesValidationAttribute() : base(@"^\s*(([_a-zA-Z][_a-zA-Z0-9-]*)\s*)*$",
                 __ResStr("valCssClasses", "The classes listed are invalid - Please separate classes using spaces (not commas) and use only the letters a-z, A-Z, _ and 0-9 for class names - Class names can't start with a digit"),
@@ -22,7 +20,7 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CssClassValidationAttribute : RegexValidationBaseAttribute {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public CssClassValidationAttribute() : base(@"^\s*[_a-zA-Z][_a-zA-Z0-9-]*\s*$",
                 __ResStr("valCssClass", "The class listed is invalid - Use only the letters a-z, A-Z, _ and 0-9 for a class name - The class name can't start with a digit"),

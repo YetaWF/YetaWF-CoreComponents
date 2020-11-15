@@ -14,10 +14,10 @@ namespace YetaWF.Core.DataProvider {
 
     public static class DataProviderImpl<OBJTYPE> {
 
-        public static DataProviderGetRecords<OBJTYPE> GetRecords(List<object> objects, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        public static DataProviderGetRecords<OBJTYPE> GetRecords(List<object> objects, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters) {
             return GetRecords((from d in objects select (OBJTYPE)d).ToList(), skip, take, sorts, filters);
         }
-        public static DataProviderGetRecords<OBJTYPE> GetRecords(List<OBJTYPE> objects, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        public static DataProviderGetRecords<OBJTYPE> GetRecords(List<OBJTYPE> objects, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters) {
             objects = Filter(objects, filters);
             objects = Sort(objects, sorts);
             int total = objects.Count;
@@ -28,7 +28,7 @@ namespace YetaWF.Core.DataProvider {
                 Total = total,
             };
         }
-        public static List<OBJTYPE> Sort(List<OBJTYPE> list, List<DataProviderSortInfo> sort) {
+        public static List<OBJTYPE> Sort(List<OBJTYPE> list, List<DataProviderSortInfo>? sort) {
             if (sort != null && sort.Any()) {
                 IQueryable<OBJTYPE> queryable = list.AsQueryable<OBJTYPE>();
                 string order = String.Join(",", sort.Select(s => s.ToExpression()));
@@ -36,7 +36,7 @@ namespace YetaWF.Core.DataProvider {
             }
             return list;
         }
-        public static List<OBJTYPE> Filter(List<OBJTYPE> list, List<DataProviderFilterInfo> filters) {
+        public static List<OBJTYPE> Filter(List<OBJTYPE> list, List<DataProviderFilterInfo>? filters) {
             if (filters != null && filters.Count > 0) {
                 DataProviderFilterInfo.NormalizeFilters(typeof(OBJTYPE), filters);
                 // get a flat list of all filters
@@ -58,8 +58,6 @@ namespace YetaWF.Core.DataProvider {
         // https://www.codefactor.io/repository/github/stefh/system.linq.dynamic.core/source/master/src-console/ConsoleAppEF2.1.1/Program.cs
         private class DynCustomTypeProvider : AbstractDynamicLinqCustomTypeProvider, IDynamicLinkCustomTypeProvider {
 
-            private HashSet<Type> _customTypes;
-
             public virtual HashSet<Type> GetCustomTypes() {
                 if (_customTypes == null) {
                     _customTypes = new HashSet<Type>(FindTypesMarkedWithDynamicLinqTypeAttribute(new[] { GetType().GetTypeInfo().Assembly }));
@@ -67,6 +65,8 @@ namespace YetaWF.Core.DataProvider {
                 }
                 return _customTypes;
             }
+            private HashSet<Type>? _customTypes;
+
             public Dictionary<Type, List<MethodInfo>> GetExtensionMethods() {
                 return new Dictionary<Type, List<MethodInfo>>();
             }
@@ -92,7 +92,7 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Gets or sets the name of the sorted field (property).
         /// </summary>
-        public string Field { get; set; }
+        public string Field { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the sort direction. Should be either "asc" or "desc".
@@ -106,7 +106,7 @@ namespace YetaWF.Core.DataProvider {
                 case SortDirection.Descending:
                     return "desc";
                 default:
-                    return null;
+                    return string.Empty;
             }
         }
 
@@ -117,7 +117,7 @@ namespace YetaWF.Core.DataProvider {
             return $"@{Field} {GetOrder()}";
         }
 
-        public static List<DataProviderSortInfo> Join(List<DataProviderSortInfo> sort, DataProviderSortInfo addSort) {
+        public static List<DataProviderSortInfo> Join(List<DataProviderSortInfo>? sort, DataProviderSortInfo addSort) {
             if (sort == null || sort.Count == 0) return new List<DataProviderSortInfo> { addSort };
             sort.Add(addSort);
             return sort;
@@ -138,7 +138,7 @@ namespace YetaWF.Core.DataProvider {
         /// <param name="filters">A collection describing the filtering criteria.</param>
         /// <param name="sort">A collection describing the sort order.</param>
         // sortas, sort as
-        public static void UpdateAlternateSortColumn(List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, string displayProperty, string realColumn) {
+        public static void UpdateAlternateSortColumn(List<DataProviderSortInfo>? sort, List<DataProviderFilterInfo>? filters, string displayProperty, string realColumn) {
             if (sort != null && sort.Count == 1) {
                 DataProviderSortInfo sortInfo = sort.First();
                 if (sortInfo.Field == displayProperty)
@@ -147,7 +147,7 @@ namespace YetaWF.Core.DataProvider {
             UpdateNavigatedFilters(filters, displayProperty, realColumn);
         }
 
-        private static void UpdateNavigatedFilters(List<DataProviderFilterInfo> filters, string displayProperty, string realColumn) {
+        private static void UpdateNavigatedFilters(List<DataProviderFilterInfo>? filters, string displayProperty, string realColumn) {
             if (filters == null) return;
             foreach (DataProviderFilterInfo f in filters) {
                 if (f.Field == displayProperty) {
@@ -174,39 +174,38 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Gets or sets the name of the sorted field (property). Set to <c>null</c> if the <c>Filters</c> property is set.
         /// </summary>
-        public string Field { get; set; }
+        public string? Field { get; set; }
 
         /// <summary>
         /// Gets or sets the filtering operator. Set to <c>null</c> if the <c>Filters</c> property is set.
         /// </summary>
-        public string Operator { get; set; }
+        public string Operator { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the filtering value. Set to <c>null</c> if the <c>Filters</c> property is set.
         /// </summary>
-        public object Value { get; set; }
+        public object? Value { get; set; }
         /// <summary>
         /// Gets or sets the filtering value. Set to <c>null</c> if the <c>Filters</c> property is set.
         /// </summary>
         /// <remarks>When a filter expression is received via querystring/form the value is always set using a string.
         /// </remarks>
-        public string ValueAsString { get { return Value != null ? Value.ToString() : null; } set { Value = value; StringType = true; } }
+        public string ValueAsString { get { return Value != null ? Value.ToString()! : string.Empty; } set { Value = value; StringType = true; } }
 
         private bool StringType = false;
 
         /// <summary>
         /// Gets or sets the filtering logic. Can be set to "||" or "&amp;&amp;". Set to <c>null</c> unless <c>Filters</c> is set.
         /// </summary>
-        public string Logic { get; set; }
+        public string? Logic { get; set; }
 
         /// <summary>
         /// Gets or sets the child filter expressions. Set to <c>null</c> if there are no child expressions.
         /// </summary>
-        public List<DataProviderFilterInfo> Filters { get; set; }
+        public List<DataProviderFilterInfo>? Filters { get; set; }
         private bool IsComplex { get { return !string.IsNullOrWhiteSpace(Logic); } }
 
-        private static readonly IDictionary<string, string> Operators = new Dictionary<string, string>
-        {
+        private static readonly IDictionary<string, string> Operators = new Dictionary<string, string> {
             {"eq", "="},
             {"neq", "!="},
             {"lt", "<"},
@@ -224,7 +223,7 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Get a flattened list of all child filter expressions.
         /// </summary>
-        public static List<DataProviderFilterInfo> CollectAllFilters(List<DataProviderFilterInfo> filters) {
+        public static List<DataProviderFilterInfo> CollectAllFilters(List<DataProviderFilterInfo>? filters) {
             List<DataProviderFilterInfo> flatList = new List<DataProviderFilterInfo>();
             if (filters != null && filters.Any()) {
                 foreach (DataProviderFilterInfo f in filters)
@@ -243,7 +242,7 @@ namespace YetaWF.Core.DataProvider {
             if (this.Field != null && StringType) { // only normalize string types, explicitly set values don't need to be changed in type
                 string[] parts = Field.Split(new char[] { '.', '_' });
                 Type objType = type;
-                PropertyData prop = null;
+                PropertyData? prop = null;
                 foreach (string part in parts) {
                     prop = ObjectSupport.GetPropertyData(objType, part);
                     objType = prop.PropInfo.PropertyType;
@@ -251,16 +250,18 @@ namespace YetaWF.Core.DataProvider {
                 if (prop == null) throw new InternalError("Can't evaluate field {0} in type {1}", Field, objType.Name);
                 if (this.Operator == "Complex") {
                     ComplexFilterJSONBase filterBase = Utility.JsonDeserialize<ComplexFilterJSONBase>(ValueAsString);
-                    DataProviderFilterInfo newFilter = YetaWFComponentExtender.GetDataProviderFilterInfoFromUIHint(filterBase.UIHint, Field, ValueAsString);
+                    DataProviderFilterInfo? newFilter = YetaWFComponentExtender.GetDataProviderFilterInfoFromUIHint(filterBase.UIHint, Field, ValueAsString);
+                    if (newFilter == null)
+                        throw new InternalError($"{nameof(YetaWFComponentExtender.GetDataProviderFilterInfoFromUIHint)} returned null for Complex filter ");
                     ObjectSupport.CopyData(newFilter, this); // use new filter values
                     NormalizeFilters(type, new List<DataProviderFilterInfo> { this });
                 } else {
                     if (objType != typeof(string)) {
                         if (objType.IsEnum) {
-                            object final = null;
+                            object? final = null;
                             bool ok = false;
                             if (!ok) // handle by name
-                                try { final = Enum.ToObject(objType, Value); ok = true; } catch (Exception) { }
+                                try { final = Enum.ToObject(objType, Value!); ok = true; } catch (Exception) { }
                             if (!ok) // handle by value
                                 try { final = Convert.ToInt32(Value); ok = true; } catch (Exception) { }
                             if (!ok)
@@ -275,11 +276,11 @@ namespace YetaWF.Core.DataProvider {
                         } else if (objType == typeof(bool) || (objType == typeof(bool?) && Value != null)) {
                             try { Value = Convert.ToBoolean(Value); } catch (Exception) { Value = true; }
                         } else if (objType == typeof(MultiString)) {
-                            try { Value = new MultiString((string)Value); } catch (Exception) { Value = new MultiString(); }
+                            try { Value = new MultiString((string)Value!); } catch (Exception) { Value = new MultiString(); }
                         } else if (objType == typeof(decimal) || (objType == typeof(decimal?) && Value != null)) {
                             try { Value = Convert.ToDecimal(Value); } catch (Exception) { Value = 0; }
                         } else if (objType == typeof(Guid) || (objType == typeof(Guid?) && Value != null)) {
-                            Value = new GuidPartial { PartialString = ValueAsString?.ToLower() };
+                            Value = new GuidPartial { PartialString = ValueAsString.ToLower() };
                         } else {
                             // default to string and hope for the best
                         }
@@ -288,7 +289,7 @@ namespace YetaWF.Core.DataProvider {
             }
         }
         public class GuidPartial {
-            public string PartialString { get; set; }
+            public string PartialString { get; set; } = null!;
         }
 
         /// <summary>
@@ -370,7 +371,7 @@ namespace YetaWF.Core.DataProvider {
             }
         }
 
-        public static List<DataProviderFilterInfo> Join(List<DataProviderFilterInfo> filters, DataProviderFilterInfo addFilter, string SimpleLogic = null) {
+        public static List<DataProviderFilterInfo> Join(List<DataProviderFilterInfo>? filters, DataProviderFilterInfo addFilter, string? SimpleLogic = null) {
 
             if (addFilter.IsComplex) {
                 if (SimpleLogic != null)
@@ -418,11 +419,11 @@ namespace YetaWF.Core.DataProvider {
                                 },
                             Logic = addFilter.Logic,
                         };
-                        newRoot1.Filters.AddRange(addFilter.Filters);
+                        newRoot1.Filters.AddRange(addFilter.Filters!);
                         return new List<DataProviderFilterInfo> { newRoot1 };
                     } else {
                         // complex filter also uses && so just append new filters to current list (with implied &&)
-                        filters.AddRange(addFilter.Filters);
+                        filters.AddRange(addFilter.Filters!);
                         return filters;
                     }
                 }
@@ -449,7 +450,7 @@ namespace YetaWF.Core.DataProvider {
                             },
                             Logic = addFilter.Logic,
                         };
-                        newRoot1.Filters.AddRange(addFilter.Filters);
+                        newRoot1.Filters.AddRange(addFilter.Filters!);
                         return new List<DataProviderFilterInfo> { newRoot1 };
                     }
                 } else {
@@ -466,7 +467,7 @@ namespace YetaWF.Core.DataProvider {
                             return new List<DataProviderFilterInfo> { newRoot1 };
                         } else {
                             // adding a new simple filter, with the same logic, just append to current list
-                            root.Filters.Add(addFilter);
+                            root.Filters!.Add(addFilter);
                             return filters;
                         }
                     } else {
@@ -479,11 +480,11 @@ namespace YetaWF.Core.DataProvider {
                                 },
                                 Logic = addFilter.Logic,
                             };
-                            newRoot1.Filters.AddRange(addFilter.Filters);
+                            newRoot1.Filters.AddRange(addFilter.Filters!);
                             return new List<DataProviderFilterInfo> { newRoot1 };
                         } else {
                             // new complex filter uses same logic as root, so just append new filters to current list
-                            root.Filters.AddRange(addFilter.Filters);
+                            root.Filters!.AddRange(addFilter.Filters!);
                             return filters;
                         }
                     }
@@ -495,8 +496,8 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         /// <param name="filters">Filters to copy.</param>
         /// <returns>Returns a new filter graph that can be modified without affecting the original graph.</returns>
-        public static List<DataProviderFilterInfo> Copy(List<DataProviderFilterInfo> filters) {
-            List<DataProviderFilterInfo> newFilters = null;
+        public static List<DataProviderFilterInfo>? Copy(List<DataProviderFilterInfo>? filters) {
+            List<DataProviderFilterInfo>? newFilters = null;
             if (filters == null) return newFilters;
             newFilters = new List<DataProviderFilterInfo>();
             foreach (DataProviderFilterInfo f in filters) {
@@ -516,7 +517,7 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         /// <param name="type"></param>
         /// <param name="filters">A collection describing the filtering criteria.</param>
-        public static void NormalizeFilters(Type type, List<DataProviderFilterInfo> filters) {
+        public static void NormalizeFilters(Type type, List<DataProviderFilterInfo>? filters) {
             if (filters != null) {
                 foreach (DataProviderFilterInfo f in filters) {
                     f.NormalizeFilterProperty(type);

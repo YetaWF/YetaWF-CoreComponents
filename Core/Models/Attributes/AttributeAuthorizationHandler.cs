@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Identity#License */
 
-#nullable enable
-
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Linq;

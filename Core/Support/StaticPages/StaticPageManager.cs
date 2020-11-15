@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -72,7 +70,6 @@ namespace YetaWF.Core.Support.StaticPages {
             } else {
                 siteEntries = new SerializableList<SiteEntry>();
             }
-            if (siteEntries == null) siteEntries = new SerializableList<SiteEntry>();
             SiteEntry? siteEntry = (from s in siteEntries where s.SiteIdentity == Manager.CurrentSite.Identity select s).FirstOrDefault();
             if (siteEntry == null) {
                 siteEntry = new SiteEntry { SiteIdentity = Manager.CurrentSite.Identity, StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>() };

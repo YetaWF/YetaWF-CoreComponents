@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -20,7 +18,7 @@ namespace YetaWF.Core.Modules {
             return Task.CompletedTask;
         }
 
-        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string? name, string? location) {
             ImageSupport.GetImageInBytesInfo fail = new Image.ImageSupport.GetImageInBytesInfo();
             if (!string.IsNullOrWhiteSpace(location)) return fail;
             if (string.IsNullOrWhiteSpace(name)) return fail;

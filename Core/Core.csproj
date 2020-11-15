@@ -17,7 +17,7 @@
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
-	<!--<Nullable>enable</Nullable>-->
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

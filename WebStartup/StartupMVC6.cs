@@ -18,7 +18,7 @@ namespace YetaWF.Core.WebStartup {
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         /// <param name="preRun">An optional method to execute before starting the application.</param>
-        public static void Main(string[] args, Action preRun = null) {
+        public static void Main(string[] args, Action? preRun = null) {
 
             string currPath = Directory.GetCurrentDirectory();
 
@@ -55,7 +55,7 @@ namespace YetaWF.Core.WebStartup {
                 }
             }
 
-            string hosting = GetHostingFile();
+            string? hosting = GetHostingFile();
 
             IHost host = new HostBuilder()
                 .UseContentRoot(currPath)
@@ -107,21 +107,18 @@ namespace YetaWF.Core.WebStartup {
         /// <returns>Returns an environment and runtime specific AppSettings.json file name.</returns>
         public static string GetAppSettingsFile() {
             if (_AppSettingsFile == null)
-                _AppSettingsFile = Startup.GetEnvironmentFile(Path.Combine(Directory.GetCurrentDirectory(), Globals.DataFolder), "AppSettings", "json");
+                _AppSettingsFile = Startup.GetEnvironmentFile(Path.Combine(Directory.GetCurrentDirectory(), Globals.DataFolder), "AppSettings", "json")!;
             return _AppSettingsFile;
         }
-        private static string _AppSettingsFile = null;
+        private static string? _AppSettingsFile = null;
 
         /// <summary>
         /// Returns an environment and runtime specific hosting.json file name.
         /// </summary>
         /// <returns>Returns an environment and runtime specific hosting.json file name.</returns>
-        public static string GetHostingFile() {
-            if (_HostingFile == null)
-                _HostingFile = Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json", Optional: true);
-            return _HostingFile;
+        public static string? GetHostingFile() {
+            return Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json", Optional: true);
         }
-        private static string _HostingFile = null;
 
         //private static void CopyFiles(string srcInitFolder, string targetFolder) {
         //    Directory.CreateDirectory(targetFolder);

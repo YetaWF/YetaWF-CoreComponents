@@ -45,7 +45,7 @@ namespace YetaWF.Core.WebAPIStartup {
 
             // Some assemblies need to be preloaded if they're used before YetaWFApplicationPartManager is called.
             // usually any types used by AddDynamicServices or AddDynamicAuthentication.
-            List<string> asms = WebConfigHelper.GetValue<List<string>>("YetaWF_Core", "PreloadedAssemblies");
+            List<string>? asms = WebConfigHelper.GetValue<List<string>>("YetaWF_Core", "PreloadedAssemblies");
             if (asms != null) {
                 foreach (string asm in asms)
                     Assemblies.Load(asm);
@@ -105,8 +105,8 @@ namespace YetaWF.Core.WebAPIStartup {
         /// <param name="svp">An instance of an IServiceProvider interface.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
 
-            IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor));
-            IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));
+            IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor))!;
+            IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache))!;
             YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
 
             app.UseForwardedHeaders();

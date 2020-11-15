@@ -16,9 +16,7 @@ namespace YetaWF.Core.GeoLocation {
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GeoLocation() { Manager = null; }
-
-        private YetaWFManager Manager { get; set; }
+        public GeoLocation() { }
 
         /// <summary>
         /// An instance of the UserInfo class defines geolocation information for an IP address, retrieved using the GeoLocation.GetUserInfoAsync method.
@@ -27,7 +25,7 @@ namespace YetaWF.Core.GeoLocation {
             /// <summary>
             /// Defines the IP address.
             /// </summary>
-            public string IPAddress { get; set; }
+            public string IPAddress { get; set; } = null!;
             //public string HostName { get; set; }
             /// <summary>
             /// Defines the longitude where the IP address is located.
@@ -40,39 +38,39 @@ namespace YetaWF.Core.GeoLocation {
             /// <summary>
             /// Defines the region where the IP address is located.
             /// </summary>
-            public string Region { get; set; }
+            public string Region { get; set; } = null!;
             /// <summary>
             /// Defines the region code where the IP address is located.
             /// </summary>
-            public string RegionCode { get; set; }
+            public string RegionCode { get; set; } = null!;
             /// <summary>
             /// Defines the region name where the IP address is located.
             /// </summary>
-            public string RegionName { get; set; }
+            public string RegionName { get; set; } = null!;
             /// <summary>
             /// Defines the city where the IP address is located.
             /// </summary>
-            public string City { get; set; }
+            public string City { get; set; } = null!;
             /// <summary>
             /// Defines the country code where the IP address is located.
             /// </summary>
-            public string CountryCode { get; set; }
+            public string CountryCode { get; set; } = null!;
             /// <summary>
             /// Defines the county where the IP address is located.
             /// </summary>
-            public string CountryName { get; set; }
+            public string CountryName { get; set; } = null!;
             /// <summary>
             /// Defines the continent code where the IP address is located.
             /// </summary>
-            public string ContinentCode { get; set; }
+            public string ContinentCode { get; set; } = null!;
             /// <summary>
             /// Defines the currency used where the IP address is located.
             /// </summary>
-            public string CurrencyCode { get; set; }
+            public string CurrencyCode { get; set; } = null!;
             /// <summary>
             /// Defines the currency symbol used where the IP address is located.
             /// </summary>
-            public string CurrencySymbol { get; set; }
+            public string CurrencySymbol { get; set; } = null!;
         }
 
         private const int MAXREQUESTSPERMINUTE = 120 -10; // geoplugin allows 120 requests/minute, we subtract a safety margin
@@ -134,7 +132,7 @@ namespace YetaWF.Core.GeoLocation {
             //info.HostName = hostName;
 
             // Get geolocation data from https://www.geoplugin.com/
-            GeoData geoData = await GetGeoDataAsync(ipAddress);
+            GeoData? geoData = await GetGeoDataAsync(ipAddress);
             if (geoData != null) {
                 try {
                     info.Latitude = Convert.ToSingle(geoData.geoplugin_latitude);
@@ -157,32 +155,32 @@ namespace YetaWF.Core.GeoLocation {
         }
 
         internal class GeoData {
-            public string geoplugin_request { get; set; }
+            public string geoplugin_request { get; set; } = null!;
             public int geoplugin_status { get; set; }
-            public string geoplugin_credit { get; set; }
-            public string geoplugin_city { get; set; }
-            public string geoplugin_region { get; set; }
-            public string geoplugin_areaCode { get; set; }
-            public string geoplugin_dmaCode { get; set; }
-            public string geoplugin_countryCode { get; set; }
-            public string geoplugin_countryName { get; set; }
-            public string geoplugin_continentCode { get; set; }
-            public string geoplugin_latitude { get; set; }
-            public string geoplugin_longitude { get; set; }
-            public string geoplugin_regionCode { get; set; }
-            public string geoplugin_regionName { get; set; }
-            public string geoplugin_currencyCode { get; set; }
-            public string geoplugin_currencySymbol { get; set; }
-            public string geoplugin_currencySymbol_UTF8 { get; set; }
+            public string geoplugin_credit { get; set; } = null!;
+            public string geoplugin_city { get; set; } = null!;
+            public string geoplugin_region { get; set; } = null!;
+            public string geoplugin_areaCode { get; set; } = null!;
+            public string geoplugin_dmaCode { get; set; } = null!;
+            public string geoplugin_countryCode { get; set; } = null!;
+            public string geoplugin_countryName { get; set; } = null!;
+            public string geoplugin_continentCode { get; set; } = null!;
+            public string geoplugin_latitude { get; set; } = null!;
+            public string geoplugin_longitude { get; set; } = null!;
+            public string geoplugin_regionCode { get; set; } = null!;
+            public string geoplugin_regionName { get; set; } = null!;
+            public string geoplugin_currencyCode { get; set; } = null!;
+            public string geoplugin_currencySymbol { get; set; } = null!;
+            public string geoplugin_currencySymbol_UTF8 { get; set; } = null!;
             public float geoplugin_currencyConverter { get; set; }
         }
 
-        private async Task<GeoData> GetGeoDataAsync(string ipAddress) {
+        private async Task<GeoData?> GetGeoDataAsync(string? ipAddress) {
 
             if (ipAddress == "127.0.0.1")
                 return null;
             UriBuilder uri = new UriBuilder($"http://www.geoplugin.net/json.gp?ip={ipAddress}");
-            GeoData geoData = null;
+            GeoData? geoData = null;
             try {
                 var http = (HttpWebRequest)WebRequest.Create(uri.ToString());
                 http.Accept = "application/json";

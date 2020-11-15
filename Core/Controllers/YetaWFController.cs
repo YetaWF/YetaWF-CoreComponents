@@ -1,7 +1,5 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -36,7 +34,7 @@ namespace YetaWF.Core.Controllers {
     [AreaConvention]
     public class YetaWFController : Microsoft.AspNetCore.Mvc.Controller {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFController), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFController), name, defaultValue, parms); }
 
         /// <summary>
         /// The YetaWFManager instance for the current HTTP request.

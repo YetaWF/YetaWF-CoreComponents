@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System.ServiceModel.Syndication;
 using System.Xml;
 using Microsoft.AspNetCore.Mvc;

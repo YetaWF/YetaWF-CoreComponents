@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using YetaWF.Core.Localize;
@@ -11,7 +9,7 @@ namespace YetaWF.Core.Components {
 
     public class Enums {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Enums), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Enums), name, defaultValue, parms); }
 
         /// <summary>
         /// Given an enum type, returns a collection suitable for use with a DropDownList component.

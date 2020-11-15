@@ -39,7 +39,7 @@ namespace YetaWF.Core.WebAPIStartup {
                 }
             }
 
-            string appSettings = YetaWF.Core.Support.Startup.GetEnvironmentFile(currPath, "AppSettings", "json");
+            string appSettings = YetaWF.Core.Support.Startup.GetEnvironmentFile(currPath, "AppSettings", "json")!;
 
             WebConfigHelper.InitAsync(appSettings).Wait();
             LanguageSection.InitAsync(Path.Combine(currPath, YetaWF.Core.Support.Startup.LANGUAGESETTINGS)).Wait();

@@ -1,7 +1,6 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
+using Microsoft.AspNetCore.Routing;
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -14,7 +13,7 @@ namespace YetaWF.Core.Modules {
 
     public partial class ModuleAction {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleAction), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleAction), name, defaultValue, parms); }
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -255,6 +254,8 @@ namespace YetaWF.Core.Modules {
 
         // menus don't support queryargs - they can be encoded as part of the url
         public object? QueryArgs { get; set; } // arguments
+        [Obsolete("Do not use - replaced by QueryArgsDict - needed for deserialization of existing objects")]
+        public RouteValueDictionary QueryArgsRvd { get; set; } = null!;
         public QueryHelper? QueryArgsDict { get; set; }
         // menus don't support queryargshr - they can be encoded as part of the url
         public object? QueryArgsHR { get; set; } // arguments part of URL as human readable parts

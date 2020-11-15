@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using YetaWF.Core.Packages;
 using System;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;

@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -158,7 +156,7 @@ namespace YetaWF.Core.Packages {
     /// </summary>
     public partial class Package {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); }
 
         private const string SOURCE_IDENTIFIER_FOLDER = "Properties";
         private const string SOURCE_IDENTIFIER_FILE = "AssemblyInfo.cs";

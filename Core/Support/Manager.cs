@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
@@ -226,7 +224,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="site">A SiteDefinition object.</param>
         /// <returns>The Manager instance for the current request.</returns>
-        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site) {
+        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition? site) {
             _ManagerThreadInstance = null;
             return MakeThreadInstance(site, null, true);
         }
@@ -238,7 +236,7 @@ namespace YetaWF.Core.Support {
         /// <param name="context">The HttpContext instance for the current request. If null is specified, local thread storage is used instead of attaching the Manager instance to the HttpRequest.</param>
         /// <param name="forceSync">Specify true to force synchronous requests, otherwise async requests are used.</param>
         /// <returns>The Manager instance for the current request.</returns>
-        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
+        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext? context, bool forceSync = false) {
             _ManagerThreadInstance = null;
             return MakeThreadInstance(site, context, forceSync);
         }

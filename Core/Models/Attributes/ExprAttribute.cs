@@ -18,15 +18,15 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfAttribute : ExprAttribute {
-        public RequiredIfAttribute(string prop1, object val1) : base(OpEnum.RequiredIf, prop1, OpCond.Eq, val1) { }
-        public RequiredIfAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.RequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public RequiredIfAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.RequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public RequiredIfAttribute(string prop1, object? val1) : base(OpEnum.RequiredIf, prop1, OpCond.Eq, val1) { }
+        public RequiredIfAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.RequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public RequiredIfAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.RequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfNotAttribute : ExprAttribute {
-        public RequiredIfNotAttribute(string prop1, object val1) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1) { }
-        public RequiredIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public RequiredIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public RequiredIfNotAttribute(string prop1, object? val1) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1) { }
+        public RequiredIfNotAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public RequiredIfNotAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.RequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RequiredIfSuppliedAttribute : ExprAttribute {
@@ -46,15 +46,15 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SelectionRequiredIfAttribute : ExprAttribute {
-        public SelectionRequiredIfAttribute(string prop1, object val1) : base(OpEnum.SelectionRequiredIf, prop1, OpCond.Eq, val1) { }
-        public SelectionRequiredIfAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.SelectionRequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public SelectionRequiredIfAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.SelectionRequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public SelectionRequiredIfAttribute(string prop1, object? val1) : base(OpEnum.SelectionRequiredIf, prop1, OpCond.Eq, val1) { }
+        public SelectionRequiredIfAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.SelectionRequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public SelectionRequiredIfAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.SelectionRequiredIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SelectionRequiredIfNotAttribute : ExprAttribute {
-        public SelectionRequiredIfNotAttribute(string prop1, object val1) : base(OpEnum.SelectionRequiredIfNot, prop1, OpCond.Eq, val1) { }
-        public SelectionRequiredIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.SelectionRequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public SelectionRequiredIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.SelectionRequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public SelectionRequiredIfNotAttribute(string prop1, object? val1) : base(OpEnum.SelectionRequiredIfNot, prop1, OpCond.Eq, val1) { }
+        public SelectionRequiredIfNotAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.SelectionRequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public SelectionRequiredIfNotAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.SelectionRequiredIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SelectionRequiredIfSuppliedAttribute : ExprAttribute {
@@ -70,16 +70,16 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SuppressIfAttribute : ExprAttribute {
-        public SuppressIfAttribute(string prop1, object val1) : base(OpEnum.SuppressIf, prop1, OpCond.Eq, val1) { }
-        public SuppressIfAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.SuppressIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public SuppressIfAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.SuppressIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public SuppressIfAttribute(string prop1, object? val1) : base(OpEnum.SuppressIf, prop1, OpCond.Eq, val1) { }
+        public SuppressIfAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.SuppressIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public SuppressIfAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.SuppressIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SuppressIfNotAttribute : ExprAttribute {
-        public SuppressIfNotAttribute(string prop1, object val1) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1) { }
-        public SuppressIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public SuppressIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
-        public SuppressIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3, string prop4, object val4) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3, prop4, OpCond.Eq, val4) { }
+        public SuppressIfNotAttribute(string prop1, object? val1) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1) { }
+        public SuppressIfNotAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public SuppressIfNotAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public SuppressIfNotAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3, string prop4, object? val4) : base(OpEnum.SuppressIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3, prop4, OpCond.Eq, val4) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SuppressIfSuppliedAttribute : ExprAttribute {
@@ -95,15 +95,15 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class ProcessIfAttribute : ExprAttribute {
-        public ProcessIfAttribute(string prop1, object val1) : base(OpEnum.ProcessIf, prop1, OpCond.Eq, val1) { }
-        public ProcessIfAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.ProcessIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public ProcessIfAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.ProcessIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public ProcessIfAttribute(string prop1, object? val1) : base(OpEnum.ProcessIf, prop1, OpCond.Eq, val1) { }
+        public ProcessIfAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.ProcessIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public ProcessIfAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.ProcessIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class ProcessIfNotAttribute : ExprAttribute {
-        public ProcessIfNotAttribute(string prop1, object val1) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1) { }
-        public ProcessIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public ProcessIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public ProcessIfNotAttribute(string prop1, object? val1) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1) { }
+        public ProcessIfNotAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public ProcessIfNotAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.ProcessIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class ProcessIfSuppliedAttribute : ExprAttribute {
@@ -119,15 +119,15 @@ namespace YetaWF.Core.Models.Attributes {
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class HideIfAttribute : ExprAttribute {
-        public HideIfAttribute(string prop1, object val1) : base(OpEnum.HideIf, prop1, OpCond.Eq, val1) { }
-        public HideIfAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.HideIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public HideIfAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.HideIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public HideIfAttribute(string prop1, object? val1) : base(OpEnum.HideIf, prop1, OpCond.Eq, val1) { }
+        public HideIfAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.HideIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public HideIfAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.HideIf, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class HideIfNotAttribute : ExprAttribute {
-        public HideIfNotAttribute(string prop1, object val1) : base(OpEnum.HideIfNot, prop1, OpCond.Eq, val1) { }
-        public HideIfNotAttribute(string prop1, object val1, string prop2, object val2) : base(OpEnum.HideIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
-        public HideIfNotAttribute(string prop1, object val1, string prop2, object val2, string prop3, object val3) : base(OpEnum.HideIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
+        public HideIfNotAttribute(string prop1, object? val1) : base(OpEnum.HideIfNot, prop1, OpCond.Eq, val1) { }
+        public HideIfNotAttribute(string prop1, object? val1, string prop2, object? val2) : base(OpEnum.HideIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2) { }
+        public HideIfNotAttribute(string prop1, object? val1, string prop2, object? val2, string prop3, object? val3) : base(OpEnum.HideIfNot, prop1, OpCond.Eq, val1, prop2, OpCond.Eq, val2, prop3, OpCond.Eq, val3) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class HideIfSuppliedAttribute : ExprAttribute {
@@ -145,7 +145,7 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class ExprAttribute : ValidationAttribute, YIClientValidation {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public const string ValueOf = "ValOf+";
 
@@ -292,7 +292,8 @@ namespace YetaWF.Core.Models.Attributes {
             return false;
         }
 
-        public override bool IsValid(object value) {
+        public override bool IsValid(object? value) {
+            if (value == null) return false;
             foreach (Expr expr in ExprList) {
                 switch (Op) {
                     case OpEnum.RequiredIf:
@@ -334,7 +335,7 @@ namespace YetaWF.Core.Models.Attributes {
             }
             return false;
         }
-        protected override ValidationResult IsValid(object value, ValidationContext context) {
+        protected override ValidationResult? IsValid(object? value, ValidationContext context) {
             if (IsValid(context.ObjectInstance))
                 return ValidationResult.Success;
             switch (Op) {
@@ -374,8 +375,8 @@ namespace YetaWF.Core.Models.Attributes {
         }
 
         public bool IsExprValid(Expr expr, object model) {
-            object leftVal = GetPropertyValue(model, expr.LeftProperty);
-            object rightVal;
+            object? leftVal = GetPropertyValue(model, expr.LeftProperty);
+            object? rightVal;
             if (expr.IsRightProperty)
                 rightVal = GetPropertyValue(model, expr.RightProperty);
             else
@@ -391,17 +392,17 @@ namespace YetaWF.Core.Models.Attributes {
             }
         }
         public bool IsExprSupplied(Expr expr, object model) {
-            object leftVal = GetPropertyValue(model, expr.LeftProperty);
+            object? leftVal = GetPropertyValue(model, expr.LeftProperty);
             if (IsEmpty(leftVal))
                 return false;
             return true;
         }
-        protected object GetPropertyValue(object model, string propName) {
+        protected object? GetPropertyValue(object model, string propName) {
             Type type = model.GetType();
             PropertyInfo pi = ObjectSupport.GetProperty(type, propName);
             return pi.GetValue(model, null);
         }
-        private bool IsEmpty(object value) {
+        private bool IsEmpty(object? value) {
             if (value is MultiString) {
                 MultiString ms = (MultiString)value;
                 string s = ms.ToString();
@@ -424,7 +425,7 @@ namespace YetaWF.Core.Models.Attributes {
                 return true;
             return false;
         }
-        private bool IsEmptyOrZero(object value) {
+        private bool IsEmptyOrZero(object? value) {
             if (value is MultiString) {
                 MultiString ms = (MultiString)value;
                 string s = ms.ToString();
@@ -451,12 +452,12 @@ namespace YetaWF.Core.Models.Attributes {
                 return true;
             return false;
         }
-        private bool IsEqual(object val1, object val2) {
+        private bool IsEqual(object? val1, object? val2) {
             // null == null
-            if (val1 == null && val2 == null)
-                return true;
             // allow null == ""
             if (val1 == null) {
+                if (val2 == null)
+                    return true;
                 TypeConverter conv = TypeDescriptor.GetConverter(val2.GetType());
                 string v = conv.ConvertToString(val2);
                 return v.Length == 0;
@@ -479,7 +480,7 @@ namespace YetaWF.Core.Models.Attributes {
             ExprList = new List<Expr>();
             ClearOnDisable = true;
         }
-        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1) {
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object? val1) {
             Op = op;
             ExprList = new List<Expr>();
             ExprList.Add(new Expr {
@@ -487,7 +488,7 @@ namespace YetaWF.Core.Models.Attributes {
             });
             ClearOnDisable = true;
         }
-        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2) {
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object? val1, string propLeft2, OpCond cond2, object? val2) {
             Op = op;
             ExprList = new List<Expr>();
             ExprList.Add(new Expr {
@@ -498,7 +499,7 @@ namespace YetaWF.Core.Models.Attributes {
             });
             ClearOnDisable = true;
         }
-        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3) {
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object? val1, string propLeft2, OpCond cond2, object? val2, string propLeft3, OpCond cond3, object? val3) {
             Op = op;
             ExprList = new List<Expr>();
             ExprList.Add(new Expr {
@@ -512,8 +513,8 @@ namespace YetaWF.Core.Models.Attributes {
             });
             ClearOnDisable = true;
         }
-        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
-                string propLeft4, OpCond cond4, object val4) {
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object? val1, string propLeft2, OpCond cond2, object? val2, string propLeft3, OpCond cond3, object? val3,
+                string propLeft4, OpCond cond4, object? val4) {
             Op = op;
             ExprList = new List<Expr>();
             ExprList.Add(new Expr {
@@ -530,8 +531,8 @@ namespace YetaWF.Core.Models.Attributes {
             });
             ClearOnDisable = true;
         }
-        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
-                string propLeft4, OpCond cond4, object val4, string propLeft5, OpCond cond5, object val5) {
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object? val1, string propLeft2, OpCond cond2, object? val2, string propLeft3, OpCond cond3, object? val3,
+                string propLeft4, OpCond cond4, object? val4, string propLeft5, OpCond cond5, object? val5) {
             Op = op;
             ExprList = new List<Expr>();
             ExprList.Add(new Expr {
@@ -551,8 +552,8 @@ namespace YetaWF.Core.Models.Attributes {
             });
             ClearOnDisable = true;
         }
-        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object val1, string propLeft2, OpCond cond2, object val2, string propLeft3, OpCond cond3, object val3,
-                string propLeft4, OpCond cond4, object val4, string propLeft5, OpCond cond5, object val5, string propLeft6, OpCond cond6, object val6) {
+        public ExprAttribute(OpEnum op, string propLeft1, OpCond cond1, object? val1, string propLeft2, OpCond cond2, object? val2, string propLeft3, OpCond cond3, object? val3,
+                string propLeft4, OpCond cond4, object? val4, string propLeft5, OpCond cond5, object? val5, string propLeft6, OpCond cond6, object? val6) {
             Op = op;
             ExprList = new List<Expr>();
             ExprList.Add(new Expr {
@@ -578,9 +579,9 @@ namespace YetaWF.Core.Models.Attributes {
 
         public class Expr {
             [JsonIgnore]
-            public string LeftProperty { get; set; }
+            public string LeftProperty { get; set; } = null!;
             [JsonIgnore]
-            public object Value {
+            public object? Value {
                 get {
                     if (_Value == null) return null;
                     TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
@@ -617,12 +618,12 @@ namespace YetaWF.Core.Models.Attributes {
                 }
             }
             [JsonIgnore]
-            public object _Value { get; set; }
+            public object? _Value { get; set; }
             //serialized for client-side
             public OpCond Cond { get; set; }
             public string _Left { get { return AttributeHelper.GetDependentPropertyName(LeftProperty); } }
-            public string _Right { get { return IsRightProperty ? AttributeHelper.GetDependentPropertyName(RightProperty) : ""; } }
-            public string _RightVal {
+            public string _Right { get { return IsRightProperty ? AttributeHelper.GetDependentPropertyName(RightProperty) : string.Empty; } }
+            public string? _RightVal {
                 get {
                     // normalize to string
                     if (_Value == null || IsRightProperty) return null;
@@ -639,9 +640,9 @@ namespace YetaWF.Core.Models.Attributes {
 
         public class ValidationRequiredExpr : ValidationBase {
             public OpEnum Op { get; set; }
-            public string Expr { get; set; }
+            public string Expr { get; set; } = null!;
         }
-        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
             switch (Op) {
                 default:
                     throw new InternalError($"Invalid Op {Op} in {nameof(AddValidation)}");

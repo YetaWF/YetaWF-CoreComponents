@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,8 +155,8 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// List of validation attributes.
         /// </summary>
-        public List<YIClientValidation>? ClientValidationAttributes { get; set; }
-        public List<ExprAttribute>? ExprValidationAttributes { get; set; }
+        public List<YIClientValidation> ClientValidationAttributes { get; set; } = null!;
+        public List<ExprAttribute> ExprValidationAttributes { get; set; } = null!;
 
         private ResourceRedirectListAttribute? Redirect { get; set; }
         private ResourceRedirectAttribute? Redirect1 { get; set; }

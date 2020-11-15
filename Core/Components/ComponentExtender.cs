@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.Support;
@@ -22,7 +20,7 @@ namespace YetaWF.Core.Components {
     public static class YetaWFComponentExtender {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFComponentExtender), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(YetaWFComponentExtender), name, defaultValue, parms); }
 
         internal class LabelInfo {
             [UIHint("Label")]

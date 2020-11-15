@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -23,7 +21,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public RecaptchaV2Attribute(string message) : base(message) {
             ErrorMessage = message;

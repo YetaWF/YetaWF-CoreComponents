@@ -52,7 +52,7 @@ namespace YetaWF.Core.WebStartup {
     /// </summary>
     public partial class StartupMVC6 {
 
-        private IServiceCollection Services = null;
+        private IServiceCollection Services = null!;
 
         /// <summary>
         /// Constructor.
@@ -77,7 +77,7 @@ namespace YetaWF.Core.WebStartup {
 
             // Some assemblies need to be preloaded if they're used before YetaWFApplicationPartManager is called.
             // usually any types used by AddDynamicServices or AddDynamicAuthentication.
-            List<string> asms = WebConfigHelper.GetValue<List<string>>("YetaWF_Core", "PreloadedAssemblies");
+            List<string>? asms = WebConfigHelper.GetValue<List<string>>("YetaWF_Core", "PreloadedAssemblies");
             if (asms != null) {
                 foreach (string asm in asms)
                     Assemblies.Load(asm);
@@ -135,16 +135,16 @@ namespace YetaWF.Core.WebStartup {
             services.AddMemoryCache();
 
             // Memory or distributed caching
-            string distProvider = WebConfigHelper.GetValue<string>("SessionState", "Provider", "", Package: false).ToLower();
+            string distProvider = WebConfigHelper.GetValue<string>("SessionState", "Provider", "", Package: false)!.ToLower();
             if (distProvider == "redis") {
-                string config = WebConfigHelper.GetValue<string>("SessionState", "RedisConfig", "localhost:6379", Package: false);
+                string config = WebConfigHelper.GetValue<string>("SessionState", "RedisConfig", "localhost:6379", Package: false)!;
                 services.AddDistributedRedisCache(o => {
                     o.Configuration = config;
                 });
             } else if (distProvider == "sql") {
-                string sqlConn = WebConfigHelper.GetValue<string>("SessionState", "SqlCache-Connection", null, Package: false);
-                string sqlSchema = WebConfigHelper.GetValue<string>("SessionState", "SqlCache-Schema", null, Package: false);
-                string sqlTable = WebConfigHelper.GetValue<string>("SessionState", "SqlCache-Table", null, Package: false);
+                string sqlConn = WebConfigHelper.GetValue<string>("SessionState", "SqlCache-Connection", null, Package: false)!;
+                string sqlSchema = WebConfigHelper.GetValue<string>("SessionState", "SqlCache-Schema", null, Package: false)!;
+                string sqlTable = WebConfigHelper.GetValue<string>("SessionState", "SqlCache-Table", null, Package: false)!;
                 if (string.IsNullOrWhiteSpace(sqlConn) || string.IsNullOrWhiteSpace(sqlSchema) || string.IsNullOrWhiteSpace(sqlTable)) {
                     services.AddDistributedMemoryCache();
                 } else {
@@ -163,7 +163,7 @@ namespace YetaWF.Core.WebStartup {
 
             // Session state
             int sessionTimeout = WebConfigHelper.GetValue<int>("SessionState", "Timeout", 1440, Package: false);
-            string sessionCookie = WebConfigHelper.GetValue<string>("SessionState", "CookieName", ".YetaWF.Session", Package: false);
+            string sessionCookie = WebConfigHelper.GetValue<string>("SessionState", "CookieName", ".YetaWF.Session", Package: false)!;
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);
                 options.Cookie.Name = sessionCookie;
@@ -244,8 +244,8 @@ namespace YetaWF.Core.WebStartup {
         }
         private async Task ConfigureAsync(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
 
-            IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor));
-            IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache));
+            IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor))!;
+            IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache))!;
             YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
 
             app.UseYetaWFForwardedHeaders();
@@ -332,10 +332,10 @@ namespace YetaWF.Core.WebStartup {
 
                 MimeSection staticMimeSect = new MimeSection();
                 await staticMimeSect.InitAsync(Path.Combine(Globals.DataFolder, MimeSection.MimeSettingsFile));
-                List<MimeSection.MimeEntry> mimeTypes = staticMimeSect.GetMimeTypes();
+                List<MimeSection.MimeEntry>? mimeTypes = staticMimeSect.GetMimeTypes();
                 if (mimeTypes != null) {
                     foreach (MimeSection.MimeEntry entry in mimeTypes) {
-                        if (entry.Download) {
+                        if (entry.Download && entry.Extensions != null) {
                             string[] extensions = entry.Extensions.Split(new char[] { ';' });
                             foreach (string extension in extensions) {
                                 if (!provider.Mappings.ContainsKey(extension.Trim()))

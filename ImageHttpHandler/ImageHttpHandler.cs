@@ -14,16 +14,10 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
 using YetaWF.Core.IO;
-#if MVC6
 using Microsoft.AspNetCore.Http;
-#else
-using System.Web;
-using System.Web.SessionState;
-#endif
 
 namespace YetaWF.Core.HttpHandler {
 
-#if MVC6
     /// <summary>
     /// Class implementing middleware for the Image HTTP handler.
     /// </summary>
@@ -54,17 +48,11 @@ namespace YetaWF.Core.HttpHandler {
     /// <summary>
     /// Implements the Image HTTP Handler.
     /// </summary>
-    public class ImageHttpHandler
-#else
-    /// <summary>
-    /// Implements the Image HTTP Handler.
-    /// </summary>
-    public class ImageHttpHandler : HttpTaskAsyncHandler, IReadOnlySessionState
-#endif
-    {
+    public class ImageHttpHandler {
+
         // A bit of a simplification - we're just looking for image/webp, don't care about quality and don't look for image/*
         private bool UseWEBP(string acceptHeader) {
-            List<MediaTypeHeaderValue> mediaTypes = acceptHeader?.Split(',').Select(MediaTypeHeaderValue.Parse).ToList();
+            List<MediaTypeHeaderValue> mediaTypes = acceptHeader.Split(',').Select(MediaTypeHeaderValue.Parse).ToList();
             if (mediaTypes == null)
                 return false;
             return (from m in mediaTypes where m.MediaType == "image/webp" select m).FirstOrDefault() != null;
@@ -74,7 +62,6 @@ namespace YetaWF.Core.HttpHandler {
         // IHttpHandler (Async)
         // IHttpHandler (Async)
 
-#if MVC6
         /// <summary>
         /// Called by the middleware (.NET) to process
         /// a request for a CSS file.
@@ -82,28 +69,13 @@ namespace YetaWF.Core.HttpHandler {
         /// <param name="context">The HTTP context of the request.</param>
         public async Task ProcessRequest(HttpContext context) {
             await StartupRequest.StartRequestAsync(context, true);
-#else
-        /// <summary>
-        /// Returns true indicating that the task handler class instance can be reused for another asynchronous task.
-        /// </summary>
-        public override bool IsReusable {
-            get { return true; }
-        }
-
-        /// <summary>
-        /// Called by the middleware (.NET) to process
-        /// a request for the URL /FileHndlr.image.
-        /// </summary>
-        /// <param name="context">The HTTP context of the request.</param>
-        public override async Task ProcessRequestAsync(HttpContext context) {
-#endif
             YetaWFManager manager = YetaWFManager.Manager;
 
-            string typeVal = manager.RequestQueryString["type"];
-            string locationVal = manager.RequestQueryString["location"];
-            string nameVal = manager.RequestQueryString["name"];
+            string? typeVal = manager.RequestQueryString["type"];
+            string? locationVal = manager.RequestQueryString["location"];
+            string? nameVal = manager.RequestQueryString["name"];
             if (typeVal != null) {
-                ImageSupport.ImageHandlerEntry entry = (from h in ImageSupport.HandlerEntries where h.Type == typeVal select h).FirstOrDefault();
+                ImageSupport.ImageHandlerEntry? entry = (from h in ImageSupport.HandlerEntries where h.Type == typeVal select h).FirstOrDefault();
                 if (entry != null) {
 
                     if (!string.IsNullOrWhiteSpace(nameVal)) {
@@ -112,12 +84,12 @@ namespace YetaWF.Core.HttpHandler {
                             nameVal = parts[0];
                     }
 
-                    System.Drawing.Image img = null;
-                    byte[] bytes = null;
+                    System.Drawing.Image? img = null;
+                    byte[]? bytes = null;
 
                     // check if this is a temporary (uploaded image)
                     FileUpload fileUpload = new FileUpload();
-                    string filePath = await fileUpload.GetTempFilePathFromNameAsync(nameVal, locationVal);
+                    string? filePath = await fileUpload.GetTempFilePathFromNameAsync(nameVal, locationVal);
 
                     // if we don't have an image yet, try to get the file from the registered type
                     if (((img == null || bytes == null) && filePath == null) && entry.GetImageAsFileAsync != null) {
@@ -149,18 +121,13 @@ namespace YetaWF.Core.HttpHandler {
 
                     if ((img == null || bytes == null) && filePath == null) {
                         context.Response.StatusCode = 404;
-#if MVC6
                         Logging.AddErrorLog("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal);
-#else
-                        context.Response.StatusDescription = Logging.AddErrorLog("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal);
-                        context.ApplicationInstance.CompleteRequest();
-#endif
                         return;
                     }
 
-                    string percentString = manager.RequestQueryString["Percent"];
+                    string? percentString = manager.RequestQueryString["Percent"];
                     if (!string.IsNullOrWhiteSpace(percentString)) {
-                        string stretchString = manager.RequestQueryString["Stretch"];
+                        string? stretchString = manager.RequestQueryString["Stretch"];
                         bool stretch = false;
                         if (!string.IsNullOrWhiteSpace(stretchString) && (stretchString == "1" || string.Compare(stretchString, "true", true) == 0))
                             stretch = true;
@@ -175,9 +142,9 @@ namespace YetaWF.Core.HttpHandler {
                             }
                         }
                     } else {
-                        string widthString = manager.RequestQueryString["Width"];
-                        string heightString = manager.RequestQueryString["Height"];
-                        string stretchString = manager.RequestQueryString["Stretch"];
+                        string? widthString = manager.RequestQueryString["Width"];
+                        string? heightString = manager.RequestQueryString["Height"];
+                        string? stretchString = manager.RequestQueryString["Stretch"];
                         if (!string.IsNullOrWhiteSpace(widthString) && !string.IsNullOrWhiteSpace(heightString)) {
                             int width = Convert.ToInt32(widthString);
                             int height = Convert.ToInt32(heightString);
@@ -196,7 +163,7 @@ namespace YetaWF.Core.HttpHandler {
                         }
                     }
 
-                    string contentType;
+                    string? contentType;
                     if (filePath != null) {
                         MimeSection mimeSection = new MimeSection();
 
@@ -221,19 +188,10 @@ namespace YetaWF.Core.HttpHandler {
                         string ifNoneMatch = context.Request.Headers["If-None-Match"];
                         if (ifNoneMatch.TruncateStart("W/") != GetETag(filePath, lastMod)) {
                             context.Response.StatusCode = 200;
-#if MVC6
                             await context.Response.SendFileAsync(filePath);
-#else
-                            context.Response.TransmitFile(filePath);
-#endif
                         } else {
                             context.Response.StatusCode = 304;
                         }
-#if MVC6
-#else
-                        context.Response.StatusDescription = "OK";
-                        context.ApplicationInstance.CompleteRequest();
-#endif
                         return;
                     } else if (img != null && bytes != null) {
                         if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Gif) contentType = "image/gif";
@@ -245,47 +203,25 @@ namespace YetaWF.Core.HttpHandler {
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
                         context.Response.ContentType = contentType;
-#if MVC6
-#else
-                        context.Response.StatusDescription = "OK";
-#endif
                         string ifNoneMatch = context.Request.Headers["If-None-Match"];
                         if (ifNoneMatch.TruncateStart("W/") != GetETag(bytes)) {
                             context.Response.StatusCode = 200;
-#if MVC6
                             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-#else
-                            await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
-#endif
                         } else {
                             context.Response.StatusCode = 304;
                         }
-#if MVC6
-#else
-                        context.ApplicationInstance.CompleteRequest();
-#endif
                         img.Dispose();
                         return;
                     } else {
                         // we got nothing
                         context.Response.StatusCode = 404;
-#if MVC6
                         Logging.AddErrorLog(string.Format("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal));
-#else
-                        context.Response.StatusDescription = Logging.AddErrorLog(string.Format("Not Found - Image file {0} (location {1}) not found", nameVal, locationVal));
-                        context.ApplicationInstance.CompleteRequest();
-#endif
                         return;
                     }
                 }
             }
             context.Response.StatusCode = 404;
-#if MVC6
             Logging.AddErrorLog("Not Found");
-#else
-            context.Response.StatusDescription = Logging.AddErrorLog("Not Found");
-            context.ApplicationInstance.CompleteRequest();
-#endif
             return;
         }
 

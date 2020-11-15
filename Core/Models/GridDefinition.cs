@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,7 +17,7 @@ namespace YetaWF.Core.Models {
     /// </summary>
     public class GridDefinition {
 
-        protected static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(GridDefinition), name, defaultValue, parms); }
+        protected static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(GridDefinition), name, defaultValue, parms); }
 
         public enum SortBy {
             NotSpecified = 0, Ascending, Descending

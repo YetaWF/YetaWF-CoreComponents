@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Identity;
@@ -17,7 +15,7 @@ namespace YetaWF.Core.Modules {
         public const string ModuleContentsFile = "Contents.json";
         public const string ModuleIDFile = "Module.txt";
 
-        /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
+        /* private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
 
         public async Task<YetaWFZipFile> ExportDataAsync() {
 

@@ -1,14 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.Threading.Tasks;
-using YetaWF.Core.Site;
-using YetaWF.Core.DataProvider;
-using YetaWF.Core.Log;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using YetaWF.Core.Support;
+using System;
 using System.IO;
+using YetaWF.Core.DataProvider;
+using YetaWF.Core.Log;
+using YetaWF.Core.Site;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.WebAPIStartup {
 
@@ -17,7 +16,7 @@ namespace YetaWF.Core.WebAPIStartup {
     /// </summary>
     public static class StartupRequest {
 
-        static SiteDefinition CurrentSite = null;
+        static SiteDefinition? CurrentSite = null;
 
         /// <summary>
         /// Processes an HTTP request (startup, initial processing).
@@ -35,7 +34,7 @@ namespace YetaWF.Core.WebAPIStartup {
             // create a YetaWFManager object to keep track of everything (it serves
             // as a global anchor for everything we need to know while processing this request)
 
-            YetaWFManager manager = YetaWFManager.MakeInstance(httpContext, CurrentSite.SiteDomain);
+            YetaWFManager manager = YetaWFManager.MakeInstance(httpContext, CurrentSite!.SiteDomain);
 
             // Site properties are ONLY valid AFTER this call to YetaWFManager.MakeInstance
 
@@ -96,7 +95,7 @@ namespace YetaWF.Core.WebAPIStartup {
                                 }
                                 if (CurrentSite == null) {
                                     // read json file (based on AppSettings or default to SiteDefinition.json)
-                                    string siteFile = WebConfigHelper.GetValue<string>("YetaWF_Core", "SiteDefinition", "SiteDefinition.json");
+                                    string siteFile = WebConfigHelper.GetValue<string>("YetaWF_Core", "SiteDefinition", "SiteDefinition.json")!;
                                     string filePath = Path.Combine(YetaWFManager.RootFolder, siteFile);
                                     if (File.Exists(filePath)) {
                                         string siteDefJson = File.ReadAllText(filePath); // use local file system as we need this during initialization

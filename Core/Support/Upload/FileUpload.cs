@@ -1,7 +1,5 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.IO;
 using System.Net;
@@ -208,7 +206,7 @@ namespace YetaWF.Core.Upload {
             } catch (Exception) { }
         }
 
-        public async Task<string?> GetTempFilePathFromNameAsync(string name, string? location = null) {
+        public async Task<string?> GetTempFilePathFromNameAsync(string? name, string? location = null) {
             if (!string.IsNullOrWhiteSpace(name) && name.StartsWith(FileUpload.TempId)) {
                 string tempFilePath;
                 if (string.IsNullOrWhiteSpace(location))

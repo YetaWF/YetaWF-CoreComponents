@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using System.Threading.Tasks;
 
@@ -128,7 +126,7 @@ namespace YetaWF.Core.IO {
         /// <typeparam name="TYPE">The type of the object.</typeparam>
         /// <param name="key">The resource name.</param>
         /// <param name="data">The data to cache.</param>
-        Task AddAsync<TYPE>(string key, TYPE data);
+        Task AddAsync<TYPE>(string key, TYPE? data);
         /// <summary>
         /// Retrieves a cached object.
         /// </summary>
@@ -162,7 +160,7 @@ namespace YetaWF.Core.IO {
     /// <typeparam name="TYPE">The type of the object.</typeparam>
     public class GetObjectInfo<TYPE> {
         /// <summary>
-        /// The data. May be null if no data is available.
+        /// The data. May be null if no data is available (Success = false).
         /// </summary>
         public TYPE Data { get; set; } = default!;
         /// <summary>

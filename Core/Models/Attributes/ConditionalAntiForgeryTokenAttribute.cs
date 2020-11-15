@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#nullable enable
-
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
@@ -29,7 +27,7 @@ namespace YetaWF.Core.Models.Attributes {
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class ConditionalAntiForgeryTokenAttribute : Attribute, IFilterFactory, IOrderedFilter {
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         private YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
