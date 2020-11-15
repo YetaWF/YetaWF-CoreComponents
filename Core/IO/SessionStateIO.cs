@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 
@@ -20,22 +22,22 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// The name of the object to load/save in session state.
         /// </summary>
-        public string Key { get; set; }
+        public string Key { get; set; } = null!;
         /// <summary>
         /// The object to save or loaded from session state.
         /// </summary>
-        public object Data { get; set; } // the data saved/loaded
+        public object Data { get; set; } = null!; // the data saved/loaded
 
         /// <summary>
         /// Loads the object named by the Key property.
         /// </summary>
         /// <returns>Returns the object.</returns>
-        public TObj Load() {
+        public TObj? Load() {
             if (!Manager.HaveCurrentSession) return default(TObj);
             byte[] data;
             data = Manager.CurrentSession.GetBytes(Key);
             if (data == null) return default(TObj);
-            Data = new GeneralFormatter(GeneralFormatter.Style.Simple).Deserialize<TObj>(data);
+            Data = new GeneralFormatter(GeneralFormatter.Style.Simple).Deserialize<TObj>(data) !;
             return (TObj) Data;
         }
 

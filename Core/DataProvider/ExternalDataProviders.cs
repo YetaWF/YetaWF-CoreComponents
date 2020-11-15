@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +41,7 @@ namespace YetaWF.Core.DataProvider {
             List<Type> types = Package.GetClassesInPackages<IExternalDataProvider>(OrderByServiceLevel: true);
             foreach (Type type in types) {
                 try {
-                    IExternalDataProvider iStart = (IExternalDataProvider)Activator.CreateInstance(type);
+                    IExternalDataProvider? iStart = (IExternalDataProvider?)Activator.CreateInstance(type);
                     if (iStart != null) {
                         Logging.AddLog($"Calling external data provider startup class \'{type.FullName}\'");
                         iStart.Register();
@@ -56,34 +58,34 @@ namespace YetaWF.Core.DataProvider {
 
     public abstract partial class DataProviderImpl {
 
-        private string ExternalIOMode { get; set; }
+        private string ExternalIOMode { get; set; } = null!;
 
         public class ExternalDataProviderInfo {
             /// <summary>
             /// The type that implements the application data provider.
             /// </summary>
-            public Type Type { get; set; }
+            public Type Type { get; set; } = null!;
             /// <summary>
             /// The I/O mode registered by the data provider (e.g, SQL, File).
             /// </summary>
-            public string IOModeName { get; set; }
+            public string IOModeName { get; set; } = null!;
             /// <summary>
             /// The specific object type that is implemented by the low-level data provider.
             /// </summary>
-            public Type TypeImpl { get; set; }
+            public Type TypeImpl { get; set; } = null!;
         }
 
         /// <summary>
         /// Creates an external assembly-based data provider.
         /// </summary>
         /// <returns>A data provider object of a type suitable for the data provider.</returns>
-        protected dynamic MakeExternalDataProvider(Dictionary<string, object> options, string LimitIOMode = null) {
+        protected dynamic? MakeExternalDataProvider(Dictionary<string, object> options, string? LimitIOMode = null) {
             if (ExternalIOMode == NoIOMode)
                 return null;
             if (LimitIOMode != null && ExternalIOMode != LimitIOMode.ToLower())
                 return null;
             Type type = GetType();
-            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
+            ExternalDataProviderInfo? ext = (from r in RegisteredExternalDataProviders where r.Type == type && r.IOModeName == ExternalIOMode select r).FirstOrDefault();
             if (ext == null)
                 throw new InternalError($"No external data provider for type {type.FullName} and IOMode {ExternalIOMode} found");
             return Activator.CreateInstance(ext.TypeImpl, options);
@@ -103,7 +105,7 @@ namespace YetaWF.Core.DataProvider {
         /// <remarks>The RegisterExternalDataProvider registers a data provider and "connects" the application data provider with a specific implementation in a low-level data provider.</remarks>
         public static void RegisterExternalDataProvider(string ioModeName, Type type, Type typeImpl) {
             ioModeName = ioModeName.ToLower();
-            ExternalDataProviderInfo ext = (from r in RegisteredExternalDataProviders where r.IOModeName == ioModeName && r.Type == type select r).FirstOrDefault();
+            ExternalDataProviderInfo? ext = (from r in RegisteredExternalDataProviders where r.IOModeName == ioModeName && r.Type == type select r).FirstOrDefault();
             if (ext != null)
                 throw new InternalError($"External data provider for type {type.FullName} and IOMode {ioModeName} already registered");
             RegisteredExternalDataProviders.Add(new ExternalDataProviderInfo {

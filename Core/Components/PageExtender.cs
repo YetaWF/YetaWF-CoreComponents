@@ -1,8 +1,9 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using YetaWF.Core.Support;
 
@@ -13,8 +14,6 @@ namespace YetaWF.Core.Components {
     /// </summary>
     public static class YetaWFPageExtender {
 
-        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
-
         /// <summary>
         /// Tests whether a valid page exists.
         /// </summary>
@@ -22,8 +21,7 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns true if a valid page can be found.</returns>
         /// <remarks>This is used by the framework for debugging/testing purposes only.</remarks>
         public static bool IsSupported(string pageName) {
-            Type pageType;
-            if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageName, out pageType))
+            if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageName, out Type? pageType))
                 return false;
             return true;
         }
@@ -36,10 +34,9 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns HTML with the rendered page.</returns>
         public static async Task<string> ForPageAsync(this YHtmlHelper htmlHelper, string pageName) {
 
-            Type pageType;
-            if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageName, out pageType))
+            if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageName, out Type? pageType))
                 throw new InternalError($"Page {pageName} not found");
-            YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(pageType);
+            YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(pageType) ! ;
             page.SetRenderInfo(htmlHelper);
 
             IYetaWFPage iPage = (IYetaWFPage)page;
@@ -74,10 +71,9 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns a collection of pane names available in this page.</returns>
         public static List<string> GetPanes(string pageViewName) {
 
-            Type pageType;
-            if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageViewName, out pageType))
+            if (!YetaWFComponentBaseStartup.GetPages().TryGetValue(pageViewName, out Type? pageType))
                 throw new InternalError($"Page {pageViewName} not found");
-            YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(pageType);
+            YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(pageType) ! ;
 
             IYetaWFPage iPage = (IYetaWFPage)page;
             List<string> panes = iPage.GetPanes();

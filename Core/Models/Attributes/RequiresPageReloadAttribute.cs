@@ -1,11 +1,8 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-#else
-#endif
 
 namespace YetaWF.Core.Models.Attributes {
 

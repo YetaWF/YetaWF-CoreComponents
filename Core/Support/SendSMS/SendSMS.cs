@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace YetaWF.Core.Support.SendSMS {
         /// <param name="toNumber">The receiving number of the SMS message.</param>
         /// <param name="text">The text of the SMS message.</param>
         /// <param name="FromNumber">Optional sending number. If not specified, the SMS Settings are used to provide the default number.</param>
-        Task SendSMSAsync(string toNumber, string text, string FromNumber = null);
+        Task SendSMSAsync(string toNumber, string text, string? FromNumber = null);
         /// <summary>
         /// The name of the SMS provider.
         /// </summary>
@@ -85,7 +87,7 @@ namespace YetaWF.Core.Support.SendSMS {
             /// <summary>
             /// The ISendSMS interface provided by the SMS provider, or null if no SMS provider is available.
             /// </summary>
-            public ISendSMS Processor { get; set; }
+            public ISendSMS? Processor { get; set; }
             /// <summary>
             /// The total number of SMS providers installed. Only one SMS provider can be active.
             /// </summary>
@@ -124,7 +126,7 @@ namespace YetaWF.Core.Support.SendSMS {
         /// In order to use a phone number as <paramref name="toNumber"/>, an SMS provider has to be installed. SMS providers offering SMS services are generally not free.
         /// When a phone number is used, it must be in E164 format (e.g., +14075551212).
         /// </remarks>
-        public async Task SendMessageAsync(string toNumber, string text, string FromNumber = null, bool ThrowError = true) {
+        public async Task SendMessageAsync(string toNumber, string text, string? FromNumber = null, bool ThrowError = true) {
             if (toNumber.Contains("@")) {
                 // send email
                 SendEmail.SendEmail sendEmail = new SendEmail.SendEmail();

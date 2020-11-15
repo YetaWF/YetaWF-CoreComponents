@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
@@ -72,7 +74,7 @@ namespace YetaWF.Core.Skins.Pages {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            string copyright = Manager.CurrentPage.CopyrightEvaluated;
+            string? copyright = Manager.CurrentPage.CopyrightEvaluated;
             if (string.IsNullOrEmpty(copyright))
                 copyright = Manager.CurrentSite.CopyrightEvaluated;
 

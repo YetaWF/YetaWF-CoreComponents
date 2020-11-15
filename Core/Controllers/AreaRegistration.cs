@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using System;
@@ -41,7 +43,7 @@ namespace YetaWF.Core.Controllers {
         /// Used internally to register area routes. Don't mess with this.
         /// </summary>
         public void RegisterArea(IEndpointRouteBuilder endpoints) {
-            Logging.AddLog("Found {0} in namespace {1}", AreaName, GetType().Namespace);
+            Logging.AddLog("Found {0} in namespace {1}", AreaName, GetType().Namespace!);
             endpoints.MapAreaControllerRoute(AreaName, AreaName, AreaName + "/{controller}/{action}/{*whatevz}");
         }
 
@@ -49,19 +51,19 @@ namespace YetaWF.Core.Controllers {
         /// Used by tools (i.e., non web apps) that need to explicitly register packages so they have access to functionality provided by packages, beyond the Core package.
         /// </summary>
         /// <remarks>This is typically used by tools that need access to data providers used by YetaWF.</remarks>
-        public static void RegisterPackages(IEndpointRouteBuilder endpoints = null) {
+        public static void RegisterPackages(IEndpointRouteBuilder? endpoints = null) {
             Logging.AddLog("Processing RegisterPackages");
             List<Type> types = GetAreaRegistrationTypes();
             foreach (Type type in types) {
                 try {
-                    dynamic areaReg = Activator.CreateInstance(type);
+                    dynamic? areaReg = Activator.CreateInstance(type);
                     if (areaReg != null) {
-                        Logging.AddLog("AreaRegistration class \'{0}\' found", type.FullName);
+                        Logging.AddLog("AreaRegistration class \'{0}\' found", type.FullName!);
+                        if (endpoints != null)
+                            areaReg.RegisterArea(endpoints);
                     }
-                    if (endpoints != null)
-                        areaReg.RegisterArea(endpoints);
                 } catch (Exception exc) {
-                    Logging.AddErrorLog("AreaRegistration class {0} failed.", type.FullName, exc);
+                    Logging.AddErrorLog("AreaRegistration class {0} failed.", type.FullName!, exc);
                     throw;
                 }
             }

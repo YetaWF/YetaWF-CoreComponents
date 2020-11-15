@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 
 namespace YetaWF.Core.Support {
@@ -8,9 +10,6 @@ namespace YetaWF.Core.Support {
     public sealed class AdditionalMetadataAttribute : Attribute {
 
         public AdditionalMetadataAttribute(string name, object value) {
-            if (name == null) {
-                throw new ArgumentNullException("name");
-            }
             Name = name;
             Value = value;
         }

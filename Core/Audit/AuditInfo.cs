@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +42,7 @@ namespace YetaWF.Core.Audit {
         /// <summary>
         /// An application-specific string that describes the reason for this audit record.
         /// </summary>
-        public string IdentifyString { get; set; }
+        public string? IdentifyString { get; set; }
         /// <summary>
         /// An application-specific Guid that describes the reason for this audit record. For example, operations on modules can save the module's Guid.
         /// </summary>
@@ -56,11 +58,11 @@ namespace YetaWF.Core.Audit {
         /// <summary>
         /// An application-specific string that describes the reason for this audit record. Typically, the type and name of the method requesting the audit record to be written is used.
         /// </summary>
-        public string Action { get; set; }
+        public string Action { get; set; } = null!;
         /// <summary>
         /// A description of the audit record summarizing the audit record, in user displayable format.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
         /// <summary>
         /// Defines whether the current action that caused the audit record to be created requires a restart. This can be set when modifying settings that don't take effect until after the site is restarted.
         /// </summary>
@@ -73,17 +75,17 @@ namespace YetaWF.Core.Audit {
         /// <summary>
         /// Lists the properties that were changed, analyzing DataBefore and DataAfter, if available.
         /// </summary>
-        public string Changes { get; set; }
+        public string? Changes { get; set; }
         /// <summary>
         /// The before image of a data object that was changed, which caused the current audit record to be created.
         /// May be null if the data object was added.
         /// </summary>
-        public byte[] DataBefore { get; set; }
+        public byte[]? DataBefore { get; set; }
         /// <summary>
         /// The after image of a data object that was changed, which caused the current audit record to be created.
         /// May be null if the data object was removed.
         /// </summary>
-        public byte[] DataAfter { get; set; }
+        public byte[]? DataAfter { get; set; }
     }
 
     /// <summary>
@@ -97,7 +99,7 @@ namespace YetaWF.Core.Audit {
         /// Applications do not use this data provider directly.
         /// The data provider is set by available data providers during application startup.
         /// </summary>
-        public static IAudit AuditProvider { get; set; }
+        public static IAudit? AuditProvider { get; set; }
         /// <summary>
         /// Defines whether the audit log is available.
         /// </summary>
@@ -120,7 +122,7 @@ namespace YetaWF.Core.Audit {
         public static async Task AddAuditAsync(string action, string idString, Guid idGuid, string description, int dummy = 0,
 
             bool RequiresRestart = false, bool ExpensiveMultiInstance = false,
-            object DataBefore = null, object DataAfter = null) {
+            object? DataBefore = null, object? DataAfter = null) {
 
             if (DataBefore != null && DataAfter != null) {
                 if (!RequiresRestart) {
@@ -138,7 +140,7 @@ namespace YetaWF.Core.Audit {
 
             if (AuditProvider == null) return;
 
-            string changes = null;
+            string? changes = null;
             if (DataBefore != null && DataAfter != null) {
                 List<ObjectSupport.ChangedProperty> list = ObjectSupport.ModelChanges(DataBefore, DataAfter);
                 changes = string.Join(",", (from l in list select $"{l.Name}={l.Value}"));

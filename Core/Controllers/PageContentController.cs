@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -48,18 +50,18 @@ namespace YetaWF.Core.Controllers {
             /// The status of the request.
             /// </summary>
             /// <remarks>A null or empty string means success. Otherwise an error message is provided.</remarks>
-            public string Status { get; internal set; }
+            public string? Status { get; internal set; }
 
             /// <summary>
             /// Returns a new Url if the request cannot be answered with page content.
             /// </summary>
             /// <remarks>The client will redirect the entire page to this new Url.</remarks>
-            public string Redirect { get; set; }
+            public string? Redirect { get; set; }
             /// <summary>
             /// Returns a new Url if the request can only be answered with different page content.
             /// </summary>
             /// <remarks>The client will redirect the page content to this new Url.</remarks>
-            public string RedirectContent { get; set; }
+            public string? RedirectContent { get; set; }
 
             /// <summary>
             /// Returns the content for all panes.
@@ -68,35 +70,35 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// Returns the addon html.
             /// </summary>
-            public string Addons { get; set; }
+            public string? Addons { get; set; }
             /// <summary>
             /// The requested page's title.
             /// </summary>
-            public string PageTitle { get; set; }
+            public string PageTitle { get; set; } = null!;
             /// <summary>
             /// The requested page's Css classes (defined using the page's Page Settings), unique to this page.
             /// </summary>
-            public string PageCssClasses { get; set; }
+            public string PageCssClasses { get; set; } = null!;
             /// <summary>
             /// The requested page's Canonical Url.
             /// </summary>
-            public string CanonicalUrl { get; set; }
+            public string CanonicalUrl { get; set; } = null!;
             /// <summary>
             /// The requested page's local Url (without querystring)
             /// </summary>
-            public string LocalUrl { get; set; }
+            public string LocalUrl { get; set; } = null!;
             /// <summary>
             /// Inline script snippets generated for this page.
             /// </summary>
-            public string Scripts { get; internal set; }
+            public string Scripts { get; internal set; } = null!;
             /// <summary>
             /// End of page script snippets generated for this page.
             /// </summary>
-            public string EndOfPageScripts { get; internal set; }
+            public string EndOfPageScripts { get; internal set; } = null!;
             /// <summary>
             /// Script files to include for this page.
             /// </summary>
-            public List<UrlEntry> ScriptFiles { get; internal set; }
+            public List<UrlEntry> ScriptFiles { get; internal set; } = null!;
             /// <summary>
             /// Script file payload (inline script) to include for this page.
             /// </summary>
@@ -122,19 +124,19 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// Analytics javascript code executed when a new page becomes active in an active Unified Page Set.
             /// </summary>
-            public string AnalyticsContent { get; internal set; }
+            public string AnalyticsContent { get; internal set; } = null!;
         }
         internal class PaneContent {
-            public string Pane { get; set; }
-            public string HTML { get; set; }
+            public string Pane { get; set; } = null!;
+            public string HTML { get; set; } = null!;
         }
         internal class Payload {
-            public string Name { get; set; }
-            public string Text { get; set; }
+            public string Name { get; set; } = null!;
+            public string Text { get; set; } = null!;
         }
         internal class UrlEntry {
-            public string Name { get; set; }
-            public string Url { get; set; }
+            public string Name { get; set; } = null!;
+            public string Url { get; set; } = null!;
         }
 
         /// <summary>
@@ -145,23 +147,23 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// The current's page version. If there is a version mismatch, the site has been restarted and a full page is returned instead.
             /// </summary>
-            public string CacheVersion { get; set; }
+            public string CacheVersion { get; set; } = null!;
             /// <summary>
             /// If the site was restarted (based on CacheVersion) redirect to this page. May be null.
             /// </summary>
-            public string CacheFailUrl { get; set; }
+            public string? CacheFailUrl { get; set; }
             /// <summary>
             /// The path of the requested page.
             /// </summary>
-            public string Path { get; set; }
+            public string Path { get; set; } = null!;
             /// <summary>
             /// The query string of the requested page.
             /// </summary>
-            public string QueryString { get; set; }
+            public string QueryString { get; set; } = null!;
             /// <summary>
             /// The Guid of the unified page set the current page is part of. If the requested URL uses a different unified page set, a full page is returned instead.
             /// </summary>
-            public string UnifiedSetGuid { get; set; }
+            public string UnifiedSetGuid { get; set; } = null!;
             /// <summary>
             /// The mode of the current page's unified page set. If the requested URL uses a different unified page set, a full page is returned instead.
             /// </summary>
@@ -169,11 +171,11 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// A list of "Referenced Modules" that have been loaded by the current page.
             /// </summary>
-            public List<Guid> UnifiedAddonMods { get; set; }
+            public List<Guid>? UnifiedAddonMods { get; set; }
             /// <summary>
             /// The unique id prefix counter used by the current page. This value is used to prevent collisions when generating unique HTML tag ids.
             /// </summary>
-            public YetaWFManager.UniqueIdInfo UniqueIdCounters { get; set; }
+            public YetaWFManager.UniqueIdInfo UniqueIdCounters { get; set; } = null!;
             /// <summary>
             /// Defines whether the current page was rendered on a mobile device.
             /// </summary>
@@ -181,23 +183,23 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// Defines the skin collection used by the current page.
             /// </summary>
-            public string UnifiedSkinCollection { get; set; }
+            public string UnifiedSkinCollection { get; set; } = null!;
             /// <summary>
             /// Defines the skin collection's file used by the current page.
             /// </summary>
-            public string UnifiedSkinFileName { get; set; }
+            public string UnifiedSkinFileName { get; set; } = null!;
             /// <summary>
             /// The collection of pages requested.
             /// </summary>
-            public List<string> Panes { get; set; }
+            public List<string> Panes { get; set; } = null!;
             /// <summary>
             /// A collection of all CSS files the client has already loaded.
             /// </summary>
-            public List<string> KnownCss { get; set; }
+            public List<string> KnownCss { get; set; } = null!;
             /// <summary>
             /// A collection of all JavaScript files the client has already loaded.
             /// </summary>
-            public List<string> KnownScripts { get; set; }
+            public List<string> KnownScripts { get; set; } = null!;
         }
 
         /// <summary>
@@ -268,12 +270,11 @@ namespace YetaWF.Core.Controllers {
 
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)
             // rewrite it to make it a proper querystring
-            PageDefinition pageFound = null;
-            ModuleDefinition moduleFound = null;
+            PageDefinition? pageFound = null;
+            ModuleDefinition? moduleFound = null;
             {
                 string url = dataIn.Path;
-                string[] segments = url.Split(new char[] { '/' });
-                string newUrl, newQs;
+                string? newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
                     if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
                         PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
@@ -282,7 +283,7 @@ namespace YetaWF.Core.Controllers {
                             cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                             return cr;
                         }
-                        ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
+                        ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
                         if (module == null)
                             module = await ModuleDefinition.LoadByUrlAsync(dataIn.Path);
                         moduleFound = module;
@@ -307,7 +308,7 @@ namespace YetaWF.Core.Controllers {
                     }
                 } else {
                     PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, dataIn.QueryString);
-                    PageDefinition page = pageInfo.Page;
+                    PageDefinition? page = pageInfo.Page;
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (pageInfo.NewUrl != url) {
@@ -434,7 +435,7 @@ namespace YetaWF.Core.Controllers {
             }
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                 if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                    PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
+                    PageDefinition? redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                     if (redirectPage != null) {
                         if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                             string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
@@ -457,7 +458,7 @@ namespace YetaWF.Core.Controllers {
             if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(dataIn.Path, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                 if (dataIn.IsMobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                    PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
+                    PageDefinition? mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                     if (mobilePage != null) {
                         if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                             string redirUrl = page.MobilePageUrl;
@@ -537,7 +538,7 @@ namespace YetaWF.Core.Controllers {
             return ProcessingStatus.No;
         }
 
-        private bool SameSkinCollection(string collection1, string collection2, bool popup) {
+        private bool SameSkinCollection(string? collection1, string? collection2, bool popup) {
             if (string.IsNullOrWhiteSpace(collection1)) collection1 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
             if (string.IsNullOrWhiteSpace(collection2)) collection2 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
             return (collection1 == collection2);

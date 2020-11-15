@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,12 +23,12 @@ namespace YetaWF.Core.Pages {
         }
 
         public class Bundle {
-            public string BundleName { get; set; }
+            public string BundleName { get; set; } = null!;
             public int BundleNumber { get; set; }
-            public string Url { get; set; }
+            public string Url { get; set; } = null!;
             public int StartLength { get; set; }
 #if DEBUG
-            public string StartText { get; set; }
+            public string StartText { get; set; } = null!;
             // The generated text added to the start of the file
             // There is a chance this text differs between identical included js/css files, so this helps us debug that condition
 #endif
@@ -64,9 +66,9 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        public static async Task<string> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder startText = null) {
+        public static async Task<string?> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder? startText = null) {
 
-            string url = null;
+            string? url = null;
 
             if (fileList.Count > 0) {
 
@@ -96,7 +98,7 @@ namespace YetaWF.Core.Pages {
                             bundles = info.Data;
                         else
                             bundles = new SerializableList<Bundle>();
-                        Bundle bundle = (from b in bundles where b.BundleName == bundleName select b).FirstOrDefault();
+                        Bundle? bundle = (from b in bundles where b.BundleName == bundleName select b).FirstOrDefault();
                         if (bundle == null || startLength != bundle.StartLength) {
                             // make a new temp file combining all files in the list
                             StringBuilder sb = new StringBuilder();
@@ -152,7 +154,7 @@ namespace YetaWF.Core.Pages {
                             }
                             bundles.Add(bundle);
                             string realFile = Utility.UrlToPhysical(bundle.Url);
-                            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile));
+                            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(realFile)!);
                             await FileSystem.FileSystemProvider.WriteAllTextAsync(realFile, sb.ToString());
                             await cacheStaticDP.AddAsync(BUNDLEKEY, bundles);
                         } else {

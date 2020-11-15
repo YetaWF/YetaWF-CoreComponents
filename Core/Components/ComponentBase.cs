@@ -1,11 +1,14 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Threading.Tasks;
 using YetaWF.Core.Support;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 using System.Collections.Generic;
 using YetaWF.Core.DataProvider;
+using System.Diagnostics.CodeAnalysis;
 
 namespace YetaWF.Core.Components {
 
@@ -83,11 +86,11 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The popup URL used to edit the filter.
         /// </summary>
-        public string Url { get; set; }
+        public string Url { get; set; } = null!;
         /// <summary>
         /// The component name handling this filter.
         /// </summary>
-        public string UIHint { get; set; }
+        public string UIHint { get; set; } = null!;
     }
     /// <summary>
     /// The base class for all JSON data used by filters.
@@ -96,7 +99,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The component name handling this filter.
         /// </summary>
-        public string UIHint { get; set; }
+        public string UIHint { get; set; } = null!;
     }
 
     /// <summary>
@@ -156,21 +159,22 @@ namespace YetaWF.Core.Components {
         public readonly Package Package;
 
         internal void SetRenderInfo(YHtmlHelper htmlHelper,
-             object container, string propertyName, string fieldName, PropertyData propData, object htmlAttributes, bool validation)
+             object container, string? propertyName, string? fieldName, PropertyData? propData, object? htmlAttributes, bool validation)
         {
             HtmlHelper = htmlHelper;
             Container = container;
             PropertyName = propertyName;
-            PropData = propData;
+            if (propData != null)
+                PropData = propData;
             FieldNamePrefix = Manager.NestedComponentPrefix;
             if (string.IsNullOrWhiteSpace(fieldName)) {
-                FieldName = propertyName;
+                FieldName = propertyName ?? "";
                 if (!string.IsNullOrWhiteSpace(FieldNamePrefix) && propertyName != null)
                     FieldName = FieldNamePrefix + "." + propertyName;
             } else {
                 FieldName = fieldName;
             }
-            HtmlAttributes = htmlAttributes != null ? YHtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object>();
+            HtmlAttributes = htmlAttributes != null ? YHtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object?>();
             Validation = validation;
         }
 
@@ -180,7 +184,7 @@ namespace YetaWF.Core.Components {
         /// <remarks>TODO: This method is a poor idea and will be reviewed/changed.</remarks>
         public void UseSuppliedIdAsControlId() {
             if (HtmlAttributes.ContainsKey("id")) {
-                ControlId = (string)HtmlAttributes["id"];
+                ControlId = (string)HtmlAttributes["id"]!;
                 HtmlAttributes.Remove("id");
             }
         }
@@ -199,12 +203,12 @@ namespace YetaWF.Core.Components {
                 _htmlHelper = value;
             }
         }
-        private YHtmlHelper _htmlHelper;
+        private YHtmlHelper? _htmlHelper;
 
         /// <summary>
         /// The container model for which this component is used/rendered.
         /// </summary>
-        public object Container { get; private set; }
+        public object Container { get; private set; } = null!;
 
         /// <summary>
         /// Returns whether the component is a container component, i.e., can contain other components.
@@ -217,7 +221,7 @@ namespace YetaWF.Core.Components {
         /// Defines the name of the property in the container that this components represents.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public string PropertyName {
+        public string? PropertyName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
                 return _propertyName;
@@ -226,7 +230,7 @@ namespace YetaWF.Core.Components {
                 _propertyName = value;
             }
         }
-        string _propertyName;
+        string? _propertyName;
 
         /// <summary>
         /// Defines the YetaWF.Core.Models.PropertyData instance of the property in the container that this components represents.
@@ -241,13 +245,13 @@ namespace YetaWF.Core.Components {
                 _propData = value;
             }
         }
-        PropertyData _propData;
+        PropertyData _propData = null!;
 
         /// <summary>
         /// Defines the prefix used when generating an HTML field name for the component.
         /// A prefix is typically present with nested components.
         /// </summary>
-        public string FieldNamePrefix { get; private set; }
+        public string? FieldNamePrefix { get; private set; }
 
         /// <summary>
         /// The HTML field name of the components.
@@ -256,18 +260,19 @@ namespace YetaWF.Core.Components {
         public string FieldName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
+                if (_fieldName == null) throw new InternalError($"{nameof(FieldName)} not defined");
                 return _fieldName;
             }
             private set {
                 _fieldName = value;
             }
         }
-        string _fieldName;
+        string? _fieldName;
 
         /// <summary>
         /// HTML attributes that were provided to render the component.
         /// </summary>
-        public IDictionary<string, object> HtmlAttributes { get; private set; }
+        public IDictionary<string, object?> HtmlAttributes { get; private set; } = null!;
 
         /// <summary>
         /// Defines whether the component requires client-side validation.
@@ -287,7 +292,7 @@ namespace YetaWF.Core.Components {
                 _controlId = value;
             }
         }
-        private string _controlId;
+        private string? _controlId;
 
         /// <summary>
         /// The HTML id used for a &lt;div&gt; tag.
@@ -301,7 +306,7 @@ namespace YetaWF.Core.Components {
                 return _divId;
             }
         }
-        private string _divId;
+        private string? _divId;
 
         /// <summary>
         /// Returns a unique HTML id.
@@ -381,8 +386,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Retrieves a sibling property. Used to extract related properties from container, which typically are used for additional component customization.
         /// </summary>
-        public bool TryGetSiblingProperty<TYPE>(string property, out TYPE value) {
-            value = default(TYPE);
+        public bool TryGetSiblingProperty<TYPE>(string property, [MaybeNullWhen(false)] out TYPE? value) {
             if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out value))
                 return false;
             return true;
@@ -390,9 +394,8 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Retrieves a sibling property. Used to extract related properties from container, which typically are used for additional component customization.
         /// </summary>
-        public TYPE GetSiblingProperty<TYPE>(string property) {
-            TYPE value;
-            if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out value))
+        public TYPE? GetSiblingProperty<TYPE>(string property) {
+            if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out TYPE value))
                 throw new InternalError($"No sibling property {property} found");
             return value;
         }

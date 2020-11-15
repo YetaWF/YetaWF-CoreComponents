@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 
 namespace YetaWF.Core.Extensions {
@@ -125,7 +127,7 @@ namespace YetaWF.Core.Extensions {
             else
                 return text;
         }
-        public static string AddUrlCacheBuster(this string text, string cacheBuster) {
+        public static string AddUrlCacheBuster(this string text, string? cacheBuster) {
             if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
             if (text == null) return "";
             if (text.Contains("__yVrs=")|| text.Contains("/__yVrs/")) return "";
@@ -134,7 +136,7 @@ namespace YetaWF.Core.Extensions {
             else
                 return string.Format("?__yVrs={0}", cacheBuster);
         }
-        public static string AddUrlCacheBusterSegment(this string text, string cacheBuster) {
+        public static string AddUrlCacheBusterSegment(this string text, string? cacheBuster) {
             if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
             if (text == null) return "";
             if (text.Contains("/__yVrs/")) return "";

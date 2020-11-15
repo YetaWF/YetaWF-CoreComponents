@@ -1,18 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json;
 using System;
 using System.Text;
 using YetaWF.Core.Packages;
-#if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-#else
-using System.Linq;
-using System.Web;
-using System.Web.Hosting;
-using YetaWF.Core.Extensions;
-#endif
 
 namespace YetaWF.Core.Support {
 
@@ -104,10 +99,7 @@ namespace YetaWF.Core.Support {
         /// </remarks>
         public static string PhysicalToUrl(string path) {
             path = ReplaceString(path, YetaWFManager.RootFolder, String.Empty, StringComparison.OrdinalIgnoreCase);
-#if MVC6
             path = ReplaceString(path, YetaWFManager.RootFolderWebProject, String.Empty, StringComparison.OrdinalIgnoreCase);
-#else
-#endif
             path = path.Replace(" ", "%20");
             return path.Replace('\\', '/');
         }
@@ -185,13 +177,9 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The string to encode.</param>
         /// <returns>Returns the encoded string contents.</returns>
-        public static string JserEncode(string s) {
-#if MVC6
-            if (s == null) return "";
+        public static string JserEncode(string? s) {
+            if (s == null) return string.Empty;
             return System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(s);
-#else
-            return HttpUtility.JavaScriptStringEncode(s);
-#endif
         }
 
         /// <summary>
@@ -199,47 +187,35 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The string to encode.</param>
         /// <returns>Returns the encoded HTML.</returns>
-        public static string HtmlEncode(string s) {
-            if (s == null) return "";
-#if MVC6
+        public static string HtmlEncode(string? s) {
+            if (s == null) return string.Empty;
             return System.Net.WebUtility.HtmlEncode(s);
-#else
-            return HttpUtility.HtmlEncode(s);
-#endif
         }
         /// <summary>
         /// Decodes a HTML encoded string.
         /// </summary>
         /// <param name="s">The HTML encoded string.</param>
         /// <returns>Returns the decoded string.</returns>
-        public static string HtmlDecode(string s) {
-            if (s == null) return "";
-#if MVC6
+        public static string HtmlDecode(string? s) {
+            if (s == null) return string.Empty;
             return System.Net.WebUtility.HtmlDecode(s);
-#else
-            return HttpUtility.HtmlDecode(s);
-#endif
         }
         /// <summary>
         /// Encodes a string for use as an HTML attribute.
         /// </summary>
         /// <param name="s">The string to encode.</param>
         /// <returns>Returns the string encoded for use as an HTML attribute.</returns>
-        public static string HtmlAttributeEncode(string s) {
-            if (s == null) return "";
-#if MVC6
+        public static string HtmlAttributeEncode(string? s) {
+            if (s == null) return string.Empty;
             return System.Net.WebUtility.HtmlEncode(s);
-#else
-            return HttpUtility.HtmlAttributeEncode(s);
-#endif
         }
         /// <summary>
         /// Encodes a string for use as a query string argument.
         /// </summary>
         /// <param name="s">The string to encode.</param>
         /// <returns>Returns the string encoded for use as a query string argument.</returns>
-        public static string UrlEncodeArgs(string s) {
-            if (s == null) return "";
+        public static string UrlEncodeArgs(string? s) {
+            if (s == null) return string.Empty;
             return Uri.EscapeDataString(s);
         }
         /// <summary>
@@ -247,8 +223,8 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The encoded query string argument.</param>
         /// <returns>Returns the decoded string.</returns>
-        public static string UrlDecodeArgs(string s) {
-            if (s == null) return "";
+        public static string UrlDecodeArgs(string? s) {
+            if (s == null) return string.Empty;
             return Uri.UnescapeDataString(s);
         }
         /// <summary>
@@ -257,8 +233,8 @@ namespace YetaWF.Core.Support {
         /// <param name="s">The URL segment.</param>
         /// <returns>Returns an encoded URL segment.</returns>
         // used to encode the page path segments
-        public static string UrlEncodeSegment(string s) {
-            if (s == null) return "";
+        public static string UrlEncodeSegment(string? s) {
+            if (s == null) return string.Empty;
             string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
             int inv = 0;
             StringBuilder sb = new StringBuilder();
@@ -279,8 +255,8 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The URL path.</param>
         /// <returns>Returns the encoded URL path.</returns>
-        public static string UrlEncodePath(string s) {
-            if (string.IsNullOrWhiteSpace(s)) return null;
+        public static string UrlEncodePath(string? s) {
+            if (string.IsNullOrWhiteSpace(s)) return string.Empty;
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
             string validChars = "_./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
@@ -307,8 +283,8 @@ namespace YetaWF.Core.Support {
             }
             return sb.ToString();
         }
-        internal static string UrlDecodePath(string s) {
-            if (string.IsNullOrWhiteSpace(s)) return null;
+        internal static string UrlDecodePath(string? s) {
+            if (string.IsNullOrWhiteSpace(s)) return string.Empty;
             StringBuilder sb = new StringBuilder();
             s = SkipSchemeAndDomain(sb, s);
             sb.Append(Uri.UnescapeDataString(s));
@@ -356,10 +332,10 @@ namespace YetaWF.Core.Support {
             return s;
         }
 
-        public static string UrlFor(Type type, string actionName, object args = null) {
+        public static string UrlFor(Type type, string actionName, object? args = null) {
             if (!type.Name.EndsWith("Controller")) throw new InternalError("Type {0} is not a controller", type.FullName);
             string controller = type.Name.Substring(0, type.Name.Length - "Controller".Length);
-            Package package = Package.TryGetPackageFromAssembly(type.Assembly);
+            Package? package = Package.TryGetPackageFromAssembly(type.Assembly);
             if (package == null)
                 throw new InternalError("Type {0} is not part of a package", type.FullName);
             string area = package.AreaName;
@@ -377,14 +353,10 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="httpContext">The Http context.</param>
         /// <remarks>See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.0#synchronous-io for more info.</remarks>
-#if MVC6
         public static void AllowSyncIO(HttpContext httpContext) {
             var syncIOFeature = httpContext.Features.Get<IHttpBodyControlFeature>();
             if (syncIOFeature != null)
                 syncIOFeature.AllowSynchronousIO = true;
         }
-#else
-        public static void AllowSyncIO(object dummy) { }
-#endif
     }
 }

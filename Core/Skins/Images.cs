@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,7 +22,7 @@ namespace YetaWF.Core.Skins {
 
         // Cache url icons searched (hits and misses)
         // Only Deployed builds use caching
-        private static Dictionary<string, string> Cache = new Dictionary<string, string>();
+        private static Dictionary<string, string?> Cache = new Dictionary<string, string?>();
         private enum CachedEnum {
             Unknown,
             NotFound,
@@ -43,7 +45,7 @@ namespace YetaWF.Core.Skins {
             return await FindIconAsync(imageUrl, version);
         }
 
-        private async Task<string> FindIconAsync(string imageUrl, VersionManager.AddOnProduct addOnVersion) {
+        private async Task<string> FindIconAsync(string imageUrl, VersionManager.AddOnProduct? addOnVersion) {
 
             string url, urlCustom;
             string file;
@@ -93,7 +95,7 @@ namespace YetaWF.Core.Skins {
             // TODO: Need a way for this to work in Ajax calls so we get the correct icons
             if (Manager.CurrentPage != null) {
                 SkinDefinition skin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-                string skinCollection = skin.Collection;
+                string skinCollection = skin.Collection!;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME
@@ -129,7 +131,7 @@ namespace YetaWF.Core.Skins {
 
             // get fallback skin icon
             {
-                string skinCollection = Manager.IsInPopup ? SkinDefinition.FallbackPopupSkin.Collection : SkinDefinition.FallbackSkin.Collection;
+                string skinCollection = Manager.IsInPopup ? SkinDefinition.FallbackPopupSkin.Collection! : SkinDefinition.FallbackSkin.Collection!;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME
@@ -199,9 +201,8 @@ namespace YetaWF.Core.Skins {
         }
 
         private string GetCache(string urlCustom) {
-            string cdnUrl;
-            if (!Cache.TryGetValue(urlCustom, out cdnUrl))
-                return null;
+            if (!Cache.TryGetValue(urlCustom, out string? cdnUrl) || cdnUrl == null)
+                throw new InternalError($"{nameof(GetCache)} called for non-cached url");
             return cdnUrl;
         }
         private string AddCache(string urlCustom) {
@@ -227,8 +228,7 @@ namespace YetaWF.Core.Skins {
             }
         }
         private CachedEnum HasCache(string urlCustom) {
-            string cdnUrl;
-            if (!Cache.TryGetValue(urlCustom, out cdnUrl))
+            if (!Cache.TryGetValue(urlCustom, out string? cdnUrl))
                 return CachedEnum.Unknown;
             if (string.IsNullOrWhiteSpace(cdnUrl))
                 return CachedEnum.NotFound;

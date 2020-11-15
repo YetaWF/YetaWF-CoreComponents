@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +11,6 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-#if MVC6
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Modules {
 
@@ -30,7 +27,7 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
         /// <returns>The module rendered as HTML.</returns>
-        public static async Task<string> RenderUniqueModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Action<TYPE> initModule = null) {
+        public static async Task<string> RenderUniqueModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Action<TYPE>? initModule = null) {
             return await htmlHelper.RenderUniqueModuleAsync(typeof(TYPE), (mod) => {
                 if (initModule != null)
                     initModule((TYPE)(object)mod);
@@ -45,17 +42,17 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
         /// <returns>The module rendered as HTML.</returns>
-        public static async Task<string> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, string packageName, string typeName, Action<ModuleDefinition> initModule = null) {
+        public static async Task<string> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, string packageName, string typeName, Action<ModuleDefinition>? initModule = null) {
             Package package = Package.GetPackageFromPackageName(packageName);
-            Type type = package.PackageAssembly.GetType(typeName, true);
+            Type type = package.PackageAssembly.GetType(typeName, true) !;
             return await htmlHelper.RenderUniqueModuleAsync(type, (mod) => {
                 if (initModule != null)
                     initModule(mod);
             });
         }
-        internal static async Task<string> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, Type modType, Action<ModuleDefinition> initModule = null) {
+        internal static async Task<string> RenderUniqueModuleAsync(this YHtmlHelper htmlHelper, Type modType, Action<ModuleDefinition>? initModule = null) {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
-            ModuleDefinition mod = null;
+            ModuleDefinition? mod = null;
             try {
                 mod = await Module.LoadModuleDefinitionAsync(permGuid);
                 if (mod == null) {
@@ -95,8 +92,8 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="initModule">An optional callback to initialize the module if it is a new module. This is called after the module has been created. The action parameter is the module instance.</param>
         /// <returns>The module rendered as HTML.</returns>
-        public static async Task<string> RenderModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Guid moduleGuid, Action<TYPE> initModule = null) {
-            ModuleDefinition mod = null;
+        public static async Task<string> RenderModuleAsync<TYPE>(this YHtmlHelper htmlHelper, Guid moduleGuid, Action<TYPE>? initModule = null) {
+            ModuleDefinition? mod = null;
             try {
                 mod = await Module.LoadModuleDefinitionAsync(moduleGuid);
                 if (mod == null) {
@@ -129,9 +126,9 @@ namespace YetaWF.Core.Modules {
             return await mod.RenderModuleAsync(htmlHelper);
         }
 
-        public static async Task<string> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper, Type modType, Action<object> initModule = null) {
+        public static async Task<string> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper, Type modType, Action<object>? initModule = null) {
             Guid permGuid = ModuleDefinition.GetPermanentGuid(modType);
-            ModuleDefinition mod = null;
+            ModuleDefinition? mod = null;
             try {
                 mod = await Module.LoadModuleDefinitionAsync(permGuid);
                 if (mod == null) {
@@ -163,7 +160,7 @@ namespace YetaWF.Core.Modules {
             return await mod.RenderReferencedModule_AjaxAsync(htmlHelper);
         }
 
-        public static async Task<string> RenderUniqueModuleAddOnsAsync(this YHtmlHelper htmlHelper, List<Guid> ExcludedGuids = null) {
+        public static async Task<string> RenderUniqueModuleAddOnsAsync(this YHtmlHelper htmlHelper, List<Guid>? ExcludedGuids = null) {
 
             Manager.Verify_NotPostRequest();
             List<AddOnManager.Module> mods = Manager.AddOnManager.GetAddedUniqueInvokedCssModules();

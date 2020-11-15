@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Models.Attributes;
 
@@ -7,10 +9,10 @@ namespace YetaWF.Core.Support.Repository {
 
     public class Setting {
 
-        public string Name { get; private set; }
+        public string Name { get; private set; } = null!;
 
         [DontSave]
-        public SettingsDictionary Dictionary { get; internal set; }
+        public SettingsDictionary? Dictionary { get; internal set; }
 
         // CREATE/REMOVE
         // CREATE/REMOVE
@@ -44,20 +46,20 @@ namespace YetaWF.Core.Support.Repository {
         // VALUE
         // VALUE
 
-        public object Value { get; set; }
+        public object? Value { get; set; }
 
-        public TYPE GetValue<TYPE>() {
-            if (Value == null || Value.Equals(default(TYPE))) return default(TYPE);
+        public TYPE? GetValue<TYPE>() {
+            if (Value == null || Value.Equals(default(TYPE))) return default;
             if (typeof(TYPE) == typeof(bool)) {
                 try {
                     return (TYPE)(object)((string)Value == "True");
                 } catch (Exception) { }
             } else if (typeof(TYPE) == typeof(int)) {
-                return (TYPE)(object) Convert.ToInt32((string) Value.ToString());
+                return (TYPE)(object) Convert.ToInt32(Value.ToString()!);
             }
             try {
                 return (TYPE) Value;
-            } catch (Exception) { return default(TYPE); }
+            } catch (Exception) { return default; }
         }
         public void SetValue<TYPE>(TYPE value) {
             Value = value;

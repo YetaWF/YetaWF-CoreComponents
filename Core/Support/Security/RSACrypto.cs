@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -93,7 +95,7 @@ namespace YetaWF.Core.Security {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xmlString);
 
-            if (xmlDoc.DocumentElement.Name.Equals("RSAKeyValue")) {
+            if (xmlDoc.DocumentElement!.Name.Equals("RSAKeyValue")) {
                 foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes) {
                     switch (node.Name) {
                         case "Modulus": parameters.Modulus = (string.IsNullOrEmpty(node.InnerText) ? null : Convert.FromBase64String(node.InnerText)); break;

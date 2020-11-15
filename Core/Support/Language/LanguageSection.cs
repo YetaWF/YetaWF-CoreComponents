@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,9 +11,9 @@ namespace YetaWF.Core.Language {
 
     public class LanguageEntryElementCollection : List<LanguageEntryElement> { }
     public class LanguageEntryElement {
-        public string Id { get; set; }
-        public string ShortName { get; set; }
-        public string Description { get; set; }
+        public string Id { get; set; } = null!;
+        public string ShortName { get; set; } = null!;
+        public string Description { get; set; } = null!;
     }
 
     public static class LanguageSection {
@@ -21,7 +23,7 @@ namespace YetaWF.Core.Language {
         /// <summary>
         /// List of supported languages.
         /// </summary>
-        public static LanguageEntryElementCollection Languages { get; private set; }
+        public static LanguageEntryElementCollection Languages { get; private set; } = null!;
 
         /// <summary>
         /// Load the specified languages definition file.

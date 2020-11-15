@@ -1,39 +1,37 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using YetaWF.Core.Addons;
-using YetaWF.Core.Components;
-using YetaWF.Core.Extensions;
-using YetaWF.Core.Localize;
-using YetaWF.Core.Models;
-using YetaWF.Core.Modules;
-using YetaWF.Core.Packages;
-using YetaWF.Core.Pages;
-using YetaWF.Core.Site;
-using YetaWF.Core.Support.Repository;
-using YetaWF.Core.Support.StaticPages;
-using YetaWF.Core.Support.UrlHistory;
-using YetaWF.Core.Skins;
-using System.Threading.Tasks;
-using YetaWF.Core.Controllers;
-using System.Globalization;
-using TimeZoneConverter;
-using Newtonsoft.Json;
-using YetaWF.Core.Identity;
-#if MVC6
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-#else
-using System.Web;
-#endif
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using TimeZoneConverter;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
+using YetaWF.Core.Controllers;
+using YetaWF.Core.Extensions;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Localize;
+using YetaWF.Core.Models;
+using YetaWF.Core.Modules;
+using YetaWF.Core.Packages;
+using YetaWF.Core.Pages;
+using YetaWF.Core.Site;
+using YetaWF.Core.Skins;
+using YetaWF.Core.Support.Repository;
+using YetaWF.Core.Support.StaticPages;
+using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Support {
 
@@ -65,7 +63,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public const string SERVICEMODE = "__Service";
 
-        public static string Mode { get; set; }
+        public static string Mode { get; set; } = null!;
         public static bool IsBatchMode { get { return Mode == BATCHMODE; } }
         public static bool IsServiceMode { get { return Mode == SERVICEMODE; } }
 
@@ -73,41 +71,41 @@ namespace YetaWF.Core.Support {
 
 #if MVC6
         public class DummyServiceProvider : IServiceProvider {
-            public object GetService(Type serviceType) { return null; }
+            public object? GetService(Type serviceType) { return null; }
         }
         public class DummyHttpContextAccessor : IHttpContextAccessor {
-            public HttpContext HttpContext { get { return null; } set { } }
+            public HttpContext? HttpContext { get { return null; } set { } }
         }
         public class DummyMemoryCache : IMemoryCache {
-            public ICacheEntry CreateEntry(object key) { return null; }
+            public ICacheEntry CreateEntry(object key) { return null!; }
             public void Dispose() { }
             public void Remove(object key) { }
-            public bool TryGetValue(object key, out object value) { value = null; return false; }
+            public bool TryGetValue(object key, out object value) { value = null!; return false; }
         }
 #else
 #endif
 
 #if MVC6
-        public static void Init(IHttpContextAccessor httpContextAccessor = null, IMemoryCache memoryCache = null, IServiceProvider svp = null) {
+        public static void Init(IHttpContextAccessor? httpContextAccessor = null, IMemoryCache? memoryCache = null, IServiceProvider? svp = null) {
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
             MemoryCache = memoryCache ?? new DummyMemoryCache();
-            ServiceProvider = svp;
+            ServiceProvider = svp!;
         }
-        public static IHttpContextAccessor HttpContextAccessor = null;
-        public static IMemoryCache MemoryCache = null;
-        public static IServiceProvider ServiceProvider = null;
+        public static IHttpContextAccessor HttpContextAccessor = null!;
+        public static IMemoryCache MemoryCache = null!;
+        public static IServiceProvider ServiceProvider = null!;
 #else
 #endif
 
-        private YetaWFManager(string host) {
-            SiteDomain = host; // save the host name that owns this Manager
+        private YetaWFManager(string? host) {
+            SiteDomain = host ?? "(default)" ; // save the host name that owns this Manager
         }
 
         /// <summary>
         /// Used for threads, console applications that don't have an HttpContext instance.
         /// </summary>
         [ThreadStatic]
-        private static YetaWFManager _ManagerThreadInstance = null;
+        private static YetaWFManager? _ManagerThreadInstance = null;
 
         /// <summary>
         /// Returns the instance of the YetaWFManager class associated with the current HTTP request.
@@ -115,19 +113,14 @@ namespace YetaWF.Core.Support {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public static YetaWFManager Manager {
             get {
-                YetaWFManager manager = _ManagerThreadInstance;
+                YetaWFManager? manager = _ManagerThreadInstance;
                 if (manager != null)
                     return manager;
-#if MVC6
-                HttpContext context = HttpContextAccessor.HttpContext;
-                if (context != null) {
+
+                HttpContext? context = HttpContextAccessor.HttpContext;
+                if (context != null)
                     manager = context.Items[YetaWF_ManagerKey] as YetaWFManager;
-                }
-#else
-                if (HttpContext.Current != null) {
-                    manager = HttpContext.Current.Items[YetaWF_ManagerKey] as YetaWFManager;
-                }
-#endif
+
                 if (manager == null)
                     throw new Error("We don't have a YetaWFManager object.");
                 return manager;
@@ -142,17 +135,11 @@ namespace YetaWF.Core.Support {
             get {
                 if (_ManagerThreadInstance != null)
                     return true;
-#if MVC6
+
                 if (HttpContextAccessor != null && HttpContextAccessor.HttpContext != null) {
                     if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] != null)
                         return true;
                 }
-#else
-                if (HttpContext.Current != null) {
-                    if (HttpContext.Current.Items[YetaWF_ManagerKey] != null)
-                        return true;
-                }
-#endif
                 return false;
             }
         }
@@ -162,7 +149,7 @@ namespace YetaWF.Core.Support {
         /// This is only used by the framework during request startup as soon as the site URL has been determined.
         /// </summary>
         /// <param name="siteHost">The site name as it would appear in a URL (without scheme).</param>
-        public static YetaWFManager MakeInstance(HttpContext httpContext, string siteHost) {
+        public static YetaWFManager MakeInstance(HttpContext httpContext, string? siteHost) {
             if (siteHost == null)
                 throw new Error("Site host required to create a YetaWFManager object.");
 #if DEBUG
@@ -180,7 +167,7 @@ namespace YetaWF.Core.Support {
         /// Creates an instance of the YetaWFManager - used for non-site specific threads (e.g., scheduler).
         /// Can only be used once MakeInitialThreadInstance has been used
         /// </summary>
-        public static YetaWFManager MakeThreadInstance(SiteDefinition site, HttpContext context, bool forceSync = false) {
+        public static YetaWFManager MakeThreadInstance(SiteDefinition? site, HttpContext? context, bool forceSync = false) {
             YetaWFManager manager;
             if (site != null) {
                 manager = new YetaWFManager(site.Identity.ToString());
@@ -228,9 +215,9 @@ namespace YetaWF.Core.Support {
         /// </summary>
         internal class SchedulerUserData {
             public Localize.Formatting.DateFormatEnum DateFormat { get; set; }
-            public string TimeZone { get; set; }
+            public string TimeZone { get; set; } = null!;
             public Localize.Formatting.TimeFormatEnum TimeFormat { get; set; }
-            public string LanguageId { get; set; }
+            public string LanguageId { get; set; } = null!;
         }
 
         /// <summary>
@@ -294,7 +281,7 @@ namespace YetaWF.Core.Support {
                     overridden = newSwitch = true;
                     SetRequestedDomain(httpContext, siteDomain);
                 }
-                ISession session = null;
+                ISession? session = null;
                 try {
                     session = httpContext.Session;
                 } catch (Exception) { }
@@ -323,7 +310,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The location of the website's root folder (physical, wwwroot on .NET - MVC).
         /// </summary>
-        public static string RootFolder { get; set; }
+        public static string RootFolder { get; set; } = null!;
 
         /// <summary>
         /// The location of the Website project (Website.csproj) root folder (physical).
@@ -331,13 +318,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>
         /// With MVC5, this is the same as the web site root folder (RootFolder). MVC6+ this is the root folder of the web project.
         /// </remarks>
-        public static string RootFolderWebProject {
-#if MVC6
-            get; set;
-#else
-            get { return RootFolder; }
-#endif
-        }
+        public static string RootFolderWebProject { get; set; } = null!;
         /// <summary>
         /// The location of the Solution (*.sln) root folder (physical).
         /// </summary>
@@ -376,7 +357,7 @@ namespace YetaWF.Core.Support {
                 return defaultSiteName;
             }
         }
-        private static string defaultSiteName;
+        private static string? defaultSiteName;
 
         /// <summary>
         /// The location of the Data folder (not site specific).
@@ -388,12 +369,7 @@ namespace YetaWF.Core.Support {
         /// </remarks>
         public static string DataFolder {
             get {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
+                string rootFolder = YetaWFManager.RootFolderWebProject;
                 return Path.Combine(rootFolder, Globals.DataFolder, "DataFolder");
             }
         }
@@ -408,12 +384,7 @@ namespace YetaWF.Core.Support {
         /// </remarks>
         public static string LicenseFolder {
             get {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
+                string rootFolder = YetaWFManager.RootFolderWebProject;
                 return Path.Combine(rootFolder, Globals.DataFolder, "Licenses");
             }
         }
@@ -428,12 +399,7 @@ namespace YetaWF.Core.Support {
         /// </remarks>
         public static string VaultPrivateFolder {
             get {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
+                string rootFolder = YetaWFManager.RootFolderWebProject;
                 return Path.Combine(rootFolder, Globals.VaultPrivateFolder);
             }
         }
@@ -498,7 +464,7 @@ namespace YetaWF.Core.Support {
                 return _cacheBuster;
             }
         }
-        private static string _cacheBuster;
+        private static string? _cacheBuster;
 
         // BUILD
         // BUILD
@@ -605,14 +571,14 @@ namespace YetaWF.Core.Support {
         // HTTPCONTEXT
 
         /// <summary>
-        /// The current site's domain - E.g., softelvdm.com, localhost, etc. or an empty string if it's the default site.
+        /// The current site's domain - E.g., softelvdm.com, localhost, etc.
         /// </summary>
         public string SiteDomain { get; set; }
 
         /// <summary>
         /// The host used to access this website.
         /// </summary>
-        public string HostUsed { get; set; }
+        public string HostUsed { get; set; } = null!;
         /// <summary>
         /// The port used to access this website.
         /// </summary>
@@ -620,7 +586,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The scheme used to access this website.
         /// </summary>
-        public string HostSchemeUsed { get; set; }
+        public string HostSchemeUsed { get; set; } = null!;
         /// <summary>
         /// Defines whether localhost/127.0.0.1 was used to access this website.
         /// </summary>
@@ -657,7 +623,7 @@ namespace YetaWF.Core.Support {
                 _currentSite = value;
             }
         }
-        private SiteDefinition _currentSite;
+        private SiteDefinition? _currentSite;
 
         public bool HaveCurrentSite {
             get {
@@ -665,11 +631,10 @@ namespace YetaWF.Core.Support {
             }
         }
 
-
         /// <summary>
         /// Saved URL where we came from (e.g. used for return handling after Save)
         /// </summary>
-        public List<Origin> OriginList { get; set; }
+        public List<Origin> OriginList { get; set; } = null!;
 
         /// <summary>
         /// Returns the last entry of the OriginList without removing it.
@@ -728,14 +693,13 @@ namespace YetaWF.Core.Support {
         // GetUrlArg and TryGetUrlArg is used to retrieve optional Url args (outside of a Controller) added to a page using AddUrlArg, so one module can add args for other modules on the same page
 
         public TYPE GetUrlArg<TYPE>(string arg) {
-            TYPE val;
-            if (!TryGetUrlArg<TYPE>(arg, out val))
+            if (!TryGetUrlArg<TYPE>(arg, out TYPE? val))
                 throw new InternalError(this.__ResStr("invUrlArg", "{0} URL argument invalid or missing", arg));
             return val;
         }
-        public bool TryGetUrlArg<TYPE>(string arg, out TYPE val, TYPE dflt = default(TYPE)) {
+        public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE dflt = default) {
             val = dflt;
-            string v;
+            string? v;
             try {
                 v = RequestQueryString[arg];
                 if (v == null)
@@ -753,7 +717,7 @@ namespace YetaWF.Core.Support {
                 }
                 return true;
             } else if (typeof(TYPE) == typeof(bool) || typeof(TYPE) == typeof(bool?)) {
-                val = (TYPE)(object)((v == "1" || v.ToLower() == "on" || v.ToLower() == "true" || v.ToLower() == "yes") ? true : false);
+                val = (TYPE)(object)(v == "1" || v.ToLower() == "on" || v.ToLower() == "true" || v.ToLower() == "yes");
                 return true;
             } else if (typeof(TYPE) == typeof(string)) {
                 try {
@@ -780,10 +744,10 @@ namespace YetaWF.Core.Support {
         /// This is mainly used to propagate selections from one module to another (top-down on page only).
         ///  Other modules must use TryGetUrlArg or GetUrlArg to retrieve these args as they're not part of the querystring/url.
         /// </summary>
-        public void AddUrlArg(string arg, string value) {
+        public void AddUrlArg(string arg, string? value) {
             ExtraUrlArgs.Add(arg, value);
         }
-        private Dictionary<string, string> ExtraUrlArgs = new Dictionary<string, string>();
+        private readonly Dictionary<string, string?> ExtraUrlArgs = new Dictionary<string, string?>();
 
         /// <summary>
         /// Returns whether the page control module is visible
@@ -815,7 +779,7 @@ namespace YetaWF.Core.Support {
                 return _metatagsManager;
             }
         }
-        private MetatagsManager _metatagsManager = null;
+        private MetatagsManager? _metatagsManager = null;
 
         public string MetatagsHtml {
             get {
@@ -830,7 +794,7 @@ namespace YetaWF.Core.Support {
                 return _linkAltManager;
             }
         }
-        private LinkAltManager _linkAltManager = null;
+        private LinkAltManager? _linkAltManager = null;
 
         public ScriptManager ScriptManager {
             get {
@@ -839,7 +803,7 @@ namespace YetaWF.Core.Support {
                 return _scriptManager;
             }
         }
-        private ScriptManager _scriptManager = null;
+        private ScriptManager? _scriptManager = null;
 
         public CssManager CssManager {
             get {
@@ -848,7 +812,7 @@ namespace YetaWF.Core.Support {
                 return _cssManager;
             }
         }
-        private CssManager _cssManager = null;
+        private CssManager? _cssManager = null;
 
         public AddOnManager AddOnManager {
             get {
@@ -857,7 +821,7 @@ namespace YetaWF.Core.Support {
                 return _addOnManager;
             }
         }
-        private AddOnManager _addOnManager = null;
+        private AddOnManager? _addOnManager = null;
 
         /// <summary>
         /// Returns the Static Page Manager instance.
@@ -872,7 +836,7 @@ namespace YetaWF.Core.Support {
                 return _staticPageManager;
             }
         }
-        private StaticPageManager _staticPageManager = null;
+        private StaticPageManager? _staticPageManager = null;
 
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
@@ -902,7 +866,7 @@ namespace YetaWF.Core.Support {
         public const string UniqueIdTracked = "u";
 
         public class UniqueIdInfo {
-            public string UniqueIdPrefix { get; set; }
+            public string UniqueIdPrefix { get; set; } = null!;
             public int UniqueIdPrefixCounter { get; set; }
             public int UniqueIdCounter { get; set; }
 
@@ -916,11 +880,11 @@ namespace YetaWF.Core.Support {
 
         public string UserHostAddress {
             get {
-                if (!HaveCurrentRequest) return "";
+                if (!HaveCurrentRequest) return string.Empty;
                 IHttpConnectionFeature connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
-                if (connectionFeature != null)
+                if (connectionFeature != null && connectionFeature.RemoteIpAddress != null)
                     return connectionFeature.RemoteIpAddress.ToString();
-                return "";
+                return string.Empty;
             }
         }
         public QueryHelper RequestQueryString {
@@ -930,7 +894,7 @@ namespace YetaWF.Core.Support {
                 return _requestQueryString;
             }
         }
-        private QueryHelper _requestQueryString = null;
+        private QueryHelper? _requestQueryString = null;
 
         public FormHelper RequestForm {
             get {
@@ -943,9 +907,9 @@ namespace YetaWF.Core.Support {
                 return _requestForm;
             }
         }
-        private FormHelper _requestForm = null;
+        private FormHelper? _requestForm = null;
 
-        private HttpContext _HttpContext = null;
+        private HttpContext? _HttpContext = null;
 
         public bool HaveCurrentContext {
             get {
@@ -988,36 +952,21 @@ namespace YetaWF.Core.Support {
         }
         public string ReferrerUrl {
             get {
-#if MVC6
                 return Manager.CurrentRequest.Headers["Referer"].ToString();
-#else
-                return Manager.CurrentRequest.UrlReferrer != null ? Manager.CurrentRequest.UrlReferrer.ToString() : null;
-#endif
             }
         }
 
         public static void SetStaticCacheInfo(HttpContext context) {
             if (YetaWFManager.Deployed && StaticCacheDuration > 0) {
-#if MVC6
                 context.Response.Headers[HeaderNames.CacheControl] = string.Format("max-age={0}", StaticCacheDuration * 60);
-#else
-                context.Response.Cache.SetCacheability(HttpCacheability.Public);
-                context.Response.Cache.SetMaxAge(new TimeSpan(0, StaticCacheDuration, 0));
-#endif
             }
             // add CORS header for static site
 #if DEBUG
             context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 #else
-#if MVC6
-            SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
+            SiteDefinition? site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Host.Host).Result;// cached, so ok to use result
             if (site != null)
                 context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Scheme}://{site.SiteDomain.ToLower()}");
-#else
-            SiteDefinition site = SiteDefinition.LoadStaticSiteDefinitionAsync(context.Request.Url.Host).Result;// cached, so ok to use result
-            if (site != null)
-                context.Response.Headers.Add("Access-Control-Allow-Origin", $"{context.Request.Url.Scheme}://{site.SiteDomain.ToLower()}");
-#endif
 #endif
         }
         public static int StaticCacheDuration {
@@ -1049,15 +998,10 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        public string CurrentSessionId {
+        public string? CurrentSessionId {
             get {
-#if MVC6
                 if (HaveCurrentSession)
                     return CurrentContext.Session.Id;
-#else
-                if (HaveCurrentSession)
-                    return CurrentContext.Session.SessionID;
-#endif
                 return null;
             }
         }
@@ -1076,16 +1020,15 @@ namespace YetaWF.Core.Support {
                 _currentRequestUrl = value;
             }
         }
-        private string _currentRequestUrl = null;
+        private string? _currentRequestUrl;
 
         /// <summary>
         /// Describes the current URL (path and query string only) requested, as shown by browser, which matches the page URL. CurrentRequestUrl may not match the full page URL in UPS requests.
         /// </summary>
-        public string CurrentUrl { get; set; }
+        public string CurrentUrl { get; set; } = null!;
 
-        public void RestartSite(string url = null) {
-#if MVC6
-            IHostApplicationLifetime applicationLifetime = (IHostApplicationLifetime)ServiceProvider.GetService(typeof(IHostApplicationLifetime));
+        public void RestartSite(string? url = null) {
+            IHostApplicationLifetime applicationLifetime = (IHostApplicationLifetime)ServiceProvider.GetService(typeof(IHostApplicationLifetime)) !;
             applicationLifetime.StopApplication();
 
             if (!string.IsNullOrWhiteSpace(url)) {
@@ -1096,9 +1039,6 @@ namespace YetaWF.Core.Support {
                     Manager.CurrentResponse.Body.WriteAsync(btes, 0, btes.Length).Wait(); // Wait OK, this is debug only
                     Manager.CurrentResponse.Body.FlushAsync().Wait(); // Wait OK, this is debug only
                 } catch (Exception) { }
-#else
-                CurrentResponse.Redirect(url);
-#endif
             }
 #else
             HttpRuntime.UnloadAppDomain();
@@ -1113,25 +1053,17 @@ namespace YetaWF.Core.Support {
                 string overRide = request.Headers["X-HTTP-Method-Override"];
                 if (overRide != null)
                     return request.Headers["X-HTTP-Method-Override"] == "POST";
-#if MVC6
                 return (request.Method == "POST");
-#else
-                return (request.RequestType == "POST");
-#endif
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public bool IsGetRequest {
             get {
                 HttpRequest request = CurrentRequest;
-                string overRide = request.Headers["X-HTTP-Method-Override"];
+                string? overRide = request.Headers["X-HTTP-Method-Override"];
                 if (overRide != null)
                     return overRide == "GET";
-#if MVC6
                 return (request.Method == "GET" || request.Method == "HEAD" || request.Method == "");
-#else
-                return (request.RequestType == "GET" || request.RequestType == "HEAD");
-#endif
             }
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
@@ -1141,11 +1073,7 @@ namespace YetaWF.Core.Support {
                 string overRide = request.Headers["X-HTTP-Method-Override"];
                 if (overRide != null)
                     return overRide == "HEAD";
-#if MVC6
                 return (request.Method == "HEAD");
-#else
-                return (request.RequestType == "HEAD");
-#endif
             }
         }
 
@@ -1160,11 +1088,11 @@ namespace YetaWF.Core.Support {
                 return _SessionSettings;
             }
         }
-        private SessionSettings _SessionSettings = null;
+        private SessionSettings? _SessionSettings = null;
 
         public bool EditMode { get; set; }
 
-        public ModuleDefinition CurrentModuleEdited { get; set; }// used during module editing to signal which module is being edited
+        public ModuleDefinition? CurrentModuleEdited { get; set; }// used during module editing to signal which module is being edited
         public string ModeCss { get { return EditMode ? "yEditMode" : "yDisplayMode"; } }// used on body tag when in edit mode
 
         // PAGES
@@ -1174,11 +1102,11 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The current page.
         /// </summary>
-        public PageDefinition CurrentPage { get; set; }
+        public PageDefinition CurrentPage { get; set; } = null!;
         /// <summary>
         /// The set of pages the current page belongs to, if the current page is part of a set of unified pages.
         /// </summary>
-        public List<PageDefinition> UnifiedPages { get; set; }
+        public List<PageDefinition>? UnifiedPages { get; set; }
         /// <summary>
         /// The page mode used for unified pages.
         /// </summary>
@@ -1187,7 +1115,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The current page title. Modules can override the page title (we don't use the title in the page definition, except to set the default title).
         /// </summary>
-        public MultiString PageTitle { get; set; }
+        public MultiString PageTitle { get; set; } = null!;
 
         public string PageTitleHtml {
             get {
@@ -1207,7 +1135,7 @@ namespace YetaWF.Core.Support {
         // MODULES
         // MODULES
 
-        public ModuleDefinition CurrentModule { get; set; } // current module rendered
+        public ModuleDefinition? CurrentModule { get; set; } // current module rendered
 
         // COMPONENTS/VIEWS
         // COMPONENTS/VIEWS
@@ -1219,7 +1147,7 @@ namespace YetaWF.Core.Support {
             NestedComponents.Add(fieldName);
             return new NestedComponent();
         }
-        public string NestedComponentPrefix {
+        public string? NestedComponentPrefix {
             get {
                 if (NestedComponents.Count == 0) return null;
                 return NestedComponents.Last();
@@ -1251,7 +1179,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The current pane being rendered.
         /// </summary>
-        public string PaneRendered { get; set; }
+        public string? PaneRendered { get; set; }
 
         public bool IsRenderingPane { get { return PaneRendered != null; } }
 
@@ -1273,7 +1201,7 @@ namespace YetaWF.Core.Support {
         /// This property can be used by a component rendering package to save information for the current HTTP request.
         /// It is not used by YetaWF.
         /// </summary>
-        public object ComponentsData { get; set; }
+        public object? ComponentsData { get; set; }
 
         // FORM PROCESSING
         // FORM PROCESSING
@@ -1288,7 +1216,7 @@ namespace YetaWF.Core.Support {
         /// Cache rendered HTML for anti-forgery token.
         /// </summary>
         /// <remarks>I don't like this.</remarks>
-        public string AntiForgeryTokenHTML { get; set; }
+        public string? AntiForgeryTokenHTML { get; set; }
 
         /// <summary>
         /// Defines whether non-site specific data is also imported when importing packages
@@ -1313,10 +1241,10 @@ namespace YetaWF.Core.Support {
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", SkinInfo.UsingBootstrapButtons);
                 if (SkinInfo.UseDefaultBootstrap) {
                     // Find the bootstrap theme
-                    string skin = Manager.CurrentPage.BootstrapSkin;
+                    string? skin = Manager.CurrentPage.BootstrapSkin;
                     if (string.IsNullOrWhiteSpace(skin))
                         skin = Manager.CurrentSite.BootstrapSkin;
-                    string themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
+                    string? themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
                         await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootstrap-less");
                     else
@@ -1349,7 +1277,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Contains skin information for the skin used by the current page.
         /// </summary>
-        public SkinCollectionInfo SkinInfo { get; private set; }
+        public SkinCollectionInfo SkinInfo { get; private set; } = null!;
 
         /// <summary>
         /// Adds the page's or popup's css classes (the current edit mode, the current page's defined css and other page css).
@@ -1380,7 +1308,7 @@ namespace YetaWF.Core.Support {
                     break;
             }
             if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UseDefaultBootstrap) {
-                string skin = Manager.CurrentPage.BootstrapSkin;
+                string? skin = Manager.CurrentPage.BootstrapSkin;
                 if (string.IsNullOrWhiteSpace(skin))
                     skin = Manager.CurrentSite.BootstrapSkin;
                 if (!string.IsNullOrWhiteSpace(skin)) {
@@ -1403,15 +1331,15 @@ namespace YetaWF.Core.Support {
         // CURRENT USER
 
         // user info is obtained in global.asax.cs by Authentication provider ResolveUser
-        public string UserName { get; set; }
-        public string UserEmail { get; set; }
+        public string? UserName { get; set; }
+        public string? UserEmail { get; set; }
         public int UserId { get; set; }
-        public List<int> UserRoles { get; set; }
-        public object UserObject { get; set; }// data saved by Authentication provider
-        public object UserSettingsObject { get; set; } // data saved by usersettings module/data provider IUserSettings
-        public string UserLanguage { get; private set; }
+        public List<int>? UserRoles { get; set; }
+        public object? UserObject { get; set; }// data saved by Authentication provider
+        public object? UserSettingsObject { get; set; } // data saved by usersettings module/data provider IUserSettings
+        public string? UserLanguage { get; private set; }
         public string GetUserLanguage() {
-            string userLang = UserSettings.GetProperty<string>("LanguageId");
+            string? userLang = UserSettings.GetProperty<string>("LanguageId");
             UserLanguage = MultiString.NormalizeLanguageId(userLang);
             return UserLanguage;
         }
@@ -1457,14 +1385,14 @@ namespace YetaWF.Core.Support {
         /// <typeparam name="TYPE">The type of the data.</typeparam>
         /// <param name="areaName">The area name for which data was saved.</param>
         /// <returns>Returns the data or null, if not available.</returns>
-        public TYPE GetPackageData<TYPE>(string areaName) {
+        public TYPE? GetPackageData<TYPE>(string areaName) {
             if (_packageData == null)
                 return default(TYPE);
-            if (_packageData.TryGetValue(areaName, out object data))
+            if (_packageData.TryGetValue(areaName, out object? data))
                 return (TYPE)data;
-            return default(TYPE);
+            return default;
         }
-        private Dictionary<string, object> _packageData = null;
+        private Dictionary<string, object>? _packageData = null;
 
         /// <summary>
         /// Currently logged on user is authenticated but needs to set up two-step authentication.
@@ -1517,8 +1445,8 @@ namespace YetaWF.Core.Support {
 
         // repetitive authorization
         // add authorized page urls to this list (new for each http request) so we can avoid repetitive authorizations, particularly in grids
-        public List<string> UserAuthorizedUrls { get; set; }
-        public List<string> UserNotAuthorizedUrls { get; set; }
+        public List<string>? UserAuthorizedUrls { get; set; }
+        public List<string>? UserNotAuthorizedUrls { get; set; }
 
         // CURRENT DEVICE
         // CURRENT DEVICE
@@ -1554,7 +1482,7 @@ namespace YetaWF.Core.Support {
             if (timeZoneInfo == null) {
                 // Timezones don't use the same ids between Windows and other environments (nothing is ever easy)
                 // We store Windows Id so we translate on non-windows environments
-                string tz = UserSettings.GetProperty<string>("TimeZone");
+                string? tz = UserSettings.GetProperty<string>("TimeZone");
                 if (!string.IsNullOrWhiteSpace(tz)) {
                     if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
                         try {
@@ -1570,16 +1498,16 @@ namespace YetaWF.Core.Support {
             }
             return timeZoneInfo;
         }
-        private TimeZoneInfo timeZoneInfo = null;
+        private TimeZoneInfo? timeZoneInfo = null;
 
         public CultureInfo GetCultureInfo() {
             if (cultureInfo == null) {
-                string lang = UserSettings.GetProperty<string>("LanguageId");
-                cultureInfo = new CultureInfo(lang);
+                string? lang = UserSettings.GetProperty<string>("LanguageId");
+                cultureInfo = lang != null ? new CultureInfo(lang) : CultureInfo.InvariantCulture;
             }
             return cultureInfo;
         }
-        private CultureInfo cultureInfo = null;
+        private CultureInfo? cultureInfo = null;
 
         // Localization resource loading is not enabled immediately when the http request starts.
         // It is explicitly enabled in global.asax.cs once important information is available so resource loading can actually work.
@@ -1690,7 +1618,7 @@ namespace YetaWF.Core.Support {
         /// Async code will run synchronously on all platforms.
         /// </summary>
         private class NeedSync : IDisposable {
-            private YetaWFManager Manager;
+            private YetaWFManager? Manager;
             public NeedSync() {
                 if (YetaWFManager.HaveManager) { // if no manager is available, code is synchronous by definition
                     Manager = YetaWFManager.Manager;

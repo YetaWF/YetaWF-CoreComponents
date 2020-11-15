@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -112,14 +114,14 @@ namespace YetaWF.Core.Controllers {
                 return _ClassName;
             }
         }
-        private string _ClassName { get; set; }
+        private string? _ClassName { get; set; }
 
         private const string CONTROLLER_NAMESPACE = "(xcompanyx.Modules.xproductx.Controllers)";
 
         private void GetModuleInfo() {
             if (string.IsNullOrEmpty(_ModuleName)) {
                 Package package = Package.GetPackageFromAssembly(GetType().Assembly);
-                string ns = GetType().Namespace;
+                string ns = GetType().Namespace !;
 
                 string[] s = ns.Split(new char[] { '.' }, 4);
                 if (s.Length != 4)
@@ -140,16 +142,14 @@ namespace YetaWF.Core.Controllers {
 
                 _Area = package.AreaName;
                 _Domain = package.Domain;
-                _Version = package.Version;
             }
         }
-        private string _Product { get; set; }
-        private string _Area { get; set; }
-        private string _CompanyName { get; set; }
-        private string _Domain { get; set; }
-        private string _ModuleName { get; set; }
-        private string _ControllerName { get; set; }
-        private string _Version { get; set; }
+        private string _ModuleName { get; set; } = null!;
+        private string _Product { get; set; } = null!;
+        private string _Area { get; set; } = null!;
+        private string _CompanyName { get; set; } = null!;
+        private string _Domain { get; set; } = null!;
+        private string _ControllerName { get; set; } = null!;
 
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
@@ -169,8 +169,8 @@ namespace YetaWF.Core.Controllers {
         /// <param name="actionName">The name of the action within the controller.</param>
         /// <param name="args">Optional anonymous object with arguments to be formatted as query string.</param>
         /// <returns>The URL.</returns>
-        public string GetActionUrl(string actionName, object args = null) {
-            string url = "/" + Area + "/" + ControllerName + "/" + actionName;
+        public string GetActionUrl(string actionName, object? args = null) {
+            string url = $"/{Area}/{ControllerName}/{actionName}";
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
             return query.ToUrl(url);
         }
@@ -186,18 +186,18 @@ namespace YetaWF.Core.Controllers {
         /// <param name="filterContext">Information about the current request and action.</param>
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
 
-            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
+            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName!);
             await SetupActionContextAsync(filterContext);
 
             Type ctrlType = filterContext.Controller.GetType();
             string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
 
-            MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            MethodInfo? mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
             if (mi == null)
                 throw new InternalError($"Action {actionName} not found on {filterContext.Controller.GetType().FullName}");
             // check if the action is authorized by checking the module's authorization
-            string level = null;
-            PermissionAttribute permAttr = (PermissionAttribute)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
+            string? level = null;
+            PermissionAttribute? permAttr = (PermissionAttribute?)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
             if (permAttr != null)
                 level = permAttr.Level;
 
@@ -266,7 +266,7 @@ namespace YetaWF.Core.Controllers {
             await base.OnActionExecutionAsync(filterContext, next);
         }
 
-        internal static void CorrectModelState(object model, ModelStateDictionary ModelState, string prefix = "") {
+        internal static void CorrectModelState(object? model, ModelStateDictionary ModelState, string prefix = "") {
             if (model == null) return;
             Type modelType = model.GetType();
             if (ModelState.Keys.Count() == 0) return;
@@ -276,7 +276,7 @@ namespace YetaWF.Core.Controllers {
                     // check if the property name is for a class
                     string subPrefix = prefix + prop.Name + ".";
                     if ((from k in ModelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
-                        object subObject = prop.PropInfo.GetValue(model);
+                        object? subObject = prop.PropInfo.GetValue(model);
                         CorrectModelState(subObject, ModelState, subPrefix);
                     }
                     continue;
@@ -353,7 +353,7 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="parm"></param>
         /// <returns></returns>
-        private async Task<bool> FixDataAsync(object parm) {
+        private async Task<bool> FixDataAsync(object? parm) {
             if (parm == null) return false;
             bool any = false;
 
@@ -367,11 +367,9 @@ namespace YetaWF.Core.Controllers {
                     if (prop.UIHint != null && !prop.ReadOnly) {
                         // check template-specific processing
                         Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
-                        MethodInfo meth;
-                        if (meths.TryGetValue(prop.UIHint, out meth)) {
-                            ModelStateEntry modelStateEntry;
+                        if (meths.TryGetValue(prop.UIHint, out MethodInfo? meth)) {
                             bool preprocess = false;
-                            if (ModelState.TryGetValue(prop.UIHint, out modelStateEntry)) {
+                            if (ModelState.TryGetValue(prop.UIHint, out ModelStateEntry? modelStateEntry)) {
                                 if (modelStateEntry.ValidationState == ModelValidationState.Valid)
                                     preprocess = true;
                             } else {
@@ -379,10 +377,10 @@ namespace YetaWF.Core.Controllers {
                             }
                             if (preprocess) { // don't call component if there already is an error
                                 //string caption = prop.GetCaption(parm);
-                                object obj = prop.GetPropertyValue<object>(parm);
-                                Task methObjTask = (Task)meth.Invoke(null, new object[] { prop.Name, obj, ModelState });
+                                object? obj = prop.GetPropertyValue<object?>(parm);
+                                Task methObjTask = (Task)meth.Invoke(null, new object?[] { prop.Name, obj, ModelState }) !;
                                 await methObjTask.ConfigureAwait(false);
-                                PropertyInfo resultProp = methObjTask.GetType().GetProperty("Result");
+                                PropertyInfo resultProp = methObjTask.GetType().GetProperty("Result") !;
                                 pi.SetValue(parm, resultProp.GetValue(methObjTask));
                             }
                         }
@@ -392,11 +390,11 @@ namespace YetaWF.Core.Controllers {
                     int indexParmsLen = indexParms.Length;
                     if (indexParmsLen == 0) {
                         try {
-                            await FixDataAsync(prop.GetPropertyValue<object>(parm));  // try to handle nested types
+                            await FixDataAsync(prop.GetPropertyValue<object?>(parm));  // try to handle nested types
                         } catch (Exception) { }
                     } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
                         // enumerable types
-                        IEnumerable<object> ienum = parm as IEnumerable<object>;
+                        IEnumerable<object>? ienum = parm as IEnumerable<object>;
                         if (ienum != null) {
                             IEnumerator<object> ienumerator = ienum.GetEnumerator();
                             for (int i = 0; ienumerator.MoveNext(); i++) {
@@ -410,7 +408,7 @@ namespace YetaWF.Core.Controllers {
         }
 
         // update all model parameters and trim as requested
-        private static bool FixArgumentParmTrim(object parm) {
+        private static bool FixArgumentParmTrim(object? parm) {
             if (parm == null) return false;
             bool any = false;
 
@@ -418,7 +416,7 @@ namespace YetaWF.Core.Controllers {
             List<PropertyData> props = ObjectSupport.GetPropertyData(tpParm);
             foreach (var prop in props) {
                 any = true;
-                TrimAttribute trimAttr = prop.TryGetAttribute<TrimAttribute>();
+                TrimAttribute? trimAttr = prop.TryGetAttribute<TrimAttribute>();
                 if (trimAttr != null) {
                     TrimAttribute.EnumStyle style = trimAttr.Value;
                     if (style != TrimAttribute.EnumStyle.None) {
@@ -428,7 +426,7 @@ namespace YetaWF.Core.Controllers {
                             ms.Trim();
                         } else if (pi.PropertyType == typeof(string)) {
                             if (pi.CanWrite) {
-                                string val = (string) pi.GetValue(parm, null); ;
+                                string? val = (string?) pi.GetValue(parm, null);
                                 if (!string.IsNullOrEmpty(val)) {
                                     switch (style) {
                                         default:
@@ -448,7 +446,7 @@ namespace YetaWF.Core.Controllers {
                                 }
                             }
                         } else {
-                            FixArgumentParmTrim(prop.GetPropertyValue<object>(parm));  // handle nested types (but only if containing type has the Trim attribute)
+                            FixArgumentParmTrim(prop.GetPropertyValue<object?>(parm));  // handle nested types (but only if containing type has the Trim attribute)
                         }
                     }
                 }
@@ -456,7 +454,7 @@ namespace YetaWF.Core.Controllers {
             return any;
         }
         // update all model parameters and ucase/lcase as requested
-        private static bool FixArgumentParmCase(object parm) {
+        private static bool FixArgumentParmCase(object? parm) {
             if (parm == null) return false;
             bool any = false;
 
@@ -464,7 +462,7 @@ namespace YetaWF.Core.Controllers {
             List<PropertyData> props = ObjectSupport.GetPropertyData(tpParm);
             foreach (var prop in props) {
                 any = true;
-                CaseAttribute caseAttr = prop.TryGetAttribute<CaseAttribute>();
+                CaseAttribute? caseAttr = prop.TryGetAttribute<CaseAttribute>();
                 if (caseAttr != null) {
                     CaseAttribute.EnumStyle style = caseAttr.Value;
                     PropertyInfo pi = prop.PropInfo;
@@ -473,7 +471,7 @@ namespace YetaWF.Core.Controllers {
                         ms.Case(style);
                     } else if (pi.PropertyType == typeof(string)) {
                         if (pi.CanWrite) {
-                            string val = (string)pi.GetValue(parm, null); ;
+                            string? val = (string?)pi.GetValue(parm, null); ;
                             if (!string.IsNullOrEmpty(val)) {
                                 switch (style) {
                                     default:
@@ -488,7 +486,7 @@ namespace YetaWF.Core.Controllers {
                             }
                         }
                     } else {
-                        FixArgumentParmCase(prop.GetPropertyValue<object>(parm));  // handle nested types (but only if containing type has the Case attribute)
+                        FixArgumentParmCase(prop.GetPropertyValue<object?>(parm));  // handle nested types (but only if containing type has the Case attribute)
                     }
                 }
             }
@@ -507,12 +505,13 @@ namespace YetaWF.Core.Controllers {
                 if (prop.PropInfo.PropertyType.IsClass && !prop.PropInfo.PropertyType.IsAbstract) {
                     if (!prop.ReadOnly && prop.PropInfo.CanRead && prop.PropInfo.CanWrite) {
                         ClassData classData = ObjectSupport.GetClassData(prop.PropInfo.PropertyType);
-                        TemplateActionAttribute actionAttr = classData.TryGetAttribute<TemplateActionAttribute>();
+                        TemplateActionAttribute? actionAttr = classData.TryGetAttribute<TemplateActionAttribute>();
                         if (actionAttr != null) {
                             if (actionAttr.Value == templateName) {
-                                object objVal = prop.GetPropertyValue<object>(parm);
-                                ITemplateAction act = objVal as ITemplateAction;
-                                if (act == null) throw new InternalError("ITemplateAction not implemented for {0}", prop.Name);
+                                object? objVal = prop.GetPropertyValue<object?>(parm);
+                                ITemplateAction? act = objVal as ITemplateAction;
+                                if (act == null)
+                                    throw new InternalError("ITemplateAction not implemented for {0}", prop.Name);
                                 int actionVal = 0;
                                 if (!string.IsNullOrWhiteSpace(actionValStr))
                                     actionVal = Convert.ToInt32(actionValStr);
@@ -521,9 +520,9 @@ namespace YetaWF.Core.Controllers {
                                 return false;
                             }
                         }
-                        object o;
+                        object? o;
                         try {
-                            o = prop.GetPropertyValue<object>(parm);
+                            o = prop.GetPropertyValue<object?>(parm);
                         } catch (Exception) {
                             o = null;
                         }
@@ -541,7 +540,7 @@ namespace YetaWF.Core.Controllers {
                 foreach (var entry in HttpContext.Request.Form.Keys) {
                     if (entry != null && entry.EndsWith("-JSON")) {
                         string data = HttpContext.Request.Form[entry];
-                        string parmName = entry.Substring(0, entry.Length - 5);
+                        string parmName = entry[0..^5];
                         AddJSONParmData(actionParms, parmName, data);
                     }
                 }
@@ -563,7 +562,7 @@ namespace YetaWF.Core.Controllers {
                 if (parm.Value != null) {
                     Type tpParm = parm.Value.GetType();
                     if (tpParm.IsClass && !tpParm.IsAbstract) {
-                        PropertyInfo propInfo = ObjectSupport.TryGetProperty(tpParm, parmName);
+                        PropertyInfo? propInfo = ObjectSupport.TryGetProperty(tpParm, parmName);
                         if (propInfo != null) {
                             // if fails if we found a xx.JSON form arg and a matching model property, but the JSON data isn't valid
                             object parmData = Utility.JsonDeserialize(jsonData, propInfo.PropertyType);
@@ -590,7 +589,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="model">The model.</param>
         /// <returns>A YetaWFViewResult.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
-        protected new YetaWFViewResult View(object model) {
+        protected new YetaWFViewResult View(object? model) {
             return View(null, model, UseAreaViewName: true);
         }
         /// <summary>
@@ -609,14 +608,14 @@ namespace YetaWF.Core.Controllers {
         /// <param name="model">The model.</param>
         /// <param name="UseAreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <returns>A YetaWFViewResult.</returns>
-        protected YetaWFViewResult View(string viewName, object model, bool UseAreaViewName = true) {
+        protected YetaWFViewResult View(string? viewName, object? model, bool UseAreaViewName = true) {
             if (UseAreaViewName) {
                 if (string.IsNullOrWhiteSpace(viewName))
                     viewName = CurrentModule.DefaultViewName;
                 else
                     viewName = YetaWFController.MakeFullViewName(viewName, Area);
                 if (string.IsNullOrWhiteSpace(viewName)) {
-                    viewName = (string)RouteData.Values["action"];
+                    viewName = (string?)RouteData.Values["action"];
                     viewName = YetaWFController.MakeFullViewName(viewName, Area);
                 }
             }
@@ -633,7 +632,7 @@ namespace YetaWF.Core.Controllers {
         public class YetaWFViewResult : ActionResult {
 
             private ModuleDefinition Module { get; set; }
-            private object Model { get; set; }
+            private object? Model { get; set; }
             private string ViewName { get; set; }
             private YetaWFController RequestingController { get; set; }
 
@@ -644,7 +643,7 @@ namespace YetaWF.Core.Controllers {
             /// <param name="viewName">The name of the view.</param>
             /// <param name="module">The module on behalf of which to view is rendered.</param>
             /// <param name="model">The view's data model.</param>
-            public YetaWFViewResult(YetaWFController requestingController, string viewName, ModuleDefinition module, object model) {
+            public YetaWFViewResult(YetaWFController requestingController, string viewName, ModuleDefinition module, object? model) {
                 ViewName = viewName;
                 Module = module;
                 Model = model;
@@ -700,7 +699,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
         /// <param name="Reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
         /// <returns></returns>
-        protected ActionResult Reload(object model = null, int dummy = 0, string PopupText = null, string PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page) {
+        protected ActionResult Reload(object? model = null, int dummy = 0, string? PopupText = null, string? PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page) {
             if (Manager.IsPostRequest) {
                 switch (Reload) {
                     default:
@@ -717,7 +716,7 @@ namespace YetaWF.Core.Controllers {
                 return View("ShowMessage", PopupText, UseAreaViewName: false);
             }
         }
-        private ActionResult Reload_Module(object model, string popupText, string popupTitle) {
+        private ActionResult Reload_Module(object? model, string? popupText, string? popupTitle) {
             ScriptBuilder sb = new ScriptBuilder();
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
@@ -731,7 +730,7 @@ namespace YetaWF.Core.Controllers {
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
-        private ActionResult Reload_ModuleParts(object model, string popupText, string popupTitle) {
+        private ActionResult Reload_ModuleParts(object? model, string? popupText, string? popupTitle) {
             ScriptBuilder sb = new ScriptBuilder();
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
@@ -758,9 +757,9 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="message">The message text to be shown on an error page (GET requests only) along with the 403 exception.</param>
         /// <returns>An action result.</returns>
-        protected ActionResult NotAuthorized(string message) {
+        protected ActionResult NotAuthorized(string? message) {
 
-            message = message ?? __ResStr("notAuth", "Not Authorized");
+            message ??= __ResStr("notAuth", "Not Authorized");
 
             if (Manager.IsPostRequest) {
                 return new UnauthorizedResult();
@@ -862,10 +861,10 @@ namespace YetaWF.Core.Controllers {
         /// <param name="ExtraData">Additional data added to URL as _extraData argument. Length should be minimal, otherwise URL and Referer header may grow too large.</param>
         /// <param name="ForcePopup">The message is shown as a popup even if toasts are enabled.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
-        protected ActionResult FormProcessed(object model, string popupText = null, string popupTitle = null,
+        protected ActionResult FormProcessed(object model, string? popupText = null, string? popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
-                string NextPage = null, bool PreserveOriginList = false, string ExtraData = null,
-                string PreSaveJavaScript = null, string PostSaveJavaScript = null, bool ForceRedirect = false, string PopupOptions = null, bool ForceApply = false,
+                string? NextPage = null, bool PreserveOriginList = false, string? ExtraData = null,
+                string? PreSaveJavaScript = null, string? PostSaveJavaScript = null, bool ForceRedirect = false, string? PopupOptions = null, bool ForceApply = false,
                 bool? PageChanged = null,
                 bool ForcePopup = false) {
 
@@ -916,7 +915,7 @@ namespace YetaWF.Core.Controllers {
             // handle NextPage (if any)
             if (ForceRedirect || !string.IsNullOrWhiteSpace(NextPage)) {
 
-                string url = NextPage;
+                string? url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
                 url = AddUrlPayload(url, false, false, ExtraData);
@@ -1174,7 +1173,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string ExtraJavascript = null) {
+        protected ActionResult Redirect(string url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string? ExtraJavascript = null) {
 
             if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
             if (!string.IsNullOrWhiteSpace(ExtraJavascript) && !Manager.IsPostRequest) throw new InternalError("ExtraJavascript is only supported with POST requests");
@@ -1243,7 +1242,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
             }
         }
 
-        private static string AddUrlPayload(string url, bool SetCurrentEditMode, bool SetCurrentControlPanelMode, string ExtraData) {
+        private static string AddUrlPayload(string url, bool SetCurrentEditMode, bool SetCurrentControlPanelMode, string? ExtraData) {
 
             string urlOnly;
             QueryHelper qhUrl = QueryHelper.FromUrl(url, out urlOnly);
@@ -1315,7 +1314,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
         /// <returns>The bound object of the specified type, or null if there are validation errors.</returns>
         protected async Task<object> GetObjectFromModelAsync(Type objType, string modelName) {
 
-            object obj = Activator.CreateInstance(objType);
+            object? obj = Activator.CreateInstance(objType);
             if (obj == null)
                 throw new InternalError("Object with type {0} cannot be instantiated", objType.FullName);
 

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Text;
 
 namespace YetaWF.Core.Support {
@@ -15,7 +17,7 @@ namespace YetaWF.Core.Support {
             if (s == null) return;
             _hb.Append(s);
         }
-        public void Append(string s, params object[] parms) {
+        public void Append(string s, params object?[] parms) {
             if (s == null) return;
             _hb.AppendFormat(s, parms);
         }

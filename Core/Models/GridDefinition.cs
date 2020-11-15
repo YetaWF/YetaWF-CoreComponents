@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,8 +34,8 @@ namespace YetaWF.Core.Models {
         public class ColumnInfo {
             public SortBy Sort { get; set; }
             public int Width { get; set; }
-            public string FilterOperator { get; set; }
-            public string FilterValue { get; set; }
+            public string? FilterOperator { get; set; }
+            public string? FilterValue { get; set; }
 
             public ColumnInfo() {
                 Width = -1;
@@ -42,12 +44,12 @@ namespace YetaWF.Core.Models {
         public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> { }
 
         // set up by application
-        public Type RecordType { get; set; }
-        public string AjaxUrl { get; set; } // remote data
-        public Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataSourceResult>> DirectDataAsync { get; set; }
-        public Func<List<object>, int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, DataSourceResult> SortFilterStaticData { get; set; }
+        public Type RecordType { get; set; } = null!;
+        public string AjaxUrl { get; set; } = null!;// remote data
+        public Func<int, int, List<DataProviderSortInfo>?, List<DataProviderFilterInfo>?, Task<DataSourceResult>> DirectDataAsync { get; set; } = null!;
+        public Func<List<object>, int, int, List<DataProviderSortInfo>?, List<DataProviderFilterInfo>?, DataSourceResult>? SortFilterStaticData { get; set; }
 
-        public object ExtraData { get; set; }// additional data to return during ajax callback
+        public object? ExtraData { get; set; }// additional data to return during ajax callback
 
         public Guid ModuleGuid { get; set; } // the module owning the grid
         public Guid? SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
@@ -75,16 +77,16 @@ namespace YetaWF.Core.Models {
         public string Id { get; set; } // html id of the grid
 
         // Delete record (static only)
-        public string DeletedMessage { get; set; }
-        public string DeleteConfirmationMessage { get; set; }
-        public string DeletedColumnDisplay { get; set; }
+        public string? DeletedMessage { get; set; }
+        public string? DeleteConfirmationMessage { get; set; }
+        public string? DeletedColumnDisplay { get; set; }
 
-        public object ResourceRedirect { get; set; } // redirect for Caption/Description attributes
+        public object? ResourceRedirect { get; set; } // redirect for Caption/Description attributes
 
         public bool IsStatic { get { return SortFilterStaticData != null; } }
 
         // The following can be used by a component implementation to cache data for the duration of the GridDefinition object.
-        public object CachedData { get; set; }
+        public object? CachedData { get; set; }
 
         public GridDefinition() {
             SupportReload = true;
@@ -165,19 +167,19 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The prefix to be prepended to any field name generated.
         /// </summary>
-        public string FieldPrefix { get; set; }
+        public string FieldPrefix { get; set; } = null!;
         /// <summary>
         /// The GridDefinition object describing the current grid.
         /// </summary>
-        public GridDefinition GridDef { get; set; }
+        public GridDefinition GridDef { get; set; } = null!;
         /// <summary>
         /// The collection of data to be rendered.
         /// </summary>
-        public DataSourceResult Data { get; set; }
+        public DataSourceResult Data { get; set; } = null!;
         /// <summary>
         /// The collection of static data to be rendered.
         /// </summary>
-        public List<object> StaticData { get; set; }
+        public List<object>? StaticData { get; set; }
         /// <summary>
         /// The number of records skipped (paging).
         /// </summary>
@@ -189,11 +191,11 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The sort order of the grid's columns.
         /// </summary>
-        public List<DataProviderSortInfo> Sorts { get; set; }
+        public List<DataProviderSortInfo>? Sorts { get; set; }
         /// <summary>
         /// The filter options for the grid.
         /// </summary>
-        public List<DataProviderFilterInfo> Filters { get; set; }
+        public List<DataProviderFilterInfo>? Filters { get; set; }
     }
     /// <summary>
     /// Describes one grid record.
@@ -206,18 +208,18 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The GridDefinition object describing the current grid.
         /// </summary>
-        public GridDefinition GridDef { get; set; }
+        public GridDefinition GridDef { get; set; } = null!;
         /// <summary>
         /// The data representing the current record.
         /// </summary>
-        public object Data { get; set; }
+        public object Data { get; set; } = null!;
         /// <summary>
         /// The static data representing the current record.
         /// </summary>
-        public string StaticData { get; set; }
+        public string StaticData { get; set; } = null!;
         /// <summary>
         /// The prefix to be prepended to any field name generated.
         /// </summary>
-        public string FieldPrefix { get; set; }
+        public string FieldPrefix { get; set; } = null!;
     }
 }

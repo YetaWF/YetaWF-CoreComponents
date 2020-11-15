@@ -1,6 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
+#nullable enable
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Repositories;
@@ -16,14 +16,14 @@ namespace YetaWF2.Support {
     public class DataProtectionKeyRepository : IXmlRepository {
 
         public IReadOnlyCollection<XElement> GetAllElements() {
-            string s = WebConfigHelper.GetValue<string>("DataProtection", "List", null, false);
+            string? s = WebConfigHelper.GetValue<string?>("DataProtection", "List", Package: false);
             if (s == null) return new List<XElement>();
             return Utility.JsonDeserialize<List<XElement>>(s);
         }
 
         public void StoreElement(XElement element, string friendlyName) {
             List<XElement> list = new List<XElement>(GetAllElements());
-            XElement elem = (from l in list where l.Name == friendlyName select l).FirstOrDefault();
+            XElement? elem = (from l in list where l.Name == friendlyName select l).FirstOrDefault();
             if (elem != null)
                 list.Remove(elem);
             list.Add(element);
@@ -35,7 +35,7 @@ namespace YetaWF2.Support {
     }
 
     public static class DataProtectionKeyExtensions {
-        public static IDataProtectionBuilder PersistKeysToAppSettings(this IDataProtectionBuilder builder, IServiceCollection services = null) {
+        public static IDataProtectionBuilder PersistKeysToAppSettings(this IDataProtectionBuilder builder, IServiceCollection? services = null) {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             return builder.Use(ServiceDescriptor.Scoped<IXmlRepository, DataProtectionKeyRepository>());
         }
@@ -53,5 +53,3 @@ namespace YetaWF2.Support {
     }
 }
 
-#else
-#endif

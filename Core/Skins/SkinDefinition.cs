@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Models;
@@ -11,10 +13,10 @@ namespace YetaWF.Core.Skins {
 
     public class PageSkinList : List<PageSkinEntry> { }
     public class PageSkinEntry {
-        public string Name { get; set; }
-        public string PageViewName { get; set; }
-        public string Description { get; set; }
-        public string Css { get; set; }
+        public string Name { get; set; } = null!;
+        public string PageViewName { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public string Css { get; set; } = null!;
         public int Width { get; set; } // popup width
         public int Height { get; set; } // popup width
         public bool MaximizeButton { get; set; } // popup has maximize button
@@ -24,31 +26,31 @@ namespace YetaWF.Core.Skins {
 
     public class ModuleSkinList : List<ModuleSkinEntry> { }
     public class ModuleSkinEntry {
-        public string Name { get; set; }
-        public string CssClass { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = null!;
+        public string CssClass { get; set; } = null!;
+        public string Description { get; set; } = null!;
         public int CharWidthAvg { get; set; }
         public int CharHeight { get; set; }
     }
 
     public class SkinCollectionInfoList : List<SkinCollectionInfo> { }
     public class SkinCollectionInfo {
-        public string CollectionName { get; set; }
-        public string CollectionDescription { get; set; }
-        public string JQuerySkin { get; set; }
-        public string KendoSkin { get; set; }
+        public string CollectionName { get; set; } = null!;
+        public string CollectionDescription { get; set; } = null!;
+        public string? JQuerySkin { get; set; }
+        public string? KendoSkin { get; set; }
         public bool UsingBootstrap { get; set; }
         public bool UseDefaultBootstrap { get; set; }
         public bool UsingBootstrapButtons { get; set; }
-        public string PartialFormCss { get; set; }
+        public string? PartialFormCss { get; set; }
         public int MinWidthForPopups { get; set; }
         public int MinWidthForCondense { get; set; }
         public PageSkinList PageSkins { get; set; }
         public PageSkinList PopupSkins { get; set; }
         public ModuleSkinList ModuleSkins { get; set; }
-        public string AreaName { get; set; }
+        public string AreaName { get; set; } = null!;
+        public string Folder { get; set; } = null!;
 
-        public string Folder { get; set; }
         public SkinCollectionInfo() {
             PageSkins = new PageSkinList();
             PopupSkins = new PageSkinList();
@@ -68,10 +70,10 @@ namespace YetaWF.Core.Skins {
         public SkinDefinition() { }
 
         [StringLength(MaxCollection)]
-        public string Collection { get; set; } // may be null for site default
+        public string? Collection { get; set; } // may be null for site default
 
         [StringLength(MaxSkinFile)]
-        public string FileName {
+        public string? FileName {
             get {
                 return _fileName;
             }
@@ -80,15 +82,15 @@ namespace YetaWF.Core.Skins {
                 _fileName = value?.TrimEnd(".cshtml");
             }
         } // may be null for site default
-        private string _fileName;
+        private string? _fileName;
 
         public static SkinDefinition EvaluatedSkin(PageDefinition page, bool popup) {
             SkinDefinition skin = (Manager.IsInPopup) ? page.SelectedPopupSkin : page.SelectedSkin;
             return EvaluatedSkin(skin, popup);
         }
         public static SkinDefinition EvaluatedSkin(SkinDefinition skin, bool popup) {
-            string fileName = skin.FileName;
-            string collection = skin.Collection;
+            string? fileName = skin.FileName;
+            string? collection = skin.Collection;
             if (string.IsNullOrWhiteSpace(collection)) {
                 if (popup) {
                     collection = Manager.CurrentSite.SelectedPopupSkin.Collection;
@@ -141,7 +143,7 @@ namespace YetaWF.Core.Skins {
                 return _fallbackSkin;
             }
         }
-        static SkinDefinition _fallbackSkin;
+        static SkinDefinition? _fallbackSkin;
 
         public static SkinDefinition FallbackPopupSkin {
             get {
@@ -153,6 +155,6 @@ namespace YetaWF.Core.Skins {
                 return _fallbackPopupSkin;
             }
         }
-        static SkinDefinition _fallbackPopupSkin;
+        static SkinDefinition? _fallbackPopupSkin;
     }
 }

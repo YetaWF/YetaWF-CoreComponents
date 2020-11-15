@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +12,6 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.IO;
 using YetaWF.Core.Components;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-#else
-using System.Web;
-#endif
 
 namespace YetaWF.Core.Addons {
 
@@ -28,10 +25,10 @@ namespace YetaWF.Core.Addons {
         protected YetaWFManager Manager { get; private set; }
 
         public class Module {
-            public string InvokingCss { get; set; }
+            public string? InvokingCss { get; set; }
             public bool AllowInPopup { get; set; }
             public bool AllowInAjax { get; set; }
-            public Type ModuleType { get; set; }
+            public Type ModuleType { get; set; } = null!;
             public Guid ModuleGuid { get; set; }
             public List<string> Templates { get; set; }
 
@@ -54,7 +51,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="name">The name of the addon.</param>
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.
         /// Will fail if the addon doesn't exist.</remarks>
-        public async Task AddAddOnNamedAsync(string areaName, string name, params object[] args) {
+        public async Task AddAddOnNamedAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
             if (_AddedProducts.Contains(version)) return;
@@ -62,7 +59,7 @@ namespace YetaWF.Core.Addons {
             await Manager.ScriptManager.AddAddOnAsync(version, args);
             await Manager.CssManager.AddAddOnAsync(version, args);
         }
-        internal async Task AddAddOnNamedJavaScriptAsync(string areaName, string name, params object[] args) {
+        internal async Task AddAddOnNamedJavaScriptAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
             if (_AddedProducts.Contains(version)) return;
@@ -70,7 +67,7 @@ namespace YetaWF.Core.Addons {
             await Manager.ScriptManager.AddAddOnAsync(version, args);
         }
 
-        internal async Task AddAddOnNamedCssAsync(string areaName, string name, params object[] args) {
+        internal async Task AddAddOnNamedCssAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return;
             VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
             if (_AddedProducts.Contains(version)) return;
@@ -96,9 +93,9 @@ namespace YetaWF.Core.Addons {
         /// <param name="args">Any optional arguments supported by the addon.</param>
         /// <param name="name">The name of the addon.</param>
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
-        public async Task<bool> TryAddAddOnNamedAsync(string areaName, string name, params object[] args) {
+        public async Task<bool> TryAddAddOnNamedAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return false;
-            VersionManager.AddOnProduct version = VersionManager.TryFindAddOnNamedVersion(areaName, name);
+            VersionManager.AddOnProduct? version = VersionManager.TryFindAddOnNamedVersion(areaName, name);
             if (version == null) return false;
             if (_AddedProducts.Contains(version)) return true;
             _AddedProducts.Add(version);
@@ -143,7 +140,7 @@ namespace YetaWF.Core.Addons {
             return await AddTemplateAsync(areaName, $"{templateName}Both");
         }
         private async Task<bool> AddTemplateAsync(string areaName, string templateName) {
-            VersionManager.AddOnProduct version = VersionManager.TryFindTemplateVersion(areaName, templateName);
+            VersionManager.AddOnProduct? version = VersionManager.TryFindTemplateVersion(areaName, templateName);
             if (version != null) {
                 if (!_AddedProducts.Contains(version)) {
                     _AddedProducts.Add(version);
@@ -203,7 +200,7 @@ namespace YetaWF.Core.Addons {
             // Add the package
             if (!packagesFound.Contains(package)) {
                 packagesFound.Add(package);
-                VersionManager.AddOnProduct version = VersionManager.TryFindPackageVersion(package.AreaName);
+                VersionManager.AddOnProduct? version = VersionManager.TryFindPackageVersion(package.AreaName);
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 await Manager.ScriptManager.AddAddOnAsync(version);
@@ -222,7 +219,7 @@ namespace YetaWF.Core.Addons {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <param name="args"></param>
-        public async Task AddSkinAsync(string skinCollection, params object[] args) {
+        public async Task AddSkinAsync(string skinCollection, params object?[] args) {
             Manager.Verify_NotPostRequest();
             VersionManager.AddOnProduct version = VersionManager.FindSkinVersion(skinCollection);
             if (_AddedProducts.Contains(version)) return;
@@ -240,8 +237,7 @@ namespace YetaWF.Core.Addons {
             Manager.Verify_NotPostRequest();
 
             // check cache
-            string url;
-            if (CustomizationCache.TryGetValue(skinCollection, out url)) {
+            if (CustomizationCache.TryGetValue(skinCollection, out string? url)) {
                 if (string.IsNullOrWhiteSpace(url))
                     return; // no customization
                 await Manager.CssManager.AddFileAsync(true, url);
@@ -286,7 +282,7 @@ namespace YetaWF.Core.Addons {
             } catch (Exception) { }
         }
 
-        public void AddUniqueInvokedCssModule(Type modType, Guid guid, List<string> templates, string invokingCss, bool AllowInPopup, bool AllowInAjax) {
+        public void AddUniqueInvokedCssModule(Type modType, Guid guid, List<string>? templates, string? invokingCss, bool AllowInPopup, bool AllowInAjax) {
             UniqueInvokedCssModules.Add(new Module { AllowInPopup = AllowInPopup, AllowInAjax = AllowInAjax, Templates = templates ?? new List<string>(), InvokingCss = invokingCss, ModuleType = modType, ModuleGuid = guid });
         }
         public List<Module> GetUniqueInvokedCssModules() {
@@ -297,29 +293,29 @@ namespace YetaWF.Core.Addons {
             if (string.IsNullOrWhiteSpace(css)) return css;
             string[] classes = css.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string cls in classes) {
-                Module mod = (from m in UniqueInvokedCssModules where m.InvokingCss == cls select m).FirstOrDefault();
+                Module? mod = (from m in UniqueInvokedCssModules where m.InvokingCss == cls select m).FirstOrDefault();
                 AddInvokedCssModule(mod);
             }
             return css;
         }
         public void CheckInvokedTemplate(string template) {
             if (string.IsNullOrWhiteSpace(template)) return;
-            Module mod = (from m in UniqueInvokedCssModules where m.Templates.Contains(template) select m).FirstOrDefault();
+            Module? mod = (from m in UniqueInvokedCssModules where m.Templates.Contains(template) select m).FirstOrDefault();
             AddInvokedCssModule(mod);
         }
         public void AddExplicitlyInvokedModules(SerializableList<ModuleDefinition.ReferencedModule> list) {
             if (list == null) return;
             foreach (ModuleDefinition.ReferencedModule l in list) {
-                Module mod = (from m in UniqueInvokedCssModules where m.ModuleGuid == l.ModuleGuid select m).FirstOrDefault();
+                Module? mod = (from m in UniqueInvokedCssModules where m.ModuleGuid == l.ModuleGuid select m).FirstOrDefault();
                 AddInvokedCssModule(mod);
             }
         }
         internal void CheckInvokedModule(ModuleDefinition dataMod) {
-            Module mod = (from m in UniqueInvokedCssModules where m.ModuleGuid == dataMod.ModuleGuid select m).FirstOrDefault();
+            Module? mod = (from m in UniqueInvokedCssModules where m.ModuleGuid == dataMod.ModuleGuid select m).FirstOrDefault();
             AddInvokedCssModule(mod);
         }
 
-        internal void AddInvokedCssModule(Module mod) {
+        internal void AddInvokedCssModule(Module? mod) {
             if (mod != null) {
                 if (!_AddedInvokedCssModules.Contains(mod))
                     _AddedInvokedCssModules.Add(mod);

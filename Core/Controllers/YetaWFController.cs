@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -44,7 +46,7 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         ///  Update an area's view name with the complete area specifier.
         /// </summary>
-        public static string MakeFullViewName(string viewName, string area) {
+        public static string MakeFullViewName(string? viewName, string area) {
             if (string.IsNullOrWhiteSpace(viewName))
                 throw new InternalError("Missing view name");
             viewName = area + "_" + viewName;
@@ -69,19 +71,19 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller. Can be used with a base class to get the derived module's module definitions.
         /// </summary>
-        protected async Task<ModuleDefinition> GetModuleAsync() {
+        protected async Task<ModuleDefinition?> GetModuleAsync() {
             if (_currentModule == null) {
-                ModuleDefinition mod = null;
-                mod = (ModuleDefinition)RouteData.Values[Globals.RVD_ModuleDefinition];
+                ModuleDefinition? mod = null;
+                mod = (ModuleDefinition?)RouteData.Values[Globals.RVD_ModuleDefinition];
                 if (mod == null) {
                     if (Manager.IsGetRequest) {
-                        string moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
+                        string? moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             return null;
                         Guid guid = new Guid(moduleGuid);
                         mod = await ModuleDefinition.LoadAsync(guid);
                     } else if (Manager.IsPostRequest) {
-                        string moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
+                        string? moduleGuid = Manager.RequestForm[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
                             moduleGuid = Manager.RequestQueryString[Basics.ModuleGuid];
                         if (string.IsNullOrWhiteSpace(moduleGuid))
@@ -96,9 +98,9 @@ namespace YetaWF.Core.Controllers {
             }
             return _currentModule;
         }
-        ModuleDefinition _currentModule = null;
+        ModuleDefinition? _currentModule = null;
 
-        protected ActionResult Reload_Page(string popupText = null, string popupTitle = null) {
+        protected ActionResult Reload_Page(string? popupText = null, string? popupTitle = null) {
             ScriptBuilder sb = new ScriptBuilder();
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
@@ -115,12 +117,12 @@ namespace YetaWF.Core.Controllers {
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next) {
 
-            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName);
+            Logging.AddTraceLog("Action Request - {0}", filterContext.Controller.GetType().FullName!);
             await SetupActionContextAsync(filterContext);
 
             if (Manager.IsPostRequest) {
                 // find the unique Id prefix info
-                string uniqueIdCounters = null;
+                string? uniqueIdCounters = null;
                 if (HttpContext.Request.HasFormContentType)
                     uniqueIdCounters = HttpContext.Request.Form[Forms.UniqueIdCounters];
                 if (string.IsNullOrEmpty(uniqueIdCounters))
@@ -141,8 +143,8 @@ namespace YetaWF.Core.Controllers {
                 // if this is a demo user and the action is marked with the ExcludeDemoMode Attribute, reject
                 Type ctrlType = filterContext.Controller.GetType();
                 string actionName = ((ControllerActionDescriptor)filterContext.ActionDescriptor).ActionName;
-                MethodInfo mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-                ExcludeDemoModeAttribute exclDemoAttr = (ExcludeDemoModeAttribute)Attribute.GetCustomAttribute(mi, typeof(ExcludeDemoModeAttribute));
+                MethodInfo? mi = ctrlType.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+                ExcludeDemoModeAttribute? exclDemoAttr = (ExcludeDemoModeAttribute?)Attribute.GetCustomAttribute(mi!, typeof(ExcludeDemoModeAttribute));
                 if (exclDemoAttr != null)
                     throw new Error("This action is not available in Demo mode.");
             }
@@ -182,7 +184,7 @@ namespace YetaWF.Core.Controllers {
             }
         }
         internal static bool GoingToPopup() {
-            string toPopup = null;
+            string? toPopup = null;
             try {
                 toPopup = Manager.RequestForm[Globals.Link_ToPopup];
                 if (toPopup == null)
@@ -191,7 +193,7 @@ namespace YetaWF.Core.Controllers {
             return toPopup != null;
         }
         internal static bool InPopup() {
-            string inPopup = null;
+            string? inPopup = null;
             try {
                 inPopup = Manager.RequestForm[Globals.Link_InPopup];
                 if (inPopup == null)
@@ -200,7 +202,7 @@ namespace YetaWF.Core.Controllers {
             return inPopup != null;
         }
         internal static bool PageControlShown() {
-            string pageControlShown = null;
+            string? pageControlShown = null;
             try {
                 pageControlShown = Manager.RequestForm[Globals.Link_PageControl];
                 if (pageControlShown == null)
@@ -212,7 +214,7 @@ namespace YetaWF.Core.Controllers {
             if (!Manager.HaveUser)
                 return false;
             try {
-                string editMode = Manager.RequestQueryString[Globals.Link_EditMode];
+                string? editMode = Manager.RequestQueryString[Globals.Link_EditMode];
                 if (editMode != null)
                     return true;
             } catch (Exception) { }
@@ -226,7 +228,7 @@ namespace YetaWF.Core.Controllers {
             // Because it relies on our own information it only works if we're navigating within our site.
             // If the user enters a direct Url or we can't determine where we're coming from, we usually use
             // the home page to return to.
-            string originList = null;
+            string? originList = null;
             try {
                 originList = Manager.RequestForm[Globals.Link_OriginList];
                 if (originList == null)
@@ -247,12 +249,12 @@ namespace YetaWF.Core.Controllers {
         // GRID PARTIALVIEW
 
         public class GridPartialViewData {
-            public string Data { get; set; }
-            public string FieldPrefix { get; set; }
+            public string Data { get; set; } = null!;
+            public string FieldPrefix { get; set; } = null!;
             public int Skip { get; set; }
             public int Take { get; set; }
-            public List<DataProviderSortInfo> Sorts { get; set; }
-            public List<DataProviderFilterInfo> Filters { get; set; }
+            public List<DataProviderSortInfo>? Sorts { get; set; }
+            public List<DataProviderFilterInfo>? Filters { get; set; }
         }
 
         /// <summary>
@@ -273,7 +275,7 @@ namespace YetaWF.Core.Controllers {
         protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, GridPartialViewData gridPVData) {
             List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPVData.Data);
             List<object> objList = (from l in list select (object)l).ToList();
-            DataSourceResult ds = gridModel.SortFilterStaticData(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
             return await GridPartialViewAsync(gridModel, ds, objList, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters);
         }
 
@@ -281,7 +283,7 @@ namespace YetaWF.Core.Controllers {
         /// Returns an action result that renders grid contents as a partial view.
         /// </summary>
         /// <remarks>Returns an action result that renders a grid as a partial view.</remarks>
-        private Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object> staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        private Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object>? staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters) {
             GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
                 StaticData = staticData,
@@ -333,7 +335,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+        protected PartialViewResult PartialView(ScriptBuilder? Script = null, string? ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
             return PartialView(null /* viewName */, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip, ForcePopup: ForcePopup);
         }
 
@@ -347,7 +349,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+        protected PartialViewResult PartialView(object? model, ScriptBuilder? Script = null, string? ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
             return PartialView(null /* viewName */, model, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip, ForcePopup: ForcePopup);
         }
 
@@ -361,7 +363,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(string viewName, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+        protected PartialViewResult PartialView(string viewName, ScriptBuilder? Script = null, string? ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
             return PartialView(viewName, null /* model */, Script, ContentType: ContentType, PureContent: PureContent, AreaViewName: AreaViewName, Gzip: Gzip, ForcePopup: ForcePopup);
         }
 
@@ -376,7 +378,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="AreaViewName">true if the view name is the name of a standard view, otherwise the area specific view by that name is used.</param>
         /// <param name="Gzip">Defines whether the returned content is GZIPed.</param>
         /// <returns>Returns an action to render a partial view.</returns>
-        protected PartialViewResult PartialView(string viewName, object model, ScriptBuilder Script = null, string ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
+        protected PartialViewResult PartialView(string? viewName, object? model, ScriptBuilder? Script = null, string? ContentType = null, bool PureContent = false, bool AreaViewName = true, bool Gzip = false, bool ForcePopup = false) {
 
             if (model != null)
                 ViewData.Model = model;
@@ -412,11 +414,11 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// The current module being rendered by this partial view.
             /// </summary>
-            public ModuleDefinition Module { get; set; }
+            public ModuleDefinition Module { get; set; } = null!;
             /// <summary>
             /// The JavaScript to be executed client-side after the partial view has been rendered.
             /// </summary>
-            public ScriptBuilder Script { get; set; }
+            public ScriptBuilder? Script { get; set; }
 
             public bool PureContent { get; set; }
             public bool AreaViewName { get; set; }
@@ -444,7 +446,7 @@ namespace YetaWF.Core.Controllers {
                         ViewName = YetaWFController.MakeFullViewName(ViewName, Module.AreaName);
                     }
                     if (string.IsNullOrWhiteSpace(ViewName)) {
-                        ViewName = (string)context.RouteData.Values["action"];
+                        ViewName = (string?)context.RouteData.Values["action"];
                         ViewName = YetaWFController.MakeFullViewName(ViewName, Module.AreaName);
                     }
                 }
@@ -455,7 +457,7 @@ namespace YetaWF.Core.Controllers {
                 if (!string.IsNullOrEmpty(ContentType))
                     response.ContentType = ContentType;
 
-                ModuleDefinition oldMod = Manager.CurrentModule;
+                ModuleDefinition? oldMod = Manager.CurrentModule;
                 Manager.CurrentModule = Module;
 
                 string viewHtml;

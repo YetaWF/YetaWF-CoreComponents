@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Localize;
 
@@ -16,10 +18,11 @@ namespace YetaWF.Core.Models.Attributes {
 
         public CreditCardNumberValidationAttribute() : base(@"^\s*([1-9][0-9]{11,15})\s*$",
                 __ResStr("valCCNum", "The credit card number is invalid"),
-                __ResStr("valCCNum2", "The credit card number is invalid (field '{0}')")
+                __ResStr("valCCNum2", "The credit card number is invalid (field '{0}')"),
+                __ResStr("valCCNum2", "The credit card number '{0}' is invalid")
             ) { }
-        public override bool IsValid(object value) {
-            string valueAsString = value as string;
+        public override bool IsValid(object? value) {
+            string? valueAsString = value as string;
             if (string.IsNullOrWhiteSpace(valueAsString)) return true;
             return IsValidNumber(valueAsString);
         }

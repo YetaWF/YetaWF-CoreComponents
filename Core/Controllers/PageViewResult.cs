@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -22,7 +24,7 @@ namespace YetaWF.Core.Controllers {
 
         public override async Task ExecuteResultAsync(ActionContext context) {
             if (context == null)
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
 
             PageDefinition requestedPage = Manager.CurrentPage;
             PageDefinition masterPage = Manager.CurrentPage;
@@ -32,7 +34,7 @@ namespace YetaWF.Core.Controllers {
             Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
             if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfoAsync != null && !requestedPage.Temporary) {
                 // Load all unified pages that this page is part of
-                PageDefinition.UnifiedInfo info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
+                PageDefinition.UnifiedInfo? info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
                 if (info != null && !info.Disabled && info.Mode != PageDefinition.UnifiedModeEnum.None) {
                     // Load the master page for this set
                     masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
@@ -82,7 +84,7 @@ namespace YetaWF.Core.Controllers {
             SkinAccess skinAccess = new SkinAccess();
             SkinDefinition skin = SkinDefinition.EvaluatedSkin(masterPage, Manager.IsInPopup);
             string pageViewName = skinAccess.GetPageViewName(skin, Manager.IsInPopup);
-            string skinCollection = skin.Collection;
+            string skinCollection = skin.Collection!;
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
             Manager.AddOnManager.AddExplicitlyInvokedModules(requestedPage.ReferencedModules);

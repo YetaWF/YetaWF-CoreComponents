@@ -1,14 +1,15 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace YetaWF.Core.Serializers {
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not used for serialization")]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue> {
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue> where TKey : notnull {
 
         public SerializableDictionary() { }
         public SerializableDictionary(IDictionary<TKey, TValue> dictionary) : base(dictionary) {}
@@ -20,21 +21,21 @@ namespace YetaWF.Core.Serializers {
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods",
             Justification = "The deserialization (e.g., TextFormatter, SimpleFormatter) uses generic Add() instead of typed as it simplifies deserialization")]
-        public void Add(object k, object v) // for TextFormatter/SimpleFormatter
+        public void Add(object k, object? v) // for TextFormatter/SimpleFormatter
         {
             TKey key;
             try {
                 key = (TKey)k;
             } catch (Exception) {
-                key = (TKey)Activator.CreateInstance(typeof(TKey), new object[] { k });
+                key = (TKey)Activator.CreateInstance(typeof(TKey), new object?[] { k });
             }
             TValue val;
             try {
                 val = (TValue)v;
             } catch (Exception) {
-                val = (TValue)Activator.CreateInstance(typeof(TValue), new object[] { v });
+                val = (TValue)Activator.CreateInstance(typeof(TValue), new object?[] { v }) ! ;
             }
-            base.Add(key, (TValue)val);
+            base.Add(key!, val!);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -34,6 +36,6 @@ namespace YetaWF.Core.Serializers {
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
             JsonSerializer.CreateDefault(new JsonSerializerSettings { ContractResolver = resolver }).Serialize(writer, value);
-        }    
+        }
     }
 }

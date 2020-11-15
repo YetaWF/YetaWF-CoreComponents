@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,7 @@ namespace YetaWF.Core.Controllers {
 
         private static object _lockObject = new object();
 
-        private static List<Func<string, bool, Task>> Callbacks { get; set; }
+        private static List<Func<string, bool, Task>>? Callbacks { get; set; }
 
         /// <summary>
         /// Register an application-specific callback which is called whenever a page is requested.

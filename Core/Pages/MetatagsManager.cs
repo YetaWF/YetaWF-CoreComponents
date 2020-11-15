@@ -1,10 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Text;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
+
     public class MetatagsManager {
 
         public MetatagsManager(YetaWFManager manager) { Manager = manager; }
@@ -36,13 +39,16 @@ namespace YetaWF.Core.Pages {
             StringBuilder sb = new StringBuilder();
             Variables vars = new Variables(Manager) {  };
             // add built-in metatags
-            if (!string.IsNullOrWhiteSpace(Manager.PageTitle))
-                AddMetatag(vars, "title", Manager.PageTitle);
+            string? title = Manager.PageTitle;
+            if (!string.IsNullOrWhiteSpace(title))
+                AddMetatag(vars, "title", title);
             if (!Manager.IsInPopup) {
-                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Keywords))
-                    AddMetatag(vars, "keywords", Manager.CurrentPage.Keywords);
-                if (!string.IsNullOrWhiteSpace(Manager.CurrentPage.Description))
-                    AddMetatag(vars, "description", Manager.CurrentPage.Description);
+                string? kwds = Manager.CurrentPage.Keywords;
+                if (!string.IsNullOrWhiteSpace(kwds))
+                    AddMetatag(vars, "keywords", kwds);
+                string? desc = Manager.CurrentPage.Description;
+                if (!string.IsNullOrWhiteSpace(desc))
+                    AddMetatag(vars, "description", desc);
                 string robots = "";
                 if (Manager.CurrentPage.RobotNoIndex) robots += ",noindex";
                 if (Manager.CurrentPage.RobotNoFollow) robots += ",nofollow";

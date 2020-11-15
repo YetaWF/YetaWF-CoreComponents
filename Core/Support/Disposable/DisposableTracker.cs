@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,7 +19,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The object being tracked.
         /// </summary>
-        public object DisposableObject { get; set; }
+        public object DisposableObject { get; set; } = null!;
         /// <summary>
         /// The date/time the tracked object was created.
         /// </summary>
@@ -25,7 +27,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// The callstack of the method that created the tracked object.
         /// </summary>
-        public string CallStack { get; set; }
+        public string? CallStack { get; set; }
     }
 
     /// <summary>
@@ -62,7 +64,7 @@ namespace YetaWF.Core.Support {
                         throw new InternalError("New disposable object which has already been added to the list of disposable objects - possible duplicate using() { }");
 
                     DisposableObjects.Add(o, new Support.TrackedEntry {
-                        DisposableObject = o?.ToString(),
+                        DisposableObject = o,
                         Created = DateTime.UtcNow,
                         CallStack = GetCallStack(),
                     });
@@ -97,12 +99,16 @@ namespace YetaWF.Core.Support {
             StringBuilder sb = new StringBuilder();
             StackTrace stackTrace = new StackTrace();
             for (int lvl = 1 ; lvl < stackTrace.FrameCount ; ++lvl) {
-                StackFrame stackFrame = stackTrace.GetFrame(lvl);
-                MethodBase methBase = stackFrame.GetMethod();
-                if (methBase.DeclaringType != null)
-                    sb.AppendFormat(" - {0} {1}", methBase.DeclaringType.Namespace, methBase.DeclaringType.Name);
-                else
-                    sb.Append(" - ?");
+                StackFrame? stackFrame = stackTrace.GetFrame(lvl);
+                if (stackFrame != null) {
+                    MethodBase? methBase = stackFrame.GetMethod();
+                    if (methBase != null) {
+                        if (methBase.DeclaringType != null)
+                            sb.AppendFormat(" - {0} {1}", methBase.DeclaringType.Namespace, methBase.DeclaringType.Name);
+                        else
+                            sb.Append(" - ?");
+                    }
+                }
             }
             return sb.ToString();
         }

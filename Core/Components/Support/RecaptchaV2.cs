@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.DataProvider.Attributes;
@@ -34,9 +36,9 @@ namespace YetaWF.Core.Components {
         public int Key { get; set; }
 
         [StringLength(MaxPublicKey)]
-        public string PublicKey { get; set; }
+        public string PublicKey { get; set; } = null!;
         [StringLength(MaxPrivateKey)]
-        public string PrivateKey { get; set; }
+        public string PrivateKey { get; set; } = null!;
 
         public ThemeEnum Theme { get; set; }
         public SizeEnum Size { get; set; }
@@ -65,7 +67,7 @@ namespace YetaWF.Core.Components {
         }
 
         // These must be provided during app startup
-        public static Func<Task<RecaptchaV2Config>> LoadRecaptchaV2ConfigAsync { get; set; }
-        public static Func<RecaptchaV2Config, Task> SaveRecaptchaV2ConfigAsync { get; set; }
+        public static Func<Task<RecaptchaV2Config>> LoadRecaptchaV2ConfigAsync { get; set; } = null!;
+        public static Func<RecaptchaV2Config, Task> SaveRecaptchaV2ConfigAsync { get; set; } = null!;
     }
 }

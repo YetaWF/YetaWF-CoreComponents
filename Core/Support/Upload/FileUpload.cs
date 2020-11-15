@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Net;
@@ -9,11 +11,7 @@ using YetaWF.Core.Support;
 using YetaWF.Core.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-#if MVC6
 using Microsoft.AspNetCore.Http;
-#else
-using System.Web;
-#endif
 
 namespace YetaWF.Core.Upload {
 
@@ -44,11 +42,7 @@ namespace YetaWF.Core.Upload {
         /// </summary>
         /// <param name="uploadFile">Package file being uploaded.</param>
         /// <returns>Returns a file name (with path) of the uploaded file in the site's temporary folder.</returns>
-#if MVC6
-        public async Task<string> StoreTempPackageFileAsync(IFormFile uploadFile) {
-#else
-        public async Task<string> StoreTempPackageFileAsync(HttpPostedFileBase uploadFile) {
-#endif
+        public async Task<string?> StoreTempPackageFileAsync(IFormFile uploadFile) {
             string name = await StoreFileAsync(uploadFile, null, MimeSection.PackageUse, TempFile: true);
             return await GetTempFilePathFromNameAsync(name);
         }
@@ -57,7 +51,7 @@ namespace YetaWF.Core.Upload {
         /// </summary>
         /// <param name="remoteUrl">Remote URL of a package file being uploaded.</param>
         /// <returns>Returns a file name (with path) of the uploaded file in the site's temporary folder.</returns>
-        public async Task<string> StoreTempPackageFileAsync(string remoteUrl) {
+        public async Task<string?> StoreTempPackageFileAsync(string remoteUrl) {
             string name = await StoreTempFileAsync(remoteUrl, MimeSection.PackageUse);
             return await GetTempFilePathFromNameAsync(name);
         }
@@ -67,11 +61,7 @@ namespace YetaWF.Core.Upload {
         /// </summary>
         /// <param name="uploadFile">Image file being uploaded.</param>
         /// <returns>A file name (no path) of the uploaded file.</returns>
-#if MVC6
         public async Task<string> StoreTempImageFileAsync(IFormFile uploadFile) {
-#else
-        public async Task<string> StoreTempImageFileAsync(HttpPostedFileBase uploadFile) {
-#endif
             return await StoreFileAsync(uploadFile, null, MimeSection.ImageUse, TempFile: true);
         }
 
@@ -82,12 +72,7 @@ namespace YetaWF.Core.Upload {
         /// <param name="folder">The folder (absolute path) where the file is saved. Must be null for temporary files.</param>
         /// <param name="canUse"></param>
         /// <returns>Returns a file name (without path) of the uploaded file in the specified folder.</returns>
-#if MVC6
-        public async Task<string> StoreFileAsync(IFormFile uploadFile, string folder, string useType, bool TempFile = false)
-#else
-        public async Task<string> StoreFileAsync(HttpPostedFileBase uploadFile, string folder, string useType, bool TempFile = false)
-#endif
-        {
+        public async Task<string> StoreFileAsync(IFormFile uploadFile, string? folder, string useType, bool TempFile = false) {
             if (TempFile && folder != null)
                 throw new InternalError("Can't provide folder for temporary files");
             if (!TempFile && folder == null)
@@ -95,17 +80,13 @@ namespace YetaWF.Core.Upload {
 
             long fileLength = 0;
             if (uploadFile != null) {
-#if MVC6
                 fileLength = uploadFile.Length;
-#else
-                fileLength = uploadFile.ContentLength;
-#endif
             }
             if (fileLength == 0)
                 throw new InternalError("Can't upload an empty file");
 
             MimeSection mimeSection = new MimeSection();
-            if (!mimeSection.CanUse(uploadFile.ContentType, useType))
+            if (!mimeSection.CanUse(uploadFile!.ContentType, useType))
                 throw new Error(this.__ResStr("errPkgType", "Upload not allowed - The file type '{0}' is not an allowable file type"), uploadFile.ContentType);
 
             string fileName = Path.GetFileName(uploadFile.FileName);
@@ -119,7 +100,6 @@ namespace YetaWF.Core.Upload {
                 await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(TempSiteUploadFolder);
                 string filePath = Path.Combine(TempSiteUploadFolder, fileName);
 
-#if MVC6
                 using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
                     if (YetaWFManager.IsSync()) {
                         uploadFile.CopyTo(fileStream.GetFileStream());
@@ -127,14 +107,10 @@ namespace YetaWF.Core.Upload {
                         await uploadFile.CopyToAsync(fileStream.GetFileStream());
                     }
                 }
-#else
-                uploadFile.SaveAs(filePath);
-#endif
             } else {
 
-                await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder);
-                string filePath = Path.Combine(folder, fileName);
-#if MVC6
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder!);
+                string filePath = Path.Combine(folder!, fileName);
                 using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
                     if (YetaWFManager.IsSync()) {
                         uploadFile.CopyTo(fileStream.GetFileStream());
@@ -142,9 +118,6 @@ namespace YetaWF.Core.Upload {
                         await uploadFile.CopyToAsync(fileStream.GetFileStream());
                     }
                 }
-#else
-                uploadFile.SaveAs(filePath);
-#endif
             }
             return fileName;
         }
@@ -161,8 +134,8 @@ namespace YetaWF.Core.Upload {
             MimeSection mimeSection = new MimeSection();
 
             const string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
-            HttpWebRequest req = null;
-            HttpWebResponse resp = null;
+            HttpWebRequest req;
+            HttpWebResponse resp;
 
             try {
                 req = (HttpWebRequest)WebRequest.Create(remoteUrl);
@@ -175,6 +148,7 @@ namespace YetaWF.Core.Upload {
             } catch (Exception ex) {
                 throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ErrorHandling.FormatExceptionMessage(ex)));
             }
+
             if (!mimeSection.CanUse(resp.ContentType, useType)) {
                 string contentType = resp.ContentType;
                 resp.Close();
@@ -208,8 +182,8 @@ namespace YetaWF.Core.Upload {
                     await fs.FlushAsync();
                 }
             }
-            if (resp != null)
-                resp.Close();
+
+            resp.Close();
 
             return Path.GetFileName(name);
         }
@@ -219,7 +193,7 @@ namespace YetaWF.Core.Upload {
         // HELPERS
 
         public async Task RemoveTempFileAsync(string tempName) {
-            string tempFilePath = await GetTempFilePathFromNameAsync(tempName);
+            string? tempFilePath = await GetTempFilePathFromNameAsync(tempName);
             if (tempFilePath == null) return;
             try {
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(tempFilePath);
@@ -234,7 +208,7 @@ namespace YetaWF.Core.Upload {
             } catch (Exception) { }
         }
 
-        public async Task<string> GetTempFilePathFromNameAsync(string name, string location = null) {
+        public async Task<string?> GetTempFilePathFromNameAsync(string name, string? location = null) {
             if (!string.IsNullOrWhiteSpace(name) && name.StartsWith(FileUpload.TempId)) {
                 string tempFilePath;
                 if (string.IsNullOrWhiteSpace(location))
@@ -249,14 +223,14 @@ namespace YetaWF.Core.Upload {
         public bool IsTempName(string name) {
             return (!string.IsNullOrWhiteSpace(name) && name.StartsWith(FileUpload.TempId));
         }
-        public async Task<System.Drawing.Image> GetImageFromTempNameAsync(string name) {
-            string fileName = await GetTempFilePathFromNameAsync(name);
+        public async Task<System.Drawing.Image?> GetImageFromTempNameAsync(string name) {
+            string? fileName = await GetTempFilePathFromNameAsync(name);
             if (string.IsNullOrWhiteSpace(fileName)) return null;
             return System.Drawing.Image.FromFile(fileName);
         }
-        public async Task<byte[]> GetImageBytesFromTempNameAsync(string name) {
+        public async Task<byte[]?> GetImageBytesFromTempNameAsync(string name) {
             byte[] bytes;
-            using (System.Drawing.Image image = await GetImageFromTempNameAsync(name)) {
+            using (System.Drawing.Image? image = await GetImageFromTempNameAsync(name)) {
                 if (image == null) return null;
                 using (MemoryStream ms = new MemoryStream()) {
                     image.Save(ms, image.RawFormat);

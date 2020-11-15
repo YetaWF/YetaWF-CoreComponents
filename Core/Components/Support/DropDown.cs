@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using YetaWF.Core.Models;
 
 namespace YetaWF.Core.Components {
@@ -12,14 +14,14 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The text displayed in the dropdownlist for the entry.
         /// </summary>
-        public MultiString Text { get; set; }
+        public MultiString Text { get; set; } = null!;
         /// <summary>
         /// The value in the dropdownlist for the entry.
         /// </summary>
-        public TYPE Value { get; set; }
+        public TYPE Value { get; set; } = default!;
         /// <summary>
         /// The tooltip displayed in the dropdownlist for the entry.
         /// </summary>
-        public MultiString Tooltip { get; set; }
+        public MultiString? Tooltip { get; set; }
     }
 }

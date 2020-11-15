@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,7 +38,7 @@ namespace YetaWF.Core.Serializers {
         public const char MARKER1 = 'S';
         public const char MARKER2 = '2';
 
-        BinaryWriter Output;
+        BinaryWriter Output = null!;
 
         private void WriteBytes(byte[] btes) {
             if (btes == null) {
@@ -60,7 +62,7 @@ namespace YetaWF.Core.Serializers {
                 Output.Write(btes);
             }
         }
-        private void WriteString(string s) {
+        private void WriteString(string? s) {
             if (s == null) {
                 Output.Write(unchecked((byte)((-1 << 2) + 0x3)));
             } else if (s == "") {
@@ -74,7 +76,7 @@ namespace YetaWF.Core.Serializers {
             WriteString(s);
         }
 
-        byte[] Bytes = null;
+        byte[] Bytes = null!;
         int Offset = 0;
 
         private void ReadBytes(Action<byte[], int, int> setBytes, Action setNull, Action setNone) {
@@ -115,11 +117,11 @@ namespace YetaWF.Core.Serializers {
             int len;
             if (lsb == unchecked((byte)((-1 << 2) + 0x3))) {
                 Offset += 1;
-                return null;
+                return string.Empty;
             } else if ((lsb & 0x3) == 0x3) {
                 if (lsb != 0x03) throw new InternalError("Unexpected");
                 Offset += 1;
-                return "";
+                return string.Empty;
             } else if ((lsb & 0x3) == 0x2) {
                 Offset += 1;
                 len = lsb >> 2;
@@ -134,7 +136,7 @@ namespace YetaWF.Core.Serializers {
             Offset += len;
             return text;
         }
-        private string _unread = null;
+        private string? _unread = null;
 
         private void UnreadString(string input) {
 #if DEBUG
@@ -156,7 +158,7 @@ namespace YetaWF.Core.Serializers {
                     Output.Write(MARKER1); // Marker
                     Output.Write(MARKER2);
                     SerializeObjectProperties(obj);
-                    Output = null;
+                    Output = null!;
                 }
                 byte[] btes = ms.GetBuffer();
                 //#if DEBUG
@@ -167,14 +169,14 @@ namespace YetaWF.Core.Serializers {
         }
         private void SerializeObjectProperties(object obj) {
 
-            string asmName = obj.GetType().Assembly.GetName().Name;
+            string asmName = obj.GetType().Assembly.GetName().Name!;
             string asmFullName = "";// we only save the full name if it's not YetaWF.Core
             if (asmName != YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Name)
-                asmFullName = obj.GetType().Assembly.FullName;
+                asmFullName = obj.GetType().Assembly.FullName!;
 
             // "YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null]]"
             // remove version as it's not needed and just clutters up the save files
-            string typeName = obj.GetType().FullName;
+            string typeName = obj.GetType().FullName!;
             typeName = GeneralFormatter.UpdateTypeForSerialization(typeName);
 
             WriteString("Object:{0}:{1}:{2}", typeName, asmName, asmFullName);
@@ -191,7 +193,7 @@ namespace YetaWF.Core.Serializers {
                     continue;
 
                 WriteString("N:{0}", p.Name);
-                object o = p.GetValue(obj, null);
+                object? o = p.GetValue(obj, null);
                 SerializeOneProperty(o);
             }
 
@@ -210,7 +212,7 @@ namespace YetaWF.Core.Serializers {
                     if (!denum.MoveNext())
                         break;
                     object key = denum.Key;
-                    object val = denum.Value;
+                    object? val = denum.Value;
 
                     SerializeOneProperty(key);
                     SerializeOneProperty(val);
@@ -235,7 +237,7 @@ namespace YetaWF.Core.Serializers {
             }
             WriteString("E");
         }
-        private void SerializeOneProperty(object o) {
+        private void SerializeOneProperty(object? o) {
 
             if (o == null) {
                 WriteString("V");
@@ -291,13 +293,13 @@ namespace YetaWF.Core.Serializers {
                 }
             } else if (tp.IsValueType) {
                 // Occasionally test here that no commonly used types are converted to strings (performance penalty)
-                string val = Convert.ToString(o, CultureInfo.InvariantCulture);
+                string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null) {
                     WriteString("V");
                     WriteString(val);
                 }
             } else if (tp.IsClass) {
-                IConvertible iconv = (o as IConvertible);
+                IConvertible? iconv = (o as IConvertible);
                 if (iconv != null) {
                     // this object can represent itself as a string
                     string s = iconv.ToString(CultureInfo.InvariantCulture);
@@ -314,18 +316,18 @@ namespace YetaWF.Core.Serializers {
         /// </summary>
         /// <param name="btes">The byte array.</param>
         /// <returns>The object.</returns>
-        public object Deserialize(byte[] btes) {
+        public object? Deserialize(byte[] btes) {
             Bytes = btes;
             if (btes[0] != MARKER1 || btes[1] != MARKER2)
                 throw new InternalError("Invalid marker");
             Offset = 2;// skip marker
-            return DeserializeOneObject();
+            return DeserializeOneObject()!;
         }
-        private object DeserializeOneObject() {
+        private object? DeserializeOneObject() {
 
             CacheLevel++;
 
-            object obj = null;
+            object? obj = null;
             string input = ReadString();
 
             // Get Object type
@@ -338,17 +340,17 @@ namespace YetaWF.Core.Serializers {
             GeneralFormatter.UpdateTypeForDeserialization(ref strType, ref strAsm);
             string strAsmFull = s[3];
 
-            Type t;
+            Type? t;
             try {
-                Assembly asm = Assemblies.Load(strAsm);
-                t = asm.GetType(strType, true);
+                Assembly asm = Assemblies.Load(strAsm)!;
+                t = asm.GetType(strType, true)!;
             } catch {
                 t = null;
             }
             if (t == null) {
                 try {
-                    Assembly asm = Assemblies.Load(strAsmFull);
-                    t = asm.GetType(strType, true);
+                    Assembly asm = Assemblies.Load(strAsmFull)!;
+                    t = asm.GetType(strType, true)!;
                 } catch (Exception exc) {
                     throw new InternalError("Invalid object type {0} - {1} - AssemblyFull missing or invalid", input, ErrorHandling.FormatExceptionMessage(exc));
                 }
@@ -358,7 +360,7 @@ namespace YetaWF.Core.Serializers {
             if (input != "E") { // end of object (empty)?
 
                 try {
-                    obj = Activator.CreateInstance(t);
+                    obj = Activator.CreateInstance(t)!;
                 } catch (Exception exc) {
                     throw new InternalError("Unable to create an instance of type {0} - {1}", strType, ErrorHandling.FormatExceptionMessage(exc));
                 }
@@ -396,7 +398,7 @@ namespace YetaWF.Core.Serializers {
             if (input == "E")
                 return;
 
-            List<PropertyInfo> propInfos = null;
+            List<PropertyInfo>? propInfos = null;
 
             for (;;) {
                 if (input == "E")
@@ -421,13 +423,13 @@ namespace YetaWF.Core.Serializers {
                 input = ReadString();
             }
         }
-        private object DeserializeOneProperty(string propName, object obj, Type tpObj, List<PropertyInfo> propInfos) {
+        private object? DeserializeOneProperty(string propName, object obj, Type tpObj, List<PropertyInfo> propInfos) {
 
             string input = ReadString();
             UnreadString(input); // pushback
 
-            object objVal = null;
-            PropertyInfo pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
+            object? objVal = null;
+            PropertyInfo? pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
             if (pi == null) {
                 //Logging.AddLog("Element found for non-existent property {0}", propName);
                 //throw new InternalError("Element found for non-existent property {0}", propName);
@@ -440,7 +442,7 @@ namespace YetaWF.Core.Serializers {
                 objVal = GetDeserializedProperty(pi.PropertyType);
 
                 bool fail = false;
-                string failMsg = null;
+                string? failMsg = null;
                 try {
                     pi.SetValue(obj, objVal, null);
                 } catch (Exception exc) {
@@ -449,12 +451,12 @@ namespace YetaWF.Core.Serializers {
                 }
                 if (fail) {
                     // try using a constructor (types like Guid can't simply be assigned)
-                    ConstructorInfo ci = pi.PropertyType.GetConstructor(new Type[] { typeof(string) });
+                    ConstructorInfo? ci = pi.PropertyType.GetConstructor(new Type[] { typeof(string) });
                     if (ci == null) {
                         throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}", propName, failMsg);
                     }
                     try {
-                        objVal = ci.Invoke(new object[] { objVal });
+                        objVal = ci.Invoke(new object?[] { objVal });
                         pi.SetValue(obj, objVal, null);
                     } catch (Exception exc) {
                         throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}", propName, failMsg, ErrorHandling.FormatExceptionMessage(exc));
@@ -474,11 +476,11 @@ namespace YetaWF.Core.Serializers {
             return objVal;
         }
 
-        private object GetDeserializedProperty(Type pType) {
+        private object? GetDeserializedProperty(Type pType) {
 
             string input = ReadString();
 
-            object objVal = null;
+            object? objVal = null;
 
             if (input == "V") {
 
@@ -546,7 +548,7 @@ namespace YetaWF.Core.Serializers {
         private void DeserializeDictionary(object obj, Type tpObj) {
             string input = ReadString();
 
-            MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
+            MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
             if (mi == null)
                 throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
@@ -565,11 +567,11 @@ namespace YetaWF.Core.Serializers {
                     return;
 
                 UnreadString(input);
-                object objKey = GetDeserializedProperty(elemKeyType);
-                object objVal = GetDeserializedProperty(elemValType);
+                object? objKey = GetDeserializedProperty(elemKeyType);
+                object? objVal = GetDeserializedProperty(elemValType);
 
                 try {
-                    mi.Invoke(obj, new object[] { objKey, objVal });
+                    mi.Invoke(obj, new object?[] { objKey, objVal });
                 } catch (Exception exc) {
                     throw new InternalError("Couldn't add new entry to dictionary type {0} - {1}", tpObj.Name, ErrorHandling.FormatExceptionMessage(exc));
                 }
@@ -579,7 +581,7 @@ namespace YetaWF.Core.Serializers {
         private void DeserializeList(object obj, Type tpObj) {
             string input = ReadString();
 
-            MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
+            MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
             if (mi == null)
                 throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method", tpObj.Name);
 
@@ -597,10 +599,10 @@ namespace YetaWF.Core.Serializers {
                     return;
 
                 UnreadString(input);
-                object objVal = GetDeserializedProperty(elemType);
+                object? objVal = GetDeserializedProperty(elemType);
 
                 try {
-                    mi.Invoke(obj, new object[] { objVal });
+                    mi.Invoke(obj, new object?[] { objVal });
                 } catch (Exception exc) {
                     throw new InternalError("Couldn't add new entry to list type {0} - {1}", tpObj.Name, ErrorHandling.FormatExceptionMessage(exc));
                 }

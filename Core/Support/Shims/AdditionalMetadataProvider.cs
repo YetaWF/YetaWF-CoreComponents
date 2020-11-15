@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
@@ -19,11 +21,11 @@ namespace YetaWF.Core.Support {
             // This also supports an IMetadataAware replacement named IAdditionalAttribute
             if (context.PropertyAttributes != null) {
                 foreach (object propAttr in context.PropertyAttributes) {
-                    AdditionalMetadataAttribute addMetaAttr = propAttr as AdditionalMetadataAttribute;
+                    AdditionalMetadataAttribute? addMetaAttr = propAttr as AdditionalMetadataAttribute;
                     if (addMetaAttr != null && !context.DisplayMetadata.AdditionalValues.ContainsKey(addMetaAttr.Name)) {
                         context.DisplayMetadata.AdditionalValues.Add(addMetaAttr.Name, addMetaAttr.Value);
                     }
-                    IAdditionalAttribute iAddtl = propAttr as IAdditionalAttribute;
+                    IAdditionalAttribute? iAddtl = propAttr as IAdditionalAttribute;
                     if (iAddtl != null) {
                         iAddtl.OnAddAdditionalValues(context.DisplayMetadata.AdditionalValues);
                     }

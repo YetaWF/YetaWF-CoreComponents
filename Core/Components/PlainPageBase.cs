@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
@@ -34,7 +36,7 @@ namespace YetaWF.Core.Components {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            string favIcon = Manager.CurrentPage.FavIconLink;
+            string? favIcon = Manager.CurrentPage.FavIconLink;
             if (string.IsNullOrEmpty(favIcon))
                 favIcon = Manager.CurrentSite.FavIconLink;
 
@@ -63,7 +65,7 @@ namespace YetaWF.Core.Components {
 
             HtmlBuilder hb = new HtmlBuilder();
 
-            string copyright = Manager.CurrentPage.CopyrightEvaluated;
+            string? copyright = Manager.CurrentPage.CopyrightEvaluated;
             if (string.IsNullOrEmpty(copyright))
                 copyright = Manager.CurrentSite.CopyrightEvaluated;
 

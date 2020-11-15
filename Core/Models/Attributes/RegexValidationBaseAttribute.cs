@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
@@ -14,12 +16,10 @@ namespace YetaWF.Core.Models.Attributes {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public RegexValidationBaseAttribute(string pattern, string message, string errorMessageWithFieldFormat = null, string errorMessageWithDataFormat = null) : base(DataType.Text) {
+        public RegexValidationBaseAttribute(string pattern, string message, string errorMessageWithFieldFormat, string errorMessageWithDataFormat) : base(DataType.Text) {
             ErrorMessage = ErrorMessageWithFieldFormat = message;
-            if (!string.IsNullOrWhiteSpace(errorMessageWithFieldFormat))
-                ErrorMessageWithFieldFormat = errorMessageWithFieldFormat;
-            if (!string.IsNullOrWhiteSpace(errorMessageWithDataFormat))
-                ErrorMessageWithDataFormat = errorMessageWithDataFormat;
+            ErrorMessageWithFieldFormat = errorMessageWithFieldFormat;
+            ErrorMessageWithDataFormat = errorMessageWithDataFormat;
             Pattern = pattern;
         }
 
@@ -35,10 +35,10 @@ namespace YetaWF.Core.Models.Attributes {
                 _regex = new Regex(_Pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
             }
         }
-        protected Regex _regex { get; set; }
-        private string _Pattern;
+        protected Regex _regex { get; set; } = null!;
+        private string _Pattern = null!;
 
-        public override bool IsValid(object value) {
+        public override bool IsValid(object? value) {
             if (value == null) return true;
             if (value is string) {
                 string valueAsString = (string)value;
@@ -61,9 +61,9 @@ namespace YetaWF.Core.Models.Attributes {
                 throw new InternalError("Invalid type used for RegexValidationBaseAttribute - {0}", value.GetType().FullName);
         }
         public class ValidationRegexValidationBase : ValidationBase {
-            public string Pattern { get; set; }
+            public string Pattern { get; set; } = null!;
         }
-        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
             return new ValidationRegexValidationBase {
                 Method = nameof(RegexValidationBaseAttribute),
                 Message = string.Format(ErrorMessageWithFieldFormat, caption),

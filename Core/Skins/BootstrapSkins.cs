@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +18,9 @@ namespace YetaWF.Core.Skins {
         private const string BootstrapThemeFile = "themelist.txt";
 
         public class BootstrapTheme {
-            public string Name { get; set; }
-            public string File { get; set; }
-            public string Description { get; set; }
+            public string Name { get; set; } = null!;
+            public string File { get; set; } = null!;
+            public string? Description { get; set; }
         }
 
         public async Task<List<BootstrapTheme>> GetBootstrapThemeListAsync() {
@@ -26,8 +28,8 @@ namespace YetaWF.Core.Skins {
                 _BootstrapThemeList = await LoadBootstrapThemesAsync();
             return _BootstrapThemeList;
         }
-        private static List<BootstrapTheme> _BootstrapThemeList;
-        private static BootstrapTheme _BootstrapThemeDefault;
+        private static List<BootstrapTheme>? _BootstrapThemeList;
+        private static BootstrapTheme _BootstrapThemeDefault = null!;
 
         private async Task<List<BootstrapTheme>> LoadBootstrapThemesAsync() {
             string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootswatch");
@@ -51,7 +53,7 @@ namespace YetaWF.Core.Skins {
                 if (s.Length < 2)
                     throw new InternalError("Invalid Bootstrap theme entry: {0}", line);
                 string file = s[1].Trim();
-                string description = null;
+                string? description = null;
                 if (s.Length > 2)
                     description = s[2].Trim();
                 if (string.IsNullOrWhiteSpace(description))
@@ -69,8 +71,8 @@ namespace YetaWF.Core.Skins {
             return (from theme in bsList orderby theme.Name select theme).ToList();
         }
 
-        internal async Task<string> FindBootstrapSkinAsync(string themeName) {
-            string folder = (from th in await GetBootstrapThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
+        internal async Task<string?> FindBootstrapSkinAsync(string? themeName) {
+            string? folder = (from th in await GetBootstrapThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(folder))
                 return folder;
             return _BootstrapThemeDefault.File;

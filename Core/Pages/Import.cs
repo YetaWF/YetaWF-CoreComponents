@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
@@ -27,7 +29,7 @@ namespace YetaWF.Core.Pages {
 
         public class ImportInfo {
             public bool Success { get; set; }
-            public string Url { get; set; }
+            public string Url { get; set; } = null!;
         }
 
         public static async Task<ImportInfo> ImportAsync(string zipFileName, List<string> errorList) {
@@ -35,19 +37,18 @@ namespace YetaWF.Core.Pages {
             ImportInfo info = new ImportInfo();
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
-            string jsonFile = null;
 
             using (ZipFile zip = new ZipFile(zipFileName)) {
 
                 // check id file
-                ZipEntry ze = zip.GetEntry(PageIDFile);
+                ZipEntry? ze = zip.GetEntry(PageIDFile);
                 if (ze == null) {
                     errorList.Add(__ResStr("invFormat", "{0} is not valid page data", displayFileName));
                     return info;
                 }
 
                 // read contents file
-                jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
+                string jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(PageContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {
@@ -82,7 +83,7 @@ namespace YetaWF.Core.Pages {
         internal static Task<SerializableList<AllowedRole>> GetUpdatedRolesAsync(List<AllowedRole> origRoles, SerializableList<RoleLookupEntry> lookupEntries) {
             SerializableList<AllowedRole> allowedRoles = new SerializableList<AllowedRole>();
             foreach (AllowedRole origRole in origRoles) {
-                string roleName = (from r in lookupEntries where r.RoleId == origRole.RoleId select r.RoleName).FirstOrDefault();
+                string? roleName = (from r in lookupEntries where r.RoleId == origRole.RoleId select r.RoleName).FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(roleName)) {
                     int roleId = 0;
                     try {
@@ -99,7 +100,7 @@ namespace YetaWF.Core.Pages {
         internal static async Task<SerializableList<AllowedUser>> GetUpdatedUsersAsync(List<AllowedUser> origUsers, SerializableList<UserLookupEntry> lookupEntries) {
             SerializableList<AllowedUser> allowedUsers = new SerializableList<AllowedUser>();
             foreach (AllowedUser origUser in origUsers) {
-                string userName = (from r in lookupEntries where r.UserId == origUser.UserId select r.UserName).FirstOrDefault();
+                string? userName = (from r in lookupEntries where r.UserId == origUser.UserId select r.UserName).FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(userName)) {
                     int userId = 0;
                     try {
@@ -174,7 +175,7 @@ namespace YetaWF.Core.Pages {
                 await ModuleDefinition.UpdateRolesAndUsers(serModule);
 
                 // save the module
-                ModuleDefinition modExisting = await ModuleDefinition.LoadAsync(serModule.ModDef.ModuleGuid, AllowNone: true);
+                ModuleDefinition? modExisting = await ModuleDefinition.LoadAsync(serModule.ModDef.ModuleGuid, AllowNone: true);
                 if (modExisting == null) {
 
                     serModule.ModDef.Temporary = false;
@@ -186,7 +187,7 @@ namespace YetaWF.Core.Pages {
                         if (file.SiteSpecific) {
                             string fName = file.FileName;
                             fName = Manager.SiteFolder + fName;
-                            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName));
+                            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName)!);
                             using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
                                 using (Stream entryStream = modZip.GetInputStream(e)) {
                                     Extract(entryStream, fs);

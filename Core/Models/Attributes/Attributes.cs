@@ -1,15 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using YetaWF.Core.Support;
-#if MVC6
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -38,16 +36,16 @@ namespace YetaWF.Core.Models.Attributes {
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class EnumDescriptionAttribute : Attribute {
-        public EnumDescriptionAttribute(string caption, string Description = null) {
+        public EnumDescriptionAttribute(string caption, string? Description = null) {
             Caption = caption;
             this.Description = Description;
         }
         public string Caption { get; private set; }
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
 
         public static string GetStringValue(object value) {
             EnumData enumData = ObjectSupport.GetEnumData(value.GetType());
-            EnumDataEntry entry = enumData.FindValue(value);
+            EnumDataEntry? entry = enumData.FindValue(value);
             if (entry == null)
                 return "";
             return entry.Caption;
@@ -120,19 +118,12 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class ReadOnlyAttribute : MoreMetadataAttribute
-#if MVC6
-        , IPropertyValidationFilter
-#else
-#endif
-    {
+    public class ReadOnlyAttribute : MoreMetadataAttribute, IPropertyValidationFilter {
         public ReadOnlyAttribute() : base("ReadOnly", true) { }
-#if MVC6
+
         public bool ShouldValidateEntry(ValidationEntry entry, ValidationEntry parentEntry) {
             return false;
         }
-#else
-#endif
     }
     /// <summary>
     /// Used with tabbed property lists to identify with which tab(s) the property is associated.
@@ -224,11 +215,7 @@ namespace YetaWF.Core.Models.Attributes {
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
-#if MVC6
     public class MoreMetadataAttribute : Attribute, IAdditionalAttribute {
-#else
-    public class MoreMetadataAttribute : Attribute, IMetadataAware {
-#endif
         private object _typeId = new object();
 
         public MoreMetadataAttribute(string name, object value) {
@@ -245,16 +232,8 @@ namespace YetaWF.Core.Models.Attributes {
         public string Name { get; private set; }
         public object Value { get; private set; }
 
-#if MVC6
         public void OnAddAdditionalValues(IDictionary<object, object> additionalValues) {
             additionalValues[Name] = Value;
         }
-#else
-        public void OnMetadataCreated(ModelMetadata metadata) {
-            if (metadata == null)
-                throw new ArgumentNullException("metadata");
-            metadata.AdditionalValues[Name] = Value;
-        }
-#endif
     }
 }

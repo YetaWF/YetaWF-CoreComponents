@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Models.Attributes;
 
@@ -84,7 +86,7 @@ namespace YetaWF.Core.DataProvider.Attributes {
         [Obsolete("Warning: Default values are no longer used. All new properties are added with a default constraint of 0/null.")]
         public Data_NewValue(string value) : base(AttributeName, value) { }
 
-        public Data_NewValue() : base(AttributeName, null) { }
+        public Data_NewValue() : base(AttributeName, new object()) { }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class Data_DontSave : MoreMetadataAttribute {

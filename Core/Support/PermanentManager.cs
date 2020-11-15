@@ -1,6 +1,9 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace YetaWF.Core.Support {
 
@@ -37,7 +40,7 @@ namespace YetaWF.Core.Support {
         ///
         /// To avoid race conditions, the caller must use a locking mechanism.
         /// </remarks>
-        public static void AddObject<TObj>(TObj obj) {
+        public static void AddObject<TObj>(TObj obj) where TObj: notnull {
             PermanentManager.RemoveObject<TObj>();
             int identity = (HaveManager && Manager.HaveCurrentSite) ? Manager.CurrentSite.Identity : 0;
             _objDictionary.Add(identity + "/" + typeof(TObj).FullName, obj);
@@ -48,11 +51,10 @@ namespace YetaWF.Core.Support {
         /// <typeparam name="TObj">The Type of the item.</typeparam>
         /// <param name="obj">Returns the item object. null is returned if the item doesn't exist.</param>
         /// <returns>Returns true if successful, false otherwise.</returns>
-        public static bool TryGetObject<TObj>(out TObj obj) {
-            obj = default(TObj);
-            object tempObj;
+        public static bool TryGetObject<TObj>([NotNullWhen(true)] out TObj? obj) {
+            obj = default;
             int identity = (HaveManager && Manager.HaveCurrentSite) ? Manager.CurrentSite.Identity : 0;
-            if (!_objDictionary.TryGetValue(identity + "/" + typeof(TObj).FullName, out tempObj))
+            if (!_objDictionary.TryGetValue(identity + "/" + typeof(TObj).FullName!, out object? tempObj))
                 return false;
             obj = (TObj) tempObj;
             return true;
@@ -63,8 +65,7 @@ namespace YetaWF.Core.Support {
         /// <typeparam name="TObj">The Type of the item.</typeparam>
         /// <returns>Returns the item object.</returns>
         public static TObj GetObject<TObj>() {
-            TObj obj;
-            if (!TryGetObject<TObj>(out obj))
+            if (!TryGetObject<TObj>(out TObj? obj))
                 throw new InternalError("Couldn't retrieve permanent object of type {0} for host {1}", typeof(TObj).FullName, Manager.CurrentSite.Identity);
             return obj;
         }

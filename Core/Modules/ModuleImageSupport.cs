@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -24,12 +26,12 @@ namespace YetaWF.Core.Modules {
             if (string.IsNullOrWhiteSpace(name)) return fail;
             string[] s = name.Split(new char[] { ',' });  // looking for "guid,propertyname"
             if (s.Length != 2) return fail;
-            ModuleDefinition mod = await ModuleDefinition.LoadAsync(new Guid(s[0]), AllowNone: true);
+            ModuleDefinition? mod = await ModuleDefinition.LoadAsync(new Guid(s[0]), AllowNone: true);
             if (mod == null) return fail;
             Type modType = mod.GetType();
-            PropertyInfo pi = ObjectSupport.TryGetProperty(modType, s[1]);
+            PropertyInfo? pi = ObjectSupport.TryGetProperty(modType, s[1]);
             if (pi == null) throw new InternalError("Module {0} doesn't have a property named {1}", modType.FullName, s[1]);
-            byte[] content = (byte[])pi.GetValue(mod);
+            byte[] content = (byte[])pi.GetValue(mod) !;
             return new ImageSupport.GetImageInBytesInfo {
                 Content = content,
                 Success = content.Length > 0,

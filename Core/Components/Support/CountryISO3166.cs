@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,19 +33,19 @@ namespace YetaWF.Core.Components {
             /// <summary>
             /// The user displayable name of the country.
             /// </summary>
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             /// <summary>
             /// The ISO 3166 two character ID of the country.
             /// </summary>
-            public string Id { get; set; }
+            public string Id { get; set; } = null!;
             /// <summary>
             /// The ISO 3166 three character ID of the country.
             /// </summary>
-            public string Id3 { get; set; }
+            public string Id3 { get; set; } = null!;
             /// <summary>
             /// The ISO 3166 three digit number of the country.
             /// </summary>
-            public string Number { get; set; }
+            public string Number { get; set; } = null!;
             /// <summary>
             /// Defines the address type typically used by the country.
             /// </summary>
@@ -55,7 +57,7 @@ namespace YetaWF.Core.Components {
             /// ZipLast represents an address with a zipcode or postal code after the city name.
             /// Generic represents an address just a city name (which may include postal code information).
             /// </remarks>
-            public string AddressType { get; set; }
+            public string AddressType { get; set; } = null!;
 
             /// <summary>
             /// Used with the Country.AddressType property.
@@ -90,7 +92,7 @@ namespace YetaWF.Core.Components {
         public static string CountryToId(string country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
-            string id = (from c in GetCountries() where c.Name == country select c.Id).FirstOrDefault();
+            string? id = (from c in GetCountries() where c.Name == country select c.Id).FirstOrDefault();
             if (id != null)
                 return id;
             if (AllowMismatch) {
@@ -98,7 +100,7 @@ namespace YetaWF.Core.Components {
                 if (id != null)
                     return id;
             }
-            throw new InternalError("Invalid country {0}", country);
+            throw new InternalError($"Invalid country {country}");
         }
 
         /// <summary>
@@ -110,12 +112,12 @@ namespace YetaWF.Core.Components {
         public static string IdToCountry(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 return Manager.CurrentSite.Country;
-            string country = (from c in GetCountries() where c.Id == id select c.Name).FirstOrDefault();
+            string? country = (from c in GetCountries() where c.Id == id select c.Name).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(country))
                 return country;
             if (AllowMismatch)
                 return Manager.CurrentSite.Country;
-            throw new InternalError("Invalid country id {0}", id);
+            throw new InternalError($"Invalid country id {id}");
         }
 
         /// <summary>
@@ -127,7 +129,7 @@ namespace YetaWF.Core.Components {
         public static string CountryToId3(string country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
-            string id = (from c in GetCountries() where c.Name == country select c.Id3).FirstOrDefault();
+            string? id = (from c in GetCountries() where c.Name == country select c.Id3).FirstOrDefault();
             if (id != null)
                 return id;
             if (AllowMismatch) {
@@ -135,7 +137,7 @@ namespace YetaWF.Core.Components {
                 if (id != null)
                     return id;
             }
-            throw new InternalError("Invalid country {0}", country);
+            throw new InternalError($"Invalid country {country}");
         }
         /// <summary>
         /// Converts an ISO 3166 three character ID into a country name.
@@ -146,12 +148,12 @@ namespace YetaWF.Core.Components {
         public static string Id3ToCountry(string id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 return Manager.CurrentSite.Country;
-            string country = (from c in GetCountries() where c.Id3 == id select c.Name).FirstOrDefault();
+            string? country = (from c in GetCountries() where c.Id3 == id select c.Name).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(country))
                 return country;
             if (AllowMismatch)
                 return Manager.CurrentSite.Country;
-            throw new InternalError("Invalid country id {0}", id);
+            throw new InternalError($"Invalid country id {id}");
         }
 
         /// <summary>
@@ -163,7 +165,7 @@ namespace YetaWF.Core.Components {
         public static string CountryToNumber(string country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
-            string number = (from c in GetCountries() where c.Name == country select c.Number).FirstOrDefault();
+            string? number = (from c in GetCountries() where c.Name == country select c.Number).FirstOrDefault();
             if (number != null)
                 return number;
             if (AllowMismatch) {
@@ -171,7 +173,7 @@ namespace YetaWF.Core.Components {
                 if (number != null)
                     return number;
             }
-            throw new InternalError("Invalid country {0}", country);
+            throw new InternalError($"Invalid country {country}");
         }
 
         /// <summary>
@@ -183,12 +185,12 @@ namespace YetaWF.Core.Components {
         public static string NumberToCountry(string number, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(number))
                 return Manager.CurrentSite.Country;
-            string country = (from c in GetCountries() where c.Number == number select c.Name).FirstOrDefault();
+            string? country = (from c in GetCountries() where c.Number == number select c.Name).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(country))
                 return country;
             if (AllowMismatch)
                 return Manager.CurrentSite.Country;
-            throw new InternalError("Invalid country number {0}", number);
+            throw new InternalError($"Invalid country number {number}");
         }
 
         /// <summary>
@@ -196,7 +198,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="country">The country.</param>
         /// <returns>Returns the address type.</returns>
-        public static string CountryToAddressType(string country) {
+        public static string? CountryToAddressType(string country) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
             if (string.IsNullOrWhiteSpace(country))
@@ -213,7 +215,7 @@ namespace YetaWF.Core.Components {
         /// <param name="zip">The zip code/postal code portion of the address.</param>
         /// <returns>Returns the information formatted based on the country's AddressType.</returns>
         public static string CombineCityStateZip(string country, string city, string state, string zip) {
-            string addressType = CountryISO3166.CountryToAddressType(country);
+            string? addressType = CountryISO3166.CountryToAddressType(country);
             if (addressType == CountryISO3166.Country.US)
                 return city + ", " + state + " " + zip;
             else if (addressType == CountryISO3166.Country.Zip1)
@@ -237,7 +239,7 @@ namespace YetaWF.Core.Components {
         public static List<Country> GetCountries(bool IncludeSiteCountry = true) {
             List<Country> countries = CountryList.ToList();
             if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.Country)) {
-                Country mainCountry = (from c in countries where c.Name == Manager.CurrentSite.Country select c).FirstOrDefault();
+                Country? mainCountry = (from c in countries where c.Name == Manager.CurrentSite.Country select c).FirstOrDefault();
                 if (mainCountry != null) {
                     countries.Remove(mainCountry);
                     if (!IncludeSiteCountry) {
@@ -258,7 +260,7 @@ namespace YetaWF.Core.Components {
                 return _CountryList;
             }
         }
-        private static List<Country> _CountryList = null;
+        private static List<Country>? _CountryList = null;
 
         internal static async Task<List<Country>> ReadCountryListAsync() {
             string file;

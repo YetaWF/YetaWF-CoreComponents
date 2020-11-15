@@ -1,6 +1,6 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
+#nullable enable
 
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using System;
@@ -25,7 +25,7 @@ namespace YetaWF2.Support {
             // Get all assemblies that are already loaded
             List<Assembly> preloadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             foreach (Assembly preloadedAssembly in preloadedAssemblies) {
-                Assembly found = (from Assembly a in assemblies where a.FullName == preloadedAssembly.FullName select a).FirstOrDefault();
+                Assembly? found = (from Assembly a in assemblies where a.FullName == preloadedAssembly.FullName select a).FirstOrDefault();
                 if (found == null) {
                     Package package = new Package(preloadedAssembly);
                     if (package.IsValid) {
@@ -39,9 +39,9 @@ namespace YetaWF2.Support {
             // Find extra assemblies that aren't loaded yet
             string[] files = Directory.GetFiles(baseDirectory, "*.dll");
             foreach (string file in files) {
-                Assembly found = (from Assembly a in assemblies where a.ManifestModule.FullyQualifiedName == file select a).FirstOrDefault();
+                Assembly? found = (from Assembly a in assemblies where a.ManifestModule.FullyQualifiedName == file select a).FirstOrDefault();
                 if (found == null) {
-                    Assembly newAssembly = null;
+                    Assembly? newAssembly = null;
                     if (!file.EndsWith("\\libuv.dll")) {// avoid exception spam
                         try {
                             newAssembly = Assembly.LoadFrom(file);
@@ -82,5 +82,3 @@ namespace YetaWF2.Support {
     }
 }
 
-#else
-#endif

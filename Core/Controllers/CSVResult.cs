@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -60,7 +62,7 @@ namespace YetaWF.Core.Controllers {
             // Data
             foreach (TYPE rec in Data.Data) {
                 foreach (PropertyInfo propInfo in propInfos) {
-                    object o = propInfo.GetValue(rec);
+                    object? o = propInfo.GetValue(rec);
                     if (o == null) {
 
                     } else {

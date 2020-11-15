@@ -1,18 +1,15 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
-#if MVC6
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Collections.Generic;
-#else
-using System.Collections.Specialized;
-using System.Web;
-#endif
 
 namespace YetaWF.Core.Support {
 
@@ -30,10 +27,10 @@ namespace YetaWF.Core.Support {
             bool staticHost = false;
             bool testHost = false;
             bool loopBack = uri.IsLoopback;
-            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? (string)httpReq.Query[Globals.Link_ForceSite] : null, out forcedHost, out newSwitch);
-            string host2 = null;
+            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? (string)httpReq.Query[Globals.Link_ForceSite] : string.Empty, out forcedHost, out newSwitch);
+            string? host2 = null;
 
-            SiteDefinition site = null;
+            SiteDefinition? site = null;
             if (isStaticHost != false)
                 site = await SiteDefinition.LoadStaticSiteDefinitionAsync(host);
             if (site != null) {
@@ -120,7 +117,7 @@ namespace YetaWF.Core.Support {
                 if (!manager.HasSuperUserRole) { // if superuser, don't log off (we could be creating a new site)
                     // A somewhat naive way to log a user off, but it's working well and also handles 3rd party logins correctly.
                     // Since this is only used during site development, it's not critical
-                    string logoffUrl = WebConfigHelper.GetValue<string>("MvcApplication", "LogoffUrl", null);
+                    string? logoffUrl = WebConfigHelper.GetValue<string?>("MvcApplication", "LogoffUrl");
                     if (string.IsNullOrWhiteSpace(logoffUrl))
                         throw new InternalError("MvcApplication LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
                     Uri newUri = new Uri("http://" + host);// new site to display

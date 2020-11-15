@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -20,9 +22,8 @@ namespace YetaWF.Core.Support {
         /// <param name="throwError">Defines whether an error is thrown if the assembly is not found.</param>
         /// <returns>An instance of the requested assembly.</returns>
         /// <remarks>Assemblies are cached for performance.</remarks>
-        public static Assembly Load(string asmName, bool throwError = true) {
-            Assembly assembly;
-            if (LoadedAssemblies.TryGetValue(asmName.ToLower(), out assembly))
+        public static Assembly? Load(string asmName, bool throwError = true) {
+            if (LoadedAssemblies.TryGetValue(asmName.ToLower(), out Assembly? assembly))
                 return assembly;
             try {
                 assembly = System.Reflection.Assembly.Load(asmName);

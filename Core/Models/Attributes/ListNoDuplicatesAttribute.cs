@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,7 +18,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         public ListNoDuplicatesAttribute() { }
 
-        protected override ValidationResult IsValid(object value, ValidationContext context) {
+        protected override ValidationResult? IsValid(object? value, ValidationContext context) {
             if (value is List<string>) {
                 List<string> list = (List<string>)value;
                 var query = list.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
@@ -30,7 +32,7 @@ namespace YetaWF.Core.Models.Attributes {
             }
             return ValidationResult.Success;
         }
-        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
             return new ValidationBase {
                 Method = nameof(ListNoDuplicatesAttribute),
                 Message = __ResStr("dupClient2", "Duplicate entry found in the field labeled '{0}'", caption),

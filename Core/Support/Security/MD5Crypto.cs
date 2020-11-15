@@ -1,9 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Text;
 
 namespace YetaWF.Core.Security {
+
     public class MD5Crypto {
+
         public string StringMD5(string text) {
 
             using (System.Security.Cryptography.MD5CryptoServiceProvider md5Obj = new System.Security.Cryptography.MD5CryptoServiceProvider()) {

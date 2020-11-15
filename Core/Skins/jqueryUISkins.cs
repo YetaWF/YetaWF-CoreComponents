@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +18,9 @@ namespace YetaWF.Core.Skins {
         private const string ThemeFile = "themelist.txt";
 
         public class JQueryTheme {
-            public string Name { get; set; }
-            public string File { get; set; }
-            public string Description { get; set; }
+            public string Name { get; set; } = null!;
+            public string File { get; set; } = null!;
+            public string? Description { get; set; }
         }
 
         public async Task<List<JQueryTheme>> GetJQueryThemeListAsync() {
@@ -26,8 +28,8 @@ namespace YetaWF.Core.Skins {
                 _jQueryThemeList = await LoadJQueryUIThemesAsync();
             return _jQueryThemeList;
         }
-        private static List<JQueryTheme> _jQueryThemeList;
-        private static JQueryTheme _jQueryThemeDefault;
+        private static List<JQueryTheme>? _jQueryThemeList;
+        private static JQueryTheme _jQueryThemeDefault = null!;
 
         private async Task<List<JQueryTheme>> LoadJQueryUIThemesAsync() {
             string url = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "jqueryui.com.jqueryui-themes");
@@ -51,7 +53,7 @@ namespace YetaWF.Core.Skins {
                 if (s.Length < 2)
                     throw new InternalError("Invalid jQuery-ui theme entry: {0}", line);
                 string file = s[1].Trim();
-                string description = null;
+                string? description = null;
                 if (s.Length > 2)
                     description = s[2].Trim();
                 if (string.IsNullOrWhiteSpace(description))
@@ -70,7 +72,7 @@ namespace YetaWF.Core.Skins {
         }
 
         public async Task<string> FindJQueryUISkinAsync(string themeName) {
-            string folder = (from th in await GetJQueryThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
+            string? folder = (from th in await GetJQueryThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(folder))
                 return folder;
             return _jQueryThemeDefault.File;

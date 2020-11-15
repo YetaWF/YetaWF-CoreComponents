@@ -1,6 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
+#nullable enable
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -18,31 +18,31 @@ namespace YetaWF.Core.Pages {
 
     public static class HtmlHelperActionExtensions {
 
-        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object parameters = null) {
-            var controller = (string)htmlHelper.RouteData.Values["controller"];
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object? parameters = null) {
+            var controller = (string)htmlHelper.RouteData.Values["controller"] !;
             return await ActionAsync(htmlHelper, module, action, controller, parameters);
         }
 
-        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object parameters = null) {
-            var area = (string)htmlHelper.RouteData.Values["area"];
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, object? parameters = null) {
+            var area = (string)htmlHelper.RouteData.Values["area"] !;
             return await ActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object? parameters = null) {
             if (action == null)
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             if (controller == null)
-                throw new ArgumentNullException("controller");
+                throw new ArgumentNullException(nameof(controller));
             if (area == null)
                 throw new ArgumentNullException("area");
             return await RenderActionAsync(htmlHelper, module, action, controller, area, parameters);
         }
 
-        private static async Task<ActionInfo> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object parameters = null) {
+        private static async Task<ActionInfo> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object? parameters = null) {
             // fetching required services for invocation
             var httpContext = YetaWFManager.Manager.CurrentContext;
-            IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory));
-            IActionSelector actionSelector = (IActionSelector)YetaWFManager.ServiceProvider.GetService(typeof(IActionSelector));
+            IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory)) !;
+            IActionSelector actionSelector = (IActionSelector)YetaWFManager.ServiceProvider.GetService(typeof(IActionSelector)) !;
 
             // creating new action invocation context
             var routeData = new RouteData();
@@ -56,8 +56,7 @@ namespace YetaWF.Core.Pages {
             routeData.PushState(null, routeParams, null);
 
             // We need to defeat caching of the current UrlHelper for the new context otherwise areas don't work
-            object oldUrlHelper = null;
-            httpContext.Items.TryGetValue(typeof(IUrlHelper), out oldUrlHelper);
+            httpContext.Items.TryGetValue(typeof(IUrlHelper), out object? oldUrlHelper);
             httpContext.Items.Remove(typeof(IUrlHelper));
 
             // Microsoft.AspNetCore.Routing.RouteContext
@@ -80,7 +79,7 @@ namespace YetaWF.Core.Pages {
                     using (httpContext.Response.Body = new MemoryStream()) {
                         await invoker.InvokeAsync().ContinueWith(async task => {
                             if (task.IsFaulted) {
-                                info.HTML = ModuleDefinition.ProcessModuleError(task.Exception, module.ModuleName).ToString();
+                                info.HTML = ModuleDefinition.ProcessModuleError(task.Exception!, module.ModuleName).ToString();
                                 info.Failed = true;
                             } else if (task.IsCompleted) {
                                 httpContext.Response.Body.Position = 0;
@@ -104,6 +103,3 @@ namespace YetaWF.Core.Pages {
         }
     }
 }
-
-#else
-#endif

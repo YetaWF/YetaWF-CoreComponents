@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Authentication;
 using System;
 using System.Collections.Generic;
@@ -15,9 +17,9 @@ namespace YetaWF.Core.Support.Services {
         public static void Setup(AuthenticationBuilder authBuilder) {
             List<Type> types = Package.GetClassesInPackages<IDynamicAuthentication>();
             foreach (Type type in types) {
-                object o = Activator.CreateInstance(type);
-                IDynamicAuthentication dynAuth = o as IDynamicAuthentication;
-                dynAuth.AddDynamicAuthentication(authBuilder);
+                object? o = Activator.CreateInstance(type) !;
+                IDynamicAuthentication? dynAuth = o as IDynamicAuthentication;
+                dynAuth!.AddDynamicAuthentication(authBuilder);
             }
         }
     }

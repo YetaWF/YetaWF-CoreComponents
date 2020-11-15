@@ -1,6 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Identity#License */
 
-#if MVC6
+#nullable enable
 
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
@@ -21,12 +21,12 @@ namespace YetaWF.Core.Identity {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, TRequirement requirement) {
             List<TAttribute> attributes = new List<TAttribute>();
 
-            Microsoft.AspNetCore.Routing.RouteEndpoint re = context.Resource as Microsoft.AspNetCore.Routing.RouteEndpoint;
+            Microsoft.AspNetCore.Routing.RouteEndpoint? re = context.Resource as Microsoft.AspNetCore.Routing.RouteEndpoint;
             if (re != null) {
-                Microsoft.AspNetCore.Http.EndpointMetadataCollection meta = re.Metadata as Microsoft.AspNetCore.Http.EndpointMetadataCollection;
-                if (re != null) {
-                    foreach (object m in meta) {
-                        TAttribute a = m as TAttribute;
+                Microsoft.AspNetCore.Http.EndpointMetadataCollection? meta = re.Metadata as Microsoft.AspNetCore.Http.EndpointMetadataCollection;
+                if (meta != null) {
+                    foreach (object? m in meta) {
+                        TAttribute? a = m as TAttribute;
                         if (a != null)
                             attributes.Add(a);
                     }
@@ -65,5 +65,3 @@ namespace YetaWF.Core.Identity {
         }
     }
 }
-#else
-#endif

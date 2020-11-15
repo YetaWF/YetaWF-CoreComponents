@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,11 +12,11 @@ namespace YetaWF.Core.Support {
         public const string NL = "(+nl)";
 
         private readonly StringBuilder _sb = new StringBuilder();
-        public void Append(string s) {
+        public void Append(string? s) {
             if (s == null) return;
             _sb.Append(s);
         }
-        public void Append(string s, params object[] parms) {
+        public void Append(string? s, params object?[] parms) {
             if (s == null) return;
             _sb.AppendFormat(s, parms);
         }

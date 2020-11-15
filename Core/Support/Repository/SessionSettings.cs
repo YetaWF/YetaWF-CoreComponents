@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,7 @@ namespace YetaWF.Core.Support.Repository {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        private List<SettingsDictionary> _loadedDicts;
+        private List<SettingsDictionary>? _loadedDicts;
         internal List<SettingsDictionary> LoadedDicts {
             get {
                 if (_loadedDicts == null)
@@ -28,7 +30,7 @@ namespace YetaWF.Core.Support.Repository {
 
         private SettingsDictionary CreateDictionary(ObjectType objectType, string objectName) {
             objectName = objectName.ToLower();
-            SettingsDictionary dict = FindLoadedDictionary(objectType, objectName);
+            SettingsDictionary? dict = FindLoadedDictionary(objectType, objectName);
             if (dict != null) return dict;
 
             dict = SettingsDictionary.Load(objectType, objectName);
@@ -36,7 +38,7 @@ namespace YetaWF.Core.Support.Repository {
             return dict;
         }
 
-        private SettingsDictionary FindLoadedDictionary(ObjectType objectType, string objectName) {
+        private SettingsDictionary? FindLoadedDictionary(ObjectType objectType, string objectName) {
             foreach (var d in LoadedDicts) {
                 if (d.ObjectType == objectType && d.ObjectName == objectName)
                     return d;
@@ -56,7 +58,7 @@ namespace YetaWF.Core.Support.Repository {
         /// <summary>
         /// User-specific page settings
         /// </summary>
-        public SettingsDictionary GetPageSettings(string pageName) {
+        public SettingsDictionary? GetPageSettings(string pageName) {
             if (pageName == null) return null;
             return CreateDictionary(ObjectType.Page, pageName);
         }

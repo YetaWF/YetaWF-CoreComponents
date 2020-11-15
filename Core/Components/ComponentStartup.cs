@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -57,7 +59,7 @@ namespace YetaWF.Core.Components {
 
                 // Find all components
 
-                YetaWFComponentBase component = (YetaWFComponentBase) Activator.CreateInstance(tp);
+                YetaWFComponentBase component = (YetaWFComponentBase) Activator.CreateInstance(tp) !;
                 Package compPackage = Package.GetPackageFromType(tp);
                 string templateName;
                 if (compPackage.IsCorePackage || compPackage.Product.StartsWith("Components"))
@@ -79,7 +81,7 @@ namespace YetaWF.Core.Components {
 
                 // check if the component has a controller preprocessor action
                 // Invoke RenderAsync
-                MethodInfo meth = component.GetType().GetMethod(CONTROLLERPREPROCESSMETHOD, BindingFlags.Static| BindingFlags.Public);
+                MethodInfo? meth = component.GetType().GetMethod(CONTROLLERPREPROCESSMETHOD, BindingFlags.Static| BindingFlags.Public);
                 if (meth != null) {
                     ComponentsWithControllerPreprocessAction.Add(templateName, meth);
                 }
@@ -90,7 +92,7 @@ namespace YetaWF.Core.Components {
             types = Package.GetClassesInPackages<YetaWFViewBase>();
             foreach (Type tp in types) {
 
-                YetaWFViewBase view = (YetaWFViewBase)Activator.CreateInstance(tp);
+                YetaWFViewBase view = (YetaWFViewBase)Activator.CreateInstance(tp) !;
                 Package viewPackage = Package.GetPackageFromType(tp);
                 string viewName;
                 if (viewPackage.IsCorePackage || viewPackage.Product.StartsWith("Components"))
@@ -107,7 +109,7 @@ namespace YetaWF.Core.Components {
             types = Package.GetClassesInPackages<YetaWFPageBase>();
             foreach (Type tp in types) {
 
-                YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(tp);
+                YetaWFPageBase page = (YetaWFPageBase)Activator.CreateInstance(tp) !;
                 Package pagePackage = Package.GetPackageFromType(tp);
                 string pageName = $"{pagePackage.AreaName}_{page.GetPageName()}";
 

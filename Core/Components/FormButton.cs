@@ -1,8 +1,9 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
-using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
@@ -47,23 +48,23 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The button text.
         /// </summary>
-        public string Text { get; set; }
+        public string? Text { get; set; }
         /// <summary>
         /// The button's tooltip.
         /// </summary>
-        public string Title { get; set; }
+        public string? Title { get; set; }
         /// <summary>
         /// The HTML name attribute of the button.
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>
         /// The HTML id attribute of the button.
         /// </summary>
-        public string Id { get; set; }
+        public string? Id { get; set; }
         /// <summary>
         /// The HTML CSS classes added to the button.
         /// </summary>
-        public string CssClass { get; set; }
+        public string? CssClass { get; set; }
         /// <summary>
         /// Defines whether this is a hidden button (&lt;input type='hidden'&gt;).
         /// </summary>
@@ -75,7 +76,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The module action invoked by the button. May be null.
         /// </summary>
-        public ModuleAction Action { get; private set; }
+        public ModuleAction? Action { get; private set; }
         /// <summary>
         /// Defines the appearance of the button.
         /// </summary>
@@ -90,7 +91,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="action">The module action invoked by the button. May be null.</param>
         /// <param name="renderAs">Defines the appearance of the button.</param>
-        public FormButton(ModuleAction action, ModuleAction.RenderModeEnum renderAs = ModuleAction.RenderModeEnum.Button) {
+        public FormButton(ModuleAction? action, ModuleAction.RenderModeEnum renderAs = ModuleAction.RenderModeEnum.Button) {
             ButtonType = action != null ? ButtonTypeEnum.Button : ButtonTypeEnum.Empty;
             Action = action;
             RenderAs = renderAs;
@@ -101,7 +102,7 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns the button as HTML.</returns>
         public async Task<string> RenderAsync() {
             if (ButtonType == ButtonTypeEnum.Empty)
-                return null;
+                return string.Empty;
             if (Action != null) {
                 switch (RenderAs) {
                     default:

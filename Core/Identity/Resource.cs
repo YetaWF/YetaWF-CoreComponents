@@ -1,19 +1,14 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
-using YetaWF.Core.Modules;
-using YetaWF.Core.Support;
 using YetaWF.Core.Models.Attributes;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
+using YetaWF.Core.Modules;
 
 namespace YetaWF.Core.Identity {
 
@@ -85,22 +80,12 @@ namespace YetaWF.Core.Identity {
     /// This can be used for any type of controller, including plain MVC controllers, without ModuleGuid (i.e., no associated module).
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-#if MVC6
-    public class ResourceAuthorizeAttribute : AuthorizeAttribute
-#else
-    public class ResourceAuthorizeAttribute : AuthorizeAttribute
-#endif
-    {
+    public class ResourceAuthorizeAttribute : AuthorizeAttribute {
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="name">The protected named resource which was defined using ResourceAttribute.</param>
-        public ResourceAuthorizeAttribute(string name)
-#if MVC6
-             : base("ResourceAuthorize")
-#else
-#endif
-        {
+        public ResourceAuthorizeAttribute(string name) : base("ResourceAuthorize") {
             Name = name;
         }
         /// <summary>
@@ -207,7 +192,7 @@ namespace YetaWF.Core.Identity {
         int GetRoleId(string roleName);
 
         ModuleAction GetSelectTwoStepAction(int userId, string userName, string email);
-        Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url);
+        Task<ModuleAction> GetForceTwoStepActionSetupAsync(string? url);
         void ShowNeed2FA();
 
         void ShowNeedNewPassword();
@@ -271,7 +256,7 @@ namespace YetaWF.Core.Identity {
             throw new NotImplementedException();
         }
 
-        public Task<ModuleAction> GetForceTwoStepActionSetupAsync(string url) {
+        public Task<ModuleAction> GetForceTwoStepActionSetupAsync(string? url) {
             throw new NotImplementedException();
         }
 

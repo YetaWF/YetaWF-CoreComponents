@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using YetaWF.Core.Models.Attributes;
@@ -17,18 +19,10 @@ namespace YetaWF.Core.Controllers {
 
         internal static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        internal class Payload {
-            public string Name { get; set; }
-            public string Text { get; set; }
-        }
-        internal class UrlEntry {
-            public string Name { get; set; }
-            public string Url { get; set; }
-        }
         public class AddonDescription {
-            public string AreaName { get; set; }
-            public string ShortName { get; set; }
-            public string Argument1 { get; set; }
+            public string AreaName { get; set; } = null!;
+            public string ShortName { get; set; } = null!;
+            public string? Argument1 { get; set; }
         }
 
         /// <summary>
@@ -39,15 +33,15 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// The requested addons.
             /// </summary>
-            public List<AddonDescription> Addons { get; set; }
+            public List<AddonDescription> Addons { get; set; } = null!;
             /// <summary>
             /// A collection of all CSS files the client has already loaded.
             /// </summary>
-            public List<string> KnownCss { get; set; }
+            public List<string> KnownCss { get; set; } = null!;
             /// <summary>
             /// A collection of all JavaScript files the client has already loaded.
             /// </summary>
-            public List<string> KnownScripts { get; set; }
+            public List<string> KnownScripts { get; set; } = null!;
         }
 
         /// <summary>

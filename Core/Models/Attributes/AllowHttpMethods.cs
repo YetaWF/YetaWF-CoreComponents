@@ -1,18 +1,14 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-#if MVC6
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Routing;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace YetaWF.Core.Controllers {
 

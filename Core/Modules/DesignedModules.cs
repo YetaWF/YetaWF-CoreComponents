@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.Models;
@@ -18,7 +20,7 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// The module name as provided by user who created the module.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         /// <summary>
         /// The module description, provided by module implementer.
         /// </summary>
@@ -26,7 +28,7 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// The area name implementing the module.
         /// </summary>
-        public string AreaName { get; set; }
+        public string AreaName { get; set; } = null!;
 
         /// <summary>
         /// Constructor.
@@ -45,6 +47,6 @@ namespace YetaWF.Core.Modules {
         /// Loads and caches all designed modules.
         /// </summary>
         /// <remarks>This method is implemented by a data provider, set at application startup.</remarks>
-        public static Func<Task<SerializableList<DesignedModule>>> LoadDesignedModulesAsync { get; set; }
+        public static Func<Task<SerializableList<DesignedModule>>> LoadDesignedModulesAsync { get; set; } = null!;
     }
 }

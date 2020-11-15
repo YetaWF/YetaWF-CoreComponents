@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
@@ -17,18 +19,18 @@ namespace YetaWF.Core.Language {
         public const int MaxDescription = 200;
 
         [Data_PrimaryKey, StringLength(MaxId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         [StringLength(MaxShortName)]
-        public string ShortName { get; set; }
+        public string ShortName { get; set; } = null!;
         [StringLength(MaxDescription)]
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         public LanguageData() { }
     }
 
     public static class LanguageInfo {
 
-        public static ILanguages LanguagesAccess { get; set; }
+        public static ILanguages LanguagesAccess { get; set; } = null!;
 
     }
 }

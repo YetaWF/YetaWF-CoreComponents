@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,14 +36,14 @@ namespace YetaWF.Core.Models {
                 return _defaultId;
             }
         }
-        private static string _defaultId;
+        private static string? _defaultId;
 
         // active languages
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public static List<LanguageData> Languages {
             get {
                 if (_languages == null) {
-                    LanguageEntryElement defaultLanguage = (from LanguageEntryElement l in LanguageSection.Languages where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
+                    LanguageEntryElement? defaultLanguage = (from LanguageEntryElement l in LanguageSection.Languages where l.Id == MultiString.DefaultLanguage select l).FirstOrDefault();
                     if (defaultLanguage == null)
                         throw new InternalError("The defined default language doesn't exist");
                     List<LanguageData> languages = (from LanguageEntryElement l in LanguageSection.Languages
@@ -61,13 +63,13 @@ namespace YetaWF.Core.Models {
                 return _languages;
             }
         }
-        private static List<LanguageData> _languages;
+        private static List<LanguageData>? _languages;
 
         /// <summary>
         /// Given a language id (which may be invalid or deleted), return a valid language id.
         /// </summary>
-        public static string NormalizeLanguageId(string id) {
-            if (LanguageIdList.Contains(id)) return id;
+        public static string NormalizeLanguageId(string? id) {
+            if (id != null && LanguageIdList.Contains(id)) return id;
             return MultiString.DefaultLanguage;
         }
 
@@ -79,11 +81,11 @@ namespace YetaWF.Core.Models {
                 return _languageIdList;
             }
         }
-        private static List<string> _languageIdList;
+        private static List<string>? _languageIdList;
 
         public MultiString(MultiString ms) : base(ms) { }
-        public MultiString() { this[MultiString.DefaultLanguage] = ""; }
-        public MultiString(string s) { this[MultiString.DefaultLanguage] = s; }
+        public MultiString() { this[MultiString.DefaultLanguage] = string.Empty; }
+        public MultiString(string? s) { this[MultiString.DefaultLanguage] = s ?? string.Empty; }
 
         //public MultiString(SerializationInfo info, StreamingContext context)
         //{
@@ -122,11 +124,11 @@ namespace YetaWF.Core.Models {
         // CONVERSION OPERATORS
         // CONVERSION OPERATORS
 
-        static public implicit operator MultiString(string value) {
+        static public implicit operator MultiString(string? value) {
             return new MultiString(value);
         }
-        static public implicit operator string(MultiString value) {
-            return value != null ? value.ToString() : null;
+        static public implicit operator string?(MultiString? value) {
+            return value?.ToString();
         }
         public new string ToString() {
             return this[MultiString.ActiveLanguage];
@@ -136,44 +138,46 @@ namespace YetaWF.Core.Models {
         // COMPARISON
         // COMPARISON
 
-        public int CompareTo(object obj) {
-            MultiString o = obj as MultiString;
+        public int CompareTo(object? obj) {
+            MultiString? o = obj as MultiString;
             if (o == null) throw new ArgumentException();
             return string.Compare(this.ToString(), o.ToString());
         }
-        public static bool operator ==(MultiString value1, MultiString value2) {
-            if (((object)value1) == null && ((object)value2) == null) return true;
-            if (((object)value1) == null || ((object)value2) == null) return false;
+        public static bool operator ==(MultiString? value1, MultiString? value2) {
+            if (value1 == null && value2 == null) return true;
+            if (value1 == null || value2 == null) return false;
             return value1.CompareTo(value2) == 0;
         }
-        public static bool operator !=(MultiString value1, MultiString value2) {
+        public static bool operator !=(MultiString? value1, MultiString? value2) {
+            if (value1 == null && value2 == null) return false;
+            if (value1 == null || value2 == null) return true;
             return !(value1 == value2);
         }
-        public static bool operator <(MultiString value1, MultiString value2) {
-            if (((object)value1) == null && ((object)value2) == null) return false;
-            if (((object)value1) == null) return true;
-            if (((object)value2) == null) return false;
+        public static bool operator <(MultiString? value1, MultiString? value2) {
+            if (value1 == null && value2 == null) return false;
+            if (value1 == null) return true;
+            if (value2 == null) return false;
             return value1.CompareTo(value2) < 0;
         }
-        public static bool operator >(MultiString value1, MultiString value2) {
-            if (((object)value1) == null && ((object)value2) == null) return false;
-            if (((object)value1) == null) return false;
-            if (((object)value2) == null) return true;
+        public static bool operator >(MultiString? value1, MultiString? value2) {
+            if (value1 == null && value2 == null) return false;
+            if (value1 == null) return false;
+            if (value2 == null) return true;
             return value1.CompareTo(value2) > 0;
         }
-        public static bool operator <=(MultiString value1, MultiString value2) {
-            if (((object)value1) == null && ((object)value2) == null) return true;
-            if (((object)value1) == null) return true;
-            if (((object)value2) == null) return false;
+        public static bool operator <=(MultiString? value1, MultiString? value2) {
+            if (value1 == null && value2 == null) return true;
+            if (value1 == null) return true;
+            if (value2 == null) return false;
             return value1.CompareTo(value2) <= 0;
         }
-        public static bool operator >=(MultiString value1, MultiString value2) {
-            if (((object)value1) == null && ((object)value2) == null) return true;
-            if (((object)value2) == null) return true;
-            if (((object)value1) == null) return false;
+        public static bool operator >=(MultiString? value1, MultiString? value2) {
+            if (value1 == null && value2 == null) return true;
+            if (value2 == null) return true;
+            if (value1 == null) return false;
             return value1.CompareTo(value2) >= 0;
         }
-        public override bool Equals(object o) {
+        public override bool Equals(object? o) {
             if (!(o is MultiString)) return false;
             return (((MultiString)o).ToString() != this.ToString());
         }
@@ -184,17 +188,15 @@ namespace YetaWF.Core.Models {
 
         public string DefaultText { get { return this[MultiString.DefaultLanguage]; } }
         public bool HasLanguageText(string id) {
-            string val;
-            return TryGetValue(id, out val);
+            return TryGetValue(id, out string? val);
         }
         public new string this[string id] {
             get {
-                string val;
-                if (TryGetValue(id, out val))
+                if (TryGetValue(id, out string? val))
                     return val;
                 if (id != DefaultLanguage)
                     return DefaultText;
-                return "";
+                return string.Empty;
             }
             set {
                 Remove(id);

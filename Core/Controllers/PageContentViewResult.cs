@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using YetaWF.Core.Modules;
@@ -31,7 +33,7 @@ namespace YetaWF.Core.Controllers {
             try {
 
                 if (context == null)
-                    throw new ArgumentNullException("context");
+                    throw new ArgumentNullException(nameof(context));
 
                 Manager.PageTitle = Manager.CurrentPage.Title;
 

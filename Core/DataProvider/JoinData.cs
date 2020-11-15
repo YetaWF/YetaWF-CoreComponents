@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 namespace YetaWF.Core.DataProvider {
 
     public class JoinData {
@@ -9,10 +11,10 @@ namespace YetaWF.Core.DataProvider {
             Left = 1,
         };
 
-        public DataProviderImpl MainDP { get; set; }
-        public DataProviderImpl JoinDP { get; set; }
-        public string MainColumn { get; set; }
-        public string JoinColumn { get; set; }
+        public DataProviderImpl MainDP { get; set; } = null!;
+        public DataProviderImpl JoinDP { get; set; } = null!;
+        public string MainColumn { get; set; } = null!;
+        public string JoinColumn { get; set; } = null!;
 
         public bool UseSite{ get; set; }
         public JoinTypeEnum JoinType { get; set; }

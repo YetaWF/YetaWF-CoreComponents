@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Localize;
@@ -18,9 +20,9 @@ namespace YetaWF.Core.Models.Attributes {
 
         public FolderPathValidationAttribute() : base() { }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext) {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext) {
 
-            string folderPath = (string)value;
+            string? folderPath = (string?)value;
             if (string.IsNullOrWhiteSpace(folderPath))
                 return ValidationResult.Success;
 

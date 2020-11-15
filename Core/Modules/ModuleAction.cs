@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
@@ -7,12 +9,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Routing;
-#else
-using System.Web.Mvc;
-using System.Web.Routing;
-#endif
 
 namespace YetaWF.Core.Modules {
 
@@ -157,7 +153,7 @@ namespace YetaWF.Core.Modules {
             PageSecurity = PageDefinition.PageSecurityType.Any;
         }
 
-        public ModuleAction(ModuleDefinition owningModule) : this() {
+        public ModuleAction(ModuleDefinition? owningModule) : this() {
             OwningModule = owningModule;
         }
 
@@ -171,7 +167,7 @@ namespace YetaWF.Core.Modules {
         public bool Separator { get; set; } // gap (if used, all other properties are ignored)
 
         [StringLength(Globals.MaxUrl)]
-        public string Url { get; set; } // The Url to cause this action
+        public string? Url { get; set; } // The Url to cause this action
 
         public Guid? SubModule { get; set; }
 
@@ -184,7 +180,7 @@ namespace YetaWF.Core.Modules {
         // Image is only used at runtime to set the image, which is immediately translated to a full path (ImageUrlFinal) for non-builtin icons
         // For built-in icons, we save the icon name
         [DontSave, ReadOnly]
-        public string Image {
+        public string? Image {
             get { return ImageUrlFinal; }
             set { ImageUrlFinal = value; }
         }
@@ -192,7 +188,7 @@ namespace YetaWF.Core.Modules {
         /// The saved image url or built-in name
         /// </summary>
         [StringLength(Globals.MaxUrl)]
-        public string ImageUrlFinal { get; set; }
+        public string? ImageUrlFinal { get; set; }
 
         [StringLength(MaxTooltip)]
         public MultiString Tooltip { get; set; } // hover tooltip text
@@ -203,7 +199,7 @@ namespace YetaWF.Core.Modules {
         public bool Enabled { get; set; }
 
         [StringLength(MaxCssClass)]
-        public string CssClass { get; set; }
+        public string? CssClass { get; set; }
 
         public ActionStyleEnum Style { get; set; } // how the action affects the current window
 
@@ -232,7 +228,7 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Name used in html to identify the action
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>
         /// Used in html to determine the initial display
         /// </summary>
@@ -242,7 +238,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <remarks>This could be used to pass additional data to client-side processing of this action, typically used with ActionStyleEnum.Nothing.</remarks>
         [DontSave]
-        public string ExtraData { get; set; }
+        public string? ExtraData { get; set; }
 
         // in a GET request use a cookie as a signal that the data has been sent
         // this is normally used in <a> links that are used to download data (like zip files)
@@ -255,17 +251,15 @@ namespace YetaWF.Core.Modules {
 
         public ActionLocationEnum Location { get; set; } // the type of menu where that action is shown
 
-        public SerializableList<ModuleAction> SubMenu { get; set; } // submenu
+        public SerializableList<ModuleAction>? SubMenu { get; set; } // submenu
 
         // menus don't support queryargs - they can be encoded as part of the url
-        public object QueryArgs { get; set; } // arguments
-        [Obsolete("Do not use - replaced by QueryArgsDict")]
-        public RouteValueDictionary QueryArgsRvd { get; set; }
-        public QueryHelper QueryArgsDict { get; set; }
+        public object? QueryArgs { get; set; } // arguments
+        public QueryHelper? QueryArgsDict { get; set; }
         // menus don't support queryargshr - they can be encoded as part of the url
-        public object QueryArgsHR { get; set; } // arguments part of URL as human readable parts
+        public object? QueryArgsHR { get; set; } // arguments part of URL as human readable parts
         // anchor used as part of URL
-        public string AnchorId { get; set; }
+        public string? AnchorId { get; set; }
 
         // This is set in IsAuthorized and it is not user-definable
         public PageDefinition.PageSecurityType PageSecurity { get; set; }
@@ -282,11 +276,11 @@ namespace YetaWF.Core.Modules {
         }
         [DontSave, ReadOnly]// THIS IS STRICTLY USED FOR SERIALIZATION - DO NOT ACCESS DIRECTLY
         public Guid OwningModuleGuid { get; set; }
-        private ModuleDefinition OwningModule { get; set; }
+        private ModuleDefinition? OwningModule { get; set; }
 
         [Obsolete("Discontinued - preserve property so deserializing existing data doesn't fail")]
         // Discontinued: we have to use "items" because kendo treeview doesn't let us to use a different variable name - we're no longer using kendo treeview
-        public SerializableList<ModuleAction> items {
+        public SerializableList<ModuleAction>? items {
             get { return null; }
             set { }
         }

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
@@ -120,9 +122,9 @@ namespace YetaWF.Core.Localize {
         /// Format date (the date has a time component (based on a timezone)
         /// </summary>
         public static string FormatDate(DateTime? dateTime, DateFormatEnum? dateFormat = null) {
-            if (dateTime == null) return "";
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             string fmt = GetFormatDateFormat(dateFormat);
             return dt.ToString(fmt);
@@ -151,16 +153,17 @@ namespace YetaWF.Core.Localize {
             }
         }
         public static string FormatTime(DateTime? dateTime, TimeFormatEnum? timeFormat = null) {
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             string fmt = GetFormatTimeFormat(timeFormat);
             return dt.ToString(fmt);
         }
         public static string FormatTimeDetailed(DateTime? dateTime) {
-            if (dateTime == null) return "";
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             TimeFormatEnum tf = UserSettings.GetProperty<TimeFormatEnum>("TimeFormat");
 
@@ -181,9 +184,9 @@ namespace YetaWF.Core.Localize {
             }
         }
         public static string FormatDateTime(DateTime? dateTime) {
-            if (dateTime == null) return "";
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             string fmtTime = GetFormatTimeFormat();
             string fmtDate = GetFormatDateFormat();
@@ -195,23 +198,25 @@ namespace YetaWF.Core.Localize {
             return fmtDate + " " + fmtTime;
         }
         public static string FormatDateTimeYear(DateTime? dateTime) {
-            if (dateTime == null) return "";
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             return dt.Year.ToString();
         }
         public static string FormatLongDate(DateTime? dateTime) {
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             string day = GetDayName(dt.DayOfWeek);
             string month = GetMonthName(dt.Month);
             return __ResStr("longDate", "{0}, {1} {2}, {3}", day, month, dt.Day, dt.Year);
         }
         public static string FormatLongDateTime(DateTime? dateTime) {
+            if (dateTime == null) return string.Empty;
             DateTime dt = (DateTime)dateTime;
-            if (dt == DateTime.MinValue) return "";
+            if (dt == DateTime.MinValue) return string.Empty;
             dt = GetUserDateTime(dt);
             string day = GetDayName(dt.DayOfWeek);
             string month = GetMonthName(dt.Month);
@@ -244,7 +249,7 @@ namespace YetaWF.Core.Localize {
         }
 
         public static string FormatTimeSpan(TimeSpan? timeSpan) {
-            if (timeSpan == null) return "";
+            if (timeSpan == null) return string.Empty;
             TimeSpan ts = (TimeSpan)timeSpan;
             if (ts.Days > 0)
                 return __ResStr("timeSpanDays", "{0} Days {1:D2}:{2:D2}:{3:D2}", ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
@@ -252,7 +257,7 @@ namespace YetaWF.Core.Localize {
                 return __ResStr("timeSpan", "{1:D2}:{2:D2}:{3:D2}", ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
         }
         public static string FormatTimeSpanHM(TimeSpan? timeSpan) {
-            if (timeSpan == null) return "";
+            if (timeSpan == null) return string.Empty;
             TimeSpan ts = (TimeSpan)timeSpan;
             int hours = (int)ts.TotalHours;
             return __ResStr("timeSpanHM", "{0:D2}:{1:D2}", hours, ts.Minutes);
@@ -286,7 +291,7 @@ namespace YetaWF.Core.Localize {
                     return LongMBDisplay(value, detailed);
                 if (value != 0 || Show0)
                     return __ResStr("strFmtKB", "{0} KB", (long)((value + 512)/1024));
-                return "";
+                return string.Empty;
             }
         }
         public static string FormatFileSize(long value) {

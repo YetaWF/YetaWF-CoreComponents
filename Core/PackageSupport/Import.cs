@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
@@ -27,12 +29,12 @@ namespace YetaWF.Core.Packages {
 
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
-            string xmlFile = null;
+            string xmlFile;
 
             using (ZipFile zip = new ZipFile(zipFileName)) {
 
                 // check id file
-                ZipEntry ze = zip.GetEntry(PackageIDDataFile);
+                ZipEntry? ze = zip.GetEntry(PackageIDDataFile);
                 if (ze == null) {
                     errorList.Add(__ResStr("invFormat", "{0} is not a valid binary or source code package file.", displayFileName));
                     return false;
@@ -80,33 +82,33 @@ namespace YetaWF.Core.Packages {
             // unzip all files/data
             try {
                 // determine whether we have source code
-                bool hasSource = (serPackage.SourceFiles != null && serPackage.SourceFiles.Count > 0);
-                string sourcePath = null;
+                bool hasSource = serPackage.SourceFiles.Count > 0;
+                string sourcePath = string.Empty;
                 if (hasSource) {
                     // Determine whether this is a YetaWF instance with source code by inspecting the Core package
                     if (!await YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.GetHasSourceAsync())
                         throw new InternalError("Packages with source code can only be imported on development systems");
                     // set target folder
-                    string sourceFolder = null;
+                    string sourceFolder;
                     switch (serPackage.PackageType) {
                         case PackageTypeEnum.Module:
-                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Modules", "Modules");
+                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Modules", "Modules") ! ;
                             break;
                         case PackageTypeEnum.Skin:
-                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Skins", "Skins");
+                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Skins", "Skins") ! ;
                             break;
                         case PackageTypeEnum.Core:
                         case PackageTypeEnum.CoreAssembly:
-                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Core", "Core");
+                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Core", "Core") ! ;
                             break;
                         case PackageTypeEnum.DataProvider:
-                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_DataProvider", "DataProvider");
+                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_DataProvider", "DataProvider") ! ;
                             break;
                         case PackageTypeEnum.Template:
-                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
+                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates") ! ;
                             break;
                         case PackageTypeEnum.Utility:
-                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities");
+                            sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Utilities", "Utilities") ! ;
                             break;
                         default:
                             errorList.Add(__ResStr("errPackageType", "Unsupported package type {0}", serPackage.PackageType));
@@ -200,7 +202,7 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                     // Source code (optional), includes addons & views
-                    foreach (var file in serPackage.SourceFiles) {
+                    foreach (SerializableFile file in serPackage.SourceFiles) {
                         ZipEntry e = zip.GetEntry(YetaWFZipFile.CleanFileName(file.FileName));
                         using (Stream entryStream = zip.GetInputStream(e)) {
                             await ExtractAsync(sourcePath, e.Name, entryStream);

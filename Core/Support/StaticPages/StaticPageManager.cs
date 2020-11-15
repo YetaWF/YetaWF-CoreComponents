@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +24,7 @@ namespace YetaWF.Core.Support.StaticPages {
 
         private YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        private SiteEntry Site { get; set; }
+        private SiteEntry Site { get; set; } = null!;
 
         /// <summary>
         /// Called when the first node of a multi-instance site is starting up.
@@ -40,20 +42,20 @@ namespace YetaWF.Core.Support.StaticPages {
         }
         public class SiteEntry {
             public int SiteIdentity { get; set; }
-            public SerializableDictionary<string, PageEntry> StaticPages { get; set; }
+            public SerializableDictionary<string, PageEntry> StaticPages { get; set; } = null!;
         }
         public class PageEntry {
-            public string LocalUrl { get; set; }
+            public string LocalUrl { get; set; } = null!;
             public PageEntryEnum StorageType { get; set; }
             public DateTime LastUpdate { get; set; }
-            public string Content { get; set; }
-            public string ContentPopup { get; set; }
-            public string ContentHttps { get; set; }
-            public string ContentPopupHttps { get; set; }
-            public string FileName { get; set; }
-            public string FileNamePopup { get; set; }
-            public string FileNameHttps { get; set; }
-            public string FileNamePopupHttps { get; set; }
+            public string? Content { get; set; }
+            public string? ContentPopup { get; set; }
+            public string? ContentHttps { get; set; }
+            public string? ContentPopupHttps { get; set; }
+            public string? FileName { get; set; }
+            public string? FileNamePopup { get; set; }
+            public string? FileNameHttps { get; set; }
+            public string? FileNamePopupHttps { get; set; }
         }
         public StaticPageManager() { }
 
@@ -71,7 +73,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 siteEntries = new SerializableList<SiteEntry>();
             }
             if (siteEntries == null) siteEntries = new SerializableList<SiteEntry>();
-            SiteEntry siteEntry = (from s in siteEntries where s.SiteIdentity == Manager.CurrentSite.Identity select s).FirstOrDefault();
+            SiteEntry? siteEntry = (from s in siteEntries where s.SiteIdentity == Manager.CurrentSite.Identity select s).FirstOrDefault();
             if (siteEntry == null) {
                 siteEntry = new SiteEntry { SiteIdentity = Manager.CurrentSite.Identity, StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>() };
                 siteEntries.Add(siteEntry);
@@ -119,8 +121,7 @@ namespace YetaWF.Core.Support.StaticPages {
                     }
                     tempFile = Path.Combine(folder, tempFile + FileSystem.FileSystemProvider.MakeValidDataFileName(localUrl));
 
-                    PageEntry entry;
-                    if (!Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                    if (!Site.StaticPages.TryGetValue(localUrlLower, out PageEntry? entry)) {
                         entry = new StaticPages.StaticPageManager.PageEntry {
                             LocalUrl = localUrl,
                             LastUpdate = lastUpdated,
@@ -160,7 +161,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
         }
-        private void SetContents(PageEntry entry, string pageHtml) {
+        private void SetContents(PageEntry entry, string? pageHtml) {
             if (GetScheme() == "https") {
                 if (Manager.IsInPopup) {
                     entry.ContentPopupHttps = pageHtml;
@@ -177,7 +178,7 @@ namespace YetaWF.Core.Support.StaticPages {
         }
 
         public class GetPageInfo {
-            public string FileContents { get; set; }
+            public string? FileContents { get; set; }
             public DateTime LastUpdate{ get; set; }
         }
 
@@ -187,8 +188,7 @@ namespace YetaWF.Core.Support.StaticPages {
 
                 DateTime lastUpdate = DateTime.MinValue;
                 string localUrlLower = localUrl.ToLower();
-                PageEntry entry = null;
-                if (Site.StaticPages.TryGetValue(localUrlLower, out entry)) {
+                if (Site.StaticPages.TryGetValue(localUrlLower, out PageEntry? entry)) {
                     lastUpdate = entry.LastUpdate;
                     if (entry.StorageType == PageEntryEnum.Memory) {
                         if (GetScheme() == "https") {
@@ -217,7 +217,7 @@ namespace YetaWF.Core.Support.StaticPages {
                             }
                         }
                     } else /*if (entry.StorageType == PageEntryEnum.File)*/ {
-                        string tempFile = null;
+                        string? tempFile = null;
                         if (GetScheme() == "https") {
                             if (Manager.IsInPopup) {
                                 tempFile = entry.FileNamePopupHttps;
@@ -256,8 +256,7 @@ namespace YetaWF.Core.Support.StaticPages {
             using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                 List<SiteEntry> siteEntries = await InitSiteAsync(cacheStaticDP);
                 string localUrlLower = localUrl.ToLower();
-                PageEntry entry = null;
-                return Site.StaticPages.TryGetValue(localUrlLower, out entry);
+                return Site.StaticPages.TryGetValue(localUrlLower, out PageEntry? entry);
             }
         }
         public async Task RemovePageAsync(string localUrl) {

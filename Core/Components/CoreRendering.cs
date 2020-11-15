@@ -1,14 +1,11 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Components {
 
@@ -83,7 +80,7 @@ namespace YetaWF.Core.Components {
         /// <param name="cssClass">The optional CSS classes to use for the menu.</param>
         /// <param name="HtmlHelper">The HtmlHelper instance.</param>
         /// <returns>Returns the complete menu as HTML.</returns>
-        Task<string> RenderMenuListAsync(MenuList menu, string id = null, string cssClass = null, YHtmlHelper HtmlHelper = null);
+        Task<string> RenderMenuListAsync(MenuList menu, string? id = null, string? cssClass = null, YHtmlHelper? HtmlHelper = null);
 
         /// <summary>
         /// Renders a module action.
@@ -92,7 +89,7 @@ namespace YetaWF.Core.Components {
         /// <param name="mode">The module action's rendering mode.</param>
         /// <param name="id">The ID to generate.</param>
         /// <returns>Returns the module action as HTML.</returns>
-        Task<string> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string id);
+        Task<string> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string? id);
 
         /// <summary>
         /// Renders a form button.
@@ -123,7 +120,7 @@ namespace YetaWF.Core.Components {
                 _render = value;
             }
         }
-        private static IYetaWFCoreRendering _render;
+        private static IYetaWFCoreRendering? _render;
 
         /// <summary>
         /// Called by the framework when a UIHint template is used and adds the package's template specific addons.

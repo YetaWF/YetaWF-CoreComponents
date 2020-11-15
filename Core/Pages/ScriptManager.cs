@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -124,13 +126,14 @@ using YetaWF.Core.Support;
 // So for now YetaWF will not address this as it seems unnecessary.
 
 namespace YetaWF.Core.Pages {
+
     public partial class ScriptManager {
 
         public ScriptManager(YetaWFManager manager) { Manager = manager; }
         protected YetaWFManager Manager { get; private set; }
 
         public class ScriptEntry {
-            public string Url { get; set; }
+            public string Url { get; set; } = null!;
             public bool Bundle { get; set; }
             public bool Last { get; set; } // after all addons
             public bool Async { get; set; }
@@ -145,10 +148,10 @@ namespace YetaWF.Core.Pages {
         private readonly Dictionary<string, string> _SavedNamedScriptsDocReady = new Dictionary<string, string>(); // included unnamed script snippets wrapped in $document.ready
 
         // permanent config options to pass to JavaScript (may be language dependent)
-        private readonly Dictionary<string, Dictionary<string, object>> _SavedConfigOptionsGroups = new Dictionary<string, Dictionary<string, object>>();
+        private readonly Dictionary<string, Dictionary<string, object?>> _SavedConfigOptionsGroups = new Dictionary<string, Dictionary<string, object?>>();
 
         // volatile config options to pass to JavaScript
-        private readonly Dictionary<string, Dictionary<string, object>> _SavedVolatileOptionsGroups = new Dictionary<string, Dictionary<string, object>>();
+        private readonly Dictionary<string, Dictionary<string, object?>> _SavedVolatileOptionsGroups = new Dictionary<string, Dictionary<string, object?>>();
 
         // localized text to pass to JavaScript
         private readonly Dictionary<string, Dictionary<string, object>> _SavedLocalizationsGroups = new Dictionary<string, Dictionary<string, object>>();
@@ -158,7 +161,7 @@ namespace YetaWF.Core.Pages {
         // ADDON
         // ADDON
 
-        internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
+        internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object?[] args) {
             await AddFromSupportTypesAsync(version);
             string productUrl = version.GetAddOnUrl();
             await AddFromFileListAsync(version, productUrl, args);
@@ -167,10 +170,10 @@ namespace YetaWF.Core.Pages {
         // Add localizations and configurations
         private async Task AddFromSupportTypesAsync(VersionManager.AddOnProduct version) {
             foreach (var type in version.SupportTypes) {
-                object o = Activator.CreateInstance(type);
+                object? o = Activator.CreateInstance(type);
                 if (o == null)
                     throw new InternalError("Type {0} can't be created for {1}/{2}", type.Name, version.Domain, version.Product);
-                IAddOnSupport addSupport = o as IAddOnSupport;
+                IAddOnSupport? addSupport = o as IAddOnSupport;
                 if (addSupport == null)
                     throw new InternalError("No IAddOnSupport interface found on type {0} for {1}/{2}", type.Name, version.Domain, version.Product);
                 await addSupport.AddSupportAsync(Manager);
@@ -178,7 +181,7 @@ namespace YetaWF.Core.Pages {
         }
 
         // Add all JavaScript files listed in filelistJS.txt
-        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object[] args) {
+        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object?[] args) {
             foreach (VersionManager.AddOnProduct.UsesInfo uses in version.JsUses) {
                 await Manager.AddOnManager.AddAddOnNamedJavaScriptAsync(uses.PackageName, uses.AddonName);
             }
@@ -446,19 +449,17 @@ namespace YetaWF.Core.Pages {
         // CONFIG OPTIONS (User Specific)
 
         public void AddConfigOption(string group, string name, object value) {
-            Dictionary<string, object> configOptions = null;
-            if (!_SavedConfigOptionsGroups.TryGetValue(group, out configOptions)) {
-                configOptions = new Dictionary<string, object>();
+            if (!_SavedConfigOptionsGroups.TryGetValue(group, out Dictionary<string, object?>? configOptions)) {
+                configOptions = new Dictionary<string, object?>();
                 _SavedConfigOptionsGroups.Add(group, configOptions);
             }
             if (!configOptions.ContainsKey(name))
                 configOptions.Add(name, value);
         }
 
-        public void AddVolatileOption(string group, string name, object value, bool Replace = false) {
-            Dictionary<string, object> volatileOptions = null;
-            if (!_SavedVolatileOptionsGroups.TryGetValue(group, out volatileOptions)) {
-                volatileOptions = new Dictionary<string, object>();
+        public void AddVolatileOption(string group, string name, object? value, bool Replace = false) {
+            if (!_SavedVolatileOptionsGroups.TryGetValue(group, out Dictionary<string, object?>? volatileOptions)) {
+                volatileOptions = new Dictionary<string, object?>();
                 _SavedVolatileOptionsGroups.Add(group, volatileOptions);
             }
             if (Replace)
@@ -467,8 +468,7 @@ namespace YetaWF.Core.Pages {
         }
 
         public void AddLocalization(string group, string name, object value) {
-            Dictionary<string, object> locOptions = null;
-            if (!_SavedLocalizationsGroups.TryGetValue(group, out locOptions)) {
+            if (!_SavedLocalizationsGroups.TryGetValue(group, out Dictionary<string, object>? locOptions)) {
                 locOptions = new Dictionary<string, object>();
                 _SavedLocalizationsGroups.Add(group, locOptions);
             }
@@ -486,7 +486,7 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        internal async Task<string> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
+        internal async Task<string> RenderAsync(PageContentController.PageContentData? cr = null, List<string>? KnownScripts = null) {
 
             if (cr == null)
                 Manager.Verify_NotPostRequest();
@@ -506,7 +506,7 @@ namespace YetaWF.Core.Pages {
             }
             if (cr != null) {
                 await RenderScriptsFilesAsync(cr, KnownScripts);
-                return null;
+                return string.Empty;
             } else {
                 HtmlBuilder hb = await RenderScriptsFilesAsync();
                 tag.Append(hb.ToString());
@@ -522,12 +522,12 @@ namespace YetaWF.Core.Pages {
 
             foreach (var groupEntry in _SavedVolatileOptionsGroups) {
                 string groupName = groupEntry.Key;
-                Dictionary<string, object> entries = groupEntry.Value;
+                Dictionary<string, object?> entries = groupEntry.Value;
                 foreach (var entry in entries) {
-                    sb.Append($"YVolatile.{groupEntry.Key}.{entry.Key} = {Utility.JsonSerialize(entry.Value)};");
+                    sb.Append($"YVolatile.{groupEntry.Key}.{entry.Key}={(entry.Value != null ? Utility.JsonSerialize(entry.Value) : "null")};");
                 }
             }
-            if (sb.Length == 0) return Task.FromResult<string>(null);
+            if (sb.Length == 0) return Task.FromResult<string>(string.Empty);
             return Task.FromResult($"<script>{sb.ToString()}</script>");
         }
 
@@ -545,7 +545,7 @@ namespace YetaWF.Core.Pages {
             return tag.ToString();
         }
 
-        private ScriptBuilder RenderScriptsPartA(PageContentController.PageContentData cr = null) {
+        private ScriptBuilder RenderScriptsPartA(PageContentController.PageContentData? cr = null) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -557,12 +557,12 @@ namespace YetaWF.Core.Pages {
                     foreach (var groupEntry in _SavedVolatileOptionsGroups) {
 
                         string groupName = groupEntry.Key;
-                        Dictionary<string, object> confEntries = groupEntry.Value;
+                        Dictionary<string, object?> confEntries = groupEntry.Value;
 
                         sb.Append("{0}:{{", groupName);
 
                         foreach (var confEntry in confEntries)
-                            sb.Append("'{0}':{1},", confEntry.Key, Utility.JsonSerialize(confEntry.Value));
+                            sb.Append($"'{confEntry.Key}':{(confEntry.Value != null ? Utility.JsonSerialize(confEntry.Value) : "null")},");
                         sb.RemoveLast(); // remove last ,
                         sb.Append("},");
                     }
@@ -573,9 +573,9 @@ namespace YetaWF.Core.Pages {
 
                         string groupName = groupEntry.Key;
                         sb.Append("YVolatile.{0}=YVolatile.{0}||{{}};", groupName);
-                        Dictionary <string, object> confEntries = groupEntry.Value;
+                        Dictionary <string, object?> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries)
-                            sb.Append("YVolatile.{0}.{1}={2};", groupName, confEntry.Key, Utility.JsonSerialize(confEntry.Value));
+                            sb.Append($"YVolatile.{groupName}.{confEntry.Key}={(confEntry.Value != null ? Utility.JsonSerialize(confEntry.Value) : "null")};");
                     }
                 }
             }
@@ -589,7 +589,7 @@ namespace YetaWF.Core.Pages {
             return sb;
         }
 
-        private void GenerateNonVolatileJSVariables(ScriptBuilder sb, PageContentController.PageContentData cr = null) {
+        private void GenerateNonVolatileJSVariables(ScriptBuilder sb, PageContentController.PageContentData? cr = null) {
 
             if (_SavedConfigOptionsGroups.Count > 0) {
 
@@ -600,12 +600,12 @@ namespace YetaWF.Core.Pages {
                     foreach (var groupEntry in _SavedConfigOptionsGroups.OrderBy(kvp => kvp.Key)) {
 
                         string groupName = groupEntry.Key;
-                        Dictionary<string, object> confEntries = groupEntry.Value;
+                        Dictionary<string, object?> confEntries = groupEntry.Value;
 
                         sb.Append("{0}:{{", groupName);
 
                         foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
-                            sb.Append("'{0}':{1},", confEntry.Key, Utility.JsonSerialize(confEntry.Value));
+                            sb.Append($"'{confEntry.Key}':{(confEntry.Value != null ? Utility.JsonSerialize(confEntry.Value) : "null")},");
                         sb.RemoveLast(); // remove last ,
                         sb.Append("},");
                     }
@@ -615,9 +615,9 @@ namespace YetaWF.Core.Pages {
                     foreach (var groupEntry in _SavedConfigOptionsGroups.OrderBy(kvp => kvp.Key)) {
                         string groupName = groupEntry.Key;
                         sb.Append("YConfigs.{0}=YConfigs.{0}||{{}};", groupName);
-                        Dictionary<string, object> confEntries = groupEntry.Value;
+                        Dictionary<string, object?> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
-                            sb.Append("YConfigs.{0}.{1}={2};", groupName, confEntry.Key, Utility.JsonSerialize(confEntry.Value));
+                            sb.Append($"YConfigs.{groupName}.{confEntry.Key}={(confEntry.Value != null ? Utility.JsonSerialize(confEntry.Value) : confEntry.Value)};");
                     }
                 }
             }
@@ -658,14 +658,14 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        private bool WantBundle(PageContentController.PageContentData cr) {
+        private bool WantBundle(PageContentController.PageContentData? cr) {
             if (cr != null)
                 return false;
             else
                 return Manager.CurrentSite.BundleJSFiles;
         }
 
-        private async Task<HtmlBuilder> RenderScriptsFilesAsync(PageContentController.PageContentData cr = null, List<string> KnownScripts = null) {
+        private async Task<HtmlBuilder> RenderScriptsFilesAsync(PageContentController.PageContentData? cr = null, List<string>? KnownScripts = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbStart = new ScriptBuilder();
@@ -677,7 +677,7 @@ namespace YetaWF.Core.Pages {
                     bundleList = bundleList.Except(KnownScripts).ToList();
                 externalList = (from s in _Scripts orderby s.Last where !s.Bundle select s).ToList();
                 if (bundleList.Count > 1) {
-                    string bundleUrl = await FileBundles.MakeBundleAsync(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
+                    string? bundleUrl = await FileBundles.MakeBundleAsync(bundleList, FileBundles.BundleTypeEnum.JS, sbStart);
                     if (!string.IsNullOrWhiteSpace(bundleUrl))
                         externalList.Add(new ScriptEntry {
                             Url = bundleUrl,
@@ -722,7 +722,7 @@ namespace YetaWF.Core.Pages {
             return hb;
         }
 
-        internal List<string> GetBundleFiles() {
+        internal List<string>? GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
                 List<string> bundleList = (from s in _Scripts orderby s.Last where s.Bundle select s.Url).ToList();
                 if (bundleList.Count > 1)
@@ -746,7 +746,7 @@ namespace YetaWF.Core.Pages {
         public string RenderEndofPageScripts() {
             return RenderEndofPageScripts(null);
         }
-        internal string RenderEndofPageScripts(PageContentController.PageContentData cr = null) {
+        internal string RenderEndofPageScripts(PageContentController.PageContentData? cr = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbB = RenderScriptsPartB();
@@ -772,7 +772,7 @@ namespace YetaWF.Core.Pages {
             }
             if (cr != null) {
                 cr.EndOfPageScripts = hb.ToString();
-                return null;
+                return string.Empty;
             } else
                  return hb.ToString();
         }

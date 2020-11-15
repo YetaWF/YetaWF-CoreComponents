@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,9 +14,7 @@ namespace YetaWF.Core.Packages {
     public class SiteTemplateData {
 
         private List<string> PackageNames = new List<string> {
-#if MVC6
             //"Softelvdm.IVR",
-#endif
             "YetaWF.AddThis",
             "YetaWF.Backups",
             "YetaWF.Basics",
@@ -61,12 +61,7 @@ namespace YetaWF.Core.Packages {
         };
 
         public async Task MakeSiteTemplateDataAsync() {
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string path = Path.Combine(rootFolder, Globals.SiteTemplates, "Data");
             // delete all existing zip files
             List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.zip");

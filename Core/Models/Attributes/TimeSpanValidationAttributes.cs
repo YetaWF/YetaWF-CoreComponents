@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Localize;
@@ -25,7 +27,7 @@ namespace YetaWF.Core.Models.Attributes {
         private TimeSpan Min { get; set; }
         private TimeSpan Max { get; set; }
 
-        protected override ValidationResult IsValid(object value, ValidationContext context) {
+        protected override ValidationResult? IsValid(object? value, ValidationContext context) {
             if (value == null) return ValidationResult.Success;
             TimeSpan dt = (TimeSpan)value;
             if (dt < Min) return new ValidationResult(__ResStr("badTimeSpan", "The valid range is {0} through {1}", Formatting.FormatTimeSpan(Min), Formatting.FormatTimeSpan(Max)));

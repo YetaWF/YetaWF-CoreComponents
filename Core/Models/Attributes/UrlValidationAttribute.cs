@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
@@ -18,7 +20,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public UrlValidationAttribute(SchemaEnum remoteSchema = SchemaEnum.Any, UrlTypeEnum urlType = UrlTypeEnum.Remote) : base(@"", "") {
+        public UrlValidationAttribute(SchemaEnum remoteSchema = SchemaEnum.Any, UrlTypeEnum urlType = UrlTypeEnum.Remote) : base(@"", "", "", "") {
             RemoteSchema = remoteSchema;
             UrlType = urlType;
             Pattern = GetPattern();

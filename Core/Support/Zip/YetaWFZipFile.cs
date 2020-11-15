@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
@@ -17,7 +19,7 @@ namespace YetaWF.Core.Support.Zip {
         /// <summary>
         /// The file name (without path) of the ZIP archive.
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; set; } = null!;
         /// <summary>
         /// Temporary files referenced by the ZIP archive when creating a ZIP archive. These are automatically removed when the YetaWFZipFile object is disposed.
         /// </summary>
@@ -49,22 +51,19 @@ namespace YetaWF.Core.Support.Zip {
             }
         }
         public async Task CleanupFoldersAsync() {
-            if (TempFiles != null) {
-                foreach (var tempFile in TempFiles) {
-                    try {
-                        await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
-                    } catch (Exception) { }
-                }
-                TempFiles = null;
+            foreach (var tempFile in TempFiles) {
+                try {
+                    await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
+                } catch (Exception) { }
             }
-            if (TempFolders != null) {
-                foreach (var tempFolder in TempFolders) {
-                    try {
-                        await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempFolder);
-                    } catch (Exception) { }
-                }
-                TempFolders = null;
+            TempFiles = new List<string>();
+
+            foreach (var tempFolder in TempFolders) {
+                try {
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(tempFolder);
+                } catch (Exception) { }
             }
+            TempFolders = new List<string>();
         }
 
         public void AddFile(string absFileName, string fileName) {
@@ -147,9 +146,9 @@ namespace YetaWF.Core.Support.Zip {
         public List<YetaWFZipEntry> Entries { get; set; }
 
         public class YetaWFZipEntry {
-            public string RelativeName { get; set; }
-            public string AbsoluteFileName { get; set; }
-            public string Data { get; set; }
+            public string RelativeName { get; set; } = null!;
+            public string AbsoluteFileName { get; set; } = null!;
+            public string? Data { get; set; }
         }
     }
 }

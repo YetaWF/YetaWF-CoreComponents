@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +15,7 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Components;
 using Newtonsoft.Json;
-#if MVC6
 using YetaWF.Core.Support;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization
 
@@ -103,7 +101,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         }
 
         [Data_DontSave]
-        public string DefaultViewName { get; set; }
+        public string? DefaultViewName { get; set; }
 
         [JsonIgnore] // so it's not saved when json serializing site properties
         public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
@@ -140,7 +138,9 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public bool WantFocus { get; set; }
 
         public static Guid GetPermanentGuid(Type moduleType) {
-            ModuleGuidAttribute attr = (ModuleGuidAttribute) Attribute.GetCustomAttribute(moduleType, typeof(ModuleGuidAttribute));
+            ModuleGuidAttribute? attr = (ModuleGuidAttribute?) Attribute.GetCustomAttribute(moduleType, typeof(ModuleGuidAttribute));
+            if (attr == null)
+                throw new InternalError($"No {nameof(ModuleGuidAttribute)} in {moduleType.FullName}");
             return attr.Value;
         }
         public static string GetModulePermanentUrl(Type type) {
@@ -205,7 +205,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 return _moduleHtmlId;
             }
         }
-        private string _moduleHtmlId;
+        private string? _moduleHtmlId;
 
         [Category("Variables"), Caption("Temporary"), Description("Defines whether the module is a temporary (generated) module", Order = -92)]
         [UIHint("Boolean"), ReadOnly, DontSave]
@@ -228,7 +228,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 _skinDefinitions = value;
             }
         }
-        SerializableList<SkinDefinition> _skinDefinitions;
+        SerializableList<SkinDefinition>? _skinDefinitions;
 
         [Category("Skin"), Caption("Popup Skin"), Description("The skin used for the popup window when this module is shown in a popup", Order = -97)]
         [UIHint("PopupSkin"), Trim]
@@ -239,14 +239,14 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// </summary>
         [Category("Skin"), Caption("CSS Class"), Description("The optional CSS classes to be added to the module's <div> tag for further customization through stylesheets", Order = -94)]
         [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
-        public string CssClass { get; set; }
+        public string? CssClass { get; set; }
 
         /// <summary>
         /// The CSS class name to add to a temporary page's &lt;body&gt; tag when this module is used on a temporary page. Temporary pages are used when a module is displayed without a permanent, designed page.
         /// </summary>
         [Category("Skin"), Caption("Temp. Page CSS Class"), Description("The optional CSS classes to be added to a temporary page's <body> tag when this module is used on a temporary page - Temporary pages are used when a module is displayed without a permanent, designed page", Order = -93)]
         [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
-        public string TempPageCssClass { get; set; }
+        public string? TempPageCssClass { get; set; }
 
         /// <summary>
         /// Defines whether the skin's partial form CSS is added to partial forms.
@@ -277,7 +277,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         [Data_NewValue]
-        public string HelpURL { get; set; }
+        public string? HelpURL { get; set; }
 
         [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed", Order = -84)]
         [UIHint("Boolean")]
@@ -289,7 +289,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Category("Skin"), Caption("Anchor Id"), Description("The optional id used as anchor tag for this module - if an id is entered, an anchor tag is generated so the module can be directly located on the page", Order = -80)]
         [UIHint("Text40"), StringLength(MaxHtmlId), AnchorValidationAttribute, Trim]
-        public virtual string AnchorId { get; set; }
+        public virtual string? AnchorId { get; set; }
 
         [Category("Skin"), Caption("AutoComplete"), Description("Defines whether autocomplete is used for input fields on the form", Order = -78)]
         [UIHint("Boolean")]
@@ -313,7 +313,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 _allowedRoles = value;
             }
         }
-        private SerializableList<AllowedRole> _allowedRoles;
+        private SerializableList<AllowedRole>? _allowedRoles;
 
         [Data_Binary]
         [Category("Authorization"), Caption("Permitted Users"), Description("Users that are permitted to use this module")]
@@ -328,7 +328,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 _allowedUsers = value;
             }
         }
-        private SerializableList<AllowedUser> _allowedUsers;
+        private SerializableList<AllowedUser>? _allowedUsers;
 
         /// <summary>
         /// Returns the module's default allowed roles
@@ -415,7 +415,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 return _rolesDefinitions;
             }
         }
-        private List<RoleDefinition> _rolesDefinitions;
+        private List<RoleDefinition>? _rolesDefinitions;
 
         // defines external permission levels so they can be translated to internal levels (extra1,2...)
         public class RoleDefinition {
@@ -425,8 +425,8 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             public const string Remove = "Remove";
 
             public class Resource {
-                public string Caption { get; set; }
-                public string Description { get; set; }
+                public string Caption { get; set; } = null!;
+                public string Description { get; set; } = null!;
             }
             public RoleDefinition(string name, string roleCaption, string roleDescription, string userCaption, string userDescription) {
                 RoleResource = new RoleDefinition.Resource();
@@ -456,7 +456,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
             [Caption("Role"), Description("Role Description", Order = -100)]
             [UIHint("StringTT"), ReadOnly]
-            public StringTT RoleName { get; set; }
+            public StringTT RoleName { get; set; } = null!;
 
             [Caption("View"), ResourceRedirectList(nameof(RolesDefinitions), 0, nameof(RoleDefinition.RoleResource)), Description("The role has permission to view the module", Order = -99)]
             [UIHint("Enum")]
@@ -533,7 +533,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             [UIHint("Hidden"), ReadOnly]
             public int UserId { get; set; }
             [UIHint("Hidden"), ReadOnly]
-            public string DisplayUserName { get; set; }
+            public string DisplayUserName { get; set; } = null!;
 
             public async Task SetUserAsync(int userId) {
                 DisplayUserId = UserId = userId;
@@ -560,7 +560,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         [Category("Variables"), Caption("Invoking CSS"), Description("Defines the CSS that causes this module to be injected into the page, when the CSS is used by a template - only supported for unique modules")]
         [UIHint("String"), ReadOnly]
         [DontSave]
-        public string InvokingCss { get; protected set; }
+        public string? InvokingCss { get; protected set; }
 
         [Category("Variables"), Caption("Use In Popup"), Description("Defines whether this module can be injected in a popup")]
         [UIHint("Boolean")]
@@ -588,7 +588,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// Templates supported by this module (needed for ajax requests so pages can include all required template support even if the actual template isn't used until an ajax request occurs)
         /// </summary>
         [DontSave]
-        public List<string> SupportedTemplates { get; set; }
+        public List<string>? SupportedTemplates { get; set; }
 
         [Category("References"), Caption("Other Modules"), Description("Defines other modules which must be injected into the page when this module is used")]
         [UIHint("ReferencedModules")]

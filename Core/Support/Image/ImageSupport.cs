@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
@@ -64,27 +66,27 @@ namespace YetaWF.Core.Image {
 
         public class GetImageAsFileInfo {
             public bool Success { get; set; }
-            public string File { get; set; }
+            public string File { get; set; } = null!;
         }
         public class GetImageInBytesInfo {
             public bool Success { get; set; }
-            public byte[] Content { get; set; }
+            public byte[] Content { get; set; } = null!;
         }
 
         public delegate Task<GetImageInBytesInfo> GetImageInBytesAsync(string name, string location);
         public delegate Task<GetImageAsFileInfo> GetImageAsFileAsync(string name, string location);
 
         public class ImageHandlerEntry {
-            public string Type { get; set; }
-            public GetImageInBytesAsync GetImageInBytesAsync { get; set; }
-            public GetImageAsFileAsync GetImageAsFileAsync { get; set; }
+            public string Type { get; set; } = null!;
+            public GetImageInBytesAsync? GetImageInBytesAsync { get; set; }
+            public GetImageAsFileAsync? GetImageAsFileAsync { get; set; }
         }
 
         public ImageSupport() {
             DisposableTracker.AddObject(this);
         }
 
-        public static void AddHandler(string type, GetImageInBytesAsync GetBytesAsync = null, GetImageAsFileAsync GetAsFileAsync = null) {
+        public static void AddHandler(string type, GetImageInBytesAsync? GetBytesAsync = null, GetImageAsFileAsync? GetAsFileAsync = null) {
             if (!YetaWFManager.IsBatchMode && !YetaWFManager.IsServiceMode)
                 HandlerEntries.Add(new ImageHandlerEntry { Type = type, GetImageInBytesAsync = GetBytesAsync, GetImageAsFileAsync = GetAsFileAsync });
         }
@@ -110,7 +112,7 @@ namespace YetaWF.Core.Image {
         public Task AddSiteDataAsync() { return Task.CompletedTask;  }
         public Task RemoveSiteDataAsync() { return Task.CompletedTask; }
         public Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList) { return Task.FromResult(new DataProviderExportChunk()); }
-        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj) { return Task.CompletedTask; }
+        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile>? fileList, object obj) { return Task.CompletedTask; }
         public Task LocalizeModelAsync(string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync) { return Task.CompletedTask; }
 
         // IMAGE SUPPORT
@@ -130,7 +132,6 @@ namespace YetaWF.Core.Image {
         }
 
         public static System.Drawing.Image NewImageSize(System.Drawing.Image imgOrig, int width, int height, bool stretch, out byte[] bytes) {
-            bytes = null;
             width = Math.Max(1, width);
             height = Math.Max(1, height);
             System.Drawing.Size newSize = CalcProportionalSize(new System.Drawing.Size(width, height), stretch, imgOrig.Size);
@@ -186,7 +187,7 @@ namespace YetaWF.Core.Image {
         public static async Task<System.Drawing.Size> GetImageSizeAsync(string name) {
             System.Drawing.Size size = new System.Drawing.Size();
             FileUpload fileUpload = new FileUpload();
-            string filePath = await fileUpload.GetTempFilePathFromNameAsync(name);
+            string? filePath = await fileUpload.GetTempFilePathFromNameAsync(name);
             if (filePath == null)
                 return size;
             using (System.Drawing.Image img = System.Drawing.Image.FromFile(filePath)) {

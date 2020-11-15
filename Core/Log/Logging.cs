@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -77,7 +79,7 @@ namespace YetaWF.Core.Log {
         /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
         /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
         /// <returns>Returns the fully formatted message text.</returns>
-        public static string AddLog(string text, params object[] parms) {
+        public static string AddLog(string text, params object?[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Info)
                 WriteToAllLogFiles(LevelEnum.Info, 0, text);
@@ -100,7 +102,7 @@ namespace YetaWF.Core.Log {
         /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
         /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
         /// <returns>Returns the fully formatted message text.</returns>
-        public static string AddTraceLog(string text, params object[] parms) {
+        public static string AddTraceLog(string text, params object?[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Trace)
                 WriteToAllLogFiles(LevelEnum.Trace, 0, text);
@@ -122,7 +124,7 @@ namespace YetaWF.Core.Log {
         /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
         /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
         /// <returns>Returns the fully formatted message text.</returns>
-        public static string AddWarningLog(string text, params object[] parms) {
+        public static string AddWarningLog(string text, params object?[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Warning)
                 WriteToAllLogFiles(LevelEnum.Warning, 0, text);
@@ -145,7 +147,7 @@ namespace YetaWF.Core.Log {
         /// <param name="text">The message with formatting information for the parameters <paramref name="parms"/>.</param>
         /// <param name="parms">A list of parameters that are formatted using the provided <paramref name="text"/> parameter.</param>
         /// <returns>Returns the fully formatted message text.</returns>
-        public static string AddErrorLog(string text, params object[] parms) {
+        public static string AddErrorLog(string text, params object?[] parms) {
             text = FormatMessage(text, parms);
             if (MinLevel <= LevelEnum.Error)
                 WriteToAllLogFiles(LevelEnum.Error, 0, text);
@@ -156,7 +158,7 @@ namespace YetaWF.Core.Log {
         //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
         //    return text;
         //}
-        //public static string AddErrorLogAdjustStack(int relStack, string text, params object[] parms) {
+        //public static string AddErrorLogAdjustStack(int relStack, string text, params object?[] parms) {
         //    text = FormatMessage(text, parms);
         //    if (MinLevel <= LevelEnum.Error)
         //        WriteToAllLogFiles(LevelEnum.Error, relStack, text);
@@ -172,11 +174,11 @@ namespace YetaWF.Core.Log {
             return text;
         }
 
-        private static string FormatMessage(string text, params object[] parms) {
+        private static string FormatMessage(string text, params object?[] parms) {
 
-            SqlCommand sqlCmd = null;
-            Exception exc = null;
-            List<string> errors = null;
+            SqlCommand? sqlCmd = null;
+            Exception? exc = null;
+            List<string>? errors = null;
 
             StringBuilder bld = new StringBuilder();
             if (parms != null) {

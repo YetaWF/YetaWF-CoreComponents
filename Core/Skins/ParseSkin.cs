@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -112,7 +114,7 @@ namespace YetaWF.Core.Skins {
             return s[1] == "true" || s[1] == "1";
         }
 
-        private string GetOptionalString(string fileName, List<string> lines, int totalLines, ref int lineCount, string name, string dflt) {
+        private string? GetOptionalString(string fileName, List<string> lines, int totalLines, ref int lineCount, string name, string dflt) {
             if (lineCount >= totalLines) throw new InternalError("{0} missing - line {1} ({2})", name, lineCount, fileName);
             string line = lines[lineCount].Trim();
             string[] s = line.Split(new char[] { ' ' }, 2);

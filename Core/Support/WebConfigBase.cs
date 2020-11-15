@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -31,7 +33,7 @@ namespace YetaWF.Core.Support {
 
             Variables = new Dictionary<string, object>();
 
-            string env = Environment.GetEnvironmentVariable("YETAWF_DEPLOYSUFFIX");
+            string? env = Environment.GetEnvironmentVariable("YETAWF_DEPLOYSUFFIX");
             if (!string.IsNullOrWhiteSpace(env)) {
                 Variables.Add("deploysuffix", env.ToLower());
                 Variables.Add("DEPLOYSUFFIX", env.ToUpper());
@@ -60,7 +62,7 @@ namespace YetaWF.Core.Support {
         }
 
         private async Task ProcessIncludeAsync(string settingsFile, string file, Dictionary<string, object> variables) {
-            string folder = Path.GetDirectoryName(settingsFile);
+            string folder = Path.GetDirectoryName(settingsFile)!;
             string includeFile = Path.Combine(folder, file);
             WebConfigBaseHelper configInclude = new WebConfigBaseHelper();
             await configInclude.InitAsync(includeFile);
@@ -69,16 +71,16 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        private string SettingsFile;
-        private dynamic Settings;
+        private string SettingsFile = null!;
+        private dynamic Settings = null!;
 
-        public Dictionary<string, object> Variables;
+        public Dictionary<string, object> Variables = null!;
 
-        public TYPE GetValue<TYPE>(string areaName, string key, TYPE dflt = default(TYPE), bool Package = true, bool Required = false) {
+        public TYPE? GetValue<TYPE>(string areaName, string key, TYPE? dflt = default, bool Package = true, bool Required = false) {
             dynamic val;
             try {
                 // try environment variable first
-                dynamic env;
+                dynamic? env;
                 if (Package)
                     env = Environment.GetEnvironmentVariable($"YETAWF_P_{areaName.ToUpper()}_{key.ToUpper()}");
                 else
@@ -135,7 +137,7 @@ namespace YetaWF.Core.Support {
             return (TYPE)val;
         }
 
-        public void SetValue<TYPE>(string areaName, string key, TYPE value, bool Package = true) {
+        public void SetValue<TYPE>(string areaName, string key, TYPE? value, bool Package = true) {
             JObject jObj;
             if (Package)
                 jObj = (JObject)Settings["Application"]["P"];

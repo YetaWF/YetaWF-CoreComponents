@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Threading.Tasks;
 
@@ -24,14 +26,14 @@ namespace YetaWF.Core.IO {
         /// This caching data provider can be used for data that needs to be cached in one single instance of a site.
         /// If multiple instances of the site are active, the cached data is not shared between instances.
         /// </remarks>
-        public static Func<ICacheDataProvider> GetLocalCacheProvider { get; set; }
+        public static Func<ICacheDataProvider> GetLocalCacheProvider { get; set; } = null!;
         /// <summary>
         /// A caching data provider for shared cached data (between multiple instances of the site).
         /// </summary>
         /// <remarks>
         /// This caching data provider can be used for data that needs to be cached and shared among all instances of a site.
         /// </remarks>
-        public static Func<ICacheDataProvider> GetSharedCacheProvider { get; set; }
+        public static Func<ICacheDataProvider> GetSharedCacheProvider { get; set; } = null!;
         /// <summary>
         /// A caching data provider for static shared cached data (between multiple instances of the site).
         /// </summary>
@@ -41,7 +43,7 @@ namespace YetaWF.Core.IO {
         /// While similar to GetSharedCacheProvider, GetStaticCacheProvider is intended to be used in cases where data is more likely to be used repeatedly
         /// and where a single-instance site would simply use a static variable.
         /// </remarks>
-        public static Func<ICacheDataProvider> GetStaticCacheProvider { get; set; }
+        public static Func<ICacheDataProvider> GetStaticCacheProvider { get; set; } = null!;
 
         /// <summary>
         /// A caching data provider for locally cached SMALL data without serialization/deserialization.
@@ -50,7 +52,7 @@ namespace YetaWF.Core.IO {
         /// This caching data provider can be used for SMALL data that needs to be cached individually in each instance of a site.
         /// If multiple instances of the site are active, the cached data is not shared between instances.
         /// </remarks>
-        public static Func<ICacheDataProvider> GetStaticSmallObjectCacheProvider { get; set; }
+        public static Func<ICacheDataProvider> GetStaticSmallObjectCacheProvider { get; set; } = null!;
 
         /// <summary>
         /// A locking data provider for locks shared among all instances of a site.
@@ -58,12 +60,12 @@ namespace YetaWF.Core.IO {
         /// <remarks>
         /// If locking for a single instance only is required even in a multi-instance site, simply use the C# lock statement instead.
         /// </remarks>
-        public static ILockProvider LockProvider { get; set; }
+        public static ILockProvider LockProvider { get; set; } = null!;
 
         /// <summary>
         /// A pub/sub provider for publish/subscribe messaging shared among all instances of a site.
         /// </summary>
-        public static IPubSubProvider PubSubProvider { get; set; }
+        public static IPubSubProvider PubSubProvider { get; set; } = null!;
     };
 
     /// <summary>
@@ -162,7 +164,7 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// The data. May be null if no data is available.
         /// </summary>
-        public TYPE Data { get; set; }
+        public TYPE Data { get; set; } = default!;
         /// <summary>
         /// true if retrieval was successful, false otherwise.
         /// </summary>

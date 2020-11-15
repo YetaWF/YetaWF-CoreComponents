@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -53,7 +55,7 @@ namespace YetaWF.PackageAttributes
         /// <param name="sourceFile">This should not be used as it is used internally by YetaWF to determine whether a package is a source code or binary package.</param>
         /// <param name="LanguageDomain">The domain name for localization resources (without www, http, .com or page), eg. softelvdm. If not provided, the <paramref name="domain"/> parameter is used instead.</param>
         /// <remarks>Every YetaWF package must provide a PackageAttribute attribute to define its basic purpose.</remarks>
-        public PackageAttribute(PackageTypeEnum type, string domain, [CallerFilePath] string sourceFile = null, string LanguageDomain = null) {
+        public PackageAttribute(PackageTypeEnum type, string domain, [CallerFilePath] string sourceFile = null, string? LanguageDomain = null) {
             PackageType = type;
             Domain = domain;
             SourceFile = sourceFile;
@@ -74,7 +76,6 @@ namespace YetaWF.PackageAttributes
     /// <remarks>Every YetaWF package should provide a PackageInfoAttribute attribute to define public Urls.</remarks>
     [AttributeUsage(AttributeTargets.Assembly)]
     public class PackageInfoAttribute : Attribute {
-        public PackageInfoAttribute() { }
         public PackageInfoAttribute(string updateServerLink, string infoLink, string supportLink, string releaseNoticeLink, string licenseLink, string storeLink) {
             InfoLink = infoLink;
             UpdateServerLink = updateServerLink;
@@ -117,6 +118,6 @@ namespace YetaWF.PackageAttributes
         /// Store Url for purchasable packages.
         /// </summary>
         /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
-        public string StoreLink { get; private set; }
+        public string? StoreLink { get; private set; }
     }
 }

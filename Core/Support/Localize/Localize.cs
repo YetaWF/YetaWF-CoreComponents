@@ -1,13 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Audit;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
@@ -20,16 +20,16 @@ namespace YetaWF.Core.Localize {
 
         public class ClassData {
             [StringLength(MaxString)]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             [StringLength(MaxString)]
-            public string BaseTypeName { get; set; }
+            public string? BaseTypeName { get; set; }
 
             [StringLength(MaxString)]
-            public string Header { get; set; }
+            public string? Header { get; set; }
             [StringLength(MaxString)]
-            public string Footer { get; set; }
+            public string? Footer { get; set; }
             [StringLength(MaxString)]
-            public string Legend { get; set; }
+            public string? Legend { get; set; }
 
             [Data_Binary]
             public SerializableDictionary<string, string> Categories { get; set; }
@@ -44,58 +44,58 @@ namespace YetaWF.Core.Localize {
         }
         public class PropertyData {
             [StringLength(MaxString)]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             [StringLength(MaxString)]
-            public string Caption { get; set; }
+            public string? Caption { get; set; }
             [StringLength(MaxString)]
-            public string Description { get; set; }
+            public string? Description { get; set; }
             [StringLength(Globals.MaxUrl)]
-            public string HelpLink { get; set; }
+            public string? HelpLink { get; set; }
             [StringLength(MaxString)]
-            public string TextAbove { get; set; }
+            public string? TextAbove { get; set; }
             [StringLength(MaxString)]
-            public string TextBelow { get; set; }
+            public string? TextBelow { get; set; }
         }
         public class EnumData {
             [StringLength(MaxString)]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             [Data_Binary]
             public SerializableList<EnumDataEntry> Entries { get; set; }
 
             public EnumData() {
                 Entries = new SerializableList<EnumDataEntry>();
             }
-            public EnumDataEntry FindEntry(string name) {
+            public EnumDataEntry? FindEntry(string name) {
                 return (from e in Entries where e.Value == name select e).FirstOrDefault();
             }
         }
         public class EnumDataEntry {
             [StringLength(MaxString)]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             [StringLength(MaxString)]
-            public string Value { get; set; }
+            public string Value { get; set; } = null!;
             [StringLength(MaxString)]
-            public string Caption { get; set; }
+            public string? Caption { get; set; }
             [StringLength(MaxString)]
-            public string Description { get; set; }
+            public string? Description { get; set; }
         }
         public class StringData {
             [StringLength(MaxString)]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             [StringLength(MaxString)]
-            public string Text { get; set; }
+            public string? Text { get; set; }
         }
 
         public class ResourceProvider {
 
         }
         public class Resource {
-            public string Caption { get; set; }
-            public string Description { get; set; }
+            public string? Caption { get; set; }
+            public string? Description { get; set; }
         }
 
         [StringLength(MaxComment)]
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
         [Data_Binary]
         public SerializableList<ClassData> Classes { get; set; }
         [Data_Binary]
@@ -108,27 +108,26 @@ namespace YetaWF.Core.Localize {
             Enums = new SerializableList<EnumData>();
             Strings = new SerializableList<StringData>();
         }
-        public string FindString(string name) {
-            StringData sd = FindStringEntry(name);
+        public string? FindString(string name) {
+            StringData? sd = FindStringEntry(name);
             if (sd == null) return null;
             return (sd.Text == null) ? "" : sd.Text;
         }
-        public StringData FindStringEntry(string name) {
-            StringData sd = (from s in Strings where s.Name == name select s).FirstOrDefault();
-            return sd;
+        public StringData? FindStringEntry(string name) {
+            return (from s in Strings where s.Name == name select s).FirstOrDefault();
         }
-        public EnumData FindEnum(string name) {
+        public EnumData? FindEnum(string name) {
             return (from e in Enums where e.Name == name select e).FirstOrDefault();
         }
-        public ClassData FindClass(string typeName) {
+        public ClassData? FindClass(string typeName) {
             return (from c in Classes where c.Name == typeName select c).FirstOrDefault();
         }
-        public PropertyData FindProperty(string typeName, string propName) {
+        public PropertyData? FindProperty(string typeName, string propName) {
             // find the class
-            ClassData classData = FindClass(typeName);
+            ClassData? classData = FindClass(typeName);
             if (classData == null) return null;
             // find the property in the class
-            PropertyData propData = (from p in classData.Properties where p.Name == propName select p).FirstOrDefault();
+            PropertyData? propData = (from p in classData.Properties where p.Name == propName select p).FirstOrDefault();
             if (propData != null) return propData;
             // if we didn't find the property, search the base type
             if (string.IsNullOrWhiteSpace(classData.BaseTypeName))

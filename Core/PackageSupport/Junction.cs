@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.IO;
@@ -239,7 +241,7 @@ namespace YetaWF.Core.PackageSupport {
                     bool result = DeviceIoControl(handle.DangerousGetHandle(), FSCTL_SET_REPARSE_POINT,
                         inBuffer, targetDirBytes.Length + 20, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
                     if (!result)
-                        throw new InternalError("Unable to create junction point - {0}", Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message);
+                        throw new InternalError("Unable to create junction point - {0}", Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()) ! .Message);
 
                 } finally {
                     Marshal.FreeHGlobal(inBuffer);
@@ -258,7 +260,7 @@ namespace YetaWF.Core.PackageSupport {
                 return false;
 
             using (SafeFileHandle handle = OpenReparsePoint(path, EFileAccess.GenericRead)) {
-                string target = InternalGetTarget(handle);
+                string? target = InternalGetTarget(handle);
                 return target != null;
             }
         }
@@ -269,11 +271,11 @@ namespace YetaWF.Core.PackageSupport {
                 IntPtr.Zero, ECreationDisposition.OpenExisting,
                 EFileAttributes.BackupSemantics | EFileAttributes.OpenReparsePoint, IntPtr.Zero);
             if (Marshal.GetLastWin32Error() != 0)
-                throw new InternalError("Unable to open reparse point - {0}", Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message);
+                throw new InternalError("Unable to open reparse point - {0}", Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()) ! .Message);
 
             return new SafeFileHandle(f, true);
         }
-        private static string InternalGetTarget(SafeFileHandle handle) {
+        private static string? InternalGetTarget(SafeFileHandle handle) {
             int outBufferSize = Marshal.SizeOf(typeof(REPARSE_DATA_BUFFER));
             IntPtr outBuffer = Marshal.AllocHGlobal(outBufferSize);
 
@@ -291,7 +293,7 @@ namespace YetaWF.Core.PackageSupport {
                 }
 
                 REPARSE_DATA_BUFFER reparseDataBuffer = (REPARSE_DATA_BUFFER)
-                    Marshal.PtrToStructure(outBuffer, typeof(REPARSE_DATA_BUFFER));
+                    Marshal.PtrToStructure(outBuffer, typeof(REPARSE_DATA_BUFFER)) ! ;
 
                 if (reparseDataBuffer.ReparseTag != IO_REPARSE_TAG_MOUNT_POINT)
                     return null;

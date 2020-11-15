@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -74,15 +76,14 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
             }
             return list;
         }
-        public async Task<ITwoStepAuth> GetTwoStepAuthProcessorByNameAsync(string name) {
-            List<ITwoStepAuth> list = await GetTwoStepAuthProcessorsAsync();
+        public async Task<ITwoStepAuth?> GetTwoStepAuthProcessorByNameAsync(string name) {
             foreach (ITwoStepAuth r in RegisteredProcessors) {
                 if (await r.IsAvailableAsync() && r.Name == name)
                     return r;
             }
             return null;
         }
-        public async Task<ModuleAction> GetLoginActionAsync(List<string> enabledTwoStepAuthentications, int userId, string userName, string email) {
+        public async Task<ModuleAction?> GetLoginActionAsync(List<string> enabledTwoStepAuthentications, int userId, string userName, string email) {
             List<ITwoStepAuth> list = await GetTwoStepAuthProcessorsAsync();
             List<string> procs = (from p in list select p.Name).ToList();
             procs = procs.Intersect(enabledTwoStepAuthentications).ToList();
@@ -94,7 +95,7 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
             } else {
                 // call two-step method
                 string procName = procs.First();
-                ITwoStepAuth auth = await GetTwoStepAuthProcessorByNameAsync(procs.First());
+                ITwoStepAuth? auth = await GetTwoStepAuthProcessorByNameAsync(procs.First());
                 if (auth == null)
                     throw new InternalError("TwoStepAuthorization provider {0} not found", procName);
                 return await auth.GetLoginActionAsync(userId, userName, email);

@@ -1,11 +1,11 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Serializers;
 
@@ -15,16 +15,16 @@ namespace YetaWF.Core.Support.Serializers {
     // Turns out JSON is slower than Simple (used in session state, cached main menu is a bit of a problem)
 
     public interface IYetaWFFormatter {
-        object Deserialize(Stream serializationStream);
-        void Serialize(Stream serializationStream, object graph);
+        object? Deserialize(Stream serializationStream);
+        void Serialize(Stream serializationStream, object? graph);
     }
-    
+
     /// <summary>
-         /// General serializer/deserializer
-         /// </summary>
-         /// <remarks>It determines the format when deserializing and calls the appropriate deserializer (simple, text, binary).
-         /// When serializing it uses the globally defined format. For debugging it's best to use "text", and in production "simple". "binary" is not supported.
-         /// This means there can be a mix of formats in production which will be unified when saving data and when data is restored.</remarks>
+    /// General serializer/deserializer
+    /// </summary>
+    /// <remarks>It determines the format when deserializing and calls the appropriate deserializer (simple, text, binary).
+    /// When serializing it uses the globally defined format. For debugging it's best to use "text", and in production "simple". "binary" is not supported.
+    /// This means there can be a mix of formats in production which will be unified when saving data and when data is restored.</remarks>
     public class GeneralFormatter {
 
         public enum Style {
@@ -66,15 +66,15 @@ namespace YetaWF.Core.Support.Serializers {
         public Style Format { get; set; }
         public bool FormatExplicit { get; set; }// whether the format was explicitly set by caller (used for serialization, deserialization still tries to guess)
 
-        public TObj Deserialize<TObj>(byte[] btes) {
-            if (btes == null || btes.Length <= 6) return default(TObj);
+        public TObj? Deserialize<TObj>(byte[] btes) {
+            if (btes == null || btes.Length <= 6) return default;
             IYetaWFFormatter fmt;
             if (btes[0] == (char)239 && btes[1] == (char)187)
                 fmt = new TextFormatter();
             else if (btes[0] == Simple2Formatter.MARKER1 && btes[1] == Simple2Formatter.MARKER2) {
                 Simple2Formatter simpleFmt = new Simple2Formatter();
                 try {
-                    object data = simpleFmt.Deserialize(btes);
+                    object? data = simpleFmt.Deserialize(btes);
                     if (data != null) {
                         Type dataType = data.GetType();
                         while (true) {
@@ -85,7 +85,7 @@ namespace YetaWF.Core.Support.Serializers {
                             dataType = dataType.BaseType;
                         }
                     }
-                    return (TObj)data;
+                    return (TObj?)data;
                 } catch (Exception exc) {
                     throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
                 }
@@ -96,55 +96,72 @@ namespace YetaWF.Core.Support.Serializers {
             } else
                 throw new InternalError("An unknown format was encountered and cannot be deserialized");
             using (MemoryStream ms = new MemoryStream(btes)) {
-                object data;
+                object? data;
                 try {
                     data = fmt.Deserialize(ms);
                 } catch (Exception exc) {
                     throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
                 }
-                return (TObj)data;
+                return (TObj?)data;
             }
         }
         /// <summary>
         /// Deserialize from FileStream
         /// </summary>
         /// <remarks>Does NOT guess the format</remarks>
-        public TObj Deserialize<TObj>(FileStream fs) {
+        public TObj Deserialize<TObj>(FileStream fs) where TObj: notnull {
             if (!FormatExplicit)
                 throw new InternalError("The format for this stream was not explicitly specified");
 
-            IYetaWFFormatter fmt = null;
+            object? data;
+
             switch (Format) {
                 case Style.Xml:
-                    fmt = new TextFormatter();
+                    try {
+                        data = new TextFormatter().Deserialize(fs);
+                    } catch (Exception exc) {
+                        throw new InternalError($"{ErrorHandling.FormatExceptionMessage(exc)} - A common cause for this error is a change in the internal format of the object");
+                    }
                     break;
                 case Style.Simple:
-                    fmt = new SimpleFormatter();
+                    try {
+                        data = new SimpleFormatter().Deserialize(fs);
+                    } catch (Exception exc) {
+                        throw new InternalError($"{ErrorHandling.FormatExceptionMessage(exc)} - A common cause for this error is a change in the internal format of the object");
+                    }
                     break;
                 case Style.Simple2:
                     throw new InternalError("This format is not supported for file streams");
                 case Style.JSON:
-                    return new JSONFormatter().Deserialize<TObj>(fs);
+                    try {
+                        data = new JSONFormatter().Deserialize<TObj>(fs);
+                    } catch (Exception exc) {
+                        throw new InternalError($"{ErrorHandling.FormatExceptionMessage(exc)} - A common cause for this error is a change in the internal format of the object");
+                    }
+                    break;
                 case Style.JSONTyped:
-                    return new JSONFormatter().Deserialize<TObj>(fs, true);
+                    try {
+                        data = new JSONFormatter().Deserialize<TObj>(fs, true);
+                    } catch (Exception exc) {
+                        throw new InternalError($"{ErrorHandling.FormatExceptionMessage(exc)} - A common cause for this error is a change in the internal format of the object");
+                    }
+                    break;
+                default:
+                    throw new InternalError($"Invalid format {Format}");
             }
-            object data;
-            try {
-                data = fmt.Deserialize(fs);
-            } catch (Exception exc) {
-                throw new InternalError("{0} - A common cause for this error is a change in the internal format of the object", ErrorHandling.FormatExceptionMessage(exc));
-            }
+            if (data == null)
+                throw new InternalError($"null data received in {nameof(Deserialize)}");
+
             return (TObj)data;
         }
 
         public void Serialize<TObj>(FileStream fs, TObj obj) {
-            IYetaWFFormatter fmt = null;
             switch (Format) {
                 case Style.Xml:
-                    fmt = new TextFormatter();
+                    new TextFormatter().Serialize(fs, obj);
                     break;
                 case Style.Simple:
-                    fmt = new SimpleFormatter();
+                    new SimpleFormatter().Serialize(fs, obj);
                     break;
                 case Style.Simple2:
                     throw new InternalError("This format is not supported for file streams");
@@ -154,12 +171,14 @@ namespace YetaWF.Core.Support.Serializers {
                 case Style.JSONTyped:
                     new JSONFormatter().Serialize(fs, obj, true);
                     return;
+                default:
+                    throw new InternalError($"Invalid format {Format}");
             }
-            fmt.Serialize(fs, obj);
         }
-        public byte[] Serialize<TObj>(TObj obj) {
+
+        public byte[] Serialize<TObj>(TObj? obj) {
             if (obj == null) return new byte[] { };
-            IYetaWFFormatter fmt = null;
+            IYetaWFFormatter fmt;
 
             switch (Format) {
                 case Style.Xml:
@@ -175,6 +194,8 @@ namespace YetaWF.Core.Support.Serializers {
                     return new JSONFormatter().Serialize(obj, false);
                 case Style.JSONTyped:
                     return new JSONFormatter().Serialize(obj, true);
+                default:
+                    throw new InternalError($"Invalid format {Format}");
             }
             using (MemoryStream ms = new MemoryStream()) {
                 fmt.Serialize(ms, obj);
@@ -208,7 +229,7 @@ namespace YetaWF.Core.Support.Serializers {
             else {
                 string tp = typeName;
                 string asm = assembly;
-                TypeConversion conv = (from t in TypeConversions where tp == t.OldType && asm == t.OldAssembly select t).FirstOrDefault();
+                TypeConversion? conv = (from t in TypeConversions where tp == t.OldType && asm == t.OldAssembly select t).FirstOrDefault();
                 if (conv != null) {
                     typeName = conv.NewType;
                     assembly = conv.NewAssembly;
@@ -225,10 +246,10 @@ namespace YetaWF.Core.Support.Serializers {
         private static List<TypeConversion> TypeConversions = new List<TypeConversion>();
 
         public class TypeConversion {
-            public string OldType { get; set; }
-            public string OldAssembly { get; set; }
-            public string NewType { get; set; }
-            public string NewAssembly { get; set; }
+            public string OldType { get; set; } = null!;
+            public string OldAssembly { get; set; } = null!;
+            public string NewType { get; set; } = null!;
+            public string NewAssembly { get; set; } = null!;
         }
     }
 }

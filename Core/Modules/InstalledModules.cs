@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,19 +29,19 @@ namespace YetaWF.Core.Modules {
             /// <summary>
             /// The module type.
             /// </summary>
-            public Type Type { get; set; }
+            public Type Type { get; set; } = null!;
             /// <summary>
             /// The package implementing this module.
             /// </summary>
-            public Package Package { get; set; }
+            public Package Package { get; set; } = null!;
             /// <summary>
             /// The user displayable name of the module.
             /// </summary>
-            public MultiString DisplayName { get; set; }
+            public MultiString DisplayName { get; set; } = null!;
             /// <summary>
             /// The user displayable module description.
             /// </summary>
-            public MultiString Summary { get; set; }
+            public MultiString Summary { get; set; } = null!;
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification="Not used for serialization")]
         public class ModuleTypesDictionary : Dictionary<Guid, ModuleTypeEntry> { }
@@ -47,11 +49,11 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Lists all packages that implement modules.
         /// </summary>
-        public static List<Package> Packages { get; private set; }
+        public static List<Package> Packages { get; private set; } = null!;
         /// <summary>
         /// Lists all available modules.
         /// </summary>
-        public static ModuleTypesDictionary Modules { get; private set; }
+        public static ModuleTypesDictionary Modules { get; private set; } = null!;
 
         /// <summary>
         /// Constructor.
@@ -63,8 +65,8 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="permanentGuid">The module's permanent Guid.</param>
         /// <returns>The type of the module or null if not found.</returns>
-        public static Type TryFindModule(Guid permanentGuid) {
-            ModuleTypeEntry entry = TryFindModuleEntry(permanentGuid);
+        public static Type? TryFindModule(Guid permanentGuid) {
+            ModuleTypeEntry? entry = TryFindModuleEntry(permanentGuid);
             if (entry == null)
                 return null;
             return entry.Type;
@@ -74,9 +76,8 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="permanentGuid">The module's permanent Guid.</param>
         /// <returns>The module entry of the module or null if not found.</returns>
-        public static ModuleTypeEntry TryFindModuleEntry(Guid permanentGuid) {
-            ModuleTypeEntry entry;
-            if (!Modules.TryGetValue(permanentGuid, out entry))
+        public static ModuleTypeEntry? TryFindModuleEntry(Guid permanentGuid) {
+            if (!Modules.TryGetValue(permanentGuid, out ModuleTypeEntry? entry))
                 return null;
             return entry;
         }
@@ -110,13 +111,13 @@ namespace YetaWF.Core.Modules {
                     foreach (Type type in modTypes) {
                         try {
                             Guid guid = ModuleDefinition.GetPermanentGuid(type);
-                            Logging.AddLog("Found module {0} ({1})", guid.ToString(), type.Namespace);
+                            Logging.AddLog("Found module {0} ({1})", guid.ToString(), type.Namespace!);
                             if (type == typeof(ModuleDefinition))
                                 continue;
-                            object obj = Activator.CreateInstance(type);
+                            object? obj = Activator.CreateInstance(type) ;
                             if (obj == null)
                                 throw new InternalError("Module type {0} can't be created in AddInstalledModules", type.Name);
-                            ModuleDefinition mod = obj as ModuleDefinition;
+                            ModuleDefinition? mod = obj as ModuleDefinition;
                             if (mod == null)
                                 throw new InternalError("Type {0} is not a module in AddInstalledModules", type.Name);
                             if (guid == Guid.Empty)

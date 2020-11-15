@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,11 +16,11 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// A filesystem provider that accesses/updates a permanent file system. The permanent file system is shared between all nodes of a multi-instance site.
         /// </summary>
-        public static IFileSystem FileSystemProvider { get; set; }
+        public static IFileSystem FileSystemProvider { get; set; } = null!;
         /// <summary>
         /// A filesystem provider that accesses/updates a temporary, single instance file system.
         /// </summary>
-        public static IFileSystem TempFileSystemProvider { get; set; }
+        public static IFileSystem TempFileSystemProvider { get; set; } = null!;
 
     };
 

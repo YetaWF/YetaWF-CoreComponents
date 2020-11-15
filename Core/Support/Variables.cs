@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,7 +23,7 @@ namespace YetaWF.Core.Support {
             JSON = 2,
         }
 
-        public Variables(YetaWFManager manager, object parms = null) {
+        public Variables(YetaWFManager? manager, object? parms = null) {
             Manager = manager;
             Parameters = parms;
             DoubleEscape = false;
@@ -30,8 +32,8 @@ namespace YetaWF.Core.Support {
             PreserveAsis = false;
             EncodingType = EncodingTypeEnum.HTML;
         }
-        protected YetaWFManager Manager { get; private set; }
-        public object Parameters { get; private set; }
+        protected YetaWFManager? Manager { get; private set; }
+        public object? Parameters { get; private set; }
         public EncodingTypeEnum EncodingType { get; set; }
 
         /// <summary>
@@ -54,8 +56,8 @@ namespace YetaWF.Core.Support {
         /// If true, [-Var,SomeName] is rendered as [-Var,SomeName]. If false, it is rendered as [Var,SomeName] by removing the leading "-".</remarks>
         public bool PreserveAsis { get; set; }
 
-        public string ReplaceVariables(string text) {
-            if (string.IsNullOrWhiteSpace(text)) return "";
+        public string ReplaceVariables(string? text) {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             if (DoubleEscape) {
                 if (CurlyBraces)
                     text = varReDoubleEscapeCB.Replace(text, new MatchEvaluator(VarSubst));
@@ -67,8 +69,8 @@ namespace YetaWF.Core.Support {
             }
             return text;
         }
-        public string ReplaceModuleVariables(ModuleDefinition module, string text) {
-            if (string.IsNullOrWhiteSpace(text)) return "";
+        public string ReplaceModuleVariables(ModuleDefinition module, string? text) {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             _thisModule = module;
             if (DoubleEscape) {
                 if (CurlyBraces)
@@ -82,7 +84,7 @@ namespace YetaWF.Core.Support {
             }
             return text;
         }
-        private ModuleDefinition _thisModule { get; set; }
+        private ModuleDefinition? _thisModule { get; set; }
 
         private Regex varReSingleEscape {
             get {
@@ -91,7 +93,7 @@ namespace YetaWF.Core.Support {
                 return _varReSingleEscape;
             }
         }
-        private static Regex _varReSingleEscape = null;
+        private static Regex? _varReSingleEscape = null;
 
         private Regex varReDoubleEscape {
             get {
@@ -100,7 +102,7 @@ namespace YetaWF.Core.Support {
                 return _varReDoubleEscape;
             }
         }
-        private static Regex _varReDoubleEscape = null;
+        private static Regex? _varReDoubleEscape = null;
 
         private Regex varReModuleSingleEscape {
             get {
@@ -109,7 +111,7 @@ namespace YetaWF.Core.Support {
                 return _varReModuleSingleEscape;
             }
         }
-        private static Regex _varReModuleSingleEscape = null;
+        private static Regex? _varReModuleSingleEscape = null;
 
         private Regex varReModuleDoubleEscape {
             get {
@@ -118,7 +120,7 @@ namespace YetaWF.Core.Support {
                 return _varReModuleDoubleEscape;
             }
         }
-        private static Regex _varReModuleDoubleEscape = null;
+        private static Regex? _varReModuleDoubleEscape = null;
 
         private Regex varReSingleEscapeCB {
             get {
@@ -127,7 +129,7 @@ namespace YetaWF.Core.Support {
                 return _varReSingleEscapeCB;
             }
         }
-        private static Regex _varReSingleEscapeCB = null;
+        private static Regex? _varReSingleEscapeCB = null;
 
         private Regex varReDoubleEscapeCB {
             get {
@@ -136,7 +138,7 @@ namespace YetaWF.Core.Support {
                 return _varReDoubleEscapeCB;
             }
         }
-        private static Regex _varReDoubleEscapeCB = null;
+        private static Regex? _varReDoubleEscapeCB = null;
 
         private Regex varReModuleSingleEscapeCB {
             get {
@@ -145,7 +147,7 @@ namespace YetaWF.Core.Support {
                 return _varReModuleSingleEscapeCB;
             }
         }
-        private static Regex _varReModuleSingleEscapeCB = null;
+        private static Regex? _varReModuleSingleEscapeCB = null;
 
         private Regex varReModuleDoubleEscapeCB {
             get {
@@ -154,7 +156,7 @@ namespace YetaWF.Core.Support {
                 return _varReModuleDoubleEscapeCB;
             }
         }
-        private static Regex _varReModuleDoubleEscapeCB = null;
+        private static Regex? _varReModuleDoubleEscapeCB = null;
 
         private string VarSubst(Match m) {
             bool encode = EncodeDefault;
@@ -195,7 +197,7 @@ namespace YetaWF.Core.Support {
                     }
                 } else if (loc == "Env") {
                     if (!string.IsNullOrWhiteSpace(var)) {
-                        string env = Environment.GetEnvironmentVariable(var);
+                        string env = Environment.GetEnvironmentVariable(var) ?? string.Empty;
                         return (encode) ? EncodeText(env) : env;
                     }
                 } else if (loc == "Opsys") {
@@ -217,7 +219,7 @@ namespace YetaWF.Core.Support {
                 } else if (loc.StartsWith("Unique-")) {
                     // {{Unique-Softelvdm.Modules.ComodoTrustLogo.Modules.ComodoUserTrustConfigModule, -ConfigData.TrustLogoHtml}}
                     string fullName = loc.Substring("Unique-".Length);
-                    Type modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
+                    Type? modType = (from mod in InstalledModules.Modules where mod.Value.Type.FullName == fullName select mod.Value.Type).FirstOrDefault();
                     if (modType != null) {
                         ModuleDefinition dataMod = ModuleDefinition.CreateUniqueModuleAsync(modType).Result;//TODO: This is not good. However rarely used, so we'll wait until we have other asyncs in Variables.
                         if (dataMod != null) {
@@ -254,13 +256,13 @@ namespace YetaWF.Core.Support {
                             return (encode) ? EncodeText(ret) : ret;
                     } else if (loc == "QueryString" || loc == "QS") {
                         if (!string.IsNullOrWhiteSpace(var)) {
-                            ret = Manager.RequestQueryString[var];
+                            ret = Manager.RequestQueryString[var] ?? string.Empty;
                             return (encode) ? EncodeText(ret) : ret;
                         }
                     } else if (loc == "Session") {
                         if (!string.IsNullOrWhiteSpace(var)) {
                             if (Manager.SessionSettings.SiteSettings.ContainsKey(var)) {
-                                ret = Manager.SessionSettings.SiteSettings.GetValue<string>(var);
+                                ret = Manager.SessionSettings.SiteSettings.GetValue<string>(var) ?? string.Empty;
                                 return (encode) ? EncodeText(ret) : ret;
                             }
                         }
@@ -286,10 +288,10 @@ namespace YetaWF.Core.Support {
                 }
 
                 if (var == "Resource" || var == "Resources") {
-                    if (EvalModuleResourceVariable(_thisModule, subvar, out ret))
+                    if (EvalModuleResourceVariable(_thisModule!, subvar, out ret))
                         return (encode) ? EncodeText(ret) : ret;
                 }
-                if (EvalObjectVariable(_thisModule, var, subvar, out ret)) {
+                if (EvalObjectVariable(_thisModule!, var, subvar, out ret)) {
                     return (encode) ? EncodeText(ret) : ret;
                 }
             } catch { }
@@ -301,7 +303,6 @@ namespace YetaWF.Core.Support {
             return true;
         }
         private bool EvalObjectVariable(object obj, string var, string subvar, out string retString) {
-            retString = "";
             try {
                 if (GetVariableValue(obj, var, subvar, out retString))
                     return true;
@@ -311,22 +312,24 @@ namespace YetaWF.Core.Support {
             }
             return false;
         }
-        private bool EvalSiteVariable(string var, string subvar, out string retString) {
-            retString = "";
+        private bool EvalSiteVariable(string var, string? subvar, out string retString) {
+            retString = string.Empty;
             try {
-                if (GetVariableValue(Manager.CurrentSite, var, subvar, out retString))
-                    return true;
+                if (Manager != null) {
+                    if (GetVariableValue(Manager.CurrentSite, var, subvar, out retString))
+                        return true;
+                }
             } catch { }
             return false;
         }
-        private bool GetVariableValue(object mod, string var, string subvar, out string retString) {
-            retString = "";
+        private bool GetVariableValue(object? mod, string var, string? subvar, out string retString) {
+            retString = string.Empty;
             if (mod == null) return false;
             Type tp = mod.GetType();
             // try using reflection
-            PropertyInfo pi = ObjectSupport.TryGetProperty(tp, var);
+            PropertyInfo? pi = ObjectSupport.TryGetProperty(tp, var);
             if (pi != null) {
-                object val = pi.GetValue(mod, null);
+                object? val = pi.GetValue(mod, null);
                 if (!string.IsNullOrWhiteSpace(subvar))
                     return GetVariableValue(val, subvar, null, out retString);
                 if (val == null)
@@ -336,15 +339,14 @@ namespace YetaWF.Core.Support {
                     TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
                     retString = conv.ConvertToString(val);
                 } catch {
-                    retString = val.ToString();
+                    retString = val.ToString()!;
                 }
                 return true;
             }
             // try as IDictionary<string, object>
-            IDictionary<string, object> dict = mod as IDictionary<string, object>;
+            IDictionary<string, object?>? dict = mod as IDictionary<string, object?>;
             if (dict != null) {
-                object val;
-                if (dict.TryGetValue(var, out val)) {
+                if (dict.TryGetValue(var, out object? val)) {
                     if (!string.IsNullOrWhiteSpace(subvar))
                         return GetVariableValue(val, subvar, null, out retString);
                     if (val == null)
@@ -354,14 +356,14 @@ namespace YetaWF.Core.Support {
                         TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
                         retString = conv.ConvertToString(val);
                     } catch {
-                        retString = val.ToString();
+                        retString = val.ToString()!;
                     }
                     return true;
                 }
             }
             return false;
         }
-        private bool EvalGlobalsVariable(string var, string subvar, out string retString) {
+        private bool EvalGlobalsVariable(string var, string? subvar, out string retString) {
             retString = "";
             try {
                 if (GetVariableValueFromStaticField(typeof(Globals), var, subvar, out retString))
@@ -377,11 +379,11 @@ namespace YetaWF.Core.Support {
             } catch { }
             return false;
         }
-        private bool GetVariableValueFromStaticField(Type type, string var, string subvar, out string retString) {
+        private bool GetVariableValueFromStaticField(Type type, string var, string? subvar, out string retString) {
             retString = "";
-            FieldInfo f = type.GetField(var, BindingFlags.Public | BindingFlags.Static);
+            FieldInfo? f = type.GetField(var, BindingFlags.Public | BindingFlags.Static);
             if (f == null) return false;
-            string val = (string) f.GetValue(null);
+            string? val = (string?) f.GetValue(null);
             if (val == null)
                 return true;
             retString = val;

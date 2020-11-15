@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -8,10 +10,8 @@ namespace YetaWF.Core.Support {
 
     public class SessionState {
 
-        private HttpContext _httpContext;
         private ISession _session;
         public SessionState(HttpContext httpContext) {
-            _httpContext = httpContext;
             _session = httpContext.Session;
         }
         public object this[string key] {
@@ -52,7 +52,7 @@ namespace YetaWF.Core.Support {
         public void SetInt(string key, int value) {
             _session.SetInt32(key, value);
         }
-        public TYPE GetObject<TYPE>(string key, TYPE dflt = default(TYPE)) {
+        public TYPE? GetObject<TYPE>(string key, TYPE dflt = default(TYPE)) {
             string value = GetString(key);
             if (value == null) return dflt;
             return JsonConvert.DeserializeObject<TYPE>(value);

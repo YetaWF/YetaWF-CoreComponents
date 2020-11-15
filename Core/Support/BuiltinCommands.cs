@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,9 +19,9 @@ namespace YetaWF.Core.Support {
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         private class BuiltinCommandEntry {
-            public string Command { get; set; }
-            public string Resource { get; set; }
-            public Func<QueryHelper, Task> Callback { get; set; }
+            public string Command { get; set; } = null!;
+            public string Resource { get; set; } = null!;
+            public Func<QueryHelper, Task> Callback { get; set; } = null!;
         }
         private class BuiltinCommandDictionary : Dictionary<string, BuiltinCommandEntry> { }
 
@@ -43,10 +45,9 @@ namespace YetaWF.Core.Support {
         /// <param name="checkAuthorization">true to check for authorization, be checking whether the use/role has the required resource name defined. Or false otherwise, which means no authorization checking is performed.</param>
         /// <returns>The callback to run the command. null is returned if the URL doesn't map to a built-in command.</returns>
         /// <remarks></remarks>
-        public static async Task<Func<QueryHelper, Task>> FindAsync(string url, bool checkAuthorization = true) {
-            BuiltinCommandEntry entry;
+        public static async Task<Func<QueryHelper, Task>?> FindAsync(string url, bool checkAuthorization = true) {
             // find the built-in command
-            if (!Commands.TryGetValue(url.ToLower(), out entry)) return null;
+            if (!Commands.TryGetValue(url.ToLower(), out BuiltinCommandEntry? entry)) return null;
             // verify authorization
             if (checkAuthorization && (!await Resource.ResourceAccess.IsResourceAuthorizedAsync(entry.Resource) || (YetaWFManager.IsDemo || Manager.IsDemoUser))) {
                 Logging.AddErrorLog("403 Not Authorized - not authorized for built-in command");

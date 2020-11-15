@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -22,13 +24,13 @@ namespace YetaWF.Core.Support {
         //Work around is easy: create a new ThreadLocal<T> with a random value and this is our thread id :)
         //private static readonly long UnlockedThreadId = 0; //"owning" thread id when unlocked
         //internal long _owningId = UnlockedThreadId;
-        private static readonly YetaWFManager UnlockedOwner = null; //"owning" thread id when unlocked
-        internal YetaWFManager _owningManager = UnlockedOwner;
+        private static readonly YetaWFManager? UnlockedOwner = null; //"owning" thread id when unlocked
+        internal YetaWFManager? _owningManager = UnlockedOwner;
         //private static int _globalThreadCounter;
         //private static readonly ThreadLocal<int> _threadId = new ThreadLocal<int>(() => Interlocked.Increment(ref _globalThreadCounter));
         //We generate a unique id from the thread ID combined with the task ID, if any
         //public static long ThreadId => (long)(((ulong)_threadId.Value) << 32) | ((uint)(Task.CurrentId ?? 0));
-        public static YetaWFManager ThreadOwner => YetaWFManager.HaveManager ? YetaWFManager.Manager : null;
+        public static YetaWFManager? ThreadOwner => YetaWFManager.HaveManager ? YetaWFManager.Manager : null;
 
         struct InnerLock : IDisposable {
             private readonly AsyncLock _parent;

@@ -1,23 +1,14 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Views;
-#if MVC6
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
-#else
-using System.Web.Mvc;
-using System.Web.Routing;
-#endif
 
 namespace YetaWF.Core.Components {
 
@@ -90,12 +81,12 @@ namespace YetaWF.Core.Components {
                 _htmlHelper = value;
             }
         }
-        private YHtmlHelper _htmlHelper;
+        private YHtmlHelper? _htmlHelper;
 
         /// <summary>
         /// The module on behalf of which this view is rendered.
         /// </summary>
-        protected ModuleDefinition ModuleBase { get; set; }
+        protected ModuleDefinition ModuleBase { get; set; } = null!;
 
         /// <summary>
         /// Sets rendering information for the view.
@@ -117,7 +108,7 @@ namespace YetaWF.Core.Components {
                 return _controlId;
             }
         }
-        private string _controlId;
+        private string _controlId = null!;
 
         /// <summary>
         /// The HTML id used for a &lt;div&gt; tag.
@@ -131,7 +122,7 @@ namespace YetaWF.Core.Components {
                 return _divId;
             }
         }
-        private string _divId;
+        private string _divId = null!;
 
         /// <summary>
         /// Returns a unique HTML id.
@@ -203,7 +194,7 @@ namespace YetaWF.Core.Components {
                 throw new InternalError("Already in partial form");
             Manager.InPartialView = true;
 
-            string viewHtml = null;
+            string viewHtml = string.Empty;
 
             try {
                 if (ShowView)
@@ -238,7 +229,7 @@ namespace YetaWF.Core.Components {
             if (ModuleBase.ShowFormButtons || Manager.EditMode) {
                 hb.Append("<div class='{0} {1}'>", CssClass, Globals.CssModuleNoPrint);
                 foreach (FormButton button in buttons) {
-                    hb.Append((await button.RenderAsync()));
+                    hb.Append(await button.RenderAsync());
                 }
                 hb.Append("</div>");
             }

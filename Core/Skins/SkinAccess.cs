@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,13 +11,6 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 using YetaWF.Core.Components;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Skins {
 
@@ -35,7 +30,7 @@ namespace YetaWF.Core.Skins {
 
         public string GetPageViewName(SkinDefinition skin, bool popup) {
             skin = SkinDefinition.EvaluatedSkin(skin, popup);
-            SkinCollectionInfo info = TryFindSkinCollection(skin.Collection);
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection!);
             if (info == null)
                 info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
             return $"{info.AreaName}_{skin.FileName}";
@@ -47,27 +42,22 @@ namespace YetaWF.Core.Skins {
             return YetaWFPageExtender.GetPanes(pageView);
         }
 
-        public void GetModuleCharacterSizes(ModuleDefinition mod, out int width, out int height) {
-            ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
-            width = modSkinEntry.CharWidthAvg;
-            height = modSkinEntry.CharHeight;
-        }
         public SkinCollectionInfo GetSkinCollectionInfo() {
             SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            SkinCollectionInfo info = TryFindSkinCollection(pageSkin.Collection);
+            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
             if (info == null)
                 info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
             return info;
         }
         public PageSkinEntry GetPageSkinEntry() {
             SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            SkinCollectionInfo info = TryFindSkinCollection(pageSkin.Collection);
-            PageSkinEntry pageSkinEntry;
+            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
+            PageSkinEntry? pageSkinEntry;
             if (info == null) {
                 info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
                 pageSkinEntry = Manager.IsInPopup ? info.PopupSkins.First() : info.PageSkins.First();
             } else {
-                string fileName = pageSkin.FileName;
+                string fileName = pageSkin.FileName!;
                 if (string.IsNullOrWhiteSpace(fileName)) {
                     if (Manager.IsInPopup)
                         fileName = FallbackPopupFileName;
@@ -87,14 +77,14 @@ namespace YetaWF.Core.Skins {
         private ModuleSkinEntry GetModuleSkinEntry(ModuleDefinition mod) {
             // Get the skin info for the page's skin collection and get the default module skin
             SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            SkinCollectionInfo info = TryFindSkinCollection(pageSkin.Collection);
-            ModuleSkinEntry modSkinEntry;
+            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
+            ModuleSkinEntry? modSkinEntry;
             if (info == null) {
                 info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
                 modSkinEntry = info.ModuleSkins.First();
             } else {
                 // Find the module skin name to use for the page's skin collection
-                string modSkin = (from s in mod.SkinDefinitions where s.Collection == pageSkin.Collection select s.FileName).FirstOrDefault();
+                string? modSkin = (from s in mod.SkinDefinitions where s.Collection == pageSkin.Collection select s.FileName).FirstOrDefault();
                 if (string.IsNullOrWhiteSpace(modSkin))
                     modSkinEntry = info.ModuleSkins.First();
                 else
@@ -117,7 +107,7 @@ namespace YetaWF.Core.Skins {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
 
-            YTagBuilder anchor = null;
+            YTagBuilder? anchor = null;
             if (!mod.IsModuleUnique && Manager.CurrentPage != null && !string.IsNullOrWhiteSpace(mod.AnchorId)) { // add an anchor
                 anchor = new YTagBuilder("div");
                 anchor.AddCssClass("yAnchor");
@@ -161,7 +151,7 @@ namespace YetaWF.Core.Skins {
 
             if (ShowTitle) {
                 if (mod.ShowTitleActions) {
-                    string actions = null;
+                    string? actions = null;
                     if (ShowTitle && mod.ShowTitleActions)
                         actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer);
                     if (!string.IsNullOrWhiteSpace(actions)) {
@@ -209,13 +199,13 @@ namespace YetaWF.Core.Skins {
             }
             return _skinCollections;
         }
-        private static SkinCollectionInfoList _skinCollections;
+        private static SkinCollectionInfoList? _skinCollections;
 
         /// <summary>
         /// Find a skin collection.
         /// </summary>
         /// <returns></returns>
-        protected SkinCollectionInfo TryFindSkinCollection(string collection) {
+        protected SkinCollectionInfo? TryFindSkinCollection(string collection) {
             return (from c in VersionManager.GetAvailableSkinCollections() where c.SkinInfo.CollectionName == collection select c.SkinInfo).FirstOrDefault();
         }
         /// <summary>
@@ -223,7 +213,7 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <returns></returns>
         protected SkinCollectionInfo FindSkinCollection(string collection) {
-            SkinCollectionInfo info = TryFindSkinCollection(collection);
+            SkinCollectionInfo? info = TryFindSkinCollection(collection);
             if (info == null)
                 throw new InternalError("Skin collection {0} not found", collection);
             return info;

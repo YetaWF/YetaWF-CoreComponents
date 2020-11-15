@@ -1,9 +1,9 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
@@ -45,7 +45,7 @@ namespace YetaWF.Core.Packages {
             // Export all models with data this package implements
             foreach (var modelType in this.InstallableModels) {
                 try {
-                    object instMod = Activator.CreateInstance(modelType);
+                    object instMod = Activator.CreateInstance(modelType) ! ;
                     using ((IDisposable)instMod) {
 
                         IInstallableModel model = (IInstallableModel)instMod;
@@ -70,11 +70,11 @@ namespace YetaWF.Core.Packages {
                                     break;
 
                                 // add users (we need to save user names in case we restore on another site with different user Ids)
-                                IEnumerable ienumerable = expChunk.ObjectList as IEnumerable;
+                                IEnumerable? ienumerable = expChunk.ObjectList as IEnumerable;
                                 if (ienumerable != null) {
                                     IEnumerator ienum = ienumerable.GetEnumerator();
                                     while (ienum.MoveNext()) {
-                                        PageDefinition pageDef = ienum.Current as PageDefinition;
+                                        PageDefinition? pageDef = ienum.Current as PageDefinition;
                                         if (pageDef != null) {
                                             foreach (PageDefinition.AllowedUser user in pageDef.AllowedUsers) {
                                                 if ((from u in serData.Users where u.UserId == user.UserId select u).FirstOrDefault() == null) {
@@ -85,7 +85,7 @@ namespace YetaWF.Core.Packages {
                                                 }
                                             }
                                         }
-                                        ModuleDefinition modDef = ienum.Current as ModuleDefinition;
+                                        ModuleDefinition? modDef = ienum.Current as ModuleDefinition;
                                         if (modDef != null) {
                                             foreach (ModuleDefinition.AllowedUser user in modDef.AllowedUsers) {
                                                 if ((from u in serData.Users where u.UserId == user.UserId select u).FirstOrDefault() == null) {

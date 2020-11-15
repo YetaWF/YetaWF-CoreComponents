@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
@@ -21,7 +23,7 @@ namespace YetaWF.Core.Support {
         public RouteData RouteData { get { return ActionContext.RouteData; } }
         public ModelStateDictionary ModelState { get; private set; }
 
-        public YHtmlHelper(ActionContext actionContext, ModelStateDictionary modelState) {
+        public YHtmlHelper(ActionContext actionContext, ModelStateDictionary? modelState) {
             ActionContext = actionContext;
             ModelState = modelState ?? new ModelStateDictionary();
         }
@@ -35,9 +37,9 @@ namespace YetaWF.Core.Support {
         /// This is intended for use with HTML attributes that may use different containers (an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object).
         ///
         /// If an anonymous object is used, underscore characters (_) are replaced with hyphens (-) in the keys of the specified HTML attributes.</remarks>
-        public static IDictionary<string, object> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+        public static IDictionary<string, object?> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
-            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object>)htmlAttributes;
+            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object?>)htmlAttributes;
             return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
         }
     }
@@ -53,8 +55,8 @@ namespace YetaWF.Core.Support {
         /// <returns>Returns an antiforgery token (HTML).</returns>
         public static string AntiForgeryToken(this YHtmlHelper htmlHelper) {
             if (YetaWFManager.Manager.AntiForgeryTokenHTML == null) {
-                IAntiforgery antiForgery = (IAntiforgery)YetaWFManager.ServiceProvider.GetService(typeof(IAntiforgery));
-                IHtmlContent ihtmlContent = antiForgery.GetHtml(YetaWFManager.Manager.CurrentContext);
+                IAntiforgery? antiForgery = (IAntiforgery?)YetaWFManager.ServiceProvider.GetService(typeof(IAntiforgery));
+                IHtmlContent ihtmlContent = antiForgery!.GetHtml(YetaWFManager.Manager.CurrentContext);
                 using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
                     ihtmlContent.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
                     YetaWFManager.Manager.AntiForgeryTokenHTML = writer.ToString();

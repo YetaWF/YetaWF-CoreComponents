@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System.IO;
+#nullable enable
+
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Identity;
@@ -47,7 +48,7 @@ namespace YetaWF.Core.Pages {
 
             // Add modules
             foreach (ModuleEntry modEntry in this.ModuleDefinitions) {
-                ModuleDefinition mod = await modEntry.GetModuleAsync();
+                ModuleDefinition? mod = await modEntry.GetModuleAsync();
                 if (mod != null) {
                     // export the module
                     YetaWFZipFile modZip = await mod.ExportDataAsync();

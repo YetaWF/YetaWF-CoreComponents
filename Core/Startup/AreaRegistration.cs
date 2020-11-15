@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Controllers {
@@ -26,6 +28,6 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Defines the current package, used by applications that need access to the YetaWF.Core.Packages.Package instance.
         /// </summary>
-        public static Package CurrentPackage;
+        public static Package CurrentPackage = null!;
     }
 }

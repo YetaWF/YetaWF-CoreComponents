@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Localize;
 
@@ -23,7 +25,7 @@ namespace YetaWF.Core.Models.Attributes {
         /// </summary>
         /// <param name="ssn">The social security number to format.</param>
         /// <returns>Returns a formatted user-displayable social security number.</returns>
-        public static string GetDisplay(string ssn) {
+        public static string? GetDisplay(string ssn) {
             if (string.IsNullOrWhiteSpace(ssn) || ssn.Length != MaxSSN)
                 return null;
             return $"{ssn.Substring(0, 3)}-{ssn.Substring(3, 2)}-{ssn.Substring(5, 4)}";

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +15,7 @@ using YetaWF.Core.Support;
 using System.Threading.Tasks;
 using System.Collections;
 using YetaWF.Core.IO;
-#if MVC6
-#else
-using System.Web.Mvc;
-#endif
-#if NETSTANDARD || NETCOREAPP
-#else
-using System.Data.Linq;
-#endif
+using System.Diagnostics.CodeAnalysis;
 
 namespace YetaWF.Core.Models {
 
@@ -36,24 +31,24 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The localized text derived from the HeaderAttribute.
         /// </summary>
-        public string Header { get; private set; }
+        public string? Header { get; private set; }
         /// <summary>
         /// The localized text derived from the FooterAttribute.
         /// </summary>
-        public string Footer { get; private set; }
+        public string? Footer { get; private set; }
         /// <summary>
         /// The localized text derived from the LegendAttribute.
         /// </summary>
-        public string Legend { get; private set; }
+        public string? Legend { get; private set; }
         /// <summary>
         /// All categories derived from the CategoryAttribute of all defined properties in this class.
         /// </summary>
         /// <remarks>A dictionary of all categories. The key is the non-localized category name. The value is the localized category name.</remarks>
         public SerializableDictionary<string, string> Categories { get; private set; }
 
-        private Dictionary<string, object> CustomAttributes { get; set; }
+        private Dictionary<string, object>? CustomAttributes { get; set; }
 
-        internal ClassData(Type classType, string header, string footer, string legend, SerializableDictionary<string, string> categories) {
+        internal ClassData(Type classType, string? header, string? footer, string? legend, SerializableDictionary<string, string> categories) {
             ClassType = classType;
             Header = header;
             Footer = footer;
@@ -62,11 +57,11 @@ namespace YetaWF.Core.Models {
         }
         internal ClassData(Type classType) {
             ClassType = classType;
-            HeaderAttribute headerAttr = TryGetAttribute<HeaderAttribute>();
+            HeaderAttribute? headerAttr = TryGetAttribute<HeaderAttribute>();
             Header = headerAttr != null ? headerAttr.Value : null;
-            FooterAttribute footerAttr = TryGetAttribute<FooterAttribute>();
+            FooterAttribute? footerAttr = TryGetAttribute<FooterAttribute>();
             Footer = footerAttr != null ? footerAttr.Value : null;
-            LegendAttribute legendAttr = TryGetAttribute<LegendAttribute>();
+            LegendAttribute? legendAttr = TryGetAttribute<LegendAttribute>();
             Legend = legendAttr != null ? legendAttr.Value : null;
             Categories = new Serializers.SerializableDictionary<string, string>();
         }
@@ -75,12 +70,12 @@ namespace YetaWF.Core.Models {
         /// </summary>
         /// <typeparam name="TYPE">The type of the attribute.</typeparam>
         /// <returns>The attribute or null if not found.</returns>
-        public TYPE TryGetAttribute<TYPE>() {
+        public TYPE? TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
-            TYPE attr = (TYPE) TryGetAttributeValue(name);
+            TYPE? attr = (TYPE?) TryGetAttributeValue(name);
             return attr;
         }
-        private object TryGetAttributeValue(string name) {
+        private object? TryGetAttributeValue(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
             return (from a in GetAttributes() where a.Key == name select a.Value).FirstOrDefault();
         }
@@ -116,7 +111,7 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The UIHint derived from the property's UIHint attribute.
         /// </summary>
-        public string UIHint { get; private set; }
+        public string? UIHint { get; private set; }
         /// <summary>
         /// Defines whether the property is read only, derived from the ReadOnlyAttribute.
         /// </summary>
@@ -129,23 +124,23 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The localized caption derived from the CaptionAttribute.
         /// </summary>
-        public string Caption { get; private set; }
+        public string? Caption { get; private set; }
         /// <summary>
         /// The localized description derived from the DescriptionAttribute.
         /// </summary>
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
         /// <summary>
         /// The help link derived from the HelpLinkAttribute.
         /// </summary>
-        public string HelpLink { get; private set; }
+        public string? HelpLink { get; private set; }
         /// <summary>
         /// The localized text shown above the property derived from the TextAboveAttribute.
         /// </summary>
-        public string TextAbove { get; private set; }
+        public string? TextAbove { get; private set; }
         /// <summary>
         /// The localized text shown below the property derived from the TextBelowAttribute.
         /// </summary>
-        public string TextBelow { get; private set; }
+        public string? TextBelow { get; private set; }
         /// <summary>
         /// The non-localized categories derived from the CategoryAttribute.
         /// </summary>
@@ -162,11 +157,11 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// List of validation attributes.
         /// </summary>
-        public List<YIClientValidation> ClientValidationAttributes { get; set; }
-        public List<ExprAttribute> ExprValidationAttributes { get; set; }
+        public List<YIClientValidation>? ClientValidationAttributes { get; set; }
+        public List<ExprAttribute>? ExprValidationAttributes { get; set; }
 
-        private ResourceRedirectListAttribute Redirect { get; set; }
-        private ResourceRedirectAttribute Redirect1 { get; set; }
+        private ResourceRedirectListAttribute? Redirect { get; set; }
+        private ResourceRedirectAttribute? Redirect1 { get; set; }
 
         /// <summary>
         ///  The column name used by the data provider. Defaults to the property name, but can be overridden using the Data_ColumnName attribute.
@@ -174,7 +169,7 @@ namespace YetaWF.Core.Models {
         public string ColumnName {
             get {
                 if (_ColumnName == null) {
-                    Data_ColumnNameAttribute colAttr = TryGetAttribute<Data_ColumnNameAttribute>();
+                    Data_ColumnNameAttribute? colAttr = TryGetAttribute<Data_ColumnNameAttribute>();
                     if (colAttr != null)
                         _ColumnName = colAttr.Value;
                     else
@@ -183,7 +178,7 @@ namespace YetaWF.Core.Models {
                 return _ColumnName;
             }
         }
-        private string _ColumnName = null;
+        private string? _ColumnName = null;
 
         /// <summary>
         /// Retrieves the property caption.
@@ -191,14 +186,14 @@ namespace YetaWF.Core.Models {
         /// <param name="container">The parent model containing this property.</param>
         /// <returns>The caption.</returns>
         /// <remarks>If the ResourceRedirectAttribute is used, GetCaption returns the redirected caption, otherwise the localized caption derived from the CaptionAttribute is returned.</remarks>
-        public string GetCaption(object container) {
+        public string? GetCaption(object? container) {
             if (container == null) return Caption;
             if (Redirect != null) {
-                string caption = Redirect.GetCaption(container);
+                string? caption = Redirect.GetCaption(container);
                 if (caption != null) return caption;
             }
             if (Redirect1 != null) {
-                string caption = Redirect1.GetCaption(container);
+                string? caption = Redirect1.GetCaption(container);
                 if (caption != null) return caption;
             }
             return Caption;
@@ -209,14 +204,14 @@ namespace YetaWF.Core.Models {
         /// <param name="container">The parent model containing this property.</param>
         /// <returns>The description.</returns>
         /// <remarks>If the ResourceRedirectAttribute is used, GetDescription returns the redirected description, otherwise the localized description derived from the DescriptionAttribute is returned.</remarks>
-        public string GetDescription(object container) {
+        public string? GetDescription(object? container) {
             if (container == null) return Description;
             if (Redirect != null) {
-                string description = Redirect.GetDescription(container);
+                string? description = Redirect.GetDescription(container);
                 if (description != null) return description;
             }
             if (Redirect1 != null) {
-                string description = Redirect1.GetDescription(container);
+                string? description = Redirect1.GetDescription(container);
                 if (description != null) return description;
             }
             return Description;
@@ -227,40 +222,39 @@ namespace YetaWF.Core.Models {
         /// <param name="container">The parent model containing this property.</param>
         /// <returns>The help link.</returns>
         /// <remarks>If the ResourceRedirectAttribute is used, GetHelpLink returns the redirected help link, otherwise the help link derived from the HelpLinkAttribute is returned.</remarks>
-        public string GetHelpLink(object container) {
+        public string? GetHelpLink(object? container) {
             if (container == null) return HelpLink;
             if (Redirect != null) {
-                string helplink = Redirect.GetHelpLink(container);
+                string? helplink = Redirect.GetHelpLink(container);
                 if (helplink != null) return helplink;
             }
             if (Redirect1 != null) {
-                string helplink = Redirect1.GetHelpLink(container);
+                string? helplink = Redirect1.GetHelpLink(container);
                 if (helplink != null) return helplink;
             }
             return HelpLink;
         }
 
-        internal PropertyData(string name, Type containerType, PropertyInfo propInfo,
-            string caption = null, string description = null, string helpLink = null, string textAbove = null, string textBelow = null) {
+        internal PropertyData(string name, Type containerType, PropertyInfo propInfo, string? caption = null, string? description = null, string? helpLink = null, string? textAbove = null, string? textBelow = null) {
             Name = name;
             ContainerType = containerType;
             PropInfo = propInfo;
             UIHint = null;
-            UIHintAttribute uiHint = TryGetAttribute<UIHintAttribute>();
+            UIHintAttribute? uiHint = TryGetAttribute<UIHintAttribute>();
             if (uiHint != null) UIHint = uiHint.UIHint;
-            ReadOnlyAttribute readOnly = TryGetAttribute<ReadOnlyAttribute>();
+            ReadOnlyAttribute? readOnly = TryGetAttribute<ReadOnlyAttribute>();
             if (readOnly != null) ReadOnly = true;
             Caption = caption;
             Description = description;
             HelpLink = helpLink;
             TextAbove = textAbove;
             TextBelow = textBelow;
-            CategoryAttribute cats = TryGetAttribute<CategoryAttribute>();
+            CategoryAttribute? cats = TryGetAttribute<CategoryAttribute>();
             if (cats != null)
                 Categories = cats.Categories;
             else
                 Categories = new List<string>();
-            DescriptionAttribute descAttr = TryGetAttribute<DescriptionAttribute>();
+            DescriptionAttribute? descAttr = TryGetAttribute<DescriptionAttribute>();
             Order = descAttr != null ? descAttr.Order : 0;
             ClientValidationAttributes = GetClientValidationAttributes();
             ExprValidationAttributes = GetExprValidationAttributes();
@@ -273,22 +267,22 @@ namespace YetaWF.Core.Models {
             ContainerType = containerType;
             PropInfo = propInfo;
             UIHint = null;
-            UIHintAttribute uiHint = TryGetAttribute<UIHintAttribute>();
+            UIHintAttribute? uiHint = TryGetAttribute<UIHintAttribute>();
             if (uiHint != null) UIHint = uiHint.UIHint;
-            ReadOnlyAttribute readOnly = TryGetAttribute<ReadOnlyAttribute>();
+            ReadOnlyAttribute? readOnly = TryGetAttribute<ReadOnlyAttribute>();
             if (readOnly != null) ReadOnly = true;
-            CaptionAttribute captionAttr = TryGetAttribute<CaptionAttribute>();
+            CaptionAttribute? captionAttr = TryGetAttribute<CaptionAttribute>();
             Caption = captionAttr != null ? captionAttr.Value : null;
-            DescriptionAttribute descAttr = TryGetAttribute<DescriptionAttribute>();
+            DescriptionAttribute? descAttr = TryGetAttribute<DescriptionAttribute>();
             Description = descAttr != null ? descAttr.Value : null;
-            HelpLinkAttribute helpLinkAttr = TryGetAttribute<HelpLinkAttribute>();
+            HelpLinkAttribute? helpLinkAttr = TryGetAttribute<HelpLinkAttribute>();
             HelpLink = helpLinkAttr != null ? helpLinkAttr.Value : null;
             Order = descAttr != null ? descAttr.Order : 0;
-            TextAboveAttribute aboveAttr = TryGetAttribute<TextAboveAttribute>();
+            TextAboveAttribute? aboveAttr = TryGetAttribute<TextAboveAttribute>();
             TextAbove = aboveAttr != null ? aboveAttr.Value : null;
-            TextBelowAttribute belowAttr = TryGetAttribute<TextBelowAttribute>();
+            TextBelowAttribute? belowAttr = TryGetAttribute<TextBelowAttribute>();
             TextBelow = belowAttr != null ? belowAttr.Value : null;
-            CategoryAttribute cats = TryGetAttribute<CategoryAttribute>();
+            CategoryAttribute? cats = TryGetAttribute<CategoryAttribute>();
             if (cats != null)
                 Categories = cats.Categories;
             else
@@ -300,8 +294,8 @@ namespace YetaWF.Core.Models {
             CalculatedProperty = TryGetAttribute<Data_CalculatedProperty>() != null;
         }
 
-        private Dictionary<string, List<Attribute>> CustomAttributes { get; set; }
-        private Dictionary<string, Attribute> AdditionalAttributes { get; set; }
+        private Dictionary<string, List<Attribute>>? CustomAttributes { get; set; }
+        private Dictionary<string, Attribute>? AdditionalAttributes { get; set; }
 
         /// <summary>
         /// Retrieves the property value.
@@ -311,14 +305,14 @@ namespace YetaWF.Core.Models {
         /// <returns>The property value.</returns>
         public TYPE GetPropertyValue<TYPE>(object parentObject) {
             TYPE val = (TYPE) PropInfo.GetValue(parentObject, null);
-            return val;
+            return val !;
         }
         /// <summary>
         /// Retrieves a property Attribute.
         /// </summary>
         /// <typeparam name="TYPE">The type of the attribute.</typeparam>
         /// <returns>The attribute or null if not found.</returns>
-        public TYPE TryGetAttribute<TYPE>() {
+        public TYPE? TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
             TYPE attr = (TYPE) TryGetAttributeValue(name);
             return attr;
@@ -341,11 +335,10 @@ namespace YetaWF.Core.Models {
         public bool HasAttribute(string name) {
             return TryGetAttributeValue(name) != null;
         }
-        private object TryGetAttributeValue(string name) {
+        private object? TryGetAttributeValue(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
             Dictionary<string, List<Attribute>> dict = GetAttributes();
-            List<Attribute> attrList;
-            if (dict.TryGetValue(name, out attrList)) {
+            if (dict.TryGetValue(name, out List<Attribute>? attrList)) {
                 if (attrList.Count > 1)
                     throw new InternalError("Requesting 1 attribute when multiple are available");
                 return attrList[0];
@@ -355,8 +348,7 @@ namespace YetaWF.Core.Models {
         private List<TYPE> TryGetAttributeValues<TYPE>(string name) {
             if (!name.EndsWith("Attribute")) name += "Attribute";
             Dictionary<string, List<Attribute>> dict = GetAttributes();
-            List<Attribute> attrList;
-            if (dict.TryGetValue(name, out attrList)) {
+            if (dict.TryGetValue(name, out List<Attribute>? attrList)) {
                 return (from a in attrList select (TYPE)(object)a).ToList();
             }
             return new List<TYPE>();
@@ -368,9 +360,9 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
         /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
         /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
-        public bool TryGetAdditionalAttributeValue<TYPE>(string name, out TYPE value) {
+        public bool TryGetAdditionalAttributeValue<TYPE>(string name, [MaybeNullWhen(false)] out TYPE? value) {
             value = default(TYPE);
-            AdditionalMetadataAttribute attr = (AdditionalMetadataAttribute) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
+            AdditionalMetadataAttribute? attr = (AdditionalMetadataAttribute?) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
             if (attr == null) return false;
             value = (TYPE) attr.Value;
             return true;
@@ -382,9 +374,8 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
         /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
         /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
-        public TYPE GetAdditionalAttributeValue<TYPE>(string name, TYPE dflt = default(TYPE)) {
-            TYPE val = dflt;
-            if (!TryGetAdditionalAttributeValue(name, out val))
+        public TYPE? GetAdditionalAttributeValue<TYPE>(string name, TYPE dflt = default(TYPE)) {
+            if (!TryGetAdditionalAttributeValue(name, out TYPE val))
                 return dflt;
             return val;
         }
@@ -402,8 +393,7 @@ namespace YetaWF.Core.Models {
                         if (!AdditionalAttributes.ContainsKey(name))// don't add (inherited?) attribute
                             AdditionalAttributes.Add(name, am);
                     } else {
-                        List<Attribute> attrList;
-                        if (CustomAttributes.TryGetValue(name, out attrList))
+                        if (CustomAttributes.TryGetValue(name, out List<Attribute>? attrList))
                             attrList.Add(a);
                         else
                             CustomAttributes.Add(name, new List<Attribute> { a });
@@ -412,6 +402,7 @@ namespace YetaWF.Core.Models {
             }
             return CustomAttributes;
         }
+
         /// <summary>
         /// Retrieve list of client-side validation attributes.
         /// </summary>
@@ -422,7 +413,7 @@ namespace YetaWF.Core.Models {
                 var attrLists = GetAttributes().Values;
                 foreach (var attrList in attrLists) {
                     foreach (var attr in attrList) {
-                        YIClientValidation v = attr as YIClientValidation;
+                        YIClientValidation? v = attr as YIClientValidation;
                         if (v != null)
                             validationAttributes.Add(v);
                     }
@@ -441,7 +432,7 @@ namespace YetaWF.Core.Models {
                 var attrLists = GetAttributes().Values;
                 foreach (var attrList in attrLists) {
                     foreach (var attr in attrList) {
-                        ExprAttribute v = attr as ExprAttribute;
+                        ExprAttribute? v = attr as ExprAttribute;
                         if (v != null)
                             exprAttributes.Add(v);
                     }
@@ -453,8 +444,8 @@ namespace YetaWF.Core.Models {
     }
 
     public class PropertyDataComparer : IEqualityComparer<PropertyData> {
-        public bool Equals(PropertyData x, PropertyData y) {
-            return x.Name == y.Name;
+        public bool Equals(PropertyData? x, PropertyData? y) {
+            return x?.Name == y?.Name;
         }
         public int GetHashCode(PropertyData obj) {
             return obj.Name.GetHashCode();
@@ -489,26 +480,27 @@ namespace YetaWF.Core.Models {
                 _caption = value;
             }
         }
-        private string _caption = null;
+        private string? _caption = null;
 
         /// <summary>
         /// The localized description for the enumerated type entry, derived from the EnumDescriptionAttribute.
         /// </summary>
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
 
         /// <summary>
         /// Returns whether a caption or description is available;
         /// </summary>
         public bool EnumDescriptionProvided { get { return _caption != null || Description != null; } }
 
-        internal EnumDataEntry(string name, object value, FieldInfo fieldInfo, string caption = null, string description = null) {
+        internal EnumDataEntry(string name, object value, FieldInfo fieldInfo, string? caption = null, string? description = null) {
             Name = name;
             Value = value;
             FieldInfo = fieldInfo;
-            Caption = caption;
+            if (caption != null)
+                Caption = caption;
             Description = description;
             if (caption == null && description == null) {
-                EnumDescriptionAttribute enumAttr = (EnumDescriptionAttribute)Attribute.GetCustomAttribute(FieldInfo, typeof(EnumDescriptionAttribute));
+                EnumDescriptionAttribute? enumAttr = (EnumDescriptionAttribute?)Attribute.GetCustomAttribute(FieldInfo, typeof(EnumDescriptionAttribute));
                 if (enumAttr != null) {
                     Caption = enumAttr.Caption;
                     Description = enumAttr.Description;
@@ -534,7 +526,7 @@ namespace YetaWF.Core.Models {
         /// </summary>
         /// <param name="value">The value searched.</param>
         /// <returns>The entry matching the value.</returns>
-        public EnumDataEntry FindValue(object value) {
+        public EnumDataEntry? FindValue(object value) {
             return (from e in Entries where e.Value.Equals(value) select e).FirstOrDefault();
         }
         internal EnumData(string name) {
@@ -558,7 +550,7 @@ namespace YetaWF.Core.Models {
         private static object lockObject = new object();
 
         private class LanguageObjectData {
-            public string Language { get; set; }
+            public string Language { get; set; } = null!;
             public Dictionary<Type, ObjectClassData> ObjectClassDatas { get; set; }
             public Dictionary<Type, ObjectEnumData> ObjectEnumDatas { get; set; }
             public LanguageObjectData() {
@@ -567,16 +559,16 @@ namespace YetaWF.Core.Models {
             }
         }
         private class ObjectClassData {
-            public Type ClassType { get; set; }
-            public ClassData ClassData { get; set; }
+            public Type ClassType { get; set; } = null!;
+            public ClassData ClassData { get; set; } = null!;
             public Dictionary<string, PropertyData> PropertyData { get; set; }
             public ObjectClassData() {
                 PropertyData = new Dictionary<string, PropertyData>();
             }
         }
         private class ObjectEnumData {
-            public Type ClassType { get; set; }
-            public EnumData EnumData { get; set; }
+            public Type ClassType { get; set; } = null!;
+            public EnumData EnumData { get; set; } = null!;
         }
 
         // SITE SPECIFIC in PermanentManager:
@@ -590,7 +582,7 @@ namespace YetaWF.Core.Models {
         }
         private static ObjectClassData GetObjectClassData(Type type, bool Cache = true) {
 
-            ObjectClassData objClassData = null;
+            ObjectClassData? objClassData = null;
 
             string lang = MultiString.ActiveLanguage;
             LanguageObjectData langObjData = GetLanguageObjectData(lang);
@@ -607,15 +599,15 @@ namespace YetaWF.Core.Models {
                         langObjData.ObjectClassDatas.Add(type, objClassData);
 
                     // check if we have this in resource files
-                    LocalizationData locData = null;
+                    LocalizationData? locData = null;
                     if (Cache && !type.IsGenericType) {
-                        Package package = Package.TryGetPackageFromType(type);
+                        Package? package = Package.TryGetPackageFromType(type);
                         if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
-                            locData = Localization.Load(package, type.FullName, Localization.Location.Merge);
+                            locData = Localization.Load(package, type.FullName!, Localization.Location.Merge);
                     }
                     // get class data
                     if (locData != null) {
-                        LocalizationData.ClassData cls = locData.FindClass(type.FullName);
+                        LocalizationData.ClassData? cls = locData.FindClass(type.FullName!);
                         if (cls != null)
                             objClassData.ClassData = new ClassData(type, cls.Header, cls.Footer, cls.Legend, cls.Categories);
                         else
@@ -625,17 +617,17 @@ namespace YetaWF.Core.Models {
                     }
                     // get property data through reflection
                     foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | (Cache ? BindingFlags.Default : BindingFlags.DeclaredOnly)).ToList()) {
-                        LocalizationData.PropertyData locPropData = null;
+                        LocalizationData.PropertyData? locPropData = null;
                         if (locData != null) {
-                            locPropData = locData.FindProperty(type.FullName, pi.Name);
+                            locPropData = locData.FindProperty(type.FullName!, pi.Name);
                             if (locPropData == null) {
                                 // check if we have this in a base class
                                 if (pi.DeclaringType != null && pi.DeclaringType != type) {
-                                    Package package = Package.TryGetPackageFromType(pi.DeclaringType);
+                                    Package? package = Package.TryGetPackageFromType(pi.DeclaringType);
                                     if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage)) {
-                                        LocalizationData baseLocData = Localization.Load(package, pi.DeclaringType.FullName, Localization.Location.Merge);
+                                        LocalizationData? baseLocData = Localization.Load(package, pi.DeclaringType.FullName!, Localization.Location.Merge);
                                         if (baseLocData != null)
-                                            locPropData = baseLocData.FindProperty(pi.DeclaringType.FullName, pi.Name);
+                                            locPropData = baseLocData.FindProperty(pi.DeclaringType.FullName!, pi.Name);
                                     }
                                 }
                             }
@@ -681,7 +673,7 @@ namespace YetaWF.Core.Models {
         /// <returns>Enumeration information.</returns>
         public static EnumData GetEnumData(Type type, bool Cache = true) {
 
-            ObjectEnumData objEnumData = null;
+            ObjectEnumData? objEnumData = null;
 
             lock (lockObject) { // protect local data LanguageObjectData
 
@@ -697,30 +689,30 @@ namespace YetaWF.Core.Models {
                         langObjData.ObjectEnumDatas.Add(type, objEnumData);
 
                     // check if we have this in resource files
-                    LocalizationData locData = null;
+                    LocalizationData? locData = null;
                     if (Cache && !type.IsGenericType) {
-                        Package package = Package.TryGetPackageFromType(type);
+                        Package? package = Package.TryGetPackageFromType(type);
                         if (package != null && (package.IsCorePackage || package.IsModulePackage || package.IsSkinPackage))
-                            locData = Localization.Load(package, type.FullName, Localization.Location.Merge);
+                            locData = Localization.Load(package, type.FullName!, Localization.Location.Merge);
                     }
-                    LocalizationData.EnumData locEnumData = null;
+                    LocalizationData.EnumData? locEnumData = null;
                     if (locData != null)
-                        locEnumData = locData.FindEnum(type.FullName);
+                        locEnumData = locData.FindEnum(type.FullName!);
                     // get information through reflection
                     List<FieldInfo> fis = type.GetFields().ToList();
                     objEnumData.EnumData = new EnumData(type.Name);
-                    object enumObj = Activator.CreateInstance(type);
+                    object enumObj = Activator.CreateInstance(type) !;
                     foreach (FieldInfo fi in fis) {
                         if (fi.IsSpecialName) continue;
                         if (locEnumData != null) {
-                            LocalizationData.EnumDataEntry entry = locEnumData.FindEntry(fi.Name);
+                            LocalizationData.EnumDataEntry? entry = locEnumData.FindEntry(fi.Name);
                             if (entry != null)
-                                objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi, entry.Caption, entry.Description));
+                                objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj) !, fi, entry.Caption, entry.Description));
                             else
                                 if (LocalizationSupport.AbortOnFailure)
                                 throw new InternalError("Enumerated type {0} is missing an entry for {1} in the resource file", type.FullName, fi.Name);
                         } else
-                            objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj), fi));
+                            objEnumData.EnumData.Entries.Add(new EnumDataEntry(fi.Name, fi.GetValue(enumObj) !, fi));
                     }
                 }
             }
@@ -732,7 +724,7 @@ namespace YetaWF.Core.Models {
         /// <param name="enumValue">The enum value.</param>
         /// <param name="description">Returns the description found in the EnumDescription attribute.</param>
         /// <returns>Returns the caption found in the EnumDescription attribute.</returns>
-        public static string GetEnumDisplayInfo(object enumValue, out string description, bool ShowValue = false) {
+        public static string GetEnumDisplayInfo(object enumValue, out string? description, bool ShowValue = false) {
             Type enumType = enumValue.GetType();
             EnumData enumData = ObjectSupport.GetEnumData(enumType);
 
@@ -759,7 +751,7 @@ namespace YetaWF.Core.Models {
         /// <param name="propName">The name of the property.</param>
         /// <returns>Property information.</returns>
         public static PropertyData GetPropertyData(Type type, string propName) {
-            PropertyData propData = TryGetPropertyData(type, propName);
+            PropertyData? propData = TryGetPropertyData(type, propName);
             if (propData == null)
                 throw new InternalError("No property {0} in {1}", propName, type.FullName);
             return propData;
@@ -770,10 +762,9 @@ namespace YetaWF.Core.Models {
         /// <param name="type">The Type of the parent model containing the property.</param>
         /// <param name="propName">The name of the property.</param>
         /// <returns>Property information. null is returned if the property does not exist.</returns>
-        public static PropertyData TryGetPropertyData(Type type, string propName) {
+        public static PropertyData? TryGetPropertyData(Type type, string propName) {
             ObjectClassData objClassData = GetObjectClassData(type);
-            PropertyData propData;
-            if (!objClassData.PropertyData.TryGetValue(propName, out propData))
+            if (!objClassData.PropertyData.TryGetValue(propName, out PropertyData? propData))
                 return null;
             return propData;
         }
@@ -784,7 +775,7 @@ namespace YetaWF.Core.Models {
         /// <param name="propName">The name of the property.</param>
         /// <returns>PropertyInfo.</returns>
         public static PropertyInfo GetProperty(Type type, string name) {
-            PropertyInfo prop = TryGetProperty(type, name);
+            PropertyInfo? prop = TryGetProperty(type, name);
             if (prop == null)
                 throw new InternalError("No property named {0} in {1}", name, type.FullName);
             return prop;
@@ -795,8 +786,8 @@ namespace YetaWF.Core.Models {
         /// <param name="type">The Type of the parent model containing the property.</param>
         /// <param name="propName">The name of the property.</param>
         /// <returns>PropertyInfo. null is returned if the property does not exist.</returns>
-        public static PropertyInfo TryGetProperty(Type type, string name) {
-            PropertyData propData = TryGetPropertyData(type, name);
+        public static PropertyInfo? TryGetProperty(Type type, string name) {
+            PropertyData? propData = TryGetPropertyData(type, name);
             if (propData == null) return null;
             return propData.PropInfo;
         }
@@ -817,11 +808,10 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name of the property.</param>
         /// <param name="dflt">The default value returned if the property does not exist.</param>
         /// <returns>The property value.</returns>
-        public static TYPE GetPropertyValue<TYPE>(object parentObject, string name) {
-            TYPE val;
-            if (!TryGetPropertyValue<TYPE>(parentObject, name, out val))
+        public static TYPE? GetPropertyValue<TYPE>(object parentObject, string name) {
+            if (!TryGetPropertyValue<TYPE>(parentObject, name, out TYPE? val))
                 throw new InternalError("No such property - {0}", name);
-            return (TYPE) (object) val;
+            return val;
         }
         /// <summary>
         /// Retrieve a property value.
@@ -831,9 +821,9 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name of the property.</param>
         /// <param name="dflt">The default value returned if the property does not exist.</param>
         /// <returns>The property value. The default value is returned if the property does not exist.</returns>
-        public static bool TryGetPropertyValue<TYPE>(object parentObject, string name, out TYPE val, TYPE dflt = default(TYPE)) {
+        public static bool TryGetPropertyValue<TYPE>(object parentObject, string name, out TYPE? val, TYPE dflt = default(TYPE)) {
             val = dflt;
-            PropertyInfo prop = TryGetProperty(parentObject.GetType(), name);
+            PropertyInfo? prop = TryGetProperty(parentObject.GetType(), name);
             if (prop == null) return false;
             val = (TYPE) prop.GetValue(parentObject, null);
             return true;
@@ -845,14 +835,12 @@ namespace YetaWF.Core.Models {
 
             lock (_lockObject) { // lock sync language object - used to sync language objects
                 // get language dictionary
-                Dictionary<string, LanguageObjectData> langObjDatas;
-                if (!PermanentManager.TryGetObject<Dictionary<string, LanguageObjectData>>(out langObjDatas)) {
+                if (!PermanentManager.TryGetObject<Dictionary<string, LanguageObjectData>>(out Dictionary<string, LanguageObjectData>? langObjDatas)) {
                     langObjDatas = new Dictionary<string, LanguageObjectData>();
                     PermanentManager.AddObject<Dictionary<string, LanguageObjectData>>(langObjDatas);
                 }
                 // get language info from language dictionary
-                LanguageObjectData langObjData = null;
-                if (!langObjDatas.TryGetValue(lang, out langObjData)) {
+                if (!langObjDatas.TryGetValue(lang, out LanguageObjectData? langObjData)) {
                     langObjData = new LanguageObjectData {
                         Language = lang,
                     };
@@ -877,7 +865,7 @@ namespace YetaWF.Core.Models {
             Type tpTo = toObject.GetType();
             foreach (var toPropData in GetPropertyData(tpTo)) {
                 if (toPropData.PropInfo.CanWrite) {
-                    PropertyData fromPropData = ObjectSupport.TryGetPropertyData(tpFrom, toPropData.Name);
+                    PropertyData? fromPropData = ObjectSupport.TryGetPropertyData(tpFrom, toPropData.Name);
                     if (fromPropData != null) {
                         if (!ForceReadOnlyFromCopy && fromPropData.ReadOnly)// we don't copy read/only properties from the fromObject because it means we didn't make changes (and could potentially incorrectly override the target)
                             continue;
@@ -886,7 +874,7 @@ namespace YetaWF.Core.Models {
                                 continue;
                         }
                         try {
-                            object o = fromPropData.PropInfo.GetValue(fromObject, null);
+                            object? o = fromPropData.PropInfo.GetValue(fromObject, null);
                             toPropData.PropInfo.SetValue(toObject, o, null);
                         } catch (Exception) { }
                     }
@@ -903,10 +891,10 @@ namespace YetaWF.Core.Models {
             Type tp = originalObject.GetType();
             foreach (var propData in GetPropertyData(tp)) {
                 if (propData.PropInfo.CanRead && propData.PropInfo.CanWrite) {
-                    CopyAttribute copyAttr = propData.TryGetAttribute<CopyAttribute>();
+                    CopyAttribute? copyAttr = propData.TryGetAttribute<CopyAttribute>();
                     if (copyAttr != null) {
                         try {
-                            object o = propData.PropInfo.GetValue(originalObject, null);
+                            object? o = propData.PropInfo.GetValue(originalObject, null);
                             propData.PropInfo.SetValue(toObject, o, null);
                         } catch (Exception) { }
                     }
@@ -918,12 +906,12 @@ namespace YetaWF.Core.Models {
         /// </summary>
         public static async Task HandlePropertyAsync<TYPE>(string syncName, string asyncName, object data) {
             Type modelType = data.GetType();
-            MethodInfo miAsync = modelType.GetMethod(asyncName, BindingFlags.Instance | BindingFlags.Public);
+            MethodInfo? miAsync = modelType.GetMethod(asyncName, BindingFlags.Instance | BindingFlags.Public);
             if (miAsync == null) return;
-            PropertyInfo piSync = ObjectSupport.TryGetProperty(modelType, syncName);
+            PropertyInfo? piSync = ObjectSupport.TryGetProperty(modelType, syncName);
             if (piSync == null) return;
-            Task<TYPE> methRetvalTask = (Task<TYPE>)miAsync.Invoke(data, null);
-            object methRetval = await methRetvalTask;
+            Task<TYPE> methRetvalTask = (Task<TYPE>)miAsync.Invoke(data, null) !;
+            object? methRetval = await methRetvalTask;
             piSync.SetValue(data, methRetval);
         }
         /// <summary>
@@ -954,7 +942,7 @@ namespace YetaWF.Core.Models {
             // check model for class attributes RequiresPageReload and RequiresRestart
             {
                 ClassData classData = GetClassData(modelType);
-                RequiresRestartAttribute restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
+                RequiresRestartAttribute? restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
                 if (restartAttr != null) {
                     if (YetaWF.Core.Support.Startup.MultiInstance) {
                         return ModelDisposition.SiteRestart;
@@ -963,20 +951,20 @@ namespace YetaWF.Core.Models {
                             return ModelDisposition.SiteRestart;
                     }
                 }
-                RequiresPageReloadAttribute pageReloadAttr = classData.TryGetAttribute<RequiresPageReloadAttribute>();
+                RequiresPageReloadAttribute? pageReloadAttr = classData.TryGetAttribute<RequiresPageReloadAttribute>();
                 if (pageReloadAttr != null)
                     reload = true;
             }
             // compare old/new object and look for RequiresPageReload and RequiresRestart attributes
             foreach (var propData in GetPropertyData(modelType)) {
                 if (propData.PropInfo.CanRead && propData.PropInfo.CanWrite) {
-                    NoModelChangeAttribute noChangeAttr = propData.TryGetAttribute<NoModelChangeAttribute>();
+                    NoModelChangeAttribute? noChangeAttr = propData.TryGetAttribute<NoModelChangeAttribute>();
                     if (noChangeAttr != null) continue;
-                    RequiresRestartAttribute restartAttr = propData.TryGetAttribute<RequiresRestartAttribute>();
+                    RequiresRestartAttribute? restartAttr = propData.TryGetAttribute<RequiresRestartAttribute>();
                     if (restartAttr != null) {
                         try {
-                            object oOld = propData.PropInfo.GetValue(oldObj, null);
-                            object oNew = propData.PropInfo.GetValue(newObj, null);
+                            object? oOld = propData.PropInfo.GetValue(oldObj, null);
+                            object? oNew = propData.PropInfo.GetValue(newObj, null);
                             if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges)) {
                                 if (YetaWF.Core.Support.Startup.MultiInstance) {
                                     return ModelDisposition.SiteRestart;
@@ -988,11 +976,11 @@ namespace YetaWF.Core.Models {
                         } catch (Exception) { }
                     }
                     if (!reload) {
-                        RequiresPageReloadAttribute pageReloadAttr = propData.TryGetAttribute<RequiresPageReloadAttribute>();
+                        RequiresPageReloadAttribute? pageReloadAttr = propData.TryGetAttribute<RequiresPageReloadAttribute>();
                         if (pageReloadAttr != null) {
                             try {
-                                object oOld = propData.PropInfo.GetValue(oldObj, null);
-                                object oNew = propData.PropInfo.GetValue(newObj, null);
+                                object? oOld = propData.PropInfo.GetValue(oldObj, null);
+                                object? oNew = propData.PropInfo.GetValue(newObj, null);
                                 if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges))
                                     reload = true;
                             } catch (Exception) { }
@@ -1006,8 +994,8 @@ namespace YetaWF.Core.Models {
         }
 
         public class ChangedProperty {
-            public string Name { get; set; }
-            public string Value { get; set; }// displayable value
+            public string Name { get; set; } = null!;
+            public string Value { get; set; } = null!;// displayable value
             public ModelDisposition Disposition { get; set; }
         }
 
@@ -1025,7 +1013,7 @@ namespace YetaWF.Core.Models {
             // check model for class attributes RequiresPageReload and RequiresRestart
             {
                 ClassData classData = GetClassData(modelType);
-                RequiresRestartAttribute restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
+                RequiresRestartAttribute? restartAttr = classData.TryGetAttribute<RequiresRestartAttribute>();
                 if (restartAttr != null) {
                     if (YetaWF.Core.Support.Startup.MultiInstance) {
                         changes.Add(new ChangedProperty { Name = "__class", Disposition = ModelDisposition.SiteRestart });
@@ -1034,20 +1022,20 @@ namespace YetaWF.Core.Models {
                             changes.Add(new ChangedProperty { Name = "__class", Disposition = ModelDisposition.SiteRestart });
                     }
                 }
-                RequiresPageReloadAttribute pageReloadAttr = classData.TryGetAttribute<RequiresPageReloadAttribute>();
+                RequiresPageReloadAttribute? pageReloadAttr = classData.TryGetAttribute<RequiresPageReloadAttribute>();
                 if (pageReloadAttr != null)
                     changes.Add(new ChangedProperty { Name = "__class", Disposition = ModelDisposition.PageReload });
             }
             // compare old/new object and look for RequiresPageReload and RequiresRestart attributes
             foreach (var propData in GetPropertyData(modelType)) {
                 if (propData.PropInfo.CanRead && propData.PropInfo.CanWrite) {
-                    object oOld = propData.PropInfo.GetValue(oldObj, null);
-                    object oNew = propData.PropInfo.GetValue(newObj, null);
+                    object? oOld = propData.PropInfo.GetValue(oldObj, null);
+                    object? oNew = propData.PropInfo.GetValue(newObj, null);
 
-                    NoModelChangeAttribute noChangeAttr = propData.TryGetAttribute<NoModelChangeAttribute>();
+                    NoModelChangeAttribute? noChangeAttr = propData.TryGetAttribute<NoModelChangeAttribute>();
                     if (noChangeAttr != null) continue;
-                    RequiresRestartAttribute restartAttr = propData.TryGetAttribute<RequiresRestartAttribute>();
-                    RequiresPageReloadAttribute pageReloadAttr = propData.TryGetAttribute<RequiresPageReloadAttribute>();
+                    RequiresRestartAttribute? restartAttr = propData.TryGetAttribute<RequiresRestartAttribute>();
+                    RequiresPageReloadAttribute? pageReloadAttr = propData.TryGetAttribute<RequiresPageReloadAttribute>();
                     if (restartAttr != null) {
                         if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ModelChanges, out subChanges)) {
                             if (YetaWF.Core.Support.Startup.MultiInstance) {
@@ -1074,7 +1062,7 @@ namespace YetaWF.Core.Models {
             return changes;
         }
 
-        private static bool SameValue(string propName, Type propType, object oOld, object oNew, Func<object, object, List<ChangedProperty>> compareFunc, out List<ChangedProperty> changes) {
+        private static bool SameValue(string propName, Type propType, object? oOld, object? oNew, Func<object, object, List<ChangedProperty>> compareFunc, out List<ChangedProperty> changes) {
             changes = new List<ChangedProperty>();
             if (oOld == null) {
                 if (oNew == null) return true;
@@ -1135,9 +1123,9 @@ namespace YetaWF.Core.Models {
                 return false;
             } else {
                 // compare two enumerated type values by ignoring order
-                IEnumerable listOld = oOld as IEnumerable;
+                IEnumerable? listOld = oOld as IEnumerable;
                 if (listOld != null) {
-                    IEnumerable listNew = oNew as IEnumerable;
+                    IEnumerable listNew = (oNew as IEnumerable) !;
                     IEnumerator iOldEnum = listOld.GetEnumerator();
                     IEnumerator iNewEnum = listNew.GetEnumerator();
                     List<object> oldList = new List<object>();
@@ -1213,7 +1201,7 @@ namespace YetaWF.Core.Models {
             Type modelType = oldObj.GetType();
             if (modelType != newObj.GetType()) throw new InternalError($"{nameof(ObjectCompare)} requires both objects to be of the same type - {modelType.FullName} != {newObj.GetType().FullName}");
 
-            if (!SameValue(modelType.FullName, modelType, oldObj, newObj, ObjectChanges, out subChanges)) {
+            if (!SameValue(modelType.FullName!, modelType, oldObj, newObj, ObjectChanges, out subChanges)) {
                 foreach (ChangedProperty s in subChanges) s.Disposition = ModelDisposition.None;
                 changes.AddRange(subChanges);
             }
@@ -1230,8 +1218,8 @@ namespace YetaWF.Core.Models {
 
             foreach (var propData in GetPropertyData(modelType)) {
                 if (propData.PropInfo.CanRead && propData.PropInfo.CanWrite && !propData.HasAttribute(nameof(Data_DontSave))) {
-                    object oOld = propData.PropInfo.GetValue(oldObj, null);
-                    object oNew = propData.PropInfo.GetValue(newObj, null);
+                    object? oOld = propData.PropInfo.GetValue(oldObj, null);
+                    object? oNew = propData.PropInfo.GetValue(newObj, null);
                     List<ChangedProperty> subChanges;
                     if (!SameValue(propData.Name, propData.PropInfo.PropertyType, oOld, oNew, ObjectChanges, out subChanges))
                         changes.AddRange(subChanges);
@@ -1260,7 +1248,7 @@ namespace YetaWF.Core.Models {
             return true;
         }
 
-        public static async Task<bool> TranslateObject(object data, string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync, List<PropertyInfo> props = null) {
+        public static async Task<bool> TranslateObject(object data, string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync, List<PropertyInfo>? props = null) {
 
             bool FORCE = false; // Set to True to force re-translation of everything, even if there already is a translation
             if (props == null)
@@ -1271,7 +1259,7 @@ namespace YetaWF.Core.Models {
             List<string> list = new List<string>();
             foreach (PropertyInfo prop in props) {
                 if (prop.PropertyType == typeof(MultiString)) {
-                    MultiString ms = (MultiString)prop.GetValue(data);
+                    MultiString ms = (MultiString)prop.GetValue(data) !;
                     if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
                         if (isHtml(ms.DefaultText)) {
                             ms[language] = await translateComplexStringAsync(ms.DefaultText);
@@ -1287,7 +1275,7 @@ namespace YetaWF.Core.Models {
                 list = await translateStringsAsync(list);
                 foreach (PropertyInfo prop in props) {
                     if (prop.PropertyType == typeof(MultiString)) {
-                        MultiString ms = (MultiString)prop.GetValue(data);
+                        MultiString ms = (MultiString)prop.GetValue(data) !;
                         if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
                             if (!isHtml(ms.DefaultText)) {
                                 ms[language] = list[0];

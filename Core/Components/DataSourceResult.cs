@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 
 namespace YetaWF.Core.Components {
@@ -11,7 +13,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// A collection of objects.
         /// </summary>
-        public List<object> Data { get; set; } // one page of data
+        public List<object> Data { get; set; } = null!; // one page of data
         /// <summary>
         /// The total number of records that satisfy the search criteria.
         /// Data providers may implement paging within a dataset, in which case the Total property does not reflect the size of the Data collection.

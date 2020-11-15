@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/ComponentsHTML#License */
 
+#nullable enable
+
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Components {
@@ -12,11 +14,11 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The package owning the help file.
         /// </summary>
-        public Package Package { get; set; }
+        public Package Package { get; set; } = null!;
         /// <summary>
         /// The name of the help file (without path or file extension.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         /// <summary>
         /// Defines whether the small object cache is used to cache the help file. Use for small help files only.
         /// Any help files over 1K bytes of data are not cached.

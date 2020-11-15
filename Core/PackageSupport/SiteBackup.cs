@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,8 +28,8 @@ namespace YetaWF.Core.Packages {
         public const string BackupDateTimeFormat = "yyyy-MM-dd HH-mm-ss";
 
         public class SerializableSiteBackup {
-            public string PackageName { get; set; }
-            public string PackageVersion { get; set; }
+            public string PackageName { get; set; } = null!;
+            public string PackageVersion { get; set; } = null!;
             public DateTime Created { get; set; }
             public SerializableList<string> PackageDataFiles { get; set; }
             public SerializableList<string> CustomAddonFiles { get; set; }

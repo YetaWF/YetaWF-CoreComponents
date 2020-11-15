@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
@@ -16,10 +17,6 @@ using YetaWF.Core.Support;
 using YetaWF.PackageAttributes;
 using System.Threading.Tasks;
 using YetaWF2.Support;
-#if MVC6
-#else
-using System.Web.Compilation;
-#endif
 
 namespace YetaWF.Core.Packages {
 
@@ -48,7 +45,7 @@ namespace YetaWF.Core.Packages {
                 throw new InternalError("You can't specify the YetaWF.Core package version. When exporting a package, the YetaWF Core version is saved and the package can only be imported on a YetaWF instance with the same or newer version. This means that when you are developing packages for distribution, you have to do so using the oldest YetaWF version that you intend to support.");
 
             if (!string.IsNullOrWhiteSpace(minVersion) && !string.IsNullOrWhiteSpace(maxVersion)) {
-                if (Package.CompareVersion(minVersion, maxVersion) > 0) throw new InternalError("The specified minimum version {0} is larger than the minimum version {1}", minVersion, maxVersion);
+                if (Package.CompareVersion(minVersion, maxVersion) > 0) throw new InternalError($"The specified minimum version {minVersion} is larger than the minimum version {maxVersion}");
             }
         }
         /// <summary>
@@ -165,11 +162,8 @@ namespace YetaWF.Core.Packages {
 
         private const string SOURCE_IDENTIFIER_FOLDER = "Properties";
         private const string SOURCE_IDENTIFIER_FILE = "AssemblyInfo.cs";
-#if MVC6
+
         public /* Only so startup code can access */
-#else
-        private
-#endif
             Package(Assembly assembly) {
             PackageAssembly = assembly;
         }
@@ -228,7 +222,7 @@ namespace YetaWF.Core.Packages {
         }
 
         // We statically hold a reference to ALL available, referenced packages - this is necessary for package information caching (notably localization)
-        private static List<Package> _availablePackages = null;
+        private static List<Package>? _availablePackages = null;
 
         //public static async Task<List<Package>> GetTemplatePackagesAsync() {
         //    string sourceFolder = WebConfigHelper.GetValue<string>(DataProviderImpl.DefaultString, "SourceFolder_Templates", "Templates");
@@ -240,54 +234,54 @@ namespace YetaWF.Core.Packages {
         //    List<Package> packages = await FindPackages(Path.Combine(YetaWFManager.RootFolderSolution, sourceFolder), csAssemblyUtilityRegex);
         //    return packages;
         //}
+        //
+        //private static readonly Regex csAssemblyTemplateRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Template\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
+        //private static readonly Regex csAssemblyUtilityRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Utility\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
 
-        private static readonly Regex csAssemblyTemplateRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Template\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex csAssemblyUtilityRegex = new Regex(@"\[\s*assembly\s*\:\s*Package\s*\(\s*PackageTypeEnum\s*\.\s*Utility\s*,\s*\""(?'asm'[A-Za-z0-9_\.]+)""\s*\)\s*\]", RegexOptions.Compiled | RegexOptions.Multiline);
-
-        private static async Task<List<Package>> FindPackages(string packageRoot, Regex regex) {
-            List<Package> packages = new List<Package>();
-            if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(packageRoot)) return packages;
-            List<string> packageDirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageRoot);
-            foreach (string dir in packageDirs) {
-                string propsFile = Path.Combine(dir, SOURCE_IDENTIFIER_FOLDER, SOURCE_IDENTIFIER_FILE);
-                if (await FileSystem.FileSystemProvider.FileExistsAsync(propsFile)) {
-                    string target = await ExtractAssemblyNameAsync(propsFile, regex);
-                    if (string.IsNullOrWhiteSpace(target))
-                        throw new InternalError($"Folder {dir} does not define an assembly name in {SOURCE_IDENTIFIER_FOLDER}/{SOURCE_IDENTIFIER_FILE}");
-                    string asmPath = Path.Combine(dir, "Bin", target);
-                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(asmPath))
-                        throw new InternalError("Package assembly {0} not found", asmPath);
-                    Assembly asm = null;
-                    try {
-                        asm = Assembly.LoadFile(asmPath);
-                    } catch (Exception) { asm = null; }
-                    if (asm != null)
-                        packages.Add(new Package(asm));
-                }
-            }
-            return packages;
-        }
-        private static async Task<string> ExtractAssemblyNameAsync(string propsFile, Regex regex) {
-            string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(propsFile);
-            Match m = regex.Match(contents);
-            if (!m.Success)
-                throw new InternalError("No assembly name found in {0}", propsFile);
-            return m.Groups["asm"].Value;
-        }
+        //private static async Task<List<Package>> FindPackages(string packageRoot, Regex regex) {
+        //    List<Package> packages = new List<Package>();
+        //    if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(packageRoot)) return packages;
+        //    List<string> packageDirs = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageRoot);
+        //    foreach (string dir in packageDirs) {
+        //        string propsFile = Path.Combine(dir, SOURCE_IDENTIFIER_FOLDER, SOURCE_IDENTIFIER_FILE);
+        //        if (await FileSystem.FileSystemProvider.FileExistsAsync(propsFile)) {
+        //            string target = await ExtractAssemblyNameAsync(propsFile, regex);
+        //            if (string.IsNullOrWhiteSpace(target))
+        //                throw new InternalError($"Folder {dir} does not define an assembly name in {SOURCE_IDENTIFIER_FOLDER}/{SOURCE_IDENTIFIER_FILE}");
+        //            string asmPath = Path.Combine(dir, "Bin", target);
+        //            if (!await FileSystem.FileSystemProvider.FileExistsAsync(asmPath))
+        //                throw new InternalError($"Package assembly {asmPath} not found");
+        //            Assembly asm = null;
+        //            try {
+        //                asm = Assembly.LoadFile(asmPath);
+        //            } catch (Exception) { asm = null; }
+        //            if (asm != null)
+        //                packages.Add(new Package(asm));
+        //        }
+        //    }
+        //    return packages;
+        //}
+        //private static async Task<string> ExtractAssemblyNameAsync(string propsFile, Regex regex) {
+        //    string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(propsFile);
+        //    Match m = regex.Match(contents);
+        //    if (!m.Success)
+        //        throw new InternalError($"No assembly name found in {propsFile}");
+        //    return m.Groups["asm"].Value;
+        //}
 
         /// <summary>
         /// Given an assembly, returns an instance of the Package class describing the package.
         /// </summary>
         /// <param name="assembly">An assembly for which the Package object is to be returned.</param>
         /// <returns>Returns the Package object, or null if it does not exist.</returns>
-        public static Package TryGetPackageFromAssembly(Assembly assembly) {
-            Package package = (from p in GetAvailablePackages() where p.PackageAssembly.FullName == assembly.FullName select p).FirstOrDefault();
+        public static Package? TryGetPackageFromAssembly(Assembly assembly) {
+            Package? package = (from p in GetAvailablePackages() where p.PackageAssembly.FullName == assembly.FullName select p).FirstOrDefault();
             if (package == null) {
                 // special handling for assemblies that are not in referenced assemblies but are still accessible.
                 package = new Package(assembly);
                 if (!package.IsValid)
                     return null;
-                _availablePackages.Add(package);
+                _availablePackages!.Add(package);
             }
             return package;
         }
@@ -298,8 +292,8 @@ namespace YetaWF.Core.Packages {
         /// <returns>Returns the Package object.</returns>
         /// <remarks>An exception occurs if the specified assembly is not a YetaWF package.</remarks>
         public static Package GetPackageFromAssembly(Assembly assembly) {
-            Package package = TryGetPackageFromAssembly(assembly);
-            if (package == null) throw new InternalError("Package assembly {0} not found", assembly.FullName);
+            Package? package = TryGetPackageFromAssembly(assembly);
+            if (package == null) throw new InternalError($"Package assembly {assembly.FullName} not found");
             return package;
         }
         /// <summary>
@@ -307,7 +301,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         /// <param name="type">The type for which the implementing Package object is to be returned.</param>
         /// <returns>Returns the Package object, or null if it does not exist.</returns>
-        public static Package TryGetPackageFromType(Type type) {
+        public static Package? TryGetPackageFromType(Type type) {
             return TryGetPackageFromAssembly(type.Assembly);
         }
         /// <summary>
@@ -333,7 +327,7 @@ namespace YetaWF.Core.Packages {
         /// <param name="shortName">The package name for which the Package object is to be returned.</param>
         /// <returns>Returns the Package object.</returns>
         public static Package GetPackageFromPackageName(string shortName /*, bool Utilities = false, bool Templates = false*/) {
-            Package package = (from p in GetAvailablePackages() where p.Name == shortName select p).FirstOrDefault();
+            Package? package = (from p in GetAvailablePackages() where p.Name == shortName select p).FirstOrDefault();
             if (package != null) return package;
             //if (Templates) {
             //    package = (from p in GetTemplatePackages() where p.Name == shortName select p).FirstOrDefault();
@@ -343,7 +337,7 @@ namespace YetaWF.Core.Packages {
             //    package = (from p in GetUtilityPackages() where p.Name == shortName select p).FirstOrDefault();
             //    if (package != null) return package;
             //}
-            throw new InternalError("Package assembly {0} not found", shortName);
+            throw new InternalError($"Package assembly {shortName} not found");
         }
 
         /// <summary>
@@ -351,7 +345,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public string Name {
             get {
-                return PackageAssembly.FullName.Split(new char[] {','},2)[0];
+                return PackageAssembly.FullName!.Split(new char[] {','},2)[0];
             }
         }
 
@@ -416,6 +410,7 @@ namespace YetaWF.Core.Packages {
         //        return PackageType == PackageTypeEnum.Utility;
         //    }
         //}
+
         /// <summary>
         /// Returns the package type.
         /// </summary>
@@ -423,7 +418,7 @@ namespace YetaWF.Core.Packages {
             get {
                 if (_packageType == null) {
                     _packageType = PackageTypeEnum.Unknown;
-                    PackageAttribute attr = (PackageAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
+                    PackageAttribute? attr = (PackageAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
                     if (attr != null)
                         _packageType = attr.PackageType;
                 }
@@ -439,15 +434,15 @@ namespace YetaWF.Core.Packages {
         public string SourceFile {
             get {
                 if (_sourceFile == null) {
-                    PackageAttribute attr = (PackageAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
+                    PackageAttribute? attr = (PackageAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
                     if (attr == null)
-                        throw new InternalError("Package {0} has no source file location", Name);
+                        throw new InternalError($"Package {Name} has no source file location");
                     _sourceFile = attr.SourceFile;
                 }
                 return _sourceFile;
             }
         }
-        private string _sourceFile;
+        private string? _sourceFile;
 
         /// <summary>
         /// Returns the root path of the package's source files. This is used to determine the location of a source package on a development system.
@@ -456,21 +451,23 @@ namespace YetaWF.Core.Packages {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string PackageSourceRoot {
             get {
-                string path = SourceFile;
+                string? path = SourceFile;
                 if (Path.GetFileName(path) != SOURCE_IDENTIFIER_FILE)
                     throw new InternalError($"Package error - source file name {SourceFile} should be {SOURCE_IDENTIFIER_FILE}");
-                path = Path.GetDirectoryName(path);
+                path = Path.GetDirectoryName(path)!;
                 if (Path.GetFileName(path) != SOURCE_IDENTIFIER_FOLDER)
                     throw new InternalError($"Package error - source file name {SourceFile} should be located in {SOURCE_IDENTIFIER_FOLDER}");
                 path = Path.GetDirectoryName(path);
+                if (string.IsNullOrWhiteSpace(path))
+                    throw new InternalError($"Can't determine {nameof(PackageSourceRoot)} for {Name}");
                 return path;
             }
         }
         /// <summary>
         /// Returns whether the current package is a source code package (includes source code). Source code package are only found on development systems.
         /// </summary>
-        public async Task<bool> GetHasSourceAsync() {
-            return await FileSystem.FileSystemProvider.DirectoryExistsAsync(PackageSourceRoot);
+        public Task<bool> GetHasSourceAsync() {
+            return FileSystem.FileSystemProvider.DirectoryExistsAsync(PackageSourceRoot);
         }
 
         /// <summary>
@@ -486,7 +483,7 @@ namespace YetaWF.Core.Packages {
         public string Domain {
             get {
                 if (_domain == null) {
-                    PackageAttribute attr = (PackageAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
+                    PackageAttribute? attr = (PackageAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
                     if (attr == null)
                         throw new Error(__ResStr("noDomain", "Incorrectly packaged module - no domain available - Package {0}", Name));
                     _domain = attr.Domain;
@@ -494,7 +491,7 @@ namespace YetaWF.Core.Packages {
                 return _domain;
             }
         }
-        private string _domain;
+        private string? _domain;
 
         /// <summary>
         /// The domain name (derived from the package domain) used for language resources.
@@ -503,7 +500,7 @@ namespace YetaWF.Core.Packages {
         public string LanguageDomain {
             get {
                 if (_languageDomain == null) {
-                    PackageAttribute attr = (PackageAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
+                    PackageAttribute? attr = (PackageAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageAttribute));
                     if (attr == null)
                         throw new Error(__ResStr("noLangDomain", "Incorrectly packaged module - no language domain available - Package {0}", Name));
                     _languageDomain = attr.LanguageDomain;
@@ -511,7 +508,7 @@ namespace YetaWF.Core.Packages {
                 return _languageDomain;
             }
         }
-        private string _languageDomain;
+        private string? _languageDomain;
 
         /// <summary>
         /// Your company name (derived from the package company name), in displayable form.
@@ -520,7 +517,7 @@ namespace YetaWF.Core.Packages {
         public string CompanyDisplayName {
             get {
                 if (_companyDisplayName == null) {
-                    AssemblyCompanyAttribute attr = (AssemblyCompanyAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(AssemblyCompanyAttribute));
+                    AssemblyCompanyAttribute? attr = (AssemblyCompanyAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(AssemblyCompanyAttribute));
                     if (attr == null)
                         throw new Error(__ResStr("noCompany", "Incorrectly packaged module - no company name available - Package {0}", Name));
                     _companyDisplayName = attr.Company;
@@ -528,7 +525,7 @@ namespace YetaWF.Core.Packages {
                 return _companyDisplayName;
             }
         }
-        private string _companyDisplayName;
+        private string? _companyDisplayName;
 
         /// <summary>
         /// The description for the current package.
@@ -537,7 +534,7 @@ namespace YetaWF.Core.Packages {
         public string Description {
             get {
                 if (_description == null) {
-                    AssemblyDescriptionAttribute attr = (AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(AssemblyDescriptionAttribute));
+                    AssemblyDescriptionAttribute? attr = (AssemblyDescriptionAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(AssemblyDescriptionAttribute));
                     if (attr == null)
                         throw new Error(__ResStr("noDesc", "Incorrectly packaged module - no description available - Package {0}", Name));
                     _description = attr.Description;
@@ -545,7 +542,7 @@ namespace YetaWF.Core.Packages {
                 return _description;
             }
         }
-        private string _description;
+        private string? _description;
 
         /// <summary>
         /// The MVC Area name used by the package.
@@ -565,7 +562,7 @@ namespace YetaWF.Core.Packages {
         public string Product {
             get {
                 if (_product == null) {
-                    AssemblyProductAttribute attr = (AssemblyProductAttribute) Attribute.GetCustomAttribute(PackageAssembly, typeof(AssemblyProductAttribute));
+                    AssemblyProductAttribute? attr = (AssemblyProductAttribute?) Attribute.GetCustomAttribute(PackageAssembly, typeof(AssemblyProductAttribute));
                     if (attr == null)
                         throw new Error(__ResStr("noName", "Incorrectly packaged module - no product name available - Package {0}", Name));
                     _product = attr.Product;
@@ -573,7 +570,7 @@ namespace YetaWF.Core.Packages {
                 return _product;
             }
         }
-        private string _product;
+        private string? _product;
 
         /// <summary>
         /// The product version.
@@ -582,13 +579,15 @@ namespace YetaWF.Core.Packages {
         public string Version {
             get {
                 if (_version == null) {
-                    Version v = PackageAssembly.GetName().Version;
+                    Version? v = PackageAssembly.GetName().Version;
+                    if (v == null)
+                        throw new Error(__ResStr("noVers", "Incorrectly packaged module - no version available - Package {0}", Name));
                     _version = string.Join(".", v.Major, v.Minor, v.Build); // our version is 1.x.x only (3 segments)
                 }
                 return _version;
             }
         }
-        private string _version;
+        private string? _version;
 
         /// <summary>
         /// The URL for information about this package.
@@ -596,7 +595,7 @@ namespace YetaWF.Core.Packages {
         public string InfoLink {
             get {
                 if (_infoLink == null) {
-                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    PackageInfoAttribute? attr = (PackageInfoAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
                     if (attr != null)
                         _infoLink = attr.InfoLink;
                     else
@@ -605,7 +604,7 @@ namespace YetaWF.Core.Packages {
                 return _infoLink;
             }
         }
-        private string _infoLink;
+        private string? _infoLink;
 
         /// <summary>
         /// The URL for the update server for this package.
@@ -614,7 +613,7 @@ namespace YetaWF.Core.Packages {
         public string UpdateServerLink {
             get {
                 if (_updateServerLink == null) {
-                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    PackageInfoAttribute? attr = (PackageInfoAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
                     if (attr != null)
                         _updateServerLink = attr.UpdateServerLink;
                     else
@@ -623,7 +622,7 @@ namespace YetaWF.Core.Packages {
                 return _updateServerLink;
             }
         }
-        private string _updateServerLink;
+        private string? _updateServerLink;
 
         /// <summary>
         /// The URL for support information for this package.
@@ -631,7 +630,7 @@ namespace YetaWF.Core.Packages {
         public string SupportLink {
             get {
                 if (_supportLink == null) {
-                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    PackageInfoAttribute? attr = (PackageInfoAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
                     if (attr != null)
                         _supportLink = attr.SupportLink;
                     else
@@ -640,7 +639,7 @@ namespace YetaWF.Core.Packages {
                 return _supportLink;
             }
         }
-        private string _supportLink;
+        private string? _supportLink;
 
         /// <summary>
         /// The URL for the release notice for this package.
@@ -648,7 +647,7 @@ namespace YetaWF.Core.Packages {
         public string ReleaseNoticeLink {
             get {
                 if (_releaseNoticeLink == null) {
-                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    PackageInfoAttribute? attr = (PackageInfoAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
                     if (attr != null)
                         _releaseNoticeLink = attr.ReleaseNoticeLink;
                     else
@@ -657,7 +656,7 @@ namespace YetaWF.Core.Packages {
                 return _releaseNoticeLink;
             }
         }
-        private string _releaseNoticeLink;
+        private string? _releaseNoticeLink;
 
         /// <summary>
         /// The URL for the license information for this package.
@@ -665,7 +664,7 @@ namespace YetaWF.Core.Packages {
         public string LicenseLink {
             get {
                 if (_licenseLink == null) {
-                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    PackageInfoAttribute? attr = (PackageInfoAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
                     if (attr != null)
                         _licenseLink = attr.LicenseLink;
                     else
@@ -674,16 +673,16 @@ namespace YetaWF.Core.Packages {
                 return _licenseLink;
             }
         }
-        private string _licenseLink;
+        private string? _licenseLink;
 
         /// <summary>
         /// Store URL for purchasable packages.
         /// </summary>
         /// <remarks>Not used by YetaWF. Can be used by third-party packages.</remarks>
-        public string StoreLink {
+        public string? StoreLink {
             get {
                 if (_storeLink == null) {
-                    PackageInfoAttribute attr = (PackageInfoAttribute)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
+                    PackageInfoAttribute? attr = (PackageInfoAttribute?)Attribute.GetCustomAttribute(PackageAssembly, typeof(PackageInfoAttribute));
                     if (attr != null)
                         _storeLink = attr.StoreLink;
                     else
@@ -692,7 +691,7 @@ namespace YetaWF.Core.Packages {
                 return _storeLink;
             }
         }
-        private string _storeLink;
+        private string? _storeLink;
 
 
         /// <summary>
@@ -753,7 +752,7 @@ namespace YetaWF.Core.Packages {
                 return _installableModels;
             }
         }
-        private List<Type> _installableModels;
+        private List<Type>? _installableModels;
 
         /// <summary>
         /// Return a list of all types in all packages that support an interface or are derived from the specified type.
@@ -771,14 +770,16 @@ namespace YetaWF.Core.Packages {
                 packages = (from p in packages where ServiceLevel == p.ServiceLevel select p).ToList();
 
             foreach (Package package in packages) {
-                Type[] typesInAsm;
+                Type?[] typesInAsm;
                 try {
                     typesInAsm = package.PackageAssembly.GetTypes();
                 } catch (ReflectionTypeLoadException ex) {
                     typesInAsm = ex.Types;
                 }
-                Type[] classTypes = typesInAsm.Where(type => IsOfType<TYPE>(type)).ToArray<Type>();
-                list.AddRange(classTypes);
+                foreach (Type? t in typesInAsm) {
+                    if (t != null && IsOfType<TYPE>(t))
+                        list.Add(t);
+                }
             }
             return list;
         }
@@ -789,14 +790,16 @@ namespace YetaWF.Core.Packages {
         /// <returns>Returns a collection of types.</returns>
         public List<Type> GetClassesInPackage<TYPE>() {
             List<Type> list = new List<Type>();
-            Type[] typesInAsm;
+            Type?[] typesInAsm;
             try {
                 typesInAsm = PackageAssembly.GetTypes();
             } catch (ReflectionTypeLoadException ex) {
                 typesInAsm = ex.Types;
             }
-            Type[] classTypes = typesInAsm.Where(type => IsOfType<TYPE>(type)).ToArray<Type>();
-            list.AddRange(classTypes);
+            foreach (Type? t in typesInAsm) {
+                if (t != null && IsOfType<TYPE>(t))
+                    list.Add(t);
+            }
             return list;
         }
         private static bool IsOfType<TYPE>(Type type) {
@@ -817,7 +820,7 @@ namespace YetaWF.Core.Packages {
         /// <remarks>
         /// Version strings have the format n.n.n, normally 3 components, but this function supports any number of components, including versions strings with unequal number of components.
         /// </remarks>
-        public static int CompareVersion(string vers1, string vers2) {
+        public static int CompareVersion(string? vers1, string? vers2) {
             string[] svers1 = string.IsNullOrWhiteSpace(vers1) ? new string[] { } : vers1.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
             string[] svers2 = string.IsNullOrWhiteSpace(vers2) ? new string[] { } : vers2.Split(new char[] { '.', ',', ' ' }, 5, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0 ; i < 4; ++i) {
@@ -845,7 +848,7 @@ namespace YetaWF.Core.Packages {
         public ServiceLevelEnum ServiceLevel {
             get {
                 if (_serviceLevel == ServiceLevelEnum.Unknown) {
-                    ServiceLevelAttribute attr = (ServiceLevelAttribute) Attribute.GetCustomAttribute(PackageAssembly, typeof(ServiceLevelAttribute));
+                    ServiceLevelAttribute? attr = (ServiceLevelAttribute?) Attribute.GetCustomAttribute(PackageAssembly, typeof(ServiceLevelAttribute));
                     if (attr == null)
                         _serviceLevel = ServiceLevelEnum.Module;
                     else
@@ -859,12 +862,12 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Used to cache a package's localized data. This is available to localization data providers (e.g., YetaWF.DataProvider.Localization.LocalizationDataProvider) and is not used by YetaWF.
         /// </summary>
-        public object CachedLocalization { get; set; }
+        public object? CachedLocalization { get; set; }
 
         /// <summary>
         /// Used to cache a package's license data. This is available to package implementers and is not used by YetaWF.
         /// </summary>
-        public dynamic CachedLicenseData { get; set; }
+        public dynamic? CachedLicenseData { get; set; }
 
         /// <summary>
         /// The .Net MVC version for which this package was built

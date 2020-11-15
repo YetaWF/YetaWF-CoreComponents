@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,11 +9,6 @@ using YetaWF.Core.Components;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-#else
-#endif
 
 namespace YetaWF.Core.Modules {
 
@@ -26,17 +23,17 @@ namespace YetaWF.Core.Modules {
             if (Manager.EditMode && !Manager.IsInPopup) {
 
                 // module editing services
-                ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
+                ModuleDefinition? modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                 if (modServices == null)
                     throw new InternalError("No module control services available - no module has been defined");
 
                 // module settings services
-                ModuleDefinition modSettings = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleEditingServices, AllowNone: true);
+                ModuleDefinition? modSettings = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleEditingServices, AllowNone: true);
                 if (modSettings == null)
                     throw new InternalError("No module edit settings services available - no module has been defined");
 
                 // package localization services
-                ModuleDefinition modLocalize = await ModuleDefinition.LoadAsync(Manager.CurrentSite.PackageLocalizationServices, AllowNone: true);
+                ModuleDefinition? modLocalize = await ModuleDefinition.LoadAsync(Manager.CurrentSite.PackageLocalizationServices, AllowNone: true);
                 if (modLocalize == null)
                     throw new InternalError("No localization services available - no module has been defined");
 
@@ -65,7 +62,7 @@ namespace YetaWF.Core.Modules {
                 }
                 if (!this.Temporary) {
                     // module settings
-                    ModuleAction action = await modSettings.GetModuleActionAsync("Settings", this.ModuleGuid);
+                    ModuleAction? action = await modSettings.GetModuleActionAsync("Settings", this.ModuleGuid);
                     moduleMenu.New(action, location);
 
                     // export module
@@ -74,17 +71,19 @@ namespace YetaWF.Core.Modules {
 
                     // localize
                     action = await modLocalize.GetModuleActionAsync("Browse", null, Package.GetCurrentPackage(this));
-                    if (action.QueryArgsDict == null)
-                        action.QueryArgsDict = new QueryHelper();
-                    action.QueryArgsDict.Add(Globals.Link_NoEditMode, "y"); // force no edit mode
-                    action.QueryArgsDict.Add(Globals.Link_PageControl, "y"); // force no control panel
-                    moduleMenu.New(action, location);
+                    if (action != null) {
+                        if (action.QueryArgsDict == null)
+                            action.QueryArgsDict = new QueryHelper();
+                        action.QueryArgsDict.Add(Globals.Link_NoEditMode, "y"); // force no edit mode
+                        action.QueryArgsDict.Add(Globals.Link_PageControl, "y"); // force no control panel
+                        moduleMenu.New(action, location);
+                    }
                 }
 
                 if (!this.Temporary && page != null && !page.Temporary) {
                     // remove module
                     if (!page.Temporary && !this.Temporary) {
-                        ModuleAction action;
+                        ModuleAction? action;
                         action = await modServices.GetModuleActionAsync("Remove", page, this, Guid.Empty, Manager.PaneRendered);
                         moduleMenu.New(action, location);
                         action = await modServices.GetModuleActionAsync("RemovePermanent", page, this, Guid.Empty, Manager.PaneRendered);
@@ -96,11 +95,11 @@ namespace YetaWF.Core.Modules {
             if (!this.Temporary) {
                 if (Manager.EditMode || this.ShowHelp) {
                     // module editing services
-                    ModuleDefinition modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
+                    ModuleDefinition? modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                     //if (modServices == null)
                     //    throw new InternalError("No module control services available - no module has been defined");
                     if (modServices != null) {
-                        ModuleAction action = await modServices.GetModuleActionAsync("Help", this);
+                        ModuleAction? action = await modServices.GetModuleActionAsync("Help", this);
                         moduleMenu.New(action, location);
                     }
                 }
@@ -119,7 +118,7 @@ namespace YetaWF.Core.Modules {
 
             MenuList menu = new MenuList();
             foreach (var pane in page.GetPanes()) {
-                ModuleAction action = await modServices.GetModuleActionAsync("MoveToPane", page, this, Manager.PaneRendered, pane);
+                ModuleAction? action = await modServices.GetModuleActionAsync("MoveToPane", page, this, Manager.PaneRendered, pane);
                 if (action != null)
                     menu.Add(action);
             }
@@ -130,8 +129,8 @@ namespace YetaWF.Core.Modules {
 
             MenuList menu = new MenuList();
 
-            ModuleAction action;
-            string pane = Manager.PaneRendered;
+            ModuleAction? action;
+            string? pane = Manager.PaneRendered;
             action = await modServices.GetModuleActionAsync("MoveUp", page, this, pane);
             if (action != null)
                 menu.Add(action);

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -11,18 +13,18 @@ using YetaWF.PackageAttributes;
 namespace YetaWF.Core.Packages {
 
     public class SerializablePackage {
-        public string PackageName { get; set; }
-        public string PackageVersion { get; set; }
+        public string PackageName { get; set; } = null!;
+        public string PackageVersion { get; set; } = null!;
         public PackageTypeEnum PackageType { get; set; }
-        public string CoreVersion { get; set; }
+        public string CoreVersion { get; set; } = null!;
         public Utility.AspNetMvcVersion AspNetMvcVersion { get; set; }
 
         public SerializableList<SerializableFile> BinFiles { get; set; }
         public SerializableList<SerializableFile> AddOns { get; set; }
         public SerializableList<SerializableFile> LocalizationFiles { get; set; }
         public SerializableList<SerializableFile> SourceFiles { get; set; }
-        public string PackageDomain { get; set; }
-        public string PackageProduct { get; set; }
+        public string PackageDomain { get; set; } = null!;
+        public string PackageProduct { get; set; } = null!;
 
         public SerializablePackage() {
             BinFiles = new SerializableList<SerializableFile>();
@@ -33,11 +35,11 @@ namespace YetaWF.Core.Packages {
     }
 
     public class SerializablePage {
-        public string PageUrl { get; set; }
-        public string CoreVersion { get; set; }
+        public string PageUrl { get; set; } = null!;
+        public string CoreVersion { get; set; } = null!;
 
         public Guid PageGuid { get; set; }
-        public PageDefinition PageDef { get; set; }
+        public PageDefinition PageDef { get; set; } = null!;
         public SerializableList<string> ModuleZips { get; set; }
         public SerializableList<SerializableFile> Files { get; set; }
         public SerializableList<RoleLookupEntry> Roles { get; set; }
@@ -52,12 +54,12 @@ namespace YetaWF.Core.Packages {
     }
 
     public class SerializableModule {
-        public string ModuleName { get; set; }
-        public string ModuleVersion { get; set; }
-        public string CoreVersion { get; set; }
+        public string ModuleName { get; set; } = null!;
+        public string ModuleVersion { get; set; } = null!;
+        public string CoreVersion { get; set; } = null!;
 
         public Guid ModuleGuid { get; set; }
-        public ModuleDefinition ModDef { get; set; }
+        public ModuleDefinition ModDef { get; set; } = null!;
         public SerializableList<SerializableFile> Files { get; set; }
         public SerializableList<RoleLookupEntry> Roles { get; set; }
         public SerializableList<UserLookupEntry> Users { get; set; }
@@ -70,21 +72,21 @@ namespace YetaWF.Core.Packages {
     }
 
     public class RoleLookupEntry {
-        public string RoleName { get; set; } // the role name on the originating system
+        public string RoleName { get; set; } = null!; // the role name on the originating system
         public int RoleId { get; set; } // the role id on the originating system
     }
     public class UserLookupEntry {
-        public string UserName { get; set; } // the user name on the originating system
+        public string UserName { get; set; } = null!; // the user name on the originating system
         public int UserId { get; set; } // the user id on the originating system
     }
 
     public class SerializableData {
-        public string PackageName { get; set; }
-        public string PackageVersion { get; set; }
+        public string PackageName { get; set; } = null!;
+        public string PackageVersion { get; set; } = null!;
         public SerializableList<RoleLookupEntry> Roles { get; set; }
         public SerializableList<UserLookupEntry> Users { get; set; }
 
-        public SerializableList<SerializableModelData> Data { get; set; }
+        public SerializableList<SerializableModelData> Data { get; set; } = null!;
 
         public SerializableData() {
             Roles = new SerializableList<RoleLookupEntry>();
@@ -93,7 +95,7 @@ namespace YetaWF.Core.Packages {
     }
 
     public class SerializableModelData {
-        public string Class { get; set; }
+        public string Class { get; set; } = null!;
         public int Chunks { get; set; }
         public SerializableList<SerializableFile> Files { get; set; }
 
@@ -103,7 +105,7 @@ namespace YetaWF.Core.Packages {
     public class SerializableFile {
 
         public SerializableFile() { }
-        public SerializableFile(string fileName, string ExternalRoot = null) {
+        public SerializableFile(string fileName, string? ExternalRoot = null) {
             Uri file = new Uri(fileName);
             if (!file.IsFile)
                 throw new InternalError("{0} is not a valid filename and cannot be exported", fileName);
@@ -131,11 +133,11 @@ namespace YetaWF.Core.Packages {
             FileName = relFileName;
         }
 
-        public string FileName { get; set; }
+        public string FileName { get; set; } = null!;
         public DateTime FileDate { get; set; }
         public bool SiteSpecific { get; set; }
         [DontSave]
-        public string AbsFileName { get; private set; }
+        public string AbsFileName { get; private set; } = null!;
 
         public void ReplaceAbsFileName(string fileName) {
             AbsFileName = fileName;

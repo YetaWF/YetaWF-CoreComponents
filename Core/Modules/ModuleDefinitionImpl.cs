@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
@@ -114,13 +116,13 @@ namespace YetaWF.Core.Modules {
                 return _ClassName;
             }
         }
-        private string _ClassName { get; set; }
+        private string? _ClassName { get; set; }
 
         [Category("About"), Description("The module's full class name"), Caption("Class Name (Full)")]
         [UIHint("String"), ReadOnly]
         public string FullClassName {
             get {
-                return GetType().FullName;
+                return GetType().FullName!;
             }
         }
 
@@ -140,7 +142,7 @@ namespace YetaWF.Core.Modules {
 
                 Type type = GetType();
                 Package package = Package.GetPackageFromAssembly(type.Assembly);
-                string ns = type.Namespace;
+                string ns = type.Namespace!;
 
                 if (type == typeof(ModuleDefinition)) {
                     // we're creating a ModuleDefinition - this is done while serializing
@@ -175,19 +177,19 @@ namespace YetaWF.Core.Modules {
                 }
             }
         }
-        private string _Product { get; set; }
-        private string _Area { get; set; }
-        private string _CompanyName { get; set; }
-        private string _Domain { get; set; }
-        private string _ModuleName { get; set; }
-        private string _Version { get; set; }
-        private string _CompanyDisplayName { get; set; }
+        private string _Product { get; set; } = null!;
+        private string _Area { get; set; } = null!;
+        private string _CompanyName { get; set; } = null!;
+        private string _Domain { get; set; } = null!;
+        private string _ModuleName { get; set; } = null!;
+        private string _Version { get; set; } = null!;
+        private string _CompanyDisplayName { get; set; } = null!;
 
         [Category("Variables"), Description("Displays whether the module is a unique module"), Caption("IsModuleUnique")]
         [UIHint("Boolean"), ReadOnly]
         public bool IsModuleUnique {
             get {
-                UniqueModuleAttribute attr = (UniqueModuleAttribute) Attribute.GetCustomAttribute(GetType(), typeof(UniqueModuleAttribute));
+                UniqueModuleAttribute? attr = (UniqueModuleAttribute?) Attribute.GetCustomAttribute(GetType(), typeof(UniqueModuleAttribute));
                 if (attr == null) return false;
                 return attr.Value == UniqueModuleStyle.UniqueOnly;
             }
@@ -205,8 +207,8 @@ namespace YetaWF.Core.Modules {
                 if (string.IsNullOrEmpty(_Action)) {
                     string action = ClassName;
                     if (!action.EndsWith(Globals.ModuleClassSuffix)) {
-                        if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class
-                            return null;
+                        //if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class
+                        //    return null;
                         throw new InternalError("Module {0} is using an invalid class name - should end in \"...{1}\".", action, Globals.ModuleClassSuffix);
                     }
                     _Action = action.Substring(0, action.Length - Globals.ModuleClassSuffix.Length); // remove trailing Module
@@ -214,7 +216,7 @@ namespace YetaWF.Core.Modules {
                 return _Action;
             }
         }
-        private string _Action { get; set; }
+        private string? _Action { get; set; }
 
         //[Category("Variables")]
         //[Description("The MVC controller invoking this module")]
@@ -234,7 +236,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="url"></param>
         /// <returns>Module or null if not found</returns>
-        public static async Task<ModuleDefinition> FindDesignedModuleAsync(string url) {
+        public static async Task<ModuleDefinition?> FindDesignedModuleAsync(string url) {
             Guid guid = GetGuidFromUrl(url);
             if (guid == Guid.Empty) return null;
             try {
@@ -275,7 +277,7 @@ namespace YetaWF.Core.Modules {
                 return _dataProvider;
             }
         }
-        private IModuleDefinitionIO _dataProvider;
+        private IModuleDefinitionIO? _dataProvider;
 
         // Must be disposed after use
         public virtual IModuleDefinitionIO GetDataProvider() {
@@ -288,9 +290,9 @@ namespace YetaWF.Core.Modules {
         /// Modules can always be loaded even if they haven't been saved yet, as long as the guid exists.
         /// If a perm guid is used for a non-unique module a new TEMPORARY module is created
         /// </summary>
-        public static async Task<ModuleDefinition> LoadAsync(Guid moduleGuid, bool AllowNone = false) {
+        public static async Task<ModuleDefinition?> LoadAsync(Guid moduleGuid, bool AllowNone = false) {
             // load it as an already saved module
-            ModuleDefinition mod = null;
+            ModuleDefinition? mod = null;
             try {
                 mod = await YetaWF.Core.IO.Module.LoadModuleDefinitionAsync(moduleGuid);
             } catch (Exception) {
@@ -300,7 +302,7 @@ namespace YetaWF.Core.Modules {
             }
             if (mod == null) {
                 // if it hasn't been saved yet, check if this is a permanent module guid for a unique module
-                Type type = InstalledModules.TryFindModule(moduleGuid);
+                Type? type = InstalledModules.TryFindModule(moduleGuid);
                 if (type == null) {
                     if (AllowNone)
                         return null;
@@ -319,7 +321,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static async Task<ModuleDefinition> LoadByUrlAsync(string url) {
+        public static async Task<ModuleDefinition?> LoadByUrlAsync(string url) {
             Guid guid = GetGuidFromUrl(url);
             if (guid == Guid.Empty) return null;
             return await ModuleDefinition.LoadAsync(guid, AllowNone: true);
@@ -343,8 +345,8 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Creates a new designed module. Remember to set the ModuleGuid property after creating the module.
         /// </summary>
-        public static ModuleDefinition CreateNewDesignedModule(Guid permanentGuid, string name, MultiString title) {
-            Type type = InstalledModules.TryFindModule(permanentGuid);
+        public static ModuleDefinition CreateNewDesignedModule(Guid permanentGuid, string? name, MultiString? title) {
+            Type? type = InstalledModules.TryFindModule(permanentGuid);
             if (type == null)
                 throw new InternalError("Guid {0} is not an installed module", permanentGuid);
             ModuleDefinition module = ModuleDefinition.Create(type);
@@ -366,7 +368,7 @@ namespace YetaWF.Core.Modules {
             if (!mod.IsModuleUnique)
                 throw new InternalError($"Non-unique module type {modType.FullName} requested in {nameof(CreateUniqueModuleAsync)}");
 
-            ModuleDefinition existingMod = await ModuleDefinition.LoadAsync(mod.PermanentGuid, AllowNone: true);
+            ModuleDefinition? existingMod = await ModuleDefinition.LoadAsync(mod.PermanentGuid, AllowNone: true);
             if (existingMod != null)
                 return existingMod;
 
@@ -389,21 +391,21 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         public static ModuleDefinition Create(string assembly, string type) {
             // load the assembly/type to create a new module
-            Type tp = null;
+            Type? tp = null;
             try {
-                Assembly asm = Assemblies.Load(assembly);
-                tp = asm.GetType(type);
+                Assembly? asm = Assemblies.Load(assembly);
+                tp = asm!.GetType(type);
             } catch (Exception) {
                 throw new InternalError("Can't create module {0}, {1}", assembly, type);
             }
-            return Create(tp);
+            return Create(tp!);
         }
 
         private static ModuleDefinition Create(Type type, Guid? moduleGuid = null) {
-            object obj = Activator.CreateInstance(type);
+            object? obj = Activator.CreateInstance(type);
             if (obj == null)
                 throw new InternalError("Can't create module {0}", type.Name);
-            ModuleDefinition module = obj as ModuleDefinition;
+            ModuleDefinition? module = obj as ModuleDefinition;
             if (module == null)
                 throw new InternalError("Type {0} is not a module", type.Name);
             if (moduleGuid != null)
@@ -425,7 +427,7 @@ namespace YetaWF.Core.Modules {
 
         [Category("Variables"), Description("The Url of the module's addon folder"), Caption("AddOn Folder")]
         [UIHint("String"), ReadOnly]
-        public string AddOnModuleUrl {
+        public string AddOnModuleUrl { //$$$$ remove, not used
             get {
                 return VersionManager.TryGetAddOnPackageUrl(AreaName);
             }
@@ -440,7 +442,7 @@ namespace YetaWF.Core.Modules {
                 _moduleActions = await GetAllModuleActionsAsync();
             return (from a in _moduleActions select a).ToList();// return a copy
         }
-        private List<ModuleAction> _moduleActions;
+        private List<ModuleAction>? _moduleActions;
 
         /// <summary>
         /// Retrieve a known module action with parameters.
@@ -448,13 +450,13 @@ namespace YetaWF.Core.Modules {
         /// <param name="name">The name of the action.</param>
         /// <param name="parms">Parameters (action dependent).</param>
         /// <returns>An action. May be null if not authorized.</returns>
-        public async Task<ModuleAction> GetModuleActionAsync(string name, params object[] parms) {
+        public async Task<ModuleAction?> GetModuleActionAsync(string name, params object?[] parms) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new InternalError("Missing action name");
-            MethodInfo mi = GetType().GetMethod($"GetAction_{name}");
-            ModuleAction action = null;
+            MethodInfo? mi = GetType().GetMethod($"GetAction_{name}");
+            ModuleAction? action = null;
             if (mi != null) {
-                action = (ModuleAction)mi.Invoke(this, parms);
+                action = (ModuleAction?)mi.Invoke(this, parms);
                 if (action == null)
                     return null;
             }
@@ -462,7 +464,7 @@ namespace YetaWF.Core.Modules {
                 mi = GetType().GetMethod($"GetAction_{name}Async");
                 if (mi == null)
                     throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
-                action = await ((Task<ModuleAction>)mi.Invoke(this, parms));
+                action = await (Task<ModuleAction?>)mi.Invoke(this, parms) ! ;
                 if (action == null)
                     return null;
             }
@@ -478,13 +480,13 @@ namespace YetaWF.Core.Modules {
         /// <param name="parms">Parameters (action dependent).</param>
         /// <returns>A list of actions.</returns>
         /// <returns>An action. May be null if not authorized.</returns>
-        public async Task<List<ModuleAction>> GetModuleActionsAsync(string name, params object[] parms) {
+        public async Task<List<ModuleAction>?> GetModuleActionsAsync(string name, params object?[] parms) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new InternalError("Missing action name");
-            MethodInfo mi = GetType().GetMethod($"GetAction_{name}");
-            List<ModuleAction> actions = null;
+            MethodInfo? mi = GetType().GetMethod($"GetAction_{name}");
+            List<ModuleAction>? actions = null;
             if (mi != null) {
-                actions = (List<ModuleAction>)mi.Invoke(this, parms);
+                actions = (List<ModuleAction>?)mi.Invoke(this, parms);
                 if (actions == null)
                     return null;
             }
@@ -492,7 +494,7 @@ namespace YetaWF.Core.Modules {
                 mi = GetType().GetMethod($"GetAction_{name}Async");
                 if (mi == null)
                     throw new InternalError("Action name {0} doesn't exist", "GetAction_" + name);
-                actions = await ((Task<List<ModuleAction>>)mi.Invoke(this, parms));
+                actions = await (Task<List<ModuleAction>?>)mi.Invoke(this, parms) !;
                 if (actions == null)
                     return null;
             }
@@ -519,13 +521,13 @@ namespace YetaWF.Core.Modules {
                 if (parms != null && parms.Length > 0)
                     continue;
 
-                ModuleAction action = null;
+                ModuleAction? action = null;
                 if (m.ReturnType == typeof(ModuleAction)) {
-                    action = (ModuleAction)m.Invoke(this, new object[] { });
+                    action = (ModuleAction?)m.Invoke(this, new object[] { });
                 } else if (m.ReturnType == typeof(Task<ModuleAction>)) {
-                    object ret = m.Invoke(this, new object[] { });
+                    object? ret = m.Invoke(this, new object[] { });
                     if (ret != null)
-                        action = await (Task<ModuleAction>)m.Invoke(this, new object[] { });
+                        action = await (Task<ModuleAction?>)m.Invoke(this, new object[] { }) !;
                 }
                 if (action != null) {
                     if (string.IsNullOrWhiteSpace(action.Url))
@@ -551,7 +553,7 @@ namespace YetaWF.Core.Modules {
         /// <param name="htmlHelper">An instance of the HtmlHelper class.</param>
         /// <param name="Args">Optional parameters passed to the action rendering the module.</param>
         /// <returns></returns>
-        public async Task<string> RenderModuleViewAsync(YHtmlHelper htmlHelper, object Args = null) {
+        public async Task<string> RenderModuleViewAsync(YHtmlHelper htmlHelper, object? Args = null) {
 
             bool oldEditMode = Manager.EditMode;
             try {
@@ -564,22 +566,17 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper, object Args = null) {
+        public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper, object? Args = null) {
 
-            if (!Visible && !Manager.EditMode) return null;
+            if (!Visible && !Manager.EditMode) return string.Empty;
 
             // If a module is authorized for anonymous but not users, we suppress it if we're Editor, Admin, Superuser, etc. to avoid cases where we
             // have 2 of the same modules, one for anonymous users, the other for logged on users.
             if (Manager.HaveUser && !Manager.EditMode && IsAuthorized_View_Anonymous() && !IsAuthorized_View_AnyUser())
-                return null;
-
-            // determine char dimensions for current skin
-            SkinAccess skinAccess = new SkinAccess();
-            int charWidth, charHeight;
-            skinAccess.GetModuleCharacterSizes(this, out charWidth, out charHeight);
+                return string.Empty;
 
             // execute actionalert
-            ModuleDefinition oldMod = Manager.CurrentModule;
+            ModuleDefinition? oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
             Manager.WantFocus = this.WantFocus;
 
@@ -598,11 +595,7 @@ namespace YetaWF.Core.Modules {
 
             ActionInfo info;
             try {
-#if MVC6
                 info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
-#else
-                info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
-#endif
                 // module script initialization
                 if (!info.Failed && !string.IsNullOrWhiteSpace(info.HTML)) {
                     if (await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName)) // add supporting files
@@ -621,7 +614,7 @@ namespace YetaWF.Core.Modules {
             Manager.WantFocus = false;
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(info.HTML) && !Manager.EditMode && !Manager.RenderingUniqueModuleAddons)
-                return null; // if the module contents are empty, we bail
+                return string.Empty; // if the module contents are empty, we bail
 
             bool showTitle = ShowTitle;
             bool showMenu = true;
@@ -650,21 +643,23 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
                 }
             }
 
+            SkinAccess skinAccess = new SkinAccess();
             string containerHtml = await skinAccess.MakeModuleContainerAsync(this, info.HTML, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction);
 
             if (!Manager.RenderingUniqueModuleAddons) {
-                string title = Manager.PageTitle;
+                string? title = Manager.PageTitle;
                 if (string.IsNullOrWhiteSpace(title)) {
                     // if a page has no title, use the title of the first module in the Main pane
                     PageDefinition.ModuleList mods = Manager.CurrentPage.ModuleDefinitions.GetModulesForPane(Globals.MainPane);
                     if (mods.Count > 0) {
-                        ModuleDefinition mod = await mods[0].GetModuleAsync();
-                        title = mod.Title;
+                        ModuleDefinition? mod = await mods[0].GetModuleAsync();
+                        if (mod != null)
+                            title = mod.Title;
                     }
                     // if the title is still not available, simply use the very first module (any pane)
                     if (string.IsNullOrWhiteSpace(title)) {
                         if (Manager.CurrentPage.ModuleDefinitions.Count > 1) {
-                            ModuleDefinition mod = await Manager.CurrentPage.ModuleDefinitions[0].GetModuleAsync();
+                            ModuleDefinition? mod = await Manager.CurrentPage.ModuleDefinitions[0].GetModuleAsync();
                             if (this == mod)
                                 title = Title;
                         }
@@ -691,25 +686,20 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 
         public async Task<string> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper) {
             // execute action
-            ModuleDefinition oldMod = Manager.CurrentModule;
+            ModuleDefinition? oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
 
-            ActionInfo info;
-#if MVC6
-            info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
-#else
-            info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
-#endif
+            ActionInfo info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(info.HTML) && !Manager.EditMode)
-                return null; // if the module contents are empty, we bail
+                return string.Empty; // if the module contents are empty, we bail
 
             await Manager.AddOnManager.AddModuleAsync(this);
 
             return info.HTML;
         }
 
-        public static HtmlBuilder ProcessModuleError(Exception exc, string name, string details = null) {
+        public static HtmlBuilder ProcessModuleError(Exception? exc, string name, string? details = null) {
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("<div class='{0}'>", Globals.CssDivAlert);
 //#if DEBUG
@@ -733,10 +723,11 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 
         public string TitleHtml {
             get {
-                if (string.IsNullOrWhiteSpace(Title))
-                    return null;
+                string? t = Title;
+                if (string.IsNullOrWhiteSpace(t))
+                    return string.Empty;
                 YTagBuilder tag = new YTagBuilder("h1");
-                tag.SetInnerText(Title);
+                tag.SetInnerText(t);
                 return tag.ToString(YTagRenderMode.Normal);
             }
         }
@@ -753,7 +744,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         // CONFIGURATION (only used for Configuration modules)
         // CONFIGURATION (only used for Configuration modules)
 
-        public virtual DataProviderImpl GetConfigDataProvider() {
+        public virtual DataProviderImpl? GetConfigDataProvider() {
             if (configDPthrowError)
                 throw new InternalError("Module {0} is not a configuration module", GetType().FullName);
             else
@@ -761,9 +752,9 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         }
         private bool configDPthrowError = true;
 
-        public DataProviderImpl TryGetConfigDataProvider() {
+        public DataProviderImpl? TryGetConfigDataProvider() {
             configDPthrowError = false;// avoid exception spam
-            DataProviderImpl dpImpl = GetConfigDataProvider();
+            DataProviderImpl? dpImpl = GetConfigDataProvider();
             configDPthrowError = true;
             return dpImpl;
         }
@@ -775,14 +766,14 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public object ConfigData {
             get {
-                DataProviderImpl dataProvider = TryGetConfigDataProvider();
+                DataProviderImpl? dataProvider = TryGetConfigDataProvider();
                 if (dataProvider == null) return new { };
                 using (dataProvider) {
                     Type typeDP = dataProvider.GetType();
                     // get the config data
-                    MethodInfo mi = typeDP.GetMethod("GetConfigAsync");
-                    if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfigAsync method for a configuration module", typeDP.FullName);
-                    dynamic configRetVal = mi.Invoke(dataProvider, null);
+                    MethodInfo? mi = typeDP.GetMethod("GetConfigAsync");
+                    if (mi == null) throw new InternalError($"Data provider {typeDP.FullName} doesn't implement a GetConfigAsync method for a configuration module");
+                    dynamic configRetVal = mi.Invoke(dataProvider, null) !;
                     object config = configRetVal.Result; // only used in site templates so don't care about using Result
                     return config;
                 }
@@ -791,22 +782,22 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 
         // Method used to save initial settings from site templates
         public void UpdateConfigProperty(string name, object value) {
-            using (DataProviderImpl dataProvider = GetConfigDataProvider()) {
+            using (DataProviderImpl dataProvider = GetConfigDataProvider() ! ) {
                 Type typeDP = dataProvider.GetType();
                 // get the config data
-                MethodInfo mi = typeDP.GetMethod("GetConfigAsync");
+                MethodInfo? mi = typeDP.GetMethod("GetConfigAsync");
                 if (mi == null) throw new InternalError("Data provider {0} doesn't implement a GetConfigAsync method for a configuration module", typeDP.FullName);
-                dynamic configRetVal = mi.Invoke(dataProvider, null);
+                dynamic configRetVal = mi.Invoke(dataProvider, null) !;
                 object config = configRetVal.Result; // only used in site templates so don't care about using Result
                 // update the property
                 Type configType = config.GetType();
-                PropertyInfo pi = ObjectSupport.TryGetProperty(configType, name);
-                if (pi == null) throw new InternalError("Configuration {0} doesn't offer a {1} property", configType.FullName, name);
+                PropertyInfo? pi = ObjectSupport.TryGetProperty(configType, name);
+                if (pi == null) throw new InternalError($"Configuration {configType.FullName} doesn't offer a {name} property");
                 pi.SetValue(config, value);
 
                 mi = typeDP.GetMethod("UpdateConfigAsync");
                 if (mi == null) throw new InternalError("Data provider {0} doesn't implement a UpdateConfigAsync method for a configuration module", typeDP.FullName);
-                Task retVal = (Task) mi.Invoke(dataProvider, new object[] { config });
+                Task retVal = (Task) mi.Invoke(dataProvider, new object[] { config }) !;
                 retVal.Wait();// only used in site templates so don't care about using Wait
             }
         }
@@ -852,7 +843,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             public AllowedRole(int id, AllowedEnum view = AllowedEnum.Yes, AllowedEnum edit = AllowedEnum.NotDefined, AllowedEnum remove = AllowedEnum.NotDefined, AllowedEnum extra1 = AllowedEnum.NotDefined, AllowedEnum extra2 = AllowedEnum.NotDefined, AllowedEnum extra3 = AllowedEnum.NotDefined, AllowedEnum extra4 = AllowedEnum.NotDefined, AllowedEnum extra5 = AllowedEnum.NotDefined) {
                 RoleId = id; View = view; Edit = edit; Remove = remove; Extra1 = extra1; Extra2 = extra2; Extra3 = extra3; Extra4 = extra4; Extra5 = extra5;
             }
-            public static AllowedRole Find(List<AllowedRole> list, int roleId) {
+            public static AllowedRole? Find(List<AllowedRole> list, int roleId) {
                 if (list == null) return null;
                 return (from l in list where roleId == l.RoleId select l).FirstOrDefault();
             }
@@ -872,7 +863,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             public AllowedUser(int id, AllowedEnum view = AllowedEnum.Yes, AllowedEnum edit = AllowedEnum.NotDefined, AllowedEnum remove = AllowedEnum.NotDefined, AllowedEnum extra1 = AllowedEnum.NotDefined, AllowedEnum extra2 = AllowedEnum.NotDefined, AllowedEnum extra3 = AllowedEnum.NotDefined, AllowedEnum extra4 = AllowedEnum.NotDefined, AllowedEnum extra5 = AllowedEnum.NotDefined) {
                 UserId = id; View = view; Edit = edit; Remove = remove; Extra1 = extra1; Extra2 = extra2; Extra3 = extra3; Extra4 = extra4; Extra5 = extra5;
             }
-            public static AllowedUser Find(List<AllowedUser> list, int userId) {
+            public static AllowedUser? Find(List<AllowedUser> list, int userId) {
                 if (list == null) return null;
                 return (from l in list where userId == l.UserId select l).FirstOrDefault();
             }
@@ -907,7 +898,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
                         }
                     }
                     // check if the user is explicitly forbidden
-                    AllowedUser allowedUser = AllowedUser.Find(AllowedUsers, Manager.UserId);
+                    AllowedUser? allowedUser = AllowedUser.Find(AllowedUsers, Manager.UserId);
                     if (allowedUser != null)
                         if (testUser(allowedUser) == AllowedEnum.No)
                             return false;
@@ -934,7 +925,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             return false;
         }
         private bool IsAuthorized_Role(Func<AllowedRole, AllowedEnum> testRole, int role) {
-            AllowedRole allowedRole = AllowedRole.Find(AllowedRoles, role);
+            AllowedRole? allowedRole = AllowedRole.Find(AllowedRoles, role);
             if (allowedRole != null) {
                 // check if the role is explicitly forbidden
                 if (testRole(allowedRole) == AllowedEnum.No)
@@ -945,8 +936,8 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             }
             return false;
         }
-        public bool IsAuthorized(string level) {
-            string internalName;
+        public bool IsAuthorized(string? level) {
+            string? internalName;
             if (string.IsNullOrWhiteSpace(level))
                 internalName = level = Manager.EditMode ? RoleDefinition.Edit : RoleDefinition.View;
             else
@@ -956,13 +947,13 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
 
             // module specific authorization
             return IsAuthorized((allowedRole) => {
-                PropertyInfo pi = ObjectSupport.TryGetProperty(allowedRole.GetType(), internalName);
+                PropertyInfo? pi = ObjectSupport.TryGetProperty(allowedRole.GetType(), internalName);
                 if (pi == null) throw new InternalError("Authorization role level {0} not found", level);
-                return (AllowedEnum) pi.GetValue(allowedRole);
+                return (AllowedEnum) pi.GetValue(allowedRole) !;
             }, (allowedUser) => {
-                PropertyInfo pi = ObjectSupport.TryGetProperty(allowedUser.GetType(), internalName);
+                PropertyInfo? pi = ObjectSupport.TryGetProperty(allowedUser.GetType(), internalName);
                 if (pi == null) throw new InternalError("Authorization user level {0} not found", level);
-                return (AllowedEnum) pi.GetValue(allowedUser);
+                return (AllowedEnum) pi.GetValue(allowedUser) !;
             });
         }
 
@@ -990,7 +981,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         [Category("Pages"), Caption("Pages"), Description("The pages where this module is used")]
         [UIHint("PageDefinitions"), ReadOnly]
         [DontSave][Data_DontSave]
-        public List<PageDefinition> Pages { get; set; }
+        public List<PageDefinition> Pages { get; set; } = null!;
 
         public Task<List<PageDefinition>> __GetPagesAsync() {
             return PageDefinition.GetPagesFromModuleAsync(ModuleGuid);

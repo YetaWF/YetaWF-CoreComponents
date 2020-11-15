@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -36,7 +38,7 @@ namespace YetaWF.Core.DataProvider {
         }
     }
     public sealed class DataProviderExportChunk {
-        public object ObjectList { get; set; }
+        public object? ObjectList { get; set; }
         public bool More { get; set; }
     }
 
@@ -190,12 +192,12 @@ namespace YetaWF.Core.DataProvider {
         Task<UpdateStatusEnum> UpdateByIdentityAsync(int id, OBJTYPE obj);
         Task<bool> RemoveAsync(KEYTYPE key, KEY2TYPE key2);// returns false if not found
         Task<bool> RemoveByIdentityAsync(int id);// returns false if not found
-        Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo> filters); // returns # of records removed
+        Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo>? filters); // returns # of records removed
 
         Task<OBJTYPE> GetAsync(KEYTYPE key, KEY2TYPE key2); // returns null if not found
         Task<OBJTYPE> GetByIdentityAsync(int id); // returns null if not found
         Task<OBJTYPE> GetOneRecordAsync(List<DataProviderFilterInfo> filters, List<JoinData> Joins = null); // returns null if not found
-        Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, List<JoinData> Joins = null);
+        Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo>? sort, List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null);
 
         /// <summary>
         /// Returns whether the data provider is installed and available.

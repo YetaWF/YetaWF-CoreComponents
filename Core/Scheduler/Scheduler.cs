@@ -1,15 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
-#if MVC6
 using YetaWF.Core.Support;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Scheduler {
 
@@ -48,9 +46,9 @@ namespace YetaWF.Core.Scheduler {
     }
 
     public class SchedulerItemBase {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string EventName { get; set; }
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public string EventName { get; set; } = null!;
         public bool Enabled { get; set; }
         public bool EnableOnStartup { get; set; }// enable when the site is (re)started
         public bool RunOnce { get; set; }// run once, then disable
@@ -113,18 +111,18 @@ namespace YetaWF.Core.Scheduler {
 
         [Caption("Event"), Description("The event name")]
         [UIHint("Hidden"), StringLength(MaxName)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Caption("Assembly"), Description("The name of the assembly implementing this scheduler event")]
         [UIHint("Hidden"), StringLength(MaxImplementingAssembly)]
-        public string ImplementingAssembly { get; set; }
+        public string ImplementingAssembly { get; set; } = null!;
 
         [Caption("Type"), Description("The type of the assembly implementing this scheduler event")]
         [UIHint("Hidden"), StringLength(MaxImplementingType)]
-        public string ImplementingType { get; set; }
+        public string ImplementingType { get; set; } = null!;
 
         [DontSave]// only used for UI purposes
         [Caption("Event Action"), Description("The action this event takes")]
-        public string EventBuiltinDescription { get; set; }
+        public string EventBuiltinDescription { get; set; } = null!;
     }
 }

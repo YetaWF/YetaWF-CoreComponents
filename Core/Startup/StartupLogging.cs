@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,19 +11,14 @@ namespace YetaWF.Core.Support {
 
     public class StartupLogging : ILogging {
 
-        private string LogFile { get; set; }
+        private string LogFile { get; set; } = null!;
 
         public StartupLogging() { }
 
         public Logging.LevelEnum GetLevel() { return Logging.LevelEnum.Trace; }
 
         public Task InitAsync() {
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string folder = Path.Combine(rootFolder, Globals.DataFolder);
             Directory.CreateDirectory(folder);
             LogFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.StartupLogFile);

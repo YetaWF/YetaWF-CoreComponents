@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
@@ -39,7 +41,7 @@ namespace YetaWF.Core.SendEmail {
 
         [Caption("Server"), Description("The SMTP mail server used for all emails originating from this site")]
         [UIHint("Text40"), StringLength(MaxServer), Trim]
-        public string Server { get; set; }
+        public string Server { get; set; } = null!;
 
         [Caption("Port"), Description("The SMTP mail server port used (25 is usually the default)")]
         [UIHint("IntValue6"), Range(0, 999999), ProcessIfSupplied(nameof(Server)), RequiredIfSuppliedAttribute(nameof(Server)), Trim]
@@ -51,11 +53,11 @@ namespace YetaWF.Core.SendEmail {
 
         [Caption("User Name"), Description("The user name used to log into the mail server when authentication is required by the mail server")]
         [UIHint("Text80"), StringLength(MaxUser), ProcessIf(nameof(Authentication), AuthEnum.Signon), RequiredIf(nameof(Authentication), AuthEnum.Signon), Trim]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
         [Caption("Password"), Description("The password used to log into the mail server when authentication is required by the mail server")]
         [UIHint("Password20"), StringLength(MaxPswd), ProcessIf(nameof(Authentication), AuthEnum.Signon), RequiredIf(nameof(Authentication), AuthEnum.Signon)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [Caption("Secure"), Description("Defines whether SSL is used when sending emails")]
         [UIHint("Boolean"), ProcessIfSupplied(nameof(Server))]
@@ -66,11 +68,11 @@ namespace YetaWF.Core.SendEmail {
         [Expr(OpEnum.ProcessIf, nameof(Server), OpCond.NotEq, null, nameof(Port), OpCond.NotEq, null, nameof(Authentication), OpCond.Eq, AuthEnum.Anonymous)]
         [Expr(OpEnum.ProcessIf, nameof(Server), OpCond.NotEq, null, nameof(Port), OpCond.NotEq, null, nameof(Authentication), OpCond.Eq, AuthEnum.Signon, nameof(UserName), OpCond.NotEq, null, nameof(Password), OpCond.NotEq, null)]
         [JsonIgnore] // so it's not saved when json serializing site properties
-        public ModuleAction SendTestEmail {
+        public ModuleAction? SendTestEmail {
             get {
                 YetaWFManager manager = YetaWFManager.Manager;
                 if (!manager.HaveUser) return null;
-                string userName = manager.UserEmail;
+                string userName = manager.UserEmail!;
                 return new ModuleAction {
                     Url = Utility.UrlFor(typeof(SMTPEmailController), nameof(SMTPEmailController.SendTestEmail)),
                     LinkText = this.__ResStr("send", "Send"),

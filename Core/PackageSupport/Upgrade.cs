@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,8 +21,8 @@ namespace YetaWF.Core.Packages {
         /* private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Package), name, defaultValue, parms); } */
 
         private class PackageInfo {
-            public string Name { get; set; }
-            public string Version { get; set; }
+            public string Name { get; set; } = null!;
+            public string Version { get; set; } = null!;
         }
 
         /// <summary>
@@ -33,12 +35,7 @@ namespace YetaWF.Core.Packages {
         /// </remarks>
         public static async Task SavePackageMapAsync() {
             Logging.AddLog("Saving package map");
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string outFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.PackageMap);
             StringBuilder sb = new StringBuilder();
             List<Package> packages = GetAvailablePackages();
@@ -101,17 +98,12 @@ namespace YetaWF.Core.Packages {
         public class UpgradeLogging : ILogging {
 
             private string LogFile { get; set; }
- 
+
             /// <summary>
             /// Constructor.
             /// </summary>
             public UpgradeLogging() {
-                string rootFolder;
-#if MVC6
-                rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-                rootFolder = YetaWFManager.RootFolder;
-#endif
+                string rootFolder = YetaWFManager.RootFolderWebProject;
                 LogFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.UpgradeLogFile);
             }
             /// <summary>
@@ -162,12 +154,7 @@ namespace YetaWF.Core.Packages {
             return await FileSystem.FileSystemProvider.FileExistsAsync(GetUpdateIndicatorFileName());
         }
         private static string GetUpdateIndicatorFileName() {
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             return Path.Combine(rootFolder, Globals.UpdateIndicatorFile);
         }
 
@@ -189,12 +176,12 @@ namespace YetaWF.Core.Packages {
                 // update models
                 Logging.AddLog("Updating models for changed packages");
                 foreach (Package package in allPackages) {
-                    PackageInfo info = (from p in list where p.Name == package.Name select p).FirstOrDefault();
-                    string lastSeenVersion;
+                    PackageInfo? info = (from p in list where p.Name == package.Name select p).FirstOrDefault();
+                    string? lastSeenVersion;
                     if (info == null) {
                         // brand new package
                         Logging.AddLog("New package {0}", package.Name);
-                        lastSeenVersion = "";
+                        lastSeenVersion = null;
                     } else {
                         lastSeenVersion = info.Version;
                     }
@@ -220,11 +207,11 @@ namespace YetaWF.Core.Packages {
 
             // Run Site Templates for new/updated packages
             foreach (Package package in allPackages) {
-                PackageInfo info = (from p in list where p.Name == package.Name select p).FirstOrDefault();
+                PackageInfo? info = (from p in list where p.Name == package.Name select p).FirstOrDefault();
                 if (info == null) {
                     // new package
-                    await InstallSiteTemplateAsync(package, null);
-                    await ImportPagesAsync(package, null);
+                    await InstallSiteTemplateAsync(package, string.Empty);
+                    await ImportPagesAsync(package, string.Empty);
                 } else {
                     int cmp = Package.CompareVersion(info.Version, package.Version);
                     if (cmp < 0) {
@@ -269,12 +256,7 @@ namespace YetaWF.Core.Packages {
         /// <returns>Information for all packages that were available during the last startup of YetaWF.</returns>
         private static async Task<List<PackageInfo>> LoadPackageMapAsync() {
             List<PackageInfo> list = new List<PackageInfo>();
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string inFile = Path.Combine(rootFolder, Globals.DataFolder, Globals.PackageMap);
             if (!await FileSystem.FileSystemProvider.FileExistsAsync(inFile))
                 throw new InternalError("The package map file {0} does not exist", inFile);
@@ -311,7 +293,7 @@ namespace YetaWF.Core.Packages {
         /// Creates/updates models for one package
         /// </summary>
         /// <param name="package"></param>
-        private static async Task InstallPackageAsync(Package package, string lastSeenVersion = null) {
+        private static async Task InstallPackageAsync(Package package, string? lastSeenVersion = null) {
             Logging.AddLog("Creating/updating {0}", package.Name);
             List<string> errorList = new List<string>();
             if (!await package.InstallModelsAsync(errorList, lastSeenVersion)) {
@@ -332,18 +314,13 @@ namespace YetaWF.Core.Packages {
         /// For new packages, the zip files in the Install folder are imported first.
         /// All page zip files are imported between the last seen version and the current version to bring the package to its new version.
         /// </remarks>
-        private static async Task ImportPagesAsync(Package package, string lastSeenVersion) {
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+        private static async Task ImportPagesAsync(Package package, string? lastSeenVersion) {
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string packageFolder = Path.Combine(rootFolder, Globals.SiteTemplates, package.AreaName);
             if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(packageFolder)) {
                 List<string> versionFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(packageFolder);
                 if (lastSeenVersion == null) {
-                    string installFolder = (from v in versionFolders where v.EndsWith("Install") select v).FirstOrDefault();
+                    string? installFolder = (from v in versionFolders where v.EndsWith("Install") select v).FirstOrDefault();
                     if (!string.IsNullOrWhiteSpace(installFolder)) {
                         await ImportPagesAsync(installFolder);
                     }
@@ -388,13 +365,8 @@ namespace YetaWF.Core.Packages {
         /// For new packages all templates for the package are run. For packages that where previously seen (with an older version),
         /// all templates with a newer version are executed.
         /// </remarks>
-        private static async Task InstallSiteTemplateAsync(Package package, string lastSeenVersion) {
-            string rootFolder;
-#if MVC6
-            rootFolder = YetaWFManager.RootFolderWebProject;
-#else
-            rootFolder = YetaWFManager.RootFolder;
-#endif
+        private static async Task InstallSiteTemplateAsync(Package package, string? lastSeenVersion) {
+            string rootFolder = YetaWFManager.RootFolderWebProject;
             string templateBase = package.Name.Replace(".", "_");
             string templateFolder = Path.Combine(rootFolder, Globals.SiteTemplates);
             await FileSystem.FileSystemProvider.CreateDirectoryAsync(templateFolder);
@@ -419,7 +391,7 @@ namespace YetaWF.Core.Packages {
                 if (installTemplate) {
                     // execute this template via built-in command (implemented by the YetaWF.Package package)
                     Logging.AddLog("Executing site template {0}", template);
-                    Func<QueryHelper, Task> action = await BuiltinCommands.FindAsync("/$processtemplate", checkAuthorization: false);
+                    Func<QueryHelper, Task>? action = await BuiltinCommands.FindAsync("/$processtemplate", checkAuthorization: false);
                     if (action == null)
                         throw new InternalError("Built-in command /$processtemplate not found");
                     QueryHelper qs = new QueryHelper();
@@ -435,13 +407,15 @@ namespace YetaWF.Core.Packages {
         }
         // used to compare site template names including version numbers
         private class SiteTemplateNameComparer : IComparer<string> {
-            public int Compare(string x, string y) {
+            public int Compare(string? x, string? y) {
+                if (x == null && y == null) return 0;
+                if (x == null) return -1;
+                if (y == null) return 1;
                 // each site template is in the following form:
                 // package_name.txt  or
                 // package_name.version.txt where version is x.y.z
                 // so we need to parse the file name to extract the version and compare name/version accordingly
-                string xName, xVersion;
-                SiteTemplateNameComparer.GetComponents(x, out xName, out xVersion);
+                SiteTemplateNameComparer.GetComponents(x, out string xName, out string xVersion);
                 string yName, yVersion;
                 SiteTemplateNameComparer.GetComponents(y, out yName, out yVersion);
                 int iName = string.Compare(xName, yName);
@@ -462,9 +436,9 @@ namespace YetaWF.Core.Packages {
         }
         // used to compare version numbers
         private class PackageFolderComparer : IComparer<string> {
-            public int Compare(string x, string y) {
-                string xVersion = Path.GetFileName(x);
-                string yVersion = Path.GetFileName(y);
+            public int Compare(string? x, string? y) {
+                string xVersion = Path.GetFileName(x) !;
+                string yVersion = Path.GetFileName(y) !;
                 return Package.CompareVersion(xVersion, yVersion);
             }
         }

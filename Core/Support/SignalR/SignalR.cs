@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,30 +11,21 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Log;
 using YetaWF.Core.Site;
 using System.Threading;
-#if MVC6
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
-#else
-using Owin;
-using Microsoft.AspNet.SignalR;
-using System.Web;
-#endif
 
 namespace YetaWF.Core {
 
-    public interface ISignalRHub { // not really needed for mvc5
-#if MVC6
+    public interface ISignalRHub {
         void MapHub(IEndpointRouteBuilder bldr);
-#endif
     }
 
     public static class SignalR {
 
         public static readonly string SignalRUrl = "/__signalr";
 
-#if MVC6
         public static void ConfigureServices(IServiceCollection services) {
             services.AddSignalR(hubOptions =>
             {
@@ -48,15 +41,11 @@ namespace YetaWF.Core {
             List<Type> hubTypes = Package.GetClassesInPackages<ISignalRHub>();
             foreach (Type hubType in hubTypes) {
                 Logging.AddLog($"Adding {hubType.FullName}");
-                ISignalRHub hub = (ISignalRHub)Activator.CreateInstance(hubType);
+                ISignalRHub hub = (ISignalRHub)Activator.CreateInstance(hubType)!;
                 hub.MapHub(endpoints);
             }
             Logging.AddLog("Done configuring SignalR hubs");
         }
-#else
-        // MVC5 is initialized in the Messenger package. OwinStartup is based on package service level, so we can't init in YetaWF.Core, because
-        // that is initialized before Identity. If SignalR is started before Identity, authentication in SignalR won't work.
-#endif
 
         public static string MakeUrl(string path) {
             return $"{SignalRUrl}/{path}";
@@ -72,16 +61,10 @@ namespace YetaWF.Core {
         /// </remarks>
         public static async Task SetupSignalRHubAsync(Hub hub, Func<Task> run) {
 
-            string host;
-#if MVC6
             HttpContext httpContext = hub.Context.GetHttpContext();
             HttpRequest httpReq = httpContext.Request;
-            host = httpReq.Host.Host;
-#else
-            HttpContext httpContext = HttpContext.Current;
-            HttpRequest httpReq = httpContext.Request;
-            host = httpReq.Url.Host;
-#endif
+            string host = httpReq.Host.Host;
+
             SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(host);
             if (site == null) throw new InternalError($"No site definition for {host}");
 
@@ -95,7 +78,8 @@ namespace YetaWF.Core {
             signalRThread.Join();
         }
 
-        private static void Execute(object p) {
+        private static void Execute(object? p) {
+            if (p == null) return;
             ExecuteParms parms = (ExecuteParms)p;
             YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(parms.Site, parms.HttpContext, true);
             if (manager != YetaWFManager.Manager)
@@ -108,9 +92,9 @@ namespace YetaWF.Core {
         }
 
         private class ExecuteParms {
-            public HttpContext HttpContext { get; set; }
-            public SiteDefinition Site { get; set; }
-            public Func<Task> Run { get; set; }
+            public HttpContext HttpContext { get; set; } = null!;
+            public SiteDefinition Site { get; set; } = null!;
+            public Func<Task> Run { get; set; } = null!;
         }
 
         /// <summary>
@@ -122,13 +106,7 @@ namespace YetaWF.Core {
             await YetaWFManager.Manager.AddOnManager.AddAddOnNamedAsync(package.AreaName, "github.com.signalr.signalr");
             YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Url", SignalRUrl);
 
-            YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Version",
-#if MVC6
-                "MVC6"
-#else
-                "MVC5"
-#endif
-            );
+            YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Version", "MVC6" );
         }
     }
 }

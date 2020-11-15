@@ -1,6 +1,6 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-#if MVC6
+#nullable enable
 
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace YetaWF2.Middleware {
 
         public Task Invoke(HttpContext context) {
             if (context.Request.Path.HasValue) {
-                string path = context.Request.Path.Value.ToLower();
+                string path = context.Request.Path.Value!.ToLower();
                 foreach (string folder in AllowedFolders) {
                     if (path.StartsWith(folder)) {
                         return next.Invoke(context);
@@ -46,6 +46,3 @@ namespace YetaWF2.Middleware {
         }
     }
 }
-
-#else
-#endif

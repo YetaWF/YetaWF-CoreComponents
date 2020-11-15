@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -190,7 +192,7 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog("Page");
 
             // Check if it's a built-in command (mostly for debugging and initial install) and build a page dynamically (which is not saved)
-            Func<QueryHelper, Task> action = await BuiltinCommands.FindAsync(uri.LocalPath, checkAuthorization: true);
+            Func<QueryHelper, Task>? action = await BuiltinCommands.FindAsync(uri.LocalPath, checkAuthorization: true);
             if (action != null) {
                 if (Manager.IsHeadRequest)
                     return new EmptyResult();
@@ -209,8 +211,8 @@ namespace YetaWF.Core.Controllers {
 
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)
             // rewrite it to make it a proper querystring
-            PageDefinition pageFound = null;
-            ModuleDefinition moduleFound = null;
+            PageDefinition? pageFound = null;
+            ModuleDefinition? moduleFound = null;
             {
                 string url = uri.LocalPath;
                 string newUrl, newQs;
@@ -222,7 +224,7 @@ namespace YetaWF.Core.Controllers {
                         HttpContext.Request.QueryString = QueryHelper.MakeQueryString(newQs);
                         uri = new Uri(Manager.CurrentRequestUrl);
                     }
-                    ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
+                    ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(url);
                     if (module == null)
                         module = await ModuleDefinition.LoadByUrlAsync(url);
                     moduleFound = module;
@@ -237,7 +239,7 @@ namespace YetaWF.Core.Controllers {
                     pageFound = await PageDefinition.LoadFromUrlAsync(url);
                 } else {
                     PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, uri.Query);
-                    PageDefinition page = pageInfo.Page;
+                    PageDefinition? page = pageInfo.Page;
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (pageInfo.NewUrl != url) {
@@ -308,7 +310,7 @@ namespace YetaWF.Core.Controllers {
 
             // display 404 error page if one is defined
             if (!string.IsNullOrWhiteSpace(site.NotFoundUrl)) {
-                PageDefinition page = await PageDefinition.LoadFromUrlAsync(site.NotFoundUrl);
+                PageDefinition? page = await PageDefinition.LoadFromUrlAsync(site.NotFoundUrl);
                 if (page != null) {
                     Manager.CurrentPage = page;
                     if (Manager.IsHeadRequest)
@@ -326,7 +328,7 @@ namespace YetaWF.Core.Controllers {
 
             // X-Frame-Options
 
-            string option = null;
+            string? option = null;
             if (Manager.CurrentPage != null) {
                 if (Manager.CurrentPage.IFrameUse == PageDefinition.IFrameUseEnum.Default) {
                     if (Manager.CurrentSite.IFrameUse == IFrameUseEnum.No)
@@ -364,7 +366,7 @@ namespace YetaWF.Core.Controllers {
             Complete = 2,// no more processing is needed
         }
         internal class CanProcessAsStaticPageInfo {
-            public string Contents { get; set; }
+            public string? Contents { get; set; }
             public bool Success { get; set; }
         }
         private async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(Uri uri) {
@@ -393,7 +395,7 @@ namespace YetaWF.Core.Controllers {
             if (!YetaWFController.GetTempEditMode()) { // only redirect if we're not editing
                 if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                     if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
-                        PageDefinition redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
+                        PageDefinition? redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                         if (redirectPage != null) {
                             if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                                 string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
@@ -416,7 +418,7 @@ namespace YetaWF.Core.Controllers {
                 // if the requested page is for desktop but we're on a mobile device, find the correct page to display
                 if (!YetaWFController.GetTempEditMode()) { // only redirect if we're not editing
                     if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
-                        PageDefinition mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
+                        PageDefinition? mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                         if (mobilePage != null) {
                             if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                                 string redirUrl = page.MobilePageUrl;

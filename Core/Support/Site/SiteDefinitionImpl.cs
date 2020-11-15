@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,7 +26,7 @@ namespace YetaWF.Core.Site {
             ImageSupport.AddHandler(LargeImageType, GetBytesAsync: RetrieveLargeImageAsync);
             return Task.CompletedTask;
         }
-        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string name, string location) {
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string? name, string? location) {
             if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
             if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
             SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
@@ -35,7 +37,7 @@ namespace YetaWF.Core.Site {
                 Success = true,
             };
         }
-        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveLargeImageAsync(string name, string location) {
+        private async Task<ImageSupport.GetImageInBytesInfo> RetrieveLargeImageAsync(string? name, string? location) {
             if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
             if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
             SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
@@ -66,8 +68,7 @@ namespace YetaWF.Core.Site {
         /// RealDomain and ForceDomain are rarely used and usually only in YetaWF Core code as they are used to redirect to another site hosted by the same YetaWF instance.
         /// ForceDomain is used while creating a new site only and should not otherwise be used.
         /// </remarks>
-        public string MakeUrl(string pathAndQs = null, PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any,
-                string RealDomain = null) {
+        public string MakeUrl(string? pathAndQs = null, PageDefinition.PageSecurityType PagePageSecurity = PageDefinition.PageSecurityType.Any, string? RealDomain = null) {
             return MakeFullUrl(pathAndQs, DetermineSchema(PagePageSecurity), RealDomain: RealDomain);
         }
         /// <summary>
@@ -133,7 +134,7 @@ namespace YetaWF.Core.Site {
         /// RealDomain and ForceDomain are rarely used and usually only in YetaWF Core code as they are used to redirect to another site hosted by the same YetaWF instance.
         /// ForceDomain is used while creating a new site only and should not otherwise be used.
         /// </remarks>
-        public string MakeFullUrl(string pathAndQs = null, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, string RealDomain = null) {
+        public string MakeFullUrl(string? pathAndQs = null, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any, string? RealDomain = null) {
             if (string.IsNullOrWhiteSpace(pathAndQs))
                 pathAndQs = "/";
             if (pathAndQs.IsAbsoluteUrl()) {
@@ -299,7 +300,7 @@ namespace YetaWF.Core.Site {
         // FAVICON
 
         //$$$ resolve favicon caching
-        public string GetFavIconLinks(string imageType, byte[] data, string name, string imageTypeLarge, byte[] dataLrg, string nameLrg) {
+        public string GetFavIconLinks(string imageType, byte[]? data, string? name, string? imageTypeLarge, byte[]? dataLrg, string? nameLrg) {
             HtmlBuilder hb = new HtmlBuilder();
 
             string url;
@@ -359,12 +360,12 @@ namespace YetaWF.Core.Site {
         // LOAD/SAVE
 
         // these must be provided during app startup
-        public static Func<string, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; }
-        public static Func<SiteDefinition, Task> SaveSiteDefinitionAsync { get; set; }
-        public static Func<Task> RemoveSiteDefinitionAsync { get; set; }
-        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; }
-        public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; }
-        public static Func<string, Task<SiteDefinition>> LoadTestSiteDefinitionAsync { get; set; }
+        public static Func<string?, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; } = null!;
+        public static Func<SiteDefinition, Task> SaveSiteDefinitionAsync { get; set; } = null!;
+        public static Func<Task> RemoveSiteDefinitionAsync { get; set; } = null!;
+        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; } = null!;
+        public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; } = null!;
+        public static Func<string, Task<SiteDefinition>> LoadTestSiteDefinitionAsync { get; set; } = null!;
 
         public async Task SaveAsync() {
             await SiteDefinition.SaveSiteDefinitionAsync(this);

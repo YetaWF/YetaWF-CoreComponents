@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -27,7 +29,7 @@ namespace YetaWF.Core.Identity {
             List<Type> types = GetRemoveUserTypes();
             foreach (Type type in types) {
                 try {
-                    IRemoveUser iRemoveUser = Activator.CreateInstance(type) as IRemoveUser;
+                    IRemoveUser? iRemoveUser = Activator.CreateInstance(type) as IRemoveUser;
                     if (iRemoveUser != null)
                         await iRemoveUser.RemoveAsync(userId);
                 } catch (Exception) { }
@@ -39,8 +41,8 @@ namespace YetaWF.Core.Identity {
     }
 
     public class UserComparer : IEqualityComparer<User> {
-        public bool Equals(User x, User y) {
-            return x.UserId == y.UserId;
+        public bool Equals(User? x, User? y) {
+            return x?.UserId == y?.UserId;
         }
         public int GetHashCode(User x) {
             return x.UserId.GetHashCode() + x.UserId.GetHashCode();

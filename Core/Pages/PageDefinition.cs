@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,6 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Addons;
-#if MVC6
-using Microsoft.AspNetCore.Mvc;
-#else
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Pages {
 
@@ -172,7 +169,7 @@ namespace YetaWF.Core.Pages {
             Keywords = new MultiString();
             ModuleDefinitions = new ModuleList();
             PageSecurity = PageSecurityType.Any;
-            Url = null;
+            Url = string.Empty;
             AllowedRoles = new SerializableList<AllowedRole>();
             AllowedUsers = new SerializableList<AllowedUser>();
             Copyright = new MultiString();
@@ -199,7 +196,7 @@ namespace YetaWF.Core.Pages {
             public AllowedEnum Edit { get; set; }
             public AllowedEnum Remove { get; set; }
             public bool IsEmpty() { return View == AllowedEnum.NotDefined && Edit == AllowedEnum.NotDefined && Remove == AllowedEnum.NotDefined; }
-            public static AllowedRole Find(List<AllowedRole> list, int roleId) {
+            public static AllowedRole? Find(List<AllowedRole> list, int roleId) {
                 if (list == null) return null;
                 return (from l in list where roleId == l.RoleId select l).FirstOrDefault();
             }
@@ -210,7 +207,7 @@ namespace YetaWF.Core.Pages {
             public AllowedEnum Edit { get; set; }
             public AllowedEnum Remove { get; set; }
             public bool IsEmpty() { return View == AllowedEnum.NotDefined && Edit == AllowedEnum.NotDefined && Remove == AllowedEnum.NotDefined; }
-            public static AllowedUser Find(List<AllowedUser> list, int userId) {
+            public static AllowedUser? Find(List<AllowedUser> list, int userId) {
                 if (list == null) return null;
                 return (from l in list where userId == l.UserId select l).FirstOrDefault();
             }
@@ -247,7 +244,7 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(MaxCssClass)]
         [RequiresPageReload]
-        public string CssClass { get; set; }
+        public string? CssClass { get; set; }
 
         public string GetCssClass() {
             // add a class whether page can be seen by anonymous users and logged on users
@@ -277,13 +274,13 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(MaxBootstrapSkin)]
         [RequiresPageReload]
-        public string BootstrapSkin { get; set; }
+        public string? BootstrapSkin { get; set; }
         [StringLength(MaxjQueryUISkin)]
         [RequiresPageReload]
-        public string jQueryUISkin { get; set; }
+        public string? jQueryUISkin { get; set; }
         [StringLength(MaxKendoUISkin)]
         [RequiresPageReload]
-        public string KendoUISkin { get; set; }
+        public string? KendoUISkin { get; set; }
 
         [StringLength(Globals.MaxUrl)]
         [RequiresPageReload]
@@ -296,7 +293,7 @@ namespace YetaWF.Core.Pages {
         /// Modules that override the canonical Url should use EvaluatedCanonicalUrl instead.</remarks>
         [StringLength(Globals.MaxUrl)]
         [RequiresPageReload]
-        public string CanonicalUrl { get; set; }
+        public string? CanonicalUrl { get; set; }
 
         /// <summary>
         /// Actual canonical Url.
@@ -323,7 +320,7 @@ namespace YetaWF.Core.Pages {
                 _canonicalUrl = value;
             }
         }
-        private string _canonicalUrl;
+        private string? _canonicalUrl;
 
         [StringLength(MaxTitle)]
         [RequiresPageReload]
@@ -340,7 +337,7 @@ namespace YetaWF.Core.Pages {
 
         [Category("Variables"), Caption("Copyright"), Description("The Copyright property with evaluated substitutions")]
         [UIHint("String"), ReadOnly]
-        public string CopyrightEvaluated {
+        public string? CopyrightEvaluated {
             get {
                 return Copyright.ToString()?.Replace("<<Year>>", Formatting.FormatDateTimeYear(DateTime.UtcNow));
             }
@@ -362,30 +359,30 @@ namespace YetaWF.Core.Pages {
         public PageDefinition.IFrameUseEnum IFrameUse { get; set; }
 
         [StringLength(Globals.MaxUrl)]
-        public string MobilePageUrl { get; set; }
+        public string? MobilePageUrl { get; set; }
 
         [StringLength(Globals.MaxUrl)]
-        public string RedirectToPageUrl { get; set; }
+        public string? RedirectToPageUrl { get; set; }
 
         [StringLength(SiteDefinition.MaxAnalytics)]
         [RequiresPageReload]
-        public string Analytics { get; set; }
+        public string? Analytics { get; set; }
         [StringLength(SiteDefinition.MaxAnalytics)]
         [RequiresPageReload]
-        public string AnalyticsContent { get; set; }
+        public string? AnalyticsContent { get; set; }
         [StringLength(SiteDefinition.MaxHead)]
         [RequiresPageReload]
-        public string ExtraHead { get; set; }
+        public string? ExtraHead { get; set; }
         [StringLength(SiteDefinition.MaxBodyTop)]
         [RequiresPageReload]
-        public string ExtraBodyTop { get; set; }
+        public string? ExtraBodyTop { get; set; }
         [StringLength(SiteDefinition.MaxBodyBottom)]
         [RequiresPageReload]
-        public string ExtraBodyBottom { get; set; }
+        public string? ExtraBodyBottom { get; set; }
 
         [StringLength(SiteDefinition.MaxMeta)]
         [RequiresPageReload]
-        public string PageMetaTags { get; set; }
+        public string? PageMetaTags { get; set; }
 
         [Data_NewValue]
         public ChangeFrequencyEnum ChangeFrequency { get; set; }
@@ -404,7 +401,7 @@ namespace YetaWF.Core.Pages {
 
         [UIHint("Image")]
         [DontSave]
-        public string FavIcon {
+        public string? FavIcon {
             get {
                 if (_favIcon == null) {
                     if (FavIcon_Data != null && FavIcon_Data.Length > 0)
@@ -416,7 +413,7 @@ namespace YetaWF.Core.Pages {
                 _favIcon = value;
             }
         }
-        private string _favIcon = null;
+        private string? _favIcon = null;
 
         [Data_Binary, CopyAttribute]
         public byte[] FavIcon_Data { get; set; }
@@ -432,7 +429,7 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(LanguageData.MaxId)]
         [RequiresPageReload]
-        public string LanguageId { get; set; }
+        public string? LanguageId { get; set; }
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit the property
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit the property

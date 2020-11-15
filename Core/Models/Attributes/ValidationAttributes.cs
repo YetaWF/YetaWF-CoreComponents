@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,11 +18,11 @@ namespace YetaWF.Core.Models.Attributes {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class StringLengthAttribute : System.ComponentModel.DataAnnotations.StringLengthAttribute, YIClientValidation {
 
-        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
+        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
         public StringLengthAttribute(int maximumLength) : base(maximumLength) { }
         public new int MaximumLength { get { return base.MaximumLength;  } }
-        public override bool IsValid(object value) {
+        public override bool IsValid(object? value) {
             if (MaximumLength == 0) return true;
             if (value is MultiString) {
                 MultiString ms = (MultiString)value;
@@ -46,15 +48,15 @@ namespace YetaWF.Core.Models.Attributes {
                 return base.IsValid(value);
             }
         }
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext) {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext) {
             if (MaximumLength == 0) return ValidationResult.Success;
-            ValidationResult result = base.IsValid(value, validationContext);
+            ValidationResult? result = base.IsValid(value, validationContext);
             if (result == ValidationResult.Success)
                 return ValidationResult.Success;
             string errorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(validationContext));
             return new ValidationResult(errorMessage);
         }
-        private string GetErrorMessage(string caption) {
+        private string GetErrorMessage(string? caption) {
             string errorMessage;
             if (MinimumLength == 0 && MaximumLength > 0)
                 errorMessage = __ResStr("badStringLengthMax", "The length for '{0}' can't exceed {1} characters",
@@ -68,7 +70,7 @@ namespace YetaWF.Core.Models.Attributes {
             public int Min { get; set; }
             public int Max { get; set; }
         }
-        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
             if (MaximumLength == 0) return null;
             return new ValidationStringLength {
                 Method = nameof(StringLengthAttribute),
@@ -90,10 +92,10 @@ namespace YetaWF.Core.Models.Attributes {
         public RangeAttribute(Type type, string minimum, string maximum) : base(type, minimum, maximum) { }
 
         public class ValidationRange : ValidationBase {
-            public object Min { get; set; }
-            public object Max { get; set; }
+            public object Min { get; set; } = null!;
+            public object Max { get; set; } = null!;
         }
-        public ValidationBase AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
             return new ValidationRange {
                 Method = nameof(RangeAttribute),
                 Message = __ResStr("range", "The '{0}' value must be between {1} and {2}", caption, Minimum, Maximum),

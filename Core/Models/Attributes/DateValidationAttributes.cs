@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Localize;
@@ -17,7 +19,7 @@ namespace YetaWF.Core.Models.Attributes {
             MinDate = new DateTime(year, month, day);
             ErrorMessage = __ResStr("valDateMin", "The date is invalid - it's before the allowed start date of {0}", Formatting.FormatDate(MinDate));
         }
-        public override bool IsValid(object value) {
+        public override bool IsValid(object? value) {
             if (value == null) return true;
             DateTime dt = (DateTime) value;
             return dt >= MinDate;
@@ -36,7 +38,7 @@ namespace YetaWF.Core.Models.Attributes {
             MaxDate = new DateTime(year, month, day);
             ErrorMessage = __ResStr("valDateMax", "The date is invalid - it's after the allowed end date of {0}", Formatting.FormatDate(MaxDate));
         }
-        public override bool IsValid(object value) {
+        public override bool IsValid(object? value) {
             if (value == null) return true;
             DateTime dt = (DateTime) value;
             return dt <= MaxDate;

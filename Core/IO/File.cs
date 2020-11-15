@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -80,11 +82,11 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// The full path of the folder where the file(s) is/are stored.
         /// </summary>
-        public string BaseFolder { get; set; }
+        public string BaseFolder { get; set; } = null!;
         /// <summary>
         /// The file name.
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; set; } = null!;
         /// <summary>
         /// The date/timestamp.
         /// </summary>
@@ -108,9 +110,9 @@ namespace YetaWF.Core.IO {
         /// Loads a file, returns a new instance of the object.
         /// </summary>
         /// <returns>Returns the data.</returns>
-        public async Task<TObj> LoadAsync() {
-            object data = null;
-            GetObjectInfo<TObj> info = null;
+        public async Task<TObj?> LoadAsync() {
+            object? data = null;
+            GetObjectInfo<TObj>? info = null;
             if (Cacheable) {
                 using (ICacheDataProvider sharedCacheDP = YetaWF.Core.IO.Caching.GetSharedCacheProvider()) {
                     info = await sharedCacheDP.GetAsync<TObj>(CacheKey);

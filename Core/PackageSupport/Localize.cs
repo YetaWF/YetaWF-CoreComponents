@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,7 +47,7 @@ namespace YetaWF.Core.Packages {
                 //DEBUG if (type.FullName == "YetaWF.Core.Scheduler.SchedulerFrequency+TimeUnitEnum")
                 //    path = path;
 
-                LocalizationData data = Localization.Load(Package.GetPackageFromType(type), type.FullName, Localization.Location.DefaultResources);
+                LocalizationData? data = Localization.Load(Package.GetPackageFromType(type), type.FullName!, Localization.Location.DefaultResources);
                 if (data == null)
                     data = new LocalizationData();
                 bool hasData = false;
@@ -60,7 +62,7 @@ namespace YetaWF.Core.Packages {
                     }
                 }
                 if (hasData)
-                    await Localization.SaveAsync(Package.GetPackageFromType(type), type.FullName, Localization.Location.DefaultResources, data);
+                    await Localization.SaveAsync(Package.GetPackageFromType(type), type.FullName!, Localization.Location.DefaultResources, data);
             }
             return true;
         }
@@ -71,7 +73,7 @@ namespace YetaWF.Core.Packages {
             //DEBUG     type = type;
 
             LocalizationData.EnumData enm = new LocalizationData.EnumData();
-            enm.Name = type.FullName;
+            enm.Name = type.FullName!;
 
             EnumData enumData = ObjectSupport.GetEnumData(type, Cache: false);
             if (enumData != null) {
@@ -80,7 +82,7 @@ namespace YetaWF.Core.Packages {
                         hasData = true;
                     enm.Entries.Add(new LocalizationData.EnumDataEntry {
                         Name = entry.Name,
-                        Value = entry.Value.ToString(),
+                        Value = entry.Value.ToString()!,
                         Caption = FixNL(entry.Caption),
                         Description = FixNL(entry.Description),
                     });
@@ -103,9 +105,9 @@ namespace YetaWF.Core.Packages {
             List<PropertyData> propData = ObjectSupport.GetPropertyData(type, Cache: false);
 
             LocalizationData.ClassData cls = new LocalizationData.ClassData();
-            cls.Name = type.FullName;
+            cls.Name = type.FullName!;
 
-            Type baseType = type.BaseType;
+            Type? baseType = type.BaseType;
             if (baseType != null && baseType != typeof(object))
                 cls.BaseTypeName = baseType.FullName;
 
@@ -168,7 +170,7 @@ namespace YetaWF.Core.Packages {
             return (package.Name == basePackage.Name);
         }
 
-        private string FixNL(string text) {
+        private string? FixNL(string? text) {
             if (text == null) return null;
             text = text.Replace("\n", ScriptBuilder.NL);
             text = text.Replace(@"\\", @"\");
@@ -207,8 +209,8 @@ namespace YetaWF.Core.Packages {
 
             string fileText = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
             string ns = GetCsFileNamespace(file, fileText);
-            string cls = GetCsFileClass(file, fileText);
-            string explicitClass = GetCsFileExplicitClass(file, fileText);
+            string? cls = GetCsFileClass(file, fileText);
+            string? explicitClass = GetCsFileExplicitClass(file, fileText);
 
             if (!string.IsNullOrWhiteSpace(explicitClass))
                 cls = explicitClass;
@@ -221,11 +223,11 @@ namespace YetaWF.Core.Packages {
                     throw new InternalError($"File {file} can't contain resource string definitions because its class doesn't support resource access");
 
                 string filename = string.Format("{0}.{1}", ns, cls);
-                LocalizationData data = Localization.Load(this, filename, Localization.Location.DefaultResources);
+                LocalizationData? data = Localization.Load(this, filename, Localization.Location.DefaultResources);
                 if (data == null)
                     data = new LocalizationData();
                 foreach (LocalizationData.StringData sd in strings) {
-                    string text = data.FindString(sd.Name);
+                    string? text = data.FindString(sd.Name);
                     if (!string.IsNullOrWhiteSpace(text)) {
                         if (text != sd.Text)
                             throw new InternalError("The key {0} occurs more than once with different values in file {1}", sd.Name, file);
@@ -253,8 +255,8 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Get the least indented or last class in this file.
         /// </summary>
-        private string GetCsFileClass(string fileName, string fileText) {
-            string cls = null;
+        private string? GetCsFileClass(string fileName, string fileText) {
+            string? cls = null;
             int lead = int.MaxValue;
 
             // find a public class xxxx
@@ -276,8 +278,8 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// Get the class name used in a static __ResStr definition.
         /// </summary>
-        private string GetCsFileExplicitClass(string file, string fileText) {
-            string cls = null;
+        private string? GetCsFileExplicitClass(string file, string fileText) {
+            string? cls = null;
 
             Match m = csExplResRegex.Match(fileText);
             while (m.Success) {
@@ -320,7 +322,7 @@ namespace YetaWF.Core.Packages {
                     if (obj == "" && !explicitClass)
                         throw new InternalError($"Invalid use of the static method __ResStr() in file {fileName} - Use this.__ResStr() instead");
 
-                    text = FixNL(text);
+                    text = FixNL(text) !;
                     if (dict.ContainsKey(name)) {
                         if (dict[name] != text)
                             throw new InternalError("The key {0} occurs more than once with different values in file {1}", name, fileName);

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,15 +36,15 @@ namespace YetaWF.Core.DataProvider {
         }
         //~DataProviderImpl() { Dispose(false); }
 
-        private dynamic _dataProvider { get; set; }
+        private dynamic? _dataProvider { get; set; } = null!;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
-        protected Dictionary<string, object> Options { get; set; }
+        protected Dictionary<string, object> Options { get; set; } = null!;
         protected int SiteIdentity { get; set; }
-        protected Package Package { get; set; }
-        protected string Dataset { get; set; }
+        protected Package Package { get; set; } = null!;
+        protected string Dataset { get; set; } = null!;
 
         public const string DefaultString = "Default";
         public const string IOModeString = "IOMode";
@@ -51,23 +53,23 @@ namespace YetaWF.Core.DataProvider {
         public const int IDENTITY_SEED = 1000;
 
         public dynamic GetDataProvider() {
-            return _dataProvider;
+            return _dataProvider!;
         }
         protected void SetDataProvider(dynamic dp) {
             _dataProvider = dp;
         }
 
-        protected dynamic MakeDataProvider(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null, string LimitIOMode = null) {
+        protected dynamic? MakeDataProvider(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object? Parms = null, string? LimitIOMode = null) {
             BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms);
             return MakeExternalDataProvider(Options, LimitIOMode);
         }
-        protected dynamic CreateDataProviderIOMode(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null,
-                Func<string, Dictionary<string, object>, dynamic> Callback = null) {
+        protected dynamic CreateDataProviderIOMode(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object? Parms = null,
+                Func<string, Dictionary<string, object>, dynamic>? Callback = null) {
             if (Callback == null) throw new InternalError("No callback provided");
             BuildOptions(package, dataset, SiteIdentity: SiteIdentity, Cacheable: Cacheable, Parms: Parms, UsePackageIOMode: false);
             return Callback(ExternalIOMode, Options);
         }
-        protected void BuildOptions(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object Parms = null, bool UsePackageIOMode = true) {
+        protected void BuildOptions(Package package, string dataset, int dummy = -1, int SiteIdentity = 0, bool Cacheable = false, object? Parms = null, bool UsePackageIOMode = true) {
             Package = package;
             Dataset = dataset;
 
@@ -76,7 +78,7 @@ namespace YetaWF.Core.DataProvider {
                 if (_defaultIOMode == null)
                     throw new InternalError("Default IOMode is missing");
             }
-            string ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
+            string? ioMode = WebConfigHelper.GetValue<string>(Dataset, IOModeString);
             if (string.IsNullOrWhiteSpace(ioMode)) {
                 if (UsePackageIOMode)
                     ioMode = WebConfigHelper.GetValue<string>(Package.AreaName, IOModeString);
@@ -97,14 +99,14 @@ namespace YetaWF.Core.DataProvider {
             Options.Add(nameof(SiteIdentity), SiteIdentity);
             Options.Add(nameof(Cacheable), Cacheable);
         }
-        private static string _defaultIOMode = null;
+        private static string? _defaultIOMode = null;
 
         // TRANSACTIONS
         // TRANSACTIONS
         // TRANSACTIONS
 
         private IDataProviderTransactions GetIDataProviderTransactions() {
-            IDataProviderTransactions transDP = GetDataProvider() as IDataProviderTransactions;
+            IDataProviderTransactions? transDP = GetDataProvider() as IDataProviderTransactions;
             if (transDP == null) throw new InternalError($"Data provider {GetDataProvider().GetType().FullName} has no IDataProviderTransactions interface");
             return transDP;
         }
@@ -187,7 +189,7 @@ namespace YetaWF.Core.DataProvider {
                             // save as file
                             PropertyData pGuid = ObjectSupport.GetPropertyData(objType, prop.Name + "_Guid");
                             Guid origFileGuid = pGuid.GetPropertyValue<Guid>(obj);
-                            string fileName = prop.GetPropertyValue<string>(obj);
+                            string? fileName = prop.GetPropertyValue<string?>(obj);
                             Guid newFileGuid = await ConvertImageToFileAsync(moduleGuid, prop.Name, origFileGuid, fileName);
                             if (origFileGuid != newFileGuid) {
                                 pGuid.PropInfo.SetValue(obj, newFileGuid);
@@ -197,8 +199,8 @@ namespace YetaWF.Core.DataProvider {
                         } else if (hasData) {
                             // save as data
                             PropertyData pData = ObjectSupport.GetPropertyData(objType, prop.Name + "_Data");
-                            byte[] currImageData = pData.GetPropertyValue<byte[]>(obj);
-                            string fileName = prop.GetPropertyValue<string>(obj);
+                            byte[]? currImageData = pData.GetPropertyValue<byte[]?>(obj);
+                            string? fileName = prop.GetPropertyValue<string?>(obj);
                             byte[] newImageData = await ConvertImageToDataAsync(fileName, currImageData);
                             pData.PropInfo.SetValue(obj, newImageData);
                             prop.PropInfo.SetValue(obj, null);// reset name so it's re-evaluated
@@ -208,7 +210,7 @@ namespace YetaWF.Core.DataProvider {
                 }
             }
         }
-        private static async Task<Guid> ConvertImageToFileAsync(Guid moduleGuid, string folder, Guid origFileGuid, string fileName) {
+        private static async Task<Guid> ConvertImageToFileAsync(Guid moduleGuid, string folder, Guid origFileGuid, string? fileName) {
             // Get the new image
             FileUpload fileUpload = new FileUpload();
             if (string.IsNullOrWhiteSpace(fileName) || fileName == "(CLEARED)") {
@@ -221,7 +223,8 @@ namespace YetaWF.Core.DataProvider {
                 }
                 return Guid.Empty;
             } else if (fileUpload.IsTempName(fileName)) {
-                byte[] bytes = await fileUpload.GetImageBytesFromTempNameAsync(fileName);
+                byte[]? bytes = await fileUpload.GetImageBytesFromTempNameAsync(fileName);
+                if (bytes == null) throw new InternalError($"Temp file without data");
                 if (origFileGuid != Guid.Empty) {
                     // remove old image file
                     string oldFile = Path.Combine(ModuleDefinition.GetModuleDataFolder(moduleGuid), folder, origFileGuid.ToString());
@@ -246,10 +249,10 @@ namespace YetaWF.Core.DataProvider {
                 return origFileGuid;//keep existing file
             }
         }
-        private static async Task<byte[]> ConvertImageToDataAsync(string fileName, byte[] currImageData) {
+        private static async Task<byte[]> ConvertImageToDataAsync(string? fileName, byte[]? currImageData) {
             // Get the new image
             FileUpload fileUpload = new FileUpload();
-            byte[] bytes;
+            byte[]? bytes;
             if (string.IsNullOrWhiteSpace(fileName) || fileName == "(CLEARED)")
                 bytes = null;
             else if (fileUpload.IsTempName(fileName)) {
@@ -259,7 +262,7 @@ namespace YetaWF.Core.DataProvider {
             } else
                 bytes = currImageData;
             if (bytes == null)
-                bytes = new byte[] { };
+                bytes = Array.Empty<byte>();
             return bytes;
         }
     }

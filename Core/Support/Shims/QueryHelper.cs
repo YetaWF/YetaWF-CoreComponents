@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +15,7 @@ using Microsoft.Extensions.Primitives;
 namespace YetaWF.Core.Support {
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not intended for serialization")]
-    public class QueryDictionary : Dictionary<string, object> { }
+    public class QueryDictionary : Dictionary<string, object?> { }
 
     /// <summary>
     /// Query string manipulation.
@@ -22,28 +24,28 @@ namespace YetaWF.Core.Support {
     public class QueryHelper {
 
         public class Entry {
-            public string Key { get; set; }
-            public string Value { get; set; }
+            public string Key { get; set; } = null!;
+            public string? Value { get; set; }
         }
         public List<Entry> Entries { get; private set; }
-        public string Anchor { get; set; }
+        public string? Anchor { get; set; }
 
         public QueryHelper() {
             Entries = new List<Entry>();
         }
-        public QueryHelper(object args) {
+        public QueryHelper(object? args) {
             Entries = new List<Entry>();
             if (args != null) {
                 foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(args)) {
-                    object val = property.GetValue(args);
-                    Add(property.Name, val != null ? val.ToString(): null);
+                    object? val = property.GetValue(args);
+                    Add(property.Name, val?.ToString());
                 }
             }
         }
         public QueryHelper(QueryDictionary query) {
             Entries = new List<Entry>();
             foreach (string k in query.Keys) {
-                object o = query[k];
+                object? o = query[k];
                 if (o == null)
                     Entries.Add(new Entry { Key = k, Value = null, });
                 else
@@ -52,7 +54,7 @@ namespace YetaWF.Core.Support {
         }
         public static QueryHelper FromUrl(string url, out string urlOnly) {
             QueryHelper query;
-            string anchor = null;
+            string? anchor = null;
             int index = url.IndexOf('#'); // strip off anchor
             if (index >= 0 && index <= url.Length - 1) {
                 anchor = url.Substring(index + 1);
@@ -70,13 +72,12 @@ namespace YetaWF.Core.Support {
             return query;
         }
         public static QueryHelper FromUrl(string url) {
-            string urlOnly;
-            return FromUrl(url, out urlOnly);
+            return FromUrl(url, out string urlOnly);
         }
         public static QueryHelper FromNameValueCollection(NameValueCollection query) {
             QueryHelper qh = new QueryHelper();
-            foreach (string k in query.AllKeys) {
-                qh.Entries.Add(new Entry { Key = k, Value = query[k], });
+            foreach (string? k in query.AllKeys) {
+                qh.Entries.Add(new Entry { Key = k!, Value = query[k], });
             }
             return qh;
         }
@@ -100,13 +101,13 @@ namespace YetaWF.Core.Support {
             }
             return qh;
         }
-        public static QueryHelper FromAnonymousObject(object args) {
+        public static QueryHelper FromAnonymousObject(object? args) {
             return new QueryHelper(args);
         }
 
-        public string this[string key] {
+        public string? this[string key] {
             get {
-                Entry entry = (from e in Entries where string.Compare(e.Key, key, true) == 0 select e).FirstOrDefault();
+                Entry? entry = (from e in Entries where string.Compare(e.Key, key, true) == 0 select e).FirstOrDefault();
                 if (entry == null) return null;
                 return entry.Value;
             }
@@ -115,13 +116,13 @@ namespace YetaWF.Core.Support {
             }
         }
         public bool HasEntry(string key) {
-            Entry entry = (from e in Entries where string.Compare(e.Key, key, true) == 0 select e).FirstOrDefault();
+            Entry? entry = (from e in Entries where string.Compare(e.Key, key, true) == 0 select e).FirstOrDefault();
             return entry != null;
         }
         public void Remove(string key) {
             Entries = (from e in Entries where string.Compare(e.Key, key, true) != 0 select e).ToList();
         }
-        public void Add(string key, string value, bool Replace = false) {
+        public void Add(string key, string? value, bool Replace = false) {
             if (Replace)
                 Remove(key);
             Entries.Add(new Entry { Key = key, Value = value, });
@@ -140,17 +141,17 @@ namespace YetaWF.Core.Support {
         public string ToUrl(string url) {
             string completeUrl = ToUrl(url, ToQueryString());
             if (Anchor != null)
-                completeUrl += "#" + Anchor;
+                completeUrl += $"#{Anchor}";
             return completeUrl;
         }
-        public static string ToUrl(string url, string queryString) {
+        public static string ToUrl(string url, string? queryString) {
             if (string.IsNullOrWhiteSpace(queryString)) return url;
             if (url.Contains('?'))
-                return string.Format("{0}&{1}", url, queryString);
+                return string.Format($"{url}&{queryString}");
             else if (!queryString.StartsWith("?"))
-                return string.Format("{0}?{1}", url, queryString);
+                return string.Format($"{url}?{queryString}");
             else
-                return string.Format("{0}{1}", url, queryString);
+                return string.Format($"{url}{queryString}");
         }
         public string ToUrlHumanReadable(string url) {
             foreach (Entry entry in Entries) {
@@ -161,11 +162,10 @@ namespace YetaWF.Core.Support {
                 }
             }
             if (Anchor != null)
-                url = "#" + Anchor;
+                url = $"#{Anchor}";
             return url;
         }
-        internal static QueryString MakeQueryString(string newQS)
-        {
+        internal static QueryString MakeQueryString(string? newQS) {
             if (string.IsNullOrWhiteSpace(newQS)) return new QueryString();
             if (newQS.StartsWith("?")) return new QueryString(newQS);
             return new QueryString("?" + newQS);
@@ -188,7 +188,7 @@ namespace YetaWF.Core.Support {
     /// </summary>
     public class FormHelper {
 
-        public string this[string key] {
+        public string? this[string key] {
             get {
                 if (Collection == null) return null;
                 return Collection[key];
@@ -208,7 +208,7 @@ namespace YetaWF.Core.Support {
             Collection = collection;
         }
 
-        private IFormCollection Collection { get; set; }
+        private IFormCollection? Collection { get; set; }
 
         public static FormHelper FromFormCollection(IFormCollection collection) {
             return new FormHelper(collection);

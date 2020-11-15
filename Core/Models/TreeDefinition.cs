@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,7 @@ namespace YetaWF.Core.Models {
     public class TreeDefinition {
 
         // set up by application
-        public Type RecordType { get; set; }
+        public Type RecordType { get; set; } = null!;
 
         public bool ShowHeader { get; set; }
         public MultiString Header { get; set; }
@@ -26,9 +28,9 @@ namespace YetaWF.Core.Models {
         public string NoRecordsText { get; set; }// text shown when there are no records
         public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
 
-        public string ContentTargetId { get; set; }
-        public string ContentTargetPane { get; set; }
-        public string AjaxUrl { get; set; } // for dynamic population during expand
+        public string? ContentTargetId { get; set; } //$$$ should be removed
+        public string? ContentTargetPane { get; set; } //$$$ should be removed
+        public string? AjaxUrl { get; set; } // for dynamic population during expand
         public bool JSONData { get; set; } // defines whether JSON data is attached to each entry
 
         // other settings
@@ -60,11 +62,11 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// The GridDefinition object describing the current grid.
         /// </summary>
-        public TreeDefinition TreeDef { get; set; }
+        public TreeDefinition TreeDef { get; set; } = null!;
         /// <summary>
         /// The collection of data to be rendered.
         /// </summary>
-        public DataSourceResult Data { get; set; }
+        public DataSourceResult Data { get; set; } = null!;
     }
 
     /// <summary>
@@ -103,7 +105,7 @@ namespace YetaWF.Core.Models {
         /// The item's collection of subitems or null if the item has no subitems.
         /// </summary>
         [JsonIgnore]
-        public List<TreeEntry> SubEntries { get; set; }
+        public List<TreeEntry>? SubEntries { get; set; }
 
         /// <summary>
         /// Determines whether an item's subitems are dynamically added/removed.
@@ -126,36 +128,36 @@ namespace YetaWF.Core.Models {
         /// The item's displayed text. Must be a string, not a complex component.
         /// </summary>
         [JsonIgnore]
-        public virtual string Text { get; set; }
+        public virtual string Text { get; set; } = null!;
 
         /// <summary>
         /// The item's additional CSS added to the link generated for the entry.
         /// </summary>
         [JsonIgnore]
-        public virtual string ExtraCss { get; set; }
+        public virtual string? ExtraCss { get; set; }
 
         /// <summary>
         /// Optional. The item's text display ahead of the text. Must render as an &lt;a&gt; tag.
         /// </summary>
         [JsonIgnore]
-        public virtual object BeforeText { get; set; }
+        public virtual object? BeforeText { get; set; }
 
         /// <summary>
         /// Optional. The item's text display after the text. Must render as an &lt;a&gt; tag.
         /// </summary>
         [JsonIgnore]
-        public virtual object AfterText { get; set; }
+        public virtual object? AfterText { get; set; }
 
         /// <summary>
         /// Used as the item's target URL, opened in a new window.
         /// </summary>
         [JsonIgnore]
-        public virtual string UrlNew { get; set; }
+        public virtual string? UrlNew { get; set; }
         /// <summary>
         /// Used as the item's target URL, used to replace a content pane or the entire page if no content information is available.
         /// </summary>
         [JsonIgnore]
-        public virtual string UrlContent { get; set; }
+        public virtual string? UrlContent { get; set; }
     }
 
 }

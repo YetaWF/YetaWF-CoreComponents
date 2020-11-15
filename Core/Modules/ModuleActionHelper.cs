@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 
 namespace YetaWF.Core.Modules {
@@ -11,7 +13,7 @@ namespace YetaWF.Core.Modules {
             actions.Add(action);
         }
 
-        public static ModuleAction BuiltIn_ExpandAction(string text, string tooltip = null) {
+        public static ModuleAction BuiltIn_ExpandAction(string text, string? tooltip = null) {
             ModuleAction action = new ModuleAction {
                 Name = "Expand",
                 Category = ModuleAction.ActionCategoryEnum.Read,
@@ -21,13 +23,13 @@ namespace YetaWF.Core.Modules {
                 Mode = ModuleAction.ActionModeEnum.Any,
                 Style = ModuleAction.ActionStyleEnum.Nothing,
                 LinkText = text,
-                MenuText = null,
+                MenuText = new Models.MultiString(),
                 Tooltip = tooltip,
-                Legend = null,
+                Legend = new Models.MultiString(),
             };
             return action;
         }
-        public static ModuleAction BuiltIn_CollapseAction(string text, string tooltip = null) {
+        public static ModuleAction BuiltIn_CollapseAction(string text, string? tooltip = null) {
             ModuleAction action = new ModuleAction {
                 Name = "Collapse",
                 Category = ModuleAction.ActionCategoryEnum.Read,
@@ -37,9 +39,9 @@ namespace YetaWF.Core.Modules {
                 Mode = ModuleAction.ActionModeEnum.Any,
                 Style = ModuleAction.ActionStyleEnum.Nothing,
                 LinkText = text,
-                MenuText = null,
+                MenuText = new Models.MultiString(),
                 Tooltip = tooltip,
-                Legend = null,
+                Legend = new Models.MultiString(),
             };
             return action;
         }

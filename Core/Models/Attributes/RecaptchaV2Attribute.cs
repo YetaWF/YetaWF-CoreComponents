@@ -1,19 +1,16 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using YetaWF.Core.Addons;
+using YetaWF.Core.Components;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
-using YetaWF.Core.Components;
-#if MVC6
-using Microsoft.AspNetCore.Http;
-#else
-using System.Web;
-#endif
 
 namespace YetaWF.Core.Models.Attributes {
 
@@ -33,11 +30,11 @@ namespace YetaWF.Core.Models.Attributes {
         }
         private new string ErrorMessage { get; set; }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext) {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext) {
             if (!Manager.HaveCurrentRequest) throw new InternalError("No http context or request available");
             HttpRequest request = Manager.CurrentRequest;
 
-            RecaptchaV2Data rc = value as RecaptchaV2Data;
+            RecaptchaV2Data? rc = value as RecaptchaV2Data;
             if (rc == null || !rc.VerifyPresence) return ValidationResult.Success;
 
             string response = request.Form["g-recaptcha-response"];
@@ -58,7 +55,7 @@ namespace YetaWF.Core.Models.Attributes {
 
         public class RecaptchaV2Response {
             public bool Success { get; set; }
-            public List<string> ErrorCodes { get; set; }
+            public List<string>? ErrorCodes { get; set; }
         }
         private bool ValidateCaptcha(RecaptchaV2Config config, string response, string ipAddress) {
             using (WebClient client = new WebClient()) {

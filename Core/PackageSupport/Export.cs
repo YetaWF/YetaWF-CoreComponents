@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Language;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
@@ -24,8 +25,8 @@ namespace YetaWF.Core.Packages {
         public const string PackageIDFile = "Package.txt";
         public const string PackageIDDataFile = "PackageData.txt";
         public const string PackageContentsFile = "Contents.json";
-        public static string[] ExcludedFilesAddons = new string[] { };
-        public static string[] ExcludedFoldersNoSource = new string[] { };
+        public static string[] ExcludedFilesAddons = Array.Empty<string>();
+        public static string[] ExcludedFoldersNoSource = Array.Empty<string>();
         public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
         public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", Globals.NodeModulesFolder };
         public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb", ".lastcodeanalysissucceeded", ".CodeAnalysisLog.xml" };
@@ -42,17 +43,9 @@ namespace YetaWF.Core.Packages {
                 throw new InternalError("Package export requested for package {0} which is not exportable (not a source package)", Name);
 
             string zipName = SourceCode ?
-#if MVC6
                     __ResStr("packageFmtSrcCore", "Package w_Source ASPNETCore - {0}.{1}.zip", this.Name, this.Version)
-#else
-                    __ResStr("packageFmtSrc", "Package w_Source ASPNET4 - {0}.{1}.zip", this.Name, this.Version)
-#endif
                 :
-#if MVC6
                     __ResStr("packageFmtCore", "Package ASPNETCore - {0}.{1}.zip", this.Name, this.Version)
-#else
-                    __ResStr("packageFmt", "Package ASPNET4 - {0}.{1}.zip", this.Name, this.Version)
-#endif
                 ;
 
             SerializablePackage serPackage;
@@ -126,12 +119,12 @@ namespace YetaWF.Core.Packages {
                 FileName = zipName,
             };
         }
-        public static async Task<SerializableList<SerializableFile>> ProcessAllFilesAsync(string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
+        public static async Task<SerializableList<SerializableFile>> ProcessAllFilesAsync(string folder, string[]? excludeFiles = null, string[]? excludeFolders = null, string? ExternalRoot = null) {
             SerializableList<SerializableFile> list = new SerializableList<SerializableFile>();
             await AddFilesAsync(list, folder, excludeFiles, excludeFolders, ExternalRoot: ExternalRoot);
             return list;
         }
-        private static async Task AddFilesAsync(SerializableList<SerializableFile> list, string folder, string[] excludeFiles = null, string[] excludeFolders = null, string ExternalRoot = null) {
+        private static async Task AddFilesAsync(SerializableList<SerializableFile> list, string folder, string[]? excludeFiles = null, string[]? excludeFolders = null, string? ExternalRoot = null) {
             if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(folder))
                 return;
             foreach (var file in await FileSystem.FileSystemProvider.GetFilesAsync(folder)) {

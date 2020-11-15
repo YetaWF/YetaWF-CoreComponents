@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using YetaWF.Core.Support;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Extensions;
@@ -23,8 +25,8 @@ namespace YetaWF.Core.Components {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public static string FormatUrl(string imageType, string location, string name, int width = 0, int height = 0,
-                string CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
+        public static string FormatUrl(string imageType, string? location, string? name, int width = 0, int height = 0,
+                string? CacheBuster = null, bool ExternalUrl = false, PageDefinition.PageSecurityType SecurityType = PageDefinition.PageSecurityType.Any,
                 bool Stretch = false) {
             string url;
             if (width > 0 && height > 0) {
@@ -65,13 +67,12 @@ namespace YetaWF.Core.Components {
            { "#Warning", "yic yic_warning" },
         };
 
-        public static string BuildKnownIcon(string url, string title = null, string alt = null, string id = null, string cssClass = null, string name = null, Dictionary<string, string> sprites = null) {
+        public static string BuildKnownIcon(string url, string? title = null, string? alt = null, string? id = null, string? cssClass = null, string? name = null, Dictionary<string, string>? sprites = null) {
 
-            title = title ?? "";
+            title = title ?? string.Empty;
             sprites = sprites ?? PredefSpriteIcons;
 
-            string css;
-            if (sprites.TryGetValue(url, out css)) {
+            if (sprites.TryGetValue(url, out string? css)) {
 
                 YTagBuilder tIcon = new YTagBuilder("i");
                 tIcon.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(css));

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,10 +12,10 @@ namespace YetaWF.Core.Support {
     public class MimeSection {
 
         public class MimeEntry {
-            public string Type { get; set; }
-            public string Extensions { get; set; }
+            public string Type { get; set; } = null!;
+            public string? Extensions { get; set; }
             public bool Download { get; set; }
-            public dynamic Dynamic { get; set; } // original entry (so we can access package-specific settings)
+            public dynamic? Dynamic { get; set; } // original entry (so we can access package-specific settings)
 
             public MimeEntry() {
                 Download = true;
@@ -59,19 +61,21 @@ namespace YetaWF.Core.Support {
             return Task.CompletedTask;
         }
 
-        private static string SettingsFile;
-        public static List<MimeEntry> CachedEntries;
+        private static string SettingsFile = null!;
+        public static List<MimeEntry>? CachedEntries;
 
-        public List<MimeEntry> GetMimeTypes() {
+        public List<MimeEntry>? GetMimeTypes() {
             return CachedEntries;
         }
-        public string GetContentTypeFromExtension(string extension) {
+        public string? GetContentTypeFromExtension(string extension) {
             if (CachedEntries == null)
                 return null;
             extension = extension.ToLower();
             foreach (MimeEntry entry in CachedEntries) {
-                if (entry.Extensions.Contains(extension + ";") || entry.Extensions.EndsWith(extension))
-                    return entry.Type;
+                if (entry.Extensions != null) {
+                    if (entry.Extensions.Contains(extension + ";") || entry.Extensions.EndsWith(extension))
+                        return entry.Type;
+                }
             }
             return null;
         }

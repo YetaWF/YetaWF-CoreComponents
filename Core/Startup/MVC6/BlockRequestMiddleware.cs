@@ -1,5 +1,7 @@
 /* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -28,7 +30,7 @@ namespace YetaWF2.Middleware {
         public const string SETTINGSFILE = "BlockSettings.json";
 
         private readonly RequestDelegate next;
-        private static BlockSettingsDefinition BlockSettings = null;
+        private static BlockSettingsDefinition BlockSettings = null!;
         private static BlockSettingsDefinition BlockSettingsNone = new BlockSettingsDefinition { };
 
         public static string SettingsFile {
@@ -44,7 +46,7 @@ namespace YetaWF2.Middleware {
         public Task Invoke(HttpContext context) {
             if (BlockSettings != BlockSettingsNone) {
                 if (context.Request.Path.HasValue) {
-                    string path = context.Request.Path.Value.ToLower();
+                    string path = context.Request.Path.Value!.ToLower();
                     if (IsNotAuthorizedPath(path)) {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         return Task.CompletedTask;
@@ -111,7 +113,7 @@ namespace YetaWF2.Middleware {
         /// Returns the currently active settings.
         /// </summary>
         /// <returns>Returns the currently active settings. Null is returned if no settings are active.</returns>
-        public static BlockSettingsDefinition GetCurrentSettings() {
+        public static BlockSettingsDefinition? GetCurrentSettings() {
             return BlockSettings != BlockSettingsNone ? BlockSettings : null;
         }
         /// <summary>

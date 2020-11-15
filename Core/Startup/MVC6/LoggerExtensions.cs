@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,7 +22,7 @@ namespace YetaWF2.Logger {
         public ILogger CreateLogger(string categoryName) {
             return new YetaWFLogger(this, categoryName);
         }
-        public static string IgnoredCategory {
+        public static string? IgnoredCategory {
             get {
                 return _IgnoredCategory;
             }
@@ -30,7 +32,7 @@ namespace YetaWF2.Logger {
                 _IgnoredCategory = value;
             }
         }
-        private static string _IgnoredCategory { get; set; }
+        private static string? _IgnoredCategory { get; set; }
 
         public void Dispose() { }
     }
@@ -46,7 +48,7 @@ namespace YetaWF2.Logger {
         }
 
         public IDisposable BeginScope<TState>(TState state) {
-            return null;
+            return null!;
         }
 
         public bool IsEnabled(LogLevel logLevel) {

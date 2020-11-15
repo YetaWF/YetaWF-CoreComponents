@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -206,7 +208,7 @@ namespace YetaWF.Core.Site {
             }
             return _defaultSiteDomain;
         }
-        public static string _defaultSiteDomain;
+        public static string? _defaultSiteDomain;
 
         [Category("Variables"), Caption("Default Site"), Description("Returns whether the current site is the default site for this instance of YetaWF")]
         [UIHint("Boolean"), ReadOnly]
@@ -218,12 +220,12 @@ namespace YetaWF.Core.Site {
 
         [UIHint("Hidden")]
         [DontSave]
-        public string OriginalSiteDomain { get; set; }
+        public string? OriginalSiteDomain { get; set; }
 
         [Category("Site"), Caption("Test Domain"), Description("Defines the host name for the test domain - This can be used with tools such as ngrok to access the site using a different URL for testing purposes - This setting is only honored in DEBUG builds - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), Trim]
         [RequiresRestart(RestartEnum.All)]
-        public string SiteTestDomain { get; set; }
+        public string? SiteTestDomain { get; set; }
 
         [Description("The name associated with your site, usually your company name or your name")]
         [Category("Site")]
@@ -332,17 +334,17 @@ namespace YetaWF.Core.Site {
 
         [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked URL Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
         [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIf("IsLockedExternal", true)]
-        public string LockedForIP { get; set; }
+        public string? LockedForIP { get; set; }
         [Category("Site"), Caption("Locked For IP Address"), Description("The only IP address that has access to the site - All others are redirected to a \'Maintenance\' page defined using Locked URL Redirect - This is typically used while maintenance is applied to a site so only one IP address has access to the site")]
         [UIHint("String"), StringLength(Globals.MaxIP), ReadOnly, SuppressIf("IsLockedExternal", false)]
-        public string LockedExternalForIP { get; set; }
+        public string? LockedExternalForIP { get; set; }
 
         [Category("Site"), Caption("Locked URL Redirect"), Description("The page where the user is redirected when the site is locked (down for maintenance)")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local| UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local| UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), RequiredIf("IsLocked", true), Trim]
-        public string LockedUrl { get; set; }
+        public string? LockedUrl { get; set; }
 
-        public string GetLockedForIP() {
+        public string? GetLockedForIP() {
             if (LockedExternal)
                 return LockedExternalForIP;
             if (Locked)
@@ -359,13 +361,13 @@ namespace YetaWF.Core.Site {
         [Category("Site"), Caption("Suppress Tooltips"), Description("The class(es) on A tags that will suppress the navigation tooltip")]
         [UIHint("Text80"), CssClassesValidationAttribute, StringLength(80)]
         [RequiresPageReload]
-        public string CssNoTooltips { get; set; }
+        public string? CssNoTooltips { get; set; }
 
         [Category("Site"), Caption("FavIcon"), Description("The default icon representing this site (a small PNG image used for favicon displays less than or equal to 64x64 pixels) shown by the web browser used to display the page - Individual pages can override this site default - This is image is down/upscaled as needed")]
         [UIHint("Image"), AdditionalMetadata("ImageType", SiteDefinition.ImageType)]
         [AdditionalMetadata("Width", 40), AdditionalMetadata("Height", 40)]
         [DontSave]
-        public string FavIcon {
+        public string? FavIcon {
             get {
                 if (_favIcon == null) {
                     if (FavIcon_Data != null && FavIcon_Data.Length > 0)
@@ -377,16 +379,16 @@ namespace YetaWF.Core.Site {
                 _favIcon = value;
             }
         }
-        private string _favIcon = null;
+        private string? _favIcon = null;
 
         [Data_Binary, CopyAttribute]
-        public byte[] FavIcon_Data { get; set; }
+        public byte[]? FavIcon_Data { get; set; }
 
         [Category("Site"), Caption("FavIcon (Large)"), Description("The icon representing this site (a PNG image used for favicons greater than 64x64 pixels) shown by the web browser used to display the page - Individual pages can override this site default - This is image is down/upscaled as needed")]
         [UIHint("Image"), AdditionalMetadata("ImageType", SiteDefinition.LargeImageType)]
         [AdditionalMetadata("Width", 40), AdditionalMetadata("Height", 40)]
         [DontSave]
-        public string FavIconLrg {
+        public string? FavIconLrg {
             get {
                 if (_favIconLrg == null) {
                     if (FavIconLrg_Data != null && FavIconLrg_Data.Length > 0)
@@ -398,7 +400,7 @@ namespace YetaWF.Core.Site {
                 _favIconLrg = value;
             }
         }
-        private string _favIconLrg = null;
+        private string? _favIconLrg = null;
 
         [Data_Binary, CopyAttribute]
         public byte[] FavIconLrg_Data { get; set; }
@@ -419,7 +421,7 @@ namespace YetaWF.Core.Site {
         [UIHint("TimeZone"), StringLength(Globals.MaxTimeZone), Required, Trim]
         [RequiresPageReload]
         [Data_NewValue]
-        public string TimeZone { get; set; }
+        public string? TimeZone { get; set; }
 
         [Category("Site"), Caption("Currency"), Description("The default currency used")]
         [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217.Currency.MaxId), Trim, Required]
@@ -571,7 +573,7 @@ namespace YetaWF.Core.Site {
         [ProcessIf(nameof(UseCDN), true)]
         [RequiredIf(nameof(UseCDN), true)]
         [RequiresRestart(RestartEnum.All)]
-        public string CDNUrl { get; set; }
+        public string? CDNUrl { get; set; }
 
         public bool HaveCDNUrl { get { return !string.IsNullOrWhiteSpace(CDNUrl); } }
 
@@ -579,14 +581,14 @@ namespace YetaWF.Core.Site {
         [UIHint("Url"), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Remote), StringLength(Globals.MaxUrl), Trim]
         [ProcessIf(nameof(UseCDN), true)]
         [RequiresRestart(RestartEnum.All)]
-        public string CDNUrlSecure { get; set; }
+        public string? CDNUrlSecure { get; set; }
 
         public bool HaveCDNUrlSecure { get { return !string.IsNullOrWhiteSpace(CDNUrlSecure); } }
 
         [Category("CDN"), Caption("Static Files Domain"), Description("You can optionally serve static files from an alternate domain which can improve your site's performance - Enter the domain name here (without http:// or https://) - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Text80"), DomainValidation, StringLength(MaxSiteDomain), ProcessIf(nameof(UseCDN), false), Trim]
         [RequiresRestart(RestartEnum.All)]
-        public string StaticDomain { get; set; }
+        public string? StaticDomain { get; set; }
 
         public bool HaveStaticDomain { get { return !string.IsNullOrWhiteSpace(StaticDomain); } }
 
@@ -628,22 +630,22 @@ namespace YetaWF.Core.Site {
                 _homePageUrl = value;
             }
         }
-        private string _homePageUrl = null;
+        private string? _homePageUrl = null;
 
         [Category("URLs"), Caption("Page Not Found"), Description("If an non-existent page is accessed, the user is redirected to this URL")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
-        public string NotFoundUrl { get; set; }
+        public string? NotFoundUrl { get; set; }
 
         [Category("URLs"), Caption("Mobile Device URL"), Description("If a mobile device accesses this site, the user is redirected to this URL")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
-        public string MobileSiteUrl { get; set; }
+        public string? MobileSiteUrl { get; set; }
 
         [Category("URLs"), Caption("Unsupported Browsers URL"), Description("If an unsupported browsers accesses this site, the user is redirected to this URL - If no URL is defined, browser versions are not checked")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
-        public string UnsupportedBrowserUrl { get; set; }
+        public string? UnsupportedBrowserUrl { get; set; }
 
         [Category("URLs"), Caption("Login URL"), Description("The URL where the user is redirected to log into the site")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
@@ -654,12 +656,12 @@ namespace YetaWF.Core.Site {
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
         [Data_NewValue]
-        public string PostLoginUrl { get; set; }
+        public string? PostLoginUrl { get; set; }
 
         [Category("URLs"), Caption("External Account Setup URL"), Description("The URL where the user is redirected to provide local information when using an external login provider")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local)]
         [StringLength(Globals.MaxUrl), Trim]
-        public string ExternalAccountSetupUrl { get; set; }
+        public string? ExternalAccountSetupUrl { get; set; }
 
         // REFERENCES
         // REFERENCES
@@ -700,19 +702,19 @@ namespace YetaWF.Core.Site {
         [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
         [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
-        public string BootstrapSkin { get; set; }
+        public string? BootstrapSkin { get; set; }
 
         [Category("Skin"), Caption("Default jQuery UI Skin"), Description("The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://jqueryui.com/themeroller/")]
         [UIHint("jQueryUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
-        public string jQueryUISkin { get; set; }
+        public string? jQueryUISkin { get; set; }
 
         [Category("Skin"), Caption("Default Kendo UI Skin"), Description("The default skin for Kendo UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
         [UIHint("KendoUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
-        public string KendoUISkin { get; set; }
+        public string? KendoUISkin { get; set; }
 
         [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]
         [UIHint("Enum"), Required]
@@ -725,11 +727,11 @@ namespace YetaWF.Core.Site {
 
         [Category("Encryption"), Caption("Public Key"), Description("The public key used to encrypt a token - This is used by this YetaWF site to encrypt/decrypt data internally")]
         [UIHint("TextAreaSourceOnly"), StringLength(Globals.MaxPublicKey)]
-        public string PublicKey { get; set; }
+        public string PublicKey { get; set; } = null!;
 
         [Category("Encryption"), Caption("Private Key"), Description("The private key used to decrypt a token - This is used by this YetaWF site to encrypt/decrypt data internally")]
         [UIHint("TextAreaSourceOnly"), StringLength(Globals.MaxPrivateKey)]
-        public string PrivateKey { get; set; }
+        public string PrivateKey { get; set; } = null!;
 
         // ADDONS
         // ADDONS
@@ -739,31 +741,31 @@ namespace YetaWF.Core.Site {
         [TextAbove("Analytics code is only available in deployed production sites and is ignored in debug builds (not marked deployed).")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxAnalytics), Trim]
         [RequiresPageReload]
-        public string Analytics { get; set; }
+        public string? Analytics { get; set; }
         [Category("Addons"), Caption("Analytics (Content)"), Description("Add analytics JavaScript code that should be executed when a new page becomes active in an active Unified Page Set - Do not include <script></script> tags - Use <<Url>> to substitute the actual URL - Pages can override this setting")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxAnalytics), Trim]
-        public string AnalyticsContent { get; set; }
+        public string? AnalyticsContent { get; set; }
 
         [Category("Addons"), Caption("Google Verification"), Description("The meta tags used by Google Webmaster Central so your site can prove to Google that you are really the site owner - You can obtain a meta tag from Google Webmaster Central for site verification - Make sure to copy the ENTIRE meta tag (including markup)")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxGoogleVerification), GoogleVerificationExpression, Trim]
         [HelpLink("http://www.google.com/webmasters/")]
         [RequiresPageReload]
-        public string GoogleVerification { get; set; }
+        public string? GoogleVerification { get; set; }
 
         [Category("Addons"), Caption("<HEAD>"), Description("Any tags that should be added to the <HEAD> tag of each page can be added here")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxHead), Trim]
         [RequiresPageReload]
-        public string ExtraHead { get; set; }
+        public string? ExtraHead { get; set; }
 
         [Category("Addons"), Caption("<BODY> Top"), Description("Any tags that should be added to the top of the <BODY> tag of each page can be added here")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxBodyTop), Trim]
         [RequiresPageReload]
-        public string ExtraBodyTop { get; set; }
+        public string? ExtraBodyTop { get; set; }
 
         [Category("Addons"), Caption("<BODY> Bottom"), Description("Any tags that should be added to the bottom of the <BODY> tag of each page can be added here")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxBodyBottom), Trim]
         [RequiresPageReload]
-        public string ExtraBodyBottom { get; set; }
+        public string? ExtraBodyBottom { get; set; }
 
         [Category("Addons"), Caption("Geo Location"), Description("Defines whether the site collects geo location information from your visitors based on their IP address (if available)")]
         [UIHint("Boolean")]
@@ -778,12 +780,12 @@ namespace YetaWF.Core.Site {
         [Category("Meta"), Caption("Site Meta Tags"), Description("Defines <meta> tags that are added to ALL pages")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxMeta), Trim]
         [RequiresPageReload]
-        public string SiteMetaTags { get; set; }
+        public string? SiteMetaTags { get; set; }
 
         [Category("Meta"), Caption("Page Meta Tags"), Description("Defines <meta> tags that are added to all pages by default but can be overridden by each page if the page defines meta tags using the PageMetaTags property")]
         [UIHint("TextAreaSourceOnly"), StringLength(MaxMeta), Trim]
         [RequiresPageReload]
-        public string PageMetaTags { get; set; }
+        public string? PageMetaTags { get; set; }
 
         [Category("Meta"), Caption("Default SiteMap"), Description("Defines whether the site map is saved as the site's default site map /sitemap.xml")]
         [UIHint("Boolean")]

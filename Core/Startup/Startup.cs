@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,7 +62,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public static bool RunningInContainer {
             get {
-                string env = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+                string? env = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
                 return env == "true";
             }
         }
@@ -82,14 +84,14 @@ namespace YetaWF.Core.Support {
         ///
         /// If no file matching the environment can be found, an exception occurs.
         /// </remarks>
-        public static string GetEnvironmentFile(string folder, string name, string ext, bool Optional = false) {
+        public static string? GetEnvironmentFile(string folder, string name, string ext, bool Optional = false) {
             string prod;
 #if DEBUG
             prod = "";
 #else
             prod = ".Prod";
 #endif
-            string file = null;
+            string? file = null;
             if (file == null && Startup.RunningInContainer) {
                 string f = Path.Combine(folder, $"{name}.Docker{prod}.{ext}");
                 if (File.Exists(f))
@@ -230,7 +232,7 @@ namespace YetaWF.Core.Support {
                     }
                 }
 
-                if (await YetaWF.Core.IO.FileSystem.FileSystemProvider.DirectoryExistsAsync(Path.GetDirectoryName(file)))
+                if (await YetaWF.Core.IO.FileSystem.FileSystemProvider.DirectoryExistsAsync(Path.GetDirectoryName(file)!))
                     await YetaWF.Core.IO.FileSystem.FileSystemProvider.DeleteFileAsync(file);
                 await lockObject.UnlockAsync();
 
@@ -258,16 +260,16 @@ namespace YetaWF.Core.Support {
             // now start up all classes
             foreach (Type type in types) {
                 try {
-                    object obj = Activator.CreateInstance(type);
-                    IInitializeApplicationStartupFirstNodeOnly iStartSpecific = obj as IInitializeApplicationStartupFirstNodeOnly;
+                    object? obj = Activator.CreateInstance(type);
+                    IInitializeApplicationStartupFirstNodeOnly? iStartSpecific = obj as IInitializeApplicationStartupFirstNodeOnly;
                     if ((Allow == AllowRun.Both || Allow == AllowRun.NodeSpecificOnly) && FirstNode && iStartSpecific != null) {
-                        Logging.AddLog("Calling global startup class \'{0}\' - node specific", type.FullName);
+                        Logging.AddLog("Calling global startup class \'{0}\' - node specific", type.FullName!);
                         await iStartSpecific.InitializeFirstNodeStartupAsync();
                         continue;
                     }
-                    IInitializeApplicationStartup iStart = obj as IInitializeApplicationStartup;
+                    IInitializeApplicationStartup? iStart = obj as IInitializeApplicationStartup;
                     if ((Allow == AllowRun.Both || Allow == AllowRun.UnknownNodeOnly) && iStart != null) {
-                        Logging.AddLog("Calling global startup class \'{0}\'", type.FullName);
+                        Logging.AddLog("Calling global startup class \'{0}\'", type.FullName!);
                         await iStart.InitializeApplicationStartupAsync();
                         continue;
                     }

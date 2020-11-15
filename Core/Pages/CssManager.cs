@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +11,6 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
-using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 
 // RESEARCH: evaluate @import and replace inline to avoid multiple http requests
@@ -23,7 +24,7 @@ namespace YetaWF.Core.Pages {
         protected YetaWFManager Manager { get; private set; }
 
         public class CssEntry {
-            public string Url { get; set; }
+            public string Url { get; set; } = null!;
             public bool Bundle { get; set; }
             public bool Last { get; set; } // after all addons
         }
@@ -37,14 +38,11 @@ namespace YetaWF.Core.Pages {
         /// <param name="version">The MVC version.</param>
         /// <returns>Returns CSS classes.</returns>
         public static string GetAspNetCss(Utility.AspNetMvcVersion version) {
-            switch (version) {
-                case Utility.AspNetMvcVersion.MVC5:
-                    return "yASPNET4 yMVC5";
-                case Utility.AspNetMvcVersion.MVC6:
-                    return "yASPNETCore yMVC6";
-                default:
-                    return null;
-            }
+            return version switch {
+                Utility.AspNetMvcVersion.MVC5 => "yASPNET4 yMVC5",
+                Utility.AspNetMvcVersion.MVC6 => "yASPNETCore yMVC6",
+                _ => string.Empty,
+            };
         }
         /// <summary>
         /// Combines two strings containing CSS class(es).
@@ -55,17 +53,23 @@ namespace YetaWF.Core.Pages {
         /// <remarks>
         /// This method does not eliminate duplicate CSS classes.
         /// </remarks>
-        public static string CombineCss(string css1, string css2) {
-            if (string.IsNullOrWhiteSpace(css1)) return css2;
-            if (string.IsNullOrWhiteSpace(css2)) return css1;
-            return $"{css1.Trim()} {css2.Trim()}";
+        public static string CombineCss(string? css1, string? css2) {
+            if (string.IsNullOrWhiteSpace(css1)) {
+                if (string.IsNullOrWhiteSpace(css2))
+                    return string.Empty;
+                return css2.Trim();
+            } else if (string.IsNullOrWhiteSpace(css2)) {
+                return css1.Trim();
+            } else {
+                return $"{css1.Trim()} {css2.Trim()}";
+            }
         }
         /// <summary>
         /// Add CSS class to a string containing CSS class(es).
         /// </summary>
         /// <param name="css">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>
         /// <param name="add">A string containing a CSS class.</param>
-        public static string AddCss(string css, string add) {
+        public static string AddCss(string? css, string add) {
             if (string.IsNullOrWhiteSpace(css)) return add;
             if (!ContainsCss(css, add))
                 return CombineCss(css, add);
@@ -82,13 +86,13 @@ namespace YetaWF.Core.Pages {
             return (from p in parts where p == search select p).FirstOrDefault() != null;
         }
 
-        public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object[] args) {
+        public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object?[] args) {
             if (Manager.IsPostRequest) return;// we never add css files for Post requests
             await AddFromFileListAsync(version, args);
         }
 
         // Add all css files listed in filelistCSS.txt
-        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, params object[] args) {
+        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, params object?[] args) {
             foreach (VersionManager.AddOnProduct.UsesInfo uses in version.CssUses) {
                 await Manager.AddOnManager.AddAddOnNamedCssAsync(uses.PackageName, uses.AddonName);
             }
@@ -257,14 +261,14 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        private bool WantBundle(PageContentController.PageContentData cr) {
+        private bool WantBundle(PageContentController.PageContentData? cr) {
             if (cr != null)
                 return false;
             else
                 return Manager.CurrentSite.BundleCSSFiles;
         }
 
-        internal async Task<string> RenderAsync(PageContentController.PageContentData cr = null, List<string> KnownCss = null) {
+        internal async Task<string> RenderAsync(PageContentController.PageContentData? cr = null, List<string>? KnownCss = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
@@ -274,7 +278,7 @@ namespace YetaWF.Core.Pages {
                     bundleList = bundleList.Except(KnownCss).ToList();
                 if (bundleList.Count > 1) {
                     externalList = (from s in _CssFiles orderby s.Last where !s.Bundle select s).ToList();
-                    string bundleUrl = await FileBundles.MakeBundleAsync(bundleList, FileBundles.BundleTypeEnum.CSS);
+                    string? bundleUrl = await FileBundles.MakeBundleAsync(bundleList, FileBundles.BundleTypeEnum.CSS);
                     if (!string.IsNullOrWhiteSpace(bundleUrl))
                         externalList.Add(new Pages.CssManager.CssEntry {
                             Url = bundleUrl,
@@ -317,7 +321,7 @@ namespace YetaWF.Core.Pages {
         /// Returns the list of css files in the current bundle (if any).
         /// </summary>
         /// <returns></returns>
-        internal List<string> GetBundleFiles() {
+        internal List<string>? GetBundleFiles() {
             if (!Manager.CurrentSite.DEBUGMODE && WantBundle(null)) {
                 List<string> bundleList = (from s in _CssFiles orderby s.Last where s.Bundle select s.Url).ToList();
                 if (bundleList.Count > 1)

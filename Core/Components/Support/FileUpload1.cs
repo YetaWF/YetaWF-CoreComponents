@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Components {
@@ -18,7 +20,7 @@ namespace YetaWF.Core.Components {
         public string DropFilesText { get; set; }
         public bool SerializeForm { get; set; }// serialize all form data when uploading a file
 
-        public string SaveURL { get; set; }
-        public string RemoveURL { get; set; }
+        public string SaveURL { get; set; } = null!;
+        public string RemoveURL { get; set; } = null!;
     }
 }

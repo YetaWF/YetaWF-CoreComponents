@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -48,7 +50,7 @@ namespace YetaWF.Core.IO {
         /// A method that loads package specific localization resources (Package) for a specific Type (string) from the specified location (Location) and
         /// returns a YetaWF.Core.Localize.LocalizationData object.
         /// </summary>
-        public static Func<Package, string, Location, LocalizationData> Load { get; set; }
+        public static Func<Package, string, Location, LocalizationData?> Load { get; set; }
         /// <summary>
         /// A method that saves package (Package) specific localization resources (YetaWF.Core.Localize.LocalizationData) for a specific Type (string) to the specified location (Location).
         /// </summary>
@@ -71,7 +73,7 @@ namespace YetaWF.Core.IO {
             ClearPackageDataAsync = DefaultClearPackageDataAsync;
             GetFilesAsync = DefaultGetFilesAsync;
         }
-        private static LocalizationData DefaultLoad(Package package, string type, Location location) {
+        private static LocalizationData? DefaultLoad(Package package, string type, Location location) {
             if (!LocalizationSupport.UseLocalizationResources) return null;
             throw new NotImplementedException();
         }

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,23 +41,23 @@ namespace YetaWF.Core.Components {
         public static bool operator <=(TimeOfDay thisTime, TimeOfDay thatTime) {
             return thisTime.TOD <= thatTime.TOD;
         }
-        public static bool operator ==(TimeOfDay thisTime, TimeOfDay thatTime) {
-            if ((object)thisTime == null) {
-                if ((object)thatTime == null) return true;
+        public static bool operator ==(TimeOfDay? thisTime, TimeOfDay? thatTime) {
+            if (thisTime == null) {
+                if (thatTime == null) return true;
                 return false;
             }
-            if ((object)thatTime == null) return false;
+            if (thatTime == null) return false;
             return thisTime.TOD == thatTime.TOD;
         }
-        public static bool operator !=(TimeOfDay thisTime, TimeOfDay thatTime) {
-            if ((object)thisTime == null) {
-                if ((object)thatTime == null) return false;
+        public static bool operator !=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
+            if (thisTime == null) {
+                if (thatTime == null) return false;
                 return true;
             }
-            if ((object)thatTime == null) return true;
+            if (thatTime == null) return true;
             return thisTime.TOD == thatTime.TOD;
         }
-        public override bool Equals(object obj) {
+        public override bool Equals(object? obj) {
             return base.Equals(obj);
         }
         public override int GetHashCode() {
@@ -99,7 +101,7 @@ namespace YetaWF.Core.Components {
         }
     }
     public class TimeOfDayNullLastComparer : IComparer<TimeOfDay> {
-        public int Compare(TimeOfDay x, TimeOfDay y) {
+        public int Compare(TimeOfDay? x, TimeOfDay? y) {
             if (x == null) {
                 if (y == null)
                     return 0;

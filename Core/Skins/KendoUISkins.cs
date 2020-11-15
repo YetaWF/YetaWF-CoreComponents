@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +18,9 @@ namespace YetaWF.Core.Skins {
         private const string KendoThemeFile = "themelist.txt";
 
         public class KendoTheme {
-            public string Name { get; set; }
-            public string File { get; set; }
-            public string Description { get; set; }
+            public string Name { get; set; } = null!;
+            public string File { get; set; } = null!;
+            public string? Description { get; set; }
         }
 
         public async Task<List<KendoTheme>> GetKendoThemeListAsync() {
@@ -26,8 +28,8 @@ namespace YetaWF.Core.Skins {
                 _kendoThemeList = await LoadKendoUIThemesAsync();
             return _kendoThemeList;
         }
-        private static List<KendoTheme> _kendoThemeList;
-        private static KendoTheme _kendoThemeDefault;
+        private static List<KendoTheme>? _kendoThemeList;
+        private static KendoTheme _kendoThemeDefault = null!;
 
         private async Task<List<KendoTheme>> LoadKendoUIThemesAsync() {
             string kendoUIUrl = Manager.AddOnManager.GetAddOnNamedUrl(AreaRegistration.CurrentPackage.AreaName, "telerik.com.Kendo_UI_Core");
@@ -51,7 +53,7 @@ namespace YetaWF.Core.Skins {
                 if (s.Length < 2)
                     throw new InternalError("Invalid Kendo theme entry: {0}", line);
                 string file = s[1].Trim();
-                string description = null;
+                string? description = null;
                 if (s.Length > 2)
                     description = s[2].Trim();
                 if (string.IsNullOrWhiteSpace(description))
@@ -70,7 +72,7 @@ namespace YetaWF.Core.Skins {
         }
 
         public async Task<string> FindKendoUISkinAsync(string themeName) {
-            string intName = (from th in await GetKendoThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
+            string? intName = (from th in await GetKendoThemeListAsync() where th.Name == themeName select th.File).FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(intName))
                 return intName;
             return _kendoThemeDefault.File;

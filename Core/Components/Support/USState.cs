@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +39,7 @@ namespace YetaWF.Core.Components {
             }
             return _statesList;
         }
-        private static List<SelectionItem<string>> _statesList = null;
+        private static List<SelectionItem<string>>? _statesList = null;
 
         /// <summary>
         /// Get a state's displayable name from a state abbreviation (2 characters).
@@ -46,8 +48,8 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns the state's displayable name.</returns>
         public static async Task<string> GetStateNameAsync(string abbrev) {
             Dictionary<string, string> states = await ReadUSStatesListAsync();
-            string name = states[abbrev?.ToUpper()];
-            return name ?? "??";
+            string name = states[abbrev.ToUpper()];
+            return name;
         }
 
         /// <summary>
@@ -66,7 +68,8 @@ namespace YetaWF.Core.Components {
 
                 Dictionary<string, string> dict = new Dictionary<string, string>();
 
-                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file)) throw new InternalError("US States file not found");
+                if (!await FileSystem.FileSystemProvider.FileExistsAsync(file))
+                    throw new InternalError("US States file not found");
 
                 List<string> sts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
                 foreach (var st in sts) {
@@ -79,6 +82,6 @@ namespace YetaWF.Core.Components {
             }
             return _usStatesList;
         }
-        private static Dictionary<string, string> _usStatesList = null;
+        private static Dictionary<string, string>? _usStatesList = null;
     }
 }

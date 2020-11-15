@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Linq;
 using YetaWF.Core.IO;
@@ -17,7 +19,7 @@ namespace YetaWF.Core.Support.Repository {
         [DontSave]
         public ObjectType ObjectType { get; private set; }
         [DontSave]
-        public string ObjectName { get; private set; }
+        public string ObjectName { get; private set; } = null!;
         [DontSave]
         public bool Modified { get; set; }
 
@@ -26,7 +28,7 @@ namespace YetaWF.Core.Support.Repository {
             SessionStateIO<SettingsDictionary> session = new SessionStateIO<SettingsDictionary> {
                 Key = string.Format("Setting_{0}_{1}", ((int) objectType), objectName),
             };
-            SettingsDictionary settings = session.Load();
+            SettingsDictionary? settings = session.Load();
             if (settings == null)
                 settings = new SettingsDictionary();
             settings.Modified = false;
@@ -48,7 +50,7 @@ namespace YetaWF.Core.Support.Repository {
                 SessionStateIO<SettingsDictionary> session = new SessionStateIO<SettingsDictionary> {
                     Key = key,
                 };
-                SettingsDictionary settings = session.Load();
+                SettingsDictionary? settings = session.Load();
                 if (settings == null) return;
                 settings.ClearAllNotStartingWith(Globals.Session_Permanent);
                 if (settings.Count == 0)
@@ -60,17 +62,16 @@ namespace YetaWF.Core.Support.Repository {
             }
         }
 
-        public TYPE GetValue<TYPE>(string settingName, TYPE dfltVal = default(TYPE)) {
+        public TYPE? GetValue<TYPE>(string settingName, TYPE? dfltVal = default(TYPE)) {
             if (!ContainsKey(settingName))
                 return dfltVal;
-            Setting setting = this[settingName];
+            Setting? setting = this[settingName];
             if (setting == null)
                 return dfltVal;
             return setting.GetValue<TYPE>();
         }
         public void SetValue<TYPE>(string settingName, TYPE value) {
-            Setting setting;
-            if (!TryGetValue(settingName, out setting)) {
+            if (!TryGetValue(settingName, out Setting? setting)) {
                 setting = Setting.Create(this, settingName, "", false);
                 Add(setting.Name, setting);
             }
@@ -92,7 +93,7 @@ namespace YetaWF.Core.Support.Repository {
                 base.Remove(key);
         }
 
-        public TYPE GetPermanentValue<TYPE>(string settingName, TYPE dfltVal = default(TYPE)) {
+        public TYPE? GetPermanentValue<TYPE>(string settingName, TYPE? dfltVal = default(TYPE)) {
             settingName = Globals.Session_Permanent + settingName;
             if (!ContainsKey(settingName))
                 return dfltVal;
@@ -103,8 +104,7 @@ namespace YetaWF.Core.Support.Repository {
         }
         public void SetPermanentValue<TYPE>(string settingName, TYPE value) {
             settingName = Globals.Session_Permanent + settingName;
-            Setting setting;
-            if (!TryGetValue(settingName, out setting)) {
+            if (!TryGetValue(settingName, out Setting? setting)) {
                 setting = Setting.Create(this, settingName, "", false);
                 Add(setting.Name, setting);
             }

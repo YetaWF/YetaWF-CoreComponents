@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,8 +28,6 @@ namespace YetaWF.Core.Packages {
         /// </remarks>
         public async Task<bool> RemoveAsync(string packageName, List<string> errorList) {
 
-            bool status = true;
-
             Package package = Package.GetPackageFromPackageName(packageName);
             if (!await package.UninstallModelsAsync(errorList))
                 return false;
@@ -35,14 +35,14 @@ namespace YetaWF.Core.Packages {
             // now remove all files associated with this package
 
             // Addons for this product
-            status = await RemoveEmptyFoldersUpAsync(AddonsFolder, errorList);
+            bool status = await RemoveEmptyFoldersUpAsync(AddonsFolder, errorList);
 
             // Assembly
             Uri file = new Uri(package.PackageAssembly.Location);
             string asmFile = file.LocalPath;
 
             // Extra assemblies
-            List<string> extraAsms = await FileSystem.FileSystemProvider.GetFilesAsync(Path.GetDirectoryName(asmFile), Path.GetFileNameWithoutExtension(asmFile) + ".*.dll");
+            List<string> extraAsms = await FileSystem.FileSystemProvider.GetFilesAsync(Path.GetDirectoryName(asmFile)!, Path.GetFileNameWithoutExtension(asmFile) + ".*.dll");
             foreach (var extraAsm in extraAsms) {
                 try {
                     await FileSystem.FileSystemProvider.DeleteFileAsync(extraAsm);
@@ -83,7 +83,7 @@ namespace YetaWF.Core.Packages {
                 }
             }
             // now delete the folder itself if it's empty
-            folder = Path.GetDirectoryName(folder);
+            folder = Path.GetDirectoryName(folder) !;
             while (await FileSystem.FileSystemProvider.DirectoryExistsAsync(folder) && (await FileSystem.FileSystemProvider.GetFilesAsync(folder)).Count == 0 &&
                     (await FileSystem.FileSystemProvider.GetDirectoriesAsync(folder)).Count == 0) {
                 try {
@@ -94,7 +94,7 @@ namespace YetaWF.Core.Packages {
                         return false;
                     }
                 }
-                folder = Path.GetDirectoryName(folder);
+                folder = Path.GetDirectoryName(folder) !;
             }
             return true;
         }

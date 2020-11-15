@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,25 +32,25 @@ namespace YetaWF.Core.Modules {
         }
 
         // Render an action as button
-        public async Task<string> RenderAsButtonAsync(string id = null) {
+        public async Task<string> RenderAsButtonAsync(string? id = null) {
             return await RenderAsync(RenderModeEnum.Button, Id: id);
         }
-        public async Task<string> RenderAsButtonIconAsync(string id = null) {
+        public async Task<string> RenderAsButtonIconAsync(string? id = null) {
             return await RenderAsync(RenderModeEnum.ButtonIcon, Id: id);
         }
-        public async Task<string> RenderAsButtonOnlyAsync(string id = null) {
+        public async Task<string> RenderAsButtonOnlyAsync(string? id = null) {
             return await RenderAsync(RenderModeEnum.ButtonOnly, Id: id);
         }
         // Render an action as icon
-        public async Task<string> RenderAsIconAsync(string id = null) {
+        public async Task<string> RenderAsIconAsync(string? id = null) {
             return await RenderAsync(RenderModeEnum.IconsOnly, Id: id);
         }
         // Render an action as link
-        public async Task<string> RenderAsLinkAsync(string id = null) {
+        public async Task<string> RenderAsLinkAsync(string? id = null) {
             return await RenderAsync(RenderModeEnum.LinksOnly, Id: id);
         }
         // Render an action as normal link with icon
-        public async Task<string> RenderAsNormalLinkAsync(string id = null) {
+        public async Task<string> RenderAsNormalLinkAsync(string? id = null) {
             return await RenderAsync(RenderModeEnum.NormalLinks, Id: id);
         }
 
@@ -75,7 +77,7 @@ namespace YetaWF.Core.Modules {
         /// Render an action.
         /// </summary>
         /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
-        public async Task<string> RenderAsync(RenderModeEnum mode, string Id = null) {
+        public async Task<string> RenderAsync(RenderModeEnum mode, string? Id = null) {
 
             return await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id);
 
@@ -83,7 +85,7 @@ namespace YetaWF.Core.Modules {
 
         public string GetCompleteUrl(bool OnPage = false) {
 
-            string url = Url;
+            string? url = Url;
             if (!string.IsNullOrWhiteSpace(url)) {
                 // handle all args
 
@@ -153,7 +155,7 @@ namespace YetaWF.Core.Modules {
             }
             // validate SubModule
             if (SubModule != null && SubModule != Guid.Empty) {
-                ModuleDefinition mod = await ModuleDefinition.LoadAsync((Guid)SubModule, AllowNone: true);
+                ModuleDefinition? mod = await ModuleDefinition.LoadAsync((Guid)SubModule, AllowNone: true);
                 if (mod == null) return false;// can't find module, not authorized
                 if (!mod.IsAuthorized(ModuleDefinition.RoleDefinition.View))
                     return false;
@@ -174,7 +176,7 @@ namespace YetaWF.Core.Modules {
                     if (Manager.UserAuthorizedUrls != null && Manager.UserAuthorizedUrls.Contains(url)) return true;
                     if (Manager.UserNotAuthorizedUrls != null && Manager.UserNotAuthorizedUrls.Contains(url)) return false;
                     if (url.ToLower().StartsWith(Globals.ModuleUrl.ToLower())) {
-                        ModuleDefinition module = await ModuleDefinition.FindDesignedModuleAsync(url);
+                        ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(url);
                         if (module == null)
                             module = await ModuleDefinition.LoadByUrlAsync(url);
                         if (module != null) {
@@ -195,7 +197,7 @@ namespace YetaWF.Core.Modules {
                             if ((from u in Manager.UserNotAuthorizedUrls where u.Length > 1 && u.Last() == '/' && url.StartsWith(u) select u).FirstOrDefault() != null)
                                 return false;
                         }
-                        PageDefinition page = await PageDefinition.LoadFromUrlAsync(url);
+                        PageDefinition? page = await PageDefinition.LoadFromUrlAsync(url);
                         if (page != null) {
                             if (page.Url.ToLower() != url)
                                 url = $"{page.Url}/".ToLower();

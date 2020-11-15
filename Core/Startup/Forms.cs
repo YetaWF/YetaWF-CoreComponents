@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Threading.Tasks;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
@@ -22,7 +24,7 @@ namespace YetaWF.Core.Addons {
         public const string CssWarningIcon = "yform-warningicon";
         public const string CssDataApplyButton = "data-apply-button";// used as attribute for Apply button (input[type=submit])
 
-        public static string CssWarningIconUrl { get; private set; }
+        public static string CssWarningIconUrl { get; private set; } = null!;
 
         public async Task AddSupportAsync(YetaWFManager manager) {
 

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Serializers;
@@ -28,14 +30,14 @@ namespace YetaWF.Core.Components {
         public DayTimeRange Sundays { get { return Days[(int)DayOfWeek.Sunday]; } set { Days[(int)DayOfWeek.Sunday] = value; } }
 
         [Data_DontSave]
-        public string AdditionalFieldCaption { get; set; }
+        public string? AdditionalFieldCaption { get; set; }
         [Data_DontSave]
-        public string AdditionalFieldDescription { get; set; }
+        public string? AdditionalFieldDescription { get; set; }
 
         [Data_DontSave]
-        public string ClosedFieldCaption { get; set; }
+        public string? ClosedFieldCaption { get; set; }
         [Data_DontSave]
-        public string ClosedFieldDescription { get; set; }
+        public string? ClosedFieldDescription { get; set; }
 
         public WeeklyHours() {
             Days = new SerializableList<DayTimeRange> {

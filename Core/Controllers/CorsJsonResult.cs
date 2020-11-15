@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -14,7 +16,7 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Defines the allowable target domain. Specify "*" for all domains.
         /// </summary>
-        public string TargetDomain { get; set; }
+        public string? TargetDomain { get; set; }
 
         /// <summary>
         /// Constructor.

@@ -1,19 +1,13 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-#if MVC6
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
-#else
-#endif
 
 namespace YetaWF.Core.Components {
 
@@ -80,7 +74,7 @@ namespace YetaWF.Core.Components {
                 _htmlHelper = value;
             }
         }
-        private YHtmlHelper _htmlHelper;
+        private YHtmlHelper? _htmlHelper;
 
         /// <summary>
         /// Sets rendering information for the page.
@@ -148,7 +142,7 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns the name of the page.</returns>
         public abstract string GetPageName();
 
-        public async Task<string> RenderPaneAsync(string pane, string cssClass = null, bool Conditional = true, bool Unified = false) {
+        public async Task<string> RenderPaneAsync(string pane, string? cssClass = null, bool Conditional = true, bool Unified = false) {
 
             if (!Manager.EditMode && Unified && Manager.UnifiedPages != null) {
                 PageDefinition realPage = Manager.CurrentPage;

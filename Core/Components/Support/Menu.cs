@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +13,6 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
-#if MVC6
-#else
-using System.Web;
-using System.Web.Mvc;
-#endif
 
 namespace YetaWF.Core.Components {
 
@@ -31,7 +28,7 @@ namespace YetaWF.Core.Components {
 
         // MENU CACHE
         public class SavedCacheInfo {
-            public MenuList Menu { get; set; }
+            public MenuList Menu { get; set; } = null!;
             public bool EditMode { get; set; }
             public int UserId { get; set; }
             public long MenuVersion { get; set; }
@@ -40,7 +37,7 @@ namespace YetaWF.Core.Components {
             Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
             return string.Format("{0}_MenuCache_{1}_{2}", package.AreaName, Manager.CurrentSite.Identity, moduleGuid);
         }
-        public static SavedCacheInfo GetCache(Guid moduleGuid) {
+        public static SavedCacheInfo? GetCache(Guid moduleGuid) {
             SessionStateIO<SavedCacheInfo> session = new SessionStateIO<SavedCacheInfo> {
                 Key = GetCacheName(moduleGuid)
             };
@@ -75,9 +72,9 @@ namespace YetaWF.Core.Components {
         public MenuList(List<ModuleAction> val) : base(val) { }
 
         [Data_DontSave]
-        public string LICssClass { get; set; }
+        public string? LICssClass { get; set; }
 
-        public void New(ModuleAction action, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
+        public void New(ModuleAction? action, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
             if (action != null) {
                 if ((location & ModuleAction.ActionLocationEnum.Explicit) != 0) // grid links are always explicit calls
                     Add(action);
@@ -85,7 +82,7 @@ namespace YetaWF.Core.Components {
                     Add(action);
             }
         }
-        public void NewIf(ModuleAction action, ModuleAction.ActionLocationEnum desiredLocation, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
+        public void NewIf(ModuleAction? action, ModuleAction.ActionLocationEnum desiredLocation, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
             if (action != null) {
                 if ((location & ModuleAction.ActionLocationEnum.Explicit) != 0) // grid links are always explicit calls
                     Add(action);
@@ -103,14 +100,14 @@ namespace YetaWF.Core.Components {
             MenuList menu = new MenuList();
             menu.RenderMode = this.RenderMode;
             foreach (ModuleAction m in this) {
-                ModuleAction newAction = await EvaluateActionAsync(m);
+                ModuleAction? newAction = await EvaluateActionAsync(m);
                 if (newAction != null)
                     menu.Add(newAction);
             }
             menu = new MenuList(DropEmptySubmenus(menu));
             return menu;
         }
-        private SerializableList<ModuleAction> DropEmptySubmenus(SerializableList<ModuleAction> menu) {
+        private SerializableList<ModuleAction> DropEmptySubmenus(SerializableList<ModuleAction>? menu) {
             if (menu == null) return new MenuList();
             foreach (ModuleAction m in menu) {
                 m.SubMenu = DropEmptySubmenus(m.SubMenu);
@@ -120,7 +117,7 @@ namespace YetaWF.Core.Components {
                  where m.EntryType != ModuleAction.MenuEntryType.Parent || (m.SubMenu != null && m.SubMenu.Count() > 0) select m).ToList()
             );
         }
-        private  async Task<ModuleAction> EvaluateActionAsync(ModuleAction origAction) {
+        private  async Task<ModuleAction?> EvaluateActionAsync(ModuleAction origAction) {
             if (!await origAction.IsAuthorizedAsync())
                 return null;
             // make a copy of the original entry
@@ -134,7 +131,7 @@ namespace YetaWF.Core.Components {
         private async Task EvaluateSubMenu(ModuleAction origAction, ModuleAction newAction) {
             if (origAction.SubMenu != null && origAction.SubMenu.Count > 0) {
                 foreach (ModuleAction m in origAction.SubMenu) {
-                    ModuleAction subAction = await EvaluateActionAsync(m);
+                    ModuleAction? subAction = await EvaluateActionAsync(m);
                     if (subAction != null) {
                         if (newAction.SubMenu == null)
                             newAction.SubMenu = new SerializableList<ModuleAction>();

@@ -3,6 +3,8 @@
 
 // Copied from aspnetcore3 .\src\Middleware\HttpOverrides\src with some modifications
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

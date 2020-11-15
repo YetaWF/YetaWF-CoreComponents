@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -24,7 +26,7 @@ namespace YetaWF.Core.SendEmail {
     /// </summary>
     /// <remarks>There can only be on SendEmail provider.</remarks>
     public interface ISendEmail {
-        Task<object> PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object Parameters = null, NameValueCollection Headers = null);
+        Task<object> PrepareEmailMessageAsync(string? toEmail, string subject, string emailFile, string? fromEmail = null, object? Parameters = null, NameValueCollection? Headers = null);
         Task<string> GetEmailFileAsync(Package package, string filename);
         void AddBcc(object sendEmailData, string ccEmail);
         Task SendAsync(object sendEmailData, bool fThrowError = true);
@@ -37,10 +39,10 @@ namespace YetaWF.Core.SendEmail {
 
     public class SendEmail : IInitializeApplicationStartup {
 
-        public static ISendEmail SendEmailProvider = null;
-        public object SendEmailData = null;
+        public static ISendEmail? SendEmailProvider = null;
+        public object SendEmailData = null!;
 
-        private string SendingEmailAddress = null;
+        private string SendingEmailAddress = null!;
 
         public Task InitializeApplicationStartupAsync() {
             List<Type> types = Package.GetClassesInPackages<ISendEmail>();
@@ -49,7 +51,7 @@ namespace YetaWF.Core.SendEmail {
                 if (types.Count > 1)
                     throw new InternalError("More than 1 SendEmail provider installed");
                 Type type = types[0];
-                ISendEmail isendEmail = (ISendEmail)Activator.CreateInstance(type);
+                ISendEmail? isendEmail = (ISendEmail?)Activator.CreateInstance(type);
                 if (isendEmail != null)
                     SendEmailProvider = isendEmail;
                 else
@@ -72,8 +74,8 @@ namespace YetaWF.Core.SendEmail {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public MailMessage MailMessage { get; protected set; }
-        protected SmtpClient SmtpClient { get; set; }
+        public MailMessage MailMessage { get; protected set; } = null!;
+        protected SmtpClient SmtpClient { get; set; } = null!;
 
         public async Task<string> GetSendingEmailAddressAsync() {
             string email;
@@ -87,7 +89,7 @@ namespace YetaWF.Core.SendEmail {
             return email;
         }
 
-        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string fromEmail = null, object Parameters = null, NameValueCollection Headers = null) {
+        public async Task PrepareEmailMessageFromStringsAsync(string toEmail, string subject, string emailText, string emailHTML, string? fromEmail = null, object? Parameters = null, NameValueCollection? Headers = null) {
             NoSendEmailProviderAllowed();
             Manager.CurrentSite.SMTP.Validate();
             SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
@@ -114,7 +116,7 @@ namespace YetaWF.Core.SendEmail {
                 throw new InternalError("Email configuration file {0} not found at {1}", filename, moduleAddOnUrl);
             }
         }
-        public async Task PrepareEmailMessageAsync(string toEmail, string subject, string emailFile, string fromEmail = null, object Parameters = null, NameValueCollection Headers = null) {
+        public async Task PrepareEmailMessageAsync(string? toEmail, string subject, string emailFile, string? fromEmail = null, object? Parameters = null, NameValueCollection? Headers = null) {
             if (SendEmailProvider != null) {
                 SendEmailData = await SendEmailProvider.PrepareEmailMessageAsync(toEmail, subject, emailFile, fromEmail, Parameters, Headers);
             } else {
@@ -123,7 +125,7 @@ namespace YetaWF.Core.SendEmail {
                 await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, Parameters, Headers);
             }
         }
-        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string emailFile, object Parameters = null, NameValueCollection Headers = null) {
+        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string? username, string? password, string? fromEmail, string? toEmail, string subject, string emailFile, object? Parameters = null, NameValueCollection? Headers = null) {
             NoSendEmailProviderAllowed();
             string file = emailFile;
             if (!file.EndsWith(EmailTxtExtension, StringComparison.CurrentCultureIgnoreCase))
@@ -141,10 +143,10 @@ namespace YetaWF.Core.SendEmail {
 
             // add html formatted file if available
             file = Path.ChangeExtension(emailFile, EmailHtmlExtension);
-            string linesHtml = null, htmlFolder = null;
+            string? linesHtml = null, htmlFolder = null;
             try {
                 linesHtml = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
-                htmlFolder = Path.GetDirectoryName(file);
+                htmlFolder = Path.GetDirectoryName(file)!;
             } catch (Exception exc) {
                 if (!(exc is FileNotFoundException))
                     Logging.AddErrorLog(this.__ResStr("errEmailHtmlFile", "The html formatted email {0} could not be read."), file, exc);
@@ -153,7 +155,7 @@ namespace YetaWF.Core.SendEmail {
             }
             await PrepareEmailMessageAsync(server, port, ssl, auth, username, password, fromEmail, toEmail, subject, linesText, linesHtml, htmlFolder, Parameters, Headers);
         }
-        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string username, string password, string fromEmail, string toEmail, string subject, string linesText, string linesHtml, string htmlFolder, object Parameters = null, NameValueCollection Headers = null) {
+        public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string? username, string? password, string? fromEmail, string? toEmail, string subject, string linesText, string? linesHtml, string? htmlFolder, object? Parameters = null, NameValueCollection? Headers = null) {
             NoSendEmailProviderAllowed();
             try {
                 if (string.IsNullOrEmpty(server))
@@ -207,9 +209,9 @@ namespace YetaWF.Core.SendEmail {
                     int inlineIndex = 0;
 
                     List<LinkedResource> linkedResources = new List<LinkedResource>();
-                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder, new Regex(@"url\(\s*file:///([^\)]*)\)"), fileInfo);
-                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder, new Regex(@"=\""\s*file:///([^""]*)\"""), fileInfo);
-                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder, new Regex(@"=\'\s*file:///([^']*)\'"), fileInfo);
+                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder!, new Regex(@"url\(\s*file:///([^\)]*)\)"), fileInfo);
+                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder!, new Regex(@"=\""\s*file:///([^""]*)\"""), fileInfo);
+                    inlineIndex = await MakeInlineFileItemsAsync(linkedResources, inlineIndex, htmlFolder!, new Regex(@"=\'\s*file:///([^']*)\'"), fileInfo);
 
                     //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"url\(\s*(http(s|)://[^\)]*)\)"), fileInfo);
                     //fileInfo = await MakeInlineUrlItemsAsync(new Regex(@"=\""\s*(http(s|)://[^""]*)\"""), fileInfo);
@@ -242,8 +244,8 @@ namespace YetaWF.Core.SendEmail {
 
         // find   ="file:///....." in text and replace with ="cid:C{1}"
         private class MakeInlineFileItemsInfo {
-            public List<string> Files { get; set; }
-            public string LinesHtml { get; set; }
+            public List<string> Files { get; set; } = null!;
+            public string LinesHtml { get; set; } = null!;
         }
         private static async Task<int> MakeInlineUrlItemsAsync(List<LinkedResource> linkedResources, int inlineIndex, Regex regex, MakeInlineFileItemsInfo info) {
             Match m;

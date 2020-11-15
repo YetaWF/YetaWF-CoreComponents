@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
@@ -26,19 +28,17 @@ namespace YetaWF.Core.Packages {
 
             string displayFileName = FileUpload.IsUploadedFile(zipFileName) ? __ResStr("uploadedDataFile", "Uploaded file") : Path.GetFileName(zipFileName);
 
-            string xmlFile = null;
-
             using (ZipFile zip = new ZipFile(zipFileName)) {
 
                 // check id file
-                ZipEntry ze = zip.GetEntry(PackageIDDataFile);
+                ZipEntry? ze = zip.GetEntry(PackageIDDataFile);
                 if (ze == null) {
                     errorList.Add(__ResStr("invDataFormat", "{0} is not a valid package data file.", displayFileName));
                     return false;
                 }
 
                 // read contents file
-                xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
+                string xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                     ze = zip.GetEntry(PackageContentsFile);
                     if (ze == null) {
@@ -59,7 +59,7 @@ namespace YetaWF.Core.Packages {
 
                 // check if the originating package is really installed
                 List<Package> allPackages = Package.GetAvailablePackages();
-                Package realPackage = allPackages.Where(x => string.Compare(x.Name, serData.PackageName, StringComparison.OrdinalIgnoreCase) == 0).FirstOrDefault();
+                Package? realPackage = allPackages.Where(x => string.Compare(x.Name, serData.PackageName, StringComparison.OrdinalIgnoreCase) == 0).FirstOrDefault();
                 if (realPackage == null) {
                     errorList.Add(__ResStr("errPkgReqDataImp", "Package {0} required to import data is not installed.", serData.PackageName));
                     return false;
@@ -78,14 +78,14 @@ namespace YetaWF.Core.Packages {
             // unzip all files/data
             foreach (var modelType in this.InstallableModels) {
                 try {
-                    object instMod = Activator.CreateInstance(modelType);
+                    object instMod = Activator.CreateInstance(modelType) ! ;
                     using ((IDisposable)instMod) {
 
                         IInstallableModel model = (IInstallableModel)instMod;
                         await model.RemoveSiteDataAsync();// remove site specific data so we can import the new data
 
                         // find the model data
-                        SerializableModelData serModel = (from sd in serData.Data where sd.Class == modelType.Name select sd).FirstOrDefault();
+                        SerializableModelData? serModel = (from sd in serData.Data where sd.Class == modelType.Name select sd).FirstOrDefault();
                         if (serModel == null) // this model no longer exists
                             continue;
 
@@ -111,7 +111,7 @@ namespace YetaWF.Core.Packages {
                             // unzip data
                             {
                                 string zipFileName = string.Format("{0}_{1}.json", modelType.Name, chunk);
-                                ZipEntry e = zip.GetEntry(zipFileName);
+                                ZipEntry? e = zip.GetEntry(zipFileName);
                                 if (e == null) {
                                     errorList.Add(__ResStr("errDataCorrupt", "Zip file {1} corrupted - file {0} not found.", zipFileName, displayFileName));
                                     return false;
@@ -124,7 +124,7 @@ namespace YetaWF.Core.Packages {
                                     }
                                     await fs.CloseAsync();
                                 }
-                                object obj = null;
+                                object obj;
                                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                                     try {
                                         obj = new GeneralFormatter(Package.ExportFormatChunks).Deserialize<object>(fs.GetFileStream());
@@ -138,16 +138,16 @@ namespace YetaWF.Core.Packages {
                                 }
 
                                 // update role ids and user ids
-                                IEnumerable ienumerable = obj as IEnumerable;
+                                IEnumerable? ienumerable = obj as IEnumerable;
                                 if (ienumerable != null) {
                                     IEnumerator ienum = ienumerable.GetEnumerator();
                                     while (ienum.MoveNext()) {
-                                        PageDefinition pageDef = ienum.Current as PageDefinition;
+                                        PageDefinition? pageDef = ienum.Current as PageDefinition;
                                         if (pageDef != null) {
                                             pageDef.AllowedRoles = await PageDefinition.GetUpdatedRolesAsync(pageDef.AllowedRoles, serData.Roles);
                                             pageDef.AllowedUsers = await PageDefinition.GetUpdatedUsersAsync(pageDef.AllowedUsers, serData.Users);
                                         }
-                                        ModuleDefinition modDef = ienum.Current as ModuleDefinition;
+                                        ModuleDefinition? modDef = ienum.Current as ModuleDefinition;
                                         if (modDef != null) {
                                             modDef.AllowedRoles = await ModuleDefinition.GetUpdatedRolesAsync(modDef.AllowedRoles, serData.Roles);
                                             modDef.AllowedUsers = await ModuleDefinition.GetUpdatedUsersAsync(modDef.AllowedUsers, serData.Users);
@@ -160,7 +160,7 @@ namespace YetaWF.Core.Packages {
                         }
                     }
                 } catch (Exception exc) {
-                    errorList.Add(__ResStr("errDataCantImport", "Model type {0} cannot be imported - {1}", modelType.FullName, ErrorHandling.FormatExceptionMessage(exc)));
+                    errorList.Add(__ResStr("errDataCantImport", "Model type {0} cannot be imported - {1}", modelType.FullName!, ErrorHandling.FormatExceptionMessage(exc)));
                     return false;
                 }
             }
@@ -177,7 +177,7 @@ namespace YetaWF.Core.Packages {
 
         private static async Task ExtractAsync(string siteFolder, string name, Stream entryStream) {
             string fileName = Path.Combine(siteFolder, name);
-            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fileName));
+            await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fileName)!);
             using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
                 Extract(entryStream, fs);
                 await fs.CloseAsync();

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,11 +18,12 @@ using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 
 namespace YetaWF.Core.Serializers {
+
     public static class XmlWriterExtender {
 
         public static void Initialize(this XmlWriter xmlWrt) { }
         public static string Attr(this XmlTextReader xmlRd, string name) {
-            string strAttr = xmlRd[name];
+            string? strAttr = xmlRd[name];
             if (strAttr == null)
                 throw new InternalError("{0} element at line {1} doesn't have a required {2} attribute value", xmlRd.Name, xmlRd.LineNumber, name);
             return strAttr;
@@ -34,13 +37,15 @@ namespace YetaWF.Core.Serializers {
 
         public TextFormatter() { }
 
-        public void Serialize(System.IO.Stream serializationStream, object graph) {
+        public void Serialize(System.IO.Stream serializationStream, object? graph) {
 
             XmlWriter xmlOut = XmlWriter.Create(serializationStream, new XmlWriterSettings { Indent = true, IndentChars = "  ", });
             xmlOut.Initialize();
-            xmlOut.WriteComment(string.Format("{0}", graph.GetType()));
 
-            SerializeObjectProperties(xmlOut, graph);
+            if (graph != null) {
+                xmlOut.WriteComment(string.Format("{0}", graph.GetType()));
+                SerializeObjectProperties(xmlOut, graph);
+            }
 
             xmlOut.Flush();
             xmlOut.Close();
@@ -51,11 +56,11 @@ namespace YetaWF.Core.Serializers {
             xmlOut.WriteStartElement("Object");
 
             // "YetaWF.Core.Serializers.SerializableList`1[[YetaWF.Core.Localize.LocalizationData+ClassData, YetaWF.Core, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null]]"
-            string typeName = obj.GetType().FullName;
+            string typeName = obj.GetType().FullName!;
             typeName = GeneralFormatter.UpdateTypeForSerialization(typeName);
             xmlOut.WriteAttributeString("Type", typeName);
 
-            string asmName = obj.GetType().Assembly.GetName().Name;
+            string asmName = obj.GetType().Assembly.GetName().Name!;
 
             xmlOut.WriteAttributeString("Assembly", asmName);
             if (asmName != YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Name)// we only save the full name if it's not YetaWF.Core
@@ -75,7 +80,7 @@ namespace YetaWF.Core.Serializers {
 
                 xmlOut.WriteStartElement(p.Name);
 
-                object o = p.GetValue(obj, null);
+                object? o = p.GetValue(obj, null);
                 SerializeOneProperty(xmlOut, o);
 
                 xmlOut.WriteEndElement();
@@ -98,7 +103,7 @@ namespace YetaWF.Core.Serializers {
                     if (!denum.MoveNext())
                         break;
                     object key = denum.Key;
-                    object val = denum.Value;
+                    object? val = denum.Value;
 
                     xmlOut.WriteStartElement("Key");
                     SerializeOneProperty(xmlOut, key);
@@ -131,7 +136,7 @@ namespace YetaWF.Core.Serializers {
             xmlOut.WriteEndElement();
         }
 
-        private void SerializeOneProperty(XmlWriter xmlOut, object o) {
+        private void SerializeOneProperty(XmlWriter xmlOut, object? o) {
 
             if (o == null) return;
             Type tp = o.GetType();
@@ -155,7 +160,7 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(TimeSpan) || tp == typeof(TimeSpan?)) {
                 xmlOut.WriteAttributeString("Value", ((TimeSpan)o).Ticks.ToString());
             } else if (tp == typeof(Guid) || tp == typeof(Guid?)) {
-                string val = Convert.ToString(o, CultureInfo.InvariantCulture);
+                string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null)
                     xmlOut.WriteAttributeString("Value", val);
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
@@ -167,11 +172,11 @@ namespace YetaWF.Core.Serializers {
                     }
                 }
             } else if (tp.IsValueType) {
-                string val = Convert.ToString(o, CultureInfo.InvariantCulture);
+                string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null)
                     WriteValueType(xmlOut, val);
             } else if (tp.IsClass) {
-                IConvertible iconv = (o as IConvertible);
+                IConvertible? iconv = (o as IConvertible);
                 if (iconv != null) {
                     // this object can represent itself as a string
                     string s = iconv.ToString(CultureInfo.InvariantCulture);
@@ -195,7 +200,7 @@ namespace YetaWF.Core.Serializers {
                 xmlOut.WriteAttributeString("ValueBin", Convert.ToBase64String(Encoding.UTF8.GetBytes(s)));
         }
 
-        public object Deserialize(System.IO.Stream serializationStream) {
+        public object? Deserialize(System.IO.Stream serializationStream) {
 
 
             //XmlReaderSettings xmlSet = new XmlReaderSettings();
@@ -207,7 +212,7 @@ namespace YetaWF.Core.Serializers {
             if (!xmlIn.Read())
                 throw new InternalError("Empty input.");
 
-            object obj = null;
+            object? obj = null;
             if (xmlIn.IsStartElement())
                 obj = DeserializeOneObject(xmlIn);
 
@@ -217,8 +222,8 @@ namespace YetaWF.Core.Serializers {
             return obj;
         }
 
-        public object DeserializeOneObject(XmlTextReader xmlIn) {
-            object obj = null;
+        public object? DeserializeOneObject(XmlTextReader xmlIn) {
+            object obj;
             if (!xmlIn.IsStartElement() || xmlIn.Name != "Object")
                 throw new InternalError("Unexpected element {0} {1} at line {2}.", xmlIn.NodeType.ToString(), xmlIn.Name, xmlIn.LineNumber);
 
@@ -226,18 +231,18 @@ namespace YetaWF.Core.Serializers {
             string strType = xmlIn.Attr("Type");
             GeneralFormatter.UpdateTypeForDeserialization(ref strType, ref strAsm);
 
-            Type t = null;
+            Type? t;
             try {
-                Assembly asm = Assemblies.Load(strAsm);
-                t = asm.GetType(strType, true);
+                Assembly asm = Assemblies.Load(strAsm)!;
+                t = asm.GetType(strType, true)!;
             } catch {
                 t = null;
             }
             if (t == null) {
                 try {
                     string strAsmFull = xmlIn.Attr("AssemblyFull");
-                    Assembly asm = Assemblies.Load(strAsmFull);
-                    t = asm.GetType(strType, true);
+                    Assembly asm = Assemblies.Load(strAsmFull)!;
+                    t = asm.GetType(strType, true)!;
                 } catch (Exception exc) {
                     throw new InternalError("{0} element at line {1} has an invalid Type attribute {2} - {3} - AssemblyFull missing or invalid.", xmlIn.Name, xmlIn.LineNumber, strType, ErrorHandling.FormatExceptionMessage(exc));
                 }
@@ -246,9 +251,9 @@ namespace YetaWF.Core.Serializers {
 
             try {
                 if (t == typeof(byte[]))
-                    obj = new byte[] { };
+                    obj = Array.Empty<byte>();
                 else
-                    obj = Activator.CreateInstance(t);
+                    obj = Activator.CreateInstance(t) !;
             } catch (Exception exc) {
                 throw new InternalError("Unable to create an instance of type {0} at line {1} - {2}.", strType, xmlIn.LineNumber, ErrorHandling.FormatExceptionMessage(exc));
             }
@@ -296,7 +301,7 @@ namespace YetaWF.Core.Serializers {
             }
         }
 
-        private object DeserializeOneProperty(XmlTextReader xmlIn, object obj, Type tpObj, bool set = true, string expectedName = null) {
+        private object? DeserializeOneProperty(XmlTextReader xmlIn, object obj, Type tpObj, bool set = true, string? expectedName = null) {
             if (xmlIn.NodeType != XmlNodeType.Element)
                 throw new InternalError("Unexpected node {0} {1} at line {2}.", xmlIn.Name, xmlIn.NodeType, xmlIn.LineNumber);
 
@@ -304,8 +309,8 @@ namespace YetaWF.Core.Serializers {
             if (expectedName != null && expectedName != propName)
                 throw new InternalError("Expected element {0} at line {1}.", expectedName, xmlIn.LineNumber);
 
-            object objVal = null;
-            PropertyInfo pi = null;
+            object? objVal = null;
+            PropertyInfo? pi = null;
             if (set) {
                 pi = ObjectSupport.TryGetProperty(tpObj, propName);
                 if (pi == null) {
@@ -317,7 +322,7 @@ namespace YetaWF.Core.Serializers {
 
             if (xmlIn.IsEmptyElement) {
                 // simple value
-                string strVal = null;
+                string? strVal = null;
                 if (xmlIn["Value"] != null) {
                     strVal = xmlIn.Attr("Value"); // property value
                 } else if (!string.IsNullOrEmpty(xmlIn["ValueBin"])) {
@@ -326,7 +331,7 @@ namespace YetaWF.Core.Serializers {
                 }
                 if (set && pi != null) {
                     bool fail = false;
-                    string failMsg = null;
+                    string? failMsg = null;
 
                     try {
                         if (pi.PropertyType == typeof(Byte[])) {
@@ -361,7 +366,7 @@ namespace YetaWF.Core.Serializers {
                     }
                     if (fail) {
                         // try using a constructor (types like Guid can't simply be assigned)
-                        ConstructorInfo ci = pi.PropertyType.GetConstructor(new Type[] { typeof(string) });
+                        ConstructorInfo? ci = pi.PropertyType.GetConstructor(new Type[] { typeof(string) });
                         if (ci == null) {
 #if DEBUG
                             if (propName == "..something...") // use this for specific debugging
@@ -370,7 +375,7 @@ namespace YetaWF.Core.Serializers {
                             throw new InternalError("Property {0} can't be assigned and doesn't have a suitable constructor - {1}.", propName, failMsg);
                         }
                         try {
-                            objVal = ci.Invoke(new object[] { strVal });
+                            objVal = ci.Invoke(new object?[] { strVal });
                             pi.SetValue(obj, objVal, null);
                         } catch (Exception exc) {
                             throw new InternalError("Property {0} can't be assigned using a constructor - {1} - {2}.", propName, failMsg, ErrorHandling.FormatExceptionMessage(exc));
@@ -425,14 +430,14 @@ skip: ;
                     xmlIn.MustRead();
                     break;
                 }
-                object objKey = DeserializeOneProperty(xmlIn, obj, tpObj, false, "Key");
-                object objVal = DeserializeOneProperty(xmlIn, obj, tpObj, false, "Value");
+                object? objKey = DeserializeOneProperty(xmlIn, obj, tpObj, false, "Key");
+                object? objVal = DeserializeOneProperty(xmlIn, obj, tpObj, false, "Value");
 
-                MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
+                MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
                 if (mi == null)
                     throw new InternalError("Dictionary type {0} doesn't implement the required void Add(object,object) method.", tpObj.Name);
                 try {
-                    mi.Invoke(obj, new object[] { objKey, objVal });
+                    mi.Invoke(obj, new object?[] { objKey, objVal });
                 } catch (Exception exc) {
                     throw new InternalError("Couldn't add new entry to dictionary type {0} - {1}.", tpObj.Name, ErrorHandling.FormatExceptionMessage(exc));
                 }
@@ -455,13 +460,13 @@ skip: ;
                     xmlIn.MustRead();
                     break;
                 }
-                object objVal = DeserializeOneProperty(xmlIn, obj, tpObj, false, "Value");
+                object? objVal = DeserializeOneProperty(xmlIn, obj, tpObj, false, "Value");
 
-                MethodInfo mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
+                MethodInfo? mi = tpObj.GetMethod("Add", new Type[] { typeof(object) });
                 if (mi == null)
                     throw new InternalError("List type {0} doesn't implement the required void Add(object,object) method.", tpObj.Name);
                 try {
-                    mi.Invoke(obj, new object[] { objVal });
+                    mi.Invoke(obj, new object?[] { objVal });
                 } catch (Exception exc) {
                     throw new InternalError("Couldn't add new entry to list type {0} - {1}.", tpObj.Name, ErrorHandling.FormatExceptionMessage(exc));
                 }

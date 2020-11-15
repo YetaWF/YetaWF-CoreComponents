@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using YetaWF.Core.Models.Attributes;
@@ -16,20 +18,20 @@ namespace YetaWF.Core.Serializers {
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods",
             Justification = "The deserialization (e.g., TextFormatter, SimpleFormatter) uses generic Add() instead of typed as it simplifies deserialization")]
-        public void Add(object o) // for Serializers, DataProviders
+        public void Add(object? o) // for Serializers, DataProviders
         {
              Type val;
              try {
                  if (typeof(Type) == typeof(int))
                      val = (Type)(object)Convert.ToInt32(o);
                  else if (typeof(Type) == typeof(Guid))
-                    val = (Type)(object)new Guid(o.ToString());
+                    val = (Type)(object)new Guid(o!.ToString()!);
                 else
                     val = (Type)o;
              } catch (Exception) {
-                 val = (Type)Activator.CreateInstance(typeof(Type), new object[] { o });
+                 val = (Type)Activator.CreateInstance(typeof(Type), new object?[] { o });
              }
-             base.Add((Type)val);
+             base.Add(val!);
         }
 
         [DontSave]

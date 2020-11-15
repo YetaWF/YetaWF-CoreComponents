@@ -1,13 +1,10 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Text;
-#if MVC6
-using Microsoft.AspNetCore.Html;
-#else
-using System.Web;
-#endif
 
 namespace YetaWF.Core.Support {
 
@@ -45,7 +42,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// A dictionary of the tag's HTML attributes.
         /// </summary>
-        public Dictionary<string, string> Attributes { get; private set; }
+        public Dictionary<string, string?> Attributes { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -53,7 +50,7 @@ namespace YetaWF.Core.Support {
         /// <param name="tag">The tag name.</param>
         public YTagBuilder(string tag) {
             Tag = tag;
-            Attributes = new Dictionary<string, string>();
+            Attributes = new Dictionary<string, string?>();
         }
 
         /// <summary>
@@ -67,16 +64,16 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Defines the tag's inner HTML.
         /// </summary>
-        public string InnerHtml { get; set; }
+        public string? InnerHtml { get; set; }
 
         /// <summary>
         /// Adds a CSS class to the tag.
         /// </summary>
         /// <param name="value"></param>
-        public void AddCssClass(string value) {
-            string currentValue;
-            if (Attributes.TryGetValue("class", out currentValue))
-                Attributes["class"] = currentValue + " " + value;
+        public void AddCssClass(string? value) {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            if (Attributes.TryGetValue("class", out string? currentValue))
+                Attributes["class"] = $"{currentValue} {value}";
             else
                 Attributes["class"] = value;
         }
@@ -85,10 +82,9 @@ namespace YetaWF.Core.Support {
         /// Adds a value to the rel attribute.
         /// </summary>
         /// <param name="value">The value to add.</param>
-        public void AddRel(string value) {
-            string currentValue;
-            if (Attributes.TryGetValue("rel", out currentValue))
-                Attributes["rel"] = currentValue + " " + value;
+        public void AddRel(string? value) {
+            if (Attributes.TryGetValue("rel", out string? currentValue))
+                Attributes["rel"] = $"{currentValue} {value}";
             else
                 Attributes["rel"] = value;
         }
@@ -100,9 +96,9 @@ namespace YetaWF.Core.Support {
         /// <param name="replaceExisting">Set to true to replace any existing attributes, false otherwise (duplicates are ignored).</param>
         public void MergeAttributes<TKey, TValue>(IDictionary<TKey, TValue> attributes, bool replaceExisting) {
             if (attributes != null) {
-                foreach (var entry in attributes) {
-                    string key = Convert.ToString(entry.Key);
-                    string value = Convert.ToString(entry.Value);
+                foreach (KeyValuePair<TKey, TValue> entry in attributes) {
+                    string key = Convert.ToString(entry.Key) !;
+                    string? value = Convert.ToString(entry.Value);
                     MergeAttribute(key, value, replaceExisting);
                 }
             }
@@ -114,7 +110,7 @@ namespace YetaWF.Core.Support {
         /// <param name="value">The attribute value.</param>
         /// <remarks>If a "class" attribute is added, existing CSS classes are preserved and the new class added to the existing CSS classes.
         /// </remarks>
-        public void MergeAttribute(string key, string value) {
+        public void MergeAttribute(string key, string? value) {
             MergeAttribute(key, value, replaceExisting: false);
         }
         /// <summary>
@@ -125,7 +121,7 @@ namespace YetaWF.Core.Support {
         /// <param name="replaceExisting">Set to true to replace an existing attribute, false otherwise (duplicates are ignored).</param>
         /// <remarks>If a "class" attribute is added, existing CSS classes are preserved and the new class added to the existing CSS classes (<paramref name="replaceExisting"/> true), otherwise the class attribute is replaced.
         /// </remarks>
-        public void MergeAttribute(string key, string value, bool replaceExisting) {
+        public void MergeAttribute(string key, string? value, bool replaceExisting) {
             if (key == "--NoTemplate" || key == "__NoTemplate") return;
             if (string.IsNullOrWhiteSpace(key))
                 throw new InternalError($"Invalid attribute key");

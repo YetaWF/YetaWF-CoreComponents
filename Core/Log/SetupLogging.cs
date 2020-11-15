@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,19 +60,19 @@ namespace YetaWF.Core.Log {
         /// <summary>
         /// A collection of installed logging data providers.
         /// </summary>
-        private static List<ILogging> Loggers { get; set; }
+        private static List<ILogging>? Loggers { get; set; }
         /// <summary>
         /// The installed default logging data providers.
         /// </summary>
-        private static ILogging DefaultLogger { get; set; }
+        private static ILogging? DefaultLogger { get; set; }
         /// <summary>
         /// The type of the default logging data provider.
         /// </summary>
-        public static Type DefaultLoggerType { get; private set; }
+        public static Type? DefaultLoggerType { get; private set; }
         /// <summary>
         /// The type of the defined logging data provider.
         /// </summary>
-        public static Type DefinedLoggerType { get; private set; }
+        public static Type? DefinedLoggerType { get; private set; }
 
         private static object _lockObject = new object();
 
@@ -95,22 +97,22 @@ namespace YetaWF.Core.Log {
 
             TerminateLogging();
 
-            string assembly = WebConfigHelper.GetValue<string>("Logging", "Assembly");
-            string type = WebConfigHelper.GetValue<string>("Logging", "Type");
+            string? assembly = WebConfigHelper.GetValue<string>("Logging", "Assembly");
+            string? type = WebConfigHelper.GetValue<string>("Logging", "Type");
 
             if (!string.IsNullOrWhiteSpace(assembly) && !string.IsNullOrWhiteSpace(type)) {
                 // load the assembly/type implementing logging
-                Type tp = null;
+                Type? tp = null;
                 try {
-                    Assembly asm = Assemblies.Load(assembly);
-                    tp = asm.GetType(type);
+                    Assembly? asm = Assemblies.Load(assembly);
+                    tp = asm!.GetType(type);
                     DefinedLoggerType = tp;
                 } catch (Exception) { }
 
                 // create an instance of the class implementing logging
-                ILogging log = null;
+                ILogging? log = null;
                 try {
-                    log = (ILogging)Activator.CreateInstance(tp);
+                    log = (ILogging?)Activator.CreateInstance(tp!);
                 } catch (Exception) { }
 
                 if (log != null) {

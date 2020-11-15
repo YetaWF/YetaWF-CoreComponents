@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,10 +23,10 @@ namespace YetaWF.Core.IO {
 #endif
         }
 
-        public string BaseFolder { get; set; } // The full path of the folder where the file(s) is/are stored
-        public string FileName { get; set; }
+        public string BaseFolder { get; set; } = null!; // The full path of the folder where the file(s) is/are stored
+        public string FileName { get; set; } = null!;
         public DateTime? Date { get; set; } // file save/load date
-        public object Data { get; set; } // the data saved/loaded
+        public object? Data { get; set; } // the data saved/loaded
 
         public GeneralFormatter.Style Format { get; set; }
 
@@ -46,9 +48,9 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Loads an object from a file.
         /// </summary>
-        public async Task<TObj> LoadAsync() {
+        public async Task<TObj?> LoadAsync() {
             if (string.IsNullOrEmpty(BaseFolder)) throw new InternalError("BaseFolder is empty");
-            object data = null;
+            object? data = null;
             try {
                 Date = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(FullPath);
             } catch (Exception) { }

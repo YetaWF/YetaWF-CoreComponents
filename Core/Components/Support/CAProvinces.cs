@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -46,6 +48,6 @@ namespace YetaWF.Core.Components {
             }
             return _provincesList;
         }
-        private static List<SelectionItem<string>> _provincesList = null;
+        private static List<SelectionItem<string>>? _provincesList = null;
     }
 }

@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +19,6 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="context">The context in which the result is executed. The context information includes the controller, HTTP content, request context, and route data.</param>
         public override void ExecuteResult(ActionContext context) {
-            if (context == null)
-                throw new ArgumentNullException("context");
             context.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
         }
     }

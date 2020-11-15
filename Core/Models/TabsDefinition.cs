@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,10 +34,10 @@ namespace YetaWF.Core.Models {
     /// Describes one individual tab and the associated optional pane.
     /// </summary>
     public class TabEntry {
-        public MultiString Caption { get; set; }
-        public MultiString ToolTip { get; set; }
-        public string TabCssClasses { get; set; }
-        public string PaneCssClasses { get; set; }
-        public Func<int, Task<string>> RenderPaneAsync { get; set; }
+        public MultiString? Caption { get; set; }
+        public MultiString? ToolTip { get; set; }
+        public string? TabCssClasses { get; set; }
+        public string? PaneCssClasses { get; set; }
+        public Func<int, Task<string>>? RenderPaneAsync { get; set; }
     }
 }

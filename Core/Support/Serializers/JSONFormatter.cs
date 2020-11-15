@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+#nullable enable
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -44,11 +46,11 @@ namespace YetaWF.Core.Serializers {
             }
         }
 
-        public void Serialize(FileStream fs, object obj, bool typed = false) {
+        public void Serialize(FileStream fs, object? obj, bool typed = false) {
             byte[] btes = Serialize(obj, typed);
             fs.Write(btes, 0, btes.Length);
         }
-        public byte[] Serialize(object obj, bool typed = false) {
+        public byte[] Serialize(object? obj, bool typed = false) {
             string s = Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings {
                 ContractResolver = new ContractResolver(),
                 TypeNameHandling = typed ? TypeNameHandling.All : TypeNameHandling.None,
@@ -58,12 +60,12 @@ namespace YetaWF.Core.Serializers {
             byte[] btes = System.Text.Encoding.UTF8.GetBytes(s);
             return btes;
         }
-        public TObj Deserialize<TObj>(FileStream fs, bool typed = false) {
+        public TObj? Deserialize<TObj>(FileStream fs, bool typed = false) {
             byte[] btes = new byte[fs.Length];
             fs.Read(btes, 0, (int)fs.Length);
-            return Deserialize<TObj>(btes, typed);
+            return Deserialize<TObj?>(btes, typed);
         }
-        public TObj Deserialize<TObj>(byte[] btes, bool typed = false) {
+        public TObj? Deserialize<TObj>(byte[] btes, bool typed = false) {
             string s = System.Text.Encoding.UTF8.GetString(btes);
             if (typed)
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<TObj>(s, new JsonSerializerSettings {
@@ -73,13 +75,13 @@ namespace YetaWF.Core.Serializers {
                     SerializationBinder = new TypeNameSerializationBinder()
             });
             else
-                return Utility.JsonDeserialize<TObj>(s);
+                return Utility.JsonDeserialize<TObj?>(s);
         }
     }
     public class TypeNameSerializationBinder : ISerializationBinder {
         public void BindToName(Type serializedType, out string assemblyName, out string typeName) {
-            assemblyName = serializedType.Assembly.FullName;
-            typeName = serializedType.FullName;
+            assemblyName = serializedType.Assembly.FullName!;
+            typeName = serializedType.FullName!;
         }
         public Type BindToType(string assemblyName, string typeName) {
 #if MVC6
@@ -87,7 +89,7 @@ namespace YetaWF.Core.Serializers {
             typeName = typeName.Replace("System.Private.CoreLib", "mscorlib");
 #endif
             string resolvedTypeName = string.Format($"{typeName}, {assemblyName}");
-            return Type.GetType(resolvedTypeName, true);
+            return Type.GetType(resolvedTypeName, true)!;
         }
     }
 }
