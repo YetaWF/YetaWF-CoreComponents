@@ -64,7 +64,7 @@ namespace YetaWF.Core.DataProvider {
     /// </summary>
     /// <typeparam name="KEYTYPE">The type of the primary key property.</typeparam>
     /// <typeparam name="OBJTYPE">The type of the object (one record) in the dataset.</typeparam>
-    public interface IDataProvider<KEYTYPE, OBJTYPE> {
+    public interface IDataProvider<KEYTYPE, OBJTYPE> where KEYTYPE : notnull where OBJTYPE : notnull {
 
         /// <summary>
         /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
@@ -85,9 +85,9 @@ namespace YetaWF.Core.DataProvider {
         Task<bool> RemoveAsync(KEYTYPE key);// returns false if not found
         Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo> filters); // returns # of records removed
 
-        Task<OBJTYPE> GetAsync(KEYTYPE key); // returns null if not found
-        Task<OBJTYPE> GetOneRecordAsync(List<DataProviderFilterInfo> filters, List<JoinData> Joins = null); // returns null if not found
-        Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters, List<JoinData> Joins = null);
+        Task<OBJTYPE?> GetAsync(KEYTYPE key); // returns null if not found
+        Task<OBJTYPE?> GetOneRecordAsync(List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null); // returns null if not found
+        Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo>? sort, List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null);
 
         /// <summary>
         /// Returns whether the data provider is installed and available.
@@ -192,9 +192,9 @@ namespace YetaWF.Core.DataProvider {
         Task<bool> RemoveByIdentityAsync(int id);// returns false if not found
         Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo>? filters); // returns # of records removed
 
-        Task<OBJTYPE> GetAsync(KEYTYPE key, KEY2TYPE key2); // returns null if not found
-        Task<OBJTYPE> GetByIdentityAsync(int id); // returns null if not found
-        Task<OBJTYPE> GetOneRecordAsync(List<DataProviderFilterInfo> filters, List<JoinData> Joins = null); // returns null if not found
+        Task<OBJTYPE?> GetAsync(KEYTYPE key, KEY2TYPE key2); // returns null if not found
+        Task<OBJTYPE?> GetByIdentityAsync(int id); // returns null if not found
+        Task<OBJTYPE?> GetOneRecordAsync(List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null); // returns null if not found
         Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo>? sort, List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null);
 
         /// <summary>

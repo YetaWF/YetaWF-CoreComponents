@@ -92,7 +92,7 @@ namespace YetaWF.Core.IO {
         /// The <paramref name="obj"/> parameter is provided without type but should be cast to
         /// YetaWF.Core.Serializers.SerializableList&lt;OBJTYPE&gt; as it is a collection of records to import. All records in the collection must be imported.
         /// </remarks>
-        Task ImportChunkAsync(int chunk, SerializableList<SerializableFile>? fileList, object obj);
+        Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj);
 
         /// <summary>
         /// Called to translate the data managed by the data provider to another language.

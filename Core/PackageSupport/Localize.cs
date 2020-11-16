@@ -290,7 +290,7 @@ namespace YetaWF.Core.Packages {
             return cls;
         }
 
-        private static readonly Regex csExplResRegex = new Regex(@"(private|protected|internal)\s+static\s+string\s+__ResStr\s*\(\s*string\s+[a-zA-Z0-9_]+\s*,\s*string\s+[a-zA-Z0-9_]+\s*,\s*params\s+object\s*\[\s*\]\s+[a-zA-Z0-9_]+\s*\)\s*\{\s*return\s+ResourceAccess\s*\.\s*GetResourceString\s*\(\s*typeof\s*\((?'explCls'[a-zA-Z0-9_]+)\)", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex csExplResRegex = new Regex(@"(private|protected|internal)\s+static\s+string\s+__ResStr\s*\(\s*string\s+[a-zA-Z0-9_]+\s*,\s*string\s+[a-zA-Z0-9_]+\s*,\s*params\s+object(\s*\?|)\s*\[\s*\]\s+[a-zA-Z0-9_]+\s*\)\s*\{\s*return\s+ResourceAccess\s*\.\s*GetResourceString\s*\(\s*typeof\s*\((?'explCls'[a-zA-Z0-9_]+)\)", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private static readonly Regex csResstrRegex = new Regex(@"((?'object'[A-Za-z0-9_]+)\s*\.\s*){0,1}\s*__ResStr\s*\(\s*""(?'name'[^""]*)""\s*,\s*""(?'text'(\\""|[^""])*)""\s*(,|\))", RegexOptions.Compiled | RegexOptions.Multiline);
 

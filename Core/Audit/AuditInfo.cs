@@ -117,7 +117,7 @@ namespace YetaWF.Core.Audit {
         /// <param name="DataBefore">The before image of a data object that was changed, which caused the current audit record to be created. May be null if the data object is added.</param>
         /// <param name="DataAfter">The after image of a data object that was changed, which caused the current audit record to be created. May be null if the data object is removed.</param>
         /// <returns></returns>
-        public static async Task AddAuditAsync(string action, string idString, Guid idGuid, string description, int dummy = 0,
+        public static async Task AddAuditAsync(string action, string? idString, Guid idGuid, string description, int dummy = 0,
 
             bool RequiresRestart = false, bool ExpensiveMultiInstance = false,
             object? DataBefore = null, object? DataAfter = null) {

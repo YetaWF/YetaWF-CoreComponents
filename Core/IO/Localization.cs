@@ -52,7 +52,7 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// A method that saves package (Package) specific localization resources (YetaWF.Core.Localize.LocalizationData) for a specific Type (string) to the specified location (Location).
         /// </summary>
-        public static Func<Package, string, Location, LocalizationData, Task> SaveAsync { get; set; }
+        public static Func<Package, string, Location, LocalizationData?, Task> SaveAsync { get; set; }
         /// <summary>
         /// Remove/clear all package (Package) specific localization resources for the specified language (string).
         /// </summary>
@@ -75,7 +75,7 @@ namespace YetaWF.Core.IO {
             if (!LocalizationSupport.UseLocalizationResources) return null;
             throw new NotImplementedException();
         }
-        private static Task DefaultSaveAsync(Package package, string type, Location location, LocalizationData data) {
+        private static Task DefaultSaveAsync(Package package, string type, Location location, LocalizationData? data) {
             throw new NotImplementedException();
         }
         private static Task DefaultClearPackageDataAsync(Package package, string language) {

@@ -148,7 +148,7 @@ namespace YetaWF.Core.Packages {
                                     }
                                 }
 
-                                await model.ImportChunkAsync(chunk, null, obj);
+                                await model.ImportChunkAsync(chunk, new Serializers.SerializableList<SerializableFile>(), obj);
                             }
                         }
                     }

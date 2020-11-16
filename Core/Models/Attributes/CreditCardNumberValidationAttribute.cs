@@ -17,7 +17,7 @@ namespace YetaWF.Core.Models.Attributes {
         public CreditCardNumberValidationAttribute() : base(@"^\s*([1-9][0-9]{11,15})\s*$",
                 __ResStr("valCCNum", "The credit card number is invalid"),
                 __ResStr("valCCNum2", "The credit card number is invalid (field '{0}')"),
-                __ResStr("valCCNum2", "The credit card number '{0}' is invalid")
+                __ResStr("valCCNum3", "The credit card number '{0}' is invalid")
             ) { }
         public override bool IsValid(object? value) {
             string? valueAsString = value as string;

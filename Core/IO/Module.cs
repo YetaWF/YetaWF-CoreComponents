@@ -24,7 +24,7 @@ namespace YetaWF.Core.IO {
         /// <summary>
         /// Loads a module given the module Guid and returns the module object. It can be cast to a more specific derived type.
         /// </summary>
-        public static Func<Guid, Task<ModuleDefinition>> LoadModuleDefinitionAsync { get; set; } = null!;
+        public static Func<Guid, Task<ModuleDefinition?>> LoadModuleDefinitionAsync { get; set; } = null!;
         /// <summary>
         /// Saves a module.
         /// </summary>

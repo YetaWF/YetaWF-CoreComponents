@@ -110,7 +110,7 @@ namespace YetaWF.Core.Image {
         public Task AddSiteDataAsync() { return Task.CompletedTask;  }
         public Task RemoveSiteDataAsync() { return Task.CompletedTask; }
         public Task<DataProviderExportChunk> ExportChunkAsync(int chunk, SerializableList<SerializableFile> fileList) { return Task.FromResult(new DataProviderExportChunk()); }
-        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile>? fileList, object obj) { return Task.CompletedTask; }
+        public Task ImportChunkAsync(int chunk, SerializableList<SerializableFile> fileList, object obj) { return Task.CompletedTask; }
         public Task LocalizeModelAsync(string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync) { return Task.CompletedTask; }
 
         // IMAGE SUPPORT
