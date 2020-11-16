@@ -9,12 +9,7 @@ using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Linq;
 using System.Collections.Generic;
-#if MVC6
 using Microsoft.AspNetCore.Http;
-#else
-using System.Web;
-using System.Web.SessionState;
-#endif
 
 namespace YetaWF.Core.HttpHandler {
 
