@@ -34,7 +34,7 @@ namespace YetaWF.Core.DataProvider {
         }
         //~DataProviderImpl() { Dispose(false); }
 
-        private dynamic? _dataProvider { get; set; } = null!;
+        private dynamic? _dataProvider { get; set; }
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected bool HaveManager { get { return YetaWFManager.HaveManager; } }
@@ -53,7 +53,7 @@ namespace YetaWF.Core.DataProvider {
         public dynamic GetDataProvider() {
             return _dataProvider!;
         }
-        protected void SetDataProvider(dynamic dp) {
+        protected void SetDataProvider(dynamic? dp) {
             _dataProvider = dp;
         }
 

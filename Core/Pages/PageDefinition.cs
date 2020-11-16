@@ -298,7 +298,7 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         /// <remarks>Unlike CanonicalUrl, the EvaluatedCanonicalUrl substitutes all variables.</remarks>
         [Data_DontSave]
-        public string EvaluatedCanonicalUrl {
+        public string? EvaluatedCanonicalUrl {
             get {
                 if (string.IsNullOrWhiteSpace(_canonicalUrl)) {
                     string url = string.IsNullOrWhiteSpace(CanonicalUrl) ? Url : CanonicalUrl;

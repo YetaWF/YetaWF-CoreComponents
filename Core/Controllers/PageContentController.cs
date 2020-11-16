@@ -80,11 +80,11 @@ namespace YetaWF.Core.Controllers {
             /// <summary>
             /// The requested page's Canonical Url.
             /// </summary>
-            public string CanonicalUrl { get; set; } = null!;
+            public string? CanonicalUrl { get; set; }
             /// <summary>
             /// The requested page's local Url (without querystring)
             /// </summary>
-            public string LocalUrl { get; set; } = null!;
+            public string? LocalUrl { get; set; }
             /// <summary>
             /// Inline script snippets generated for this page.
             /// </summary>

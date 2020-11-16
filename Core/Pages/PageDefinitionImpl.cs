@@ -235,10 +235,9 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        public string CanonicalUrlLink {
+        public string? CanonicalUrlLink {
             get {
-                string url = EvaluatedCanonicalUrl;
-                return string.Format("<link rel=\"canonical\" href=\"{0}\">", url);
+                return EvaluatedCanonicalUrl != null ? string.Format("<link rel=\"canonical\" href=\"{0}\">", EvaluatedCanonicalUrl) : null;
             }
         }
 

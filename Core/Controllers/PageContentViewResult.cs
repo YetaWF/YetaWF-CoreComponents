@@ -79,8 +79,10 @@ namespace YetaWF.Core.Controllers {
                 cr.PageTitle = Manager.PageTitle.ToString();
                 cr.PageCssClasses = Manager.CurrentPage.GetCssClass();
                 cr.CanonicalUrl = Manager.CurrentPage.EvaluatedCanonicalUrl;
-                UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
-                cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
+                if (cr.CanonicalUrl != null) {
+                    UriBuilder ub = new UriBuilder(cr.CanonicalUrl);
+                    cr.LocalUrl = QueryHelper.ToUrl(ub.Path, ub.Query);
+                }
 
             } catch (Exception exc) {
                 cr.Status = Logging.AddErrorLog(ErrorHandling.FormatExceptionMessage(exc));
