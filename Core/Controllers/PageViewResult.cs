@@ -44,7 +44,6 @@ namespace YetaWF.Core.Controllers {
                         } else {
                             if (info.PageGuids != null && info.PageGuids.Count > 0) {
                                 foreach (Guid guid in info.PageGuids) {
-
                                     PageDefinition page = await PageDefinition.LoadAsync(guid);
                                     if (page != null) {
                                         Manager.UnifiedPages.Add(page);

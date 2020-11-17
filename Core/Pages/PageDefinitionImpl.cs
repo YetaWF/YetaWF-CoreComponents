@@ -54,7 +54,7 @@ namespace YetaWF.Core.Pages {
             public Guid UnifiedSetGuid { get; set; }
             public bool Disabled { get; set; }
             public UnifiedModeEnum Mode { get; set; }
-            public string PageSkinCollectionName { get; set; } = null!;
+            public string? PageSkinCollectionName { get; set; }
             public string PageSkinFileName { get; set; } = null!;
             public bool Popups { get; set; }
             public int Animation { get; set; }
@@ -73,7 +73,7 @@ namespace YetaWF.Core.Pages {
         public static Func<Task<List<string>>> GetDesignedUrlsAsync { get; set; } = null!;
         public static Func<Guid, Task<List<PageDefinition>>> GetPagesFromModuleAsync { get; set; } = null!;
 
-        public static Func<Guid?, string?, string?, Task<UnifiedInfo>> GetUnifiedPageInfoAsync { get; set; } = null!;
+        public static Func<Guid?, string?, string?, Task<UnifiedInfo?>> GetUnifiedPageInfoAsync { get; set; } = null!;
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
@@ -438,13 +438,14 @@ namespace YetaWF.Core.Pages {
             string? oldPaneRendered = Manager.PaneRendered;
             Manager.PaneRendered = pane;
 
-            // copy page's moduleDefinitions
-            List<ModuleEntry> moduleList = (from m in ModuleDefinitions select m).ToList();
+            List<ModuleEntry> moduleList = ModuleDefinitions;
             // add templatepage moduleDefinitions
             if (!Manager.EditMode) {
                 PageDefinition? templatePage = await GetTemplatePageAsync();
-                if (templatePage != null)
+                if (templatePage != null) {
+                    moduleList = ModuleDefinitions.ToList();// copy page's moduleDefinitions
                     moduleList.AddRange(templatePage.ModuleDefinitions);
+                }
             }
 
             // render all modules that are on this pane
