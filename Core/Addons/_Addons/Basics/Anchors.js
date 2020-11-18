@@ -123,7 +123,7 @@ var YetaWF;
                     // this means that it's posted by definition
                     var confirm_2 = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm_2) {
-                        var anchorOwner_1 = $YetaWF.getOwnerFromTag(anchor);
+                        var anchorOwner_1 = $YetaWF.getOwnerFromTag(anchor) || anchor;
                         $YetaWF.alertYesNo(confirm_2, undefined, function () {
                             _this.postLink(url, anchorOwner_1, cookieToReturn);
                             var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
@@ -136,7 +136,7 @@ var YetaWF;
                         var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                         if (s)
                             $YetaWF.pleaseWait(s);
-                        var anchorOwner = $YetaWF.getOwnerFromTag(anchor);
+                        var anchorOwner = $YetaWF.getOwnerFromTag(anchor) || anchor;
                         _this.postLink(url, anchorOwner, cookieToReturn);
                         return false;
                     }

@@ -138,7 +138,7 @@ namespace YetaWF {
                     // this means that it's posted by definition
                     let confirm = anchor.getAttribute(YConfigs.Basics.CssConfirm);
                     if (confirm) {
-                        let anchorOwner = $YetaWF.getOwnerFromTag(anchor);
+                        let anchorOwner = $YetaWF.getOwnerFromTag(anchor) || anchor;
                         $YetaWF.alertYesNo(confirm, undefined, (): void => {
                             this.postLink(url, anchorOwner, cookieToReturn);
                             let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
@@ -150,7 +150,7 @@ namespace YetaWF {
                         let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                         if (s)
                             $YetaWF.pleaseWait(s);
-                        let anchorOwner = $YetaWF.getOwnerFromTag(anchor);
+                        let anchorOwner = $YetaWF.getOwnerFromTag(anchor) || anchor;
                         this.postLink(url, anchorOwner, cookieToReturn);
                         return false;
                     }
