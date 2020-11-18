@@ -160,7 +160,7 @@ namespace YetaWF.Core.Addons {
 
             Manager.AddOnManager.CheckInvokedTemplate(uiHintTemplate);
 
-            int firstIndex = uiHintTemplate.IndexOf("_");
+            int firstIndex = uiHintTemplate.IndexOf("_", StringComparison.Ordinal);
             if (firstIndex < 0) {
                 // standard template
                 await YetaWFCoreRendering.AddTemplateAsync(uiHintTemplate, componentType);

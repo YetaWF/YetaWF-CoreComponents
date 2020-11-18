@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
 
 namespace YetaWF.Core.Extensions {
@@ -68,7 +69,7 @@ namespace YetaWF.Core.Extensions {
             return text.Substring(ix + 1);
         }
         public static string ReplaceFirst(this string text, string search, string replace) {
-            int index = text.IndexOf(search);
+            int index = text.IndexOf(search, StringComparison.Ordinal);
             if (index < 0) return text;
             return text.Substring(0, index) + replace + text.Substring(index + search.Length);
         }

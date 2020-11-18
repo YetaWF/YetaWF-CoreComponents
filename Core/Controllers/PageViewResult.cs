@@ -107,7 +107,6 @@ namespace YetaWF.Core.Controllers {
             string pageHtml = await htmlHelper.ForPageAsync(pageViewName);
 
             Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs
-            pageHtml = ProcessInlineScripts(pageHtml);
 
             await Manager.AddOnManager.AddSkinCustomizationAsync(skinCollection);
 
@@ -137,31 +136,6 @@ namespace YetaWF.Core.Controllers {
 
             byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
-        }
-
-        /// <summary>
-        /// Moves all &lt;script&gt;&lt;/script&gt; snippets to the end of the page.
-        /// </summary>
-        /// <param name="viewHtml">The contents of the view.</param>
-        /// <returns>The contents of the view with all &lt;script&gt;&lt;/script&gt; snippets removed.</returns>
-        /// <remarks>Components and views do NOT generate &lt;script&gt;&lt;/script&gt; tags. They must use Manager.ScriptManager.AddLast instead.
-        /// This is only used to move &lt;script&gt;&lt;/script&gt; sections that were added in YetaWF.Text modules.
-        /// </remarks>
-        internal static string ProcessInlineScripts(string viewHtml) {
-            // code snippets must use <script></script> (without any attributes)
-            int pos = 0;
-            for ( ; ; ) {
-                int index = viewHtml.IndexOf("<script>", pos);
-                if (index < 0)
-                    break;
-                int endIndex = viewHtml.IndexOf("</script>", index + 8);
-                if (endIndex < 0)
-                    throw new InternalError("Missing </script> in view");
-                YetaWFManager.Manager.ScriptManager.AddLast(viewHtml.Substring(index + 8, endIndex - index - 8));
-                viewHtml = viewHtml.Remove(index, endIndex + 9 - index);
-                pos = index;
-            }
-            return viewHtml;
         }
     }
 }

@@ -166,7 +166,7 @@ namespace YetaWF.Core.Models {
         /// <remarks>Language ids can consist of a major and minor portion (for example, "en-US", "en-GB").
         /// Use GetPrimaryLanguage to retrieve the just major portion, i.e., "en".</remarks>
         public static string GetPrimaryLanguage(string language) {
-            int i = language.IndexOf("-");
+            int i = language.IndexOf("-", StringComparison.Ordinal);
             if (i < 0) return language;
             return language.Truncate(i);
         }

@@ -422,7 +422,7 @@ namespace YetaWF.Core.Packages {
                 return Package.CompareVersion(xVersion, yVersion);
             }
             public static void GetComponents(string templateName, out string name, out string version) {
-                int ix = templateName.IndexOf(".");
+                int ix = templateName.IndexOf(".", StringComparison.Ordinal);
                 if (ix < 0) { // template without version
                     name = templateName;
                     version = "";

@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.IO;
 using System.Text;
 using YetaWF.Core.Pages;
@@ -75,12 +76,12 @@ namespace YetaWF.Core.ResponseFilter {
             string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
             for (;;) {
-                int ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimization);
+                int ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimization, StringComparison.Ordinal);
                 if (ix >= 0) {
                     output.Append(ProcessScriptInput(contentInBuffer.Substring(0, ix)));
                     contentInBuffer = contentInBuffer.Substring(ix);
 
-                    ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimizationEnd);
+                    ix = contentInBuffer.IndexOf(Globals.LazyHTMLOptimizationEnd, StringComparison.Ordinal);
                     if (ix >= 0) {
                         ix += Globals.LazyHTMLOptimizationEnd.Length;
                         Aggressive = false;
@@ -107,11 +108,11 @@ namespace YetaWF.Core.ResponseFilter {
             string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
             for (;;) {
-                int ix = contentInBuffer.IndexOf("<script");
+                int ix = contentInBuffer.IndexOf("<script", StringComparison.Ordinal);
                 if (ix >= 0) {
                     output.Append(ProcessTextAreaInput(contentInBuffer.Substring(0, ix)));
                     contentInBuffer = contentInBuffer.Substring(ix);
-                    ix = contentInBuffer.IndexOf("</script>");
+                    ix = contentInBuffer.IndexOf("</script>", StringComparison.Ordinal);
                     if (ix >= 0) {
                         ix += "</script>".Length;
                         string script = ScriptManager.TrimScript(Manager, contentInBuffer.Substring(0, ix));
@@ -138,12 +139,12 @@ namespace YetaWF.Core.ResponseFilter {
             string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
             for (;;) {
-                int ix = contentInBuffer.IndexOf("<textarea");
+                int ix = contentInBuffer.IndexOf("<textarea", StringComparison.Ordinal);
                 if (ix >= 0) {
                     output.Append(ProcessPreInput(contentInBuffer.Substring(0, ix)));
                     contentInBuffer = contentInBuffer.Substring(ix);
 
-                    ix = contentInBuffer.IndexOf("</textarea>");
+                    ix = contentInBuffer.IndexOf("</textarea>", StringComparison.Ordinal);
                     if (ix >= 0) {
                         ix += "</textarea>".Length;
                         output.Append(contentInBuffer.Substring(0, ix));// unmodified
@@ -168,12 +169,12 @@ namespace YetaWF.Core.ResponseFilter {
             string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
             for (;;) {
-                int ix = contentInBuffer.IndexOf("<pre");
+                int ix = contentInBuffer.IndexOf("<pre", StringComparison.Ordinal);
                 if (ix >= 0) {
                     output.Append(ProcessRemainingInput(contentInBuffer.Substring(0, ix)));
                     contentInBuffer = contentInBuffer.Substring(ix);
 
-                    ix = contentInBuffer.IndexOf("</pre>");
+                    ix = contentInBuffer.IndexOf("</pre>", StringComparison.Ordinal);
                     if (ix >= 0) {
                         ix += "</pre>".Length;
                         output.Append(contentInBuffer.Substring(0, ix));// unmodified

@@ -104,7 +104,7 @@ namespace YetaWF.Core.Pages {
         }
 
         private string ReplaceBodyTag(string pageHtml, string bodyExtra) {
-            int index = pageHtml.IndexOf("<body");
+            int index = pageHtml.IndexOf("<body", StringComparison.Ordinal);
             if (index < 0)
                 throw new InternalError("Page without <body> tag");
             int endIndex = pageHtml.IndexOf('>', index + 5);
@@ -113,7 +113,7 @@ namespace YetaWF.Core.Pages {
             return pageHtml.Substring(0, endIndex + 1) + bodyExtra + pageHtml.Substring(endIndex + 1);
         }
         private string ReplaceOnce(string pageHtml, string searchString, string replaceString) {
-            int index = pageHtml.IndexOf(searchString);
+            int index = pageHtml.IndexOf(searchString, StringComparison.Ordinal);
             if (index >= 0) {
                 if (index > 0)
                     pageHtml = pageHtml.Substring(0, index) + replaceString + pageHtml.Substring(index + searchString.Length);

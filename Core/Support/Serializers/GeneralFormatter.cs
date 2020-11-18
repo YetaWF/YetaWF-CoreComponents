@@ -204,13 +204,13 @@ namespace YetaWF.Core.Support.Serializers {
         // Remove some type information that is not needed and normalize it to MVC6
         internal static string UpdateTypeForSerialization(string typeName) {
             int index;
-            for ( ; (index = typeName.IndexOf(", Version=")) >= 0 ; ) {
+            for ( ; (index = typeName.IndexOf(", Version=", StringComparison.Ordinal)) >= 0 ; ) {
                 typeName = typeName.RemoveUpTo(index, index + ", Version=".Length, EndChars);
             }
-            for ( ; (index = typeName.IndexOf(", Culture=")) >= 0 ; ) {
+            for ( ; (index = typeName.IndexOf(", Culture=", StringComparison.Ordinal)) >= 0 ; ) {
                 typeName = typeName.RemoveUpTo(index, index + ", Culture=".Length, EndChars);
             }
-            for ( ; (index = typeName.IndexOf(", PublicKeyToken=")) >= 0 ; ) {
+            for ( ; (index = typeName.IndexOf(", PublicKeyToken=", StringComparison.Ordinal)) >= 0 ; ) {
                 typeName = typeName.RemoveUpTo(index, index + ", PublicKeyToken=".Length, EndChars);
             }
             typeName = typeName.Replace(", mscorlib", ", System.Private.CoreLib"); // (MVC5) used for system.string, replace with MVC6 equivalent (standard is MVC6)

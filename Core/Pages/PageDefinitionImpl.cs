@@ -349,7 +349,7 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         public static async Task<PageDefinition?> LoadFromUrlAsync(string url) {
             if (!url.StartsWith("/")) throw new InternalError("Not a local Url");
-            int index = url.IndexOf("?");
+            int index = url.IndexOf("?", StringComparison.Ordinal);
             if (index >= 0) url = url.Truncate(index);
             PageUrlInfo pageInfo = await GetPageUrlFromUrlWithSegmentsAsync(Utility.UrlDecodePath(url), "");
             return pageInfo.Page;
@@ -580,7 +580,6 @@ namespace YetaWF.Core.Pages {
                     return;
                 }
 
-                paneHtml = PageViewResult.ProcessInlineScripts(paneHtml);
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
